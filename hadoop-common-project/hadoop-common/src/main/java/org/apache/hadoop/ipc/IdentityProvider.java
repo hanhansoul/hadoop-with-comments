@@ -29,10 +29,10 @@ import org.apache.hadoop.classification.InterfaceAudience;
  */
 @InterfaceAudience.Private
 public interface IdentityProvider {
-  /**
-   * Return the string used for scheduling.
-   * @param obj the schedulable to use.
-   * @return string identity, or null if no identity could be made.
-   */
-  public String makeIdentity(Schedulable obj);
+    /**
+     * Return the string used for scheduling.
+     * @param obj the schedulable to use.
+     * @return string identity, or null if no identity could be made.
+     */
+    public String makeIdentity(Schedulable obj);
 }

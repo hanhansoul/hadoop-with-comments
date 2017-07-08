@@ -45,70 +45,69 @@ import java.util.Map;
  */
 public class AuthenticationFilterInitializer extends FilterInitializer {
 
-  static final String PREFIX = "hadoop.http.authentication.";
+    static final String PREFIX = "hadoop.http.authentication.";
 
-  static final String SIGNATURE_SECRET_FILE = AuthenticationFilter.SIGNATURE_SECRET + ".file";
+    static final String SIGNATURE_SECRET_FILE = AuthenticationFilter.SIGNATURE_SECRET + ".file";
 
-  /**
-   * Initializes hadoop-auth AuthenticationFilter.
-   * <p/>
-   * Propagates to hadoop-auth AuthenticationFilter configuration all Hadoop
-   * configuration properties prefixed with "hadoop.http.authentication."
-   *
-   * @param container The filter container
-   * @param conf Configuration for run-time parameters
-   */
-  @Override
-  public void initFilter(FilterContainer container, Configuration conf) {
-    Map<String, String> filterConfig = new HashMap<String, String>();
+    /**
+     * Initializes hadoop-auth AuthenticationFilter.
+     * <p/>
+     * Propagates to hadoop-auth AuthenticationFilter configuration all Hadoop
+     * configuration properties prefixed with "hadoop.http.authentication."
+     *
+     * @param container The filter container
+     * @param conf Configuration for run-time parameters
+     */
+    @Override
+    public void initFilter(FilterContainer container, Configuration conf) {
+        Map<String, String> filterConfig = new HashMap<String, String>();
 
-    //setting the cookie path to root '/' so it is used for all resources.
-    filterConfig.put(AuthenticationFilter.COOKIE_PATH, "/");
+        //setting the cookie path to root '/' so it is used for all resources.
+        filterConfig.put(AuthenticationFilter.COOKIE_PATH, "/");
 
-    for (Map.Entry<String, String> entry : conf) {
-      String name = entry.getKey();
-      if (name.startsWith(PREFIX)) {
-        String value = conf.get(name);
-        name = name.substring(PREFIX.length());
-        filterConfig.put(name, value);
-      }
+        for (Map.Entry<String, String> entry : conf) {
+            String name = entry.getKey();
+            if (name.startsWith(PREFIX)) {
+                String value = conf.get(name);
+                name = name.substring(PREFIX.length());
+                filterConfig.put(name, value);
+            }
+        }
+
+        String signatureSecretFile = filterConfig.get(SIGNATURE_SECRET_FILE);
+        if (signatureSecretFile == null) {
+            throw new RuntimeException("Undefined property: " + SIGNATURE_SECRET_FILE);
+        }
+
+        try {
+            StringBuilder secret = new StringBuilder();
+            Reader reader = new FileReader(signatureSecretFile);
+            int c = reader.read();
+            while (c > -1) {
+                secret.append((char)c);
+                c = reader.read();
+            }
+            reader.close();
+            filterConfig.put(AuthenticationFilter.SIGNATURE_SECRET, secret.toString());
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not read HTTP signature secret file: " + signatureSecretFile);
+        }
+
+        //Resolve _HOST into bind address
+        String bindAddress = conf.get(HttpServer2.BIND_ADDRESS);
+        String principal = filterConfig.get(KerberosAuthenticationHandler.PRINCIPAL);
+        if (principal != null) {
+            try {
+                principal = SecurityUtil.getServerPrincipal(principal, bindAddress);
+            } catch (IOException ex) {
+                throw new RuntimeException("Could not resolve Kerberos principal name: " + ex.toString(), ex);
+            }
+            filterConfig.put(KerberosAuthenticationHandler.PRINCIPAL, principal);
+        }
+
+        container.addFilter("authentication",
+                            AuthenticationFilter.class.getName(),
+                            filterConfig);
     }
-
-    String signatureSecretFile = filterConfig.get(SIGNATURE_SECRET_FILE);
-    if (signatureSecretFile == null) {
-      throw new RuntimeException("Undefined property: " + SIGNATURE_SECRET_FILE);      
-    }
-    
-    try {
-      StringBuilder secret = new StringBuilder();
-      Reader reader = new FileReader(signatureSecretFile);
-      int c = reader.read();
-      while (c > -1) {
-        secret.append((char)c);
-        c = reader.read();
-      }
-      reader.close();
-      filterConfig.put(AuthenticationFilter.SIGNATURE_SECRET, secret.toString());
-    } catch (IOException ex) {
-      throw new RuntimeException("Could not read HTTP signature secret file: " + signatureSecretFile);            
-    }
-
-    //Resolve _HOST into bind address
-    String bindAddress = conf.get(HttpServer2.BIND_ADDRESS);
-    String principal = filterConfig.get(KerberosAuthenticationHandler.PRINCIPAL);
-    if (principal != null) {
-      try {
-        principal = SecurityUtil.getServerPrincipal(principal, bindAddress);
-      }
-      catch (IOException ex) {
-        throw new RuntimeException("Could not resolve Kerberos principal name: " + ex.toString(), ex);
-      }
-      filterConfig.put(KerberosAuthenticationHandler.PRINCIPAL, principal);
-    }
-
-    container.addFilter("authentication",
-                        AuthenticationFilter.class.getName(),
-                        filterConfig);
-  }
 
 }

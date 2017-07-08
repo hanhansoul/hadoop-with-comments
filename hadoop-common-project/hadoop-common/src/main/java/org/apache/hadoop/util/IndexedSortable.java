@@ -28,14 +28,14 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Unstable
 public interface IndexedSortable {
 
-  /**
-   * Compare items at the given addresses consistent with the semantics of
-   * {@link java.util.Comparator#compare(Object, Object)}.
-   */
-  int compare(int i, int j);
+    /**
+     * Compare items at the given addresses consistent with the semantics of
+     * {@link java.util.Comparator#compare(Object, Object)}.
+     */
+    int compare(int i, int j);
 
-  /**
-   * Swap items at the given addresses.
-   */
-  void swap(int i, int j);
+    /**
+     * Swap items at the given addresses.
+     */
+    void swap(int i, int j);
 }

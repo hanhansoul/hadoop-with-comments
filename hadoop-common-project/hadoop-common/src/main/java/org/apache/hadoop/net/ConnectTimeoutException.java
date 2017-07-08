@@ -29,9 +29,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class ConnectTimeoutException extends SocketTimeoutException {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public ConnectTimeoutException(String msg) {
-    super(msg);
-  }
+    public ConnectTimeoutException(String msg) {
+        super(msg);
+    }
 }

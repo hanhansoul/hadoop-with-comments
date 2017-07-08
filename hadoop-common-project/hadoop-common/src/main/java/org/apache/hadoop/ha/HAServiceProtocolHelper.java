@@ -31,33 +31,33 @@ import org.apache.hadoop.ipc.RemoteException;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class HAServiceProtocolHelper {
-  public static void monitorHealth(HAServiceProtocol svc,
-      StateChangeRequestInfo reqInfo)
-      throws IOException {
-    try {
-      svc.monitorHealth();
-    } catch (RemoteException e) {
-      throw e.unwrapRemoteException(HealthCheckFailedException.class);
+    public static void monitorHealth(HAServiceProtocol svc,
+                                     StateChangeRequestInfo reqInfo)
+    throws IOException {
+        try {
+            svc.monitorHealth();
+        } catch (RemoteException e) {
+            throw e.unwrapRemoteException(HealthCheckFailedException.class);
+        }
     }
-  }
 
-  public static void transitionToActive(HAServiceProtocol svc,
-      StateChangeRequestInfo reqInfo)
-      throws IOException {
-    try {
-      svc.transitionToActive(reqInfo);
-    } catch (RemoteException e) {
-      throw e.unwrapRemoteException(ServiceFailedException.class);
+    public static void transitionToActive(HAServiceProtocol svc,
+                                          StateChangeRequestInfo reqInfo)
+    throws IOException {
+        try {
+            svc.transitionToActive(reqInfo);
+        } catch (RemoteException e) {
+            throw e.unwrapRemoteException(ServiceFailedException.class);
+        }
     }
-  }
 
-  public static void transitionToStandby(HAServiceProtocol svc,
-      StateChangeRequestInfo reqInfo)
-      throws IOException {
-    try {
-      svc.transitionToStandby(reqInfo);
-    } catch (RemoteException e) {
-      throw e.unwrapRemoteException(ServiceFailedException.class);
+    public static void transitionToStandby(HAServiceProtocol svc,
+                                           StateChangeRequestInfo reqInfo)
+    throws IOException {
+        try {
+            svc.transitionToStandby(reqInfo);
+        } catch (RemoteException e) {
+            throw e.unwrapRemoteException(ServiceFailedException.class);
+        }
     }
-  }
 }

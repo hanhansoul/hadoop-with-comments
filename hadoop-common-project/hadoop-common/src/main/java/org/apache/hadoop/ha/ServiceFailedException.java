@@ -30,13 +30,13 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class ServiceFailedException extends IOException {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public ServiceFailedException(final String message) {
-    super(message);
-  }
-  
-  public ServiceFailedException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ServiceFailedException(final String message) {
+        super(message);
+    }
+
+    public ServiceFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

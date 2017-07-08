@@ -33,16 +33,16 @@ import org.apache.hadoop.security.KerberosInfo;
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
 @InterfaceStability.Evolving
 public interface RefreshAuthorizationPolicyProtocol {
-  
-  /**
-   * Version 1: Initial version
-   */
-  public static final long versionID = 1L;
 
-  /**
-   * Refresh the service-level authorization policy in-effect.
-   * @throws IOException
-   */
-  @Idempotent
-  void refreshServiceAcl() throws IOException;
+    /**
+     * Version 1: Initial version
+     */
+    public static final long versionID = 1L;
+
+    /**
+     * Refresh the service-level authorization policy in-effect.
+     * @throws IOException
+     */
+    @Idempotent
+    void refreshServiceAcl() throws IOException;
 }

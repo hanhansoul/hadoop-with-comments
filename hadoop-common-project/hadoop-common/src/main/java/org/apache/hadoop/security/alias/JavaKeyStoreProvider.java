@@ -39,67 +39,67 @@ import org.apache.hadoop.fs.permission.FsPermission;
  */
 @InterfaceAudience.Private
 public class JavaKeyStoreProvider extends AbstractJavaKeyStoreProvider {
-  public static final String SCHEME_NAME = "jceks";
+    public static final String SCHEME_NAME = "jceks";
 
-  private FileSystem fs;
-  private FsPermission permissions;
+    private FileSystem fs;
+    private FsPermission permissions;
 
-  private JavaKeyStoreProvider(URI uri, Configuration conf)
-      throws IOException {
-    super(uri, conf);
-  }
-
-  @Override
-  protected String getSchemeName() {
-    return SCHEME_NAME;
-  }
-
-  @Override
-  protected OutputStream getOutputStreamForKeystore() throws IOException {
-    FSDataOutputStream out = FileSystem.create(fs, getPath(), permissions);
-    return out;
-  }
-
-  @Override
-  protected boolean keystoreExists() throws IOException {
-    return fs.exists(getPath());
-  }
-
-  @Override
-  protected InputStream getInputStreamForFile() throws IOException {
-    return fs.open(getPath());
-  }
-
-  @Override
-  protected void createPermissions(String perms) {
-    permissions = new FsPermission(perms);
-  }
-
-  @Override
-  protected void stashOriginalFilePermissions() throws IOException {
-    // save off permissions in case we need to
-    // rewrite the keystore in flush()
-    FileStatus s = fs.getFileStatus(getPath());
-    permissions = s.getPermission();
-  }
-
-  protected void initFileSystem(URI uri, Configuration conf)
-      throws IOException {
-    super.initFileSystem(uri, conf);
-    fs = getPath().getFileSystem(conf);
-  }
-
-  /**
-   * The factory to create JksProviders, which is used by the ServiceLoader.
-   */
-  public static class Factory extends CredentialProviderFactory {
-    @Override
-    public CredentialProvider createProvider(URI providerName,
-        Configuration conf) throws IOException {
-      if (SCHEME_NAME.equals(providerName.getScheme())) {
-        return new JavaKeyStoreProvider(providerName, conf);
-      }
-      return null;
+    private JavaKeyStoreProvider(URI uri, Configuration conf)
+    throws IOException {
+        super(uri, conf);
     }
-  }
+
+    @Override
+    protected String getSchemeName() {
+        return SCHEME_NAME;
+    }
+
+    @Override
+    protected OutputStream getOutputStreamForKeystore() throws IOException {
+        FSDataOutputStream out = FileSystem.create(fs, getPath(), permissions);
+        return out;
+    }
+
+    @Override
+    protected boolean keystoreExists() throws IOException {
+        return fs.exists(getPath());
+    }
+
+    @Override
+    protected InputStream getInputStreamForFile() throws IOException {
+        return fs.open(getPath());
+    }
+
+    @Override
+    protected void createPermissions(String perms) {
+        permissions = new FsPermission(perms);
+    }
+
+    @Override
+    protected void stashOriginalFilePermissions() throws IOException {
+        // save off permissions in case we need to
+        // rewrite the keystore in flush()
+        FileStatus s = fs.getFileStatus(getPath());
+        permissions = s.getPermission();
+    }
+
+    protected void initFileSystem(URI uri, Configuration conf)
+    throws IOException {
+        super.initFileSystem(uri, conf);
+        fs = getPath().getFileSystem(conf);
+    }
+
+    /**
+     * The factory to create JksProviders, which is used by the ServiceLoader.
+     */
+    public static class Factory extends CredentialProviderFactory {
+        @Override
+        public CredentialProvider createProvider(URI providerName,
+                Configuration conf) throws IOException {
+            if (SCHEME_NAME.equals(providerName.getScheme())) {
+                return new JavaKeyStoreProvider(providerName, conf);
+            }
+            return null;
+        }
+    }
 }

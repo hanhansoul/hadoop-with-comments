@@ -33,16 +33,16 @@ import org.apache.hadoop.security.KerberosInfo;
 @InterfaceAudience.LimitedPrivate({"HDFS"})
 @InterfaceStability.Evolving
 public interface RefreshCallQueueProtocol {
-  
-  /**
-   * Version 1: Initial version
-   */
-  public static final long versionID = 1L;
 
-  /**
-   * Refresh the callqueue.
-   * @throws IOException
-   */
-  @Idempotent
-  void refreshCallQueue() throws IOException;
+    /**
+     * Version 1: Initial version
+     */
+    public static final long versionID = 1L;
+
+    /**
+     * Refresh the callqueue.
+     * @throws IOException
+     */
+    @Idempotent
+    void refreshCallQueue() throws IOException;
 }

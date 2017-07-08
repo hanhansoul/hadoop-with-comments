@@ -28,10 +28,10 @@ import org.apache.hadoop.ipc.proto.RefreshCallQueueProtocolProtos.RefreshCallQue
 @KerberosInfo(
     serverPrincipal=CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY)
 @ProtocolInfo(
-    protocolName = "org.apache.hadoop.ipc.RefreshCallQueueProtocol", 
+    protocolName = "org.apache.hadoop.ipc.RefreshCallQueueProtocol",
     protocolVersion = 1)
 @InterfaceAudience.LimitedPrivate({"HDFS"})
 @InterfaceStability.Evolving
 public interface RefreshCallQueueProtocolPB extends
-  RefreshCallQueueProtocolService.BlockingInterface {
+    RefreshCallQueueProtocolService.BlockingInterface {
 }

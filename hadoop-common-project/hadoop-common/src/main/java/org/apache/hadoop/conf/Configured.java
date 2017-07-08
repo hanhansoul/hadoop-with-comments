@@ -26,28 +26,28 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Stable
 public class Configured implements Configurable {
 
-  private Configuration conf;
+    private Configuration conf;
 
-  /** Construct a Configured. */
-  public Configured() {
-    this(null);
-  }
-  
-  /** Construct a Configured. */
-  public Configured(Configuration conf) {
-    setConf(conf);
-  }
+    /** Construct a Configured. */
+    public Configured() {
+        this(null);
+    }
 
-  // inherit javadoc
-  @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
+    /** Construct a Configured. */
+    public Configured(Configuration conf) {
+        setConf(conf);
+    }
 
-  // inherit javadoc
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
+    // inherit javadoc
+    @Override
+    public void setConf(Configuration conf) {
+        this.conf = conf;
+    }
+
+    // inherit javadoc
+    @Override
+    public Configuration getConf() {
+        return conf;
+    }
 
 }

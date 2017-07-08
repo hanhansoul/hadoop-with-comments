@@ -41,98 +41,98 @@ import org.apache.hadoop.io.serializer.Serializer;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public abstract class AvroSerialization<T> extends Configured 
-	implements Serialization<T>{
-  
-  @InterfaceAudience.Private
-  public static final String AVRO_SCHEMA_KEY = "Avro-Schema";
+public abstract class AvroSerialization<T> extends Configured
+    implements Serialization<T> {
 
-  @Override
-  @InterfaceAudience.Private
-  public Deserializer<T> getDeserializer(Class<T> c) {
-    return new AvroDeserializer(c);
-  }
+    @InterfaceAudience.Private
+    public static final String AVRO_SCHEMA_KEY = "Avro-Schema";
 
-  @Override
-  @InterfaceAudience.Private
-  public Serializer<T> getSerializer(Class<T> c) {
-    return new AvroSerializer(c);
-  }
-
-  /**
-   * Return an Avro Schema instance for the given class.
-   */
-  @InterfaceAudience.Private
-  public abstract Schema getSchema(T t);
-
-  /**
-   * Create and return Avro DatumWriter for the given class.
-   */
-  @InterfaceAudience.Private
-  public abstract DatumWriter<T> getWriter(Class<T> clazz);
-
-  /**
-   * Create and return Avro DatumReader for the given class.
-   */
-  @InterfaceAudience.Private
-  public abstract DatumReader<T> getReader(Class<T> clazz);
-
-  class AvroSerializer implements Serializer<T> {
-
-    private DatumWriter<T> writer;
-    private BinaryEncoder encoder;
-    private OutputStream outStream;
-
-    AvroSerializer(Class<T> clazz) {
-      this.writer = getWriter(clazz);
+    @Override
+    @InterfaceAudience.Private
+    public Deserializer<T> getDeserializer(Class<T> c) {
+        return new AvroDeserializer(c);
     }
 
     @Override
-    public void close() throws IOException {
-      encoder.flush();
-      outStream.close();
+    @InterfaceAudience.Private
+    public Serializer<T> getSerializer(Class<T> c) {
+        return new AvroSerializer(c);
     }
 
-    @Override
-    public void open(OutputStream out) throws IOException {
-      outStream = out;
-      encoder = EncoderFactory.get().binaryEncoder(out, encoder);
+    /**
+     * Return an Avro Schema instance for the given class.
+     */
+    @InterfaceAudience.Private
+    public abstract Schema getSchema(T t);
+
+    /**
+     * Create and return Avro DatumWriter for the given class.
+     */
+    @InterfaceAudience.Private
+    public abstract DatumWriter<T> getWriter(Class<T> clazz);
+
+    /**
+     * Create and return Avro DatumReader for the given class.
+     */
+    @InterfaceAudience.Private
+    public abstract DatumReader<T> getReader(Class<T> clazz);
+
+    class AvroSerializer implements Serializer<T> {
+
+        private DatumWriter<T> writer;
+        private BinaryEncoder encoder;
+        private OutputStream outStream;
+
+        AvroSerializer(Class<T> clazz) {
+            this.writer = getWriter(clazz);
+        }
+
+        @Override
+        public void close() throws IOException {
+            encoder.flush();
+            outStream.close();
+        }
+
+        @Override
+        public void open(OutputStream out) throws IOException {
+            outStream = out;
+            encoder = EncoderFactory.get().binaryEncoder(out, encoder);
+        }
+
+        @Override
+        public void serialize(T t) throws IOException {
+            writer.setSchema(getSchema(t));
+            writer.write(t, encoder);
+        }
+
     }
 
-    @Override
-    public void serialize(T t) throws IOException {
-      writer.setSchema(getSchema(t));
-      writer.write(t, encoder);
+    class AvroDeserializer implements Deserializer<T> {
+
+        private DatumReader<T> reader;
+        private BinaryDecoder decoder;
+        private InputStream inStream;
+
+        AvroDeserializer(Class<T> clazz) {
+            this.reader = getReader(clazz);
+        }
+
+        @Override
+        public void close() throws IOException {
+            inStream.close();
+        }
+
+        @Override
+        public T deserialize(T t) throws IOException {
+            return reader.read(t, decoder);
+        }
+
+        @Override
+        public void open(InputStream in) throws IOException {
+            inStream = in;
+            decoder = DecoderFactory.get().binaryDecoder(in, decoder);
+        }
+
     }
-
-  }
-
-  class AvroDeserializer implements Deserializer<T> {
-
-    private DatumReader<T> reader;
-    private BinaryDecoder decoder;
-    private InputStream inStream;
-
-    AvroDeserializer(Class<T> clazz) {
-      this.reader = getReader(clazz);
-    }
-
-    @Override
-    public void close() throws IOException {
-      inStream.close();
-    }
-
-    @Override
-    public T deserialize(T t) throws IOException {
-      return reader.read(t, decoder);
-    }
-
-    @Override
-    public void open(InputStream in) throws IOException {
-      inStream = in;
-      decoder = DecoderFactory.get().binaryDecoder(in, decoder);
-    }
-
-  }
 
 }

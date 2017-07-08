@@ -80,765 +80,765 @@ import com.google.common.base.Preconditions;
 public class KMSClientProvider extends KeyProvider implements CryptoExtension,
     KeyProviderDelegationTokenExtension.DelegationTokenExtension {
 
-  private static final String ANONYMOUS_REQUESTS_DISALLOWED = "Anonymous requests are disallowed";
+    private static final String ANONYMOUS_REQUESTS_DISALLOWED = "Anonymous requests are disallowed";
 
-  public static final String TOKEN_KIND = "kms-dt";
+    public static final String TOKEN_KIND = "kms-dt";
 
-  public static final String SCHEME_NAME = "kms";
+    public static final String SCHEME_NAME = "kms";
 
-  private static final String UTF8 = "UTF-8";
+    private static final String UTF8 = "UTF-8";
 
-  private static final String CONTENT_TYPE = "Content-Type";
-  private static final String APPLICATION_JSON_MIME = "application/json";
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String APPLICATION_JSON_MIME = "application/json";
 
-  private static final String HTTP_GET = "GET";
-  private static final String HTTP_POST = "POST";
-  private static final String HTTP_PUT = "PUT";
-  private static final String HTTP_DELETE = "DELETE";
+    private static final String HTTP_GET = "GET";
+    private static final String HTTP_POST = "POST";
+    private static final String HTTP_PUT = "PUT";
+    private static final String HTTP_DELETE = "DELETE";
 
 
-  private static final String CONFIG_PREFIX = "hadoop.security.kms.client.";
+    private static final String CONFIG_PREFIX = "hadoop.security.kms.client.";
 
-  /* It's possible to specify a timeout, in seconds, in the config file */
-  public static final String TIMEOUT_ATTR = CONFIG_PREFIX + "timeout";
-  public static final int DEFAULT_TIMEOUT = 60;
+    /* It's possible to specify a timeout, in seconds, in the config file */
+    public static final String TIMEOUT_ATTR = CONFIG_PREFIX + "timeout";
+    public static final int DEFAULT_TIMEOUT = 60;
 
-  /* Number of times to retry authentication in the event of auth failure
-   * (normally happens due to stale authToken) 
-   */
-  public static final String AUTH_RETRY = CONFIG_PREFIX
-      + "authentication.retry-count";
-  public static final int DEFAULT_AUTH_RETRY = 1;
+    /* Number of times to retry authentication in the event of auth failure
+     * (normally happens due to stale authToken)
+     */
+    public static final String AUTH_RETRY = CONFIG_PREFIX
+                                            + "authentication.retry-count";
+    public static final int DEFAULT_AUTH_RETRY = 1;
 
-  private final ValueQueue<EncryptedKeyVersion> encKeyVersionQueue;
+    private final ValueQueue<EncryptedKeyVersion> encKeyVersionQueue;
 
-  private class EncryptedQueueRefiller implements
-    ValueQueue.QueueRefiller<EncryptedKeyVersion> {
+    private class EncryptedQueueRefiller implements
+        ValueQueue.QueueRefiller<EncryptedKeyVersion> {
 
-    @Override
-    public void fillQueueForKey(String keyName,
-        Queue<EncryptedKeyVersion> keyQueue, int numEKVs) throws IOException {
-      checkNotNull(keyName, "keyName");
-      Map<String, String> params = new HashMap<String, String>();
-      params.put(KMSRESTConstants.EEK_OP, KMSRESTConstants.EEK_GENERATE);
-      params.put(KMSRESTConstants.EEK_NUM_KEYS, "" + numEKVs);
-      URL url = createURL(KMSRESTConstants.KEY_RESOURCE, keyName,
-          KMSRESTConstants.EEK_SUB_RESOURCE, params);
-      HttpURLConnection conn = createConnection(url, HTTP_GET);
-      conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
-      List response = call(conn, null,
-          HttpURLConnection.HTTP_OK, List.class);
-      List<EncryptedKeyVersion> ekvs =
-          parseJSONEncKeyVersion(keyName, response);
-      keyQueue.addAll(ekvs);
+        @Override
+        public void fillQueueForKey(String keyName,
+                                    Queue<EncryptedKeyVersion> keyQueue, int numEKVs) throws IOException {
+            checkNotNull(keyName, "keyName");
+            Map<String, String> params = new HashMap<String, String>();
+            params.put(KMSRESTConstants.EEK_OP, KMSRESTConstants.EEK_GENERATE);
+            params.put(KMSRESTConstants.EEK_NUM_KEYS, "" + numEKVs);
+            URL url = createURL(KMSRESTConstants.KEY_RESOURCE, keyName,
+                                KMSRESTConstants.EEK_SUB_RESOURCE, params);
+            HttpURLConnection conn = createConnection(url, HTTP_GET);
+            conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
+            List response = call(conn, null,
+                                 HttpURLConnection.HTTP_OK, List.class);
+            List<EncryptedKeyVersion> ekvs =
+                parseJSONEncKeyVersion(keyName, response);
+            keyQueue.addAll(ekvs);
+        }
     }
-  }
 
-  public static class KMSEncryptedKeyVersion extends EncryptedKeyVersion {
-    public KMSEncryptedKeyVersion(String keyName, String keyVersionName,
-        byte[] iv, String encryptedVersionName, byte[] keyMaterial) {
-      super(keyName, keyVersionName, iv, new KMSKeyVersion(null,
-          encryptedVersionName, keyMaterial));
+    public static class KMSEncryptedKeyVersion extends EncryptedKeyVersion {
+        public KMSEncryptedKeyVersion(String keyName, String keyVersionName,
+                                      byte[] iv, String encryptedVersionName, byte[] keyMaterial) {
+            super(keyName, keyVersionName, iv, new KMSKeyVersion(null,
+                    encryptedVersionName, keyMaterial));
+        }
     }
-  }
 
-  @SuppressWarnings("rawtypes")
-  private static List<EncryptedKeyVersion>
-      parseJSONEncKeyVersion(String keyName, List valueList) {
-    List<EncryptedKeyVersion> ekvs = new LinkedList<EncryptedKeyVersion>();
-    if (!valueList.isEmpty()) {
-      for (Object values : valueList) {
-        Map valueMap = (Map) values;
+    @SuppressWarnings("rawtypes")
+    private static List<EncryptedKeyVersion>
+    parseJSONEncKeyVersion(String keyName, List valueList) {
+        List<EncryptedKeyVersion> ekvs = new LinkedList<EncryptedKeyVersion>();
+        if (!valueList.isEmpty()) {
+            for (Object values : valueList) {
+                Map valueMap = (Map) values;
 
-        String versionName = checkNotNull(
-                (String) valueMap.get(KMSRESTConstants.VERSION_NAME_FIELD),
-                KMSRESTConstants.VERSION_NAME_FIELD);
+                String versionName = checkNotNull(
+                                         (String) valueMap.get(KMSRESTConstants.VERSION_NAME_FIELD),
+                                         KMSRESTConstants.VERSION_NAME_FIELD);
 
-        byte[] iv = Base64.decodeBase64(checkNotNull(
-                (String) valueMap.get(KMSRESTConstants.IV_FIELD),
-                KMSRESTConstants.IV_FIELD));
+                byte[] iv = Base64.decodeBase64(checkNotNull(
+                                                    (String) valueMap.get(KMSRESTConstants.IV_FIELD),
+                                                    KMSRESTConstants.IV_FIELD));
 
-        Map encValueMap = checkNotNull((Map)
-                valueMap.get(KMSRESTConstants.ENCRYPTED_KEY_VERSION_FIELD),
-                KMSRESTConstants.ENCRYPTED_KEY_VERSION_FIELD);
+                Map encValueMap = checkNotNull((Map)
+                                               valueMap.get(KMSRESTConstants.ENCRYPTED_KEY_VERSION_FIELD),
+                                               KMSRESTConstants.ENCRYPTED_KEY_VERSION_FIELD);
 
-        String encVersionName = checkNotNull((String)
-                encValueMap.get(KMSRESTConstants.VERSION_NAME_FIELD),
-                KMSRESTConstants.VERSION_NAME_FIELD);
+                String encVersionName = checkNotNull((String)
+                                                     encValueMap.get(KMSRESTConstants.VERSION_NAME_FIELD),
+                                                     KMSRESTConstants.VERSION_NAME_FIELD);
 
-        byte[] encKeyMaterial = Base64.decodeBase64(checkNotNull((String)
-                encValueMap.get(KMSRESTConstants.MATERIAL_FIELD),
-                KMSRESTConstants.MATERIAL_FIELD));
+                byte[] encKeyMaterial = Base64.decodeBase64(checkNotNull((String)
+                                        encValueMap.get(KMSRESTConstants.MATERIAL_FIELD),
+                                        KMSRESTConstants.MATERIAL_FIELD));
 
-        ekvs.add(new KMSEncryptedKeyVersion(keyName, versionName, iv,
-            encVersionName, encKeyMaterial));
-      }
+                ekvs.add(new KMSEncryptedKeyVersion(keyName, versionName, iv,
+                                                    encVersionName, encKeyMaterial));
+            }
+        }
+        return ekvs;
     }
-    return ekvs;
-  }
 
-  private static KeyVersion parseJSONKeyVersion(Map valueMap) {
-    KeyVersion keyVersion = null;
-    if (!valueMap.isEmpty()) {
-      byte[] material = (valueMap.containsKey(KMSRESTConstants.MATERIAL_FIELD))
-          ? Base64.decodeBase64((String) valueMap.get(KMSRESTConstants.MATERIAL_FIELD))
-          : null;
-      String versionName = (String)valueMap.get(KMSRESTConstants.VERSION_NAME_FIELD);
-      String keyName = (String)valueMap.get(KMSRESTConstants.NAME_FIELD);
-      keyVersion = new KMSKeyVersion(keyName, versionName, material);
+    private static KeyVersion parseJSONKeyVersion(Map valueMap) {
+        KeyVersion keyVersion = null;
+        if (!valueMap.isEmpty()) {
+            byte[] material = (valueMap.containsKey(KMSRESTConstants.MATERIAL_FIELD))
+                              ? Base64.decodeBase64((String) valueMap.get(KMSRESTConstants.MATERIAL_FIELD))
+                              : null;
+            String versionName = (String)valueMap.get(KMSRESTConstants.VERSION_NAME_FIELD);
+            String keyName = (String)valueMap.get(KMSRESTConstants.NAME_FIELD);
+            keyVersion = new KMSKeyVersion(keyName, versionName, material);
+        }
+        return keyVersion;
     }
-    return keyVersion;
-  }
 
-  @SuppressWarnings("unchecked")
-  private static Metadata parseJSONMetadata(Map valueMap) {
-    Metadata metadata = null;
-    if (!valueMap.isEmpty()) {
-      metadata = new KMSMetadata(
-          (String) valueMap.get(KMSRESTConstants.CIPHER_FIELD),
-          (Integer) valueMap.get(KMSRESTConstants.LENGTH_FIELD),
-          (String) valueMap.get(KMSRESTConstants.DESCRIPTION_FIELD),
-          (Map<String, String>) valueMap.get(KMSRESTConstants.ATTRIBUTES_FIELD),
-          new Date((Long) valueMap.get(KMSRESTConstants.CREATED_FIELD)),
-          (Integer) valueMap.get(KMSRESTConstants.VERSIONS_FIELD));
+    @SuppressWarnings("unchecked")
+    private static Metadata parseJSONMetadata(Map valueMap) {
+        Metadata metadata = null;
+        if (!valueMap.isEmpty()) {
+            metadata = new KMSMetadata(
+                (String) valueMap.get(KMSRESTConstants.CIPHER_FIELD),
+                (Integer) valueMap.get(KMSRESTConstants.LENGTH_FIELD),
+                (String) valueMap.get(KMSRESTConstants.DESCRIPTION_FIELD),
+                (Map<String, String>) valueMap.get(KMSRESTConstants.ATTRIBUTES_FIELD),
+                new Date((Long) valueMap.get(KMSRESTConstants.CREATED_FIELD)),
+                (Integer) valueMap.get(KMSRESTConstants.VERSIONS_FIELD));
+        }
+        return metadata;
     }
-    return metadata;
-  }
 
-  private static void writeJson(Map map, OutputStream os) throws IOException {
-    Writer writer = new OutputStreamWriter(os);
-    ObjectMapper jsonMapper = new ObjectMapper();
-    jsonMapper.writerWithDefaultPrettyPrinter().writeValue(writer, map);
-  }
+    private static void writeJson(Map map, OutputStream os) throws IOException {
+        Writer writer = new OutputStreamWriter(os);
+        ObjectMapper jsonMapper = new ObjectMapper();
+        jsonMapper.writerWithDefaultPrettyPrinter().writeValue(writer, map);
+    }
 
-  /**
-   * The factory to create KMSClientProvider, which is used by the
-   * ServiceLoader.
-   */
-  public static class Factory extends KeyProviderFactory {
+    /**
+     * The factory to create KMSClientProvider, which is used by the
+     * ServiceLoader.
+     */
+    public static class Factory extends KeyProviderFactory {
 
-    @Override
-    public KeyProvider createProvider(URI providerName, Configuration conf)
+        @Override
+        public KeyProvider createProvider(URI providerName, Configuration conf)
         throws IOException {
-      if (SCHEME_NAME.equals(providerName.getScheme())) {
-        return new KMSClientProvider(providerName, conf);
-      }
-      return null;
-    }
-  }
-
-  public static <T> T checkNotNull(T o, String name)
-      throws IllegalArgumentException {
-    if (o == null) {
-      throw new IllegalArgumentException("Parameter '" + name +
-          "' cannot be null");
-    }
-    return o;
-  }
-
-  public static String checkNotEmpty(String s, String name)
-      throws IllegalArgumentException {
-    checkNotNull(s, name);
-    if (s.isEmpty()) {
-      throw new IllegalArgumentException("Parameter '" + name +
-          "' cannot be empty");
-    }
-    return s;
-  }
-
-  private String kmsUrl;
-  private SSLFactory sslFactory;
-  private ConnectionConfigurator configurator;
-  private DelegationTokenAuthenticatedURL.Token authToken;
-  private final int authRetry;
-  private final UserGroupInformation actualUgi;
-
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder("KMSClientProvider[");
-    sb.append(kmsUrl).append("]");
-    return sb.toString();
-  }
-
-  /**
-   * This small class exists to set the timeout values for a connection
-   */
-  private static class TimeoutConnConfigurator
-          implements ConnectionConfigurator {
-    private ConnectionConfigurator cc;
-    private int timeout;
-
-    /**
-     * Sets the timeout and wraps another connection configurator
-     * @param timeout - will set both connect and read timeouts - in seconds
-     * @param cc - another configurator to wrap - may be null
-     */
-    public TimeoutConnConfigurator(int timeout, ConnectionConfigurator cc) {
-      this.timeout = timeout;
-      this.cc = cc;
+            if (SCHEME_NAME.equals(providerName.getScheme())) {
+                return new KMSClientProvider(providerName, conf);
+            }
+            return null;
+        }
     }
 
-    /**
-     * Calls the wrapped configure() method, then sets timeouts
-     * @param conn the {@link HttpURLConnection} instance to configure.
-     * @return the connection
-     * @throws IOException
-     */
+    public static <T> T checkNotNull(T o, String name)
+    throws IllegalArgumentException {
+        if (o == null) {
+            throw new IllegalArgumentException("Parameter '" + name +
+                                               "' cannot be null");
+        }
+        return o;
+    }
+
+    public static String checkNotEmpty(String s, String name)
+    throws IllegalArgumentException {
+        checkNotNull(s, name);
+        if (s.isEmpty()) {
+            throw new IllegalArgumentException("Parameter '" + name +
+                                               "' cannot be empty");
+        }
+        return s;
+    }
+
+    private String kmsUrl;
+    private SSLFactory sslFactory;
+    private ConnectionConfigurator configurator;
+    private DelegationTokenAuthenticatedURL.Token authToken;
+    private final int authRetry;
+    private final UserGroupInformation actualUgi;
+
     @Override
-    public HttpURLConnection configure(HttpURLConnection conn)
-            throws IOException {
-      if (cc != null) {
-        conn = cc.configure(conn);
-      }
-      conn.setConnectTimeout(timeout * 1000);  // conversion to milliseconds
-      conn.setReadTimeout(timeout * 1000);
-      return conn;
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("KMSClientProvider[");
+        sb.append(kmsUrl).append("]");
+        return sb.toString();
     }
-  }
 
-  public KMSClientProvider(URI uri, Configuration conf) throws IOException {
-    super(conf);
-    Path path = ProviderUtils.unnestUri(uri);
-    URL url = path.toUri().toURL();
-    kmsUrl = createServiceURL(url);
-    if ("https".equalsIgnoreCase(url.getProtocol())) {
-      sslFactory = new SSLFactory(SSLFactory.Mode.CLIENT, conf);
-      try {
-        sslFactory.init();
-      } catch (GeneralSecurityException ex) {
-        throw new IOException(ex);
-      }
+    /**
+     * This small class exists to set the timeout values for a connection
+     */
+    private static class TimeoutConnConfigurator
+        implements ConnectionConfigurator {
+        private ConnectionConfigurator cc;
+        private int timeout;
+
+        /**
+         * Sets the timeout and wraps another connection configurator
+         * @param timeout - will set both connect and read timeouts - in seconds
+         * @param cc - another configurator to wrap - may be null
+         */
+        public TimeoutConnConfigurator(int timeout, ConnectionConfigurator cc) {
+            this.timeout = timeout;
+            this.cc = cc;
+        }
+
+        /**
+         * Calls the wrapped configure() method, then sets timeouts
+         * @param conn the {@link HttpURLConnection} instance to configure.
+         * @return the connection
+         * @throws IOException
+         */
+        @Override
+        public HttpURLConnection configure(HttpURLConnection conn)
+        throws IOException {
+            if (cc != null) {
+                conn = cc.configure(conn);
+            }
+            conn.setConnectTimeout(timeout * 1000);  // conversion to milliseconds
+            conn.setReadTimeout(timeout * 1000);
+            return conn;
+        }
     }
-    int timeout = conf.getInt(TIMEOUT_ATTR, DEFAULT_TIMEOUT);
-    authRetry = conf.getInt(AUTH_RETRY, DEFAULT_AUTH_RETRY);
-    configurator = new TimeoutConnConfigurator(timeout, sslFactory);
-    encKeyVersionQueue =
-        new ValueQueue<KeyProviderCryptoExtension.EncryptedKeyVersion>(
+
+    public KMSClientProvider(URI uri, Configuration conf) throws IOException {
+        super(conf);
+        Path path = ProviderUtils.unnestUri(uri);
+        URL url = path.toUri().toURL();
+        kmsUrl = createServiceURL(url);
+        if ("https".equalsIgnoreCase(url.getProtocol())) {
+            sslFactory = new SSLFactory(SSLFactory.Mode.CLIENT, conf);
+            try {
+                sslFactory.init();
+            } catch (GeneralSecurityException ex) {
+                throw new IOException(ex);
+            }
+        }
+        int timeout = conf.getInt(TIMEOUT_ATTR, DEFAULT_TIMEOUT);
+        authRetry = conf.getInt(AUTH_RETRY, DEFAULT_AUTH_RETRY);
+        configurator = new TimeoutConnConfigurator(timeout, sslFactory);
+        encKeyVersionQueue =
+            new ValueQueue<KeyProviderCryptoExtension.EncryptedKeyVersion>(
             conf.getInt(
                 CommonConfigurationKeysPublic.KMS_CLIENT_ENC_KEY_CACHE_SIZE,
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_SIZE_DEFAULT),
+                KMS_CLIENT_ENC_KEY_CACHE_SIZE_DEFAULT),
             conf.getFloat(
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_LOW_WATERMARK,
+                KMS_CLIENT_ENC_KEY_CACHE_LOW_WATERMARK,
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_LOW_WATERMARK_DEFAULT),
+                KMS_CLIENT_ENC_KEY_CACHE_LOW_WATERMARK_DEFAULT),
             conf.getInt(
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_EXPIRY_MS,
+                KMS_CLIENT_ENC_KEY_CACHE_EXPIRY_MS,
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_EXPIRY_DEFAULT),
+                KMS_CLIENT_ENC_KEY_CACHE_EXPIRY_DEFAULT),
             conf.getInt(
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_NUM_REFILL_THREADS,
+                KMS_CLIENT_ENC_KEY_CACHE_NUM_REFILL_THREADS,
                 CommonConfigurationKeysPublic.
-                    KMS_CLIENT_ENC_KEY_CACHE_NUM_REFILL_THREADS_DEFAULT),
+                KMS_CLIENT_ENC_KEY_CACHE_NUM_REFILL_THREADS_DEFAULT),
             new EncryptedQueueRefiller());
-    authToken = new DelegationTokenAuthenticatedURL.Token();
-    actualUgi =
-        (UserGroupInformation.getCurrentUser().getAuthenticationMethod() ==
-        UserGroupInformation.AuthenticationMethod.PROXY) ? UserGroupInformation
+        authToken = new DelegationTokenAuthenticatedURL.Token();
+        actualUgi =
+            (UserGroupInformation.getCurrentUser().getAuthenticationMethod() ==
+             UserGroupInformation.AuthenticationMethod.PROXY) ? UserGroupInformation
             .getCurrentUser().getRealUser() : UserGroupInformation
             .getCurrentUser();
-  }
-
-  private String createServiceURL(URL url) throws IOException {
-    String str = url.toExternalForm();
-    if (str.endsWith("/")) {
-      str = str.substring(0, str.length() - 1);
     }
-    return new URL(str + KMSRESTConstants.SERVICE_VERSION + "/").
-        toExternalForm();
-  }
 
-  private URL createURL(String collection, String resource, String subResource,
-      Map<String, ?> parameters) throws IOException {
-    try {
-      StringBuilder sb = new StringBuilder();
-      sb.append(kmsUrl);
-      if (collection != null) {
-        sb.append(collection);
-        if (resource != null) {
-          sb.append("/").append(URLEncoder.encode(resource, UTF8));
-          if (subResource != null) {
-            sb.append("/").append(subResource);
-          }
+    private String createServiceURL(URL url) throws IOException {
+        String str = url.toExternalForm();
+        if (str.endsWith("/")) {
+            str = str.substring(0, str.length() - 1);
         }
-      }
-      URIBuilder uriBuilder = new URIBuilder(sb.toString());
-      if (parameters != null) {
-        for (Map.Entry<String, ?> param : parameters.entrySet()) {
-          Object value = param.getValue();
-          if (value instanceof String) {
-            uriBuilder.addParameter(param.getKey(), (String) value);
-          } else {
-            for (String s : (String[]) value) {
-              uriBuilder.addParameter(param.getKey(), s);
+        return new URL(str + KMSRESTConstants.SERVICE_VERSION + "/").
+               toExternalForm();
+    }
+
+    private URL createURL(String collection, String resource, String subResource,
+                          Map<String, ?> parameters) throws IOException {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append(kmsUrl);
+            if (collection != null) {
+                sb.append(collection);
+                if (resource != null) {
+                    sb.append("/").append(URLEncoder.encode(resource, UTF8));
+                    if (subResource != null) {
+                        sb.append("/").append(subResource);
+                    }
+                }
             }
-          }
+            URIBuilder uriBuilder = new URIBuilder(sb.toString());
+            if (parameters != null) {
+                for (Map.Entry<String, ?> param : parameters.entrySet()) {
+                    Object value = param.getValue();
+                    if (value instanceof String) {
+                        uriBuilder.addParameter(param.getKey(), (String) value);
+                    } else {
+                        for (String s : (String[]) value) {
+                            uriBuilder.addParameter(param.getKey(), s);
+                        }
+                    }
+                }
+            }
+            return uriBuilder.build().toURL();
+        } catch (URISyntaxException ex) {
+            throw new IOException(ex);
         }
-      }
-      return uriBuilder.build().toURL();
-    } catch (URISyntaxException ex) {
-      throw new IOException(ex);
     }
-  }
 
-  private HttpURLConnection configureConnection(HttpURLConnection conn)
-      throws IOException {
-    if (sslFactory != null) {
-      HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
-      try {
-        httpsConn.setSSLSocketFactory(sslFactory.createSSLSocketFactory());
-      } catch (GeneralSecurityException ex) {
-        throw new IOException(ex);
-      }
-      httpsConn.setHostnameVerifier(sslFactory.getHostnameVerifier());
-    }
-    return conn;
-  }
-
-  private HttpURLConnection createConnection(final URL url, String method)
-      throws IOException {
-    HttpURLConnection conn;
-    try {
-      // if current UGI is different from UGI at constructor time, behave as
-      // proxyuser
-      UserGroupInformation currentUgi = UserGroupInformation.getCurrentUser();
-      final String doAsUser = (currentUgi.getAuthenticationMethod() ==
-          UserGroupInformation.AuthenticationMethod.PROXY)
-                              ? currentUgi.getShortUserName() : null;
-
-      // check and renew TGT to handle potential expiration
-      actualUgi.checkTGTAndReloginFromKeytab();
-      // creating the HTTP connection using the current UGI at constructor time
-      conn = actualUgi.doAs(new PrivilegedExceptionAction<HttpURLConnection>() {
-        @Override
-        public HttpURLConnection run() throws Exception {
-          DelegationTokenAuthenticatedURL authUrl =
-              new DelegationTokenAuthenticatedURL(configurator);
-          return authUrl.openConnection(url, authToken, doAsUser);
+    private HttpURLConnection configureConnection(HttpURLConnection conn)
+    throws IOException {
+        if (sslFactory != null) {
+            HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+            try {
+                httpsConn.setSSLSocketFactory(sslFactory.createSSLSocketFactory());
+            } catch (GeneralSecurityException ex) {
+                throw new IOException(ex);
+            }
+            httpsConn.setHostnameVerifier(sslFactory.getHostnameVerifier());
         }
-      });
-    } catch (IOException ex) {
-      throw ex;
-    } catch (UndeclaredThrowableException ex) {
-      throw new IOException(ex.getUndeclaredThrowable());
-    } catch (Exception ex) {
-      throw new IOException(ex);
+        return conn;
     }
-    conn.setUseCaches(false);
-    conn.setRequestMethod(method);
-    if (method.equals(HTTP_POST) || method.equals(HTTP_PUT)) {
-      conn.setDoOutput(true);
-    }
-    conn = configureConnection(conn);
-    return conn;
-  }
 
-  private <T> T call(HttpURLConnection conn, Map jsonOutput,
-      int expectedResponse, Class<T> klass) throws IOException {
-    return call(conn, jsonOutput, expectedResponse, klass, authRetry);
-  }
+    private HttpURLConnection createConnection(final URL url, String method)
+    throws IOException {
+        HttpURLConnection conn;
+        try {
+            // if current UGI is different from UGI at constructor time, behave as
+            // proxyuser
+            UserGroupInformation currentUgi = UserGroupInformation.getCurrentUser();
+            final String doAsUser = (currentUgi.getAuthenticationMethod() ==
+                                     UserGroupInformation.AuthenticationMethod.PROXY)
+                                    ? currentUgi.getShortUserName() : null;
 
-  private <T> T call(HttpURLConnection conn, Map jsonOutput,
-      int expectedResponse, Class<T> klass, int authRetryCount)
-      throws IOException {
-    T ret = null;
-    try {
-      if (jsonOutput != null) {
-        writeJson(jsonOutput, conn.getOutputStream());
-      }
-    } catch (IOException ex) {
-      conn.getInputStream().close();
-      throw ex;
-    }
-    if ((conn.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN
-        && conn.getResponseMessage().equals(ANONYMOUS_REQUESTS_DISALLOWED))
-        || conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-      // Ideally, this should happen only when there is an Authentication
-      // failure. Unfortunately, the AuthenticationFilter returns 403 when it
-      // cannot authenticate (Since a 401 requires Server to send
-      // WWW-Authenticate header as well)..
-      KMSClientProvider.this.authToken =
-          new DelegationTokenAuthenticatedURL.Token();
-      if (authRetryCount > 0) {
-        String contentType = conn.getRequestProperty(CONTENT_TYPE);
-        String requestMethod = conn.getRequestMethod();
-        URL url = conn.getURL();
-        conn = createConnection(url, requestMethod);
-        conn.setRequestProperty(CONTENT_TYPE, contentType);
-        return call(conn, jsonOutput, expectedResponse, klass,
-            authRetryCount - 1);
-      }
-    }
-    try {
-      AuthenticatedURL.extractToken(conn, authToken);
-    } catch (AuthenticationException e) {
-      // Ignore the AuthExceptions.. since we are just using the method to
-      // extract and set the authToken.. (Workaround till we actually fix
-      // AuthenticatedURL properly to set authToken post initialization)
-    }
-    HttpExceptionUtils.validateResponse(conn, expectedResponse);
-    if (APPLICATION_JSON_MIME.equalsIgnoreCase(conn.getContentType())
-        && klass != null) {
-      ObjectMapper mapper = new ObjectMapper();
-      InputStream is = null;
-      try {
-        is = conn.getInputStream();
-        ret = mapper.readValue(is, klass);
-      } catch (IOException ex) {
-        if (is != null) {
-          is.close();
+            // check and renew TGT to handle potential expiration
+            actualUgi.checkTGTAndReloginFromKeytab();
+            // creating the HTTP connection using the current UGI at constructor time
+            conn = actualUgi.doAs(new PrivilegedExceptionAction<HttpURLConnection>() {
+                @Override
+                public HttpURLConnection run() throws Exception {
+                    DelegationTokenAuthenticatedURL authUrl =
+                        new DelegationTokenAuthenticatedURL(configurator);
+                    return authUrl.openConnection(url, authToken, doAsUser);
+                }
+            });
+        } catch (IOException ex) {
+            throw ex;
+        } catch (UndeclaredThrowableException ex) {
+            throw new IOException(ex.getUndeclaredThrowable());
+        } catch (Exception ex) {
+            throw new IOException(ex);
         }
-        throw ex;
-      } finally {
-        if (is != null) {
-          is.close();
+        conn.setUseCaches(false);
+        conn.setRequestMethod(method);
+        if (method.equals(HTTP_POST) || method.equals(HTTP_PUT)) {
+            conn.setDoOutput(true);
         }
-      }
+        conn = configureConnection(conn);
+        return conn;
     }
-    return ret;
-  }
 
-  public static class KMSKeyVersion extends KeyVersion {
-    public KMSKeyVersion(String keyName, String versionName, byte[] material) {
-      super(keyName, versionName, material);
+    private <T> T call(HttpURLConnection conn, Map jsonOutput,
+                       int expectedResponse, Class<T> klass) throws IOException {
+        return call(conn, jsonOutput, expectedResponse, klass, authRetry);
     }
-  }
 
-  @Override
-  public KeyVersion getKeyVersion(String versionName) throws IOException {
-    checkNotEmpty(versionName, "versionName");
-    URL url = createURL(KMSRESTConstants.KEY_VERSION_RESOURCE,
-        versionName, null, null);
-    HttpURLConnection conn = createConnection(url, HTTP_GET);
-    Map response = call(conn, null, HttpURLConnection.HTTP_OK, Map.class);
-    return parseJSONKeyVersion(response);
-  }
-
-  @Override
-  public KeyVersion getCurrentKey(String name) throws IOException {
-    checkNotEmpty(name, "name");
-    URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name,
-        KMSRESTConstants.CURRENT_VERSION_SUB_RESOURCE, null);
-    HttpURLConnection conn = createConnection(url, HTTP_GET);
-    Map response = call(conn, null, HttpURLConnection.HTTP_OK, Map.class);
-    return parseJSONKeyVersion(response);
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public List<String> getKeys() throws IOException {
-    URL url = createURL(KMSRESTConstants.KEYS_NAMES_RESOURCE, null, null,
-        null);
-    HttpURLConnection conn = createConnection(url, HTTP_GET);
-    List response = call(conn, null, HttpURLConnection.HTTP_OK, List.class);
-    return (List<String>) response;
-  }
-
-  public static class KMSMetadata extends Metadata {
-    public KMSMetadata(String cipher, int bitLength, String description,
-        Map<String, String> attributes, Date created, int versions) {
-      super(cipher, bitLength, description, attributes, created, versions);
+    private <T> T call(HttpURLConnection conn, Map jsonOutput,
+                       int expectedResponse, Class<T> klass, int authRetryCount)
+    throws IOException {
+        T ret = null;
+        try {
+            if (jsonOutput != null) {
+                writeJson(jsonOutput, conn.getOutputStream());
+            }
+        } catch (IOException ex) {
+            conn.getInputStream().close();
+            throw ex;
+        }
+        if ((conn.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN
+             && conn.getResponseMessage().equals(ANONYMOUS_REQUESTS_DISALLOWED))
+            || conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            // Ideally, this should happen only when there is an Authentication
+            // failure. Unfortunately, the AuthenticationFilter returns 403 when it
+            // cannot authenticate (Since a 401 requires Server to send
+            // WWW-Authenticate header as well)..
+            KMSClientProvider.this.authToken =
+                new DelegationTokenAuthenticatedURL.Token();
+            if (authRetryCount > 0) {
+                String contentType = conn.getRequestProperty(CONTENT_TYPE);
+                String requestMethod = conn.getRequestMethod();
+                URL url = conn.getURL();
+                conn = createConnection(url, requestMethod);
+                conn.setRequestProperty(CONTENT_TYPE, contentType);
+                return call(conn, jsonOutput, expectedResponse, klass,
+                            authRetryCount - 1);
+            }
+        }
+        try {
+            AuthenticatedURL.extractToken(conn, authToken);
+        } catch (AuthenticationException e) {
+            // Ignore the AuthExceptions.. since we are just using the method to
+            // extract and set the authToken.. (Workaround till we actually fix
+            // AuthenticatedURL properly to set authToken post initialization)
+        }
+        HttpExceptionUtils.validateResponse(conn, expectedResponse);
+        if (APPLICATION_JSON_MIME.equalsIgnoreCase(conn.getContentType())
+            && klass != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            InputStream is = null;
+            try {
+                is = conn.getInputStream();
+                ret = mapper.readValue(is, klass);
+            } catch (IOException ex) {
+                if (is != null) {
+                    is.close();
+                }
+                throw ex;
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
+            }
+        }
+        return ret;
     }
-  }
 
-  // breaking keyNames into sets to keep resulting URL undler 2000 chars
-  private List<String[]> createKeySets(String[] keyNames) {
-    List<String[]> list = new ArrayList<String[]>();
-    List<String> batch = new ArrayList<String>();
-    int batchLen = 0;
-    for (String name : keyNames) {
-      int additionalLen = KMSRESTConstants.KEY.length() + 1 + name.length();
-      batchLen += additionalLen;
-      // topping at 1500 to account for initial URL and encoded names
-      if (batchLen > 1500) {
-        list.add(batch.toArray(new String[batch.size()]));
-        batch = new ArrayList<String>();
-        batchLen = additionalLen;
-      }
-      batch.add(name);
+    public static class KMSKeyVersion extends KeyVersion {
+        public KMSKeyVersion(String keyName, String versionName, byte[] material) {
+            super(keyName, versionName, material);
+        }
     }
-    if (!batch.isEmpty()) {
-      list.add(batch.toArray(new String[batch.size()]));
-    }
-    return list;
-  }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public Metadata[] getKeysMetadata(String ... keyNames) throws IOException {
-    List<Metadata> keysMetadata = new ArrayList<Metadata>();
-    List<String[]> keySets = createKeySets(keyNames);
-    for (String[] keySet : keySets) {
-      if (keyNames.length > 0) {
-        Map<String, Object> queryStr = new HashMap<String, Object>();
-        queryStr.put(KMSRESTConstants.KEY, keySet);
-        URL url = createURL(KMSRESTConstants.KEYS_METADATA_RESOURCE, null,
-            null, queryStr);
+    @Override
+    public KeyVersion getKeyVersion(String versionName) throws IOException {
+        checkNotEmpty(versionName, "versionName");
+        URL url = createURL(KMSRESTConstants.KEY_VERSION_RESOURCE,
+                            versionName, null, null);
         HttpURLConnection conn = createConnection(url, HTTP_GET);
-        List<Map> list = call(conn, null, HttpURLConnection.HTTP_OK, List.class);
-        for (Map map : list) {
-          keysMetadata.add(parseJSONMetadata(map));
+        Map response = call(conn, null, HttpURLConnection.HTTP_OK, Map.class);
+        return parseJSONKeyVersion(response);
+    }
+
+    @Override
+    public KeyVersion getCurrentKey(String name) throws IOException {
+        checkNotEmpty(name, "name");
+        URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name,
+                            KMSRESTConstants.CURRENT_VERSION_SUB_RESOURCE, null);
+        HttpURLConnection conn = createConnection(url, HTTP_GET);
+        Map response = call(conn, null, HttpURLConnection.HTTP_OK, Map.class);
+        return parseJSONKeyVersion(response);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<String> getKeys() throws IOException {
+        URL url = createURL(KMSRESTConstants.KEYS_NAMES_RESOURCE, null, null,
+                            null);
+        HttpURLConnection conn = createConnection(url, HTTP_GET);
+        List response = call(conn, null, HttpURLConnection.HTTP_OK, List.class);
+        return (List<String>) response;
+    }
+
+    public static class KMSMetadata extends Metadata {
+        public KMSMetadata(String cipher, int bitLength, String description,
+                           Map<String, String> attributes, Date created, int versions) {
+            super(cipher, bitLength, description, attributes, created, versions);
         }
-      }
     }
-    return keysMetadata.toArray(new Metadata[keysMetadata.size()]);
-  }
 
-  private KeyVersion createKeyInternal(String name, byte[] material,
-      Options options)
-      throws NoSuchAlgorithmException, IOException {
-    checkNotEmpty(name, "name");
-    checkNotNull(options, "options");
-    Map<String, Object> jsonKey = new HashMap<String, Object>();
-    jsonKey.put(KMSRESTConstants.NAME_FIELD, name);
-    jsonKey.put(KMSRESTConstants.CIPHER_FIELD, options.getCipher());
-    jsonKey.put(KMSRESTConstants.LENGTH_FIELD, options.getBitLength());
-    if (material != null) {
-      jsonKey.put(KMSRESTConstants.MATERIAL_FIELD,
-          Base64.encodeBase64String(material));
+    // breaking keyNames into sets to keep resulting URL undler 2000 chars
+    private List<String[]> createKeySets(String[] keyNames) {
+        List<String[]> list = new ArrayList<String[]>();
+        List<String> batch = new ArrayList<String>();
+        int batchLen = 0;
+        for (String name : keyNames) {
+            int additionalLen = KMSRESTConstants.KEY.length() + 1 + name.length();
+            batchLen += additionalLen;
+            // topping at 1500 to account for initial URL and encoded names
+            if (batchLen > 1500) {
+                list.add(batch.toArray(new String[batch.size()]));
+                batch = new ArrayList<String>();
+                batchLen = additionalLen;
+            }
+            batch.add(name);
+        }
+        if (!batch.isEmpty()) {
+            list.add(batch.toArray(new String[batch.size()]));
+        }
+        return list;
     }
-    if (options.getDescription() != null) {
-      jsonKey.put(KMSRESTConstants.DESCRIPTION_FIELD,
-          options.getDescription());
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Metadata[] getKeysMetadata(String ... keyNames) throws IOException {
+        List<Metadata> keysMetadata = new ArrayList<Metadata>();
+        List<String[]> keySets = createKeySets(keyNames);
+        for (String[] keySet : keySets) {
+            if (keyNames.length > 0) {
+                Map<String, Object> queryStr = new HashMap<String, Object>();
+                queryStr.put(KMSRESTConstants.KEY, keySet);
+                URL url = createURL(KMSRESTConstants.KEYS_METADATA_RESOURCE, null,
+                                    null, queryStr);
+                HttpURLConnection conn = createConnection(url, HTTP_GET);
+                List<Map> list = call(conn, null, HttpURLConnection.HTTP_OK, List.class);
+                for (Map map : list) {
+                    keysMetadata.add(parseJSONMetadata(map));
+                }
+            }
+        }
+        return keysMetadata.toArray(new Metadata[keysMetadata.size()]);
     }
-    if (options.getAttributes() != null && !options.getAttributes().isEmpty()) {
-      jsonKey.put(KMSRESTConstants.ATTRIBUTES_FIELD, options.getAttributes());
+
+    private KeyVersion createKeyInternal(String name, byte[] material,
+                                         Options options)
+    throws NoSuchAlgorithmException, IOException {
+        checkNotEmpty(name, "name");
+        checkNotNull(options, "options");
+        Map<String, Object> jsonKey = new HashMap<String, Object>();
+        jsonKey.put(KMSRESTConstants.NAME_FIELD, name);
+        jsonKey.put(KMSRESTConstants.CIPHER_FIELD, options.getCipher());
+        jsonKey.put(KMSRESTConstants.LENGTH_FIELD, options.getBitLength());
+        if (material != null) {
+            jsonKey.put(KMSRESTConstants.MATERIAL_FIELD,
+                        Base64.encodeBase64String(material));
+        }
+        if (options.getDescription() != null) {
+            jsonKey.put(KMSRESTConstants.DESCRIPTION_FIELD,
+                        options.getDescription());
+        }
+        if (options.getAttributes() != null && !options.getAttributes().isEmpty()) {
+            jsonKey.put(KMSRESTConstants.ATTRIBUTES_FIELD, options.getAttributes());
+        }
+        URL url = createURL(KMSRESTConstants.KEYS_RESOURCE, null, null, null);
+        HttpURLConnection conn = createConnection(url, HTTP_POST);
+        conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
+        Map response = call(conn, jsonKey, HttpURLConnection.HTTP_CREATED,
+                            Map.class);
+        return parseJSONKeyVersion(response);
     }
-    URL url = createURL(KMSRESTConstants.KEYS_RESOURCE, null, null, null);
-    HttpURLConnection conn = createConnection(url, HTTP_POST);
-    conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
-    Map response = call(conn, jsonKey, HttpURLConnection.HTTP_CREATED,
-        Map.class);
-    return parseJSONKeyVersion(response);
-  }
 
-  @Override
-  public KeyVersion createKey(String name, Options options)
-      throws NoSuchAlgorithmException, IOException {
-    return createKeyInternal(name, null, options);
-  }
-
-  @Override
-  public KeyVersion createKey(String name, byte[] material, Options options)
-      throws IOException {
-    checkNotNull(material, "material");
-    try {
-      return createKeyInternal(name, material, options);
-    } catch (NoSuchAlgorithmException ex) {
-      throw new RuntimeException("It should not happen", ex);
+    @Override
+    public KeyVersion createKey(String name, Options options)
+    throws NoSuchAlgorithmException, IOException {
+        return createKeyInternal(name, null, options);
     }
-  }
 
-  private KeyVersion rollNewVersionInternal(String name, byte[] material)
-      throws NoSuchAlgorithmException, IOException {
-    checkNotEmpty(name, "name");
-    Map<String, String> jsonMaterial = new HashMap<String, String>();
-    if (material != null) {
-      jsonMaterial.put(KMSRESTConstants.MATERIAL_FIELD,
-          Base64.encodeBase64String(material));
+    @Override
+    public KeyVersion createKey(String name, byte[] material, Options options)
+    throws IOException {
+        checkNotNull(material, "material");
+        try {
+            return createKeyInternal(name, material, options);
+        } catch (NoSuchAlgorithmException ex) {
+            throw new RuntimeException("It should not happen", ex);
+        }
     }
-    URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name, null, null);
-    HttpURLConnection conn = createConnection(url, HTTP_POST);
-    conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
-    Map response = call(conn, jsonMaterial,
-        HttpURLConnection.HTTP_OK, Map.class);
-    KeyVersion keyVersion = parseJSONKeyVersion(response);
-    encKeyVersionQueue.drain(name);
-    return keyVersion;
-  }
 
-
-  @Override
-  public KeyVersion rollNewVersion(String name)
-      throws NoSuchAlgorithmException, IOException {
-    return rollNewVersionInternal(name, null);
-  }
-
-  @Override
-  public KeyVersion rollNewVersion(String name, byte[] material)
-      throws IOException {
-    checkNotNull(material, "material");
-    try {
-      return rollNewVersionInternal(name, material);
-    } catch (NoSuchAlgorithmException ex) {
-      throw new RuntimeException("It should not happen", ex);
+    private KeyVersion rollNewVersionInternal(String name, byte[] material)
+    throws NoSuchAlgorithmException, IOException {
+        checkNotEmpty(name, "name");
+        Map<String, String> jsonMaterial = new HashMap<String, String>();
+        if (material != null) {
+            jsonMaterial.put(KMSRESTConstants.MATERIAL_FIELD,
+                             Base64.encodeBase64String(material));
+        }
+        URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name, null, null);
+        HttpURLConnection conn = createConnection(url, HTTP_POST);
+        conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
+        Map response = call(conn, jsonMaterial,
+                            HttpURLConnection.HTTP_OK, Map.class);
+        KeyVersion keyVersion = parseJSONKeyVersion(response);
+        encKeyVersionQueue.drain(name);
+        return keyVersion;
     }
-  }
 
-  @Override
-  public EncryptedKeyVersion generateEncryptedKey(
-      String encryptionKeyName) throws IOException, GeneralSecurityException {
-    try {
-      return encKeyVersionQueue.getNext(encryptionKeyName);
-    } catch (ExecutionException e) {
-      if (e.getCause() instanceof SocketTimeoutException) {
-        throw (SocketTimeoutException)e.getCause();
-      }
-      throw new IOException(e);
+
+    @Override
+    public KeyVersion rollNewVersion(String name)
+    throws NoSuchAlgorithmException, IOException {
+        return rollNewVersionInternal(name, null);
     }
-  }
 
-  @SuppressWarnings("rawtypes")
-  @Override
-  public KeyVersion decryptEncryptedKey(
-      EncryptedKeyVersion encryptedKeyVersion) throws IOException,
-                                                      GeneralSecurityException {
-    checkNotNull(encryptedKeyVersion.getEncryptionKeyVersionName(),
-        "versionName");
-    checkNotNull(encryptedKeyVersion.getEncryptedKeyIv(), "iv");
-    Preconditions.checkArgument(
-        encryptedKeyVersion.getEncryptedKeyVersion().getVersionName()
+    @Override
+    public KeyVersion rollNewVersion(String name, byte[] material)
+    throws IOException {
+        checkNotNull(material, "material");
+        try {
+            return rollNewVersionInternal(name, material);
+        } catch (NoSuchAlgorithmException ex) {
+            throw new RuntimeException("It should not happen", ex);
+        }
+    }
+
+    @Override
+    public EncryptedKeyVersion generateEncryptedKey(
+        String encryptionKeyName) throws IOException, GeneralSecurityException {
+        try {
+            return encKeyVersionQueue.getNext(encryptionKeyName);
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof SocketTimeoutException) {
+                throw (SocketTimeoutException)e.getCause();
+            }
+            throw new IOException(e);
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public KeyVersion decryptEncryptedKey(
+        EncryptedKeyVersion encryptedKeyVersion) throws IOException,
+        GeneralSecurityException {
+        checkNotNull(encryptedKeyVersion.getEncryptionKeyVersionName(),
+                     "versionName");
+        checkNotNull(encryptedKeyVersion.getEncryptedKeyIv(), "iv");
+        Preconditions.checkArgument(
+            encryptedKeyVersion.getEncryptedKeyVersion().getVersionName()
             .equals(KeyProviderCryptoExtension.EEK),
-        "encryptedKey version name must be '%s', is '%s'",
-        KeyProviderCryptoExtension.EEK,
-        encryptedKeyVersion.getEncryptedKeyVersion().getVersionName()
-    );
-    checkNotNull(encryptedKeyVersion.getEncryptedKeyVersion(), "encryptedKey");
-    Map<String, String> params = new HashMap<String, String>();
-    params.put(KMSRESTConstants.EEK_OP, KMSRESTConstants.EEK_DECRYPT);
-    Map<String, Object> jsonPayload = new HashMap<String, Object>();
-    jsonPayload.put(KMSRESTConstants.NAME_FIELD,
-        encryptedKeyVersion.getEncryptionKeyName());
-    jsonPayload.put(KMSRESTConstants.IV_FIELD, Base64.encodeBase64String(
-        encryptedKeyVersion.getEncryptedKeyIv()));
-    jsonPayload.put(KMSRESTConstants.MATERIAL_FIELD, Base64.encodeBase64String(
-            encryptedKeyVersion.getEncryptedKeyVersion().getMaterial()));
-    URL url = createURL(KMSRESTConstants.KEY_VERSION_RESOURCE,
-        encryptedKeyVersion.getEncryptionKeyVersionName(),
-        KMSRESTConstants.EEK_SUB_RESOURCE, params);
-    HttpURLConnection conn = createConnection(url, HTTP_POST);
-    conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
-    Map response =
-        call(conn, jsonPayload, HttpURLConnection.HTTP_OK, Map.class);
-    return parseJSONKeyVersion(response);
-  }
-
-  @Override
-  public List<KeyVersion> getKeyVersions(String name) throws IOException {
-    checkNotEmpty(name, "name");
-    URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name,
-        KMSRESTConstants.VERSIONS_SUB_RESOURCE, null);
-    HttpURLConnection conn = createConnection(url, HTTP_GET);
-    List response = call(conn, null, HttpURLConnection.HTTP_OK, List.class);
-    List<KeyVersion> versions = null;
-    if (!response.isEmpty()) {
-      versions = new ArrayList<KeyVersion>();
-      for (Object obj : response) {
-        versions.add(parseJSONKeyVersion((Map) obj));
-      }
+            "encryptedKey version name must be '%s', is '%s'",
+            KeyProviderCryptoExtension.EEK,
+            encryptedKeyVersion.getEncryptedKeyVersion().getVersionName()
+        );
+        checkNotNull(encryptedKeyVersion.getEncryptedKeyVersion(), "encryptedKey");
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(KMSRESTConstants.EEK_OP, KMSRESTConstants.EEK_DECRYPT);
+        Map<String, Object> jsonPayload = new HashMap<String, Object>();
+        jsonPayload.put(KMSRESTConstants.NAME_FIELD,
+                        encryptedKeyVersion.getEncryptionKeyName());
+        jsonPayload.put(KMSRESTConstants.IV_FIELD, Base64.encodeBase64String(
+                            encryptedKeyVersion.getEncryptedKeyIv()));
+        jsonPayload.put(KMSRESTConstants.MATERIAL_FIELD, Base64.encodeBase64String(
+                            encryptedKeyVersion.getEncryptedKeyVersion().getMaterial()));
+        URL url = createURL(KMSRESTConstants.KEY_VERSION_RESOURCE,
+                            encryptedKeyVersion.getEncryptionKeyVersionName(),
+                            KMSRESTConstants.EEK_SUB_RESOURCE, params);
+        HttpURLConnection conn = createConnection(url, HTTP_POST);
+        conn.setRequestProperty(CONTENT_TYPE, APPLICATION_JSON_MIME);
+        Map response =
+            call(conn, jsonPayload, HttpURLConnection.HTTP_OK, Map.class);
+        return parseJSONKeyVersion(response);
     }
-    return versions;
-  }
 
-  @Override
-  public Metadata getMetadata(String name) throws IOException {
-    checkNotEmpty(name, "name");
-    URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name,
-        KMSRESTConstants.METADATA_SUB_RESOURCE, null);
-    HttpURLConnection conn = createConnection(url, HTTP_GET);
-    Map response = call(conn, null, HttpURLConnection.HTTP_OK, Map.class);
-    return parseJSONMetadata(response);
-  }
-
-  @Override
-  public void deleteKey(String name) throws IOException {
-    checkNotEmpty(name, "name");
-    URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name, null, null);
-    HttpURLConnection conn = createConnection(url, HTTP_DELETE);
-    call(conn, null, HttpURLConnection.HTTP_OK, null);
-  }
-
-  @Override
-  public void flush() throws IOException {
-    // NOP
-    // the client does not keep any local state, thus flushing is not required
-    // because of the client.
-    // the server should not keep in memory state on behalf of clients either.
-  }
-
-  @Override
-  public void warmUpEncryptedKeys(String... keyNames)
-      throws IOException {
-    try {
-      encKeyVersionQueue.initializeQueuesForKeys(keyNames);
-    } catch (ExecutionException e) {
-      throw new IOException(e);
-    }
-  }
-
-  @Override
-  public void drain(String keyName) {
-    encKeyVersionQueue.drain(keyName);
-  }
-
-  @Override
-  public Token<?>[] addDelegationTokens(final String renewer,
-      Credentials credentials) throws IOException {
-    Token<?>[] tokens = null;
-    Text dtService = getDelegationTokenService();
-    Token<?> token = credentials.getToken(dtService);
-    if (token == null) {
-      final URL url = createURL(null, null, null, null);
-      final DelegationTokenAuthenticatedURL authUrl =
-          new DelegationTokenAuthenticatedURL(configurator);
-      try {
-        // 'actualUGI' is the UGI of the user creating the client 
-        // It is possible that the creator of the KMSClientProvier
-        // calls this method on behalf of a proxyUser (the doAsUser).
-        // In which case this call has to be made as the proxy user.
-        UserGroupInformation currentUgi = UserGroupInformation.getCurrentUser();
-        final String doAsUser = (currentUgi.getAuthenticationMethod() ==
-            UserGroupInformation.AuthenticationMethod.PROXY)
-                                ? currentUgi.getShortUserName() : null;
-
-        token = actualUgi.doAs(new PrivilegedExceptionAction<Token<?>>() {
-          @Override
-          public Token<?> run() throws Exception {
-            // Not using the cached token here.. Creating a new token here
-            // everytime.
-            return authUrl.getDelegationToken(url,
-                new DelegationTokenAuthenticatedURL.Token(), renewer, doAsUser);
-          }
-        });
-        if (token != null) {
-          credentials.addToken(token.getService(), token);
-          tokens = new Token<?>[] { token };
-        } else {
-          throw new IOException("Got NULL as delegation token");
+    @Override
+    public List<KeyVersion> getKeyVersions(String name) throws IOException {
+        checkNotEmpty(name, "name");
+        URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name,
+                            KMSRESTConstants.VERSIONS_SUB_RESOURCE, null);
+        HttpURLConnection conn = createConnection(url, HTTP_GET);
+        List response = call(conn, null, HttpURLConnection.HTTP_OK, List.class);
+        List<KeyVersion> versions = null;
+        if (!response.isEmpty()) {
+            versions = new ArrayList<KeyVersion>();
+            for (Object obj : response) {
+                versions.add(parseJSONKeyVersion((Map) obj));
+            }
         }
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-      } catch (Exception e) {
-        throw new IOException(e);
-      }
+        return versions;
     }
-    return tokens;
-  }
-  
-  private Text getDelegationTokenService() throws IOException {
-    URL url = new URL(kmsUrl);
-    InetSocketAddress addr = new InetSocketAddress(url.getHost(),
-        url.getPort());
-    Text dtService = SecurityUtil.buildTokenService(addr);
-    return dtService;
-  }
 
-  /**
-   * Shutdown valueQueue executor threads
-   */
-  @Override
-  public void close() throws IOException {
-    try {
-      encKeyVersionQueue.shutdown();
-    } catch (Exception e) {
-      throw new IOException(e);
-    } finally {
-      if (sslFactory != null) {
-        sslFactory.destroy();
-      }
+    @Override
+    public Metadata getMetadata(String name) throws IOException {
+        checkNotEmpty(name, "name");
+        URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name,
+                            KMSRESTConstants.METADATA_SUB_RESOURCE, null);
+        HttpURLConnection conn = createConnection(url, HTTP_GET);
+        Map response = call(conn, null, HttpURLConnection.HTTP_OK, Map.class);
+        return parseJSONMetadata(response);
     }
-  }
+
+    @Override
+    public void deleteKey(String name) throws IOException {
+        checkNotEmpty(name, "name");
+        URL url = createURL(KMSRESTConstants.KEY_RESOURCE, name, null, null);
+        HttpURLConnection conn = createConnection(url, HTTP_DELETE);
+        call(conn, null, HttpURLConnection.HTTP_OK, null);
+    }
+
+    @Override
+    public void flush() throws IOException {
+        // NOP
+        // the client does not keep any local state, thus flushing is not required
+        // because of the client.
+        // the server should not keep in memory state on behalf of clients either.
+    }
+
+    @Override
+    public void warmUpEncryptedKeys(String... keyNames)
+    throws IOException {
+        try {
+            encKeyVersionQueue.initializeQueuesForKeys(keyNames);
+        } catch (ExecutionException e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public void drain(String keyName) {
+        encKeyVersionQueue.drain(keyName);
+    }
+
+    @Override
+    public Token<?>[] addDelegationTokens(final String renewer,
+                                          Credentials credentials) throws IOException {
+        Token<?>[] tokens = null;
+        Text dtService = getDelegationTokenService();
+        Token<?> token = credentials.getToken(dtService);
+        if (token == null) {
+            final URL url = createURL(null, null, null, null);
+            final DelegationTokenAuthenticatedURL authUrl =
+                new DelegationTokenAuthenticatedURL(configurator);
+            try {
+                // 'actualUGI' is the UGI of the user creating the client
+                // It is possible that the creator of the KMSClientProvier
+                // calls this method on behalf of a proxyUser (the doAsUser).
+                // In which case this call has to be made as the proxy user.
+                UserGroupInformation currentUgi = UserGroupInformation.getCurrentUser();
+                final String doAsUser = (currentUgi.getAuthenticationMethod() ==
+                                         UserGroupInformation.AuthenticationMethod.PROXY)
+                                        ? currentUgi.getShortUserName() : null;
+
+                token = actualUgi.doAs(new PrivilegedExceptionAction<Token<?>>() {
+                    @Override
+                    public Token<?> run() throws Exception {
+                        // Not using the cached token here.. Creating a new token here
+                        // everytime.
+                        return authUrl.getDelegationToken(url,
+                                                          new DelegationTokenAuthenticatedURL.Token(), renewer, doAsUser);
+                    }
+                });
+                if (token != null) {
+                    credentials.addToken(token.getService(), token);
+                    tokens = new Token<?>[] { token };
+                } else {
+                    throw new IOException("Got NULL as delegation token");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
+        return tokens;
+    }
+
+    private Text getDelegationTokenService() throws IOException {
+        URL url = new URL(kmsUrl);
+        InetSocketAddress addr = new InetSocketAddress(url.getHost(),
+                url.getPort());
+        Text dtService = SecurityUtil.buildTokenService(addr);
+        return dtService;
+    }
+
+    /**
+     * Shutdown valueQueue executor threads
+     */
+    @Override
+    public void close() throws IOException {
+        try {
+            encKeyVersionQueue.shutdown();
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            if (sslFactory != null) {
+                sslFactory.destroy();
+            }
+        }
+    }
 }

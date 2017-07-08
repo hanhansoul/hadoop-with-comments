@@ -30,97 +30,97 @@ import org.apache.hadoop.fs.permission.FsPermission;
  * {@link ViewFs#getFileStatus(org.apache.hadoop.fs.Path)}
  */
 class ViewFsFileStatus extends FileStatus {
-   final FileStatus myFs;
-   Path modifiedPath;
-   ViewFsFileStatus(FileStatus fs, Path newPath) {
-     myFs = fs;
-     modifiedPath = newPath;
-   }
-   
-   @Override
-   public boolean equals(Object o) {
-     return super.equals(o);
-   }
-   
-   @Override
-  public int hashCode() {
-     return super.hashCode();
-   }
-   
-   @Override
-   public long getLen() {
-     return myFs.getLen();
-   }
+    final FileStatus myFs;
+    Path modifiedPath;
+    ViewFsFileStatus(FileStatus fs, Path newPath) {
+        myFs = fs;
+        modifiedPath = newPath;
+    }
 
-   @Override
-   public boolean isFile() {
-     return myFs.isFile();
-   }
+    @Override
+    public boolean equals(Object o) {
+        return super.equals(o);
+    }
 
-   @Override
-   public boolean isDirectory() {
-     return  myFs.isDirectory();
-   }
-   
-   @Override
-   @SuppressWarnings("deprecation")
-   public boolean isDir() {
-     return myFs.isDirectory();
-   }
-   
-   @Override
-   public boolean isSymlink() {
-     return myFs.isSymlink();
-   }
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 
-   @Override
-   public long getBlockSize() {
-     return myFs.getBlockSize();
-   }
+    @Override
+    public long getLen() {
+        return myFs.getLen();
+    }
 
-   @Override
-   public short getReplication() {
-     return myFs.getReplication();
-   }
+    @Override
+    public boolean isFile() {
+        return myFs.isFile();
+    }
 
-   @Override
-   public long getModificationTime() {
-     return myFs.getModificationTime();
-   }
+    @Override
+    public boolean isDirectory() {
+        return  myFs.isDirectory();
+    }
 
-   @Override
-   public long getAccessTime() {
-     return myFs.getAccessTime();
-   }
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean isDir() {
+        return myFs.isDirectory();
+    }
 
-   @Override
-   public FsPermission getPermission() {
-     return myFs.getPermission();
-   }
-   
-   @Override
-   public String getOwner() {
-     return myFs.getOwner();
-   }
-   
-   @Override
-   public String getGroup() {
-     return myFs.getGroup();
-   }
-   
-   @Override
-   public Path getPath() {
-     return modifiedPath;
-   }
-   
-   @Override
-   public void setPath(final Path p) {
-     modifiedPath = p;
-   }
+    @Override
+    public boolean isSymlink() {
+        return myFs.isSymlink();
+    }
 
-   @Override
-   public Path getSymlink() throws IOException {
-     return myFs.getSymlink();
-   }
+    @Override
+    public long getBlockSize() {
+        return myFs.getBlockSize();
+    }
+
+    @Override
+    public short getReplication() {
+        return myFs.getReplication();
+    }
+
+    @Override
+    public long getModificationTime() {
+        return myFs.getModificationTime();
+    }
+
+    @Override
+    public long getAccessTime() {
+        return myFs.getAccessTime();
+    }
+
+    @Override
+    public FsPermission getPermission() {
+        return myFs.getPermission();
+    }
+
+    @Override
+    public String getOwner() {
+        return myFs.getOwner();
+    }
+
+    @Override
+    public String getGroup() {
+        return myFs.getGroup();
+    }
+
+    @Override
+    public Path getPath() {
+        return modifiedPath;
+    }
+
+    @Override
+    public void setPath(final Path p) {
+        modifiedPath = p;
+    }
+
+    @Override
+    public Path getSymlink() throws IOException {
+        return myFs.getSymlink();
+    }
 }
 

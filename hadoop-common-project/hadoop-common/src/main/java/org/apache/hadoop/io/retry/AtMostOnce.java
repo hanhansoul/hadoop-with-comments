@@ -26,9 +26,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * Used to mark certain methods of an interface with at-most-once semantics.
- * 
+ *
  * Server must guarantee that methods are executed at most once, by keeping
- * a retry cache. The previous response must be returned when duplicate 
+ * a retry cache. The previous response must be returned when duplicate
  * requests are received. Because of these guarantee, a client can retry
  * this request on failover and other network failure conditions.
  */

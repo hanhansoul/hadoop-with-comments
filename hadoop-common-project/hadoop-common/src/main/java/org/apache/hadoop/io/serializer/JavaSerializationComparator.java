@@ -37,17 +37,17 @@ import org.apache.hadoop.io.RawComparator;
 @InterfaceAudience.Public
 @InterfaceStability.Unstable
 public class JavaSerializationComparator<T extends Serializable&Comparable<T>>
-  extends DeserializerComparator<T> {
+    extends DeserializerComparator<T> {
 
-  @InterfaceAudience.Private
-  public JavaSerializationComparator() throws IOException {
-    super(new JavaSerialization.JavaSerializationDeserializer<T>());
-  }
+    @InterfaceAudience.Private
+    public JavaSerializationComparator() throws IOException {
+        super(new JavaSerialization.JavaSerializationDeserializer<T>());
+    }
 
-  @Override
-  @InterfaceAudience.Private
-  public int compare(T o1, T o2) {
-    return o1.compareTo(o2);
-  }
+    @Override
+    @InterfaceAudience.Private
+    public int compare(T o1, T o2) {
+        return o1.compareTo(o2);
+    }
 
 }

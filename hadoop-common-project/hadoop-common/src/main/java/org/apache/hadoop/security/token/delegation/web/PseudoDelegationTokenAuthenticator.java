@@ -38,17 +38,17 @@ import java.io.IOException;
 public class PseudoDelegationTokenAuthenticator
     extends DelegationTokenAuthenticator {
 
-  public PseudoDelegationTokenAuthenticator() {
-    super(new PseudoAuthenticator() {
-      @Override
-      protected String getUserName() {
-        try {
-          return UserGroupInformation.getCurrentUser().getShortUserName();
-        } catch (IOException ex) {
-          throw new RuntimeException(ex);
-        }
-      }
-    });
-  }
+    public PseudoDelegationTokenAuthenticator() {
+        super(new PseudoAuthenticator() {
+            @Override
+            protected String getUserName() {
+                try {
+                    return UserGroupInformation.getCurrentUser().getShortUserName();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+    }
 
 }

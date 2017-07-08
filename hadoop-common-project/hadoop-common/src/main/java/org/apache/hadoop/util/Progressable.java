@@ -23,7 +23,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * A facility for reporting progress.
- * 
+ *
  * <p>Clients and/or applications can use the provided <code>Progressable</code>
  * to explicitly report progress to the Hadoop framework. This is especially
  * important for operations which take significant amount of time since,
@@ -33,8 +33,8 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface Progressable {
-  /**
-   * Report progress to the Hadoop framework.
-   */
-  public void progress();
+    /**
+     * Report progress to the Hadoop framework.
+     */
+    public void progress();
 }

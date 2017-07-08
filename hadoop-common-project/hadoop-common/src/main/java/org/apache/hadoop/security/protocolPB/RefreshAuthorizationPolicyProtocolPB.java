@@ -28,10 +28,10 @@ import org.apache.hadoop.security.proto.RefreshAuthorizationPolicyProtocolProtos
 @KerberosInfo(
     serverPrincipal=CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY)
 @ProtocolInfo(
-    protocolName = "org.apache.hadoop.security.authorize.RefreshAuthorizationPolicyProtocol", 
+    protocolName = "org.apache.hadoop.security.authorize.RefreshAuthorizationPolicyProtocol",
     protocolVersion = 1)
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
 @InterfaceStability.Evolving
 public interface RefreshAuthorizationPolicyProtocolPB extends
-  RefreshAuthorizationPolicyProtocolService.BlockingInterface {
+    RefreshAuthorizationPolicyProtocolService.BlockingInterface {
 }

@@ -26,9 +26,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class FSError extends Error {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  FSError(Throwable cause) {
-    super(cause);
-  }
+    FSError(Throwable cause) {
+        super(cause);
+    }
 }

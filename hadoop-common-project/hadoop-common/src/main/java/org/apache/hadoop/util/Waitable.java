@@ -23,31 +23,31 @@ import java.util.concurrent.locks.Condition;
  * Represents an object that you can wait for.
  */
 public class Waitable<T> {
-  private T val;
-  private final Condition cond;
+    private T val;
+    private final Condition cond;
 
-  public Waitable(Condition cond) {
-    this.val = null;
-    this.cond = cond;
-  }
-
-  public T await() throws InterruptedException {
-    while (this.val == null) {
-      this.cond.await();
+    public Waitable(Condition cond) {
+        this.val = null;
+        this.cond = cond;
     }
-    return this.val;
-  }
 
-  public void provide(T val) {
-    this.val = val;
-    this.cond.signalAll();
-  }
+    public T await() throws InterruptedException {
+        while (this.val == null) {
+            this.cond.await();
+        }
+        return this.val;
+    }
 
-  public boolean hasVal() {
-    return this.val != null;
-  }
+    public void provide(T val) {
+        this.val = val;
+        this.cond.signalAll();
+    }
 
-  public T getVal() {
-    return this.val;
-  }
+    public boolean hasVal() {
+        return this.val != null;
+    }
+
+    public T getVal() {
+        return this.val;
+    }
 }

@@ -33,5 +33,5 @@ import org.apache.hadoop.ipc.proto.GenericRefreshProtocolProtos.GenericRefreshPr
 @InterfaceAudience.LimitedPrivate({"HDFS"})
 @InterfaceStability.Evolving
 public interface GenericRefreshProtocolPB extends
-  GenericRefreshProtocolService.BlockingInterface {
+    GenericRefreshProtocolService.BlockingInterface {
 }

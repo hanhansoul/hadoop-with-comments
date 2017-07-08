@@ -40,144 +40,144 @@ import org.mortbay.util.ajax.JSON;
 import org.mortbay.util.ajax.JSON.Output;
 
 /**
- * A servlet to print out metrics data.  By default, the servlet returns a 
+ * A servlet to print out metrics data.  By default, the servlet returns a
  * textual representation (no promises are made for parseability), and
  * users can use "?format=json" for parseable output.
  */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class MetricsServlet extends HttpServlet {
-  
-  /**
-   * A helper class to hold a TagMap and MetricMap.
-   */
-  static class TagsMetricsPair implements JSON.Convertible {
-    final TagMap tagMap;
-    final MetricMap metricMap;
-    
-    public TagsMetricsPair(TagMap tagMap, MetricMap metricMap) {
-      this.tagMap = tagMap;
-      this.metricMap = metricMap;
-    }
 
-    @SuppressWarnings("unchecked")
-    public void fromJSON(Map map) {
-      throw new UnsupportedOperationException();
-    }
+    /**
+     * A helper class to hold a TagMap and MetricMap.
+     */
+    static class TagsMetricsPair implements JSON.Convertible {
+        final TagMap tagMap;
+        final MetricMap metricMap;
 
-    /** Converts to JSON by providing an array. */
-    public void toJSON(Output out) {
-      out.add(new Object[] { tagMap, metricMap });
-    }
-  }
-  
-  /**
-   * Collects all metric data, and returns a map:
-   *   contextName -> recordName -> [ (tag->tagValue), (metric->metricValue) ].
-   * The values are either String or Number.  The final value is implemented
-   * as a list of TagsMetricsPair.
-   */
-   Map<String, Map<String, List<TagsMetricsPair>>> makeMap(
-       Collection<MetricsContext> contexts) throws IOException {
-    Map<String, Map<String, List<TagsMetricsPair>>> map = 
-      new TreeMap<String, Map<String, List<TagsMetricsPair>>>();
-
-    for (MetricsContext context : contexts) {
-      Map<String, List<TagsMetricsPair>> records = 
-        new TreeMap<String, List<TagsMetricsPair>>();
-      map.put(context.getContextName(), records);
-    
-      for (Map.Entry<String, Collection<OutputRecord>> r : 
-          context.getAllRecords().entrySet()) {
-        List<TagsMetricsPair> metricsAndTags = 
-          new ArrayList<TagsMetricsPair>();
-        records.put(r.getKey(), metricsAndTags);
-        for (OutputRecord outputRecord : r.getValue()) {
-          TagMap tagMap = outputRecord.getTagsCopy();
-          MetricMap metricMap = outputRecord.getMetricsCopy();
-          metricsAndTags.add(new TagsMetricsPair(tagMap, metricMap));
+        public TagsMetricsPair(TagMap tagMap, MetricMap metricMap) {
+            this.tagMap = tagMap;
+            this.metricMap = metricMap;
         }
-      }
-    }
-    return map;
-  }
-  
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
 
-    if (!HttpServer2.isInstrumentationAccessAllowed(getServletContext(),
-                                                   request, response)) {
-      return;
+        @SuppressWarnings("unchecked")
+        public void fromJSON(Map map) {
+            throw new UnsupportedOperationException();
+        }
+
+        /** Converts to JSON by providing an array. */
+        public void toJSON(Output out) {
+            out.add(new Object[] { tagMap, metricMap });
+        }
     }
 
-    String format = request.getParameter("format");
-    Collection<MetricsContext> allContexts = 
-      ContextFactory.getFactory().getAllContexts();
-    if ("json".equals(format)) {
-      response.setContentType("application/json; charset=utf-8");
-      PrintWriter out = response.getWriter();
-      try {
-        // Uses Jetty's built-in JSON support to convert the map into JSON.
-        out.print(new JSON().toJSON(makeMap(allContexts)));
-      } finally {
-        out.close();
-      }
-    } else {
-      PrintWriter out = response.getWriter();
-      try {
-        printMap(out, makeMap(allContexts));
-      } finally {
-        out.close();
-      }
-    }
-  }
-  
-  /**
-   * Prints metrics data in a multi-line text form.
-   */
-  void printMap(PrintWriter out, Map<String, Map<String, List<TagsMetricsPair>>> map) {
-    for (Map.Entry<String, Map<String, List<TagsMetricsPair>>> context : map.entrySet()) {
-      out.print(context.getKey());
-      out.print("\n");
-      for (Map.Entry<String, List<TagsMetricsPair>> record : context.getValue().entrySet()) {
-        indent(out, 1);
-        out.print(record.getKey());
-        out.print("\n");
-        for (TagsMetricsPair pair : record.getValue()) {
-          indent(out, 2);
-          // Prints tag values in the form "{key=value,key=value}:"
-          out.print("{");
-          boolean first = true;
-          for (Map.Entry<String, Object> tagValue : pair.tagMap.entrySet()) {
-            if (first) {
-              first = false;
-            } else {
-              out.print(",");
+    /**
+     * Collects all metric data, and returns a map:
+     *   contextName -> recordName -> [ (tag->tagValue), (metric->metricValue) ].
+     * The values are either String or Number.  The final value is implemented
+     * as a list of TagsMetricsPair.
+     */
+    Map<String, Map<String, List<TagsMetricsPair>>> makeMap(
+        Collection<MetricsContext> contexts) throws IOException {
+        Map<String, Map<String, List<TagsMetricsPair>>> map =
+            new TreeMap<String, Map<String, List<TagsMetricsPair>>>();
+
+        for (MetricsContext context : contexts) {
+            Map<String, List<TagsMetricsPair>> records =
+                new TreeMap<String, List<TagsMetricsPair>>();
+            map.put(context.getContextName(), records);
+
+            for (Map.Entry<String, Collection<OutputRecord>> r :
+                 context.getAllRecords().entrySet()) {
+                List<TagsMetricsPair> metricsAndTags =
+                    new ArrayList<TagsMetricsPair>();
+                records.put(r.getKey(), metricsAndTags);
+                for (OutputRecord outputRecord : r.getValue()) {
+                    TagMap tagMap = outputRecord.getTagsCopy();
+                    MetricMap metricMap = outputRecord.getMetricsCopy();
+                    metricsAndTags.add(new TagsMetricsPair(tagMap, metricMap));
+                }
             }
-            out.print(tagValue.getKey());
-            out.print("=");
-            out.print(tagValue.getValue().toString());
-          }
-          out.print("}:\n");
-          
-          // Now print metric values, one per line
-          for (Map.Entry<String, Number> metricValue : 
-              pair.metricMap.entrySet()) {
-            indent(out, 3);
-            out.print(metricValue.getKey());
-            out.print("=");
-            out.print(metricValue.getValue().toString());
-            out.print("\n");
-          }
         }
-      }
-    }    
-  }
-  
-  private void indent(PrintWriter out, int indent) {
-    for (int i = 0; i < indent; ++i) {
-      out.append("  ");
+        return map;
     }
-  }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+    throws ServletException, IOException {
+
+        if (!HttpServer2.isInstrumentationAccessAllowed(getServletContext(),
+                request, response)) {
+            return;
+        }
+
+        String format = request.getParameter("format");
+        Collection<MetricsContext> allContexts =
+            ContextFactory.getFactory().getAllContexts();
+        if ("json".equals(format)) {
+            response.setContentType("application/json; charset=utf-8");
+            PrintWriter out = response.getWriter();
+            try {
+                // Uses Jetty's built-in JSON support to convert the map into JSON.
+                out.print(new JSON().toJSON(makeMap(allContexts)));
+            } finally {
+                out.close();
+            }
+        } else {
+            PrintWriter out = response.getWriter();
+            try {
+                printMap(out, makeMap(allContexts));
+            } finally {
+                out.close();
+            }
+        }
+    }
+
+    /**
+     * Prints metrics data in a multi-line text form.
+     */
+    void printMap(PrintWriter out, Map<String, Map<String, List<TagsMetricsPair>>> map) {
+        for (Map.Entry<String, Map<String, List<TagsMetricsPair>>> context : map.entrySet()) {
+            out.print(context.getKey());
+            out.print("\n");
+            for (Map.Entry<String, List<TagsMetricsPair>> record : context.getValue().entrySet()) {
+                indent(out, 1);
+                out.print(record.getKey());
+                out.print("\n");
+                for (TagsMetricsPair pair : record.getValue()) {
+                    indent(out, 2);
+                    // Prints tag values in the form "{key=value,key=value}:"
+                    out.print("{");
+                    boolean first = true;
+                    for (Map.Entry<String, Object> tagValue : pair.tagMap.entrySet()) {
+                        if (first) {
+                            first = false;
+                        } else {
+                            out.print(",");
+                        }
+                        out.print(tagValue.getKey());
+                        out.print("=");
+                        out.print(tagValue.getValue().toString());
+                    }
+                    out.print("}:\n");
+
+                    // Now print metric values, one per line
+                    for (Map.Entry<String, Number> metricValue :
+                         pair.metricMap.entrySet()) {
+                        indent(out, 3);
+                        out.print(metricValue.getKey());
+                        out.print("=");
+                        out.print(metricValue.getValue().toString());
+                        out.print("\n");
+                    }
+                }
+            }
+        }
+    }
+
+    private void indent(PrintWriter out, int indent) {
+        for (int i = 0; i < indent; ++i) {
+            out.append("  ");
+        }
+    }
 }

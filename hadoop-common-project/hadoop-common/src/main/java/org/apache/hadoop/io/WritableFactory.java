@@ -27,7 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface WritableFactory {
-  /** Return a new instance. */
-  Writable newInstance();
+    /** Return a new instance. */
+    Writable newInstance();
 }
 

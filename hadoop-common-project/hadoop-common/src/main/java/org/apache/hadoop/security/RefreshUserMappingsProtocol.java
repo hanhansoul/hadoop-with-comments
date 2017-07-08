@@ -26,7 +26,7 @@ import org.apache.hadoop.io.retry.Idempotent;
 import org.apache.hadoop.security.KerberosInfo;
 
 /**
- * Protocol use 
+ * Protocol use
  *
  */
 @KerberosInfo(
@@ -34,23 +34,23 @@ import org.apache.hadoop.security.KerberosInfo;
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
 @InterfaceStability.Evolving
 public interface RefreshUserMappingsProtocol {
-  
-  /**
-   * Version 1: Initial version.
-   */
-  public static final long versionID = 1L;
 
-  /**
-   * Refresh user to group mappings.
-   * @throws IOException
-   */
-  @Idempotent
-  public void refreshUserToGroupsMappings() throws IOException;
-  
-  /**
-   * Refresh superuser proxy group list
-   * @throws IOException
-   */
-  @Idempotent
-  public void refreshSuperUserGroupsConfiguration() throws IOException;
+    /**
+     * Version 1: Initial version.
+     */
+    public static final long versionID = 1L;
+
+    /**
+     * Refresh user to group mappings.
+     * @throws IOException
+     */
+    @Idempotent
+    public void refreshUserToGroupsMappings() throws IOException;
+
+    /**
+     * Refresh superuser proxy group list
+     * @throws IOException
+     */
+    @Idempotent
+    public void refreshSuperUserGroupsConfiguration() throws IOException;
 }

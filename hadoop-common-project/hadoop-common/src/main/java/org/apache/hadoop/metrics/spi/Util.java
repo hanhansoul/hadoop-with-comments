@@ -35,31 +35,30 @@ import org.apache.hadoop.net.NetUtils;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class Util {
-    
-  /**
-   * This class is not intended to be instantiated
-   */
-  private Util() {}
-    
-  /**
-   * Parses a space and/or comma separated sequence of server specifications
-   * of the form <i>hostname</i> or <i>hostname:port</i>.  If 
-   * the specs string is null, defaults to localhost:defaultPort.
-   * 
-   * @return a list of InetSocketAddress objects.
-   */
-  public static List<InetSocketAddress> parse(String specs, int defaultPort) {
-    List<InetSocketAddress> result = new ArrayList<InetSocketAddress>(1);
-    if (specs == null) {
-      result.add(new InetSocketAddress("localhost", defaultPort));
+
+    /**
+     * This class is not intended to be instantiated
+     */
+    private Util() {}
+
+    /**
+     * Parses a space and/or comma separated sequence of server specifications
+     * of the form <i>hostname</i> or <i>hostname:port</i>.  If
+     * the specs string is null, defaults to localhost:defaultPort.
+     *
+     * @return a list of InetSocketAddress objects.
+     */
+    public static List<InetSocketAddress> parse(String specs, int defaultPort) {
+        List<InetSocketAddress> result = new ArrayList<InetSocketAddress>(1);
+        if (specs == null) {
+            result.add(new InetSocketAddress("localhost", defaultPort));
+        } else {
+            String[] specStrings = specs.split("[ ,]+");
+            for (String specString : specStrings) {
+                result.add(NetUtils.createSocketAddr(specString, defaultPort));
+            }
+        }
+        return result;
     }
-    else {
-      String[] specStrings = specs.split("[ ,]+");
-      for (String specString : specStrings) {
-        result.add(NetUtils.createSocketAddr(specString, defaultPort));
-      }
-    }
-    return result;
-  }
-    
+
 }

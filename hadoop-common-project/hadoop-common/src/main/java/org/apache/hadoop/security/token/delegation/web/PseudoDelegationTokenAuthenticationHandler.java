@@ -47,9 +47,9 @@ import org.apache.hadoop.security.authentication.server.PseudoAuthenticationHand
 public class PseudoDelegationTokenAuthenticationHandler
     extends DelegationTokenAuthenticationHandler {
 
-  public PseudoDelegationTokenAuthenticationHandler() {
-    super(new PseudoAuthenticationHandler(PseudoAuthenticationHandler.TYPE +
-        TYPE_POSTFIX));
-  }
+    public PseudoDelegationTokenAuthenticationHandler() {
+        super(new PseudoAuthenticationHandler(PseudoAuthenticationHandler.TYPE +
+                                              TYPE_POSTFIX));
+    }
 
 }

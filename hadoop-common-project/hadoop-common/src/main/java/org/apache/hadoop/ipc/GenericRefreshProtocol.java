@@ -34,16 +34,16 @@ import org.apache.hadoop.security.KerberosInfo;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public interface GenericRefreshProtocol {
-  /**
-   * Version 1: Initial version.
-   */
-  public static final long versionID = 1L;
+    /**
+     * Version 1: Initial version.
+     */
+    public static final long versionID = 1L;
 
-  /**
-   * Refresh the resource based on identity passed in.
-   * @throws IOException
-   */
-  @Idempotent
-  Collection<RefreshResponse> refresh(String identifier, String[] args)
-      throws IOException;
+    /**
+     * Refresh the resource based on identity passed in.
+     * @throws IOException
+     */
+    @Idempotent
+    Collection<RefreshResponse> refresh(String identifier, String[] args)
+    throws IOException;
 }

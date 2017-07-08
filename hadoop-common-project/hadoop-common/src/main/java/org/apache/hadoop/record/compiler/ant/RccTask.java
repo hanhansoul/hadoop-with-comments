@@ -49,97 +49,97 @@ import org.apache.tools.ant.types.FileSet;
  *   &lt;fileset include="**\/*.jr" /&gt;
  * &lt;/recordcc&gt;
  * </pre>
- * 
+ *
  * @deprecated Replaced by <a href="http://hadoop.apache.org/avro/">Avro</a>.
  */
 @Deprecated
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class RccTask extends Task {
-  
-  private String language = "java";
-  private File src;
-  private File dest = new File(".");
-  private final ArrayList<FileSet> filesets = new ArrayList<FileSet>();
-  private boolean failOnError = true;
-  
-  /** Creates a new instance of RccTask */
-  public RccTask() {
-  }
-  
-  /**
-   * Sets the output language option
-   * @param language "java"/"c++"
-   */
-  public void setLanguage(String language) {
-    this.language = language;
-  }
-  
-  /**
-   * Sets the record definition file attribute
-   * @param file record definition file
-   */
-  public void setFile(File file) {
-    this.src = file;
-  }
-  
-  /**
-   * Given multiple files (via fileset), set the error handling behavior
-   * @param flag true will throw build exception in case of failure (default)
-   */
-  public void setFailonerror(boolean flag) {
-    this.failOnError = flag;
-  }
-  
-  /**
-   * Sets directory where output files will be generated
-   * @param dir output directory
-   */
-  public void setDestdir(File dir) {
-    this.dest = dir;
-  }
-  
-  /**
-   * Adds a fileset that can consist of one or more files
-   * @param set Set of record definition files
-   */
-  public void addFileset(FileSet set) {
-    filesets.add(set);
-  }
-  
-  /**
-   * Invoke the Hadoop record compiler on each record definition file
-   */
-  @Override
-  public void execute() throws BuildException {
-    if (src == null && filesets.size()==0) {
-      throw new BuildException("There must be a file attribute or a fileset child element");
+
+    private String language = "java";
+    private File src;
+    private File dest = new File(".");
+    private final ArrayList<FileSet> filesets = new ArrayList<FileSet>();
+    private boolean failOnError = true;
+
+    /** Creates a new instance of RccTask */
+    public RccTask() {
     }
-    if (src != null) {
-      doCompile(src);
+
+    /**
+     * Sets the output language option
+     * @param language "java"/"c++"
+     */
+    public void setLanguage(String language) {
+        this.language = language;
     }
-    Project myProject = getProject();
-    for (int i = 0; i < filesets.size(); i++) {
-      FileSet fs = filesets.get(i);
-      DirectoryScanner ds = fs.getDirectoryScanner(myProject);
-      File dir = fs.getDir(myProject);
-      String[] srcs = ds.getIncludedFiles();
-      for (int j = 0; j < srcs.length; j++) {
-        doCompile(new File(dir, srcs[j]));
-      }
+
+    /**
+     * Sets the record definition file attribute
+     * @param file record definition file
+     */
+    public void setFile(File file) {
+        this.src = file;
     }
-  }
-  
-  private void doCompile(File file) throws BuildException {
-    String[] args = new String[5];
-    args[0] = "--language";
-    args[1] = this.language;
-    args[2] = "--destdir";
-    args[3] = this.dest.getPath();
-    args[4] = file.getPath();
-    int retVal = Rcc.driver(args);
-    if (retVal != 0 && failOnError) {
-      throw new BuildException("Hadoop record compiler returned error code "+retVal);
+
+    /**
+     * Given multiple files (via fileset), set the error handling behavior
+     * @param flag true will throw build exception in case of failure (default)
+     */
+    public void setFailonerror(boolean flag) {
+        this.failOnError = flag;
     }
-  }
+
+    /**
+     * Sets directory where output files will be generated
+     * @param dir output directory
+     */
+    public void setDestdir(File dir) {
+        this.dest = dir;
+    }
+
+    /**
+     * Adds a fileset that can consist of one or more files
+     * @param set Set of record definition files
+     */
+    public void addFileset(FileSet set) {
+        filesets.add(set);
+    }
+
+    /**
+     * Invoke the Hadoop record compiler on each record definition file
+     */
+    @Override
+    public void execute() throws BuildException {
+        if (src == null && filesets.size()==0) {
+            throw new BuildException("There must be a file attribute or a fileset child element");
+        }
+        if (src != null) {
+            doCompile(src);
+        }
+        Project myProject = getProject();
+        for (int i = 0; i < filesets.size(); i++) {
+            FileSet fs = filesets.get(i);
+            DirectoryScanner ds = fs.getDirectoryScanner(myProject);
+            File dir = fs.getDir(myProject);
+            String[] srcs = ds.getIncludedFiles();
+            for (int j = 0; j < srcs.length; j++) {
+                doCompile(new File(dir, srcs[j]));
+            }
+        }
+    }
+
+    private void doCompile(File file) throws BuildException {
+        String[] args = new String[5];
+        args[0] = "--language";
+        args[1] = this.language;
+        args[2] = "--destdir";
+        args[3] = this.dest.getPath();
+        args[4] = file.getPath();
+        int retVal = Rcc.driver(args);
+        if (retVal != 0 && failOnError) {
+            throw new BuildException("Hadoop record compiler returned error code "+retVal);
+        }
+    }
 }

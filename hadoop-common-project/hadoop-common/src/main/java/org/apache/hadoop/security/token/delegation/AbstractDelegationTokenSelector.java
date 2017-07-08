@@ -33,29 +33,29 @@ import org.apache.hadoop.security.token.TokenSelector;
  */
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
 @InterfaceStability.Evolving
-public 
-class AbstractDelegationTokenSelector<TokenIdent 
-extends AbstractDelegationTokenIdentifier> 
+public
+class AbstractDelegationTokenSelector<TokenIdent
+    extends AbstractDelegationTokenIdentifier>
     implements TokenSelector<TokenIdent> {
-  private Text kindName;
-  
-  protected AbstractDelegationTokenSelector(Text kindName) {
-    this.kindName = kindName;
-  }
+    private Text kindName;
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Token<TokenIdent> selectToken(Text service,
-      Collection<Token<? extends TokenIdentifier>> tokens) {
-    if (service == null) {
-      return null;
+    protected AbstractDelegationTokenSelector(Text kindName) {
+        this.kindName = kindName;
     }
-    for (Token<? extends TokenIdentifier> token : tokens) {
-      if (kindName.equals(token.getKind())
-          && service.equals(token.getService())) {
-        return (Token<TokenIdent>) token;
-      }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Token<TokenIdent> selectToken(Text service,
+                                         Collection<Token<? extends TokenIdentifier>> tokens) {
+        if (service == null) {
+            return null;
+        }
+        for (Token<? extends TokenIdentifier> token : tokens) {
+            if (kindName.equals(token.getKind())
+                && service.equals(token.getService())) {
+                return (Token<TokenIdent>) token;
+            }
+        }
+        return null;
     }
-    return null;
-  }
 }

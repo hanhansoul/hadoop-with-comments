@@ -26,53 +26,63 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceStability.Unstable
 public class RefreshResponse {
-  private int returnCode = -1;
-  private String message;
-  private String senderName;
+    private int returnCode = -1;
+    private String message;
+    private String senderName;
 
-  /**
-   * Convenience method to create a response for successful refreshes.
-   * @return void response
-   */
-  public static RefreshResponse successResponse() {
-    return new RefreshResponse(0, "Success");
-  }
-
-  // Most RefreshHandlers will use this
-  public RefreshResponse(int returnCode, String message) {
-    this.returnCode = returnCode;
-    this.message = message;
-  }
-
-  /**
-   * Optionally set the sender of this RefreshResponse.
-   * This helps clarify things when multiple handlers respond.
-   * @param name The name of the sender
-   */
-  public void setSenderName(String name) {
-    senderName = name;
-  }
-  public String getSenderName() { return senderName; }
-
-  public int getReturnCode() { return returnCode; }
-  public void setReturnCode(int rc) { returnCode = rc; }
-
-  public void setMessage(String m) { message = m; }
-  public String getMessage() { return message; }
-
-  @Override
-  public String toString() {
-    String ret = "";
-
-    if (senderName != null) {
-      ret += senderName + ": ";
+    /**
+     * Convenience method to create a response for successful refreshes.
+     * @return void response
+     */
+    public static RefreshResponse successResponse() {
+        return new RefreshResponse(0, "Success");
     }
 
-    if (message != null) {
-      ret += message;
+    // Most RefreshHandlers will use this
+    public RefreshResponse(int returnCode, String message) {
+        this.returnCode = returnCode;
+        this.message = message;
     }
 
-    ret += " (exit " + returnCode + ")";
-    return ret;
-  }
+    /**
+     * Optionally set the sender of this RefreshResponse.
+     * This helps clarify things when multiple handlers respond.
+     * @param name The name of the sender
+     */
+    public void setSenderName(String name) {
+        senderName = name;
+    }
+    public String getSenderName() {
+        return senderName;
+    }
+
+    public int getReturnCode() {
+        return returnCode;
+    }
+    public void setReturnCode(int rc) {
+        returnCode = rc;
+    }
+
+    public void setMessage(String m) {
+        message = m;
+    }
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String toString() {
+        String ret = "";
+
+        if (senderName != null) {
+            ret += senderName + ": ";
+        }
+
+        if (message != null) {
+            ret += message;
+        }
+
+        ret += " (exit " + returnCode + ")";
+        return ret;
+    }
 }

@@ -27,10 +27,10 @@ import org.apache.hadoop.ipc.Client.ConnectionId;
  * implementations.
  */
 public interface RpcInvocationHandler extends InvocationHandler, Closeable {
-  
-  /**
-   * Returns the connection id associated with the InvocationHandler instance.
-   * @return ConnectionId
-   */
-  ConnectionId getConnectionId();
+
+    /**
+     * Returns the connection id associated with the InvocationHandler instance.
+     * @return ConnectionId
+     */
+    ConnectionId getConnectionId();
 }

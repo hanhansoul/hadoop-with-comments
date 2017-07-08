@@ -50,8 +50,8 @@ import org.apache.hadoop.util.Progressable;
 
 /**
  * <code>ChRootedFileSystem</code> is a file system with its root some path
- * below the root of its base file system. 
- * 
+ * below the root of its base file system.
+ *
  * Example: For a base file system hdfs://nn1/ with chRoot at /usr/foo, the
  * members will be setup as shown below.
  * <ul>
@@ -60,7 +60,7 @@ import org.apache.hadoop.util.Progressable;
  * <li>chRootPathPart is /user/foo</li>
  * <li>workingDir is a directory related to chRoot</li>
  * </ul>
- * 
+ *
  * The paths are resolved as follows by ChRootedFileSystem:
  * <ul>
  * <li> Absolute path /a/b/c is resolved to /user/foo/a/b/c at myFs</li>
@@ -71,338 +71,338 @@ import org.apache.hadoop.util.Progressable;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving /*Evolving for a release,to be changed to Stable */
 class ChRootedFileSystem extends FilterFileSystem {
-  private final URI myUri; // the base URI + the chRoot
-  private final Path chRootPathPart; // the root below the root of the base
-  private final String chRootPathPartString;
-  private Path workingDir;
-  
-  protected FileSystem getMyFs() {
-    return getRawFileSystem();
-  }
-  
-  /**
-   * @param path
-   * @return  full path including the chroot 
-   */
-  protected Path fullPath(final Path path) {
-    super.checkPath(path);
-    return path.isAbsolute() ? 
-        new Path((chRootPathPart.isRoot() ? "" : chRootPathPartString)
-            + path.toUri().getPath()) :
-        new Path(chRootPathPartString + workingDir.toUri().getPath(), path);
-  }
-  
-  /**
-   * Constructor
-   * @param uri base file system
-   * @param conf configuration
-   * @throws IOException 
-   */
-  public ChRootedFileSystem(final URI uri, Configuration conf)
-      throws IOException {
-    super(FileSystem.get(uri, conf));
-    String pathString = uri.getPath();
-    if (pathString.isEmpty()) {
-      pathString = "/";
-    }
-    chRootPathPart = new Path(pathString);
-    chRootPathPartString = chRootPathPart.toUri().getPath();
-    myUri = uri;
-    workingDir = getHomeDirectory();
-    // We don't use the wd of the myFs
-  }
-  
-  /** 
-   * Called after a new FileSystem instance is constructed.
-   * @param name a uri whose authority section names the host, port, etc.
-   *   for this FileSystem
-   * @param conf the configuration
-   */
-  @Override
-  public void initialize(final URI name, final Configuration conf)
-      throws IOException {
-    super.initialize(name, conf);
-    setConf(conf);
-  }
+    private final URI myUri; // the base URI + the chRoot
+    private final Path chRootPathPart; // the root below the root of the base
+    private final String chRootPathPartString;
+    private Path workingDir;
 
-  @Override
-  public URI getUri() {
-    return myUri;
-  }
-  
-  /**
-   * Strip out the root from the path.
-   * @param p - fully qualified path p
-   * @return -  the remaining path  without the begining /
-   * @throws IOException if the p is not prefixed with root
-   */
-  String stripOutRoot(final Path p) throws IOException {
-    try {
-     checkPath(p);
-    } catch (IllegalArgumentException e) {
-      throw new IOException("Internal Error - path " + p +
-          " should have been with URI: " + myUri);
+    protected FileSystem getMyFs() {
+        return getRawFileSystem();
     }
-    String pathPart = p.toUri().getPath();
-    return (pathPart.length() == chRootPathPartString.length()) ? "" : pathPart
-        .substring(chRootPathPartString.length() + (chRootPathPart.isRoot() ? 0 : 1));
-  }
-  
-  @Override
-  protected Path getInitialWorkingDirectory() {
-    /*
-     * 3 choices here: 
-     *     null or / or /user/<uname> or strip out the root out of myFs's
-     *  inital wd. 
-     * Only reasonable choice for initialWd for chrooted fds is null 
-     * so that the default rule for wd is applied
+
+    /**
+     * @param path
+     * @return  full path including the chroot
      */
-    return null;
-  }
-  
-  public Path getResolvedQualifiedPath(final Path f)
-      throws FileNotFoundException {
-    return makeQualified(
-        new Path(chRootPathPartString + f.toUri().toString()));
-  }
+    protected Path fullPath(final Path path) {
+        super.checkPath(path);
+        return path.isAbsolute() ?
+               new Path((chRootPathPart.isRoot() ? "" : chRootPathPartString)
+                        + path.toUri().getPath()) :
+               new Path(chRootPathPartString + workingDir.toUri().getPath(), path);
+    }
 
-  @Override
-  public Path getWorkingDirectory() {
-    return workingDir;
-  }
-  
-  @Override
-  public void setWorkingDirectory(final Path new_dir) {
-    workingDir = new_dir.isAbsolute() ? new_dir : new Path(workingDir, new_dir);
-  }
-
-  @Override
-  public FSDataOutputStream create(final Path f, final FsPermission permission,
-      final boolean overwrite, final int bufferSize, final short replication,
-      final long blockSize, final Progressable progress) throws IOException {
-    return super.create(fullPath(f), permission, overwrite, bufferSize,
-        replication, blockSize, progress);
-  }
-  
-  @Override
-  @Deprecated
-  public FSDataOutputStream createNonRecursive(Path f, FsPermission permission,
-      EnumSet<CreateFlag> flags, int bufferSize, short replication, long blockSize,
-      Progressable progress) throws IOException {
-    
-    return super.createNonRecursive(fullPath(f), permission, flags, bufferSize, replication, blockSize,
-        progress);
-  }
-
-  @Override
-  public boolean delete(final Path f, final boolean recursive) 
-      throws IOException {
-    return super.delete(fullPath(f), recursive);
-  }
-  
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public boolean delete(Path f) throws IOException {
-   return delete(f, true);
-  }
-
-  @Override
-  public BlockLocation[] getFileBlockLocations(final FileStatus fs, final long start,
-      final long len) throws IOException {
-    return super.getFileBlockLocations(
-        new ViewFsFileStatus(fs, fullPath(fs.getPath())), start, len);
-  }
-
-  @Override
-  public FileChecksum getFileChecksum(final Path f) 
-      throws IOException {
-    return super.getFileChecksum(fullPath(f));
-  }
-
-  @Override
-  public FileStatus getFileStatus(final Path f) 
-      throws IOException {
-    return super.getFileStatus(fullPath(f));
-  }
-
-  @Override
-  public void access(Path path, FsAction mode) throws AccessControlException,
-      FileNotFoundException, IOException {
-    super.access(fullPath(path), mode);
-  }
-
-  @Override
-  public FsStatus getStatus(Path p) throws IOException {
-    return super.getStatus(fullPath(p));
-  }
-
-  @Override
-  public FileStatus[] listStatus(final Path f) 
-      throws IOException {
-    return super.listStatus(fullPath(f));
-  }
-
-  @Override
-  public RemoteIterator<LocatedFileStatus> listLocatedStatus(Path f)
-      throws IOException {
-    return super.listLocatedStatus(fullPath(f));
-  }
-
-  @Override
-  public boolean mkdirs(final Path f, final FsPermission permission)
-      throws IOException {
-    return super.mkdirs(fullPath(f), permission);
-  }
-
-  @Override
-  public FSDataInputStream open(final Path f, final int bufferSize) 
+    /**
+     * Constructor
+     * @param uri base file system
+     * @param conf configuration
+     * @throws IOException
+     */
+    public ChRootedFileSystem(final URI uri, Configuration conf)
     throws IOException {
-    return super.open(fullPath(f), bufferSize);
-  }
-  
-  @Override
-  public FSDataOutputStream append(final Path f, final int bufferSize,
-      final Progressable progress) throws IOException {
-    return super.append(fullPath(f), bufferSize, progress);
-  }
+        super(FileSystem.get(uri, conf));
+        String pathString = uri.getPath();
+        if (pathString.isEmpty()) {
+            pathString = "/";
+        }
+        chRootPathPart = new Path(pathString);
+        chRootPathPartString = chRootPathPart.toUri().getPath();
+        myUri = uri;
+        workingDir = getHomeDirectory();
+        // We don't use the wd of the myFs
+    }
 
-  @Override
-  public boolean rename(final Path src, final Path dst) throws IOException {
-    // note fullPath will check that paths are relative to this FileSystem.
-    // Hence both are in same file system and a rename is valid
-    return super.rename(fullPath(src), fullPath(dst)); 
-  }
-  
-  @Override
-  public void setOwner(final Path f, final String username,
-      final String groupname)
+    /**
+     * Called after a new FileSystem instance is constructed.
+     * @param name a uri whose authority section names the host, port, etc.
+     *   for this FileSystem
+     * @param conf the configuration
+     */
+    @Override
+    public void initialize(final URI name, final Configuration conf)
     throws IOException {
-    super.setOwner(fullPath(f), username, groupname);
-  }
+        super.initialize(name, conf);
+        setConf(conf);
+    }
 
-  @Override
-  public void setPermission(final Path f, final FsPermission permission)
+    @Override
+    public URI getUri() {
+        return myUri;
+    }
+
+    /**
+     * Strip out the root from the path.
+     * @param p - fully qualified path p
+     * @return -  the remaining path  without the begining /
+     * @throws IOException if the p is not prefixed with root
+     */
+    String stripOutRoot(final Path p) throws IOException {
+        try {
+            checkPath(p);
+        } catch (IllegalArgumentException e) {
+            throw new IOException("Internal Error - path " + p +
+                                  " should have been with URI: " + myUri);
+        }
+        String pathPart = p.toUri().getPath();
+        return (pathPart.length() == chRootPathPartString.length()) ? "" : pathPart
+               .substring(chRootPathPartString.length() + (chRootPathPart.isRoot() ? 0 : 1));
+    }
+
+    @Override
+    protected Path getInitialWorkingDirectory() {
+        /*
+         * 3 choices here:
+         *     null or / or /user/<uname> or strip out the root out of myFs's
+         *  inital wd.
+         * Only reasonable choice for initialWd for chrooted fds is null
+         * so that the default rule for wd is applied
+         */
+        return null;
+    }
+
+    public Path getResolvedQualifiedPath(final Path f)
+    throws FileNotFoundException {
+        return makeQualified(
+                   new Path(chRootPathPartString + f.toUri().toString()));
+    }
+
+    @Override
+    public Path getWorkingDirectory() {
+        return workingDir;
+    }
+
+    @Override
+    public void setWorkingDirectory(final Path new_dir) {
+        workingDir = new_dir.isAbsolute() ? new_dir : new Path(workingDir, new_dir);
+    }
+
+    @Override
+    public FSDataOutputStream create(final Path f, final FsPermission permission,
+                                     final boolean overwrite, final int bufferSize, final short replication,
+                                     final long blockSize, final Progressable progress) throws IOException {
+        return super.create(fullPath(f), permission, overwrite, bufferSize,
+                            replication, blockSize, progress);
+    }
+
+    @Override
+    @Deprecated
+    public FSDataOutputStream createNonRecursive(Path f, FsPermission permission,
+            EnumSet<CreateFlag> flags, int bufferSize, short replication, long blockSize,
+            Progressable progress) throws IOException {
+
+        return super.createNonRecursive(fullPath(f), permission, flags, bufferSize, replication, blockSize,
+                                        progress);
+    }
+
+    @Override
+    public boolean delete(final Path f, final boolean recursive)
     throws IOException {
-    super.setPermission(fullPath(f), permission);
-  }
+        return super.delete(fullPath(f), recursive);
+    }
 
-  @Override
-  public boolean setReplication(final Path f, final short replication)
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean delete(Path f) throws IOException {
+        return delete(f, true);
+    }
+
+    @Override
+    public BlockLocation[] getFileBlockLocations(final FileStatus fs, final long start,
+            final long len) throws IOException {
+        return super.getFileBlockLocations(
+                   new ViewFsFileStatus(fs, fullPath(fs.getPath())), start, len);
+    }
+
+    @Override
+    public FileChecksum getFileChecksum(final Path f)
     throws IOException {
-    return super.setReplication(fullPath(f), replication);
-  }
+        return super.getFileChecksum(fullPath(f));
+    }
 
-  @Override
-  public void setTimes(final Path f, final long mtime, final long atime) 
-      throws IOException {
-    super.setTimes(fullPath(f), mtime, atime);
-  }
+    @Override
+    public FileStatus getFileStatus(final Path f)
+    throws IOException {
+        return super.getFileStatus(fullPath(f));
+    }
 
-  @Override
-  public void modifyAclEntries(Path path, List<AclEntry> aclSpec)
-      throws IOException {
-    super.modifyAclEntries(fullPath(path), aclSpec);
-  }
+    @Override
+    public void access(Path path, FsAction mode) throws AccessControlException,
+        FileNotFoundException, IOException {
+        super.access(fullPath(path), mode);
+    }
 
-  @Override
-  public void removeAclEntries(Path path, List<AclEntry> aclSpec)
-      throws IOException {
-    super.removeAclEntries(fullPath(path), aclSpec);
-  }
+    @Override
+    public FsStatus getStatus(Path p) throws IOException {
+        return super.getStatus(fullPath(p));
+    }
 
-  @Override
-  public void removeDefaultAcl(Path path) throws IOException {
-    super.removeDefaultAcl(fullPath(path));
-  }
+    @Override
+    public FileStatus[] listStatus(final Path f)
+    throws IOException {
+        return super.listStatus(fullPath(f));
+    }
 
-  @Override
-  public void removeAcl(Path path) throws IOException {
-    super.removeAcl(fullPath(path));
-  }
+    @Override
+    public RemoteIterator<LocatedFileStatus> listLocatedStatus(Path f)
+    throws IOException {
+        return super.listLocatedStatus(fullPath(f));
+    }
 
-  @Override
-  public void setAcl(Path path, List<AclEntry> aclSpec) throws IOException {
-    super.setAcl(fullPath(path), aclSpec);
-  }
+    @Override
+    public boolean mkdirs(final Path f, final FsPermission permission)
+    throws IOException {
+        return super.mkdirs(fullPath(f), permission);
+    }
 
-  @Override
-  public AclStatus getAclStatus(Path path) throws IOException {
-    return super.getAclStatus(fullPath(path));
-  }
+    @Override
+    public FSDataInputStream open(final Path f, final int bufferSize)
+    throws IOException {
+        return super.open(fullPath(f), bufferSize);
+    }
 
-  @Override
-  public void setXAttr(Path path, String name, byte[] value,
-      EnumSet<XAttrSetFlag> flag) throws IOException {
-    super.setXAttr(fullPath(path), name, value, flag);
-  }
+    @Override
+    public FSDataOutputStream append(final Path f, final int bufferSize,
+                                     final Progressable progress) throws IOException {
+        return super.append(fullPath(f), bufferSize, progress);
+    }
 
-  @Override
-  public byte[] getXAttr(Path path, String name) throws IOException {
-    return super.getXAttr(fullPath(path), name);
-  }
+    @Override
+    public boolean rename(final Path src, final Path dst) throws IOException {
+        // note fullPath will check that paths are relative to this FileSystem.
+        // Hence both are in same file system and a rename is valid
+        return super.rename(fullPath(src), fullPath(dst));
+    }
 
-  @Override
-  public Map<String, byte[]> getXAttrs(Path path) throws IOException {
-    return super.getXAttrs(fullPath(path));
-  }
+    @Override
+    public void setOwner(final Path f, final String username,
+                         final String groupname)
+    throws IOException {
+        super.setOwner(fullPath(f), username, groupname);
+    }
 
-  @Override
-  public Map<String, byte[]> getXAttrs(Path path, List<String> names)
-      throws IOException {
-    return super.getXAttrs(fullPath(path), names);
-  }
+    @Override
+    public void setPermission(final Path f, final FsPermission permission)
+    throws IOException {
+        super.setPermission(fullPath(f), permission);
+    }
 
-  @Override
-  public List<String> listXAttrs(Path path) throws IOException {
-    return super.listXAttrs(fullPath(path));
-  }
+    @Override
+    public boolean setReplication(final Path f, final short replication)
+    throws IOException {
+        return super.setReplication(fullPath(f), replication);
+    }
 
-  @Override
-  public void removeXAttr(Path path, String name) throws IOException {
-    super.removeXAttr(fullPath(path), name);
-  }
+    @Override
+    public void setTimes(final Path f, final long mtime, final long atime)
+    throws IOException {
+        super.setTimes(fullPath(f), mtime, atime);
+    }
 
-  @Override
-  public Path resolvePath(final Path p) throws IOException {
-    return super.resolvePath(fullPath(p));
-  }
+    @Override
+    public void modifyAclEntries(Path path, List<AclEntry> aclSpec)
+    throws IOException {
+        super.modifyAclEntries(fullPath(path), aclSpec);
+    }
 
-  @Override
-  public ContentSummary getContentSummary(Path f) throws IOException {
-    return fs.getContentSummary(fullPath(f));
-  }
-  
+    @Override
+    public void removeAclEntries(Path path, List<AclEntry> aclSpec)
+    throws IOException {
+        super.removeAclEntries(fullPath(path), aclSpec);
+    }
 
-  private static Path rootPath = new Path(Path.SEPARATOR);
+    @Override
+    public void removeDefaultAcl(Path path) throws IOException {
+        super.removeDefaultAcl(fullPath(path));
+    }
 
-  @Override
-  public long getDefaultBlockSize() {
-    return getDefaultBlockSize(fullPath(rootPath));
-  }
-  
-  @Override
-  public long getDefaultBlockSize(Path f) {
-    return super.getDefaultBlockSize(fullPath(f));
-  }  
+    @Override
+    public void removeAcl(Path path) throws IOException {
+        super.removeAcl(fullPath(path));
+    }
 
-  @Override
-  public short getDefaultReplication() {
-    return getDefaultReplication(fullPath(rootPath));
-  }
+    @Override
+    public void setAcl(Path path, List<AclEntry> aclSpec) throws IOException {
+        super.setAcl(fullPath(path), aclSpec);
+    }
 
-  @Override
-  public short getDefaultReplication(Path f) {
-    return super.getDefaultReplication(fullPath(f));
-  }
-  
-  @Override
-  public FsServerDefaults getServerDefaults() throws IOException {
-    return getServerDefaults(fullPath(rootPath));
-  }  
+    @Override
+    public AclStatus getAclStatus(Path path) throws IOException {
+        return super.getAclStatus(fullPath(path));
+    }
 
-  @Override
-  public FsServerDefaults getServerDefaults(Path f) throws IOException {
-    return super.getServerDefaults(fullPath(f));
-  }  
+    @Override
+    public void setXAttr(Path path, String name, byte[] value,
+                         EnumSet<XAttrSetFlag> flag) throws IOException {
+        super.setXAttr(fullPath(path), name, value, flag);
+    }
+
+    @Override
+    public byte[] getXAttr(Path path, String name) throws IOException {
+        return super.getXAttr(fullPath(path), name);
+    }
+
+    @Override
+    public Map<String, byte[]> getXAttrs(Path path) throws IOException {
+        return super.getXAttrs(fullPath(path));
+    }
+
+    @Override
+    public Map<String, byte[]> getXAttrs(Path path, List<String> names)
+    throws IOException {
+        return super.getXAttrs(fullPath(path), names);
+    }
+
+    @Override
+    public List<String> listXAttrs(Path path) throws IOException {
+        return super.listXAttrs(fullPath(path));
+    }
+
+    @Override
+    public void removeXAttr(Path path, String name) throws IOException {
+        super.removeXAttr(fullPath(path), name);
+    }
+
+    @Override
+    public Path resolvePath(final Path p) throws IOException {
+        return super.resolvePath(fullPath(p));
+    }
+
+    @Override
+    public ContentSummary getContentSummary(Path f) throws IOException {
+        return fs.getContentSummary(fullPath(f));
+    }
+
+
+    private static Path rootPath = new Path(Path.SEPARATOR);
+
+    @Override
+    public long getDefaultBlockSize() {
+        return getDefaultBlockSize(fullPath(rootPath));
+    }
+
+    @Override
+    public long getDefaultBlockSize(Path f) {
+        return super.getDefaultBlockSize(fullPath(f));
+    }
+
+    @Override
+    public short getDefaultReplication() {
+        return getDefaultReplication(fullPath(rootPath));
+    }
+
+    @Override
+    public short getDefaultReplication(Path f) {
+        return super.getDefaultReplication(fullPath(f));
+    }
+
+    @Override
+    public FsServerDefaults getServerDefaults() throws IOException {
+        return getServerDefaults(fullPath(rootPath));
+    }
+
+    @Override
+    public FsServerDefaults getServerDefaults(Path f) throws IOException {
+        return super.getServerDefaults(fullPath(f));
+    }
 }

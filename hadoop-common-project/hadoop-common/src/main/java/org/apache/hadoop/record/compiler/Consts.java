@@ -23,26 +23,26 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 /**
  * const definitions for Record I/O compiler
- * 
+ *
  * @deprecated Replaced by <a href="http://hadoop.apache.org/avro/">Avro</a>.
  */
 @Deprecated
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class Consts {
-  
-  /** Cannot create a new instance */
-  private Consts() {
-  }
-  
-  // prefix to use for variables in generated classes
-  public static final String RIO_PREFIX = "_rio_";
-  // other vars used in generated classes
-  public static final String RTI_VAR = RIO_PREFIX + "recTypeInfo";
-  public static final String RTI_FILTER = RIO_PREFIX + "rtiFilter";
-  public static final String RTI_FILTER_FIELDS = RIO_PREFIX + "rtiFilterFields";
-  public static final String RECORD_OUTPUT = RIO_PREFIX + "a";
-  public static final String RECORD_INPUT = RIO_PREFIX + "a";
-  public static final String TAG = RIO_PREFIX + "tag";
-  
+
+    /** Cannot create a new instance */
+    private Consts() {
+    }
+
+    // prefix to use for variables in generated classes
+    public static final String RIO_PREFIX = "_rio_";
+    // other vars used in generated classes
+    public static final String RTI_VAR = RIO_PREFIX + "recTypeInfo";
+    public static final String RTI_FILTER = RIO_PREFIX + "rtiFilter";
+    public static final String RTI_FILTER_FIELDS = RIO_PREFIX + "rtiFilterFields";
+    public static final String RECORD_OUTPUT = RIO_PREFIX + "a";
+    public static final String RECORD_INPUT = RIO_PREFIX + "a";
+    public static final String TAG = RIO_PREFIX + "tag";
+
 }

@@ -30,86 +30,86 @@ public class KeyProviderDelegationTokenExtension extends
     KeyProviderExtension
     <KeyProviderDelegationTokenExtension.DelegationTokenExtension> {
 
-  private static DelegationTokenExtension DEFAULT_EXTENSION =
-      new DefaultDelegationTokenExtension();
-
-  /**
-   * DelegationTokenExtension is a type of Extension that exposes methods to
-   * needed to work with Delegation Tokens.
-   */
-  public interface DelegationTokenExtension extends
-    KeyProviderExtension.Extension {
+    private static DelegationTokenExtension DEFAULT_EXTENSION =
+        new DefaultDelegationTokenExtension();
 
     /**
-     * The implementer of this class will take a renewer and add all
-     * delegation tokens associated with the renewer to the
-     * <code>Credentials</code> object if it is not already present,
+     * DelegationTokenExtension is a type of Extension that exposes methods to
+     * needed to work with Delegation Tokens.
+     */
+    public interface DelegationTokenExtension extends
+        KeyProviderExtension.Extension {
+
+        /**
+         * The implementer of this class will take a renewer and add all
+         * delegation tokens associated with the renewer to the
+         * <code>Credentials</code> object if it is not already present,
+         * @param renewer the user allowed to renew the delegation tokens
+         * @param credentials cache in which to add new delegation tokens
+         * @return list of new delegation tokens
+         * @throws IOException thrown if IOException if an IO error occurs.
+         */
+        public Token<?>[] addDelegationTokens(final String renewer,
+                                              Credentials credentials) throws IOException;
+    }
+
+    /**
+     * Default implementation of {@link DelegationTokenExtension} that
+     * implements the method as a no-op.
+     */
+    private static class DefaultDelegationTokenExtension implements
+        DelegationTokenExtension {
+
+        @Override
+        public Token<?>[] addDelegationTokens(String renewer,
+                                              Credentials credentials) {
+            return null;
+        }
+
+    }
+
+    private KeyProviderDelegationTokenExtension(KeyProvider keyProvider,
+            DelegationTokenExtension extensions) {
+        super(keyProvider, extensions);
+    }
+
+    /**
+     * Passes the renewer and Credentials object to the underlying
+     * {@link DelegationTokenExtension}
      * @param renewer the user allowed to renew the delegation tokens
      * @param credentials cache in which to add new delegation tokens
      * @return list of new delegation tokens
      * @throws IOException thrown if IOException if an IO error occurs.
      */
     public Token<?>[] addDelegationTokens(final String renewer,
-        Credentials credentials) throws IOException;
-  }
-
-  /**
-   * Default implementation of {@link DelegationTokenExtension} that
-   * implements the method as a no-op.
-   */
-  private static class DefaultDelegationTokenExtension implements
-    DelegationTokenExtension {
-
-    @Override
-    public Token<?>[] addDelegationTokens(String renewer,
-        Credentials credentials) {
-      return null;
+                                          Credentials credentials) throws IOException {
+        return getExtension().addDelegationTokens(renewer, credentials);
     }
 
-  }
+    /**
+     * Creates a <code>KeyProviderDelegationTokenExtension</code> using a given
+     * {@link KeyProvider}.
+     * <p/>
+     * If the given <code>KeyProvider</code> implements the
+     * {@link DelegationTokenExtension} interface the <code>KeyProvider</code>
+     * itself will provide the extension functionality, otherwise a default
+     * extension implementation will be used.
+     *
+     * @param keyProvider <code>KeyProvider</code> to use to create the
+     * <code>KeyProviderDelegationTokenExtension</code> extension.
+     * @return a <code>KeyProviderDelegationTokenExtension</code> instance
+     * using the given <code>KeyProvider</code>.
+     */
+    public static KeyProviderDelegationTokenExtension
+    createKeyProviderDelegationTokenExtension(KeyProvider keyProvider) {
 
-  private KeyProviderDelegationTokenExtension(KeyProvider keyProvider,
-      DelegationTokenExtension extensions) {
-    super(keyProvider, extensions);
-  }
-
-  /**
-   * Passes the renewer and Credentials object to the underlying
-   * {@link DelegationTokenExtension}
-   * @param renewer the user allowed to renew the delegation tokens
-   * @param credentials cache in which to add new delegation tokens
-   * @return list of new delegation tokens
-   * @throws IOException thrown if IOException if an IO error occurs.
-   */
-  public Token<?>[] addDelegationTokens(final String renewer,
-      Credentials credentials) throws IOException {
-    return getExtension().addDelegationTokens(renewer, credentials);
-  }
-
-  /**
-   * Creates a <code>KeyProviderDelegationTokenExtension</code> using a given
-   * {@link KeyProvider}.
-   * <p/>
-   * If the given <code>KeyProvider</code> implements the
-   * {@link DelegationTokenExtension} interface the <code>KeyProvider</code>
-   * itself will provide the extension functionality, otherwise a default
-   * extension implementation will be used.
-   *
-   * @param keyProvider <code>KeyProvider</code> to use to create the
-   * <code>KeyProviderDelegationTokenExtension</code> extension.
-   * @return a <code>KeyProviderDelegationTokenExtension</code> instance
-   * using the given <code>KeyProvider</code>.
-   */
-  public static KeyProviderDelegationTokenExtension
-      createKeyProviderDelegationTokenExtension(KeyProvider keyProvider) {
-
-    DelegationTokenExtension delTokExtension =
-        (keyProvider instanceof DelegationTokenExtension) ?
+        DelegationTokenExtension delTokExtension =
+            (keyProvider instanceof DelegationTokenExtension) ?
             (DelegationTokenExtension) keyProvider :
             DEFAULT_EXTENSION;
-    return new KeyProviderDelegationTokenExtension(
-        keyProvider, delTokExtension);
+        return new KeyProviderDelegationTokenExtension(
+                   keyProvider, delTokExtension);
 
-  }
+    }
 
 }

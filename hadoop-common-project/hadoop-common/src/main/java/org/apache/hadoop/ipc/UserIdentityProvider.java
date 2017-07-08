@@ -25,12 +25,12 @@ import org.apache.hadoop.security.UserGroupInformation;
  * identity. All jobs launched by a user will be grouped together.
  */
 public class UserIdentityProvider implements IdentityProvider {
-  public String makeIdentity(Schedulable obj) {
-    UserGroupInformation ugi = obj.getUserGroupInformation();
-    if (ugi == null) {
-      return null;
-    }
+    public String makeIdentity(Schedulable obj) {
+        UserGroupInformation ugi = obj.getUserGroupInformation();
+        if (ugi == null) {
+            return null;
+        }
 
-    return ugi.getUserName();
-  }
+        return ugi.getUserName();
+    }
 }

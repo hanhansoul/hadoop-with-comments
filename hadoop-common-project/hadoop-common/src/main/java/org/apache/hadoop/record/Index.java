@@ -33,13 +33,13 @@ import org.apache.hadoop.classification.InterfaceStability;
  *   idx.incr();
  * }
  * </code>
- * 
+ *
  * @deprecated Replaced by <a href="http://hadoop.apache.org/avro/">Avro</a>.
  */
 @Deprecated
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface Index {
-  boolean done();
-  void incr();
+    boolean done();
+    void incr();
 }

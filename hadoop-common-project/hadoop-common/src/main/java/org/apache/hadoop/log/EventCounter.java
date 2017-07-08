@@ -24,11 +24,11 @@ package org.apache.hadoop.log;
  */
 @Deprecated
 public class EventCounter extends org.apache.hadoop.log.metrics.EventCounter {
-  static {
-    // The logging system is not started yet.
-    System.err.println("WARNING: "+ EventCounter.class.getName() +
-        " is deprecated. Please use "+
-        org.apache.hadoop.log.metrics.EventCounter.class.getName() +
-        " in all the log4j.properties files.");
-  }
+    static {
+        // The logging system is not started yet.
+        System.err.println("WARNING: "+ EventCounter.class.getName() +
+                           " is deprecated. Please use "+
+                           org.apache.hadoop.log.metrics.EventCounter.class.getName() +
+                           " in all the log4j.properties files.");
+    }
 }

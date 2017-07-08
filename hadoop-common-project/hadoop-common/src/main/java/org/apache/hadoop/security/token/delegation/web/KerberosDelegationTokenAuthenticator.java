@@ -35,12 +35,12 @@ import org.apache.hadoop.security.authentication.client.KerberosAuthenticator;
 public class KerberosDelegationTokenAuthenticator
     extends DelegationTokenAuthenticator {
 
-  public KerberosDelegationTokenAuthenticator() {
-    super(new KerberosAuthenticator() {
-      @Override
-      protected Authenticator getFallBackAuthenticator() {
-        return new PseudoDelegationTokenAuthenticator();
-      }
-    });
-  }
+    public KerberosDelegationTokenAuthenticator() {
+        super(new KerberosAuthenticator() {
+            @Override
+            protected Authenticator getFallBackAuthenticator() {
+                return new PseudoDelegationTokenAuthenticator();
+            }
+        });
+    }
 }

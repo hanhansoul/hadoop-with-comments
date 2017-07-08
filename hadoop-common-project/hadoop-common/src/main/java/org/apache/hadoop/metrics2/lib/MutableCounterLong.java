@@ -30,38 +30,38 @@ import org.apache.hadoop.metrics2.MetricsRecordBuilder;
 @InterfaceStability.Evolving
 public class MutableCounterLong extends MutableCounter {
 
-  private volatile long value;
+    private volatile long value;
 
-  MutableCounterLong(MetricsInfo info, long initValue) {
-    super(info);
-    this.value = initValue;
-  }
-
-  @Override
-  public synchronized void incr() {
-    ++value;
-    setChanged();
-  }
-
-  /**
-   * Increment the value by a delta
-   * @param delta of the increment
-   */
-  public synchronized void incr(long delta) {
-    value += delta;
-    setChanged();
-  }
-
-  public long value() {
-    return value;
-  }
-
-  @Override
-  public void snapshot(MetricsRecordBuilder builder, boolean all) {
-    if (all || changed()) {
-      builder.addCounter(info(), value);
-      clearChanged();
+    MutableCounterLong(MetricsInfo info, long initValue) {
+        super(info);
+        this.value = initValue;
     }
-  }
+
+    @Override
+    public synchronized void incr() {
+        ++value;
+        setChanged();
+    }
+
+    /**
+     * Increment the value by a delta
+     * @param delta of the increment
+     */
+    public synchronized void incr(long delta) {
+        value += delta;
+        setChanged();
+    }
+
+    public long value() {
+        return value;
+    }
+
+    @Override
+    public void snapshot(MetricsRecordBuilder builder, boolean all) {
+        if (all || changed()) {
+            builder.addCounter(info(), value);
+            clearChanged();
+        }
+    }
 
 }

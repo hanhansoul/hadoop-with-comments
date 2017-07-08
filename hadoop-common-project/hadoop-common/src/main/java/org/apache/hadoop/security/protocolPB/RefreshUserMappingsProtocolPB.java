@@ -28,7 +28,7 @@ import org.apache.hadoop.security.proto.RefreshUserMappingsProtocolProtos.Refres
 @KerberosInfo(
     serverPrincipal=CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY)
 @ProtocolInfo(
-    protocolName = "org.apache.hadoop.security.RefreshUserMappingsProtocol", 
+    protocolName = "org.apache.hadoop.security.RefreshUserMappingsProtocol",
     protocolVersion = 1)
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
 @InterfaceStability.Evolving

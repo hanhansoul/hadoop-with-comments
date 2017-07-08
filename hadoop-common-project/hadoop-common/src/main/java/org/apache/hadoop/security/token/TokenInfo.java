@@ -31,6 +31,6 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.LimitedPrivate({"HDFS", "MapReduce"})
 @InterfaceStability.Evolving
 public @interface TokenInfo {
-  /** The type of TokenSelector to be used */
-  Class<? extends TokenSelector<? extends TokenIdentifier>> value();
+    /** The type of TokenSelector to be used */
+    Class<? extends TokenSelector<? extends TokenIdentifier>> value();
 }

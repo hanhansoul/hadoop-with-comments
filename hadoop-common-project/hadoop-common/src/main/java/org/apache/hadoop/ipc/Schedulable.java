@@ -30,5 +30,5 @@ import org.apache.hadoop.io.Writable;
  */
 @InterfaceAudience.Private
 public interface Schedulable {
-  public UserGroupInformation getUserGroupInformation();
+    public UserGroupInformation getUserGroupInformation();
 }

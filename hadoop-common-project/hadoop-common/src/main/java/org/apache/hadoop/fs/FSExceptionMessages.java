@@ -24,20 +24,20 @@ package org.apache.hadoop.fs;
  */
 public class FSExceptionMessages {
 
-  /**
-   * The operation failed because the stream is closed: {@value}
-   */
-  public static final String STREAM_IS_CLOSED = "Stream is closed!";
+    /**
+     * The operation failed because the stream is closed: {@value}
+     */
+    public static final String STREAM_IS_CLOSED = "Stream is closed!";
 
-  /**
-   * Negative offset seek forbidden : {@value}
-   */
-  public static final String NEGATIVE_SEEK =
-    "Cannot seek to a negative offset";
+    /**
+     * Negative offset seek forbidden : {@value}
+     */
+    public static final String NEGATIVE_SEEK =
+        "Cannot seek to a negative offset";
 
-  /**
-   * Seeks : {@value}
-   */
-  public static final String CANNOT_SEEK_PAST_EOF =
-      "Attempted to seek or read past the end of the file";
+    /**
+     * Seeks : {@value}
+     */
+    public static final String CANNOT_SEEK_PAST_EOF =
+        "Attempted to seek or read past the end of the file";
 }

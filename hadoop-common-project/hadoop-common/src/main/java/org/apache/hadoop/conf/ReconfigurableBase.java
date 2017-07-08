@@ -38,222 +38,222 @@ import java.util.Map;
  * properties and getReconfigurableProperties to get all properties that
  * can be changed at run time.
  */
-public abstract class ReconfigurableBase 
-  extends Configured implements Reconfigurable {
-  
-  private static final Log LOG =
-    LogFactory.getLog(ReconfigurableBase.class);
-  // Use for testing purpose.
-  private ReconfigurationUtil reconfigurationUtil = new ReconfigurationUtil();
+public abstract class ReconfigurableBase
+    extends Configured implements Reconfigurable {
 
-  /** Background thread to reload configuration. */
-  private Thread reconfigThread = null;
-  private volatile boolean shouldRun = true;
-  private Object reconfigLock = new Object();
+    private static final Log LOG =
+        LogFactory.getLog(ReconfigurableBase.class);
+    // Use for testing purpose.
+    private ReconfigurationUtil reconfigurationUtil = new ReconfigurationUtil();
 
-  /**
-   * The timestamp when the <code>reconfigThread</code> starts.
-   */
-  private long startTime = 0;
+    /** Background thread to reload configuration. */
+    private Thread reconfigThread = null;
+    private volatile boolean shouldRun = true;
+    private Object reconfigLock = new Object();
 
-  /**
-   * The timestamp when the <code>reconfigThread</code> finishes.
-   */
-  private long endTime = 0;
+    /**
+     * The timestamp when the <code>reconfigThread</code> starts.
+     */
+    private long startTime = 0;
 
-  /**
-   * A map of <changed property, error message>. If error message is present,
-   * it contains the messages about the error occurred when applies the particular
-   * change. Otherwise, it indicates that the change has been successfully applied.
-   */
-  private Map<PropertyChange, Optional<String>> status = null;
+    /**
+     * The timestamp when the <code>reconfigThread</code> finishes.
+     */
+    private long endTime = 0;
 
-  /**
-   * Construct a ReconfigurableBase.
-   */
-  public ReconfigurableBase() {
-    super(new Configuration());
-  }
+    /**
+     * A map of <changed property, error message>. If error message is present,
+     * it contains the messages about the error occurred when applies the particular
+     * change. Otherwise, it indicates that the change has been successfully applied.
+     */
+    private Map<PropertyChange, Optional<String>> status = null;
 
-  /**
-   * Construct a ReconfigurableBase with the {@link Configuration}
-   * conf.
-   */
-  public ReconfigurableBase(Configuration conf) {
-    super((conf == null) ? new Configuration() : conf);
-  }
-
-  @VisibleForTesting
-  public void setReconfigurationUtil(ReconfigurationUtil ru) {
-    reconfigurationUtil = Preconditions.checkNotNull(ru);
-  }
-
-  @VisibleForTesting
-  public Collection<PropertyChange> getChangedProperties(
-      Configuration newConf, Configuration oldConf) {
-    return reconfigurationUtil.parseChangedProperties(newConf, oldConf);
-  }
-
-  /**
-   * A background thread to apply configuration changes.
-   */
-  private static class ReconfigurationThread extends Thread {
-    private ReconfigurableBase parent;
-
-    ReconfigurationThread(ReconfigurableBase base) {
-      this.parent = base;
+    /**
+     * Construct a ReconfigurableBase.
+     */
+    public ReconfigurableBase() {
+        super(new Configuration());
     }
 
-    // See {@link ReconfigurationServlet#applyChanges}
-    public void run() {
-      LOG.info("Starting reconfiguration task.");
-      Configuration oldConf = this.parent.getConf();
-      Configuration newConf = new Configuration();
-      Collection<PropertyChange> changes =
-          this.parent.getChangedProperties(newConf, oldConf);
-      Map<PropertyChange, Optional<String>> results = Maps.newHashMap();
-      ConfigRedactor oldRedactor = new ConfigRedactor(oldConf);
-      ConfigRedactor newRedactor = new ConfigRedactor(newConf);
-      for (PropertyChange change : changes) {
-        String errorMessage = null;
-        String oldValRedacted = oldRedactor.redact(change.prop, change.oldVal);
-        String newValRedacted = newRedactor.redact(change.prop, change.newVal);
-        if (!this.parent.isPropertyReconfigurable(change.prop)) {
-          errorMessage = "Property " + change.prop +
-              " is not reconfigurable";
-          LOG.info(errorMessage);
-          results.put(change, Optional.of(errorMessage));
-          continue;
+    /**
+     * Construct a ReconfigurableBase with the {@link Configuration}
+     * conf.
+     */
+    public ReconfigurableBase(Configuration conf) {
+        super((conf == null) ? new Configuration() : conf);
+    }
+
+    @VisibleForTesting
+    public void setReconfigurationUtil(ReconfigurationUtil ru) {
+        reconfigurationUtil = Preconditions.checkNotNull(ru);
+    }
+
+    @VisibleForTesting
+    public Collection<PropertyChange> getChangedProperties(
+        Configuration newConf, Configuration oldConf) {
+        return reconfigurationUtil.parseChangedProperties(newConf, oldConf);
+    }
+
+    /**
+     * A background thread to apply configuration changes.
+     */
+    private static class ReconfigurationThread extends Thread {
+        private ReconfigurableBase parent;
+
+        ReconfigurationThread(ReconfigurableBase base) {
+            this.parent = base;
         }
-        LOG.info("Change property: " + change.prop + " from \""
-            + ((change.oldVal == null) ? "<default>" : oldValRedacted)
-            + "\" to \""
-            + ((change.newVal == null) ? "<default>" : newValRedacted)
-            + "\".");
+
+        // See {@link ReconfigurationServlet#applyChanges}
+        public void run() {
+            LOG.info("Starting reconfiguration task.");
+            Configuration oldConf = this.parent.getConf();
+            Configuration newConf = new Configuration();
+            Collection<PropertyChange> changes =
+                this.parent.getChangedProperties(newConf, oldConf);
+            Map<PropertyChange, Optional<String>> results = Maps.newHashMap();
+            ConfigRedactor oldRedactor = new ConfigRedactor(oldConf);
+            ConfigRedactor newRedactor = new ConfigRedactor(newConf);
+            for (PropertyChange change : changes) {
+                String errorMessage = null;
+                String oldValRedacted = oldRedactor.redact(change.prop, change.oldVal);
+                String newValRedacted = newRedactor.redact(change.prop, change.newVal);
+                if (!this.parent.isPropertyReconfigurable(change.prop)) {
+                    errorMessage = "Property " + change.prop +
+                                   " is not reconfigurable";
+                    LOG.info(errorMessage);
+                    results.put(change, Optional.of(errorMessage));
+                    continue;
+                }
+                LOG.info("Change property: " + change.prop + " from \""
+                         + ((change.oldVal == null) ? "<default>" : oldValRedacted)
+                         + "\" to \""
+                         + ((change.newVal == null) ? "<default>" : newValRedacted)
+                         + "\".");
+                try {
+                    this.parent.reconfigurePropertyImpl(change.prop, change.newVal);
+                } catch (ReconfigurationException e) {
+                    errorMessage = e.toString();
+                }
+                results.put(change, Optional.fromNullable(errorMessage));
+            }
+
+            synchronized (this.parent.reconfigLock) {
+                this.parent.endTime = Time.now();
+                this.parent.status = Collections.unmodifiableMap(results);
+                this.parent.reconfigThread = null;
+            }
+        }
+    }
+
+    /**
+     * Start a reconfiguration task to reload configuration in background.
+     */
+    public void startReconfigurationTask() throws IOException {
+        synchronized (reconfigLock) {
+            if (!shouldRun) {
+                String errorMessage = "The server is stopped.";
+                LOG.warn(errorMessage);
+                throw new IOException(errorMessage);
+            }
+            if (reconfigThread != null) {
+                String errorMessage = "Another reconfiguration task is running.";
+                LOG.warn(errorMessage);
+                throw new IOException(errorMessage);
+            }
+            reconfigThread = new ReconfigurationThread(this);
+            reconfigThread.setDaemon(true);
+            reconfigThread.setName("Reconfiguration Task");
+            reconfigThread.start();
+            startTime = Time.now();
+        }
+    }
+
+    public ReconfigurationTaskStatus getReconfigurationTaskStatus() {
+        synchronized (reconfigLock) {
+            if (reconfigThread != null) {
+                return new ReconfigurationTaskStatus(startTime, 0, null);
+            }
+            return new ReconfigurationTaskStatus(startTime, endTime, status);
+        }
+    }
+
+    public void shutdownReconfigurationTask() {
+        Thread tempThread;
+        synchronized (reconfigLock) {
+            shouldRun = false;
+            if (reconfigThread == null) {
+                return;
+            }
+            tempThread = reconfigThread;
+            reconfigThread = null;
+        }
+
         try {
-          this.parent.reconfigurePropertyImpl(change.prop, change.newVal);
-        } catch (ReconfigurationException e) {
-          errorMessage = e.toString();
+            tempThread.join();
+        } catch (InterruptedException e) {
         }
-        results.put(change, Optional.fromNullable(errorMessage));
-      }
-
-      synchronized (this.parent.reconfigLock) {
-        this.parent.endTime = Time.now();
-        this.parent.status = Collections.unmodifiableMap(results);
-        this.parent.reconfigThread = null;
-      }
-    }
-  }
-
-  /**
-   * Start a reconfiguration task to reload configuration in background.
-   */
-  public void startReconfigurationTask() throws IOException {
-    synchronized (reconfigLock) {
-      if (!shouldRun) {
-        String errorMessage = "The server is stopped.";
-        LOG.warn(errorMessage);
-        throw new IOException(errorMessage);
-      }
-      if (reconfigThread != null) {
-        String errorMessage = "Another reconfiguration task is running.";
-        LOG.warn(errorMessage);
-        throw new IOException(errorMessage);
-      }
-      reconfigThread = new ReconfigurationThread(this);
-      reconfigThread.setDaemon(true);
-      reconfigThread.setName("Reconfiguration Task");
-      reconfigThread.start();
-      startTime = Time.now();
-    }
-  }
-
-  public ReconfigurationTaskStatus getReconfigurationTaskStatus() {
-    synchronized (reconfigLock) {
-      if (reconfigThread != null) {
-        return new ReconfigurationTaskStatus(startTime, 0, null);
-      }
-      return new ReconfigurationTaskStatus(startTime, endTime, status);
-    }
-  }
-
-  public void shutdownReconfigurationTask() {
-    Thread tempThread;
-    synchronized (reconfigLock) {
-      shouldRun = false;
-      if (reconfigThread == null) {
-        return;
-      }
-      tempThread = reconfigThread;
-      reconfigThread = null;
     }
 
-    try {
-      tempThread.join();
-    } catch (InterruptedException e) {
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * This method makes the change to this objects {@link Configuration}
-   * and calls reconfigurePropertyImpl to update internal data structures.
-   * This method cannot be overridden, subclasses should instead override
-   * reconfigureProperty.
-   */
-  @Override
-  public final String reconfigureProperty(String property, String newVal) 
+    /**
+     * {@inheritDoc}
+     *
+     * This method makes the change to this objects {@link Configuration}
+     * and calls reconfigurePropertyImpl to update internal data structures.
+     * This method cannot be overridden, subclasses should instead override
+     * reconfigureProperty.
+     */
+    @Override
+    public final String reconfigureProperty(String property, String newVal)
     throws ReconfigurationException {
-    if (isPropertyReconfigurable(property)) {
-      LOG.info("changing property " + property + " to " + newVal);
-      String oldVal;
-      synchronized(getConf()) {
-        oldVal = getConf().get(property);
-        reconfigurePropertyImpl(property, newVal);
-        if (newVal != null) {
-          getConf().set(property, newVal);
+        if (isPropertyReconfigurable(property)) {
+            LOG.info("changing property " + property + " to " + newVal);
+            String oldVal;
+            synchronized(getConf()) {
+                oldVal = getConf().get(property);
+                reconfigurePropertyImpl(property, newVal);
+                if (newVal != null) {
+                    getConf().set(property, newVal);
+                } else {
+                    getConf().unset(property);
+                }
+            }
+            return oldVal;
         } else {
-          getConf().unset(property);
+            throw new ReconfigurationException(property, newVal,
+                                               getConf().get(property));
         }
-      }
-      return oldVal;
-    } else {
-      throw new ReconfigurationException(property, newVal,
-                                             getConf().get(property));
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   *
-   * Subclasses must override this.
-   */
-  @Override 
-  public abstract Collection<String> getReconfigurableProperties();
+    /**
+     * {@inheritDoc}
+     *
+     * Subclasses must override this.
+     */
+    @Override
+    public abstract Collection<String> getReconfigurableProperties();
 
 
-  /**
-   * {@inheritDoc}
-   *
-   * Subclasses may wish to override this with a more efficient implementation.
-   */
-  @Override
-  public boolean isPropertyReconfigurable(String property) {
-    return getReconfigurableProperties().contains(property);
-  }
+    /**
+     * {@inheritDoc}
+     *
+     * Subclasses may wish to override this with a more efficient implementation.
+     */
+    @Override
+    public boolean isPropertyReconfigurable(String property) {
+        return getReconfigurableProperties().contains(property);
+    }
 
-  /**
-   * Change a configuration property.
-   *
-   * Subclasses must override this. This method applies the change to
-   * all internal data structures derived from the configuration property
-   * that is being changed. If this object owns other Reconfigurable objects
-   * reconfigureProperty should be called recursively to make sure that
-   * to make sure that the configuration of these objects is updated.
-   */
-  protected abstract void reconfigurePropertyImpl(String property, String newVal) 
+    /**
+     * Change a configuration property.
+     *
+     * Subclasses must override this. This method applies the change to
+     * all internal data structures derived from the configuration property
+     * that is being changed. If this object owns other Reconfigurable objects
+     * reconfigureProperty should be called recursively to make sure that
+     * to make sure that the configuration of these objects is updated.
+     */
+    protected abstract void reconfigurePropertyImpl(String property, String newVal)
     throws ReconfigurationException;
 
 }

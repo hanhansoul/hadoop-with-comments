@@ -44,86 +44,86 @@ import org.apache.hadoop.fs.FileStatus;
 @InterfaceStability.Unstable
 
 class Stat extends FsCommand {
-  public static void registerCommands(CommandFactory factory) {
-    factory.addClass(Stat.class, "-stat");
-  }
-
-  public static final String NAME = "stat";
-  public static final String USAGE = "[format] <path> ...";
-  public static final String DESCRIPTION =
-    "Print statistics about the file/directory at <path> " +
-    "in the specified format. Format accepts filesize in blocks (%b), group name of owner(%g), " +
-    "filename (%n), block size (%o), replication (%r), user name of owner(%u), modification date (%y, %Y)\n";
-
-  protected static final SimpleDateFormat timeFmt;
-  static {
-    timeFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    timeFmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-  }
-
-  // default format string
-  protected String format = "%y";
-
-  @Override
-  protected void processOptions(LinkedList<String> args) throws IOException {
-    CommandFormat cf = new CommandFormat(1, Integer.MAX_VALUE, "R");
-    cf.parse(args);
-    setRecursive(cf.getOpt("R"));
-    if (args.getFirst().contains("%")) format = args.removeFirst();
-    cf.parse(args); // make sure there's still at least one arg
-  }
-
-  @Override
-  protected void processPath(PathData item) throws IOException {
-    FileStatus stat = item.stat;
-    StringBuilder buf = new StringBuilder();
-
-    char[] fmt = format.toCharArray();
-    for (int i = 0; i < fmt.length; ++i) {
-      if (fmt[i] != '%') {
-        buf.append(fmt[i]);
-      } else {
-        // this silently drops a trailing %?
-        if (i + 1 == fmt.length) break;
-        switch (fmt[++i]) {
-          case 'b':
-            buf.append(stat.getLen());
-            break;
-          case 'F':
-            buf.append(stat.isDirectory()
-                ? "directory"
-                : (stat.isFile() ? "regular file" : "symlink"));
-            break;
-          case 'g':
-            buf.append(stat.getGroup());
-            break;
-          case 'n':
-            buf.append(item.path.getName());
-            break;
-          case 'o':
-            buf.append(stat.getBlockSize());
-            break;
-          case 'r':
-            buf.append(stat.getReplication());
-            break;
-          case 'u':
-            buf.append(stat.getOwner());
-            break;
-          case 'y':
-            buf.append(timeFmt.format(new Date(stat.getModificationTime())));
-            break;
-          case 'Y':
-            buf.append(stat.getModificationTime());
-            break;
-          default:
-            // this leaves %<unknown> alone, which causes the potential for
-            // future format options to break strings; should use %% to
-            // escape percents
-            buf.append(fmt[i]);
-            break;
-        }
-      }
+    public static void registerCommands(CommandFactory factory) {
+        factory.addClass(Stat.class, "-stat");
     }
-    out.println(buf.toString());
-  }
+
+    public static final String NAME = "stat";
+    public static final String USAGE = "[format] <path> ...";
+    public static final String DESCRIPTION =
+        "Print statistics about the file/directory at <path> " +
+        "in the specified format. Format accepts filesize in blocks (%b), group name of owner(%g), " +
+        "filename (%n), block size (%o), replication (%r), user name of owner(%u), modification date (%y, %Y)\n";
+
+    protected static final SimpleDateFormat timeFmt;
+    static {
+        timeFmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        timeFmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
+
+    // default format string
+    protected String format = "%y";
+
+    @Override
+    protected void processOptions(LinkedList<String> args) throws IOException {
+        CommandFormat cf = new CommandFormat(1, Integer.MAX_VALUE, "R");
+        cf.parse(args);
+        setRecursive(cf.getOpt("R"));
+        if (args.getFirst().contains("%")) format = args.removeFirst();
+        cf.parse(args); // make sure there's still at least one arg
+    }
+
+    @Override
+    protected void processPath(PathData item) throws IOException {
+        FileStatus stat = item.stat;
+        StringBuilder buf = new StringBuilder();
+
+        char[] fmt = format.toCharArray();
+        for (int i = 0; i < fmt.length; ++i) {
+            if (fmt[i] != '%') {
+                buf.append(fmt[i]);
+            } else {
+                // this silently drops a trailing %?
+                if (i + 1 == fmt.length) break;
+                switch (fmt[++i]) {
+                    case 'b':
+                        buf.append(stat.getLen());
+                        break;
+                    case 'F':
+                        buf.append(stat.isDirectory()
+                                   ? "directory"
+                                   : (stat.isFile() ? "regular file" : "symlink"));
+                        break;
+                    case 'g':
+                        buf.append(stat.getGroup());
+                        break;
+                    case 'n':
+                        buf.append(item.path.getName());
+                        break;
+                    case 'o':
+                        buf.append(stat.getBlockSize());
+                        break;
+                    case 'r':
+                        buf.append(stat.getReplication());
+                        break;
+                    case 'u':
+                        buf.append(stat.getOwner());
+                        break;
+                    case 'y':
+                        buf.append(timeFmt.format(new Date(stat.getModificationTime())));
+                        break;
+                    case 'Y':
+                        buf.append(stat.getModificationTime());
+                        break;
+                    default:
+                        // this leaves %<unknown> alone, which causes the potential for
+                        // future format options to break strings; should use %% to
+                        // escape percents
+                        buf.append(fmt[i]);
+                        break;
+                }
+            }
+        }
+        out.println(buf.toString());
+    }
 }

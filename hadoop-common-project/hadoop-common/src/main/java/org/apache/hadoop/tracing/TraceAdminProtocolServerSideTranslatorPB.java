@@ -38,81 +38,81 @@ import com.google.protobuf.ServiceException;
 @InterfaceAudience.Private
 public class TraceAdminProtocolServerSideTranslatorPB
     implements TraceAdminProtocolPB, Closeable  {
-  private final TraceAdminProtocol server;
+    private final TraceAdminProtocol server;
 
-  public TraceAdminProtocolServerSideTranslatorPB(TraceAdminProtocol server) {
-    this.server = server;
-  }
-
-  @Override
-  public void close() throws IOException {
-    RPC.stopProxy(server);
-  }
-
-  @Override
-  public ListSpanReceiversResponseProto listSpanReceivers(
-      RpcController controller, ListSpanReceiversRequestProto req)
-          throws ServiceException {
-    try {
-      SpanReceiverInfo[] descs = server.listSpanReceivers();
-      ListSpanReceiversResponseProto.Builder bld =
-          ListSpanReceiversResponseProto.newBuilder();
-      for (int i = 0; i < descs.length; ++i) {
-        bld.addDescriptions(TraceAdminPB.SpanReceiverListInfo.newBuilder().
-              setId(descs[i].getId()).
-              setClassName(descs[i].getClassName()).build());
-      }
-      return bld.build();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    public TraceAdminProtocolServerSideTranslatorPB(TraceAdminProtocol server) {
+        this.server = server;
     }
-  }
 
-  @Override
-  public AddSpanReceiverResponseProto addSpanReceiver(
-      RpcController controller, AddSpanReceiverRequestProto req)
-          throws ServiceException {
-    try {
-      SpanReceiverInfoBuilder factory =
-        new SpanReceiverInfoBuilder(req.getClassName());
-      for (ConfigPair config : req.getConfigList()) {
-        factory.addConfigurationPair(config.getKey(), config.getValue());
-      }
-      long id = server.addSpanReceiver(factory.build());
-      return AddSpanReceiverResponseProto.newBuilder().setId(id).build();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public void close() throws IOException {
+        RPC.stopProxy(server);
     }
-  }
 
-  @Override
-  public RemoveSpanReceiverResponseProto removeSpanReceiver(
-      RpcController controller,  RemoveSpanReceiverRequestProto req)
-          throws ServiceException {
-    try {
-      server.removeSpanReceiver(req.getId());
-      return RemoveSpanReceiverResponseProto.getDefaultInstance();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public ListSpanReceiversResponseProto listSpanReceivers(
+        RpcController controller, ListSpanReceiversRequestProto req)
+    throws ServiceException {
+        try {
+            SpanReceiverInfo[] descs = server.listSpanReceivers();
+            ListSpanReceiversResponseProto.Builder bld =
+                ListSpanReceiversResponseProto.newBuilder();
+            for (int i = 0; i < descs.length; ++i) {
+                bld.addDescriptions(TraceAdminPB.SpanReceiverListInfo.newBuilder().
+                                    setId(descs[i].getId()).
+                                    setClassName(descs[i].getClassName()).build());
+            }
+            return bld.build();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public long getProtocolVersion(String protocol, long clientVersion)
-      throws IOException {
-    return TraceAdminProtocol.versionID;
-  }
-
-  @Override
-  public ProtocolSignature getProtocolSignature(String protocol,
-          long clientVersion, int clientMethodsHash) throws IOException {
-    if (!protocol.equals(RPC.getProtocolName(TraceAdminProtocolPB.class))) {
-      throw new IOException("Serverside implements " +
-          RPC.getProtocolName(TraceAdminProtocolPB.class) +
-          ". The following requested protocol is unknown: " + protocol);
+    @Override
+    public AddSpanReceiverResponseProto addSpanReceiver(
+        RpcController controller, AddSpanReceiverRequestProto req)
+    throws ServiceException {
+        try {
+            SpanReceiverInfoBuilder factory =
+                new SpanReceiverInfoBuilder(req.getClassName());
+            for (ConfigPair config : req.getConfigList()) {
+                factory.addConfigurationPair(config.getKey(), config.getValue());
+            }
+            long id = server.addSpanReceiver(factory.build());
+            return AddSpanReceiverResponseProto.newBuilder().setId(id).build();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-    return ProtocolSignature.getProtocolSignature(clientMethodsHash,
-        RPC.getProtocolVersion(TraceAdminProtocolPB.class),
-        TraceAdminProtocolPB.class);
-  }
+
+    @Override
+    public RemoveSpanReceiverResponseProto removeSpanReceiver(
+        RpcController controller,  RemoveSpanReceiverRequestProto req)
+    throws ServiceException {
+        try {
+            server.removeSpanReceiver(req.getId());
+            return RemoveSpanReceiverResponseProto.getDefaultInstance();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public long getProtocolVersion(String protocol, long clientVersion)
+    throws IOException {
+        return TraceAdminProtocol.versionID;
+    }
+
+    @Override
+    public ProtocolSignature getProtocolSignature(String protocol,
+            long clientVersion, int clientMethodsHash) throws IOException {
+        if (!protocol.equals(RPC.getProtocolName(TraceAdminProtocolPB.class))) {
+            throw new IOException("Serverside implements " +
+                                  RPC.getProtocolName(TraceAdminProtocolPB.class) +
+                                  ". The following requested protocol is unknown: " + protocol);
+        }
+        return ProtocolSignature.getProtocolSignature(clientMethodsHash,
+                RPC.getProtocolVersion(TraceAdminProtocolPB.class),
+                TraceAdminProtocolPB.class);
+    }
 }

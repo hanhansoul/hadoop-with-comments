@@ -26,6 +26,6 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.Private
 public interface IdGenerator {
 
-  /** Increment and then return the next value. */
-  public long nextValue();
+    /** Increment and then return the next value. */
+    public long nextValue();
 }

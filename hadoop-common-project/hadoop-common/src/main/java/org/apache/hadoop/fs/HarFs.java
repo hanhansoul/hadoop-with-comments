@@ -25,14 +25,14 @@ import java.net.URISyntaxException;
 import org.apache.hadoop.conf.Configuration;
 
 public class HarFs extends DelegateToFileSystem {
-  HarFs(final URI theUri, final Configuration conf)
-      throws IOException, URISyntaxException {
-    super(theUri, new HarFileSystem(), conf, "har", false);
-  }
+    HarFs(final URI theUri, final Configuration conf)
+    throws IOException, URISyntaxException {
+        super(theUri, new HarFileSystem(), conf, "har", false);
+    }
 
-  @Override
-  public int getUriDefaultPort() {
-    return -1;
-  }
+    @Override
+    public int getUriDefaultPort() {
+        return -1;
+    }
 }
 

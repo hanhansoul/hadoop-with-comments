@@ -33,26 +33,26 @@ import java.util.ArrayList;
  */
 public class SslSocketConnectorSecure extends SslSocketConnector {
 
-  public SslSocketConnectorSecure() {
-    super();
-  }
-
-  /**
-   * Create a new ServerSocket that will not accept SSLv3 connections,
-   * but will accept TLSv1.x connections.
-   */
-  protected ServerSocket newServerSocket(String host, int port,int backlog)
-          throws IOException {
-    SSLServerSocket socket = (SSLServerSocket)
-            super.newServerSocket(host, port, backlog);
-    ArrayList<String> nonSSLProtocols = new ArrayList<String>();
-    for (String p : socket.getEnabledProtocols()) {
-      if (!p.contains("SSLv3")) {
-        nonSSLProtocols.add(p);
-      }
+    public SslSocketConnectorSecure() {
+        super();
     }
-    socket.setEnabledProtocols(nonSSLProtocols.toArray(
-            new String[nonSSLProtocols.size()]));
-    return socket;
-  }
+
+    /**
+     * Create a new ServerSocket that will not accept SSLv3 connections,
+     * but will accept TLSv1.x connections.
+     */
+    protected ServerSocket newServerSocket(String host, int port,int backlog)
+    throws IOException {
+        SSLServerSocket socket = (SSLServerSocket)
+                                 super.newServerSocket(host, port, backlog);
+        ArrayList<String> nonSSLProtocols = new ArrayList<String>();
+        for (String p : socket.getEnabledProtocols()) {
+            if (!p.contains("SSLv3")) {
+                nonSSLProtocols.add(p);
+            }
+        }
+        socket.setEnabledProtocols(nonSSLProtocols.toArray(
+                                       new String[nonSSLProtocols.size()]));
+        return socket;
+    }
 }

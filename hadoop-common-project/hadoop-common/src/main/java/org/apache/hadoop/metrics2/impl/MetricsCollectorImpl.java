@@ -35,49 +35,51 @@ import static org.apache.hadoop.metrics2.lib.Interns.*;
 public class MetricsCollectorImpl implements MetricsCollector,
     Iterable<MetricsRecordBuilderImpl> {
 
-  private final List<MetricsRecordBuilderImpl> rbs = Lists.newArrayList();
-  private MetricsFilter recordFilter, metricFilter;
+    private final List<MetricsRecordBuilderImpl> rbs = Lists.newArrayList();
+    private MetricsFilter recordFilter, metricFilter;
 
-  @Override
-  public MetricsRecordBuilderImpl addRecord(MetricsInfo info) {
-    boolean acceptable = recordFilter == null ||
-                         recordFilter.accepts(info.name());
-    MetricsRecordBuilderImpl rb = new MetricsRecordBuilderImpl(this, info,
-        recordFilter, metricFilter, acceptable);
-    if (acceptable) rbs.add(rb);
-    return rb;
-  }
-
-  @Override
-  public MetricsRecordBuilderImpl addRecord(String name) {
-    return addRecord(info(name, name +" record"));
-  }
-
-  public List<MetricsRecordImpl> getRecords() {
-    List<MetricsRecordImpl> recs = Lists.newArrayListWithCapacity(rbs.size());
-    for (MetricsRecordBuilderImpl rb : rbs) {
-      MetricsRecordImpl mr = rb.getRecord();
-      if (mr != null) {
-        recs.add(mr);
-      }
+    @Override
+    public MetricsRecordBuilderImpl addRecord(MetricsInfo info) {
+        boolean acceptable = recordFilter == null ||
+                             recordFilter.accepts(info.name());
+        MetricsRecordBuilderImpl rb = new MetricsRecordBuilderImpl(this, info,
+                recordFilter, metricFilter, acceptable);
+        if (acceptable) rbs.add(rb);
+        return rb;
     }
-    return recs;
-  }
 
-  @Override
-  public Iterator<MetricsRecordBuilderImpl> iterator() {
-    return rbs.iterator();
-  }
+    @Override
+    public MetricsRecordBuilderImpl addRecord(String name) {
+        return addRecord(info(name, name +" record"));
+    }
 
-  void clear() { rbs.clear(); }
+    public List<MetricsRecordImpl> getRecords() {
+        List<MetricsRecordImpl> recs = Lists.newArrayListWithCapacity(rbs.size());
+        for (MetricsRecordBuilderImpl rb : rbs) {
+            MetricsRecordImpl mr = rb.getRecord();
+            if (mr != null) {
+                recs.add(mr);
+            }
+        }
+        return recs;
+    }
 
-  MetricsCollectorImpl setRecordFilter(MetricsFilter rf) {
-    recordFilter = rf;
-    return this;
-  }
+    @Override
+    public Iterator<MetricsRecordBuilderImpl> iterator() {
+        return rbs.iterator();
+    }
 
-  MetricsCollectorImpl setMetricFilter(MetricsFilter mf) {
-    metricFilter = mf;
-    return this;
-  }
+    void clear() {
+        rbs.clear();
+    }
+
+    MetricsCollectorImpl setRecordFilter(MetricsFilter rf) {
+        recordFilter = rf;
+        return this;
+    }
+
+    MetricsCollectorImpl setMetricFilter(MetricsFilter mf) {
+        metricFilter = mf;
+        return this;
+    }
 }

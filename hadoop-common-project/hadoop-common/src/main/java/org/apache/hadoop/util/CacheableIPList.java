@@ -26,51 +26,51 @@ package org.apache.hadoop.util;
  */
 
 public class CacheableIPList implements IPList {
-  private final long cacheTimeout;
-  private volatile long cacheExpiryTimeStamp;
-  private volatile FileBasedIPList ipList;
+    private final long cacheTimeout;
+    private volatile long cacheExpiryTimeStamp;
+    private volatile FileBasedIPList ipList;
 
-  public CacheableIPList(FileBasedIPList ipList, long cacheTimeout) {
-    this.cacheTimeout =  cacheTimeout;
-    this.ipList = ipList;
-    updateCacheExpiryTime();
-  }
-
-  /**
-   * Reloads the ip list
-   */
-  private  void  reset() {
-    ipList = ipList.reload();
-    updateCacheExpiryTime();
-  }
-
-  private void updateCacheExpiryTime() {
-    if (cacheTimeout < 0) {
-      cacheExpiryTimeStamp = -1; // no automatic cache expiry.
-    }else {
-      cacheExpiryTimeStamp = System.currentTimeMillis() + cacheTimeout;
+    public CacheableIPList(FileBasedIPList ipList, long cacheTimeout) {
+        this.cacheTimeout =  cacheTimeout;
+        this.ipList = ipList;
+        updateCacheExpiryTime();
     }
-  }
 
-  /**
-   * Refreshes the ip list
-   */
-  public  void refresh () {
-    cacheExpiryTimeStamp = 0;
-  }
+    /**
+     * Reloads the ip list
+     */
+    private  void  reset() {
+        ipList = ipList.reload();
+        updateCacheExpiryTime();
+    }
 
-  @Override
-  public boolean isIn(String ipAddress) {
-    //is cache expired
-    //Uses Double Checked Locking using volatile
-    if (cacheExpiryTimeStamp >= 0 && cacheExpiryTimeStamp < System.currentTimeMillis()) {
-      synchronized(this) {
-        //check if cache expired again
-        if (cacheExpiryTimeStamp < System.currentTimeMillis()) {
-          reset();
+    private void updateCacheExpiryTime() {
+        if (cacheTimeout < 0) {
+            cacheExpiryTimeStamp = -1; // no automatic cache expiry.
+        } else {
+            cacheExpiryTimeStamp = System.currentTimeMillis() + cacheTimeout;
         }
-      }
     }
-    return ipList.isIn(ipAddress);
-  }
+
+    /**
+     * Refreshes the ip list
+     */
+    public  void refresh () {
+        cacheExpiryTimeStamp = 0;
+    }
+
+    @Override
+    public boolean isIn(String ipAddress) {
+        //is cache expired
+        //Uses Double Checked Locking using volatile
+        if (cacheExpiryTimeStamp >= 0 && cacheExpiryTimeStamp < System.currentTimeMillis()) {
+            synchronized(this) {
+                //check if cache expired again
+                if (cacheExpiryTimeStamp < System.currentTimeMillis()) {
+                    reset();
+                }
+            }
+        }
+        return ipList.isIn(ipAddress);
+    }
 }

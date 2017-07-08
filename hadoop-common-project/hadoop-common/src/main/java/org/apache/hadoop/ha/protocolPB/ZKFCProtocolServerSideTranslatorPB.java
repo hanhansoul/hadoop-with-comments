@@ -36,53 +36,53 @@ import com.google.protobuf.ServiceException;
 @InterfaceStability.Stable
 public class ZKFCProtocolServerSideTranslatorPB implements
     ZKFCProtocolPB {
-  private final ZKFCProtocol server;
-  
-  public ZKFCProtocolServerSideTranslatorPB(ZKFCProtocol server) {
-    this.server = server;
-  }
+    private final ZKFCProtocol server;
 
-  @Override
-  public CedeActiveResponseProto cedeActive(RpcController controller,
-      CedeActiveRequestProto request) throws ServiceException {
-    try {
-      server.cedeActive(request.getMillisToCede());
-      return CedeActiveResponseProto.getDefaultInstance();
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-
-  @Override
-  public GracefulFailoverResponseProto gracefulFailover(
-      RpcController controller, GracefulFailoverRequestProto request)
-      throws ServiceException {
-    try {
-      server.gracefulFailover();
-      return GracefulFailoverResponseProto.getDefaultInstance();
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
-
-  @Override
-  public long getProtocolVersion(String protocol, long clientVersion)
-      throws IOException {
-    return RPC.getProtocolVersion(ZKFCProtocolPB.class);
-  }
-
-  @Override
-  public ProtocolSignature getProtocolSignature(String protocol,
-      long clientVersion, int clientMethodsHash) throws IOException {
-    if (!protocol.equals(RPC.getProtocolName(ZKFCProtocolPB.class))) {
-      throw new IOException("Serverside implements " +
-          RPC.getProtocolName(ZKFCProtocolPB.class) +
-          ". The following requested protocol is unknown: " + protocol);
+    public ZKFCProtocolServerSideTranslatorPB(ZKFCProtocol server) {
+        this.server = server;
     }
 
-    return ProtocolSignature.getProtocolSignature(clientMethodsHash,
-        RPC.getProtocolVersion(ZKFCProtocolPB.class),
-        HAServiceProtocolPB.class);
-  }
+    @Override
+    public CedeActiveResponseProto cedeActive(RpcController controller,
+            CedeActiveRequestProto request) throws ServiceException {
+        try {
+            server.cedeActive(request.getMillisToCede());
+            return CedeActiveResponseProto.getDefaultInstance();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public GracefulFailoverResponseProto gracefulFailover(
+        RpcController controller, GracefulFailoverRequestProto request)
+    throws ServiceException {
+        try {
+            server.gracefulFailover();
+            return GracefulFailoverResponseProto.getDefaultInstance();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public long getProtocolVersion(String protocol, long clientVersion)
+    throws IOException {
+        return RPC.getProtocolVersion(ZKFCProtocolPB.class);
+    }
+
+    @Override
+    public ProtocolSignature getProtocolSignature(String protocol,
+            long clientVersion, int clientMethodsHash) throws IOException {
+        if (!protocol.equals(RPC.getProtocolName(ZKFCProtocolPB.class))) {
+            throw new IOException("Serverside implements " +
+                                  RPC.getProtocolName(ZKFCProtocolPB.class) +
+                                  ". The following requested protocol is unknown: " + protocol);
+        }
+
+        return ProtocolSignature.getProtocolSignature(clientMethodsHash,
+                RPC.getProtocolVersion(ZKFCProtocolPB.class),
+                HAServiceProtocolPB.class);
+    }
 
 }

@@ -27,27 +27,27 @@ import java.util.HashMap;
  * Different translators register creation methods with this factory.
  */
 abstract class CodeGenerator {
-  
-  private static HashMap<String, CodeGenerator> generators =
-    new HashMap<String, CodeGenerator>();
-  
-  static {
-    register("c", new CGenerator());
-    register("c++", new CppGenerator());
-    register("java", new JavaGenerator());
-  }
-  
-  static void register(String lang, CodeGenerator gen) {
-    generators.put(lang, gen);
-  }
-  
-  static CodeGenerator get(String lang) {
-    return generators.get(lang);
-  }
-  
-  abstract void genCode(String file,
-                        ArrayList<JFile> inclFiles,
-                        ArrayList<JRecord> records,
-                        String destDir,
-                        ArrayList<String> options) throws IOException;
+
+    private static HashMap<String, CodeGenerator> generators =
+        new HashMap<String, CodeGenerator>();
+
+    static {
+        register("c", new CGenerator());
+        register("c++", new CppGenerator());
+        register("java", new JavaGenerator());
+    }
+
+    static void register(String lang, CodeGenerator gen) {
+        generators.put(lang, gen);
+    }
+
+    static CodeGenerator get(String lang) {
+        return generators.get(lang);
+    }
+
+    abstract void genCode(String file,
+                          ArrayList<JFile> inclFiles,
+                          ArrayList<JRecord> records,
+                          String destDir,
+                          ArrayList<String> options) throws IOException;
 }

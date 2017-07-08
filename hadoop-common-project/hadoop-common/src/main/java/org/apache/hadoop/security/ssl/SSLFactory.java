@@ -48,234 +48,234 @@ import java.security.GeneralSecurityException;
 @InterfaceStability.Evolving
 public class SSLFactory implements ConnectionConfigurator {
 
-  @InterfaceAudience.Private
-  public static enum Mode { CLIENT, SERVER }
+    @InterfaceAudience.Private
+    public static enum Mode { CLIENT, SERVER }
 
-  public static final String SSL_REQUIRE_CLIENT_CERT_KEY =
-    "hadoop.ssl.require.client.cert";
-  public static final String SSL_HOSTNAME_VERIFIER_KEY =
-    "hadoop.ssl.hostname.verifier";
-  public static final String SSL_CLIENT_CONF_KEY =
-    "hadoop.ssl.client.conf";
-  public static final String SSL_SERVER_CONF_KEY =
-    "hadoop.ssl.server.conf";
-  public static final String SSLCERTIFICATE = IBM_JAVA?"ibmX509":"SunX509"; 
+    public static final String SSL_REQUIRE_CLIENT_CERT_KEY =
+        "hadoop.ssl.require.client.cert";
+    public static final String SSL_HOSTNAME_VERIFIER_KEY =
+        "hadoop.ssl.hostname.verifier";
+    public static final String SSL_CLIENT_CONF_KEY =
+        "hadoop.ssl.client.conf";
+    public static final String SSL_SERVER_CONF_KEY =
+        "hadoop.ssl.server.conf";
+    public static final String SSLCERTIFICATE = IBM_JAVA?"ibmX509":"SunX509";
 
-  public static final boolean DEFAULT_SSL_REQUIRE_CLIENT_CERT = false;
+    public static final boolean DEFAULT_SSL_REQUIRE_CLIENT_CERT = false;
 
-  public static final String KEYSTORES_FACTORY_CLASS_KEY =
-    "hadoop.ssl.keystores.factory.class";
+    public static final String KEYSTORES_FACTORY_CLASS_KEY =
+        "hadoop.ssl.keystores.factory.class";
 
-  public static final String SSL_ENABLED_PROTOCOLS =
-      "hadoop.ssl.enabled.protocols";
-  public static final String DEFAULT_SSL_ENABLED_PROTOCOLS = "TLSv1";
+    public static final String SSL_ENABLED_PROTOCOLS =
+        "hadoop.ssl.enabled.protocols";
+    public static final String DEFAULT_SSL_ENABLED_PROTOCOLS = "TLSv1";
 
-  private Configuration conf;
-  private Mode mode;
-  private boolean requireClientCert;
-  private SSLContext context;
-  private HostnameVerifier hostnameVerifier;
-  private KeyStoresFactory keystoresFactory;
+    private Configuration conf;
+    private Mode mode;
+    private boolean requireClientCert;
+    private SSLContext context;
+    private HostnameVerifier hostnameVerifier;
+    private KeyStoresFactory keystoresFactory;
 
-  private String[] enabledProtocols = null;
+    private String[] enabledProtocols = null;
 
-  /**
-   * Creates an SSLFactory.
-   *
-   * @param mode SSLFactory mode, client or server.
-   * @param conf Hadoop configuration from where the SSLFactory configuration
-   * will be read.
-   */
-  public SSLFactory(Mode mode, Configuration conf) {
-    this.conf = conf;
-    if (mode == null) {
-      throw new IllegalArgumentException("mode cannot be NULL");
+    /**
+     * Creates an SSLFactory.
+     *
+     * @param mode SSLFactory mode, client or server.
+     * @param conf Hadoop configuration from where the SSLFactory configuration
+     * will be read.
+     */
+    public SSLFactory(Mode mode, Configuration conf) {
+        this.conf = conf;
+        if (mode == null) {
+            throw new IllegalArgumentException("mode cannot be NULL");
+        }
+        this.mode = mode;
+        requireClientCert = conf.getBoolean(SSL_REQUIRE_CLIENT_CERT_KEY,
+                                            DEFAULT_SSL_REQUIRE_CLIENT_CERT);
+        Configuration sslConf = readSSLConfiguration(mode);
+
+        Class<? extends KeyStoresFactory> klass
+            = conf.getClass(KEYSTORES_FACTORY_CLASS_KEY,
+                            FileBasedKeyStoresFactory.class, KeyStoresFactory.class);
+        keystoresFactory = ReflectionUtils.newInstance(klass, sslConf);
+
+        enabledProtocols = conf.getStrings(SSL_ENABLED_PROTOCOLS,
+                                           DEFAULT_SSL_ENABLED_PROTOCOLS);
     }
-    this.mode = mode;
-    requireClientCert = conf.getBoolean(SSL_REQUIRE_CLIENT_CERT_KEY,
-                                        DEFAULT_SSL_REQUIRE_CLIENT_CERT);
-    Configuration sslConf = readSSLConfiguration(mode);
 
-    Class<? extends KeyStoresFactory> klass
-      = conf.getClass(KEYSTORES_FACTORY_CLASS_KEY,
-                      FileBasedKeyStoresFactory.class, KeyStoresFactory.class);
-    keystoresFactory = ReflectionUtils.newInstance(klass, sslConf);
-
-    enabledProtocols = conf.getStrings(SSL_ENABLED_PROTOCOLS,
-        DEFAULT_SSL_ENABLED_PROTOCOLS);
-  }
-
-  private Configuration readSSLConfiguration(Mode mode) {
-    Configuration sslConf = new Configuration(false);
-    sslConf.setBoolean(SSL_REQUIRE_CLIENT_CERT_KEY, requireClientCert);
-    String sslConfResource;
-    if (mode == Mode.CLIENT) {
-      sslConfResource = conf.get(SSL_CLIENT_CONF_KEY, "ssl-client.xml");
-    } else {
-      sslConfResource = conf.get(SSL_SERVER_CONF_KEY, "ssl-server.xml");
+    private Configuration readSSLConfiguration(Mode mode) {
+        Configuration sslConf = new Configuration(false);
+        sslConf.setBoolean(SSL_REQUIRE_CLIENT_CERT_KEY, requireClientCert);
+        String sslConfResource;
+        if (mode == Mode.CLIENT) {
+            sslConfResource = conf.get(SSL_CLIENT_CONF_KEY, "ssl-client.xml");
+        } else {
+            sslConfResource = conf.get(SSL_SERVER_CONF_KEY, "ssl-server.xml");
+        }
+        sslConf.addResource(sslConfResource);
+        return sslConf;
     }
-    sslConf.addResource(sslConfResource);
-    return sslConf;
-  }
 
-  /**
-   * Initializes the factory.
-   *
-   * @throws  GeneralSecurityException thrown if an SSL initialization error
-   * happened.
-   * @throws IOException thrown if an IO error happened while reading the SSL
-   * configuration.
-   */
-  public void init() throws GeneralSecurityException, IOException {
-    keystoresFactory.init(mode);
-    context = SSLContext.getInstance("TLS");
-    context.init(keystoresFactory.getKeyManagers(),
-                 keystoresFactory.getTrustManagers(), null);
-    context.getDefaultSSLParameters().setProtocols(enabledProtocols);
-    hostnameVerifier = getHostnameVerifier(conf);
-  }
+    /**
+     * Initializes the factory.
+     *
+     * @throws  GeneralSecurityException thrown if an SSL initialization error
+     * happened.
+     * @throws IOException thrown if an IO error happened while reading the SSL
+     * configuration.
+     */
+    public void init() throws GeneralSecurityException, IOException {
+        keystoresFactory.init(mode);
+        context = SSLContext.getInstance("TLS");
+        context.init(keystoresFactory.getKeyManagers(),
+                     keystoresFactory.getTrustManagers(), null);
+        context.getDefaultSSLParameters().setProtocols(enabledProtocols);
+        hostnameVerifier = getHostnameVerifier(conf);
+    }
 
-  private HostnameVerifier getHostnameVerifier(Configuration conf)
-      throws GeneralSecurityException, IOException {
-    return getHostnameVerifier(conf.get(SSL_HOSTNAME_VERIFIER_KEY, "DEFAULT").
-        trim().toUpperCase());
-  }
-
-  public static HostnameVerifier getHostnameVerifier(String verifier)
+    private HostnameVerifier getHostnameVerifier(Configuration conf)
     throws GeneralSecurityException, IOException {
-    HostnameVerifier hostnameVerifier;
-    if (verifier.equals("DEFAULT")) {
-      hostnameVerifier = SSLHostnameVerifier.DEFAULT;
-    } else if (verifier.equals("DEFAULT_AND_LOCALHOST")) {
-      hostnameVerifier = SSLHostnameVerifier.DEFAULT_AND_LOCALHOST;
-    } else if (verifier.equals("STRICT")) {
-      hostnameVerifier = SSLHostnameVerifier.STRICT;
-    } else if (verifier.equals("STRICT_IE6")) {
-      hostnameVerifier = SSLHostnameVerifier.STRICT_IE6;
-    } else if (verifier.equals("ALLOW_ALL")) {
-      hostnameVerifier = SSLHostnameVerifier.ALLOW_ALL;
-    } else {
-      throw new GeneralSecurityException("Invalid hostname verifier: " +
-                                         verifier);
+        return getHostnameVerifier(conf.get(SSL_HOSTNAME_VERIFIER_KEY, "DEFAULT").
+                                   trim().toUpperCase());
     }
-    return hostnameVerifier;
-  }
 
-  /**
-   * Releases any resources being used.
-   */
-  public void destroy() {
-    keystoresFactory.destroy();
-  }
-  /**
-   * Returns the SSLFactory KeyStoresFactory instance.
-   *
-   * @return the SSLFactory KeyStoresFactory instance.
-   */
-  public KeyStoresFactory getKeystoresFactory() {
-    return keystoresFactory;
-  }
-
-  /**
-   * Returns a configured SSLEngine.
-   *
-   * @return the configured SSLEngine.
-   * @throws GeneralSecurityException thrown if the SSL engine could not
-   * be initialized.
-   * @throws IOException thrown if and IO error occurred while loading
-   * the server keystore.
-   */
-  public SSLEngine createSSLEngine()
+    public static HostnameVerifier getHostnameVerifier(String verifier)
     throws GeneralSecurityException, IOException {
-    SSLEngine sslEngine = context.createSSLEngine();
-    if (mode == Mode.CLIENT) {
-      sslEngine.setUseClientMode(true);
-    } else {
-      sslEngine.setUseClientMode(false);
-      sslEngine.setNeedClientAuth(requireClientCert);
+        HostnameVerifier hostnameVerifier;
+        if (verifier.equals("DEFAULT")) {
+            hostnameVerifier = SSLHostnameVerifier.DEFAULT;
+        } else if (verifier.equals("DEFAULT_AND_LOCALHOST")) {
+            hostnameVerifier = SSLHostnameVerifier.DEFAULT_AND_LOCALHOST;
+        } else if (verifier.equals("STRICT")) {
+            hostnameVerifier = SSLHostnameVerifier.STRICT;
+        } else if (verifier.equals("STRICT_IE6")) {
+            hostnameVerifier = SSLHostnameVerifier.STRICT_IE6;
+        } else if (verifier.equals("ALLOW_ALL")) {
+            hostnameVerifier = SSLHostnameVerifier.ALLOW_ALL;
+        } else {
+            throw new GeneralSecurityException("Invalid hostname verifier: " +
+                                               verifier);
+        }
+        return hostnameVerifier;
     }
-    sslEngine.setEnabledProtocols(enabledProtocols);
-    return sslEngine;
-  }
 
-  /**
-   * Returns a configured SSLServerSocketFactory.
-   *
-   * @return the configured SSLSocketFactory.
-   * @throws GeneralSecurityException thrown if the SSLSocketFactory could not
-   * be initialized.
-   * @throws IOException thrown if and IO error occurred while loading
-   * the server keystore.
-   */
-  public SSLServerSocketFactory createSSLServerSocketFactory()
+    /**
+     * Releases any resources being used.
+     */
+    public void destroy() {
+        keystoresFactory.destroy();
+    }
+    /**
+     * Returns the SSLFactory KeyStoresFactory instance.
+     *
+     * @return the SSLFactory KeyStoresFactory instance.
+     */
+    public KeyStoresFactory getKeystoresFactory() {
+        return keystoresFactory;
+    }
+
+    /**
+     * Returns a configured SSLEngine.
+     *
+     * @return the configured SSLEngine.
+     * @throws GeneralSecurityException thrown if the SSL engine could not
+     * be initialized.
+     * @throws IOException thrown if and IO error occurred while loading
+     * the server keystore.
+     */
+    public SSLEngine createSSLEngine()
     throws GeneralSecurityException, IOException {
-    if (mode != Mode.SERVER) {
-      throw new IllegalStateException("Factory is in CLIENT mode");
+        SSLEngine sslEngine = context.createSSLEngine();
+        if (mode == Mode.CLIENT) {
+            sslEngine.setUseClientMode(true);
+        } else {
+            sslEngine.setUseClientMode(false);
+            sslEngine.setNeedClientAuth(requireClientCert);
+        }
+        sslEngine.setEnabledProtocols(enabledProtocols);
+        return sslEngine;
     }
-    return context.getServerSocketFactory();
-  }
 
-  /**
-   * Returns a configured SSLSocketFactory.
-   *
-   * @return the configured SSLSocketFactory.
-   * @throws GeneralSecurityException thrown if the SSLSocketFactory could not
-   * be initialized.
-   * @throws IOException thrown if and IO error occurred while loading
-   * the server keystore.
-   */
-  public SSLSocketFactory createSSLSocketFactory()
+    /**
+     * Returns a configured SSLServerSocketFactory.
+     *
+     * @return the configured SSLSocketFactory.
+     * @throws GeneralSecurityException thrown if the SSLSocketFactory could not
+     * be initialized.
+     * @throws IOException thrown if and IO error occurred while loading
+     * the server keystore.
+     */
+    public SSLServerSocketFactory createSSLServerSocketFactory()
     throws GeneralSecurityException, IOException {
-    if (mode != Mode.CLIENT) {
-      throw new IllegalStateException("Factory is in CLIENT mode");
+        if (mode != Mode.SERVER) {
+            throw new IllegalStateException("Factory is in CLIENT mode");
+        }
+        return context.getServerSocketFactory();
     }
-    return context.getSocketFactory();
-  }
 
-  /**
-   * Returns the hostname verifier it should be used in HttpsURLConnections.
-   *
-   * @return the hostname verifier.
-   */
-  public HostnameVerifier getHostnameVerifier() {
-    if (mode != Mode.CLIENT) {
-      throw new IllegalStateException("Factory is in CLIENT mode");
+    /**
+     * Returns a configured SSLSocketFactory.
+     *
+     * @return the configured SSLSocketFactory.
+     * @throws GeneralSecurityException thrown if the SSLSocketFactory could not
+     * be initialized.
+     * @throws IOException thrown if and IO error occurred while loading
+     * the server keystore.
+     */
+    public SSLSocketFactory createSSLSocketFactory()
+    throws GeneralSecurityException, IOException {
+        if (mode != Mode.CLIENT) {
+            throw new IllegalStateException("Factory is in CLIENT mode");
+        }
+        return context.getSocketFactory();
     }
-    return hostnameVerifier;
-  }
 
-  /**
-   * Returns if client certificates are required or not.
-   *
-   * @return if client certificates are required or not.
-   */
-  public boolean isClientCertRequired() {
-    return requireClientCert;
-  }
+    /**
+     * Returns the hostname verifier it should be used in HttpsURLConnections.
+     *
+     * @return the hostname verifier.
+     */
+    public HostnameVerifier getHostnameVerifier() {
+        if (mode != Mode.CLIENT) {
+            throw new IllegalStateException("Factory is in CLIENT mode");
+        }
+        return hostnameVerifier;
+    }
 
-  /**
-   * If the given {@link HttpURLConnection} is an {@link HttpsURLConnection}
-   * configures the connection with the {@link SSLSocketFactory} and
-   * {@link HostnameVerifier} of this SSLFactory, otherwise does nothing.
-   *
-   * @param conn the {@link HttpURLConnection} instance to configure.
-   * @return the configured {@link HttpURLConnection} instance.
-   *
-   * @throws IOException if an IO error occurred.
-   */
-  @Override
-  public HttpURLConnection configure(HttpURLConnection conn)
+    /**
+     * Returns if client certificates are required or not.
+     *
+     * @return if client certificates are required or not.
+     */
+    public boolean isClientCertRequired() {
+        return requireClientCert;
+    }
+
+    /**
+     * If the given {@link HttpURLConnection} is an {@link HttpsURLConnection}
+     * configures the connection with the {@link SSLSocketFactory} and
+     * {@link HostnameVerifier} of this SSLFactory, otherwise does nothing.
+     *
+     * @param conn the {@link HttpURLConnection} instance to configure.
+     * @return the configured {@link HttpURLConnection} instance.
+     *
+     * @throws IOException if an IO error occurred.
+     */
+    @Override
+    public HttpURLConnection configure(HttpURLConnection conn)
     throws IOException {
-    if (conn instanceof HttpsURLConnection) {
-      HttpsURLConnection sslConn = (HttpsURLConnection) conn;
-      try {
-        sslConn.setSSLSocketFactory(createSSLSocketFactory());
-      } catch (GeneralSecurityException ex) {
-        throw new IOException(ex);
-      }
-      sslConn.setHostnameVerifier(getHostnameVerifier());
-      conn = sslConn;
+        if (conn instanceof HttpsURLConnection) {
+            HttpsURLConnection sslConn = (HttpsURLConnection) conn;
+            try {
+                sslConn.setSSLSocketFactory(createSSLSocketFactory());
+            } catch (GeneralSecurityException ex) {
+                throw new IOException(ex);
+            }
+            sslConn.setHostnameVerifier(getHostnameVerifier());
+            conn = sslConn;
+        }
+        return conn;
     }
-    return conn;
-  }
 }

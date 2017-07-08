@@ -25,30 +25,30 @@ import org.apache.hadoop.metrics2.MetricsRecord;
 
 abstract class AbstractMetricsRecord implements MetricsRecord {
 
-  @Override public boolean equals(Object obj) {
-    if (obj instanceof MetricsRecord) {
-      final MetricsRecord other = (MetricsRecord) obj;
-      return Objects.equal(timestamp(), other.timestamp()) &&
-             Objects.equal(name(), other.name()) &&
-             Objects.equal(description(), other.description()) &&
-             Objects.equal(tags(), other.tags()) &&
-             Iterables.elementsEqual(metrics(), other.metrics());
+    @Override public boolean equals(Object obj) {
+        if (obj instanceof MetricsRecord) {
+            final MetricsRecord other = (MetricsRecord) obj;
+            return Objects.equal(timestamp(), other.timestamp()) &&
+                   Objects.equal(name(), other.name()) &&
+                   Objects.equal(description(), other.description()) &&
+                   Objects.equal(tags(), other.tags()) &&
+                   Iterables.elementsEqual(metrics(), other.metrics());
+        }
+        return false;
     }
-    return false;
-  }
 
-  // Should make sense most of the time when the record is used as a key
-  @Override public int hashCode() {
-    return Objects.hashCode(name(), description(), tags());
-  }
+    // Should make sense most of the time when the record is used as a key
+    @Override public int hashCode() {
+        return Objects.hashCode(name(), description(), tags());
+    }
 
-  @Override public String toString() {
-    return Objects.toStringHelper(this)
-        .add("timestamp", timestamp())
-        .add("name", name())
-        .add("description", description())
-        .add("tags", tags())
-        .add("metrics", Iterables.toString(metrics()))
-        .toString();
-  }
+    @Override public String toString() {
+        return Objects.toStringHelper(this)
+               .add("timestamp", timestamp())
+               .add("name", name())
+               .add("description", description())
+               .add("tags", tags())
+               .add("metrics", Iterables.toString(metrics()))
+               .toString();
+    }
 }

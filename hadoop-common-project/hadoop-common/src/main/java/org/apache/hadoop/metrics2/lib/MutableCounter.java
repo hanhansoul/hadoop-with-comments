@@ -30,18 +30,18 @@ import org.apache.hadoop.metrics2.MetricsInfo;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public abstract class MutableCounter extends MutableMetric {
-  private final MetricsInfo info;
+    private final MetricsInfo info;
 
-  protected MutableCounter(MetricsInfo info) {
-    this.info =  checkNotNull(info, "counter info");
-  }
+    protected MutableCounter(MetricsInfo info) {
+        this.info =  checkNotNull(info, "counter info");
+    }
 
-  protected MetricsInfo info() {
-    return info;
-  }
+    protected MetricsInfo info() {
+        return info;
+    }
 
-  /**
-   * Increment the metric value by 1.
-   */
-  public abstract void incr();
+    /**
+     * Increment the metric value by 1.
+     */
+    public abstract void incr();
 }

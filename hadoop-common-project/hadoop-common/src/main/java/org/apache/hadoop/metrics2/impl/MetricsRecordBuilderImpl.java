@@ -33,121 +33,123 @@ import org.apache.hadoop.metrics2.lib.Interns;
 import org.apache.hadoop.util.Time;
 
 class MetricsRecordBuilderImpl extends MetricsRecordBuilder {
-  private final MetricsCollector parent;
-  private final long timestamp;
-  private final MetricsInfo recInfo;
-  private final List<AbstractMetric> metrics;
-  private final List<MetricsTag> tags;
-  private final MetricsFilter recordFilter, metricFilter;
-  private final boolean acceptable;
+    private final MetricsCollector parent;
+    private final long timestamp;
+    private final MetricsInfo recInfo;
+    private final List<AbstractMetric> metrics;
+    private final List<MetricsTag> tags;
+    private final MetricsFilter recordFilter, metricFilter;
+    private final boolean acceptable;
 
-  MetricsRecordBuilderImpl(MetricsCollector parent, MetricsInfo info,
-                           MetricsFilter rf, MetricsFilter mf,
-                           boolean acceptable) {
-    this.parent = parent;
-    timestamp = Time.now();
-    recInfo = info;
-    metrics = Lists.newArrayList();
-    tags = Lists.newArrayList();
-    recordFilter = rf;
-    metricFilter = mf;
-    this.acceptable = acceptable;
-  }
-
-  @Override
-  public MetricsCollector parent() { return parent; }
-
-  @Override
-  public MetricsRecordBuilderImpl tag(MetricsInfo info, String value) {
-    if (acceptable) {
-      tags.add(Interns.tag(info, value));
+    MetricsRecordBuilderImpl(MetricsCollector parent, MetricsInfo info,
+                             MetricsFilter rf, MetricsFilter mf,
+                             boolean acceptable) {
+        this.parent = parent;
+        timestamp = Time.now();
+        recInfo = info;
+        metrics = Lists.newArrayList();
+        tags = Lists.newArrayList();
+        recordFilter = rf;
+        metricFilter = mf;
+        this.acceptable = acceptable;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl add(MetricsTag tag) {
-    tags.add(tag);
-    return this;
-  }
-
-  @Override
-  public MetricsRecordBuilderImpl add(AbstractMetric metric) {
-    metrics.add(metric);
-    return this;
-  }
-
-  @Override
-  public MetricsRecordBuilderImpl addCounter(MetricsInfo info, int value) {
-    if (acceptable && (metricFilter == null ||
-        metricFilter.accepts(info.name()))) {
-      metrics.add(new MetricCounterInt(info, value));
+    @Override
+    public MetricsCollector parent() {
+        return parent;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl addCounter(MetricsInfo info, long value) {
-    if (acceptable && (metricFilter == null ||
-        metricFilter.accepts(info.name()))) {
-      metrics.add(new MetricCounterLong(info, value));
+    @Override
+    public MetricsRecordBuilderImpl tag(MetricsInfo info, String value) {
+        if (acceptable) {
+            tags.add(Interns.tag(info, value));
+        }
+        return this;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl addGauge(MetricsInfo info, int value) {
-    if (acceptable && (metricFilter == null ||
-        metricFilter.accepts(info.name()))) {
-      metrics.add(new MetricGaugeInt(info, value));
+    @Override
+    public MetricsRecordBuilderImpl add(MetricsTag tag) {
+        tags.add(tag);
+        return this;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl addGauge(MetricsInfo info, long value) {
-    if (acceptable && (metricFilter == null ||
-        metricFilter.accepts(info.name()))) {
-      metrics.add(new MetricGaugeLong(info, value));
+    @Override
+    public MetricsRecordBuilderImpl add(AbstractMetric metric) {
+        metrics.add(metric);
+        return this;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl addGauge(MetricsInfo info, float value) {
-    if (acceptable && (metricFilter == null ||
-        metricFilter.accepts(info.name()))) {
-      metrics.add(new MetricGaugeFloat(info, value));
+    @Override
+    public MetricsRecordBuilderImpl addCounter(MetricsInfo info, int value) {
+        if (acceptable && (metricFilter == null ||
+                           metricFilter.accepts(info.name()))) {
+            metrics.add(new MetricCounterInt(info, value));
+        }
+        return this;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl addGauge(MetricsInfo info, double value) {
-    if (acceptable && (metricFilter == null ||
-        metricFilter.accepts(info.name()))) {
-      metrics.add(new MetricGaugeDouble(info, value));
+    @Override
+    public MetricsRecordBuilderImpl addCounter(MetricsInfo info, long value) {
+        if (acceptable && (metricFilter == null ||
+                           metricFilter.accepts(info.name()))) {
+            metrics.add(new MetricCounterLong(info, value));
+        }
+        return this;
     }
-    return this;
-  }
 
-  @Override
-  public MetricsRecordBuilderImpl setContext(String value) {
-    return tag(MsInfo.Context, value);
-  }
-
-  public MetricsRecordImpl getRecord() {
-    if (acceptable && (recordFilter == null || recordFilter.accepts(tags))) {
-      return new MetricsRecordImpl(recInfo, timestamp, tags(), metrics());
+    @Override
+    public MetricsRecordBuilderImpl addGauge(MetricsInfo info, int value) {
+        if (acceptable && (metricFilter == null ||
+                           metricFilter.accepts(info.name()))) {
+            metrics.add(new MetricGaugeInt(info, value));
+        }
+        return this;
     }
-    return null;
-  }
 
-  List<MetricsTag> tags() {
-    return Collections.unmodifiableList(tags);
-  }
+    @Override
+    public MetricsRecordBuilderImpl addGauge(MetricsInfo info, long value) {
+        if (acceptable && (metricFilter == null ||
+                           metricFilter.accepts(info.name()))) {
+            metrics.add(new MetricGaugeLong(info, value));
+        }
+        return this;
+    }
 
-  List<AbstractMetric> metrics() {
-    return Collections.unmodifiableList(metrics);
-  }
+    @Override
+    public MetricsRecordBuilderImpl addGauge(MetricsInfo info, float value) {
+        if (acceptable && (metricFilter == null ||
+                           metricFilter.accepts(info.name()))) {
+            metrics.add(new MetricGaugeFloat(info, value));
+        }
+        return this;
+    }
+
+    @Override
+    public MetricsRecordBuilderImpl addGauge(MetricsInfo info, double value) {
+        if (acceptable && (metricFilter == null ||
+                           metricFilter.accepts(info.name()))) {
+            metrics.add(new MetricGaugeDouble(info, value));
+        }
+        return this;
+    }
+
+    @Override
+    public MetricsRecordBuilderImpl setContext(String value) {
+        return tag(MsInfo.Context, value);
+    }
+
+    public MetricsRecordImpl getRecord() {
+        if (acceptable && (recordFilter == null || recordFilter.accepts(tags))) {
+            return new MetricsRecordImpl(recInfo, timestamp, tags(), metrics());
+        }
+        return null;
+    }
+
+    List<MetricsTag> tags() {
+        return Collections.unmodifiableList(tags);
+    }
+
+    List<AbstractMetric> metrics() {
+        return Collections.unmodifiableList(metrics);
+    }
 }

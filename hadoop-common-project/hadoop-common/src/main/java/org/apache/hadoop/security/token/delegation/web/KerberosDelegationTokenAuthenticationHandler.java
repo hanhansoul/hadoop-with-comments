@@ -46,9 +46,9 @@ import org.apache.hadoop.security.authentication.server.KerberosAuthenticationHa
 public class KerberosDelegationTokenAuthenticationHandler
     extends DelegationTokenAuthenticationHandler {
 
-  public KerberosDelegationTokenAuthenticationHandler() {
-    super(new KerberosAuthenticationHandler(KerberosAuthenticationHandler.TYPE +
-        TYPE_POSTFIX));
-  }
+    public KerberosDelegationTokenAuthenticationHandler() {
+        super(new KerberosAuthenticationHandler(KerberosAuthenticationHandler.TYPE +
+                                                TYPE_POSTFIX));
+    }
 
 }
