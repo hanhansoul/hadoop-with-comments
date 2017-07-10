@@ -601,11 +601,13 @@ public class Client {
                             // If host name is a valid local address then bind socket to it
                             InetAddress localAddr = NetUtils.getLocalInetAddress(host);
                             if (localAddr != null) {
+								// bind
                                 this.socket.bind(new InetSocketAddress(localAddr, 0));
                             }
                         }
                     }
 
+					// connection
                     NetUtils.connect(this.socket, server, connectionTimeout);
                     if (rpcTimeout > 0) {
                         pingInterval = rpcTimeout;  // rpcTimeout overwrites pingInterval
@@ -1007,7 +1009,8 @@ public class Client {
             // Items '1' and '2' are prepared here.
             final DataOutputBuffer d = new DataOutputBuffer();
             RpcRequestHeaderProto header = ProtoUtil.makeRpcRequestHeader(
-                                               call.rpcKind, OperationProto.RPC_FINAL_PACKET, call.id, call.retry,
+                                               call.rpcKind, OperationProto.RPC_FINAL_PACKET, 
+											   call.id, call.retry,
                                                clientId);
             header.writeDelimitedTo(d);
             call.rpcRequest.write(d);
@@ -1091,7 +1094,7 @@ public class Client {
                     call.setRpcResponse(value);
 
                     // verify that length was correct
-                    // only for ProtobufEngine where len can be verified easily
+                x    // only for ProtobufEngine where len can be verified easily
                     if (call.getRpcResponse() instanceof ProtobufRpcEngine.RpcWrapper) {
                         ProtobufRpcEngine.RpcWrapper resWrapper =
                             (ProtobufRpcEngine.RpcWrapper) call.getRpcResponse();
@@ -1196,7 +1199,8 @@ public class Client {
             }
         }
     }
-
+	// class Connection end
+	
     /** Construct an IPC client whose values are of the given {@link Writable}
      * class. */
     public Client(Class<? extends Writable> valueClass, Configuration conf,
@@ -1436,10 +1440,15 @@ public class Client {
     public Writable call(RPC.RpcKind rpcKind, Writable rpcRequest,
                          ConnectionId remoteId, int serviceClass,
                          AtomicBoolean fallbackToSimpleAuth) throws IOException {
+		// 创建一个新的RPC请求封装，指定RpcEngine。
         final Call call = createCall(rpcKind, rpcRequest);
+		// call = new Call(rpcKind, rpcRequest);
+		
+		// 创建一个新的RPC连接封装
         Connection connection = getConnection(remoteId, call, serviceClass,
                                               fallbackToSimpleAuth);
         try {
+			// 将call序列化后发送给服务器端
             connection.sendRpcRequest(call);                 // send the rpc request
         } catch (RejectedExecutionException e) {
             throw new IOException("connection has been closed", e);
@@ -1449,6 +1458,7 @@ public class Client {
             throw new IOException(e);
         }
 
+		// 等待
         boolean interrupted = false;
         synchronized (call) {
             while (!call.done) {
