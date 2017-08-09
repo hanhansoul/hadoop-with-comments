@@ -373,7 +373,7 @@ public abstract class Server {
     private final boolean tcpNoDelay; // if T then disable Nagle's Algorithm
 
     volatile private boolean running = true;         // true while server runs
-    private CallQueueManager<Call> callQueue;
+    private CallQueueManager<Call> callQueue;        // 共享队列，保存Call对象，执行对应函数调用，由Handler线程完成
 
     // maintains the set of client connections and handles idle timeouts
     private ConnectionManager connectionManager;
