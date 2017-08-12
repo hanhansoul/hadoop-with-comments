@@ -86,8 +86,8 @@ Reactor模式主要包括以下角色：
 	// 停止服务
 	// 调用stop()之后，后续的Call调用都不会被处理
 	public synchronized void stop() {
-        LOG.info("Stopping server on " + port);
         running = false;
+		// 中断handler线程
         if (handlers != null) {
             for (int i = 0; i < handlerCount; i++) {
                 if (handlers[i] != null) {
@@ -95,10 +95,15 @@ Reactor模式主要包括以下角色：
                 }
             }
         }
+		// 中断listener线程
         listener.interrupt();
         listener.doStop();
+	
+		// 中断responder线程
         responder.interrupt();
-        notifyAll();
+        
+		notifyAll();
+
         this.rpcMetrics.shutdown();
         this.rpcDetailedMetrics.shutdown();
     }

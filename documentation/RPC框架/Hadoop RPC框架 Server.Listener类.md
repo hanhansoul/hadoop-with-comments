@@ -40,10 +40,16 @@ Server中只有一个Listener线程，负责监听来自Client的SelectionKey.OP
 	}
 
 ### Listener.run()函数
+Server.run() ==> Listener.run()
+Listener线程中，ServerSocketChannel对象acceptChannel在Listener构造函数中注册了OP_ACCEPT事件。
+1. 当running为true时，进入循环。
+2. getSelector().select()获取选择器，并开始select过程。
+3. select()返回，获取返回的SelectionKey中的OP_ACCEPT事件，调用doAccept(key)处理该事件。
+4. 关闭acceptChannel和selector，重新回到第一步，检查并进入循环。
 
 	public void run() {
 		// ...
-		connectionManager.startIdleScan();
+		connectionManager.startIdleScan();	// ???
 		// ...
 		while(running) {
 			SelectionKey key = null;
@@ -70,14 +76,62 @@ Server中只有一个Listener线程，负责监听来自Client的SelectionKey.OP
 			} catch (OutOfMemoryError e) {
 				// ...
 			}
+
+			// 关闭acceptChannel、selector
+			// ...
 		}
 	}
 
-### doAccept()函数
+### Listener.doAccept()函数
 
-### doRead()函数
+Listener.run() ==> Listener.doAccept()
+doAccept()在从ServerSocketChannel获取SocketChannel后，获取一个Connection对象，并将Connection对象添加到一个Reader对象中的pendingConnections中，之后唤醒Reader对象中的Selector。
 
-### doStop()函数
+	void doAccept(SelectionKey key) throws InterruptedException, IOException,  OutOfMemoryError {
+		// 从SelectionKey中获取ServerSocketChannel对象
+        ServerSocketChannel server = (ServerSocketChannel) key.channel();
+
+		// 再由ServerSocketChannel.accept()对象获取SocketChannel对象
+        SocketChannel channel;
+        while ((channel = server.accept()) != null) {
+			// 设置SocketChannel对象参数
+			// ...
+			// TO-DO
+            Reader reader = getReader();	// 从Listener.readers[]中获取一个Reader对象
+            Connection c = connectionManager.register(channel);		// ???
+            key.attach(c);
+            reader.addConnection(c);	// ???
+        }
+    }
+
+### Listener.doRead()函数
+Reader.doRunLoop() ==> Listener.doRead()
+
+	void doRead(SelectionKey key) throws InterruptedException {
+		// ...
+		Connection c = (Connection)key.attachment();
+		// ...
+
+	}
+		
+### Listener.doStop()函数
+
+	synchronized void doStop() {
+            if (selector != null) {
+                selector.wakeup();	// ???
+                Thread.yield();		// ???
+            }
+
+			// 关闭acceptChannel
+            if (acceptChannel != null) {
+				acceptChannel.socket().close();
+            }
+
+			// 结束每一个Reader线程
+            for (Reader r : readers) {
+                r.shutdown();
+            }
+        }
 
 ### closeCurrentConnection()函数
 
@@ -89,31 +143,29 @@ Server中只有一个Listener线程，负责监听来自Client的SelectionKey.OP
 		
 		final private BlockingQueue<Connection> pendingConnections;		// TO-DO
 		private final Selector readSelector;		// 线程中的选择器 ???
-
-		public void run() {
-            LOG.info("Starting " + Thread.currentThread().getName());
-            try {
-                doRunLoop();		// 
-            } finally {
-                try {
-                    readSelector.close();
-                } catch (IOException ioe) {
-                    LOG.error("Error closing read selector in " + Thread.currentThread().getName(), ioe);
-                }
-            }
-        }
-
 		// ...
 	}
 
+### Reader.run()函数
+Server.start() ==> Reader.run()
+Reader.run()函数调用doRunLoop()，启动了对OP_ACCEPT事件的监听
+
+	private void run() {
+		// ...
+		doRunLoop();
+		// ...
+	}
+
+
 ### Reader.doRunLoop()函数
-	
+Reader.run() ==> Reader.doRunLoop()
+1. 当running为true时，进入循环，开始监听acceptChannel上的OP_ACCEPT事件
+2.  
+
 	private synchronized void doRunLoop() {
 		while (running) {
 		    SelectionKey key = null;
 		    try {
-		        // consume as many connections as currently queued to avoid
-		        // unbridled acceptance of connections that starves the select
 		        int size = pendingConnections.size();
 				// TO-DO
 		        for (int i=size; i>0; i--) {
@@ -124,7 +176,7 @@ Server中只有一个Listener线程，负责监听来自Client的SelectionKey.OP
 				// 监听OP_ACCEPT事件
 		        readSelector.select();
 				
-				// 处理
+				// 处理OP_READ事件
 		        Iterator<SelectionKey> iter = readSelector.selectedKeys().iterator();
 		        while (iter.hasNext()) {
 		            key = iter.next();
@@ -148,7 +200,7 @@ Server中只有一个Listener线程，负责监听来自Client的SelectionKey.OP
 	
 	public void addConnection(Connection conn) throws InterruptedException {
 		pendingConnections.put(conn);
-		readSelector.wakeup();
+		readSelector.wakeup();	// ???
 	}
 	
 ### Reader.shutdown()函数
