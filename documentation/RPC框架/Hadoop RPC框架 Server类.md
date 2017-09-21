@@ -9,32 +9,32 @@ Reactor模式主要包括以下角色：
 - Handler：与一个Client通信的实体，并按一定的过程实现业务的处理。
 - Reader/Sender：为加速处理速度，Reactor模式分离Handler中的读和写两个过程，分别注册成单独的读事件和写事件，分别有对应的Reader和Sender线程处理。
 
-	    private String bindAddress;
-	    private int port;   									// port we listen on
-	    private int handlerCount;   							// number of handler threads
-	    private int readThreads;								// number of read threads
-	    private int readerPendingConnectionQueue; 				// number of connections to queue per read thread
-	    private Class<? extends Writable> rpcRequestClass;   	// class used for deserializing the rpc request
-	    final protected RpcMetrics rpcMetrics;
-	    final protected RpcDetailedMetrics rpcDetailedMetrics;
-	    
-	    private Configuration conf;
-	    private String portRangeConfig = null;
-	    
-	    private int maxQueueSize;
-	    private final int maxRespSize;
-	    private int socketSendBufferSize;
-	    private final int maxDataLength;
-	    private final boolean tcpNoDelay; // if T then disable Nagle's Algorithm
-	    
-	    volatile private boolean running = true; 	// true while server runs
-	    private CallQueueManager<Call> callQueue;	// 共享队列，保存Call对象，执行对应函数调用，由Handler线程完成
-	    
-	    // maintains the set of client connections and handles idle timeouts
-	    private ConnectionManager connectionManager;
-	    private Listener listener = null;		// Listener线程
-	    private Responder responder = null;		// Responder线程
-	    private Handler[] handlers = null;		// Handler线程
+    private String bindAddress;
+    private int port;   									// port we listen on
+    private int handlerCount;   							// number of handler threads
+    private int readThreads;								// number of read threads
+    private int readerPendingConnectionQueue; 				// number of connections to queue per read thread
+    private Class<? extends Writable> rpcRequestClass;   	// class used for deserializing the rpc request
+    final protected RpcMetrics rpcMetrics;
+    final protected RpcDetailedMetrics rpcDetailedMetrics;
+    
+    private Configuration conf;
+    private String portRangeConfig = null;
+    
+    private int maxQueueSize;
+    private final int maxRespSize;
+    private int socketSendBufferSize;
+    private final int maxDataLength;
+    private final boolean tcpNoDelay; // if T then disable Nagle's Algorithm
+    
+    volatile private boolean running = true; 	// true while server runs
+    private CallQueueManager<Call> callQueue;	// 共享队列，保存Call对象，执行对应函数调用，由Handler线程完成
+    
+    // maintains the set of client connections and handles idle timeouts
+    private ConnectionManager connectionManager;
+    private Listener listener = null;		// Listener线程
+    private Responder responder = null;		// Responder线程
+    private Handler[] handlers = null;		// Handler线程
 
 ### Server中的主要内部类
 
@@ -63,10 +63,13 @@ Reactor模式主要包括以下角色：
 
 ### setupResponse()函数
 
+Server.Connection ==> setupResponse()
+Server.Handler.run() ==> setupResponse()
+
 	private void setupResponse(ByteArrayOutputStream responseBuf,
                                Call call, RpcStatusProto status, RpcErrorCodeProto erCode,
                                Writable rv, String errorClass, String error) {
-		// TO-DO
+		
 	}
 
 ### start()函数和stop()函数
@@ -116,6 +119,7 @@ Reactor模式主要包括以下角色：
     }
 
 ### channelWrite()函数、channelRead()函数、channelIO()函数
+
 分别对WritableByteChannel.write(ByteBuffer)和ReadableByteChannel.read(ByteBuffer)的封装。channelIO()是channelRead()和channelWrite()的辅助函数。
 	
 	// 当read和write的buffer容量超过NIO_BUFFER_LIMIT时，IO分块大小为NIO_BUFFER_LIMIT。
@@ -131,5 +135,36 @@ Reactor模式主要包括以下角色：
 		//...
 	}
 
+### call()函数
+	/** Called for each call. */
+    public abstract Writable call(RPC.RpcKind rpcKind, String protocol,
+                                  Writable param, long receiveTime) throws Exception;
 
+Server.Handler线程中run()将为每一个Call对象调用call()函数。
 
+# Call类
+
+	private final int callId;             // the client's call id
+    private final Writable rpcRequest;    // Serialized Rpc request from client
+    private final Connection connection;  // connection to client
+    private ByteBuffer rpcResponse;       // the response for this call
+    private final RPC.RpcKind rpcKind;
+    private final byte[] clientId;
+
+	public void setResponse(ByteBuffer response) {
+		this.rpcResponse = response;
+    }
+
+Call对象保存来自客户端的请求内容，作为Server.CallQueueManager<Call>类型的callQueue队列等待Handler线程处理。
+
+Server.setupResponse()函数调用Call.setResponse()函数，设置Call.rpcResponse。
+
+# Connection类
+
+# Handler类
+
+# Listener类
+
+# Responder类
+
+# ConnectionManager类
