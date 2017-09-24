@@ -61,7 +61,9 @@ Reactor模式主要包括以下角色：
 		responder = new Responder();	// 创建Responder线程对象
 	}
 
-### setupResponse()函数
+### setupResponse()函数 ???
+
+setupResponse()函数为IPC请求创建response对象。
 
 Server.Connection ==> setupResponse()
 Server.Handler.run() ==> setupResponse()
@@ -69,7 +71,23 @@ Server.Handler.run() ==> setupResponse()
 	private void setupResponse(ByteArrayOutputStream responseBuf,
                                Call call, RpcStatusProto status, RpcErrorCodeProto erCode,
                                Writable rv, String errorClass, String error) {
+		responseBuf.reset();
+		DataOutputStream out = new DataOutputStream(responseBuf);
+
+		RpcResponseHeaderProto.Builder headerBuilder =
+            RpcResponseHeaderProto.newBuilder();
+        headerBuilder.setClientId(ByteString.copyFrom(call.clientId));
+        headerBuilder.setCallId(call.callId);
+        headerBuilder.setRetryCount(call.retryCount);
+        headerBuilder.setStatus(status);
+        headerBuilder.setServerIpcVersionNum(CURRENT_VERSION);
+
+		if (status == RpcStatusProto.SUCCESS) {
+			// RPC成功
 		
+		} else {
+			// RPC失败
+		}
 	}
 
 ### start()函数和stop()函数
@@ -161,9 +179,245 @@ Server.setupResponse()函数调用Call.setResponse()函数，设置Call.rpcRespo
 
 # Connection类
 
+	private SocketChannel channel;
+    private ByteBuffer data;
+    private ByteBuffer dataLengthBuffer;
+    private LinkedList<Call> responseQueue;
+	private Socket socket;
+	private String hostAddress;
+	private int remotePort;
+	private InetAddress addr;
+	
+## doSaslReply()函数
+
+    private void doSaslReply(Message message) throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Sending sasl message "+message);
+        }
+        setupResponse(saslResponse, saslCall,
+                      RpcStatusProto.SUCCESS, null,
+                      new RpcResponseWrapper(message), null, null);
+        responder.doRespond(saslCall);
+    }
+
+	private void doSaslReply(Exception ioe) throws IOException {
+        setupResponse(authFailedResponse, authFailedCall,
+                      RpcStatusProto.FATAL, RpcErrorCodeProto.FATAL_UNAUTHORIZED,
+                      null, ioe.getClass().getName(), ioe.getLocalizedMessage());
+        responder.doRespond(authFailedCall);
+    }
+
+**readAndProcess() ==> processOneRpc() ==> processRpcRequest() / processRpcOutputOfBandRequest()**
+
+## Connection.readAndProcess()函数
+
+Listener.doRead() ==> Connection.readAndProcess()
+
+## Connection.processOneRpc()函数
+
+## Connection.processRpcRequest()函数
+
 # Handler类
 
 # Listener类
+	
+	private class Listener extends Thread
+
+	private ServerSocketChannel acceptChannel = null; //the accept channel
+    private Selector selector = null; //the selector that we use for the server
+    private Reader[] readers = null;
+    private int currentReader = 0;
+    private InetSocketAddress address; //the address we bind at
+    
+## Listener()
+
+Listener构造函数，创建并初始化ServerSocketChannel和Selector。
+
+	public Listener() throws IOException {
+		address = new InetSocketAddress(bindAddress, port);
+		// Create a new server socket and set to non blocking mode
+		acceptChannel = ServerSocketChannel.open();
+		acceptChannel.configureBlocking(false);
+		
+		// Bind the server socket to the local host and port
+		bind(acceptChannel.socket(), address, backlogLength, conf, portRangeConfig);
+		port = acceptChannel.socket().getLocalPort(); //Could be an ephemeral port
+	
+		// create a selector;
+		selector= Selector.open();
+
+		// 创建多个reader线程对象
+		readers = new Reader[readThreads];
+		for (int i = 0; i < readThreads; i++) {
+		    Reader reader = new Reader(
+		        "Socket Reader #" + (i + 1) + " for port " + port);
+		    readers[i] = reader;
+		    reader.start();
+		}
+		
+		// Register accepts on the server socket with the selector.
+		acceptChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+		this.setName("IPC Server listener on " + port);
+		this.setDaemon(true);
+	}
+
+## Listener.Reader类
+
+	final private BlockingQueue<Connection> pendingConnections;
+    private final Selector readSelector;
+
+### Listener.Reader.doRunLoop()
+
+Listener.doAccept() ==> Reader.addConnection(Connection)
+
+Reader.run() ==> Reader.doRunLoop() {Connection conn = pendingConnections.take();}
+==> Listener.doRead()
+
+	private synchronized void doRunLoop() {
+	    while (running) {
+	        SelectionKey key = null;
+	        try {
+	            // consume as many connections as currently queued to avoid
+	            // unbridled acceptance of connections that starves the select
+	            int size = pendingConnections.size();
+	            for (int i=size; i>0; i--) {
+	                Connection conn = pendingConnections.take();
+	                conn.channel.register(readSelector, SelectionKey.OP_READ, conn);
+	            }
+	            readSelector.select();
+	
+	            Iterator<SelectionKey> iter = readSelector.selectedKeys().iterator();
+	            while (iter.hasNext()) {
+	                key = iter.next();
+	                iter.remove();
+	                if (key.isValid()) {
+	                    if (key.isReadable()) {
+	                        doRead(key);
+	                    }
+	                }
+	                key = null;
+	            }
+	        } catch (InterruptedException e) {
+	            if (running) {                      // unexpected -- log it
+	                LOG.info(Thread.currentThread().getName() + " unexpectedly interrupted", e);
+	            }
+	        } catch (IOException ex) {
+	            LOG.error("Error in Reader", ex);
+	        }
+	    }
+	}
+
+## Listener.Reader.addConnection()函数
+
+	public void addConnection(Connection conn) throws InterruptedException {
+        pendingConnections.put(conn);
+        readSelector.wakeup();
+    }
+
+## Listener.run()
+
+	public void run() {
+		while (running) {
+			SelectionKey key = null;
+			try {
+                    getSelector().select();
+                    Iterator<SelectionKey> iter = getSelector().selectedKeys().iterator();
+                    while (iter.hasNext()) {
+                        key = iter.next();
+                        iter.remove();
+                        try {
+                            if (key.isValid()) {
+                                if (key.isAcceptable())
+									// 发生accept事件后，将事件交由doAccept()函数处理
+                                    doAccept(key);
+                            }
+                        } catch (IOException e) {
+                        }
+                        key = null;
+                    }
+			} catch (OutOfMemoryError e) {
+	
+			} catch (Exception e) {
+
+			}
+		}
+		
+		// 关闭Channel和Selector
+		synchronized (this) {
+            try {
+                acceptChannel.close();
+                selector.close();
+            } catch (IOException e) { }
+
+            selector= null;
+            acceptChannel= null;
+
+            // close all connections
+            connectionManager.stopIdleScan();
+            connectionManager.closeAll();
+        }
+	}
+
+## Listener.doAccept()函数
+
+	void doAccept(SelectionKey key) throws InterruptedException, IOException,  OutOfMemoryError {
+        ServerSocketChannel server = (ServerSocketChannel) key.channel();
+        SocketChannel channel;
+        while ((channel = server.accept()) != null) {
+
+            channel.configureBlocking(false);
+            channel.socket().setTcpNoDelay(tcpNoDelay);
+            channel.socket().setKeepAlive(true);
+			
+			// getReader()从readers数组中获得一个Reader线程
+            Reader reader = getReader();
+            Connection c = connectionManager.register(channel);
+            key.attach(c);  // so closeCurrentConnection can get the object
+
+			// Reader.addConnection()函数将新建的Connection对象加入到BlockingQueue<Connection> pendingConnections中
+			// 并且调用readSelector.wakeup()开始等待OP_READ事件
+            reader.addConnection(c);
+        }
+    }
+
+## Listener.doRead()函数
+
+Listener.Reader.doLoopRun() ==> Listener.doRead()
+
+    void doRead(SelectionKey key) throws InterruptedException {
+        int count = 0;
+        Connection c = (Connection)key.attachment();
+        if (c == null) {
+            return;
+        }
+        c.setLastContact(Time.now());
+
+        try {
+			// !!!
+			// 见Connection类
+            count = c.readAndProcess();
+        } catch (InterruptedException ieo) {
+            throw ieo;
+        } catch (Exception e) {
+            // a WrappedRpcServerException is an exception that has been sent
+            // to the client, so the stacktrace is unnecessary; any other
+            // exceptions are unexpected internal server errors and thus the
+            // stacktrace should be logged
+            LOG.info(Thread.currentThread().getName() + ": readAndProcess from client " +
+                     c.getHostAddress() + " threw exception [" + e + "]",
+                     (e instanceof WrappedRpcServerException) ? null : e);
+            count = -1; //so that the (count < 0) block is executed
+        }
+
+        if (count < 0) {
+            closeConnection(c);
+            c = null;
+        } else {
+            c.setLastContact(Time.now());
+        }
+    }
+
 
 # Responder类
 
