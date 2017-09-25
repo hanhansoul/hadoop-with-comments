@@ -2093,6 +2093,10 @@ public abstract class Server {
                         // responder.doResponse() since setupResponse may use
                         // SASL to encrypt response data and SASL enforces
                         // its own message ordering.
+						
+						// ByteArrayOutputStream buf = new ByteArrayOutputStream(INITIAL_RESP_BUF_SIZE);
+						// final Call call = callQueue.take();
+						// Writable value = call(...)
                         setupResponse(buf, call, returnStatus, detailedErr,
                                       value, errorClass, error);
 

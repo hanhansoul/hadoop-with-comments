@@ -84,10 +84,53 @@ Server.Handler.run() ==> setupResponse()
 
 		if (status == RpcStatusProto.SUCCESS) {
 			// RPC成功
-		
+			RpcResponseHeaderProto header = headerBuilder.build();
+            final int headerLen = header.getSerializedSize();
+            int fullLength  = CodedOutputStream.computeRawVarint32Size(headerLen) +
+                              headerLen;
+            try {
+                if (rv instanceof ProtobufRpcEngine.RpcWrapper) {
+                    ProtobufRpcEngine.RpcWrapper resWrapper =
+                        (ProtobufRpcEngine.RpcWrapper) rv;
+                    fullLength += resWrapper.getLength();
+					// 获取数据长度后序列化
+                    out.writeInt(fullLength);
+                    header.writeDelimitedTo(out);
+                    rv.write(out);
+                } else { // Have to serialize to buffer to get len
+                    final DataOutputBuffer buf = new DataOutputBuffer();
+                    rv.write(buf);
+                    byte[] data = buf.getData();
+                    fullLength += buf.getLength();
+					// 获取数据长度后序列化
+                    out.writeInt(fullLength);
+                    header.writeDelimitedTo(out);
+                    out.write(data, 0, buf.getLength());
+                }
+            } catch (Throwable t) {
+                LOG.warn("Error serializing call response for call " + call, t);
+                // Call back to same function - this is OK since the
+                // buffer is reset at the top, and since status is changed
+                // to ERROR it won't infinite loop.
+                setupResponse(responseBuf, call, RpcStatusProto.ERROR,
+                              RpcErrorCodeProto.ERROR_SERIALIZING_RESPONSE,
+                              null, t.getClass().getName(),
+                              StringUtils.stringifyException(t));
+                return;
+            }
 		} else {
 			// RPC失败
+			headerBuilder.setExceptionClassName(errorClass);
+            headerBuilder.setErrorMsg(error);
+            headerBuilder.setErrorDetail(erCode);
+            RpcResponseHeaderProto header = headerBuilder.build();
+            int headerLen = header.getSerializedSize();
+            final int fullLength  =
+                CodedOutputStream.computeRawVarint32Size(headerLen) + headerLen;
+            out.writeInt(fullLength);
+            header.writeDelimitedTo(out);
 		}
+		call.setResponse(ByteBuffer.wrap(responseBuf.toByteArray()));
 	}
 
 ### start()函数和stop()函数
