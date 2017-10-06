@@ -29,44 +29,44 @@ import java.util.List;
  * redact.
  */
 public class TestConfigRedactor {
-  private static final String REDACTED_TEXT = "<redacted>";
+    private static final String REDACTED_TEXT = "<redacted>";
 
-  private static final String ORIGINAL_VALUE = "Hello, World!";
+    private static final String ORIGINAL_VALUE = "Hello, World!";
 
-  @Test
-  public void redact() throws Exception {
-    Configuration conf = new Configuration();
-    ConfigRedactor redactor = new ConfigRedactor(conf);
-    String processedText;
+    @Test
+    public void redact() throws Exception {
+        Configuration conf = new Configuration();
+        ConfigRedactor redactor = new ConfigRedactor(conf);
+        String processedText;
 
-    List<String> sensitiveKeys = Arrays.asList(
-        "fs.s3a.secret.key",
-        "fs.s3n.awsSecretKey",
-        "fs.azure.account.key.abcdefg.blob.core.windows.net",
-        "dfs.webhdfs.oauth2.access.token",
-        "dfs.webhdfs.oauth2.refresh.token",
-        "ssl.server.keystore.keypassword",
-        "ssl.server.keystore.password",
-        "hadoop.security.sensitive-config-keys"
-    );
-    for (String key : sensitiveKeys) {
-      processedText = redactor.redact(key, ORIGINAL_VALUE);
-      Assert.assertEquals(
-          "Config parameter wasn't redacted and should be: " + key,
-          REDACTED_TEXT, processedText);
+        List<String> sensitiveKeys = Arrays.asList(
+                                         "fs.s3a.secret.key",
+                                         "fs.s3n.awsSecretKey",
+                                         "fs.azure.account.key.abcdefg.blob.core.windows.net",
+                                         "dfs.webhdfs.oauth2.access.token",
+                                         "dfs.webhdfs.oauth2.refresh.token",
+                                         "ssl.server.keystore.keypassword",
+                                         "ssl.server.keystore.password",
+                                         "hadoop.security.sensitive-config-keys"
+                                     );
+        for (String key : sensitiveKeys) {
+            processedText = redactor.redact(key, ORIGINAL_VALUE);
+            Assert.assertEquals(
+                "Config parameter wasn't redacted and should be: " + key,
+                REDACTED_TEXT, processedText);
+        }
+
+        List<String> normalKeys = Arrays.asList(
+                                      "fs.defaultFS",
+                                      "dfs.replication",
+                                      "ssl.server.keystore.location",
+                                      "hadoop.security.credstore.java-keystore-provider.password-file"
+                                  );
+        for (String key : normalKeys) {
+            processedText = redactor.redact(key, ORIGINAL_VALUE);
+            Assert.assertEquals(
+                "Config parameter was redacted and shouldn't be: " + key,
+                ORIGINAL_VALUE, processedText);
+        }
     }
-
-    List<String> normalKeys = Arrays.asList(
-        "fs.defaultFS",
-        "dfs.replication",
-        "ssl.server.keystore.location",
-        "hadoop.security.credstore.java-keystore-provider.password-file"
-    );
-    for (String key : normalKeys) {
-      processedText = redactor.redact(key, ORIGINAL_VALUE);
-      Assert.assertEquals(
-          "Config parameter was redacted and shouldn't be: " + key,
-          ORIGINAL_VALUE, processedText);
-    }
-  }
 }

@@ -28,10 +28,10 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class ContractValidationException extends PlanningException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public ContractValidationException(String message) {
-    super(message);
-  }
+    public ContractValidationException(String message) {
+        super(message);
+    }
 
 }

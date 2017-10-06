@@ -31,20 +31,20 @@ import java.io.IOException;
  */
 public class TestHDFSContractConcat extends AbstractContractConcatTest {
 
-  @BeforeClass
-  public static void createCluster() throws IOException {
-    HDFSContract.createCluster();
-    // perform a simple operation on the cluster to verify it is up
-    HDFSContract.getCluster().getFileSystem().getDefaultBlockSize();
-  }
+    @BeforeClass
+    public static void createCluster() throws IOException {
+        HDFSContract.createCluster();
+        // perform a simple operation on the cluster to verify it is up
+        HDFSContract.getCluster().getFileSystem().getDefaultBlockSize();
+    }
 
-  @AfterClass
-  public static void teardownCluster() throws IOException {
-    HDFSContract.destroyCluster();
-  }
+    @AfterClass
+    public static void teardownCluster() throws IOException {
+        HDFSContract.destroyCluster();
+    }
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new HDFSContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new HDFSContract(conf);
+    }
 }

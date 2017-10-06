@@ -35,23 +35,23 @@ import org.apache.hadoop.yarn.ipc.YarnRPC;
 @SuppressWarnings("unchecked")
 public class AHSProxy<T> {
 
-  private static final Log LOG = LogFactory.getLog(AHSProxy.class);
+    private static final Log LOG = LogFactory.getLog(AHSProxy.class);
 
-  public static <T> T createAHSProxy(final Configuration conf,
-      final Class<T> protocol, InetSocketAddress ahsAddress) throws IOException {
-    LOG.info("Connecting to Application History server at " + ahsAddress);
-    return (T) getProxy(conf, protocol, ahsAddress);
-  }
+    public static <T> T createAHSProxy(final Configuration conf,
+                                       final Class<T> protocol, InetSocketAddress ahsAddress) throws IOException {
+        LOG.info("Connecting to Application History server at " + ahsAddress);
+        return (T) getProxy(conf, protocol, ahsAddress);
+    }
 
-  protected static <T> T getProxy(final Configuration conf,
-      final Class<T> protocol, final InetSocketAddress rmAddress)
-      throws IOException {
-    return UserGroupInformation.getCurrentUser().doAs(
-      new PrivilegedAction<T>() {
-        @Override
-        public T run() {
-          return (T) YarnRPC.create(conf).getProxy(protocol, rmAddress, conf);
-        }
-      });
-  }
+    protected static <T> T getProxy(final Configuration conf,
+                                    final Class<T> protocol, final InetSocketAddress rmAddress)
+    throws IOException {
+        return UserGroupInformation.getCurrentUser().doAs(
+        new PrivilegedAction<T>() {
+            @Override
+            public T run() {
+                return (T) YarnRPC.create(conf).getProxy(protocol, rmAddress, conf);
+            }
+        });
+    }
 }

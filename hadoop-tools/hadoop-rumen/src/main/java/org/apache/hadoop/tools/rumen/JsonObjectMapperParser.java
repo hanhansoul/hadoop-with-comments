@@ -30,65 +30,65 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * A simple wrapper for parsing JSON-encoded data using ObjectMapper.
- * 
+ *
  * @param <T>
  *          The (base) type of the object(s) to be parsed by this parser.
  */
 class JsonObjectMapperParser<T> implements Closeable {
-  private final ObjectMapper mapper;
-  private final Class<? extends T> clazz;
-  private final JsonParser jsonParser;
+    private final ObjectMapper mapper;
+    private final Class<? extends T> clazz;
+    private final JsonParser jsonParser;
 
-  /**
-   * Constructor.
-   * 
-   * @param path
-   *          Path to the JSON data file, possibly compressed.
-   * @param conf
-   * @throws IOException
-   */
-  public JsonObjectMapperParser(Path path, Class<? extends T> clazz,
-      Configuration conf) throws IOException {
-    mapper = new ObjectMapper();
-    mapper.configure(
-        DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
-    this.clazz = clazz;
-    InputStream input = new PossiblyDecompressedInputStream(path, conf);
-    jsonParser = mapper.getJsonFactory().createJsonParser(input);
-  }
-
-  /**
-   * Constructor.
-   * 
-   * @param input
-   *          The input stream for the JSON data.
-   */
-  public JsonObjectMapperParser(InputStream input, Class<? extends T> clazz)
-      throws IOException {
-    mapper = new ObjectMapper();
-    mapper.configure(
-        DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
-    this.clazz = clazz;
-    jsonParser = mapper.getJsonFactory().createJsonParser(input);
-  }
-
-  /**
-   * Get the next object from the trace.
-   * 
-   * @return The next instance of the object. Or null if we reach the end of
-   *         stream.
-   * @throws IOException
-   */
-  public T getNext() throws IOException {
-    try {
-      return mapper.readValue(jsonParser, clazz);
-    } catch (EOFException e) {
-      return null;
+    /**
+     * Constructor.
+     *
+     * @param path
+     *          Path to the JSON data file, possibly compressed.
+     * @param conf
+     * @throws IOException
+     */
+    public JsonObjectMapperParser(Path path, Class<? extends T> clazz,
+                                  Configuration conf) throws IOException {
+        mapper = new ObjectMapper();
+        mapper.configure(
+            DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
+        this.clazz = clazz;
+        InputStream input = new PossiblyDecompressedInputStream(path, conf);
+        jsonParser = mapper.getJsonFactory().createJsonParser(input);
     }
-  }
 
-  @Override
-  public void close() throws IOException {
-    jsonParser.close();
-  }
+    /**
+     * Constructor.
+     *
+     * @param input
+     *          The input stream for the JSON data.
+     */
+    public JsonObjectMapperParser(InputStream input, Class<? extends T> clazz)
+    throws IOException {
+        mapper = new ObjectMapper();
+        mapper.configure(
+            DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
+        this.clazz = clazz;
+        jsonParser = mapper.getJsonFactory().createJsonParser(input);
+    }
+
+    /**
+     * Get the next object from the trace.
+     *
+     * @return The next instance of the object. Or null if we reach the end of
+     *         stream.
+     * @throws IOException
+     */
+    public T getNext() throws IOException {
+        try {
+            return mapper.readValue(jsonParser, clazz);
+        } catch (EOFException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        jsonParser.close();
+    }
 }

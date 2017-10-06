@@ -26,28 +26,28 @@ import org.apache.hadoop.oncrpc.security.Verifier;
  * the response from NFSv3 handlers.
  */
 public class NFS3Response {
-  protected int status;
+    protected int status;
 
-  public NFS3Response(int status) {
-    this.status = status;
-  }
+    public NFS3Response(int status) {
+        this.status = status;
+    }
 
-  public int getStatus() {
-    return this.status;
-  }
+    public int getStatus() {
+        return this.status;
+    }
 
-  public void setStatus(int status) {
-    this.status = status;
-  }
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-  /**
-   * Write the response, along with the rpc header (including verifier), to the
-   * XDR.
-   */
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    RpcAcceptedReply reply = RpcAcceptedReply.getAcceptInstance(xid, verifier);
-    reply.write(out);
-    out.writeInt(this.getStatus());
-    return out;
-  }
+    /**
+     * Write the response, along with the rpc header (including verifier), to the
+     * XDR.
+     */
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        RpcAcceptedReply reply = RpcAcceptedReply.getAcceptInstance(xid, verifier);
+        reply.write(out);
+        out.writeInt(this.getStatus());
+        return out;
+    }
 }

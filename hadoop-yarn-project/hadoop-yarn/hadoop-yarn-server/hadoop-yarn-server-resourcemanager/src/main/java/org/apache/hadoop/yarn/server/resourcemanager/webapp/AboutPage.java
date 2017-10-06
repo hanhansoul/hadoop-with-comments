@@ -22,11 +22,11 @@ import org.apache.hadoop.yarn.webapp.SubView;
 
 public class AboutPage extends RmView {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-  }
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+    }
 
-  @Override protected Class<? extends SubView> content() {
-    return AboutBlock.class;
-  }
+    @Override protected Class<? extends SubView> content() {
+        return AboutBlock.class;
+    }
 }

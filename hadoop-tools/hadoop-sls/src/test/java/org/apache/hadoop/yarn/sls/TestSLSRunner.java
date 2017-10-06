@@ -29,42 +29,43 @@ import java.util.UUID;
 
 public class TestSLSRunner {
 
-  @Test
-  @SuppressWarnings("all")
-  public void testSimulatorRunning() throws Exception {
-    File tempDir = new File("target", UUID.randomUUID().toString());
-    final List<Throwable> exceptionList =
-        Collections.synchronizedList(new ArrayList<Throwable>());
+    @Test
+    @SuppressWarnings("all")
+    public void testSimulatorRunning() throws Exception {
+        File tempDir = new File("target", UUID.randomUUID().toString());
+        final List<Throwable> exceptionList =
+            Collections.synchronizedList(new ArrayList<Throwable>());
 
-    Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-      @Override
-      public void uncaughtException(Thread t, Throwable e) {
-        exceptionList.add(e);
-      }
-    });
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                exceptionList.add(e);
+            }
+        });
 
-    // start the simulator
-    File slsOutputDir = new File(tempDir.getAbsolutePath() + "/slsoutput/");
-    String args[] = new String[]{
+        // start the simulator
+        File slsOutputDir = new File(tempDir.getAbsolutePath() + "/slsoutput/");
+        String args[] = new String[] {
             "-inputrumen", "src/main/data/2jobs2min-rumen-jh.json",
-            "-output", slsOutputDir.getAbsolutePath()};
-    SLSRunner.main(args);
+            "-output", slsOutputDir.getAbsolutePath()
+        };
+        SLSRunner.main(args);
 
-    // wait for 20 seconds before stop
-    int count = 20;
-    while (count >= 0) {
-      Thread.sleep(1000);
+        // wait for 20 seconds before stop
+        int count = 20;
+        while (count >= 0) {
+            Thread.sleep(1000);
 
-      if (! exceptionList.isEmpty()) {
+            if (! exceptionList.isEmpty()) {
+                SLSRunner.getRunner().stop();
+                Assert.fail("TestSLSRunner catched exception from child thread " +
+                            "(TaskRunner.Task): " + exceptionList.get(0).getMessage());
+                break;
+            }
+            count--;
+        }
+
         SLSRunner.getRunner().stop();
-        Assert.fail("TestSLSRunner catched exception from child thread " +
-            "(TaskRunner.Task): " + exceptionList.get(0).getMessage());
-        break;
-      }
-      count--;
     }
-
-    SLSRunner.getRunner().stop();
-  }
 
 }

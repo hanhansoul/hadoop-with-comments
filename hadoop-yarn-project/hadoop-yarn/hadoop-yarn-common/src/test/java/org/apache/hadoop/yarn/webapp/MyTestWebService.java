@@ -31,17 +31,17 @@ import com.google.inject.Singleton;
 @Singleton
 @Path("/ws/v1/test")
 public class MyTestWebService {
-  @GET
-  @Produces({ MediaType.APPLICATION_XML })
-  public MyInfo get() {
-    return new MyInfo();
-  }
-
-  @XmlRootElement(name = "myInfo")
-  @XmlAccessorType(XmlAccessType.FIELD)
-  static class MyInfo {
-    public MyInfo() {
-
+    @GET
+    @Produces({ MediaType.APPLICATION_XML })
+    public MyInfo get() {
+        return new MyInfo();
     }
-  }
+
+    @XmlRootElement(name = "myInfo")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    static class MyInfo {
+        public MyInfo() {
+
+        }
+    }
 }

@@ -29,84 +29,84 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 abstract class MergeThread<T,K,V> extends Thread {
-  
-  private static final Log LOG = LogFactory.getLog(MergeThread.class);
 
-  private AtomicInteger numPending = new AtomicInteger(0);
-  private LinkedList<List<T>> pendingToBeMerged;
-  protected final MergeManagerImpl<K,V> manager;
-  private final ExceptionReporter reporter;
-  private boolean closed = false;
-  private final int mergeFactor;
-  
-  public MergeThread(MergeManagerImpl<K,V> manager, int mergeFactor,
-                     ExceptionReporter reporter) {
-    this.pendingToBeMerged = new LinkedList<List<T>>();
-    this.manager = manager;
-    this.mergeFactor = mergeFactor;
-    this.reporter = reporter;
-  }
-  
-  public synchronized void close() throws InterruptedException {
-    closed = true;
-    waitForMerge();
-    interrupt();
-  }
+    private static final Log LOG = LogFactory.getLog(MergeThread.class);
 
-  public void startMerge(Set<T> inputs) {
-    if (!closed) {
-      numPending.incrementAndGet();
-      List<T> toMergeInputs = new ArrayList<T>();
-      Iterator<T> iter=inputs.iterator();
-      for (int ctr = 0; iter.hasNext() && ctr < mergeFactor; ++ctr) {
-        toMergeInputs.add(iter.next());
-        iter.remove();
-      }
-      LOG.info(getName() + ": Starting merge with " + toMergeInputs.size() + 
-               " segments, while ignoring " + inputs.size() + " segments");
-      synchronized(pendingToBeMerged) {
-        pendingToBeMerged.addLast(toMergeInputs);
-        pendingToBeMerged.notifyAll();
-      }
+    private AtomicInteger numPending = new AtomicInteger(0);
+    private LinkedList<List<T>> pendingToBeMerged;
+    protected final MergeManagerImpl<K,V> manager;
+    private final ExceptionReporter reporter;
+    private boolean closed = false;
+    private final int mergeFactor;
+
+    public MergeThread(MergeManagerImpl<K,V> manager, int mergeFactor,
+                       ExceptionReporter reporter) {
+        this.pendingToBeMerged = new LinkedList<List<T>>();
+        this.manager = manager;
+        this.mergeFactor = mergeFactor;
+        this.reporter = reporter;
     }
-  }
 
-  public synchronized void waitForMerge() throws InterruptedException {
-    while (numPending.get() > 0) {
-      wait();
+    public synchronized void close() throws InterruptedException {
+        closed = true;
+        waitForMerge();
+        interrupt();
     }
-  }
 
-  public void run() {
-    while (true) {
-      List<T> inputs = null;
-      try {
-        // Wait for notification to start the merge...
-        synchronized (pendingToBeMerged) {
-          while(pendingToBeMerged.size() <= 0) {
-            pendingToBeMerged.wait();
-          }
-          // Pickup the inputs to merge.
-          inputs = pendingToBeMerged.removeFirst();
+    public void startMerge(Set<T> inputs) {
+        if (!closed) {
+            numPending.incrementAndGet();
+            List<T> toMergeInputs = new ArrayList<T>();
+            Iterator<T> iter=inputs.iterator();
+            for (int ctr = 0; iter.hasNext() && ctr < mergeFactor; ++ctr) {
+                toMergeInputs.add(iter.next());
+                iter.remove();
+            }
+            LOG.info(getName() + ": Starting merge with " + toMergeInputs.size() +
+                     " segments, while ignoring " + inputs.size() + " segments");
+            synchronized(pendingToBeMerged) {
+                pendingToBeMerged.addLast(toMergeInputs);
+                pendingToBeMerged.notifyAll();
+            }
         }
-
-        // Merge
-        merge(inputs);
-      } catch (InterruptedException ie) {
-        numPending.set(0);
-        return;
-      } catch(Throwable t) {
-        numPending.set(0);
-        reporter.reportException(t);
-        return;
-      } finally {
-        synchronized (this) {
-          numPending.decrementAndGet();
-          notifyAll();
-        }
-      }
     }
-  }
 
-  public abstract void merge(List<T> inputs) throws IOException;
+    public synchronized void waitForMerge() throws InterruptedException {
+        while (numPending.get() > 0) {
+            wait();
+        }
+    }
+
+    public void run() {
+        while (true) {
+            List<T> inputs = null;
+            try {
+                // Wait for notification to start the merge...
+                synchronized (pendingToBeMerged) {
+                    while(pendingToBeMerged.size() <= 0) {
+                        pendingToBeMerged.wait();
+                    }
+                    // Pickup the inputs to merge.
+                    inputs = pendingToBeMerged.removeFirst();
+                }
+
+                // Merge
+                merge(inputs);
+            } catch (InterruptedException ie) {
+                numPending.set(0);
+                return;
+            } catch(Throwable t) {
+                numPending.set(0);
+                reporter.reportException(t);
+                return;
+            } finally {
+                synchronized (this) {
+                    numPending.decrementAndGet();
+                    notifyAll();
+                }
+            }
+        }
+    }
+
+    public abstract void merge(List<T> inputs) throws IOException;
 }

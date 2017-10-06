@@ -28,14 +28,14 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public interface BindFlags {
 
-  /**
-   * Create the entry.. This is just "0" and can be "or"ed with anything
-   */
-  int CREATE = 0;
+    /**
+     * Create the entry.. This is just "0" and can be "or"ed with anything
+     */
+    int CREATE = 0;
 
-  /**
-   * The entry should be created even if an existing entry is there.
-   */
-  int OVERWRITE = 1;
+    /**
+     * The entry should be created even if an existing entry is there.
+     */
+    int OVERWRITE = 1;
 
 }

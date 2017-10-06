@@ -37,7 +37,7 @@ import static org.apache.hadoop.hdfs.server.common.HdfsServerConstants.SECURITY_
  * USER - extended user attributes: these can be assigned to files and
  * directories to store arbitrary additional information. The access
  * permissions for user attributes are defined by the file permission
- * bits. For sticky directories, only the owner and privileged user can 
+ * bits. For sticky directories, only the owner and privileged user can
  * write attributes.
  * <br>
  * TRUSTED - trusted extended attributes: these are visible/accessible
@@ -59,68 +59,68 @@ import static org.apache.hadoop.hdfs.server.common.HdfsServerConstants.SECURITY_
  */
 @InterfaceAudience.Private
 public class XAttrPermissionFilter {
-  
-  static void checkPermissionForApi(FSPermissionChecker pc, XAttr xAttr,
-      boolean isRawPath)
-      throws AccessControlException {
-    final boolean isSuperUser = pc.isSuperUser();
-    if (xAttr.getNameSpace() == XAttr.NameSpace.USER || 
-        (xAttr.getNameSpace() == XAttr.NameSpace.TRUSTED && isSuperUser)) {
-      return;
-    }
-    if (xAttr.getNameSpace() == XAttr.NameSpace.RAW &&
-        isRawPath && isSuperUser) {
-      return;
-    }
-    if (XAttrHelper.getPrefixName(xAttr).
-        equals(SECURITY_XATTR_UNREADABLE_BY_SUPERUSER)) {
-      if (xAttr.getValue() != null) {
-        throw new AccessControlException("Attempt to set a value for '" +
-            SECURITY_XATTR_UNREADABLE_BY_SUPERUSER +
-            "'. Values are not allowed for this xattr.");
-      }
-      return;
-    }
-    throw new AccessControlException("User doesn't have permission for xattr: "
-        + XAttrHelper.getPrefixName(xAttr));
-  }
 
-  static void checkPermissionForApi(FSPermissionChecker pc,
-      List<XAttr> xAttrs, boolean isRawPath) throws AccessControlException {
-    Preconditions.checkArgument(xAttrs != null);
-    if (xAttrs.isEmpty()) {
-      return;
+    static void checkPermissionForApi(FSPermissionChecker pc, XAttr xAttr,
+                                      boolean isRawPath)
+    throws AccessControlException {
+        final boolean isSuperUser = pc.isSuperUser();
+        if (xAttr.getNameSpace() == XAttr.NameSpace.USER ||
+            (xAttr.getNameSpace() == XAttr.NameSpace.TRUSTED && isSuperUser)) {
+            return;
+        }
+        if (xAttr.getNameSpace() == XAttr.NameSpace.RAW &&
+            isRawPath && isSuperUser) {
+            return;
+        }
+        if (XAttrHelper.getPrefixName(xAttr).
+            equals(SECURITY_XATTR_UNREADABLE_BY_SUPERUSER)) {
+            if (xAttr.getValue() != null) {
+                throw new AccessControlException("Attempt to set a value for '" +
+                                                 SECURITY_XATTR_UNREADABLE_BY_SUPERUSER +
+                                                 "'. Values are not allowed for this xattr.");
+            }
+            return;
+        }
+        throw new AccessControlException("User doesn't have permission for xattr: "
+                                         + XAttrHelper.getPrefixName(xAttr));
     }
 
-    for (XAttr xAttr : xAttrs) {
-      checkPermissionForApi(pc, xAttr, isRawPath);
-    }
-  }
+    static void checkPermissionForApi(FSPermissionChecker pc,
+                                      List<XAttr> xAttrs, boolean isRawPath) throws AccessControlException {
+        Preconditions.checkArgument(xAttrs != null);
+        if (xAttrs.isEmpty()) {
+            return;
+        }
 
-  static List<XAttr> filterXAttrsForApi(FSPermissionChecker pc,
-      List<XAttr> xAttrs, boolean isRawPath) {
-    assert xAttrs != null : "xAttrs can not be null";
-    if (xAttrs == null || xAttrs.isEmpty()) {
-      return xAttrs;
+        for (XAttr xAttr : xAttrs) {
+            checkPermissionForApi(pc, xAttr, isRawPath);
+        }
     }
-    
-    List<XAttr> filteredXAttrs = Lists.newArrayListWithCapacity(xAttrs.size());
-    final boolean isSuperUser = pc.isSuperUser();
-    for (XAttr xAttr : xAttrs) {
-      if (xAttr.getNameSpace() == XAttr.NameSpace.USER) {
-        filteredXAttrs.add(xAttr);
-      } else if (xAttr.getNameSpace() == XAttr.NameSpace.TRUSTED && 
-          isSuperUser) {
-        filteredXAttrs.add(xAttr);
-      } else if (xAttr.getNameSpace() == XAttr.NameSpace.RAW &&
-          isSuperUser && isRawPath) {
-        filteredXAttrs.add(xAttr);
-      } else if (XAttrHelper.getPrefixName(xAttr).
-          equals(SECURITY_XATTR_UNREADABLE_BY_SUPERUSER)) {
-        filteredXAttrs.add(xAttr);
-      }
+
+    static List<XAttr> filterXAttrsForApi(FSPermissionChecker pc,
+                                          List<XAttr> xAttrs, boolean isRawPath) {
+        assert xAttrs != null : "xAttrs can not be null";
+        if (xAttrs == null || xAttrs.isEmpty()) {
+            return xAttrs;
+        }
+
+        List<XAttr> filteredXAttrs = Lists.newArrayListWithCapacity(xAttrs.size());
+        final boolean isSuperUser = pc.isSuperUser();
+        for (XAttr xAttr : xAttrs) {
+            if (xAttr.getNameSpace() == XAttr.NameSpace.USER) {
+                filteredXAttrs.add(xAttr);
+            } else if (xAttr.getNameSpace() == XAttr.NameSpace.TRUSTED &&
+                       isSuperUser) {
+                filteredXAttrs.add(xAttr);
+            } else if (xAttr.getNameSpace() == XAttr.NameSpace.RAW &&
+                       isSuperUser && isRawPath) {
+                filteredXAttrs.add(xAttr);
+            } else if (XAttrHelper.getPrefixName(xAttr).
+                       equals(SECURITY_XATTR_UNREADABLE_BY_SUPERUSER)) {
+                filteredXAttrs.add(xAttr);
+            }
+        }
+
+        return filteredXAttrs;
     }
-    
-    return filteredXAttrs;
-  }
 }

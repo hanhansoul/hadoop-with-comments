@@ -29,7 +29,7 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Evolving
 public interface Event<TYPE extends Enum<TYPE>> {
 
-  TYPE getType();
-  long getTimestamp();
-  String toString();
+    TYPE getType();
+    long getTimestamp();
+    String toString();
 }

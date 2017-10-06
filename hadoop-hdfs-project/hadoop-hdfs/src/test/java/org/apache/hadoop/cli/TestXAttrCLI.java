@@ -33,67 +33,67 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestXAttrCLI  extends CLITestHelperDFS {
-  protected MiniDFSCluster dfsCluster = null;
-  protected FileSystem fs = null;
-  protected String namenode = null;
-  
-  @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_XATTRS_ENABLED_KEY, true);
-    conf.setClass(PolicyProvider.POLICY_PROVIDER_CONFIG,
-        HDFSPolicyProvider.class, PolicyProvider.class);
-    conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 1);
-    
-    dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    dfsCluster.waitClusterUp();
-    namenode = conf.get(DFSConfigKeys.FS_DEFAULT_NAME_KEY, "file:///");
-    
-    username = System.getProperty("user.name");
+    protected MiniDFSCluster dfsCluster = null;
+    protected FileSystem fs = null;
+    protected String namenode = null;
 
-    fs = dfsCluster.getFileSystem();
-    assertTrue("Not a HDFS: "+fs.getUri(), 
-        fs instanceof DistributedFileSystem);
-  }
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_XATTRS_ENABLED_KEY, true);
+        conf.setClass(PolicyProvider.POLICY_PROVIDER_CONFIG,
+                      HDFSPolicyProvider.class, PolicyProvider.class);
+        conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 1);
 
-  @Override
-  protected String getTestFile() {
-    return "testXAttrConf.xml";
-  }
-  
-  @After
-  @Override
-  public void tearDown() throws Exception {
-    if (fs != null) {
-      fs.close();
+        dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        dfsCluster.waitClusterUp();
+        namenode = conf.get(DFSConfigKeys.FS_DEFAULT_NAME_KEY, "file:///");
+
+        username = System.getProperty("user.name");
+
+        fs = dfsCluster.getFileSystem();
+        assertTrue("Not a HDFS: "+fs.getUri(),
+                   fs instanceof DistributedFileSystem);
     }
-    if (dfsCluster != null) {
-      dfsCluster.shutdown();
-    }
-    Thread.sleep(2000);
-    super.tearDown();
-  }
 
-  @Override
-  protected String expandCommand(final String cmd) {
-    String expCmd = cmd;
-    expCmd = expCmd.replaceAll("NAMENODE", namenode);
-    expCmd = expCmd.replaceAll("#LF#",
-        System.getProperty("line.separator"));
-    expCmd = super.expandCommand(expCmd);
-    return expCmd;
-  }
-  
-  @Override
-  protected Result execute(CLICommand cmd) throws Exception {
-    return cmd.getExecutor(namenode).executeCommand(cmd.getCmd());
-  }
-  
-  @Test
-  @Override
-  public void testAll () {
-    super.testAll();
-  }
+    @Override
+    protected String getTestFile() {
+        return "testXAttrConf.xml";
+    }
+
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        if (fs != null) {
+            fs.close();
+        }
+        if (dfsCluster != null) {
+            dfsCluster.shutdown();
+        }
+        Thread.sleep(2000);
+        super.tearDown();
+    }
+
+    @Override
+    protected String expandCommand(final String cmd) {
+        String expCmd = cmd;
+        expCmd = expCmd.replaceAll("NAMENODE", namenode);
+        expCmd = expCmd.replaceAll("#LF#",
+                                   System.getProperty("line.separator"));
+        expCmd = super.expandCommand(expCmd);
+        return expCmd;
+    }
+
+    @Override
+    protected Result execute(CLICommand cmd) throws Exception {
+        return cmd.getExecutor(namenode).executeCommand(cmd.getCmd());
+    }
+
+    @Test
+    @Override
+    public void testAll () {
+        super.testAll();
+    }
 
 }

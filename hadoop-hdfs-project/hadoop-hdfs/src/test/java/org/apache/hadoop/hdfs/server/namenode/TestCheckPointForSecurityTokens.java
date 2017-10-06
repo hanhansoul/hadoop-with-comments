@@ -42,143 +42,143 @@ import org.junit.Test;
  * This class tests the creation and validation of a checkpoint.
  */
 public class TestCheckPointForSecurityTokens {
-  static final long seed = 0xDEADBEEFL;
-  static final int blockSize = 4096;
-  static final int fileSize = 8192;
-  static final int numDatanodes = 3;
-  short replication = 3;
-  MiniDFSCluster cluster = null;
+    static final long seed = 0xDEADBEEFL;
+    static final int blockSize = 4096;
+    static final int fileSize = 8192;
+    static final int numDatanodes = 3;
+    short replication = 3;
+    MiniDFSCluster cluster = null;
 
-  private void cancelToken(Token<DelegationTokenIdentifier> token)
-      throws IOException {
-    cluster.getNamesystem().cancelDelegationToken(token);
-  }
-  
-  private void renewToken(Token<DelegationTokenIdentifier> token)
-      throws IOException {
-      cluster.getNamesystem().renewDelegationToken(token);
-  }
-  
-  /**
-   * Tests save namespace.
-   */
-  @Test
-  public void testSaveNamespace() throws IOException {
-    DistributedFileSystem fs = null;
-    try {
-      Configuration conf = new HdfsConfiguration();
-      conf.setBoolean(
-          DFSConfigKeys.DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).build();
-      cluster.waitActive();
-      fs = cluster.getFileSystem();
-      FSNamesystem namesystem = cluster.getNamesystem();
-      String renewer = UserGroupInformation.getLoginUser().getUserName();
-      Token<DelegationTokenIdentifier> token1 = namesystem
-          .getDelegationToken(new Text(renewer)); 
-      Token<DelegationTokenIdentifier> token2 = namesystem
-          .getDelegationToken(new Text(renewer));
-      
-      // Saving image without safe mode should fail
-      DFSAdmin admin = new DFSAdmin(conf);
-      String[] args = new String[]{"-saveNamespace"};
-
-      // verify that the edits file is NOT empty
-      NameNode nn = cluster.getNameNode();
-      for (StorageDirectory sd : nn.getFSImage().getStorage().dirIterable(null)) {
-        EditLogFile log = FSImageTestUtil.findLatestEditsLog(sd);
-        assertTrue(log.isInProgress());
-        log.validateLog();
-        long numTransactions = (log.getLastTxId() - log.getFirstTxId()) + 1;
-        assertEquals("In-progress log " + log + " should have 5 transactions",
-                     5, numTransactions);;
-      }
-
-      // Saving image in safe mode should succeed
-      fs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
-      try {
-        admin.run(args);
-      } catch(Exception e) {
-        throw new IOException(e.getMessage());
-      }
-      // verify that the edits file is empty except for the START txn
-      for (StorageDirectory sd : nn.getFSImage().getStorage().dirIterable(null)) {
-        EditLogFile log = FSImageTestUtil.findLatestEditsLog(sd);
-        assertTrue(log.isInProgress());
-        log.validateLog();
-        long numTransactions = (log.getLastTxId() - log.getFirstTxId()) + 1;
-        assertEquals("In-progress log " + log + " should only have START txn",
-            1, numTransactions);
-      }
-
-      // restart cluster
-      cluster.shutdown();
-      cluster = null;
-
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).format(false).build();
-      cluster.waitActive();
-      //Should be able to renew & cancel the delegation token after cluster restart
-      try {
-        renewToken(token1);
-        renewToken(token2);
-      } catch (IOException e) {
-        fail("Could not renew or cancel the token");
-      }
-
-      namesystem = cluster.getNamesystem();
-      Token<DelegationTokenIdentifier> token3 = namesystem
-          .getDelegationToken(new Text(renewer));
-      Token<DelegationTokenIdentifier> token4 = namesystem
-          .getDelegationToken(new Text(renewer));
-
-      // restart cluster again
-      cluster.shutdown();
-      cluster = null;
-
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).format(false).build();
-      cluster.waitActive();
-
-      namesystem = cluster.getNamesystem();
-      Token<DelegationTokenIdentifier> token5 = namesystem
-          .getDelegationToken(new Text(renewer));
-
-      try {
-        renewToken(token1);
-        renewToken(token2);
-        renewToken(token3);
-        renewToken(token4);
-        renewToken(token5);
-
-      } catch (IOException e) {
-        fail("Could not renew or cancel the token");
-      }
-
-      // restart cluster again
-      cluster.shutdown();
-      cluster = null;
-
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).format(false).build();
-      cluster.waitActive();
-
-      namesystem = cluster.getNamesystem();
-      try {
-        renewToken(token1);
-        cancelToken(token1);
-        renewToken(token2);
-        cancelToken(token2);
-        renewToken(token3);
-        cancelToken(token3);
-        renewToken(token4);
-        cancelToken(token4);
-        renewToken(token5);
-        cancelToken(token5);
-      } catch (IOException e) {
-        fail("Could not renew or cancel the token");
-      }
-
-    } finally {
-      if(fs != null) fs.close();
-      if(cluster!= null) cluster.shutdown();
+    private void cancelToken(Token<DelegationTokenIdentifier> token)
+    throws IOException {
+        cluster.getNamesystem().cancelDelegationToken(token);
     }
-  }
+
+    private void renewToken(Token<DelegationTokenIdentifier> token)
+    throws IOException {
+        cluster.getNamesystem().renewDelegationToken(token);
+    }
+
+    /**
+     * Tests save namespace.
+     */
+    @Test
+    public void testSaveNamespace() throws IOException {
+        DistributedFileSystem fs = null;
+        try {
+            Configuration conf = new HdfsConfiguration();
+            conf.setBoolean(
+                DFSConfigKeys.DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).build();
+            cluster.waitActive();
+            fs = cluster.getFileSystem();
+            FSNamesystem namesystem = cluster.getNamesystem();
+            String renewer = UserGroupInformation.getLoginUser().getUserName();
+            Token<DelegationTokenIdentifier> token1 = namesystem
+                    .getDelegationToken(new Text(renewer));
+            Token<DelegationTokenIdentifier> token2 = namesystem
+                    .getDelegationToken(new Text(renewer));
+
+            // Saving image without safe mode should fail
+            DFSAdmin admin = new DFSAdmin(conf);
+            String[] args = new String[] {"-saveNamespace"};
+
+            // verify that the edits file is NOT empty
+            NameNode nn = cluster.getNameNode();
+            for (StorageDirectory sd : nn.getFSImage().getStorage().dirIterable(null)) {
+                EditLogFile log = FSImageTestUtil.findLatestEditsLog(sd);
+                assertTrue(log.isInProgress());
+                log.validateLog();
+                long numTransactions = (log.getLastTxId() - log.getFirstTxId()) + 1;
+                assertEquals("In-progress log " + log + " should have 5 transactions",
+                             5, numTransactions);;
+            }
+
+            // Saving image in safe mode should succeed
+            fs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
+            try {
+                admin.run(args);
+            } catch(Exception e) {
+                throw new IOException(e.getMessage());
+            }
+            // verify that the edits file is empty except for the START txn
+            for (StorageDirectory sd : nn.getFSImage().getStorage().dirIterable(null)) {
+                EditLogFile log = FSImageTestUtil.findLatestEditsLog(sd);
+                assertTrue(log.isInProgress());
+                log.validateLog();
+                long numTransactions = (log.getLastTxId() - log.getFirstTxId()) + 1;
+                assertEquals("In-progress log " + log + " should only have START txn",
+                             1, numTransactions);
+            }
+
+            // restart cluster
+            cluster.shutdown();
+            cluster = null;
+
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).format(false).build();
+            cluster.waitActive();
+            //Should be able to renew & cancel the delegation token after cluster restart
+            try {
+                renewToken(token1);
+                renewToken(token2);
+            } catch (IOException e) {
+                fail("Could not renew or cancel the token");
+            }
+
+            namesystem = cluster.getNamesystem();
+            Token<DelegationTokenIdentifier> token3 = namesystem
+                    .getDelegationToken(new Text(renewer));
+            Token<DelegationTokenIdentifier> token4 = namesystem
+                    .getDelegationToken(new Text(renewer));
+
+            // restart cluster again
+            cluster.shutdown();
+            cluster = null;
+
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).format(false).build();
+            cluster.waitActive();
+
+            namesystem = cluster.getNamesystem();
+            Token<DelegationTokenIdentifier> token5 = namesystem
+                    .getDelegationToken(new Text(renewer));
+
+            try {
+                renewToken(token1);
+                renewToken(token2);
+                renewToken(token3);
+                renewToken(token4);
+                renewToken(token5);
+
+            } catch (IOException e) {
+                fail("Could not renew or cancel the token");
+            }
+
+            // restart cluster again
+            cluster.shutdown();
+            cluster = null;
+
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(numDatanodes).format(false).build();
+            cluster.waitActive();
+
+            namesystem = cluster.getNamesystem();
+            try {
+                renewToken(token1);
+                cancelToken(token1);
+                renewToken(token2);
+                cancelToken(token2);
+                renewToken(token3);
+                cancelToken(token3);
+                renewToken(token4);
+                cancelToken(token4);
+                renewToken(token5);
+                cancelToken(token5);
+            } catch (IOException e) {
+                fail("Could not renew or cancel the token");
+            }
+
+        } finally {
+            if(fs != null) fs.close();
+            if(cluster!= null) cluster.shutdown();
+        }
+    }
 }

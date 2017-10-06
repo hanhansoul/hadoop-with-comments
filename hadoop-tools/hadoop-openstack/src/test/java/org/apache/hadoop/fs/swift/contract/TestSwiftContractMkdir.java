@@ -27,8 +27,8 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
  */
 public class TestSwiftContractMkdir extends AbstractContractMkdirTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new SwiftContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new SwiftContract(conf);
+    }
 }

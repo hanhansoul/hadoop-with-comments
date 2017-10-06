@@ -22,10 +22,10 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 
 public interface AppLogAggregator extends Runnable {
 
-  void startContainerLogAggregation(ContainerId containerId,
-      boolean wasContainerSuccessful);
+    void startContainerLogAggregation(ContainerId containerId,
+                                      boolean wasContainerSuccessful);
 
-  void abortLogAggregation();
+    void abortLogAggregation();
 
-  void finishLogAggregation();
+    void finishLogAggregation();
 }

@@ -21,14 +21,14 @@ package org.apache.hadoop.yarn.server.resourcemanager.recovery;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore.ApplicationAttemptState;
 
 public class RMStateStoreAppAttemptEvent extends RMStateStoreEvent {
-  ApplicationAttemptState attemptState;
-  
-  public RMStateStoreAppAttemptEvent(ApplicationAttemptState attemptState) {
-    super(RMStateStoreEventType.STORE_APP_ATTEMPT);
-    this.attemptState = attemptState;
-  }
-  
-  public ApplicationAttemptState getAppAttemptState() {
-    return attemptState;
-  }
+    ApplicationAttemptState attemptState;
+
+    public RMStateStoreAppAttemptEvent(ApplicationAttemptState attemptState) {
+        super(RMStateStoreEventType.STORE_APP_ATTEMPT);
+        this.attemptState = attemptState;
+    }
+
+    public ApplicationAttemptState getAppAttemptState() {
+        return attemptState;
+    }
 }

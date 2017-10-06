@@ -29,20 +29,20 @@ import org.apache.hadoop.yarn.util.Records;
  * control system in the {@code ResourceManager} to a reservation delete
  * operation. Currently response is empty if the operation was successful, if
  * not an exception reporting reason for a failure.
- * 
+ *
  * @see ReservationDefinition
- * 
+ *
  */
 @Public
 @Unstable
 public abstract class ReservationDeleteResponse {
 
-  @Private
-  @Unstable
-  public static ReservationDeleteResponse newInstance() {
-    ReservationDeleteResponse response =
-        Records.newRecord(ReservationDeleteResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static ReservationDeleteResponse newInstance() {
+        ReservationDeleteResponse response =
+            Records.newRecord(ReservationDeleteResponse.class);
+        return response;
+    }
 
 }

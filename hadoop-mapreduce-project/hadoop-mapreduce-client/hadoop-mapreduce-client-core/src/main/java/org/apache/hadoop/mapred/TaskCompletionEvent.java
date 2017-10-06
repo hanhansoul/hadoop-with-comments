@@ -23,142 +23,142 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This is used to track task completion events on 
- * job tracker. 
+ * This is used to track task completion events on
+ * job tracker.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class TaskCompletionEvent 
+public class TaskCompletionEvent
     extends org.apache.hadoop.mapreduce.TaskCompletionEvent {
-  @InterfaceAudience.Public
-  @InterfaceStability.Stable
-  static public enum Status {FAILED, KILLED, SUCCEEDED, OBSOLETE, TIPFAILED};
-  
-  public static final TaskCompletionEvent[] EMPTY_ARRAY = 
-	    new TaskCompletionEvent[0];
-  /**
-   * Default constructor for Writable.
-   *
-   */
-  public TaskCompletionEvent() {
-    super();
-  }
+    @InterfaceAudience.Public
+    @InterfaceStability.Stable
+    static public enum Status {FAILED, KILLED, SUCCEEDED, OBSOLETE, TIPFAILED};
 
-  /**
-   * Constructor. eventId should be created externally and incremented
-   * per event for each job. 
-   * @param eventId event id, event id should be unique and assigned in
-   *  incrementally, starting from 0. 
-   * @param taskId task id
-   * @param status task's status 
-   * @param taskTrackerHttp task tracker's host:port for http. 
-   */
-  public TaskCompletionEvent(int eventId, 
-                             TaskAttemptID taskId,
-                             int idWithinJob,
-                             boolean isMap,
-                             Status status, 
-                             String taskTrackerHttp){
-    super(eventId, taskId, idWithinJob, isMap, org.apache.hadoop.mapreduce.
-          TaskCompletionEvent.Status.valueOf(status.name()), taskTrackerHttp);
-  }
+    public static final TaskCompletionEvent[] EMPTY_ARRAY =
+        new TaskCompletionEvent[0];
+    /**
+     * Default constructor for Writable.
+     *
+     */
+    public TaskCompletionEvent() {
+        super();
+    }
 
-  @Private
-  public static TaskCompletionEvent downgrade(
-    org.apache.hadoop.mapreduce.TaskCompletionEvent event) {
-    return new TaskCompletionEvent(event.getEventId(),
-      TaskAttemptID.downgrade(event.getTaskAttemptId()),event.idWithinJob(),
-      event.isMapTask(), Status.valueOf(event.getStatus().name()),
-      event.getTaskTrackerHttp());
-  }
-  /**
-   * Returns task id. 
-   * @return task id
-   * @deprecated use {@link #getTaskAttemptId()} instead.
-   */
-  @Deprecated
-  public String getTaskId() {
-    return getTaskAttemptId().toString();
-  }
-  
-  /**
-   * Returns task id. 
-   * @return task id
-   */
-  public TaskAttemptID getTaskAttemptId() {
-    return TaskAttemptID.downgrade(super.getTaskAttemptId());
-  }
-  
-  /**
-   * Returns {@link Status}
-   * @return task completion status
-   */
-  public Status getTaskStatus() {
-    return Status.valueOf(super.getStatus().name());
-  }
-  
-  /**
-   * Sets task id. 
-   * @param taskId
-   * @deprecated use {@link #setTaskAttemptId(TaskAttemptID)} instead.
-   */
-  @Deprecated
-  public void setTaskId(String taskId) {
-    this.setTaskAttemptId(TaskAttemptID.forName(taskId));
-  }
+    /**
+     * Constructor. eventId should be created externally and incremented
+     * per event for each job.
+     * @param eventId event id, event id should be unique and assigned in
+     *  incrementally, starting from 0.
+     * @param taskId task id
+     * @param status task's status
+     * @param taskTrackerHttp task tracker's host:port for http.
+     */
+    public TaskCompletionEvent(int eventId,
+                               TaskAttemptID taskId,
+                               int idWithinJob,
+                               boolean isMap,
+                               Status status,
+                               String taskTrackerHttp) {
+        super(eventId, taskId, idWithinJob, isMap, org.apache.hadoop.mapreduce.
+              TaskCompletionEvent.Status.valueOf(status.name()), taskTrackerHttp);
+    }
 
-  /**
-   * Sets task id.
-   * @param taskId
-   * @deprecated use {@link #setTaskAttemptId(TaskAttemptID)} instead.
-   */
-  @Deprecated
-  public void setTaskID(TaskAttemptID taskId) {
-    this.setTaskAttemptId(taskId);
-  }
+    @Private
+    public static TaskCompletionEvent downgrade(
+        org.apache.hadoop.mapreduce.TaskCompletionEvent event) {
+        return new TaskCompletionEvent(event.getEventId(),
+                                       TaskAttemptID.downgrade(event.getTaskAttemptId()),event.idWithinJob(),
+                                       event.isMapTask(), Status.valueOf(event.getStatus().name()),
+                                       event.getTaskTrackerHttp());
+    }
+    /**
+     * Returns task id.
+     * @return task id
+     * @deprecated use {@link #getTaskAttemptId()} instead.
+     */
+    @Deprecated
+    public String getTaskId() {
+        return getTaskAttemptId().toString();
+    }
 
-  /**
-   * Sets task id. 
-   * @param taskId
-   */
-  protected void setTaskAttemptId(TaskAttemptID taskId) {
-    super.setTaskAttemptId(taskId);
-  }
-  
-  /**
-   * Set task status. 
-   * @param status
-   */
-  @Private
-  public void setTaskStatus(Status status) {
-    super.setTaskStatus(org.apache.hadoop.mapreduce.
-      TaskCompletionEvent.Status.valueOf(status.name()));
-  }
-  
-  /**
-   * Set the task completion time
-   * @param taskCompletionTime time (in millisec) the task took to complete
-   */
-  @Private
-  public void setTaskRunTime(int taskCompletionTime) {
-    super.setTaskRunTime(taskCompletionTime);
-  }
+    /**
+     * Returns task id.
+     * @return task id
+     */
+    public TaskAttemptID getTaskAttemptId() {
+        return TaskAttemptID.downgrade(super.getTaskAttemptId());
+    }
 
-  /**
-   * set event Id. should be assigned incrementally starting from 0. 
-   * @param eventId
-   */
-  @Private
-  public void setEventId(int eventId) {
-    super.setEventId(eventId);
-  }
+    /**
+     * Returns {@link Status}
+     * @return task completion status
+     */
+    public Status getTaskStatus() {
+        return Status.valueOf(super.getStatus().name());
+    }
 
-  /**
-   * Set task tracker http location. 
-   * @param taskTrackerHttp
-   */
-  @Private
-  public void setTaskTrackerHttp(String taskTrackerHttp) {
-    super.setTaskTrackerHttp(taskTrackerHttp);
-  }
+    /**
+     * Sets task id.
+     * @param taskId
+     * @deprecated use {@link #setTaskAttemptId(TaskAttemptID)} instead.
+     */
+    @Deprecated
+    public void setTaskId(String taskId) {
+        this.setTaskAttemptId(TaskAttemptID.forName(taskId));
+    }
+
+    /**
+     * Sets task id.
+     * @param taskId
+     * @deprecated use {@link #setTaskAttemptId(TaskAttemptID)} instead.
+     */
+    @Deprecated
+    public void setTaskID(TaskAttemptID taskId) {
+        this.setTaskAttemptId(taskId);
+    }
+
+    /**
+     * Sets task id.
+     * @param taskId
+     */
+    protected void setTaskAttemptId(TaskAttemptID taskId) {
+        super.setTaskAttemptId(taskId);
+    }
+
+    /**
+     * Set task status.
+     * @param status
+     */
+    @Private
+    public void setTaskStatus(Status status) {
+        super.setTaskStatus(org.apache.hadoop.mapreduce.
+                            TaskCompletionEvent.Status.valueOf(status.name()));
+    }
+
+    /**
+     * Set the task completion time
+     * @param taskCompletionTime time (in millisec) the task took to complete
+     */
+    @Private
+    public void setTaskRunTime(int taskCompletionTime) {
+        super.setTaskRunTime(taskCompletionTime);
+    }
+
+    /**
+     * set event Id. should be assigned incrementally starting from 0.
+     * @param eventId
+     */
+    @Private
+    public void setEventId(int eventId) {
+        super.setEventId(eventId);
+    }
+
+    /**
+     * Set task tracker http location.
+     * @param taskTrackerHttp
+     */
+    @Private
+    public void setTaskTrackerHttp(String taskTrackerHttp) {
+        super.setTaskTrackerHttp(taskTrackerHttp);
+    }
 }

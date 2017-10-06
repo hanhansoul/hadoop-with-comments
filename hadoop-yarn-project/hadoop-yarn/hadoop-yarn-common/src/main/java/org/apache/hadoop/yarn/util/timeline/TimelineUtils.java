@@ -34,75 +34,75 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * The helper class for the timeline module.
- * 
+ *
  */
 @Public
 @Evolving
 public class TimelineUtils {
 
-  private static ObjectMapper mapper;
+    private static ObjectMapper mapper;
 
-  static {
-    mapper = new ObjectMapper();
-    YarnJacksonJaxbJsonProvider.configObjectMapper(mapper);
-  }
-
-  /**
-   * Serialize a POJO object into a JSON string not in a pretty format
-   * 
-   * @param o
-   *          an object to serialize
-   * @return a JSON string
-   * @throws IOException
-   * @throws JsonMappingException
-   * @throws JsonGenerationException
-   */
-  public static String dumpTimelineRecordtoJSON(Object o)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    return dumpTimelineRecordtoJSON(o, false);
-  }
-
-  /**
-   * Serialize a POJO object into a JSON string
-   * 
-   * @param o
-   *          an object to serialize
-   * @param pretty
-   *          whether in a pretty format or not
-   * @return a JSON string
-   * @throws IOException
-   * @throws JsonMappingException
-   * @throws JsonGenerationException
-   */
-  public static String dumpTimelineRecordtoJSON(Object o, boolean pretty)
-      throws JsonGenerationException, JsonMappingException, IOException {
-    if (pretty) {
-      return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
-    } else {
-      return mapper.writeValueAsString(o);
+    static {
+        mapper = new ObjectMapper();
+        YarnJacksonJaxbJsonProvider.configObjectMapper(mapper);
     }
-  }
 
-  public static InetSocketAddress getTimelineTokenServiceAddress(
-      Configuration conf) {
-    InetSocketAddress timelineServiceAddr = null;
-    if (YarnConfiguration.useHttps(conf)) {
-      timelineServiceAddr = conf.getSocketAddr(
-          YarnConfiguration.TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_HTTPS_PORT);
-    } else {
-      timelineServiceAddr = conf.getSocketAddr(
-          YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_ADDRESS,
-          YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_PORT);
+    /**
+     * Serialize a POJO object into a JSON string not in a pretty format
+     *
+     * @param o
+     *          an object to serialize
+     * @return a JSON string
+     * @throws IOException
+     * @throws JsonMappingException
+     * @throws JsonGenerationException
+     */
+    public static String dumpTimelineRecordtoJSON(Object o)
+    throws JsonGenerationException, JsonMappingException, IOException {
+        return dumpTimelineRecordtoJSON(o, false);
     }
-    return timelineServiceAddr;
-  }
 
-  public static Text buildTimelineTokenService(Configuration conf) {
-    InetSocketAddress timelineServiceAddr =
-        getTimelineTokenServiceAddress(conf);
-    return SecurityUtil.buildTokenService(timelineServiceAddr);
-  }
+    /**
+     * Serialize a POJO object into a JSON string
+     *
+     * @param o
+     *          an object to serialize
+     * @param pretty
+     *          whether in a pretty format or not
+     * @return a JSON string
+     * @throws IOException
+     * @throws JsonMappingException
+     * @throws JsonGenerationException
+     */
+    public static String dumpTimelineRecordtoJSON(Object o, boolean pretty)
+    throws JsonGenerationException, JsonMappingException, IOException {
+        if (pretty) {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o);
+        } else {
+            return mapper.writeValueAsString(o);
+        }
+    }
+
+    public static InetSocketAddress getTimelineTokenServiceAddress(
+        Configuration conf) {
+        InetSocketAddress timelineServiceAddr = null;
+        if (YarnConfiguration.useHttps(conf)) {
+            timelineServiceAddr = conf.getSocketAddr(
+                                      YarnConfiguration.TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS,
+                                      YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_HTTPS_ADDRESS,
+                                      YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_HTTPS_PORT);
+        } else {
+            timelineServiceAddr = conf.getSocketAddr(
+                                      YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS,
+                                      YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_ADDRESS,
+                                      YarnConfiguration.DEFAULT_TIMELINE_SERVICE_WEBAPP_PORT);
+        }
+        return timelineServiceAddr;
+    }
+
+    public static Text buildTimelineTokenService(Configuration conf) {
+        InetSocketAddress timelineServiceAddr =
+            getTimelineTokenServiceAddress(conf);
+        return SecurityUtil.buildTokenService(timelineServiceAddr);
+    }
 }

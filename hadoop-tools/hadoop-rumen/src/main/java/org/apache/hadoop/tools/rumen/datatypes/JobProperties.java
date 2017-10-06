@@ -32,62 +32,62 @@ import org.apache.hadoop.util.ReflectionUtils;
  * This represents the job configuration properties.
  */
 public class JobProperties implements AnonymizableDataType<Properties> {
-  public static final String PARSERS_CONFIG_KEY = 
-    "rumen.datatypes.jobproperties.parsers";
-  private final Properties jobProperties;
-  
-  public JobProperties() {
-    this(new Properties());
-  }
-  
-  public JobProperties(Properties properties) {
-    this.jobProperties = properties;
-  }
-  
-  public Properties getValue() {
-    return jobProperties;
-  }
-  
-  @Override
-  public Properties getAnonymizedValue(StatePool statePool, 
-                                       Configuration conf) {
-    Properties filteredProperties = null;
-    List<JobPropertyParser> pList = new ArrayList<JobPropertyParser>(1);
-    // load the parsers
-    String config = conf.get(PARSERS_CONFIG_KEY);
-    if (config != null) {
-      @SuppressWarnings("unchecked")
-      Class<JobPropertyParser>[] parsers = 
-        (Class[])conf.getClasses(PARSERS_CONFIG_KEY);
-      for (Class<JobPropertyParser> c : parsers) {
-        JobPropertyParser parser = ReflectionUtils.newInstance(c, conf);
-        pList.add(parser);
-      }
-    } else {
-      // add the default MapReduce filter
-      JobPropertyParser parser = new MapReduceJobPropertiesParser();
-      pList.add(parser);
+    public static final String PARSERS_CONFIG_KEY =
+        "rumen.datatypes.jobproperties.parsers";
+    private final Properties jobProperties;
+
+    public JobProperties() {
+        this(new Properties());
     }
-    
-    // filter out the desired config key-value pairs
-    if (jobProperties != null) {
-      filteredProperties = new Properties();
-      // define a configuration object and load it with original job properties
-      for (Map.Entry<Object, Object> entry : jobProperties.entrySet()) {
-        //TODO Check for null key/value?
-        String key = entry.getKey().toString();
-        String value = entry.getValue().toString(); 
-        
-        // find a parser for this key
-        for (JobPropertyParser p : pList) {
-          DataType<?> pValue = p.parseJobProperty(key, value);
-          if (pValue != null) {
-            filteredProperties.put(key, pValue);
-            break;
-          }
+
+    public JobProperties(Properties properties) {
+        this.jobProperties = properties;
+    }
+
+    public Properties getValue() {
+        return jobProperties;
+    }
+
+    @Override
+    public Properties getAnonymizedValue(StatePool statePool,
+                                         Configuration conf) {
+        Properties filteredProperties = null;
+        List<JobPropertyParser> pList = new ArrayList<JobPropertyParser>(1);
+        // load the parsers
+        String config = conf.get(PARSERS_CONFIG_KEY);
+        if (config != null) {
+            @SuppressWarnings("unchecked")
+            Class<JobPropertyParser>[] parsers =
+                (Class[])conf.getClasses(PARSERS_CONFIG_KEY);
+            for (Class<JobPropertyParser> c : parsers) {
+                JobPropertyParser parser = ReflectionUtils.newInstance(c, conf);
+                pList.add(parser);
+            }
+        } else {
+            // add the default MapReduce filter
+            JobPropertyParser parser = new MapReduceJobPropertiesParser();
+            pList.add(parser);
         }
-      }
+
+        // filter out the desired config key-value pairs
+        if (jobProperties != null) {
+            filteredProperties = new Properties();
+            // define a configuration object and load it with original job properties
+            for (Map.Entry<Object, Object> entry : jobProperties.entrySet()) {
+                //TODO Check for null key/value?
+                String key = entry.getKey().toString();
+                String value = entry.getValue().toString();
+
+                // find a parser for this key
+                for (JobPropertyParser p : pList) {
+                    DataType<?> pValue = p.parseJobProperty(key, value);
+                    if (pValue != null) {
+                        filteredProperties.put(key, pValue);
+                        break;
+                    }
+                }
+            }
+        }
+        return filteredProperties;
     }
-    return filteredProperties;
-  }
 }

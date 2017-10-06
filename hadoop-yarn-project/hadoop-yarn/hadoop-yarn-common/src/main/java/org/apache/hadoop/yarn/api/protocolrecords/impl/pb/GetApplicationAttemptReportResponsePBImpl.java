@@ -34,107 +34,107 @@ import com.google.protobuf.TextFormat;
 public class GetApplicationAttemptReportResponsePBImpl extends
     GetApplicationAttemptReportResponse {
 
-  GetApplicationAttemptReportResponseProto proto =
-      GetApplicationAttemptReportResponseProto.getDefaultInstance();
-  GetApplicationAttemptReportResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetApplicationAttemptReportResponseProto proto =
+        GetApplicationAttemptReportResponseProto.getDefaultInstance();
+    GetApplicationAttemptReportResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ApplicationAttemptReport applicationAttemptReport = null;
+    private ApplicationAttemptReport applicationAttemptReport = null;
 
-  public GetApplicationAttemptReportResponsePBImpl() {
-    builder = GetApplicationAttemptReportResponseProto.newBuilder();
-  }
-
-  public GetApplicationAttemptReportResponsePBImpl(
-      GetApplicationAttemptReportResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public GetApplicationAttemptReportResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null) {
-      return false;
+    public GetApplicationAttemptReportResponsePBImpl() {
+        builder = GetApplicationAttemptReportResponseProto.newBuilder();
     }
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+
+    public GetApplicationAttemptReportResponsePBImpl(
+        GetApplicationAttemptReportResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.applicationAttemptReport != null) {
-      builder
-        .setApplicationAttemptReport(convertToProtoFormat(this.applicationAttemptReport));
+    public GetApplicationAttemptReportResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetApplicationAttemptReportResponseProto.newBuilder(proto);
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public ApplicationAttemptReport getApplicationAttemptReport() {
-    if (this.applicationAttemptReport != null) {
-      return this.applicationAttemptReport;
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    GetApplicationAttemptReportResponseProtoOrBuilder p =
-        viaProto ? proto : builder;
-    if (!p.hasApplicationAttemptReport()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.applicationAttemptReport != null) {
+            builder
+            .setApplicationAttemptReport(convertToProtoFormat(this.applicationAttemptReport));
+        }
     }
-    this.applicationAttemptReport =
-        convertFromProtoFormat(p.getApplicationAttemptReport());
-    return this.applicationAttemptReport;
-  }
 
-  @Override
-  public void setApplicationAttemptReport(
-      ApplicationAttemptReport ApplicationAttemptReport) {
-    maybeInitBuilder();
-    if (ApplicationAttemptReport == null) {
-      builder.clearApplicationAttemptReport();
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.applicationAttemptReport = ApplicationAttemptReport;
-  }
 
-  private ApplicationAttemptReportPBImpl convertFromProtoFormat(
-      ApplicationAttemptReportProto p) {
-    return new ApplicationAttemptReportPBImpl(p);
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetApplicationAttemptReportResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
-  private ApplicationAttemptReportProto convertToProtoFormat(
-      ApplicationAttemptReport t) {
-    return ((ApplicationAttemptReportPBImpl) t).getProto();
-  }
+    @Override
+    public ApplicationAttemptReport getApplicationAttemptReport() {
+        if (this.applicationAttemptReport != null) {
+            return this.applicationAttemptReport;
+        }
+        GetApplicationAttemptReportResponseProtoOrBuilder p =
+            viaProto ? proto : builder;
+        if (!p.hasApplicationAttemptReport()) {
+            return null;
+        }
+        this.applicationAttemptReport =
+            convertFromProtoFormat(p.getApplicationAttemptReport());
+        return this.applicationAttemptReport;
+    }
+
+    @Override
+    public void setApplicationAttemptReport(
+        ApplicationAttemptReport ApplicationAttemptReport) {
+        maybeInitBuilder();
+        if (ApplicationAttemptReport == null) {
+            builder.clearApplicationAttemptReport();
+        }
+        this.applicationAttemptReport = ApplicationAttemptReport;
+    }
+
+    private ApplicationAttemptReportPBImpl convertFromProtoFormat(
+        ApplicationAttemptReportProto p) {
+        return new ApplicationAttemptReportPBImpl(p);
+    }
+
+    private ApplicationAttemptReportProto convertToProtoFormat(
+        ApplicationAttemptReport t) {
+        return ((ApplicationAttemptReportPBImpl) t).getProto();
+    }
 
 }

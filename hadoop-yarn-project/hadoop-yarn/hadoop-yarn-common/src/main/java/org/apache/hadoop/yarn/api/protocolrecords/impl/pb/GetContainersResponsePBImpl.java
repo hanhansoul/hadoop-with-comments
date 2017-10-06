@@ -37,144 +37,144 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetContainersResponsePBImpl extends GetContainersResponse {
 
-  GetContainersResponseProto proto = GetContainersResponseProto
-    .getDefaultInstance();
-  GetContainersResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetContainersResponseProto proto = GetContainersResponseProto
+                                       .getDefaultInstance();
+    GetContainersResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  List<ContainerReport> containerList;
+    List<ContainerReport> containerList;
 
-  public GetContainersResponsePBImpl() {
-    builder = GetContainersResponseProto.newBuilder();
-  }
-
-  public GetContainersResponsePBImpl(GetContainersResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  @Override
-  public List<ContainerReport> getContainerList() {
-    initLocalContainerList();
-    return this.containerList;
-  }
-
-  @Override
-  public void setContainerList(List<ContainerReport> containers) {
-    maybeInitBuilder();
-    if (containers == null) {
-      builder.clearContainers();
+    public GetContainersResponsePBImpl() {
+        builder = GetContainersResponseProto.newBuilder();
     }
-    this.containerList = containers;
-  }
 
-  public GetContainersResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null) {
-      return false;
+    public GetContainersResponsePBImpl(GetContainersResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
-    }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.containerList != null) {
-      addLocalContainersToProto();
+    @Override
+    public List<ContainerReport> getContainerList() {
+        initLocalContainerList();
+        return this.containerList;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+    @Override
+    public void setContainerList(List<ContainerReport> containers) {
+        maybeInitBuilder();
+        if (containers == null) {
+            builder.clearContainers();
+        }
+        this.containerList = containers;
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetContainersResponseProto.newBuilder(proto);
+    public GetContainersResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  // Once this is called. containerList will never be null - until a getProto
-  // is called.
-  private void initLocalContainerList() {
-    if (this.containerList != null) {
-      return;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    GetContainersResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<ContainerReportProto> list = p.getContainersList();
-    containerList = new ArrayList<ContainerReport>();
 
-    for (ContainerReportProto c : list) {
-      containerList.add(convertFromProtoFormat(c));
+    @Override
+    public boolean equals(Object other) {
+        if (other == null) {
+            return false;
+        }
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-  }
 
-  private void addLocalContainersToProto() {
-    maybeInitBuilder();
-    builder.clearContainers();
-    if (containerList == null) {
-      return;
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    Iterable<ContainerReportProto> iterable =
+
+    private void mergeLocalToBuilder() {
+        if (this.containerList != null) {
+            addLocalContainersToProto();
+        }
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetContainersResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    // Once this is called. containerList will never be null - until a getProto
+    // is called.
+    private void initLocalContainerList() {
+        if (this.containerList != null) {
+            return;
+        }
+        GetContainersResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<ContainerReportProto> list = p.getContainersList();
+        containerList = new ArrayList<ContainerReport>();
+
+        for (ContainerReportProto c : list) {
+            containerList.add(convertFromProtoFormat(c));
+        }
+    }
+
+    private void addLocalContainersToProto() {
+        maybeInitBuilder();
+        builder.clearContainers();
+        if (containerList == null) {
+            return;
+        }
+        Iterable<ContainerReportProto> iterable =
         new Iterable<ContainerReportProto>() {
-          @Override
-          public Iterator<ContainerReportProto> iterator() {
-            return new Iterator<ContainerReportProto>() {
+            @Override
+            public Iterator<ContainerReportProto> iterator() {
+                return new Iterator<ContainerReportProto>() {
 
-              Iterator<ContainerReport> iter = containerList.iterator();
+                    Iterator<ContainerReport> iter = containerList.iterator();
 
-              @Override
-              public boolean hasNext() {
-                return iter.hasNext();
-              }
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
 
-              @Override
-              public ContainerReportProto next() {
-                return convertToProtoFormat(iter.next());
-              }
+                    @Override
+                    public ContainerReportProto next() {
+                        return convertToProtoFormat(iter.next());
+                    }
 
-              @Override
-              public void remove() {
-                throw new UnsupportedOperationException();
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
 
-              }
-            };
+                    }
+                };
 
-          }
+            }
         };
-    builder.addAllContainers(iterable);
-  }
+        builder.addAllContainers(iterable);
+    }
 
-  private ContainerReportPBImpl convertFromProtoFormat(ContainerReportProto p) {
-    return new ContainerReportPBImpl(p);
-  }
+    private ContainerReportPBImpl convertFromProtoFormat(ContainerReportProto p) {
+        return new ContainerReportPBImpl(p);
+    }
 
-  private ContainerReportProto convertToProtoFormat(ContainerReport t) {
-    return ((ContainerReportPBImpl) t).getProto();
-  }
+    private ContainerReportProto convertToProtoFormat(ContainerReport t) {
+        return ((ContainerReportPBImpl) t).getProto();
+    }
 
 }

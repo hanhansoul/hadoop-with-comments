@@ -41,133 +41,133 @@ import org.mockito.internal.util.reflection.Whitebox;
  * Test if we can correctly delay the deletion of blocks.
  */
 public class TestPendingInvalidateBlock {
-  {
-    ((Log4JLogger)BlockManager.LOG).getLogger().setLevel(Level.DEBUG);    
-  }
+    {
+        ((Log4JLogger)BlockManager.LOG).getLogger().setLevel(Level.DEBUG);
+    }
 
-  private static final int BLOCKSIZE = 1024;
-  private static final short REPLICATION = 2;
+    private static final int BLOCKSIZE = 1024;
+    private static final short REPLICATION = 2;
 
-  private Configuration conf;
-  private MiniDFSCluster cluster;
-  private DistributedFileSystem dfs;
+    private Configuration conf;
+    private MiniDFSCluster cluster;
+    private DistributedFileSystem dfs;
 
-  @Before
-  public void setUp() throws Exception {
-    conf = new Configuration();
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCKSIZE);
-    // block deletion pending period
-    conf.setLong(DFSConfigKeys.DFS_NAMENODE_STARTUP_DELAY_BLOCK_DELETION_SEC_KEY, 5L);
-    // set the block report interval to 2s
-    conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 2000);
-    conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
-    conf.setInt(DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_KEY, 1);
-    // disable the RPC timeout for debug
-    conf.setLong(CommonConfigurationKeys.IPC_PING_INTERVAL_KEY, 0);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(REPLICATION)
+    @Before
+    public void setUp() throws Exception {
+        conf = new Configuration();
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCKSIZE);
+        // block deletion pending period
+        conf.setLong(DFSConfigKeys.DFS_NAMENODE_STARTUP_DELAY_BLOCK_DELETION_SEC_KEY, 5L);
+        // set the block report interval to 2s
+        conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 2000);
+        conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
+        conf.setInt(DFSConfigKeys.DFS_NAMENODE_REPLICATION_INTERVAL_KEY, 1);
+        // disable the RPC timeout for debug
+        conf.setLong(CommonConfigurationKeys.IPC_PING_INTERVAL_KEY, 0);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(REPLICATION)
         .build();
-    cluster.waitActive();
-    dfs = cluster.getFileSystem();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (cluster != null) {
-      cluster.shutdown();
+        cluster.waitActive();
+        dfs = cluster.getFileSystem();
     }
-  }
 
-  @Test
-  public void testPendingDeletion() throws Exception {
-    final Path foo = new Path("/foo");
-    DFSTestUtil.createFile(dfs, foo, BLOCKSIZE, REPLICATION, 0);
-    // restart NN
-    cluster.restartNameNode(true);
-    dfs.delete(foo, true);
-    Assert.assertEquals(0, cluster.getNamesystem().getBlocksTotal());
-    Assert.assertEquals(REPLICATION, cluster.getNamesystem()
-        .getPendingDeletionBlocks());
-    Thread.sleep(6000);
-    Assert.assertEquals(0, cluster.getNamesystem().getBlocksTotal());
-    Assert.assertEquals(0, cluster.getNamesystem().getPendingDeletionBlocks());
-    String nnStartedStr = cluster.getNamesystem().getNNStarted();
-    long nnStarted = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
+    @After
+    public void tearDown() throws Exception {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
+
+    @Test
+    public void testPendingDeletion() throws Exception {
+        final Path foo = new Path("/foo");
+        DFSTestUtil.createFile(dfs, foo, BLOCKSIZE, REPLICATION, 0);
+        // restart NN
+        cluster.restartNameNode(true);
+        dfs.delete(foo, true);
+        Assert.assertEquals(0, cluster.getNamesystem().getBlocksTotal());
+        Assert.assertEquals(REPLICATION, cluster.getNamesystem()
+                            .getPendingDeletionBlocks());
+        Thread.sleep(6000);
+        Assert.assertEquals(0, cluster.getNamesystem().getBlocksTotal());
+        Assert.assertEquals(0, cluster.getNamesystem().getPendingDeletionBlocks());
+        String nnStartedStr = cluster.getNamesystem().getNNStarted();
+        long nnStarted = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy")
         .parse(nnStartedStr).getTime();
-    long blockDeletionStartTime = cluster.getNamesystem()
-        .getBlockDeletionStartTime();
-    Assert.assertTrue(String.format(
-        "Expect blockDeletionStartTime = %d > nnStarted = %d/nnStartedStr = %s.",
-        blockDeletionStartTime, nnStarted, nnStartedStr),
-        blockDeletionStartTime > nnStarted);
-  }
-
-  /**
-   * Test whether we can delay the deletion of unknown blocks in DataNode's
-   * first several block reports.
-   */
-  @Test
-  public void testPendingDeleteUnknownBlocks() throws Exception {
-    final int fileNum = 5; // 5 files
-    final Path[] files = new Path[fileNum];
-    final DataNodeProperties[] dnprops = new DataNodeProperties[REPLICATION];
-    // create a group of files, each file contains 1 block
-    for (int i = 0; i < fileNum; i++) {
-      files[i] = new Path("/file" + i);
-      DFSTestUtil.createFile(dfs, files[i], BLOCKSIZE, REPLICATION, i);
-    }
-    // wait until all DataNodes have replicas
-    waitForReplication();
-    for (int i = REPLICATION - 1; i >= 0; i--) {
-      dnprops[i] = cluster.stopDataNode(i);
-    }
-    Thread.sleep(2000);
-    // delete 2 files, we still have 3 files remaining so that we can cover
-    // every DN storage
-    for (int i = 0; i < 2; i++) {
-      dfs.delete(files[i], true);
+        long blockDeletionStartTime = cluster.getNamesystem()
+                                      .getBlockDeletionStartTime();
+        Assert.assertTrue(String.format(
+                              "Expect blockDeletionStartTime = %d > nnStarted = %d/nnStartedStr = %s.",
+                              blockDeletionStartTime, nnStarted, nnStartedStr),
+                          blockDeletionStartTime > nnStarted);
     }
 
-    // restart NameNode
-    cluster.restartNameNode(false);
-    InvalidateBlocks invalidateBlocks = (InvalidateBlocks) Whitebox
-        .getInternalState(cluster.getNamesystem().getBlockManager(),
-            "invalidateBlocks");
-    InvalidateBlocks mockIb = Mockito.spy(invalidateBlocks);
-    Mockito.doReturn(1L).when(mockIb).getInvalidationDelay();
-    Whitebox.setInternalState(cluster.getNamesystem().getBlockManager(),
-        "invalidateBlocks", mockIb);
+    /**
+     * Test whether we can delay the deletion of unknown blocks in DataNode's
+     * first several block reports.
+     */
+    @Test
+    public void testPendingDeleteUnknownBlocks() throws Exception {
+        final int fileNum = 5; // 5 files
+        final Path[] files = new Path[fileNum];
+        final DataNodeProperties[] dnprops = new DataNodeProperties[REPLICATION];
+        // create a group of files, each file contains 1 block
+        for (int i = 0; i < fileNum; i++) {
+            files[i] = new Path("/file" + i);
+            DFSTestUtil.createFile(dfs, files[i], BLOCKSIZE, REPLICATION, i);
+        }
+        // wait until all DataNodes have replicas
+        waitForReplication();
+        for (int i = REPLICATION - 1; i >= 0; i--) {
+            dnprops[i] = cluster.stopDataNode(i);
+        }
+        Thread.sleep(2000);
+        // delete 2 files, we still have 3 files remaining so that we can cover
+        // every DN storage
+        for (int i = 0; i < 2; i++) {
+            dfs.delete(files[i], true);
+        }
 
-    Assert.assertEquals(0L, cluster.getNamesystem().getPendingDeletionBlocks());
-    // restart DataNodes
-    for (int i = 0; i < REPLICATION; i++) {
-      cluster.restartDataNode(dnprops[i], true);
+        // restart NameNode
+        cluster.restartNameNode(false);
+        InvalidateBlocks invalidateBlocks = (InvalidateBlocks) Whitebox
+                                            .getInternalState(cluster.getNamesystem().getBlockManager(),
+                                                    "invalidateBlocks");
+        InvalidateBlocks mockIb = Mockito.spy(invalidateBlocks);
+        Mockito.doReturn(1L).when(mockIb).getInvalidationDelay();
+        Whitebox.setInternalState(cluster.getNamesystem().getBlockManager(),
+                                  "invalidateBlocks", mockIb);
+
+        Assert.assertEquals(0L, cluster.getNamesystem().getPendingDeletionBlocks());
+        // restart DataNodes
+        for (int i = 0; i < REPLICATION; i++) {
+            cluster.restartDataNode(dnprops[i], true);
+        }
+        cluster.waitActive();
+
+        for (int i = 0; i < REPLICATION; i++) {
+            DataNodeTestUtils.triggerBlockReport(cluster.getDataNodes().get(i));
+        }
+        Thread.sleep(2000);
+        // make sure we have received block reports by checking the total block #
+        Assert.assertEquals(3, cluster.getNamesystem().getBlocksTotal());
+        Assert.assertEquals(4, cluster.getNamesystem().getPendingDeletionBlocks());
+
+        cluster.restartNameNode(true);
+        Thread.sleep(6000);
+        Assert.assertEquals(3, cluster.getNamesystem().getBlocksTotal());
+        Assert.assertEquals(0, cluster.getNamesystem().getPendingDeletionBlocks());
     }
-    cluster.waitActive();
 
-    for (int i = 0; i < REPLICATION; i++) {
-      DataNodeTestUtils.triggerBlockReport(cluster.getDataNodes().get(i));
+    private long waitForReplication() throws Exception {
+        for (int i = 0; i < 10; i++) {
+            long ur = cluster.getNamesystem().getUnderReplicatedBlocks();
+            if (ur == 0) {
+                return 0;
+            } else {
+                Thread.sleep(1000);
+            }
+        }
+        return cluster.getNamesystem().getUnderReplicatedBlocks();
     }
-    Thread.sleep(2000);
-    // make sure we have received block reports by checking the total block #
-    Assert.assertEquals(3, cluster.getNamesystem().getBlocksTotal());
-    Assert.assertEquals(4, cluster.getNamesystem().getPendingDeletionBlocks());
-
-    cluster.restartNameNode(true);
-    Thread.sleep(6000);
-    Assert.assertEquals(3, cluster.getNamesystem().getBlocksTotal());
-    Assert.assertEquals(0, cluster.getNamesystem().getPendingDeletionBlocks());
-  }
-
-  private long waitForReplication() throws Exception {
-    for (int i = 0; i < 10; i++) {
-      long ur = cluster.getNamesystem().getUnderReplicatedBlocks();
-      if (ur == 0) {
-        return 0;
-      } else {
-        Thread.sleep(1000);
-      }
-    }
-    return cluster.getNamesystem().getUnderReplicatedBlocks();
-  }
 
 }

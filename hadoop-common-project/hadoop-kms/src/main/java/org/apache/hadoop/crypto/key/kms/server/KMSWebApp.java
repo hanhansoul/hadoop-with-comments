@@ -46,224 +46,224 @@ import java.util.List;
 @InterfaceAudience.Private
 public class KMSWebApp implements ServletContextListener {
 
-  private static final String LOG4J_PROPERTIES = "kms-log4j.properties";
+    private static final String LOG4J_PROPERTIES = "kms-log4j.properties";
 
-  private static final String METRICS_PREFIX = "hadoop.kms.";
-  private static final String ADMIN_CALLS_METER = METRICS_PREFIX +
-      "admin.calls.meter";
-  private static final String KEY_CALLS_METER = METRICS_PREFIX +
-      "key.calls.meter";
-  private static final String INVALID_CALLS_METER = METRICS_PREFIX +
-      "invalid.calls.meter";
-  private static final String UNAUTHORIZED_CALLS_METER = METRICS_PREFIX +
-      "unauthorized.calls.meter";
-  private static final String UNAUTHENTICATED_CALLS_METER = METRICS_PREFIX +
-      "unauthenticated.calls.meter";
-  private static final String GENERATE_EEK_METER = METRICS_PREFIX +
-      "generate_eek.calls.meter";
-  private static final String DECRYPT_EEK_METER = METRICS_PREFIX +
-      "decrypt_eek.calls.meter";
+    private static final String METRICS_PREFIX = "hadoop.kms.";
+    private static final String ADMIN_CALLS_METER = METRICS_PREFIX +
+            "admin.calls.meter";
+    private static final String KEY_CALLS_METER = METRICS_PREFIX +
+            "key.calls.meter";
+    private static final String INVALID_CALLS_METER = METRICS_PREFIX +
+            "invalid.calls.meter";
+    private static final String UNAUTHORIZED_CALLS_METER = METRICS_PREFIX +
+            "unauthorized.calls.meter";
+    private static final String UNAUTHENTICATED_CALLS_METER = METRICS_PREFIX +
+            "unauthenticated.calls.meter";
+    private static final String GENERATE_EEK_METER = METRICS_PREFIX +
+            "generate_eek.calls.meter";
+    private static final String DECRYPT_EEK_METER = METRICS_PREFIX +
+            "decrypt_eek.calls.meter";
 
-  private static Logger LOG;
-  private static MetricRegistry metricRegistry;
+    private static Logger LOG;
+    private static MetricRegistry metricRegistry;
 
-  private JmxReporter jmxReporter;
-  private static Configuration kmsConf;
-  private static KMSACLs kmsAcls;
-  private static Meter adminCallsMeter;
-  private static Meter keyCallsMeter;
-  private static Meter unauthorizedCallsMeter;
-  private static Meter unauthenticatedCallsMeter;
-  private static Meter decryptEEKCallsMeter;
-  private static Meter generateEEKCallsMeter;
-  private static Meter invalidCallsMeter;
-  private static KMSAudit kmsAudit;
-  private static KeyProviderCryptoExtension keyProviderCryptoExtension;
+    private JmxReporter jmxReporter;
+    private static Configuration kmsConf;
+    private static KMSACLs kmsAcls;
+    private static Meter adminCallsMeter;
+    private static Meter keyCallsMeter;
+    private static Meter unauthorizedCallsMeter;
+    private static Meter unauthenticatedCallsMeter;
+    private static Meter decryptEEKCallsMeter;
+    private static Meter generateEEKCallsMeter;
+    private static Meter invalidCallsMeter;
+    private static KMSAudit kmsAudit;
+    private static KeyProviderCryptoExtension keyProviderCryptoExtension;
 
-  static {
-    SLF4JBridgeHandler.removeHandlersForRootLogger();
-    SLF4JBridgeHandler.install();
-  }
+    static {
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+    }
 
-  private void initLogging(String confDir) {
-    if (System.getProperty("log4j.configuration") == null) {
-      System.setProperty("log4j.defaultInitOverride", "true");
-      boolean fromClasspath = true;
-      File log4jConf = new File(confDir, LOG4J_PROPERTIES).getAbsoluteFile();
-      if (log4jConf.exists()) {
-        PropertyConfigurator.configureAndWatch(log4jConf.getPath(), 1000);
-        fromClasspath = false;
-      } else {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        URL log4jUrl = cl.getResource(LOG4J_PROPERTIES);
-        if (log4jUrl != null) {
-          PropertyConfigurator.configure(log4jUrl);
+    private void initLogging(String confDir) {
+        if (System.getProperty("log4j.configuration") == null) {
+            System.setProperty("log4j.defaultInitOverride", "true");
+            boolean fromClasspath = true;
+            File log4jConf = new File(confDir, LOG4J_PROPERTIES).getAbsoluteFile();
+            if (log4jConf.exists()) {
+                PropertyConfigurator.configureAndWatch(log4jConf.getPath(), 1000);
+                fromClasspath = false;
+            } else {
+                ClassLoader cl = Thread.currentThread().getContextClassLoader();
+                URL log4jUrl = cl.getResource(LOG4J_PROPERTIES);
+                if (log4jUrl != null) {
+                    PropertyConfigurator.configure(log4jUrl);
+                }
+            }
+            LOG = LoggerFactory.getLogger(KMSWebApp.class);
+            LOG.debug("KMS log starting");
+            if (fromClasspath) {
+                LOG.warn("Log4j configuration file '{}' not found", LOG4J_PROPERTIES);
+                LOG.warn("Logging with INFO level to standard output");
+            }
+        } else {
+            LOG = LoggerFactory.getLogger(KMSWebApp.class);
         }
-      }
-      LOG = LoggerFactory.getLogger(KMSWebApp.class);
-      LOG.debug("KMS log starting");
-      if (fromClasspath) {
-        LOG.warn("Log4j configuration file '{}' not found", LOG4J_PROPERTIES);
-        LOG.warn("Logging with INFO level to standard output");
-      }
-    } else {
-      LOG = LoggerFactory.getLogger(KMSWebApp.class);
     }
-  }
 
-  @Override
-  public void contextInitialized(ServletContextEvent sce) {
-    try {
-      String confDir = System.getProperty(KMSConfiguration.KMS_CONFIG_DIR);
-      if (confDir == null) {
-        throw new RuntimeException("System property '" +
-            KMSConfiguration.KMS_CONFIG_DIR + "' not defined");
-      }
-      kmsConf = KMSConfiguration.getKMSConf();
-      initLogging(confDir);
-      LOG.info("-------------------------------------------------------------");
-      LOG.info("  Java runtime version : {}", System.getProperty(
-          "java.runtime.version"));
-      LOG.info("  KMS Hadoop Version: " + VersionInfo.getVersion());
-      LOG.info("-------------------------------------------------------------");
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        try {
+            String confDir = System.getProperty(KMSConfiguration.KMS_CONFIG_DIR);
+            if (confDir == null) {
+                throw new RuntimeException("System property '" +
+                                           KMSConfiguration.KMS_CONFIG_DIR + "' not defined");
+            }
+            kmsConf = KMSConfiguration.getKMSConf();
+            initLogging(confDir);
+            LOG.info("-------------------------------------------------------------");
+            LOG.info("  Java runtime version : {}", System.getProperty(
+                         "java.runtime.version"));
+            LOG.info("  KMS Hadoop Version: " + VersionInfo.getVersion());
+            LOG.info("-------------------------------------------------------------");
 
-      kmsAcls = new KMSACLs();
-      kmsAcls.startReloader();
+            kmsAcls = new KMSACLs();
+            kmsAcls.startReloader();
 
-      metricRegistry = new MetricRegistry();
-      jmxReporter = JmxReporter.forRegistry(metricRegistry).build();
-      jmxReporter.start();
-      generateEEKCallsMeter = metricRegistry.register(GENERATE_EEK_METER,
-          new Meter());
-      decryptEEKCallsMeter = metricRegistry.register(DECRYPT_EEK_METER,
-          new Meter());
-      adminCallsMeter = metricRegistry.register(ADMIN_CALLS_METER, new Meter());
-      keyCallsMeter = metricRegistry.register(KEY_CALLS_METER, new Meter());
-      invalidCallsMeter = metricRegistry.register(INVALID_CALLS_METER,
-          new Meter());
-      unauthorizedCallsMeter = metricRegistry.register(UNAUTHORIZED_CALLS_METER,
-          new Meter());
-      unauthenticatedCallsMeter = metricRegistry.register(
-          UNAUTHENTICATED_CALLS_METER, new Meter());
+            metricRegistry = new MetricRegistry();
+            jmxReporter = JmxReporter.forRegistry(metricRegistry).build();
+            jmxReporter.start();
+            generateEEKCallsMeter = metricRegistry.register(GENERATE_EEK_METER,
+                                    new Meter());
+            decryptEEKCallsMeter = metricRegistry.register(DECRYPT_EEK_METER,
+                                   new Meter());
+            adminCallsMeter = metricRegistry.register(ADMIN_CALLS_METER, new Meter());
+            keyCallsMeter = metricRegistry.register(KEY_CALLS_METER, new Meter());
+            invalidCallsMeter = metricRegistry.register(INVALID_CALLS_METER,
+                                new Meter());
+            unauthorizedCallsMeter = metricRegistry.register(UNAUTHORIZED_CALLS_METER,
+                                     new Meter());
+            unauthenticatedCallsMeter = metricRegistry.register(
+                                            UNAUTHENTICATED_CALLS_METER, new Meter());
 
-      kmsAudit =
-          new KMSAudit(kmsConf.getLong(
-              KMSConfiguration.KMS_AUDIT_AGGREGATION_WINDOW,
-              KMSConfiguration.KMS_AUDIT_AGGREGATION_WINDOW_DEFAULT));
+            kmsAudit =
+                new KMSAudit(kmsConf.getLong(
+                                 KMSConfiguration.KMS_AUDIT_AGGREGATION_WINDOW,
+                                 KMSConfiguration.KMS_AUDIT_AGGREGATION_WINDOW_DEFAULT));
 
-      // this is required for the the JMXJsonServlet to work properly.
-      // the JMXJsonServlet is behind the authentication filter,
-      // thus the '*' ACL.
-      sce.getServletContext().setAttribute(HttpServer2.CONF_CONTEXT_ATTRIBUTE,
-          kmsConf);
-      sce.getServletContext().setAttribute(HttpServer2.ADMINS_ACL,
-          new AccessControlList(AccessControlList.WILDCARD_ACL_VALUE));
+            // this is required for the the JMXJsonServlet to work properly.
+            // the JMXJsonServlet is behind the authentication filter,
+            // thus the '*' ACL.
+            sce.getServletContext().setAttribute(HttpServer2.CONF_CONTEXT_ATTRIBUTE,
+                                                 kmsConf);
+            sce.getServletContext().setAttribute(HttpServer2.ADMINS_ACL,
+                                                 new AccessControlList(AccessControlList.WILDCARD_ACL_VALUE));
 
-      // intializing the KeyProvider
-      String providerString = kmsConf.get(KMSConfiguration.KEY_PROVIDER_URI);
-      if (providerString == null) {
-        throw new IllegalStateException("No KeyProvider has been defined");
-      }
-      KeyProvider keyProvider =
-          KeyProviderFactory.get(new URI(providerString), kmsConf);
-      if (kmsConf.getBoolean(KMSConfiguration.KEY_CACHE_ENABLE,
-          KMSConfiguration.KEY_CACHE_ENABLE_DEFAULT)) {
-        long keyTimeOutMillis =
-            kmsConf.getLong(KMSConfiguration.KEY_CACHE_TIMEOUT_KEY,
-                KMSConfiguration.KEY_CACHE_TIMEOUT_DEFAULT);
-        long currKeyTimeOutMillis =
-            kmsConf.getLong(KMSConfiguration.CURR_KEY_CACHE_TIMEOUT_KEY,
-                KMSConfiguration.CURR_KEY_CACHE_TIMEOUT_DEFAULT);
-        keyProvider = new CachingKeyProvider(keyProvider, keyTimeOutMillis,
-            currKeyTimeOutMillis);
-      }
-      LOG.info("Initialized KeyProvider " + keyProvider);
+            // intializing the KeyProvider
+            String providerString = kmsConf.get(KMSConfiguration.KEY_PROVIDER_URI);
+            if (providerString == null) {
+                throw new IllegalStateException("No KeyProvider has been defined");
+            }
+            KeyProvider keyProvider =
+                KeyProviderFactory.get(new URI(providerString), kmsConf);
+            if (kmsConf.getBoolean(KMSConfiguration.KEY_CACHE_ENABLE,
+                                   KMSConfiguration.KEY_CACHE_ENABLE_DEFAULT)) {
+                long keyTimeOutMillis =
+                    kmsConf.getLong(KMSConfiguration.KEY_CACHE_TIMEOUT_KEY,
+                                    KMSConfiguration.KEY_CACHE_TIMEOUT_DEFAULT);
+                long currKeyTimeOutMillis =
+                    kmsConf.getLong(KMSConfiguration.CURR_KEY_CACHE_TIMEOUT_KEY,
+                                    KMSConfiguration.CURR_KEY_CACHE_TIMEOUT_DEFAULT);
+                keyProvider = new CachingKeyProvider(keyProvider, keyTimeOutMillis,
+                                                     currKeyTimeOutMillis);
+            }
+            LOG.info("Initialized KeyProvider " + keyProvider);
 
-      keyProviderCryptoExtension = KeyProviderCryptoExtension.
-          createKeyProviderCryptoExtension(keyProvider);
-      keyProviderCryptoExtension =
-          new EagerKeyGeneratorKeyProviderCryptoExtension(kmsConf,
-              keyProviderCryptoExtension);
-      if (kmsConf.getBoolean(KMSConfiguration.KEY_AUTHORIZATION_ENABLE,
-          KMSConfiguration.KEY_AUTHORIZATION_ENABLE_DEFAULT)) {
-        keyProviderCryptoExtension =
-            new KeyAuthorizationKeyProvider(
-                keyProviderCryptoExtension, kmsAcls);
-      }
-        
-      LOG.info("Initialized KeyProviderCryptoExtension "
-          + keyProviderCryptoExtension);
-      final int defaultBitlength = kmsConf
-          .getInt(KeyProvider.DEFAULT_BITLENGTH_NAME,
-              KeyProvider.DEFAULT_BITLENGTH);
-      LOG.info("Default key bitlength is {}", defaultBitlength);
-      LOG.info("KMS Started");
-    } catch (Throwable ex) {
-      System.out.println();
-      System.out.println("ERROR: Hadoop KMS could not be started");
-      System.out.println();
-      System.out.println("REASON: " + ex.toString());
-      System.out.println();
-      System.out.println("Stacktrace:");
-      System.out.println("---------------------------------------------------");
-      ex.printStackTrace(System.out);
-      System.out.println("---------------------------------------------------");
-      System.out.println();
-      System.exit(1);
+            keyProviderCryptoExtension = KeyProviderCryptoExtension.
+                                         createKeyProviderCryptoExtension(keyProvider);
+            keyProviderCryptoExtension =
+                new EagerKeyGeneratorKeyProviderCryptoExtension(kmsConf,
+                        keyProviderCryptoExtension);
+            if (kmsConf.getBoolean(KMSConfiguration.KEY_AUTHORIZATION_ENABLE,
+                                   KMSConfiguration.KEY_AUTHORIZATION_ENABLE_DEFAULT)) {
+                keyProviderCryptoExtension =
+                    new KeyAuthorizationKeyProvider(
+                    keyProviderCryptoExtension, kmsAcls);
+            }
+
+            LOG.info("Initialized KeyProviderCryptoExtension "
+                     + keyProviderCryptoExtension);
+            final int defaultBitlength = kmsConf
+                                         .getInt(KeyProvider.DEFAULT_BITLENGTH_NAME,
+                                                 KeyProvider.DEFAULT_BITLENGTH);
+            LOG.info("Default key bitlength is {}", defaultBitlength);
+            LOG.info("KMS Started");
+        } catch (Throwable ex) {
+            System.out.println();
+            System.out.println("ERROR: Hadoop KMS could not be started");
+            System.out.println();
+            System.out.println("REASON: " + ex.toString());
+            System.out.println();
+            System.out.println("Stacktrace:");
+            System.out.println("---------------------------------------------------");
+            ex.printStackTrace(System.out);
+            System.out.println("---------------------------------------------------");
+            System.out.println();
+            System.exit(1);
+        }
     }
-  }
 
-  @Override
-  public void contextDestroyed(ServletContextEvent sce) {
-    kmsAudit.shutdown();
-    kmsAcls.stopReloader();
-    jmxReporter.stop();
-    jmxReporter.close();
-    metricRegistry = null;
-    LOG.info("KMS Stopped");
-  }
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        kmsAudit.shutdown();
+        kmsAcls.stopReloader();
+        jmxReporter.stop();
+        jmxReporter.close();
+        metricRegistry = null;
+        LOG.info("KMS Stopped");
+    }
 
-  public static Configuration getConfiguration() {
-    return new Configuration(kmsConf);
-  }
+    public static Configuration getConfiguration() {
+        return new Configuration(kmsConf);
+    }
 
-  public static KMSACLs getACLs() {
-    return kmsAcls;
-  }
+    public static KMSACLs getACLs() {
+        return kmsAcls;
+    }
 
-  public static Meter getAdminCallsMeter() {
-    return adminCallsMeter;
-  }
+    public static Meter getAdminCallsMeter() {
+        return adminCallsMeter;
+    }
 
-  public static Meter getKeyCallsMeter() {
-    return keyCallsMeter;
-  }
+    public static Meter getKeyCallsMeter() {
+        return keyCallsMeter;
+    }
 
-  public static Meter getInvalidCallsMeter() {
-    return invalidCallsMeter;
-  }
+    public static Meter getInvalidCallsMeter() {
+        return invalidCallsMeter;
+    }
 
-  public static Meter getGenerateEEKCallsMeter() {
-    return generateEEKCallsMeter;
-  }
+    public static Meter getGenerateEEKCallsMeter() {
+        return generateEEKCallsMeter;
+    }
 
-  public static Meter getDecryptEEKCallsMeter() {
-    return decryptEEKCallsMeter;
-  }
+    public static Meter getDecryptEEKCallsMeter() {
+        return decryptEEKCallsMeter;
+    }
 
-  public static Meter getUnauthorizedCallsMeter() {
-    return unauthorizedCallsMeter;
-  }
+    public static Meter getUnauthorizedCallsMeter() {
+        return unauthorizedCallsMeter;
+    }
 
-  public static Meter getUnauthenticatedCallsMeter() {
-    return unauthenticatedCallsMeter;
-  }
+    public static Meter getUnauthenticatedCallsMeter() {
+        return unauthenticatedCallsMeter;
+    }
 
-  public static KeyProviderCryptoExtension getKeyProvider() {
-    return keyProviderCryptoExtension;
-  }
+    public static KeyProviderCryptoExtension getKeyProvider() {
+        return keyProviderCryptoExtension;
+    }
 
-  public static KMSAudit getKMSAudit() {
-    return kmsAudit;
-  }
+    public static KMSAudit getKMSAudit() {
+        return kmsAudit;
+    }
 }

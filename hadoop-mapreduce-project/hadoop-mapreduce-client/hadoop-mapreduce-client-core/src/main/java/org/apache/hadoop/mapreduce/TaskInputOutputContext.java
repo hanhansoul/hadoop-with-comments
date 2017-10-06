@@ -33,40 +33,40 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
-public interface TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT> 
-       extends TaskAttemptContext {
+public interface TaskInputOutputContext<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
+    extends TaskAttemptContext {
 
-  /**
-   * Advance to the next key, value pair, returning null if at end.
-   * @return the key object that was read into, or null if no more
-   */
-  public boolean nextKeyValue() throws IOException, InterruptedException;
- 
-  /**
-   * Get the current key.
-   * @return the current key object or null if there isn't one
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  public KEYIN getCurrentKey() throws IOException, InterruptedException;
+    /**
+     * Advance to the next key, value pair, returning null if at end.
+     * @return the key object that was read into, or null if no more
+     */
+    public boolean nextKeyValue() throws IOException, InterruptedException;
 
-  /**
-   * Get the current value.
-   * @return the value object that was read into
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  public VALUEIN getCurrentValue() throws IOException, InterruptedException;
+    /**
+     * Get the current key.
+     * @return the current key object or null if there isn't one
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public KEYIN getCurrentKey() throws IOException, InterruptedException;
 
-  /**
-   * Generate an output key/value pair.
-   */
-  public void write(KEYOUT key, VALUEOUT value) 
-      throws IOException, InterruptedException;
+    /**
+     * Get the current value.
+     * @return the value object that was read into
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    public VALUEIN getCurrentValue() throws IOException, InterruptedException;
 
-  /**
-   * Get the {@link OutputCommitter} for the task-attempt.
-   * @return the <code>OutputCommitter</code> for the task-attempt
-   */
-  public OutputCommitter getOutputCommitter();
+    /**
+     * Generate an output key/value pair.
+     */
+    public void write(KEYOUT key, VALUEOUT value)
+    throws IOException, InterruptedException;
+
+    /**
+     * Get the {@link OutputCommitter} for the task-attempt.
+     * @return the <code>OutputCommitter</code> for the task-attempt
+     */
+    public OutputCommitter getOutputCommitter();
 }

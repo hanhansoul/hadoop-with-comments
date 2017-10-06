@@ -33,21 +33,21 @@ import org.apache.hadoop.fs.BatchedRemoteIterator;
 public class EncryptionZoneIterator
     extends BatchedRemoteIterator<Long, EncryptionZone> {
 
-  private final ClientProtocol namenode;
+    private final ClientProtocol namenode;
 
-  public EncryptionZoneIterator(ClientProtocol namenode) {
-    super(Long.valueOf(0));
-    this.namenode = namenode;
-  }
+    public EncryptionZoneIterator(ClientProtocol namenode) {
+        super(Long.valueOf(0));
+        this.namenode = namenode;
+    }
 
-  @Override
-  public BatchedEntries<EncryptionZone> makeRequest(Long prevId)
-      throws IOException {
-    return namenode.listEncryptionZones(prevId);
-  }
+    @Override
+    public BatchedEntries<EncryptionZone> makeRequest(Long prevId)
+    throws IOException {
+        return namenode.listEncryptionZones(prevId);
+    }
 
-  @Override
-  public Long elementToPrevKey(EncryptionZone entry) {
-    return entry.getId();
-  }
+    @Override
+    public Long elementToPrevKey(EncryptionZone entry) {
+        return entry.getId();
+    }
 }

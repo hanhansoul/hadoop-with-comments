@@ -58,222 +58,222 @@ import org.apache.hadoop.yarn.util.resource.Resources;
  */
 public class RMServerUtils {
 
-  public static List<RMNode> queryRMNodes(RMContext context,
-      EnumSet<NodeState> acceptedStates) {
-    // nodes contains nodes that are NEW, RUNNING OR UNHEALTHY
-    ArrayList<RMNode> results = new ArrayList<RMNode>();
-    if (acceptedStates.contains(NodeState.NEW) ||
-        acceptedStates.contains(NodeState.RUNNING) ||
-        acceptedStates.contains(NodeState.UNHEALTHY)) {
-      for (RMNode rmNode : context.getRMNodes().values()) {
-        if (acceptedStates.contains(rmNode.getState())) {
-          results.add(rmNode);
+    public static List<RMNode> queryRMNodes(RMContext context,
+                                            EnumSet<NodeState> acceptedStates) {
+        // nodes contains nodes that are NEW, RUNNING OR UNHEALTHY
+        ArrayList<RMNode> results = new ArrayList<RMNode>();
+        if (acceptedStates.contains(NodeState.NEW) ||
+            acceptedStates.contains(NodeState.RUNNING) ||
+            acceptedStates.contains(NodeState.UNHEALTHY)) {
+            for (RMNode rmNode : context.getRMNodes().values()) {
+                if (acceptedStates.contains(rmNode.getState())) {
+                    results.add(rmNode);
+                }
+            }
         }
-      }
-    }
 
-    // inactiveNodes contains nodes that are DECOMMISSIONED, LOST, OR REBOOTED
-    if (acceptedStates.contains(NodeState.DECOMMISSIONED) ||
-        acceptedStates.contains(NodeState.LOST) ||
-        acceptedStates.contains(NodeState.REBOOTED)) {
-      for (RMNode rmNode : context.getInactiveRMNodes().values()) {
-        if (acceptedStates.contains(rmNode.getState())) {
-          results.add(rmNode);
+        // inactiveNodes contains nodes that are DECOMMISSIONED, LOST, OR REBOOTED
+        if (acceptedStates.contains(NodeState.DECOMMISSIONED) ||
+            acceptedStates.contains(NodeState.LOST) ||
+            acceptedStates.contains(NodeState.REBOOTED)) {
+            for (RMNode rmNode : context.getInactiveRMNodes().values()) {
+                if (acceptedStates.contains(rmNode.getState())) {
+                    results.add(rmNode);
+                }
+            }
         }
-      }
-    }
-    return results;
-  }
-
-  /**
-   * Utility method to validate a list resource requests, by insuring that the
-   * requested memory/vcore is non-negative and not greater than max
-   */
-  public static void normalizeAndValidateRequests(List<ResourceRequest> ask,
-      Resource maximumResource, String queueName, YarnScheduler scheduler,
-      RMContext rmContext)
-      throws InvalidResourceRequestException {
-    for (ResourceRequest resReq : ask) {
-      SchedulerUtils.normalizeAndvalidateRequest(resReq, maximumResource,
-          queueName, scheduler, rmContext);
-    }
-  }
-
-  /*
-   * @throw <code>InvalidResourceBlacklistRequestException </code> if the
-   * resource is not able to be added to the blacklist.
-   */
-  public static void validateBlacklistRequest(
-      ResourceBlacklistRequest blacklistRequest)
-      throws InvalidResourceBlacklistRequestException {
-    if (blacklistRequest != null) {
-      List<String> plus = blacklistRequest.getBlacklistAdditions();
-      if (plus != null && plus.contains(ResourceRequest.ANY)) {
-        throw new InvalidResourceBlacklistRequestException(
-            "Cannot add " + ResourceRequest.ANY + " to the blacklist!");
-      }
-    }
-  }
-
-  /**
-   * It will validate to make sure all the containers belong to correct
-   * application attempt id. If not then it will throw
-   * {@link InvalidContainerReleaseException}
-   * 
-   * @param containerReleaseList
-   *          containers to be released as requested by application master.
-   * @param appAttemptId
-   *          Application attempt Id
-   * @throws InvalidContainerReleaseException
-   */
-  public static void
-      validateContainerReleaseRequest(List<ContainerId> containerReleaseList,
-          ApplicationAttemptId appAttemptId)
-          throws InvalidContainerReleaseException {
-    for (ContainerId cId : containerReleaseList) {
-      if (!appAttemptId.equals(cId.getApplicationAttemptId())) {
-        throw new InvalidContainerReleaseException(
-            "Cannot release container : "
-                + cId.toString()
-                + " not belonging to this application attempt : "
-                + appAttemptId);
-      }
-    }
-  }
-
-  public static UserGroupInformation verifyAccess(
-      AccessControlList acl, String method, final Log LOG)
-      throws IOException {
-    // by default, this method will use AdminService as module name
-    return verifyAccess(acl, method, "AdminService", LOG);
-  }
-
-  /**
-   * Utility method to verify if the current user has access based on the
-   * passed {@link AccessControlList}
-   * @param acl the {@link AccessControlList} to check against
-   * @param method the method name to be logged
-   * @param module, like AdminService or NodeLabelManager
-   * @param LOG the logger to use
-   * @return {@link UserGroupInformation} of the current user
-   * @throws IOException
-   */
-  public static UserGroupInformation verifyAccess(
-      AccessControlList acl, String method, String module, final Log LOG)
-      throws IOException {
-    UserGroupInformation user;
-    try {
-      user = UserGroupInformation.getCurrentUser();
-    } catch (IOException ioe) {
-      LOG.warn("Couldn't get current user", ioe);
-      RMAuditLogger.logFailure("UNKNOWN", method, acl.toString(),
-          "AdminService", "Couldn't get current user");
-      throw ioe;
+        return results;
     }
 
-    if (!acl.isUserAllowed(user)) {
-      LOG.warn("User " + user.getShortUserName() + " doesn't have permission" +
-          " to call '" + method + "'");
-
-      RMAuditLogger.logFailure(user.getShortUserName(), method,
-          acl.toString(), module,
-          RMAuditLogger.AuditConstants.UNAUTHORIZED_USER);
-
-      throw new AccessControlException("User " + user.getShortUserName() +
-              " doesn't have permission" +
-              " to call '" + method + "'");
+    /**
+     * Utility method to validate a list resource requests, by insuring that the
+     * requested memory/vcore is non-negative and not greater than max
+     */
+    public static void normalizeAndValidateRequests(List<ResourceRequest> ask,
+            Resource maximumResource, String queueName, YarnScheduler scheduler,
+            RMContext rmContext)
+    throws InvalidResourceRequestException {
+        for (ResourceRequest resReq : ask) {
+            SchedulerUtils.normalizeAndvalidateRequest(resReq, maximumResource,
+                    queueName, scheduler, rmContext);
+        }
     }
-    if (LOG.isTraceEnabled()) {
-      LOG.trace(method + " invoked by user " + user.getShortUserName());
+
+    /*
+     * @throw <code>InvalidResourceBlacklistRequestException </code> if the
+     * resource is not able to be added to the blacklist.
+     */
+    public static void validateBlacklistRequest(
+        ResourceBlacklistRequest blacklistRequest)
+    throws InvalidResourceBlacklistRequestException {
+        if (blacklistRequest != null) {
+            List<String> plus = blacklistRequest.getBlacklistAdditions();
+            if (plus != null && plus.contains(ResourceRequest.ANY)) {
+                throw new InvalidResourceBlacklistRequestException(
+                    "Cannot add " + ResourceRequest.ANY + " to the blacklist!");
+            }
+        }
     }
-    return user;
-  }
 
-  public static YarnApplicationState createApplicationState(
-      RMAppState rmAppState) {
-    switch (rmAppState) {
-      case NEW:
-        return YarnApplicationState.NEW;
-      case NEW_SAVING:
-        return YarnApplicationState.NEW_SAVING;
-      case SUBMITTED:
-        return YarnApplicationState.SUBMITTED;
-      case ACCEPTED:
-        return YarnApplicationState.ACCEPTED;
-      case RUNNING:
-        return YarnApplicationState.RUNNING;
-      case FINISHING:
-      case FINISHED:
-        return YarnApplicationState.FINISHED;
-      case KILLED:
-        return YarnApplicationState.KILLED;
-      case FAILED:
-        return YarnApplicationState.FAILED;
-      default:
-        throw new YarnRuntimeException("Unknown state passed!");
-      }
-  }
-
-  public static YarnApplicationAttemptState createApplicationAttemptState(
-      RMAppAttemptState rmAppAttemptState) {
-    switch (rmAppAttemptState) {
-      case NEW:
-        return YarnApplicationAttemptState.NEW;
-      case SUBMITTED:
-        return YarnApplicationAttemptState.SUBMITTED;
-      case SCHEDULED:
-        return YarnApplicationAttemptState.SCHEDULED;
-      case ALLOCATED:
-        return YarnApplicationAttemptState.ALLOCATED;
-      case LAUNCHED:
-        return YarnApplicationAttemptState.LAUNCHED;
-      case ALLOCATED_SAVING:
-      case LAUNCHED_UNMANAGED_SAVING:
-        return YarnApplicationAttemptState.ALLOCATED_SAVING;
-      case RUNNING:
-        return YarnApplicationAttemptState.RUNNING;
-      case FINISHING:
-        return YarnApplicationAttemptState.FINISHING;
-      case FINISHED:
-        return YarnApplicationAttemptState.FINISHED;
-      case KILLED:
-        return YarnApplicationAttemptState.KILLED;
-      case FAILED:
-        return YarnApplicationAttemptState.FAILED;
-      default:
-        throw new YarnRuntimeException("Unknown state passed!");
+    /**
+     * It will validate to make sure all the containers belong to correct
+     * application attempt id. If not then it will throw
+     * {@link InvalidContainerReleaseException}
+     *
+     * @param containerReleaseList
+     *          containers to be released as requested by application master.
+     * @param appAttemptId
+     *          Application attempt Id
+     * @throws InvalidContainerReleaseException
+     */
+    public static void
+    validateContainerReleaseRequest(List<ContainerId> containerReleaseList,
+                                    ApplicationAttemptId appAttemptId)
+    throws InvalidContainerReleaseException {
+        for (ContainerId cId : containerReleaseList) {
+            if (!appAttemptId.equals(cId.getApplicationAttemptId())) {
+                throw new InvalidContainerReleaseException(
+                    "Cannot release container : "
+                    + cId.toString()
+                    + " not belonging to this application attempt : "
+                    + appAttemptId);
+            }
+        }
     }
-  }
 
-  /**
-   * Statically defined dummy ApplicationResourceUsageREport.  Used as
-   * a return value when a valid report cannot be found.
-   */
-  public static final ApplicationResourceUsageReport
+    public static UserGroupInformation verifyAccess(
+        AccessControlList acl, String method, final Log LOG)
+    throws IOException {
+        // by default, this method will use AdminService as module name
+        return verifyAccess(acl, method, "AdminService", LOG);
+    }
+
+    /**
+     * Utility method to verify if the current user has access based on the
+     * passed {@link AccessControlList}
+     * @param acl the {@link AccessControlList} to check against
+     * @param method the method name to be logged
+     * @param module, like AdminService or NodeLabelManager
+     * @param LOG the logger to use
+     * @return {@link UserGroupInformation} of the current user
+     * @throws IOException
+     */
+    public static UserGroupInformation verifyAccess(
+        AccessControlList acl, String method, String module, final Log LOG)
+    throws IOException {
+        UserGroupInformation user;
+        try {
+            user = UserGroupInformation.getCurrentUser();
+        } catch (IOException ioe) {
+            LOG.warn("Couldn't get current user", ioe);
+            RMAuditLogger.logFailure("UNKNOWN", method, acl.toString(),
+                                     "AdminService", "Couldn't get current user");
+            throw ioe;
+        }
+
+        if (!acl.isUserAllowed(user)) {
+            LOG.warn("User " + user.getShortUserName() + " doesn't have permission" +
+                     " to call '" + method + "'");
+
+            RMAuditLogger.logFailure(user.getShortUserName(), method,
+                                     acl.toString(), module,
+                                     RMAuditLogger.AuditConstants.UNAUTHORIZED_USER);
+
+            throw new AccessControlException("User " + user.getShortUserName() +
+                                             " doesn't have permission" +
+                                             " to call '" + method + "'");
+        }
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(method + " invoked by user " + user.getShortUserName());
+        }
+        return user;
+    }
+
+    public static YarnApplicationState createApplicationState(
+        RMAppState rmAppState) {
+        switch (rmAppState) {
+            case NEW:
+                return YarnApplicationState.NEW;
+            case NEW_SAVING:
+                return YarnApplicationState.NEW_SAVING;
+            case SUBMITTED:
+                return YarnApplicationState.SUBMITTED;
+            case ACCEPTED:
+                return YarnApplicationState.ACCEPTED;
+            case RUNNING:
+                return YarnApplicationState.RUNNING;
+            case FINISHING:
+            case FINISHED:
+                return YarnApplicationState.FINISHED;
+            case KILLED:
+                return YarnApplicationState.KILLED;
+            case FAILED:
+                return YarnApplicationState.FAILED;
+            default:
+                throw new YarnRuntimeException("Unknown state passed!");
+        }
+    }
+
+    public static YarnApplicationAttemptState createApplicationAttemptState(
+        RMAppAttemptState rmAppAttemptState) {
+        switch (rmAppAttemptState) {
+            case NEW:
+                return YarnApplicationAttemptState.NEW;
+            case SUBMITTED:
+                return YarnApplicationAttemptState.SUBMITTED;
+            case SCHEDULED:
+                return YarnApplicationAttemptState.SCHEDULED;
+            case ALLOCATED:
+                return YarnApplicationAttemptState.ALLOCATED;
+            case LAUNCHED:
+                return YarnApplicationAttemptState.LAUNCHED;
+            case ALLOCATED_SAVING:
+            case LAUNCHED_UNMANAGED_SAVING:
+                return YarnApplicationAttemptState.ALLOCATED_SAVING;
+            case RUNNING:
+                return YarnApplicationAttemptState.RUNNING;
+            case FINISHING:
+                return YarnApplicationAttemptState.FINISHING;
+            case FINISHED:
+                return YarnApplicationAttemptState.FINISHED;
+            case KILLED:
+                return YarnApplicationAttemptState.KILLED;
+            case FAILED:
+                return YarnApplicationAttemptState.FAILED;
+            default:
+                throw new YarnRuntimeException("Unknown state passed!");
+        }
+    }
+
+    /**
+     * Statically defined dummy ApplicationResourceUsageREport.  Used as
+     * a return value when a valid report cannot be found.
+     */
+    public static final ApplicationResourceUsageReport
     DUMMY_APPLICATION_RESOURCE_USAGE_REPORT =
-      BuilderUtils.newApplicationResourceUsageReport(-1, -1,
-          Resources.createResource(-1, -1), Resources.createResource(-1, -1),
-          Resources.createResource(-1, -1), 0, 0);
+        BuilderUtils.newApplicationResourceUsageReport(-1, -1,
+                Resources.createResource(-1, -1), Resources.createResource(-1, -1),
+                Resources.createResource(-1, -1), 0, 0);
 
 
 
-  /**
-   * Find all configs whose name starts with
-   * YarnConfiguration.RM_PROXY_USER_PREFIX, and add a record for each one by
-   * replacing the prefix with ProxyUsers.CONF_HADOOP_PROXYUSER
-   */
-  public static void processRMProxyUsersConf(Configuration conf) {
-    Map<String, String> rmProxyUsers = new HashMap<String, String>();
-    for (Map.Entry<String, String> entry : conf) {
-      String propName = entry.getKey();
-      if (propName.startsWith(YarnConfiguration.RM_PROXY_USER_PREFIX)) {
-        rmProxyUsers.put(ProxyUsers.CONF_HADOOP_PROXYUSER + "." +
-            propName.substring(YarnConfiguration.RM_PROXY_USER_PREFIX.length()),
-            entry.getValue());
-      }
+    /**
+     * Find all configs whose name starts with
+     * YarnConfiguration.RM_PROXY_USER_PREFIX, and add a record for each one by
+     * replacing the prefix with ProxyUsers.CONF_HADOOP_PROXYUSER
+     */
+    public static void processRMProxyUsersConf(Configuration conf) {
+        Map<String, String> rmProxyUsers = new HashMap<String, String>();
+        for (Map.Entry<String, String> entry : conf) {
+            String propName = entry.getKey();
+            if (propName.startsWith(YarnConfiguration.RM_PROXY_USER_PREFIX)) {
+                rmProxyUsers.put(ProxyUsers.CONF_HADOOP_PROXYUSER + "." +
+                                 propName.substring(YarnConfiguration.RM_PROXY_USER_PREFIX.length()),
+                                 entry.getValue());
+            }
+        }
+        for (Map.Entry<String, String> entry : rmProxyUsers.entrySet()) {
+            conf.set(entry.getKey(), entry.getValue());
+        }
     }
-    for (Map.Entry<String, String> entry : rmProxyUsers.entrySet()) {
-      conf.set(entry.getKey(), entry.getValue());
-    }
-  }
 }

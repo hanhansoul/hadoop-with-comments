@@ -27,13 +27,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodesInfo {
 
-  protected ArrayList<NodeInfo> node = new ArrayList<NodeInfo>();
+    protected ArrayList<NodeInfo> node = new ArrayList<NodeInfo>();
 
-  public NodesInfo() {
-  } // JAXB needs this
+    public NodesInfo() {
+    } // JAXB needs this
 
-  public void add(NodeInfo nodeinfo) {
-    node.add(nodeinfo);
-  }
+    public void add(NodeInfo nodeinfo) {
+        node.add(nodeinfo);
+    }
 
 }

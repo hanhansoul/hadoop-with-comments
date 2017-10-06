@@ -40,147 +40,147 @@ import com.google.common.base.Preconditions;
  * Utility class for accessing package-private DataNode information during tests.
  *
  */
-public class DataNodeTestUtils {  
-  public static DatanodeRegistration 
-  getDNRegistrationForBP(DataNode dn, String bpid) throws IOException {
-    return dn.getDNRegistrationForBP(bpid);
-  }
-
-  public static void setHeartbeatsDisabledForTests(DataNode dn,
-      boolean heartbeatsDisabledForTests) {
-    dn.setHeartbeatsDisabledForTests(heartbeatsDisabledForTests);
-  }
-
-  public static void triggerDeletionReport(DataNode dn) throws IOException {
-    for (BPOfferService bpos : dn.getAllBpOs()) {
-      bpos.triggerDeletionReportForTests();
+public class DataNodeTestUtils {
+    public static DatanodeRegistration
+    getDNRegistrationForBP(DataNode dn, String bpid) throws IOException {
+        return dn.getDNRegistrationForBP(bpid);
     }
-  }
 
-  public static void triggerHeartbeat(DataNode dn) throws IOException {
-    for (BPOfferService bpos : dn.getAllBpOs()) {
-      bpos.triggerHeartbeatForTests();
+    public static void setHeartbeatsDisabledForTests(DataNode dn,
+            boolean heartbeatsDisabledForTests) {
+        dn.setHeartbeatsDisabledForTests(heartbeatsDisabledForTests);
     }
-  }
-  
-  public static void triggerBlockReport(DataNode dn) throws IOException {
-    for (BPOfferService bpos : dn.getAllBpOs()) {
-      bpos.triggerBlockReportForTests();
+
+    public static void triggerDeletionReport(DataNode dn) throws IOException {
+        for (BPOfferService bpos : dn.getAllBpOs()) {
+            bpos.triggerDeletionReportForTests();
+        }
     }
-  }
-  
-  /**
-   * Insert a Mockito spy object between the given DataNode and
-   * the given NameNode. This can be used to delay or wait for
-   * RPC calls on the datanode->NN path.
-   */
-  public static DatanodeProtocolClientSideTranslatorPB spyOnBposToNN(
-      DataNode dn, NameNode nn) {
-    String bpid = nn.getNamesystem().getBlockPoolId();
-    
-    BPOfferService bpos = null;
-    for (BPOfferService thisBpos : dn.getAllBpOs()) {
-      if (thisBpos.getBlockPoolId().equals(bpid)) {
-        bpos = thisBpos;
-        break;
-      }
+
+    public static void triggerHeartbeat(DataNode dn) throws IOException {
+        for (BPOfferService bpos : dn.getAllBpOs()) {
+            bpos.triggerHeartbeatForTests();
+        }
     }
-    Preconditions.checkArgument(bpos != null,
-        "No such bpid: %s", bpid);
-    
-    BPServiceActor bpsa = null;
-    for (BPServiceActor thisBpsa : bpos.getBPServiceActors()) {
-      if (thisBpsa.getNNSocketAddress().equals(nn.getServiceRpcAddress())) {
-        bpsa = thisBpsa;
-        break;
-      }
+
+    public static void triggerBlockReport(DataNode dn) throws IOException {
+        for (BPOfferService bpos : dn.getAllBpOs()) {
+            bpos.triggerBlockReportForTests();
+        }
     }
-    Preconditions.checkArgument(bpsa != null,
-      "No service actor to NN at %s", nn.getServiceRpcAddress());
 
-    DatanodeProtocolClientSideTranslatorPB origNN = bpsa.getNameNodeProxy();
-    DatanodeProtocolClientSideTranslatorPB spy = Mockito.spy(origNN);
-    bpsa.setNameNode(spy);
-    return spy;
-  }
+    /**
+     * Insert a Mockito spy object between the given DataNode and
+     * the given NameNode. This can be used to delay or wait for
+     * RPC calls on the datanode->NN path.
+     */
+    public static DatanodeProtocolClientSideTranslatorPB spyOnBposToNN(
+        DataNode dn, NameNode nn) {
+        String bpid = nn.getNamesystem().getBlockPoolId();
 
-  public static InterDatanodeProtocol createInterDatanodeProtocolProxy(
-      DataNode dn, DatanodeID datanodeid, final Configuration conf,
-      boolean connectToDnViaHostname) throws IOException {
-    if (connectToDnViaHostname != dn.getDnConf().connectToDnViaHostname) {
-      throw new AssertionError("Unexpected DN hostname configuration");
+        BPOfferService bpos = null;
+        for (BPOfferService thisBpos : dn.getAllBpOs()) {
+            if (thisBpos.getBlockPoolId().equals(bpid)) {
+                bpos = thisBpos;
+                break;
+            }
+        }
+        Preconditions.checkArgument(bpos != null,
+                                    "No such bpid: %s", bpid);
+
+        BPServiceActor bpsa = null;
+        for (BPServiceActor thisBpsa : bpos.getBPServiceActors()) {
+            if (thisBpsa.getNNSocketAddress().equals(nn.getServiceRpcAddress())) {
+                bpsa = thisBpsa;
+                break;
+            }
+        }
+        Preconditions.checkArgument(bpsa != null,
+                                    "No service actor to NN at %s", nn.getServiceRpcAddress());
+
+        DatanodeProtocolClientSideTranslatorPB origNN = bpsa.getNameNodeProxy();
+        DatanodeProtocolClientSideTranslatorPB spy = Mockito.spy(origNN);
+        bpsa.setNameNode(spy);
+        return spy;
     }
-    return DataNode.createInterDataNodeProtocolProxy(datanodeid, conf,
-        dn.getDnConf().socketTimeout, dn.getDnConf().connectToDnViaHostname);
-  }
-  
-  public static void runBlockScannerForBlock(DataNode dn, ExtendedBlock b) {
-    BlockPoolSliceScanner bpScanner = getBlockPoolScanner(dn, b);
-    bpScanner.verifyBlock(new ExtendedBlock(b.getBlockPoolId(),
-        new BlockPoolSliceScanner.BlockScanInfo(b.getLocalBlock())));
-  }
 
-  private static BlockPoolSliceScanner getBlockPoolScanner(DataNode dn,
-      ExtendedBlock b) {
-    DataBlockScanner scanner = dn.getBlockScanner();
-    BlockPoolSliceScanner bpScanner = scanner.getBPScanner(b.getBlockPoolId());
-    return bpScanner;
-  }
-
-  public static long getLatestScanTime(DataNode dn, ExtendedBlock b) {
-    BlockPoolSliceScanner scanner = getBlockPoolScanner(dn, b);
-    return scanner.getLastScanTime(b.getLocalBlock());
-  }
-
-  public static void shutdownBlockScanner(DataNode dn) {
-    if (dn.blockScanner != null) {
-      dn.blockScanner.shutdown();
+    public static InterDatanodeProtocol createInterDatanodeProtocolProxy(
+        DataNode dn, DatanodeID datanodeid, final Configuration conf,
+        boolean connectToDnViaHostname) throws IOException {
+        if (connectToDnViaHostname != dn.getDnConf().connectToDnViaHostname) {
+            throw new AssertionError("Unexpected DN hostname configuration");
+        }
+        return DataNode.createInterDataNodeProtocolProxy(datanodeid, conf,
+                dn.getDnConf().socketTimeout, dn.getDnConf().connectToDnViaHostname);
     }
-  }
 
-  /**
-   * This method is used for testing. 
-   * Examples are adding and deleting blocks directly.
-   * The most common usage will be when the data node's storage is simulated.
-   * 
-   * @return the fsdataset that stores the blocks
-   */
-  public static FsDatasetSpi<?> getFSDataset(DataNode dn) {
-    return dn.getFSDataset();
-  }
+    public static void runBlockScannerForBlock(DataNode dn, ExtendedBlock b) {
+        BlockPoolSliceScanner bpScanner = getBlockPoolScanner(dn, b);
+        bpScanner.verifyBlock(new ExtendedBlock(b.getBlockPoolId(),
+                                                new BlockPoolSliceScanner.BlockScanInfo(b.getLocalBlock())));
+    }
 
-  public static File getFile(DataNode dn, String bpid, long bid) {
-    return FsDatasetTestUtil.getFile(dn.getFSDataset(), bpid, bid);
-  }
+    private static BlockPoolSliceScanner getBlockPoolScanner(DataNode dn,
+            ExtendedBlock b) {
+        DataBlockScanner scanner = dn.getBlockScanner();
+        BlockPoolSliceScanner bpScanner = scanner.getBPScanner(b.getBlockPoolId());
+        return bpScanner;
+    }
 
-  public static File getBlockFile(DataNode dn, String bpid, Block b
-      ) throws IOException {
-    return FsDatasetTestUtil.getBlockFile(dn.getFSDataset(), bpid, b);
-  }
+    public static long getLatestScanTime(DataNode dn, ExtendedBlock b) {
+        BlockPoolSliceScanner scanner = getBlockPoolScanner(dn, b);
+        return scanner.getLastScanTime(b.getLocalBlock());
+    }
 
-  public static File getMetaFile(DataNode dn, String bpid, Block b)
-      throws IOException {
-    return FsDatasetTestUtil.getMetaFile(dn.getFSDataset(), bpid, b);
-  }
-  
-  public static boolean unlinkBlock(DataNode dn, ExtendedBlock bk, int numLinks
-      ) throws IOException {
-    return FsDatasetTestUtil.unlinkBlock(dn.getFSDataset(), bk, numLinks);
-  }
+    public static void shutdownBlockScanner(DataNode dn) {
+        if (dn.blockScanner != null) {
+            dn.blockScanner.shutdown();
+        }
+    }
 
-  public static long getPendingAsyncDeletions(DataNode dn) {
-    return FsDatasetTestUtil.getPendingAsyncDeletions(dn.getFSDataset());
-  }
+    /**
+     * This method is used for testing.
+     * Examples are adding and deleting blocks directly.
+     * The most common usage will be when the data node's storage is simulated.
+     *
+     * @return the fsdataset that stores the blocks
+     */
+    public static FsDatasetSpi<?> getFSDataset(DataNode dn) {
+        return dn.getFSDataset();
+    }
 
-  /**
-   * Fetch a copy of ReplicaInfo from a datanode by block id
-   * @param dn datanode to retrieve a replicainfo object from
-   * @param bpid Block pool Id
-   * @param blkId id of the replica's block
-   * @return copy of ReplicaInfo object @link{FSDataset#fetchReplicaInfo}
-   */
-  public static ReplicaInfo fetchReplicaInfo(final DataNode dn,
-      final String bpid, final long blkId) {
-    return FsDatasetTestUtil.fetchReplicaInfo(dn.getFSDataset(), bpid, blkId);
-  }
+    public static File getFile(DataNode dn, String bpid, long bid) {
+        return FsDatasetTestUtil.getFile(dn.getFSDataset(), bpid, bid);
+    }
+
+    public static File getBlockFile(DataNode dn, String bpid, Block b
+                                   ) throws IOException {
+        return FsDatasetTestUtil.getBlockFile(dn.getFSDataset(), bpid, b);
+    }
+
+    public static File getMetaFile(DataNode dn, String bpid, Block b)
+    throws IOException {
+        return FsDatasetTestUtil.getMetaFile(dn.getFSDataset(), bpid, b);
+    }
+
+    public static boolean unlinkBlock(DataNode dn, ExtendedBlock bk, int numLinks
+                                     ) throws IOException {
+        return FsDatasetTestUtil.unlinkBlock(dn.getFSDataset(), bk, numLinks);
+    }
+
+    public static long getPendingAsyncDeletions(DataNode dn) {
+        return FsDatasetTestUtil.getPendingAsyncDeletions(dn.getFSDataset());
+    }
+
+    /**
+     * Fetch a copy of ReplicaInfo from a datanode by block id
+     * @param dn datanode to retrieve a replicainfo object from
+     * @param bpid Block pool Id
+     * @param blkId id of the replica's block
+     * @return copy of ReplicaInfo object @link{FSDataset#fetchReplicaInfo}
+     */
+    public static ReplicaInfo fetchReplicaInfo(final DataNode dn,
+            final String bpid, final long blkId) {
+        return FsDatasetTestUtil.fetchReplicaInfo(dn.getFSDataset(), bpid, blkId);
+    }
 }

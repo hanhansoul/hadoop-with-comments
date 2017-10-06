@@ -34,47 +34,47 @@ import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 
 public class MockApp implements Application {
 
-  final String user;
-  final ApplicationId appId;
-  Map<ContainerId, Container> containers = new HashMap<ContainerId, Container>();
-  ApplicationState appState;
-  Application app;
+    final String user;
+    final ApplicationId appId;
+    Map<ContainerId, Container> containers = new HashMap<ContainerId, Container>();
+    ApplicationState appState;
+    Application app;
 
-  public MockApp(int uniqId) {
-    this("mockUser", 1234, uniqId);
-  }
+    public MockApp(int uniqId) {
+        this("mockUser", 1234, uniqId);
+    }
 
-  public MockApp(String user, long clusterTimeStamp, int uniqId) {
-    super();
-    this.user = user;
-    // Add an application and the corresponding containers
-    RecordFactory recordFactory = RecordFactoryProvider
-        .getRecordFactory(new Configuration());
-    this.appId = BuilderUtils.newApplicationId(recordFactory, clusterTimeStamp,
-        uniqId);
-    appState = ApplicationState.NEW;
-  }
+    public MockApp(String user, long clusterTimeStamp, int uniqId) {
+        super();
+        this.user = user;
+        // Add an application and the corresponding containers
+        RecordFactory recordFactory = RecordFactoryProvider
+                                      .getRecordFactory(new Configuration());
+        this.appId = BuilderUtils.newApplicationId(recordFactory, clusterTimeStamp,
+                     uniqId);
+        appState = ApplicationState.NEW;
+    }
 
-  public void setState(ApplicationState state) {
-    this.appState = state;
-  }
+    public void setState(ApplicationState state) {
+        this.appState = state;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    public String getUser() {
+        return user;
+    }
 
-  public Map<ContainerId, Container> getContainers() {
-    return containers;
-  }
+    public Map<ContainerId, Container> getContainers() {
+        return containers;
+    }
 
-  public ApplicationId getAppId() {
-    return appId;
-  }
+    public ApplicationId getAppId() {
+        return appId;
+    }
 
-  public ApplicationState getApplicationState() {
-    return appState;
-  }
+    public ApplicationState getApplicationState() {
+        return appState;
+    }
 
-  public void handle(ApplicationEvent event) {}
+    public void handle(ApplicationEvent event) {}
 
 }

@@ -29,10 +29,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class RegisterCommand extends DatanodeCommand {
-  
-  public static final DatanodeCommand REGISTER = new RegisterCommand();
 
-  public RegisterCommand() {
-    super(DatanodeProtocol.DNA_REGISTER);
-  }
+    public static final DatanodeCommand REGISTER = new RegisterCommand();
+
+    public RegisterCommand() {
+        super(DatanodeProtocol.DNA_REGISTER);
+    }
 }

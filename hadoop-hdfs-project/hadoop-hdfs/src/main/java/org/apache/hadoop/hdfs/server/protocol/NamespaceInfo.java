@@ -30,73 +30,73 @@ import org.apache.hadoop.hdfs.server.namenode.NNStorage;
 import org.apache.hadoop.util.VersionInfo;
 
 /**
- * NamespaceInfo is returned by the name-node in reply 
+ * NamespaceInfo is returned by the name-node in reply
  * to a data-node handshake.
- * 
+ *
  */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class NamespaceInfo extends StorageInfo {
-  final String  buildVersion;
-  String blockPoolID = "";    // id of the block pool
-  String softwareVersion;
+    final String  buildVersion;
+    String blockPoolID = "";    // id of the block pool
+    String softwareVersion;
 
-  public NamespaceInfo() {
-    super(NodeType.NAME_NODE);
-    buildVersion = null;
-  }
-
-  public NamespaceInfo(int nsID, String clusterID, String bpID,
-      long cT, String buildVersion, String softwareVersion) {
-    super(HdfsConstants.NAMENODE_LAYOUT_VERSION, nsID, clusterID, cT,
-        NodeType.NAME_NODE);
-    blockPoolID = bpID;
-    this.buildVersion = buildVersion;
-    this.softwareVersion = softwareVersion;
-  }
-
-  public NamespaceInfo(int nsID, String clusterID, String bpID, 
-      long cT) {
-    this(nsID, clusterID, bpID, cT, Storage.getBuildVersion(),
-        VersionInfo.getVersion());
-  }
-  
-  public String getBuildVersion() {
-    return buildVersion;
-  }
-
-  public String getBlockPoolID() {
-    return blockPoolID;
-  }
-  
-  public String getSoftwareVersion() {
-    return softwareVersion;
-  }
-
-  @Override
-  public String toString(){
-    return super.toString() + ";bpid=" + blockPoolID;
-  }
-
-  public void validateStorage(NNStorage storage) throws IOException {
-    if (layoutVersion != storage.getLayoutVersion() ||
-        namespaceID != storage.getNamespaceID() ||
-        cTime != storage.cTime ||
-        !clusterID.equals(storage.getClusterID()) ||
-        !blockPoolID.equals(storage.getBlockPoolID())) {
-      throw new IOException("Inconsistent namespace information:\n" +
-          "NamespaceInfo has:\n" +
-          "LV=" + layoutVersion + ";" +
-          "NS=" + namespaceID + ";" +
-          "cTime=" + cTime + ";" +
-          "CID=" + clusterID + ";" +
-          "BPID=" + blockPoolID +
-          ".\nStorage has:\n" +
-          "LV=" + storage.getLayoutVersion() + ";" +
-          "NS=" + storage.getNamespaceID() + ";" +
-          "cTime=" + storage.getCTime() + ";" +
-          "CID=" + storage.getClusterID() + ";" +
-          "BPID=" + storage.getBlockPoolID() + ".");
+    public NamespaceInfo() {
+        super(NodeType.NAME_NODE);
+        buildVersion = null;
     }
-  }
+
+    public NamespaceInfo(int nsID, String clusterID, String bpID,
+                         long cT, String buildVersion, String softwareVersion) {
+        super(HdfsConstants.NAMENODE_LAYOUT_VERSION, nsID, clusterID, cT,
+              NodeType.NAME_NODE);
+        blockPoolID = bpID;
+        this.buildVersion = buildVersion;
+        this.softwareVersion = softwareVersion;
+    }
+
+    public NamespaceInfo(int nsID, String clusterID, String bpID,
+                         long cT) {
+        this(nsID, clusterID, bpID, cT, Storage.getBuildVersion(),
+             VersionInfo.getVersion());
+    }
+
+    public String getBuildVersion() {
+        return buildVersion;
+    }
+
+    public String getBlockPoolID() {
+        return blockPoolID;
+    }
+
+    public String getSoftwareVersion() {
+        return softwareVersion;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + ";bpid=" + blockPoolID;
+    }
+
+    public void validateStorage(NNStorage storage) throws IOException {
+        if (layoutVersion != storage.getLayoutVersion() ||
+            namespaceID != storage.getNamespaceID() ||
+            cTime != storage.cTime ||
+            !clusterID.equals(storage.getClusterID()) ||
+            !blockPoolID.equals(storage.getBlockPoolID())) {
+            throw new IOException("Inconsistent namespace information:\n" +
+                                  "NamespaceInfo has:\n" +
+                                  "LV=" + layoutVersion + ";" +
+                                  "NS=" + namespaceID + ";" +
+                                  "cTime=" + cTime + ";" +
+                                  "CID=" + clusterID + ";" +
+                                  "BPID=" + blockPoolID +
+                                  ".\nStorage has:\n" +
+                                  "LV=" + storage.getLayoutVersion() + ";" +
+                                  "NS=" + storage.getNamespaceID() + ";" +
+                                  "cTime=" + storage.getCTime() + ";" +
+                                  "CID=" + storage.getClusterID() + ";" +
+                                  "BPID=" + storage.getBlockPoolID() + ".");
+        }
+    }
 }

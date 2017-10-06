@@ -41,26 +41,26 @@ import com.google.common.base.Charsets;
 @InterfaceStability.Stable
 public class TextInputFormat extends FileInputFormat<LongWritable, Text> {
 
-  @Override
-  public RecordReader<LongWritable, Text> 
+    @Override
+    public RecordReader<LongWritable, Text>
     createRecordReader(InputSplit split,
                        TaskAttemptContext context) {
-    String delimiter = context.getConfiguration().get(
-        "textinputformat.record.delimiter");
-    byte[] recordDelimiterBytes = null;
-    if (null != delimiter)
-      recordDelimiterBytes = delimiter.getBytes(Charsets.UTF_8);
-    return new LineRecordReader(recordDelimiterBytes);
-  }
-
-  @Override
-  protected boolean isSplitable(JobContext context, Path file) {
-    final CompressionCodec codec =
-      new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
-    if (null == codec) {
-      return true;
+        String delimiter = context.getConfiguration().get(
+                               "textinputformat.record.delimiter");
+        byte[] recordDelimiterBytes = null;
+        if (null != delimiter)
+            recordDelimiterBytes = delimiter.getBytes(Charsets.UTF_8);
+        return new LineRecordReader(recordDelimiterBytes);
     }
-    return codec instanceof SplittableCompressionCodec;
-  }
+
+    @Override
+    protected boolean isSplitable(JobContext context, Path file) {
+        final CompressionCodec codec =
+            new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
+        if (null == codec) {
+            return true;
+        }
+        return codec instanceof SplittableCompressionCodec;
+    }
 
 }

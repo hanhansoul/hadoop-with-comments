@@ -38,86 +38,86 @@ import org.apache.hadoop.util.StringUtils;
 public class SliveReducer extends MapReduceBase implements
     Reducer<Text, Text, Text, Text> {
 
-  private static final Log LOG = LogFactory.getLog(SliveReducer.class);
+    private static final Log LOG = LogFactory.getLog(SliveReducer.class);
 
-  private ConfigExtractor config;
+    private ConfigExtractor config;
 
-  /**
-   * Logs to the given reporter and logs to the internal logger at info level
-   * 
-   * @param r
-   *          the reporter to set status on
-   * @param msg
-   *          the message to log
-   */
-  private void logAndSetStatus(Reporter r, String msg) {
-    r.setStatus(msg);
-    LOG.info(msg);
-  }
-
-  /**
-   * Fetches the config this object uses
-   * 
-   * @return ConfigExtractor
-   */
-  private ConfigExtractor getConfig() {
-    return config;
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.hadoop.mapred.Reducer#reduce(java.lang.Object,
-   * java.util.Iterator, org.apache.hadoop.mapred.OutputCollector,
-   * org.apache.hadoop.mapred.Reporter)
-   */
-  @Override // Reducer
-  public void reduce(Text key, Iterator<Text> values,
-      OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
-    OperationOutput collector = null;
-    int reduceAm = 0;
-    int errorAm = 0;
-    logAndSetStatus(reporter, "Iterating over reduction values for key " + key);
-    while (values.hasNext()) {
-      Text value = values.next();
-      try {
-        OperationOutput val = new OperationOutput(key, value);
-        if (collector == null) {
-          collector = val;
-        } else {
-          collector = OperationOutput.merge(collector, val);
-        }
-        LOG.info("Combined " + val + " into/with " + collector);
-        ++reduceAm;
-      } catch (Exception e) {
-        ++errorAm;
-        logAndSetStatus(reporter, "Error iterating over reduction input "
-            + value + " due to : " + StringUtils.stringifyException(e));
-        if (getConfig().shouldExitOnFirstError()) {
-          break;
-        }
-      }
+    /**
+     * Logs to the given reporter and logs to the internal logger at info level
+     *
+     * @param r
+     *          the reporter to set status on
+     * @param msg
+     *          the message to log
+     */
+    private void logAndSetStatus(Reporter r, String msg) {
+        r.setStatus(msg);
+        LOG.info(msg);
     }
-    logAndSetStatus(reporter, "Reduced " + reduceAm + " values with " + errorAm
-        + " errors");
-    if (collector != null) {
-      logAndSetStatus(reporter, "Writing output " + collector.getKey() + " : "
-          + collector.getOutputValue());
-      output.collect(collector.getKey(), collector.getOutputValue());
-    }
-  }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see
-   * org.apache.hadoop.mapred.MapReduceBase#configure(org.apache.hadoop.mapred
-   * .JobConf)
-   */
-  @Override // MapReduceBase
-  public void configure(JobConf conf) {
-    config = new ConfigExtractor(conf);
-    ConfigExtractor.dumpOptions(config);
-  }
+    /**
+     * Fetches the config this object uses
+     *
+     * @return ConfigExtractor
+     */
+    private ConfigExtractor getConfig() {
+        return config;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.apache.hadoop.mapred.Reducer#reduce(java.lang.Object,
+     * java.util.Iterator, org.apache.hadoop.mapred.OutputCollector,
+     * org.apache.hadoop.mapred.Reporter)
+     */
+    @Override // Reducer
+    public void reduce(Text key, Iterator<Text> values,
+                       OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
+        OperationOutput collector = null;
+        int reduceAm = 0;
+        int errorAm = 0;
+        logAndSetStatus(reporter, "Iterating over reduction values for key " + key);
+        while (values.hasNext()) {
+            Text value = values.next();
+            try {
+                OperationOutput val = new OperationOutput(key, value);
+                if (collector == null) {
+                    collector = val;
+                } else {
+                    collector = OperationOutput.merge(collector, val);
+                }
+                LOG.info("Combined " + val + " into/with " + collector);
+                ++reduceAm;
+            } catch (Exception e) {
+                ++errorAm;
+                logAndSetStatus(reporter, "Error iterating over reduction input "
+                                + value + " due to : " + StringUtils.stringifyException(e));
+                if (getConfig().shouldExitOnFirstError()) {
+                    break;
+                }
+            }
+        }
+        logAndSetStatus(reporter, "Reduced " + reduceAm + " values with " + errorAm
+                        + " errors");
+        if (collector != null) {
+            logAndSetStatus(reporter, "Writing output " + collector.getKey() + " : "
+                            + collector.getOutputValue());
+            output.collect(collector.getKey(), collector.getOutputValue());
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.apache.hadoop.mapred.MapReduceBase#configure(org.apache.hadoop.mapred
+     * .JobConf)
+     */
+    @Override // MapReduceBase
+    public void configure(JobConf conf) {
+        config = new ConfigExtractor(conf);
+        ConfigExtractor.dumpOptions(config);
+    }
 
 }

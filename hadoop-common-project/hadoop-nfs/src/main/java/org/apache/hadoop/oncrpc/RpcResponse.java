@@ -27,19 +27,19 @@ import org.jboss.netty.buffer.ChannelBuffer;
  * peer.
  */
 public class RpcResponse {
-  private final ChannelBuffer data;
-  private final SocketAddress remoteAddress;
+    private final ChannelBuffer data;
+    private final SocketAddress remoteAddress;
 
-  public RpcResponse(ChannelBuffer data, SocketAddress remoteAddress) {
-    this.data = data;
-    this.remoteAddress = remoteAddress;
-  }
+    public RpcResponse(ChannelBuffer data, SocketAddress remoteAddress) {
+        this.data = data;
+        this.remoteAddress = remoteAddress;
+    }
 
-  public ChannelBuffer data() {
-    return data;
-  }
+    public ChannelBuffer data() {
+        return data;
+    }
 
-  public SocketAddress remoteAddress() {
-    return remoteAddress;
-  }
+    public SocketAddress remoteAddress() {
+        return remoteAddress;
+    }
 }

@@ -33,7 +33,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
 
-/** 
+/**
  * A {@link Mapper} that extracts text matching a regular expression.
  */
 @InterfaceAudience.Public
@@ -41,25 +41,25 @@ import org.apache.hadoop.mapred.Reporter;
 public class RegexMapper<K> extends MapReduceBase
     implements Mapper<K, Text, Text, LongWritable> {
 
-  private Pattern pattern;
-  private int group;
+    private Pattern pattern;
+    private int group;
 
-  public void configure(JobConf job) {
-    pattern = Pattern.compile(job.get(org.apache.hadoop.mapreduce.lib.map.
-                RegexMapper.PATTERN));
-    group = job.getInt(org.apache.hadoop.mapreduce.lib.map.
-              RegexMapper.GROUP, 0);
-  }
-
-  public void map(K key, Text value,
-                  OutputCollector<Text, LongWritable> output,
-                  Reporter reporter)
-    throws IOException {
-    String text = value.toString();
-    Matcher matcher = pattern.matcher(text);
-    while (matcher.find()) {
-      output.collect(new Text(matcher.group(group)), new LongWritable(1));
+    public void configure(JobConf job) {
+        pattern = Pattern.compile(job.get(org.apache.hadoop.mapreduce.lib.map.
+                                          RegexMapper.PATTERN));
+        group = job.getInt(org.apache.hadoop.mapreduce.lib.map.
+                           RegexMapper.GROUP, 0);
     }
-  }
+
+    public void map(K key, Text value,
+                    OutputCollector<Text, LongWritable> output,
+                    Reporter reporter)
+    throws IOException {
+        String text = value.toString();
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            output.collect(new Text(matcher.group(group)), new LongWritable(1));
+        }
+    }
 
 }

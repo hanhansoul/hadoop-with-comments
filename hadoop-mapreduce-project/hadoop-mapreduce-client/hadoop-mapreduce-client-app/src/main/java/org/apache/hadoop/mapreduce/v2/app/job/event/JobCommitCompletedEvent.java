@@ -21,7 +21,7 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class JobCommitCompletedEvent extends JobEvent {
 
-  public JobCommitCompletedEvent(JobId jobID) {
-    super(jobID, JobEventType.JOB_COMMIT_COMPLETED);
-  }
+    public JobCommitCompletedEvent(JobId jobID) {
+        super(jobID, JobEventType.JOB_COMMIT_COMPLETED);
+    }
 }

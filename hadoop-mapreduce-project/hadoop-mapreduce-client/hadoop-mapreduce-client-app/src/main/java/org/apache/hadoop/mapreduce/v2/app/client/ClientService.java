@@ -24,7 +24,7 @@ import org.apache.hadoop.service.Service;
 
 public interface ClientService extends Service {
 
-  public abstract InetSocketAddress getBindAddress();
+    public abstract InetSocketAddress getBindAddress();
 
-  public abstract int getHttpPort();
+    public abstract int getHttpPort();
 }

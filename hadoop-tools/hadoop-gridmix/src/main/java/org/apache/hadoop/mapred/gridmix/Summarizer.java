@@ -26,50 +26,50 @@ import org.apache.hadoop.mapred.gridmix.GenerateData.DataStatistics;
  * Summarizes various aspects of a {@link Gridmix} run.
  */
 class Summarizer {
-  private ExecutionSummarizer executionSummarizer;
-  private ClusterSummarizer clusterSummarizer;
-  protected static final String NA = "N/A";
-  
-  Summarizer() {
-    this(new String[]{NA});
-  }
-  
-  Summarizer(String[] args) {
-    executionSummarizer = new ExecutionSummarizer(args);
-    clusterSummarizer = new ClusterSummarizer();
-  }
-  
-  ExecutionSummarizer getExecutionSummarizer() {
-    return executionSummarizer;
-  }
-  
-  ClusterSummarizer getClusterSummarizer() {
-    return clusterSummarizer;
-  }
-  
-  void start(Configuration conf) {
-    executionSummarizer.start(conf);
-    clusterSummarizer.start(conf);
-  }
-  
-  /**
-   * This finalizes the summarizer.
-   */
-  @SuppressWarnings("unchecked")
-  void finalize(JobFactory factory, String path, long size, 
-                UserResolver resolver, DataStatistics stats, Configuration conf)
-  throws IOException {
-    executionSummarizer.finalize(factory, path, size, resolver, stats, conf);
-  }
-  
-  /**
-   * Summarizes the current {@link Gridmix} run and the cluster used. 
-   */
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append(executionSummarizer.toString());
-    builder.append(clusterSummarizer.toString());
-    return builder.toString();
-  }
+    private ExecutionSummarizer executionSummarizer;
+    private ClusterSummarizer clusterSummarizer;
+    protected static final String NA = "N/A";
+
+    Summarizer() {
+        this(new String[] {NA});
+    }
+
+    Summarizer(String[] args) {
+        executionSummarizer = new ExecutionSummarizer(args);
+        clusterSummarizer = new ClusterSummarizer();
+    }
+
+    ExecutionSummarizer getExecutionSummarizer() {
+        return executionSummarizer;
+    }
+
+    ClusterSummarizer getClusterSummarizer() {
+        return clusterSummarizer;
+    }
+
+    void start(Configuration conf) {
+        executionSummarizer.start(conf);
+        clusterSummarizer.start(conf);
+    }
+
+    /**
+     * This finalizes the summarizer.
+     */
+    @SuppressWarnings("unchecked")
+    void finalize(JobFactory factory, String path, long size,
+                  UserResolver resolver, DataStatistics stats, Configuration conf)
+    throws IOException {
+        executionSummarizer.finalize(factory, path, size, resolver, stats, conf);
+    }
+
+    /**
+     * Summarizes the current {@link Gridmix} run and the cluster used.
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(executionSummarizer.toString());
+        builder.append(clusterSummarizer.toString());
+        return builder.toString();
+    }
 }

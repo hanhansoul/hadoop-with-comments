@@ -26,69 +26,69 @@ import org.apache.hadoop.mapred.TaskStatus.State;
  * reduce task attempt.
  */
 public class ReduceTaskAttemptInfo extends TaskAttemptInfo {
-  private long shuffleTime;
-  private long mergeTime;
-  private long reduceTime;
+    private long shuffleTime;
+    private long mergeTime;
+    private long reduceTime;
 
-  public ReduceTaskAttemptInfo(State state, TaskInfo taskInfo, long shuffleTime,
-      long mergeTime, long reduceTime, List<List<Integer>> allSplits) {
-    super(state, taskInfo,
-          allSplits == null
-            ? LoggedTaskAttempt.SplitVectorKind.getNullSplitsVector()
-           : allSplits);
-    this.shuffleTime = shuffleTime;
-    this.mergeTime = mergeTime;
-    this.reduceTime = reduceTime;
-  }
+    public ReduceTaskAttemptInfo(State state, TaskInfo taskInfo, long shuffleTime,
+                                 long mergeTime, long reduceTime, List<List<Integer>> allSplits) {
+        super(state, taskInfo,
+              allSplits == null
+              ? LoggedTaskAttempt.SplitVectorKind.getNullSplitsVector()
+              : allSplits);
+        this.shuffleTime = shuffleTime;
+        this.mergeTime = mergeTime;
+        this.reduceTime = reduceTime;
+    }
 
 
-  /**
-   *
-   * @deprecated please use the constructor with 
-   *               {@code (state, taskInfo, shuffleTime, mergeTime, reduceTime
-   *                  List<List<Integer>> allSplits)}
-   *             instead.  
-   *
-   * see {@link LoggedTaskAttempt} for an explanation of
-   *        {@code allSplits}.
-   *
-   * If there are no known splits, use {@code null}.
-   */
-  @Deprecated
-  public ReduceTaskAttemptInfo(State state, TaskInfo taskInfo, long shuffleTime,
-      long mergeTime, long reduceTime) {
-    this(state, taskInfo, shuffleTime, mergeTime, reduceTime, null);
-  }
+    /**
+     *
+     * @deprecated please use the constructor with
+     *               {@code (state, taskInfo, shuffleTime, mergeTime, reduceTime
+     *                  List<List<Integer>> allSplits)}
+     *             instead.
+     *
+     * see {@link LoggedTaskAttempt} for an explanation of
+     *        {@code allSplits}.
+     *
+     * If there are no known splits, use {@code null}.
+     */
+    @Deprecated
+    public ReduceTaskAttemptInfo(State state, TaskInfo taskInfo, long shuffleTime,
+                                 long mergeTime, long reduceTime) {
+        this(state, taskInfo, shuffleTime, mergeTime, reduceTime, null);
+    }
 
-  /**
-   * Get the runtime for the <b>reduce</b> phase of the reduce task-attempt.
-   * 
-   * @return the runtime for the <b>reduce</b> phase of the reduce task-attempt
-   */
-  public long getReduceRuntime() {
-    return reduceTime;
-  }
+    /**
+     * Get the runtime for the <b>reduce</b> phase of the reduce task-attempt.
+     *
+     * @return the runtime for the <b>reduce</b> phase of the reduce task-attempt
+     */
+    public long getReduceRuntime() {
+        return reduceTime;
+    }
 
-  /**
-   * Get the runtime for the <b>shuffle</b> phase of the reduce task-attempt.
-   * 
-   * @return the runtime for the <b>shuffle</b> phase of the reduce task-attempt
-   */
-  public long getShuffleRuntime() {
-    return shuffleTime;
-  }
+    /**
+     * Get the runtime for the <b>shuffle</b> phase of the reduce task-attempt.
+     *
+     * @return the runtime for the <b>shuffle</b> phase of the reduce task-attempt
+     */
+    public long getShuffleRuntime() {
+        return shuffleTime;
+    }
 
-  /**
-   * Get the runtime for the <b>merge</b> phase of the reduce task-attempt
-   * 
-   * @return the runtime for the <b>merge</b> phase of the reduce task-attempt
-   */
-  public long getMergeRuntime() {
-    return mergeTime;
-  }
+    /**
+     * Get the runtime for the <b>merge</b> phase of the reduce task-attempt
+     *
+     * @return the runtime for the <b>merge</b> phase of the reduce task-attempt
+     */
+    public long getMergeRuntime() {
+        return mergeTime;
+    }
 
-  @Override
-  public long getRuntime() {
-    return (getShuffleRuntime() + getMergeRuntime() + getReduceRuntime());
-  }
+    @Override
+    public long getRuntime() {
+        return (getShuffleRuntime() + getMergeRuntime() + getReduceRuntime());
+    }
 }

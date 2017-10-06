@@ -32,42 +32,42 @@ import org.apache.hadoop.streaming.PipeMapRed;
  */
 public class RawBytesInputWriter extends InputWriter<Writable, Writable> {
 
-  private DataOutput clientOut;
-  private ByteArrayOutputStream bufferOut;
-  private DataOutputStream bufferDataOut;
+    private DataOutput clientOut;
+    private ByteArrayOutputStream bufferOut;
+    private DataOutputStream bufferDataOut;
 
-  @Override
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    super.initialize(pipeMapRed);
-    clientOut = pipeMapRed.getClientOutput();
-    bufferOut = new ByteArrayOutputStream();
-    bufferDataOut = new DataOutputStream(bufferOut);
-  }
-  
-  @Override
-  public void writeKey(Writable key) throws IOException {
-    writeRawBytes(key);
-  }
-
-  @Override
-  public void writeValue(Writable value) throws IOException {
-    writeRawBytes(value);
-  }
-
-  private void writeRawBytes(Writable writable) throws IOException {
-    if (writable instanceof BytesWritable) {
-      BytesWritable bw = (BytesWritable) writable;
-      byte[] bytes = bw.getBytes();
-      int length = bw.getLength();
-      clientOut.writeInt(length);
-      clientOut.write(bytes, 0, length);
-    } else {
-      bufferOut.reset();
-      writable.write(bufferDataOut);
-      byte[] bytes = bufferOut.toByteArray();
-      clientOut.writeInt(bytes.length);
-      clientOut.write(bytes);
+    @Override
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        super.initialize(pipeMapRed);
+        clientOut = pipeMapRed.getClientOutput();
+        bufferOut = new ByteArrayOutputStream();
+        bufferDataOut = new DataOutputStream(bufferOut);
     }
-  }
-  
+
+    @Override
+    public void writeKey(Writable key) throws IOException {
+        writeRawBytes(key);
+    }
+
+    @Override
+    public void writeValue(Writable value) throws IOException {
+        writeRawBytes(value);
+    }
+
+    private void writeRawBytes(Writable writable) throws IOException {
+        if (writable instanceof BytesWritable) {
+            BytesWritable bw = (BytesWritable) writable;
+            byte[] bytes = bw.getBytes();
+            int length = bw.getLength();
+            clientOut.writeInt(length);
+            clientOut.write(bytes, 0, length);
+        } else {
+            bufferOut.reset();
+            writable.write(bufferDataOut);
+            byte[] bytes = bufferOut.toByteArray();
+            clientOut.writeInt(bytes.length);
+            clientOut.write(bytes);
+        }
+    }
+
 }

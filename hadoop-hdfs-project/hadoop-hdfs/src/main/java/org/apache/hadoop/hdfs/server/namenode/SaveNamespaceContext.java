@@ -35,49 +35,49 @@ import com.google.common.base.Preconditions;
  */
 @InterfaceAudience.Private
 public class SaveNamespaceContext {
-  private final FSNamesystem sourceNamesystem;
-  private final long txid;
-  private final List<StorageDirectory> errorSDs =
-    Collections.synchronizedList(new ArrayList<StorageDirectory>());
-  
-  private final Canceler canceller;
-  private final CountDownLatch completionLatch = new CountDownLatch(1);
+    private final FSNamesystem sourceNamesystem;
+    private final long txid;
+    private final List<StorageDirectory> errorSDs =
+        Collections.synchronizedList(new ArrayList<StorageDirectory>());
 
-  SaveNamespaceContext(
-      FSNamesystem sourceNamesystem,
-      long txid,
-      Canceler canceller) {
-    this.sourceNamesystem = sourceNamesystem;
-    this.txid = txid;
-    this.canceller = canceller;
-  }
+    private final Canceler canceller;
+    private final CountDownLatch completionLatch = new CountDownLatch(1);
 
-  FSNamesystem getSourceNamesystem() {
-    return sourceNamesystem;
-  }
-
-  long getTxId() {
-    return txid;
-  }
-
-  void reportErrorOnStorageDirectory(StorageDirectory sd) {
-    errorSDs.add(sd);
-  }
-
-  List<StorageDirectory> getErrorSDs() {
-    return errorSDs;
-  }
-
-  void markComplete() {
-    Preconditions.checkState(completionLatch.getCount() == 1,
-        "Context already completed!");
-    completionLatch.countDown();
-  }
-
-  public void checkCancelled() throws SaveNamespaceCancelledException {
-    if (canceller.isCancelled()) {
-      throw new SaveNamespaceCancelledException(
-          canceller.getCancellationReason());
+    SaveNamespaceContext(
+        FSNamesystem sourceNamesystem,
+        long txid,
+        Canceler canceller) {
+        this.sourceNamesystem = sourceNamesystem;
+        this.txid = txid;
+        this.canceller = canceller;
     }
-  }
+
+    FSNamesystem getSourceNamesystem() {
+        return sourceNamesystem;
+    }
+
+    long getTxId() {
+        return txid;
+    }
+
+    void reportErrorOnStorageDirectory(StorageDirectory sd) {
+        errorSDs.add(sd);
+    }
+
+    List<StorageDirectory> getErrorSDs() {
+        return errorSDs;
+    }
+
+    void markComplete() {
+        Preconditions.checkState(completionLatch.getCount() == 1,
+                                 "Context already completed!");
+        completionLatch.countDown();
+    }
+
+    public void checkCancelled() throws SaveNamespaceCancelledException {
+        if (canceller.isCancelled()) {
+            throw new SaveNamespaceCancelledException(
+                canceller.getCancellationReason());
+        }
+    }
 }

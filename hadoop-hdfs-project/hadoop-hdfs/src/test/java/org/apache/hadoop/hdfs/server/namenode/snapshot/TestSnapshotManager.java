@@ -37,52 +37,52 @@ import org.junit.Test;
  * Testing snapshot manager functionality.
  */
 public class TestSnapshotManager {
-  private static final int testMaxSnapshotLimit = 7;
+    private static final int testMaxSnapshotLimit = 7;
 
-  /**
-   * Test that the global limit on snapshots is honored.
-   */
-  @Test (timeout=10000)
-  public void testSnapshotLimits() throws Exception {
-    // Setup mock objects for SnapshotManager.createSnapshot.
-    //
-    INodeDirectory ids = mock(INodeDirectory.class);
-    FSDirectory fsdir = mock(FSDirectory.class);
+    /**
+     * Test that the global limit on snapshots is honored.
+     */
+    @Test (timeout=10000)
+    public void testSnapshotLimits() throws Exception {
+        // Setup mock objects for SnapshotManager.createSnapshot.
+        //
+        INodeDirectory ids = mock(INodeDirectory.class);
+        FSDirectory fsdir = mock(FSDirectory.class);
 
-    SnapshotManager sm = spy(new SnapshotManager(fsdir));
-    doReturn(ids).when(sm).getSnapshottableRoot(anyString());
-    doReturn(testMaxSnapshotLimit).when(sm).getMaxSnapshotID();
+        SnapshotManager sm = spy(new SnapshotManager(fsdir));
+        doReturn(ids).when(sm).getSnapshottableRoot(anyString());
+        doReturn(testMaxSnapshotLimit).when(sm).getMaxSnapshotID();
 
-    // Create testMaxSnapshotLimit snapshots. These should all succeed.
-    //
-    for (Integer i = 0; i < testMaxSnapshotLimit; ++i) {
-      sm.createSnapshot("dummy", i.toString());
+        // Create testMaxSnapshotLimit snapshots. These should all succeed.
+        //
+        for (Integer i = 0; i < testMaxSnapshotLimit; ++i) {
+            sm.createSnapshot("dummy", i.toString());
+        }
+
+        // Attempt to create one more snapshot. This should fail due to snapshot
+        // ID rollover.
+        //
+        try {
+            sm.createSnapshot("dummy", "shouldFailSnapshot");
+            Assert.fail("Expected SnapshotException not thrown");
+        } catch (SnapshotException se) {
+            Assert.assertTrue(
+                se.getMessage().toLowerCase().contains("rollover"));
+        }
+
+        // Delete a snapshot to free up a slot.
+        //
+        sm.deleteSnapshot("", "", mock(INode.BlocksMapUpdateInfo.class), new ArrayList<INode>());
+
+        // Attempt to create a snapshot again. It should still fail due
+        // to snapshot ID rollover.
+        //
+        try {
+            sm.createSnapshot("dummy", "shouldFailSnapshot2");
+            Assert.fail("Expected SnapshotException not thrown");
+        } catch (SnapshotException se) {
+            Assert.assertTrue(
+                se.getMessage().toLowerCase().contains("rollover"));
+        }
     }
-
-    // Attempt to create one more snapshot. This should fail due to snapshot
-    // ID rollover.
-    //
-    try {
-      sm.createSnapshot("dummy", "shouldFailSnapshot");
-      Assert.fail("Expected SnapshotException not thrown");
-    } catch (SnapshotException se) {
-      Assert.assertTrue(
-          se.getMessage().toLowerCase().contains("rollover"));
-    }
-
-    // Delete a snapshot to free up a slot.
-    //
-    sm.deleteSnapshot("", "", mock(INode.BlocksMapUpdateInfo.class), new ArrayList<INode>());
-
-    // Attempt to create a snapshot again. It should still fail due
-    // to snapshot ID rollover.
-    //
-    try {
-      sm.createSnapshot("dummy", "shouldFailSnapshot2");
-      Assert.fail("Expected SnapshotException not thrown");
-    } catch (SnapshotException se) {
-      Assert.assertTrue(
-          se.getMessage().toLowerCase().contains("rollover"));
-    }
-  }
 }

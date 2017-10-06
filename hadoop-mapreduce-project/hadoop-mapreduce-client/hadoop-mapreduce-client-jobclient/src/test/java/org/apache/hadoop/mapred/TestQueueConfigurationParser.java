@@ -36,39 +36,39 @@ import org.junit.Test;
 
 
 public class TestQueueConfigurationParser {
-/**
- * test xml generation 
- * @throws ParserConfigurationException
- * @throws Exception 
- */
-  @Test (timeout=5000)
-  public void testQueueConfigurationParser()
-      throws ParserConfigurationException, Exception {
-    JobQueueInfo info = new JobQueueInfo("root", "rootInfo");
-    JobQueueInfo infoChild1 = new JobQueueInfo("child1", "child1Info");
-    JobQueueInfo infoChild2 = new JobQueueInfo("child2", "child1Info");
+    /**
+     * test xml generation
+     * @throws ParserConfigurationException
+     * @throws Exception
+     */
+    @Test (timeout=5000)
+    public void testQueueConfigurationParser()
+    throws ParserConfigurationException, Exception {
+        JobQueueInfo info = new JobQueueInfo("root", "rootInfo");
+        JobQueueInfo infoChild1 = new JobQueueInfo("child1", "child1Info");
+        JobQueueInfo infoChild2 = new JobQueueInfo("child2", "child1Info");
 
-    info.addChild(infoChild1);
-    info.addChild(infoChild2);
-    DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
-        .newInstance();
-    DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-    
-    
-    Document document = builder.newDocument();
-    
+        info.addChild(infoChild1);
+        info.addChild(infoChild2);
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
+                .newInstance();
+        DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
 
-    // test QueueConfigurationParser.getQueueElement 
-    Element e = QueueConfigurationParser.getQueueElement(document, info);
-    // transform result to string for check
-    DOMSource domSource = new DOMSource(e);
-    StringWriter writer = new StringWriter();
-    StreamResult result = new StreamResult(writer);
-    TransformerFactory tf = TransformerFactory.newInstance();
-    Transformer transformer = tf.newTransformer();
-    transformer.transform(domSource, result);
-    String str= writer.toString();
-    assertTrue(str
-        .endsWith("<queue><name>root</name><properties/><state>running</state><queue><name>child1</name><properties/><state>running</state></queue><queue><name>child2</name><properties/><state>running</state></queue></queue>"));
-  }
+
+        Document document = builder.newDocument();
+
+
+        // test QueueConfigurationParser.getQueueElement
+        Element e = QueueConfigurationParser.getQueueElement(document, info);
+        // transform result to string for check
+        DOMSource domSource = new DOMSource(e);
+        StringWriter writer = new StringWriter();
+        StreamResult result = new StreamResult(writer);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.transform(domSource, result);
+        String str= writer.toString();
+        assertTrue(str
+                   .endsWith("<queue><name>root</name><properties/><state>running</state><queue><name>child1</name><properties/><state>running</state></queue><queue><name>child2</name><properties/><state>running</state></queue></queue>"));
+    }
 }

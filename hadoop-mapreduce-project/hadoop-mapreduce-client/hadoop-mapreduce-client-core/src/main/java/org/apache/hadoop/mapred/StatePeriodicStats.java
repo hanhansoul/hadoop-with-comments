@@ -32,26 +32,26 @@ package org.apache.hadoop.mapred;
  *
  */
 class StatePeriodicStats extends PeriodicStatsAccumulator {
-  StatePeriodicStats(int count) {
-    super(count);
-  }
-
-  /**
-   *
-   * accumulates a new reading by keeping a running account of the
-   *  area under the piecewise linear curve marked by pairs of
-   *  {@code newProgress, newValue} .
-   */
-  @Override
-    protected void extendInternal(double newProgress, int newValue) {
-    if (state == null) {
-      return;
+    StatePeriodicStats(int count) {
+        super(count);
     }
 
-    // the effective height of this trapezoid if rectangularized
-    double mean = ((double)newValue + (double)state.oldValue)/2.0D;
+    /**
+     *
+     * accumulates a new reading by keeping a running account of the
+     *  area under the piecewise linear curve marked by pairs of
+     *  {@code newProgress, newValue} .
+     */
+    @Override
+    protected void extendInternal(double newProgress, int newValue) {
+        if (state == null) {
+            return;
+        }
 
-    // conceptually mean *  (newProgress - state.oldProgress) / (1 / count)
-    state.currentAccumulation += mean * (newProgress - state.oldProgress) * count;
-  }
+        // the effective height of this trapezoid if rectangularized
+        double mean = ((double)newValue + (double)state.oldValue)/2.0D;
+
+        // conceptually mean *  (newProgress - state.oldProgress) / (1 / count)
+        state.currentAccumulation += mean * (newProgress - state.oldProgress) * count;
+    }
 }

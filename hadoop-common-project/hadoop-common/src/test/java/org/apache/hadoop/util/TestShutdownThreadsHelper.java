@@ -24,35 +24,35 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestShutdownThreadsHelper {
-  private Runnable sampleRunnable = new Runnable() {
-    @Override
-    public void run() {
-      try {
-        Thread.sleep(2 * ShutdownThreadsHelper.SHUTDOWN_WAIT_MS);
-      } catch (InterruptedException ie)  {
-        System.out.println("Thread interrupted");
-      }
+    private Runnable sampleRunnable = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(2 * ShutdownThreadsHelper.SHUTDOWN_WAIT_MS);
+            } catch (InterruptedException ie)  {
+                System.out.println("Thread interrupted");
+            }
+        }
+    };
+
+    @Test (timeout = 3000)
+    public void testShutdownThread() {
+        Thread thread = new Thread(sampleRunnable);
+        thread.start();
+        boolean ret = ShutdownThreadsHelper.shutdownThread(thread);
+        boolean isTerminated = !thread.isAlive();
+        assertEquals("Incorrect return value", ret, isTerminated);
+        assertTrue("Thread is not shutdown", isTerminated);
+
     }
-  };
 
-  @Test (timeout = 3000)
-  public void testShutdownThread() {
-    Thread thread = new Thread(sampleRunnable);
-    thread.start();
-    boolean ret = ShutdownThreadsHelper.shutdownThread(thread);
-    boolean isTerminated = !thread.isAlive();
-    assertEquals("Incorrect return value", ret, isTerminated);
-    assertTrue("Thread is not shutdown", isTerminated);
-
-  }
-
-  @Test
-  public void testShutdownThreadPool() throws InterruptedException {
-    ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
-    executor.execute(sampleRunnable);
-    boolean ret = ShutdownThreadsHelper.shutdownExecutorService(executor);
-    boolean isTerminated = executor.isTerminated();
-    assertEquals("Incorrect return value", ret, isTerminated);
-    assertTrue("ExecutorService is not shutdown", isTerminated);
-  }
+    @Test
+    public void testShutdownThreadPool() throws InterruptedException {
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+        executor.execute(sampleRunnable);
+        boolean ret = ShutdownThreadsHelper.shutdownExecutorService(executor);
+        boolean isTerminated = executor.isTerminated();
+        assertEquals("Incorrect return value", ret, isTerminated);
+        assertTrue("ExecutorService is not shutdown", isTerminated);
+    }
 }

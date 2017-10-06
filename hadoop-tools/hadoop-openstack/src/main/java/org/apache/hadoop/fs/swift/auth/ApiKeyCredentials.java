@@ -25,63 +25,63 @@ package org.apache.hadoop.fs.swift.auth;
  * DO NOT RENAME OR MODIFY FIELDS AND THEIR ACCESSORS.
  */
 public class ApiKeyCredentials {
-  /**
-   * user login
-   */
-  private String username;
+    /**
+     * user login
+     */
+    private String username;
 
-  /**
-   * user password
-   */
-  private String apikey;
+    /**
+     * user password
+     */
+    private String apikey;
 
-  /**
-   * default constructor
-   */
-  public ApiKeyCredentials() {
-  }
+    /**
+     * default constructor
+     */
+    public ApiKeyCredentials() {
+    }
 
-  /**
-   * @param username user login
-   * @param apikey user api key
-   */
-  public ApiKeyCredentials(String username, String apikey) {
-    this.username = username;
-    this.apikey = apikey;
-  }
+    /**
+     * @param username user login
+     * @param apikey user api key
+     */
+    public ApiKeyCredentials(String username, String apikey) {
+        this.username = username;
+        this.apikey = apikey;
+    }
 
-  /**
-   * @return user api key
-   */
-  public String getApiKey() {
-    return apikey;
-  }
+    /**
+     * @return user api key
+     */
+    public String getApiKey() {
+        return apikey;
+    }
 
-  /**
-   * @param apikey user api key
-   */
-  public void setApiKey(String apikey) {
-    this.apikey = apikey;
-  }
+    /**
+     * @param apikey user api key
+     */
+    public void setApiKey(String apikey) {
+        this.apikey = apikey;
+    }
 
-  /**
-   * @return login
-   */
-  public String getUsername() {
-    return username;
-  }
+    /**
+     * @return login
+     */
+    public String getUsername() {
+        return username;
+    }
 
-  /**
-   * @param username login
-   */
-  public void setUsername(String username) {
-    this.username = username;
-  }
+    /**
+     * @param username login
+     */
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-  @Override
-  public String toString() {
-    return "user " +
-           "'" + username + '\'' +
-           " with key of length " + ((apikey == null) ? 0 : apikey.length());
-  }
+    @Override
+    public String toString() {
+        return "user " +
+               "'" + username + '\'' +
+               " with key of length " + ((apikey == null) ? 0 : apikey.length());
+    }
 }

@@ -26,32 +26,32 @@ import java.io.*;
  */
 public class DelayEchoApp {
 
-  public DelayEchoApp() {
-  }
-
-  public void go(int seconds) throws IOException, InterruptedException {
-    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    String line;
-
-    // Consume all input (to make sure streaming will still count this
-    // task as failed even if all input was consumed).
-    while ((line = in.readLine()) != null) {
-      Thread.sleep(seconds * 1000L);
-      System.out.println(line);
-    }
-  }
-
-  public static void main(String[] args) throws IOException, InterruptedException {
-    int seconds = 5;
-    if (args.length >= 1) {
-      try {
-        seconds = Integer.valueOf(args[0]);
-      } catch (NumberFormatException e) {
-        // just use default 5.
-      }
+    public DelayEchoApp() {
     }
 
-    DelayEchoApp app = new DelayEchoApp();
-    app.go(seconds);
-  }
+    public void go(int seconds) throws IOException, InterruptedException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+
+        // Consume all input (to make sure streaming will still count this
+        // task as failed even if all input was consumed).
+        while ((line = in.readLine()) != null) {
+            Thread.sleep(seconds * 1000L);
+            System.out.println(line);
+        }
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        int seconds = 5;
+        if (args.length >= 1) {
+            try {
+                seconds = Integer.valueOf(args[0]);
+            } catch (NumberFormatException e) {
+                // just use default 5.
+            }
+        }
+
+        DelayEchoApp app = new DelayEchoApp();
+        app.go(seconds);
+    }
 }

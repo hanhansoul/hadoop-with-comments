@@ -22,30 +22,30 @@ package org.apache.hadoop.fs.slive;
  * Class which holds an operation and its weight (used in operation selection)
  */
 class OperationWeight {
-  private double weight;
-  private Operation operation;
+    private double weight;
+    private Operation operation;
 
-  OperationWeight(Operation op, double weight) {
-    this.operation = op;
-    this.weight = weight;
-  }
+    OperationWeight(Operation op, double weight) {
+        this.operation = op;
+        this.weight = weight;
+    }
 
-  /**
-   * Fetches the given operation weight
-   * 
-   * @return Double
-   */
-  double getWeight() {
-    return weight;
-  }
+    /**
+     * Fetches the given operation weight
+     *
+     * @return Double
+     */
+    double getWeight() {
+        return weight;
+    }
 
-  /**
-   * Gets the operation
-   * 
-   * @return Operation
-   */
-  Operation getOperation() {
-    return operation;
-  }
+    /**
+     * Gets the operation
+     *
+     * @return Operation
+     */
+    Operation getOperation() {
+        return operation;
+    }
 
 }

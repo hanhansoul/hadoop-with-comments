@@ -33,52 +33,52 @@ import static org.apache.hadoop.util.ExitUtil.terminate;
  * Only TCP server is supported and UDP is not supported.
  */
 public abstract class Nfs3Base {
-  public static final Log LOG = LogFactory.getLog(Nfs3Base.class);
-  private final RpcProgram rpcProgram;
-  private int nfsBoundPort; // Will set after server starts
+    public static final Log LOG = LogFactory.getLog(Nfs3Base.class);
+    private final RpcProgram rpcProgram;
+    private int nfsBoundPort; // Will set after server starts
 
-  public RpcProgram getRpcProgram() {
-    return rpcProgram;
-  }
-
-  protected Nfs3Base(RpcProgram rpcProgram, Configuration conf) {
-    this.rpcProgram = rpcProgram;
-    LOG.info("NFS server port set to: " + rpcProgram.getPort());
-  }
-
-  public void start(boolean register) {
-    startTCPServer(); // Start TCP server
-
-    if (register) {
-      ShutdownHookManager.get().addShutdownHook(new NfsShutdownHook(),
-          SHUTDOWN_HOOK_PRIORITY);
-      try {
-        rpcProgram.register(PortmapMapping.TRANSPORT_TCP, nfsBoundPort);
-      } catch (Throwable e) {
-        LOG.fatal("Failed to start the server. Cause:", e);
-        terminate(1, e);
-      }
+    public RpcProgram getRpcProgram() {
+        return rpcProgram;
     }
-  }
 
-  private void startTCPServer() {
-    SimpleTcpServer tcpServer = new SimpleTcpServer(rpcProgram.getPort(),
-        rpcProgram, 0);
-    rpcProgram.startDaemons();
-    tcpServer.run();
-    nfsBoundPort = tcpServer.getBoundPort();
-  }
-
-  /**
-   * Priority of the nfsd shutdown hook.
-   */
-  public static final int SHUTDOWN_HOOK_PRIORITY = 10;
-
-  private class NfsShutdownHook implements Runnable {
-    @Override
-    public synchronized void run() {
-      rpcProgram.unregister(PortmapMapping.TRANSPORT_TCP, nfsBoundPort);
-      rpcProgram.stopDaemons();
+    protected Nfs3Base(RpcProgram rpcProgram, Configuration conf) {
+        this.rpcProgram = rpcProgram;
+        LOG.info("NFS server port set to: " + rpcProgram.getPort());
     }
-  }
+
+    public void start(boolean register) {
+        startTCPServer(); // Start TCP server
+
+        if (register) {
+            ShutdownHookManager.get().addShutdownHook(new NfsShutdownHook(),
+                    SHUTDOWN_HOOK_PRIORITY);
+            try {
+                rpcProgram.register(PortmapMapping.TRANSPORT_TCP, nfsBoundPort);
+            } catch (Throwable e) {
+                LOG.fatal("Failed to start the server. Cause:", e);
+                terminate(1, e);
+            }
+        }
+    }
+
+    private void startTCPServer() {
+        SimpleTcpServer tcpServer = new SimpleTcpServer(rpcProgram.getPort(),
+                rpcProgram, 0);
+        rpcProgram.startDaemons();
+        tcpServer.run();
+        nfsBoundPort = tcpServer.getBoundPort();
+    }
+
+    /**
+     * Priority of the nfsd shutdown hook.
+     */
+    public static final int SHUTDOWN_HOOK_PRIORITY = 10;
+
+    private class NfsShutdownHook implements Runnable {
+        @Override
+        public synchronized void run() {
+            rpcProgram.unregister(PortmapMapping.TRANSPORT_TCP, nfsBoundPort);
+            rpcProgram.stopDaemons();
+        }
+    }
 }

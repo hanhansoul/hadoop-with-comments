@@ -48,92 +48,102 @@ import org.junit.Test;
 
 public class TestJobInfo {
 
-  @Test(timeout = 10000)
-  public void testAverageMergeTime() throws IOException {
-    String historyFileName =
-        "job_1329348432655_0001-1329348443227-user-Sleep+job-1329348468601-10-1-SUCCEEDED-default.jhist";
-    String confFileName =
-        "job_1329348432655_0001_conf.xml";
-    Configuration conf = new Configuration();
-    JobACLsManager jobAclsMgr = new JobACLsManager(conf);
-    Path fulleHistoryPath =
-        new Path(TestJobHistoryEntities.class.getClassLoader()
-            .getResource(historyFileName)
-            .getFile());
-    Path fullConfPath =
-        new Path(TestJobHistoryEntities.class.getClassLoader()
-            .getResource(confFileName)
-            .getFile());
+    @Test(timeout = 10000)
+    public void testAverageMergeTime() throws IOException {
+        String historyFileName =
+            "job_1329348432655_0001-1329348443227-user-Sleep+job-1329348468601-10-1-SUCCEEDED-default.jhist";
+        String confFileName =
+            "job_1329348432655_0001_conf.xml";
+        Configuration conf = new Configuration();
+        JobACLsManager jobAclsMgr = new JobACLsManager(conf);
+        Path fulleHistoryPath =
+            new Path(TestJobHistoryEntities.class.getClassLoader()
+                     .getResource(historyFileName)
+                     .getFile());
+        Path fullConfPath =
+            new Path(TestJobHistoryEntities.class.getClassLoader()
+                     .getResource(confFileName)
+                     .getFile());
 
-    HistoryFileInfo info = mock(HistoryFileInfo.class);
-    when(info.getConfFile()).thenReturn(fullConfPath);
+        HistoryFileInfo info = mock(HistoryFileInfo.class);
+        when(info.getConfFile()).thenReturn(fullConfPath);
 
-    JobId jobId = MRBuilderUtils.newJobId(1329348432655l, 1, 1);
-    CompletedJob completedJob =
-        new CompletedJob(conf, jobId, fulleHistoryPath, true, "user",
-            info, jobAclsMgr);
-    JobInfo jobInfo = new JobInfo(completedJob);
-    // There are 2 tasks with merge time of 45 and 55 respectively. So average
-    // merge time should be 50.
-    Assert.assertEquals(50L, jobInfo.getAvgMergeTime().longValue());
-  }
-  
-  @Test
-  public void testAverageReduceTime() {
-	  
-    Job job = mock(CompletedJob.class);
-    final Task task1 = mock(Task.class);
-    final Task task2 = mock(Task.class);
-  
-    JobId  jobId = MRBuilderUtils.newJobId(1L, 1, 1);
-  
-    final TaskId taskId1 = MRBuilderUtils.newTaskId(jobId, 1, TaskType.REDUCE);
-    final TaskId taskId2 = MRBuilderUtils.newTaskId(jobId, 2, TaskType.REDUCE);
-  
-    final TaskAttemptId taskAttemptId1  = MRBuilderUtils.
-    		newTaskAttemptId(taskId1, 1);
-    final TaskAttemptId taskAttemptId2  = MRBuilderUtils.
-    		newTaskAttemptId(taskId2, 2);
-  
-    final TaskAttempt taskAttempt1 = mock(TaskAttempt.class);
-    final TaskAttempt taskAttempt2 = mock(TaskAttempt.class);
-  
-    JobReport jobReport = mock(JobReport.class);
-  
-    when(taskAttempt1.getState()).thenReturn(TaskAttemptState.SUCCEEDED);
-    when(taskAttempt1.getLaunchTime()).thenReturn(0L);
-    when(taskAttempt1.getShuffleFinishTime()).thenReturn(4L);
-    when(taskAttempt1.getSortFinishTime()).thenReturn(6L);
-    when(taskAttempt1.getFinishTime()).thenReturn(8L);
-  
-    when(taskAttempt2.getState()).thenReturn(TaskAttemptState.SUCCEEDED);
-    when(taskAttempt2.getLaunchTime()).thenReturn(5L);
-    when(taskAttempt2.getShuffleFinishTime()).thenReturn(10L);
-    when(taskAttempt2.getSortFinishTime()).thenReturn(22L);
-    when(taskAttempt2.getFinishTime()).thenReturn(42L);
-  
-  
-    when(task1.getType()).thenReturn(TaskType.REDUCE);
-    when(task2.getType()).thenReturn(TaskType.REDUCE);
-    when(task1.getAttempts()).thenReturn
-      (new HashMap<TaskAttemptId, TaskAttempt>() 
-    		{{put(taskAttemptId1,taskAttempt1); }});
-    when(task2.getAttempts()).thenReturn
-      (new HashMap<TaskAttemptId, TaskAttempt>() 
-    		  {{put(taskAttemptId2,taskAttempt2); }});
-  
-    when(job.getTasks()).thenReturn
-      (new HashMap<TaskId, Task>() 
-    		{{ put(taskId1,task1); put(taskId2, task2);  }});
-    when(job.getID()).thenReturn(jobId);
-  
-    when(job.getReport()).thenReturn(jobReport);
-  
-    when(job.getName()).thenReturn("TestJobInfo");	  
-    when(job.getState()).thenReturn(JobState.SUCCEEDED);	  
-  
-    JobInfo jobInfo = new JobInfo(job);
-  
-    Assert.assertEquals(11L, jobInfo.getAvgReduceTime().longValue());
-  }  
+        JobId jobId = MRBuilderUtils.newJobId(1329348432655l, 1, 1);
+        CompletedJob completedJob =
+            new CompletedJob(conf, jobId, fulleHistoryPath, true, "user",
+                             info, jobAclsMgr);
+        JobInfo jobInfo = new JobInfo(completedJob);
+        // There are 2 tasks with merge time of 45 and 55 respectively. So average
+        // merge time should be 50.
+        Assert.assertEquals(50L, jobInfo.getAvgMergeTime().longValue());
+    }
+
+    @Test
+    public void testAverageReduceTime() {
+
+        Job job = mock(CompletedJob.class);
+        final Task task1 = mock(Task.class);
+        final Task task2 = mock(Task.class);
+
+        JobId  jobId = MRBuilderUtils.newJobId(1L, 1, 1);
+
+        final TaskId taskId1 = MRBuilderUtils.newTaskId(jobId, 1, TaskType.REDUCE);
+        final TaskId taskId2 = MRBuilderUtils.newTaskId(jobId, 2, TaskType.REDUCE);
+
+        final TaskAttemptId taskAttemptId1  = MRBuilderUtils.
+                                              newTaskAttemptId(taskId1, 1);
+        final TaskAttemptId taskAttemptId2  = MRBuilderUtils.
+                                              newTaskAttemptId(taskId2, 2);
+
+        final TaskAttempt taskAttempt1 = mock(TaskAttempt.class);
+        final TaskAttempt taskAttempt2 = mock(TaskAttempt.class);
+
+        JobReport jobReport = mock(JobReport.class);
+
+        when(taskAttempt1.getState()).thenReturn(TaskAttemptState.SUCCEEDED);
+        when(taskAttempt1.getLaunchTime()).thenReturn(0L);
+        when(taskAttempt1.getShuffleFinishTime()).thenReturn(4L);
+        when(taskAttempt1.getSortFinishTime()).thenReturn(6L);
+        when(taskAttempt1.getFinishTime()).thenReturn(8L);
+
+        when(taskAttempt2.getState()).thenReturn(TaskAttemptState.SUCCEEDED);
+        when(taskAttempt2.getLaunchTime()).thenReturn(5L);
+        when(taskAttempt2.getShuffleFinishTime()).thenReturn(10L);
+        when(taskAttempt2.getSortFinishTime()).thenReturn(22L);
+        when(taskAttempt2.getFinishTime()).thenReturn(42L);
+
+
+        when(task1.getType()).thenReturn(TaskType.REDUCE);
+        when(task2.getType()).thenReturn(TaskType.REDUCE);
+        when(task1.getAttempts()).thenReturn
+        (new HashMap<TaskAttemptId, TaskAttempt>() {
+            {
+                put(taskAttemptId1,taskAttempt1);
+            }
+        });
+        when(task2.getAttempts()).thenReturn
+        (new HashMap<TaskAttemptId, TaskAttempt>() {
+            {
+                put(taskAttemptId2,taskAttempt2);
+            }
+        });
+
+        when(job.getTasks()).thenReturn
+        (new HashMap<TaskId, Task>() {
+            {
+                put(taskId1,task1);
+                put(taskId2, task2);
+            }
+        });
+        when(job.getID()).thenReturn(jobId);
+
+        when(job.getReport()).thenReturn(jobReport);
+
+        when(job.getName()).thenReturn("TestJobInfo");
+        when(job.getState()).thenReturn(JobState.SUCCEEDED);
+
+        JobInfo jobInfo = new JobInfo(job);
+
+        Assert.assertEquals(11L, jobInfo.getAvgReduceTime().longValue());
+    }
 }

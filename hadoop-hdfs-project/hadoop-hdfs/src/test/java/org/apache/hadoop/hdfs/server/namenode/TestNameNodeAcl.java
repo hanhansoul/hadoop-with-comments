@@ -28,11 +28,11 @@ import org.junit.BeforeClass;
  */
 public class TestNameNodeAcl extends FSAclBaseTest {
 
-  @BeforeClass
-  public static void init() throws Exception {
-    conf = new Configuration();
-    conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    cluster.waitActive();
-  }
+    @BeforeClass
+    public static void init() throws Exception {
+        conf = new Configuration();
+        conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        cluster.waitActive();
+    }
 }

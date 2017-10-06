@@ -28,70 +28,70 @@ import org.apache.hadoop.service.CompositeService;
  */
 public class NodeHealthCheckerService extends CompositeService {
 
-  private NodeHealthScriptRunner nodeHealthScriptRunner;
-  private LocalDirsHandlerService dirsHandler;
+    private NodeHealthScriptRunner nodeHealthScriptRunner;
+    private LocalDirsHandlerService dirsHandler;
 
-  static final String SEPARATOR = ";";
+    static final String SEPARATOR = ";";
 
-  public NodeHealthCheckerService() {
-    super(NodeHealthCheckerService.class.getName());
-    dirsHandler = new LocalDirsHandlerService();
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    if (NodeHealthScriptRunner.shouldRun(conf)) {
-      nodeHealthScriptRunner = new NodeHealthScriptRunner();
-      addService(nodeHealthScriptRunner);
+    public NodeHealthCheckerService() {
+        super(NodeHealthCheckerService.class.getName());
+        dirsHandler = new LocalDirsHandlerService();
     }
-    addService(dirsHandler);
-    super.serviceInit(conf);
-  }
 
-  /**
-   * @return the reporting string of health of the node
-   */
-  String getHealthReport() {
-    String scriptReport = (nodeHealthScriptRunner == null) ? ""
-        : nodeHealthScriptRunner.getHealthReport();
-    if (scriptReport.equals("")) {
-      return dirsHandler.getDisksHealthReport(false);
-    } else {
-      return scriptReport.concat(SEPARATOR + dirsHandler.getDisksHealthReport(false));
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        if (NodeHealthScriptRunner.shouldRun(conf)) {
+            nodeHealthScriptRunner = new NodeHealthScriptRunner();
+            addService(nodeHealthScriptRunner);
+        }
+        addService(dirsHandler);
+        super.serviceInit(conf);
     }
-  }
 
-  /**
-   * @return <em>true</em> if the node is healthy
-   */
-  boolean isHealthy() {
-    boolean scriptHealthStatus = (nodeHealthScriptRunner == null) ? true
-        : nodeHealthScriptRunner.isHealthy();
-    return scriptHealthStatus && dirsHandler.areDisksHealthy();
-  }
+    /**
+     * @return the reporting string of health of the node
+     */
+    String getHealthReport() {
+        String scriptReport = (nodeHealthScriptRunner == null) ? ""
+                              : nodeHealthScriptRunner.getHealthReport();
+        if (scriptReport.equals("")) {
+            return dirsHandler.getDisksHealthReport(false);
+        } else {
+            return scriptReport.concat(SEPARATOR + dirsHandler.getDisksHealthReport(false));
+        }
+    }
 
-  /**
-   * @return when the last time the node health status is reported
-   */
-  long getLastHealthReportTime() {
-    long diskCheckTime = dirsHandler.getLastDisksCheckTime();
-    long lastReportTime = (nodeHealthScriptRunner == null)
-        ? diskCheckTime
-        : Math.max(nodeHealthScriptRunner.getLastReportedTime(), diskCheckTime);
-    return lastReportTime;
-  }
+    /**
+     * @return <em>true</em> if the node is healthy
+     */
+    boolean isHealthy() {
+        boolean scriptHealthStatus = (nodeHealthScriptRunner == null) ? true
+                                     : nodeHealthScriptRunner.isHealthy();
+        return scriptHealthStatus && dirsHandler.areDisksHealthy();
+    }
 
-  /**
-   * @return the disk handler
-   */
-  public LocalDirsHandlerService getDiskHandler() {
-    return dirsHandler;
-  }
+    /**
+     * @return when the last time the node health status is reported
+     */
+    long getLastHealthReportTime() {
+        long diskCheckTime = dirsHandler.getLastDisksCheckTime();
+        long lastReportTime = (nodeHealthScriptRunner == null)
+                              ? diskCheckTime
+                              : Math.max(nodeHealthScriptRunner.getLastReportedTime(), diskCheckTime);
+        return lastReportTime;
+    }
 
-  /**
-   * @return the node health script runner
-   */
-  NodeHealthScriptRunner getNodeHealthScriptRunner() {
-    return nodeHealthScriptRunner;
-  }
+    /**
+     * @return the disk handler
+     */
+    public LocalDirsHandlerService getDiskHandler() {
+        return dirsHandler;
+    }
+
+    /**
+     * @return the node health script runner
+     */
+    NodeHealthScriptRunner getNodeHealthScriptRunner() {
+        return nodeHealthScriptRunner;
+    }
 }

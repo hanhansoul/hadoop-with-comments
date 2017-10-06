@@ -25,100 +25,97 @@ import org.junit.Test;
 
 public class TestMiniYarnCluster {
 
-  @Test
-  public void testTimelineServiceStartInMiniCluster() throws Exception {
-    Configuration conf = new YarnConfiguration();
-    int numNodeManagers = 1;
-    int numLocalDirs = 1;
-    int numLogDirs = 1;
-    boolean enableAHS;
+    @Test
+    public void testTimelineServiceStartInMiniCluster() throws Exception {
+        Configuration conf = new YarnConfiguration();
+        int numNodeManagers = 1;
+        int numLocalDirs = 1;
+        int numLogDirs = 1;
+        boolean enableAHS;
 
-    /*
-     * Timeline service should not start if TIMELINE_SERVICE_ENABLED == false
-     * and enableAHS flag == false
-     */
-    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false);
-    enableAHS = false;
-    MiniYARNCluster cluster = null;
-    try {
-      cluster = new MiniYARNCluster(TestMiniYarnCluster.class.getSimpleName(),
-          numNodeManagers, numLocalDirs, numLogDirs, numLogDirs, enableAHS);
-      cluster.init(conf);
-      cluster.start();
+        /*
+         * Timeline service should not start if TIMELINE_SERVICE_ENABLED == false
+         * and enableAHS flag == false
+         */
+        conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false);
+        enableAHS = false;
+        MiniYARNCluster cluster = null;
+        try {
+            cluster = new MiniYARNCluster(TestMiniYarnCluster.class.getSimpleName(),
+                                          numNodeManagers, numLocalDirs, numLogDirs, numLogDirs, enableAHS);
+            cluster.init(conf);
+            cluster.start();
 
-      //verify that the timeline service is not started.
-      Assert.assertNull("Timeline Service should not have been started",
-          cluster.getApplicationHistoryServer());
+            //verify that the timeline service is not started.
+            Assert.assertNull("Timeline Service should not have been started",
+                              cluster.getApplicationHistoryServer());
+        } finally {
+            if(cluster != null) {
+                cluster.stop();
+            }
+        }
+
+        /*
+         * Timeline service should start if TIMELINE_SERVICE_ENABLED == true
+         * and enableAHS == false
+         */
+        conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
+        enableAHS = false;
+        cluster = null;
+        try {
+            cluster = new MiniYARNCluster(TestMiniYarnCluster.class.getSimpleName(),
+                                          numNodeManagers, numLocalDirs, numLogDirs, numLogDirs, enableAHS);
+            cluster.init(conf);
+
+            // Verify that the timeline-service starts on ephemeral ports by default
+            String hostname = MiniYARNCluster.getHostname();
+            Assert.assertEquals(hostname + ":0",
+                                conf.get(YarnConfiguration.TIMELINE_SERVICE_ADDRESS));
+            Assert.assertEquals(hostname + ":0",
+                                conf.get(YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS));
+
+            cluster.start();
+
+            //Timeline service may sometime take a while to get started
+            int wait = 0;
+            while(cluster.getApplicationHistoryServer() == null && wait < 20) {
+                Thread.sleep(500);
+                wait++;
+            }
+            //verify that the timeline service is started.
+            Assert.assertNotNull("Timeline Service should have been started",
+                                 cluster.getApplicationHistoryServer());
+        } finally {
+            if(cluster != null) {
+                cluster.stop();
+            }
+        }
+        /*
+         * Timeline service should start if TIMELINE_SERVICE_ENABLED == false
+         * and enableAHS == true
+         */
+        conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false);
+        enableAHS = true;
+        cluster = null;
+        try {
+            cluster = new MiniYARNCluster(TestMiniYarnCluster.class.getSimpleName(),
+                                          numNodeManagers, numLocalDirs, numLogDirs, numLogDirs, enableAHS);
+            cluster.init(conf);
+            cluster.start();
+
+            //Timeline service may sometime take a while to get started
+            int wait = 0;
+            while(cluster.getApplicationHistoryServer() == null && wait < 20) {
+                Thread.sleep(500);
+                wait++;
+            }
+            //verify that the timeline service is started.
+            Assert.assertNotNull("Timeline Service should have been started",
+                                 cluster.getApplicationHistoryServer());
+        } finally {
+            if(cluster != null) {
+                cluster.stop();
+            }
+        }
     }
-    finally {
-      if(cluster != null) {
-        cluster.stop();
-      }
-    }
-
-    /*
-     * Timeline service should start if TIMELINE_SERVICE_ENABLED == true
-     * and enableAHS == false
-     */
-    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
-    enableAHS = false;
-    cluster = null;
-    try {
-      cluster = new MiniYARNCluster(TestMiniYarnCluster.class.getSimpleName(),
-          numNodeManagers, numLocalDirs, numLogDirs, numLogDirs, enableAHS);
-      cluster.init(conf);
-
-      // Verify that the timeline-service starts on ephemeral ports by default
-      String hostname = MiniYARNCluster.getHostname();
-      Assert.assertEquals(hostname + ":0",
-        conf.get(YarnConfiguration.TIMELINE_SERVICE_ADDRESS));
-      Assert.assertEquals(hostname + ":0",
-        conf.get(YarnConfiguration.TIMELINE_SERVICE_WEBAPP_ADDRESS));
-
-      cluster.start();
-
-      //Timeline service may sometime take a while to get started
-      int wait = 0;
-      while(cluster.getApplicationHistoryServer() == null && wait < 20) {
-        Thread.sleep(500);
-        wait++;
-      }
-      //verify that the timeline service is started.
-      Assert.assertNotNull("Timeline Service should have been started",
-          cluster.getApplicationHistoryServer());
-    }
-    finally {
-      if(cluster != null) {
-        cluster.stop();
-      }
-    }
-    /*
-     * Timeline service should start if TIMELINE_SERVICE_ENABLED == false
-     * and enableAHS == true
-     */
-    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, false);
-    enableAHS = true;
-    cluster = null;
-    try {
-      cluster = new MiniYARNCluster(TestMiniYarnCluster.class.getSimpleName(),
-          numNodeManagers, numLocalDirs, numLogDirs, numLogDirs, enableAHS);
-      cluster.init(conf);
-      cluster.start();
-
-      //Timeline service may sometime take a while to get started
-      int wait = 0;
-      while(cluster.getApplicationHistoryServer() == null && wait < 20) {
-        Thread.sleep(500);
-        wait++;
-      }
-      //verify that the timeline service is started.
-      Assert.assertNotNull("Timeline Service should have been started",
-          cluster.getApplicationHistoryServer());
-    }
-    finally {
-      if(cluster != null) {
-        cluster.stop();
-      }
-    }
-  }
 }

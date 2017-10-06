@@ -25,28 +25,28 @@ import org.apache.hadoop.yarn.util.Records;
 import java.util.EnumSet;
 
 public class ResourceCalculatorUtils {
-  public static int divideAndCeil(int a, int b) {
-    if (b == 0) {
-      return 0;
+    public static int divideAndCeil(int a, int b) {
+        if (b == 0) {
+            return 0;
+        }
+        return (a + (b - 1)) / b;
     }
-    return (a + (b - 1)) / b;
-  }
 
-  public static int computeAvailableContainers(Resource available,
-      Resource required, EnumSet<SchedulerResourceTypes> resourceTypes) {
-    if (resourceTypes.contains(SchedulerResourceTypes.CPU)) {
-      return Math.min(available.getMemory() / required.getMemory(),
-        available.getVirtualCores() / required.getVirtualCores());
+    public static int computeAvailableContainers(Resource available,
+            Resource required, EnumSet<SchedulerResourceTypes> resourceTypes) {
+        if (resourceTypes.contains(SchedulerResourceTypes.CPU)) {
+            return Math.min(available.getMemory() / required.getMemory(),
+                            available.getVirtualCores() / required.getVirtualCores());
+        }
+        return available.getMemory() / required.getMemory();
     }
-    return available.getMemory() / required.getMemory();
-  }
 
-  public static int divideAndCeilContainers(Resource required, Resource factor,
-      EnumSet<SchedulerResourceTypes> resourceTypes) {
-    if (resourceTypes.contains(SchedulerResourceTypes.CPU)) {
-      return Math.max(divideAndCeil(required.getMemory(), factor.getMemory()),
-        divideAndCeil(required.getVirtualCores(), factor.getVirtualCores()));
+    public static int divideAndCeilContainers(Resource required, Resource factor,
+            EnumSet<SchedulerResourceTypes> resourceTypes) {
+        if (resourceTypes.contains(SchedulerResourceTypes.CPU)) {
+            return Math.max(divideAndCeil(required.getMemory(), factor.getMemory()),
+                            divideAndCeil(required.getVirtualCores(), factor.getVirtualCores()));
+        }
+        return divideAndCeil(required.getMemory(), factor.getMemory());
     }
-    return divideAndCeil(required.getMemory(), factor.getMemory());
-  }
 }

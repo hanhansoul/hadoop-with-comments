@@ -28,9 +28,9 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 
 @InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
 public interface RpcServerFactory {
-  
-  public Server getServer(Class<?> protocol, Object instance,
-      InetSocketAddress addr, Configuration conf,
-      SecretManager<? extends TokenIdentifier> secretManager,
-      int numHandlers, String portRangeConfig);
+
+    public Server getServer(Class<?> protocol, Object instance,
+                            InetSocketAddress addr, Configuration conf,
+                            SecretManager<? extends TokenIdentifier> secretManager,
+                            int numHandlers, String portRangeConfig);
 }

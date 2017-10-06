@@ -27,17 +27,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaskAttemptsInfo {
 
-  protected ArrayList<TaskAttemptInfo> taskAttempt = new ArrayList<TaskAttemptInfo>();
+    protected ArrayList<TaskAttemptInfo> taskAttempt = new ArrayList<TaskAttemptInfo>();
 
-  public TaskAttemptsInfo() {
-  } // JAXB needs this
+    public TaskAttemptsInfo() {
+    } // JAXB needs this
 
-  public void add(TaskAttemptInfo taskattemptInfo) {
-    taskAttempt.add(taskattemptInfo);
-  }
+    public void add(TaskAttemptInfo taskattemptInfo) {
+        taskAttempt.add(taskattemptInfo);
+    }
 
-  public ArrayList<TaskAttemptInfo> getTaskAttempts() {
-    return taskAttempt;
-  }
+    public ArrayList<TaskAttemptInfo> getTaskAttempts() {
+        return taskAttempt;
+    }
 
 }

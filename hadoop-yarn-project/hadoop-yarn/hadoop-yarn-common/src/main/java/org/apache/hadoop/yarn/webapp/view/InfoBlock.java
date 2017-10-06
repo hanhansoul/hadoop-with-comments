@@ -36,49 +36,49 @@ import com.google.inject.Inject;
 
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class InfoBlock extends HtmlBlock {
-  final ResponseInfo info;
+    final ResponseInfo info;
 
-  @Inject InfoBlock(ResponseInfo info) {
-    this.info = info;
-  }
-
-  @Override protected void render(Block html) {
-    TABLE<DIV<Hamlet>> table = html.
-      div(_INFO_WRAP).
-        table(_INFO).
-          tr().
-            th().$class(C_TH).$colspan(2)._(info.about())._()._();
-    int i = 0;
-    for (ResponseInfo.Item item : info) {
-      TR<TABLE<DIV<Hamlet>>> tr = table.
-        tr((++i % 2 != 0) ? _ODD : _EVEN).
-          th(item.key);
-      String value = String.valueOf(item.value);
-      if (item.url == null) {
-        if (!item.isRaw) {
-          TD<TR<TABLE<DIV<Hamlet>>>> td = tr.td();
-          if ( value.lastIndexOf('\n') > 0) {
-            String []lines = value.split("\n");
-        	DIV<TD<TR<TABLE<DIV<Hamlet>>>>> singleLineDiv;
-            for ( String line :lines) {
-              singleLineDiv = td.div();
-              singleLineDiv._(line);
-              singleLineDiv._();
-            }
-          } else {
-            td._(value);
-          }
-          td._();
-        } else {
-          tr.td()._r(value)._();
-        }
-      } else {
-        tr.
-          td().
-            a(url(item.url), value)._();
-      }
-      tr._();
+    @Inject InfoBlock(ResponseInfo info) {
+        this.info = info;
     }
-    table._()._();
-  }
+
+    @Override protected void render(Block html) {
+        TABLE<DIV<Hamlet>> table = html.
+                                   div(_INFO_WRAP).
+                                   table(_INFO).
+                                   tr().
+                                   th().$class(C_TH).$colspan(2)._(info.about())._()._();
+        int i = 0;
+        for (ResponseInfo.Item item : info) {
+            TR<TABLE<DIV<Hamlet>>> tr = table.
+                                        tr((++i % 2 != 0) ? _ODD : _EVEN).
+                                        th(item.key);
+            String value = String.valueOf(item.value);
+            if (item.url == null) {
+                if (!item.isRaw) {
+                    TD<TR<TABLE<DIV<Hamlet>>>> td = tr.td();
+                    if ( value.lastIndexOf('\n') > 0) {
+                        String []lines = value.split("\n");
+                        DIV<TD<TR<TABLE<DIV<Hamlet>>>>> singleLineDiv;
+                        for ( String line :lines) {
+                            singleLineDiv = td.div();
+                            singleLineDiv._(line);
+                            singleLineDiv._();
+                        }
+                    } else {
+                        td._(value);
+                    }
+                    td._();
+                } else {
+                    tr.td()._r(value)._();
+                }
+            } else {
+                tr.
+                td().
+                a(url(item.url), value)._();
+            }
+            tr._();
+        }
+        table._()._();
+    }
 }

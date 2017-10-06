@@ -22,15 +22,15 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ResourceEvent extends AbstractEvent<ResourceEventType> {
 
-  private final LocalResourceRequest rsrc;
+    private final LocalResourceRequest rsrc;
 
-  public ResourceEvent(LocalResourceRequest rsrc, ResourceEventType type) {
-    super(type);
-    this.rsrc = rsrc;
-  }
+    public ResourceEvent(LocalResourceRequest rsrc, ResourceEventType type) {
+        super(type);
+        this.rsrc = rsrc;
+    }
 
-  public LocalResourceRequest getLocalResourceRequest() {
-    return rsrc;
-  }
+    public LocalResourceRequest getLocalResourceRequest() {
+        return rsrc;
+    }
 
 }

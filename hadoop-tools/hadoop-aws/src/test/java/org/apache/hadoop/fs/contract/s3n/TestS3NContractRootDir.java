@@ -28,8 +28,8 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
 public class TestS3NContractRootDir extends
     AbstractContractRootDirectoryTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new NativeS3Contract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new NativeS3Contract(conf);
+    }
 }

@@ -44,61 +44,62 @@ import org.apache.hadoop.yarn.server.utils.YarnServerBuilderUtils;
  * real RM.
  */
 public class MockNodeStatusUpdater extends NodeStatusUpdaterImpl {
-  static final Log LOG = LogFactory.getLog(MockNodeStatusUpdater.class);
-  
-  private static final RecordFactory recordFactory = RecordFactoryProvider
-      .getRecordFactory(null);
+    static final Log LOG = LogFactory.getLog(MockNodeStatusUpdater.class);
 
-  private ResourceTracker resourceTracker;
+    private static final RecordFactory recordFactory = RecordFactoryProvider
+            .getRecordFactory(null);
 
-  public MockNodeStatusUpdater(Context context, Dispatcher dispatcher,
-      NodeHealthCheckerService healthChecker, NodeManagerMetrics metrics) {
-    super(context, dispatcher, healthChecker, metrics);
-    resourceTracker = createResourceTracker();
-  }
+    private ResourceTracker resourceTracker;
 
-  protected ResourceTracker createResourceTracker() {
-    return new MockResourceTracker();
-  }
+    public MockNodeStatusUpdater(Context context, Dispatcher dispatcher,
+                                 NodeHealthCheckerService healthChecker, NodeManagerMetrics metrics) {
+        super(context, dispatcher, healthChecker, metrics);
+        resourceTracker = createResourceTracker();
+    }
 
-  @Override
-  protected ResourceTracker getRMClient() {
-    return resourceTracker;
-  }
-  @Override
-  protected void stopRMProxy() {
-    return;
-  }
-  
-  protected static class MockResourceTracker implements ResourceTracker {
-    private int heartBeatID;
-
-    @Override
-    public RegisterNodeManagerResponse registerNodeManager(
-        RegisterNodeManagerRequest request) throws YarnException,
-        IOException {
-      RegisterNodeManagerResponse response = recordFactory
-          .newRecordInstance(RegisterNodeManagerResponse.class);
-      MasterKey masterKey = new MasterKeyPBImpl();
-      masterKey.setKeyId(123);
-      masterKey.setBytes(ByteBuffer.wrap(new byte[] { new Integer(123)
-        .byteValue() }));
-      response.setContainerTokenMasterKey(masterKey);
-      response.setNMTokenMasterKey(masterKey);
-      return response;
+    protected ResourceTracker createResourceTracker() {
+        return new MockResourceTracker();
     }
 
     @Override
-    public NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
+    protected ResourceTracker getRMClient() {
+        return resourceTracker;
+    }
+    @Override
+    protected void stopRMProxy() {
+        return;
+    }
+
+    protected static class MockResourceTracker implements ResourceTracker {
+        private int heartBeatID;
+
+        @Override
+        public RegisterNodeManagerResponse registerNodeManager(
+            RegisterNodeManagerRequest request) throws YarnException,
+            IOException {
+            RegisterNodeManagerResponse response = recordFactory
+                                                   .newRecordInstance(RegisterNodeManagerResponse.class);
+            MasterKey masterKey = new MasterKeyPBImpl();
+            masterKey.setKeyId(123);
+            masterKey.setBytes(ByteBuffer.wrap(new byte[] { new Integer(123)
+                .byteValue()
+            }));
+            response.setContainerTokenMasterKey(masterKey);
+            response.setNMTokenMasterKey(masterKey);
+            return response;
+        }
+
+        @Override
+        public NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
         throws YarnException, IOException {
-      NodeStatus nodeStatus = request.getNodeStatus();
-      LOG.info("Got heartbeat number " + heartBeatID);
-      nodeStatus.setResponseId(heartBeatID++);
+            NodeStatus nodeStatus = request.getNodeStatus();
+            LOG.info("Got heartbeat number " + heartBeatID);
+            nodeStatus.setResponseId(heartBeatID++);
 
-      NodeHeartbeatResponse nhResponse = YarnServerBuilderUtils
-          .newNodeHeartbeatResponse(heartBeatID, null, null,
-              null, null, null, 1000L);
-      return nhResponse;
+            NodeHeartbeatResponse nhResponse = YarnServerBuilderUtils
+                                               .newNodeHeartbeatResponse(heartBeatID, null, null,
+                                                       null, null, null, 1000L);
+            return nhResponse;
+        }
     }
-  }
 }

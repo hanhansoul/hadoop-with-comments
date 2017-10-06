@@ -33,31 +33,31 @@ import org.junit.Test;
 
 public class TestMountd {
 
-  public static final Log LOG = LogFactory.getLog(TestMountd.class);
+    public static final Log LOG = LogFactory.getLog(TestMountd.class);
 
-  @Test
-  public void testStart() throws IOException {
-    // Start minicluster
-    NfsConfiguration config = new NfsConfiguration();
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(config).numDataNodes(1)
+    @Test
+    public void testStart() throws IOException {
+        // Start minicluster
+        NfsConfiguration config = new NfsConfiguration();
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(config).numDataNodes(1)
         .build();
-    cluster.waitActive();
-    
-    // Use emphral port in case tests are running in parallel
-    config.setInt("nfs3.mountd.port", 0);
-    config.setInt("nfs3.server.port", 0);
-    
-    // Start nfs
-    Nfs3 nfs3 = new Nfs3(config);
-    nfs3.startServiceInternal(false);
+        cluster.waitActive();
 
-    RpcProgramMountd mountd = (RpcProgramMountd) nfs3.getMountd()
-        .getRpcProgram();
-    mountd.nullOp(new XDR(), 1234, InetAddress.getByName("localhost"));
-    
-    RpcProgramNfs3 nfsd = (RpcProgramNfs3) nfs3.getRpcProgram();
-    nfsd.nullProcedure();
-    
-    cluster.shutdown();
-  }
+        // Use emphral port in case tests are running in parallel
+        config.setInt("nfs3.mountd.port", 0);
+        config.setInt("nfs3.server.port", 0);
+
+        // Start nfs
+        Nfs3 nfs3 = new Nfs3(config);
+        nfs3.startServiceInternal(false);
+
+        RpcProgramMountd mountd = (RpcProgramMountd) nfs3.getMountd()
+                                  .getRpcProgram();
+        mountd.nullOp(new XDR(), 1234, InetAddress.getByName("localhost"));
+
+        RpcProgramNfs3 nfsd = (RpcProgramNfs3) nfs3.getRpcProgram();
+        nfsd.nullProcedure();
+
+        cluster.shutdown();
+    }
 }

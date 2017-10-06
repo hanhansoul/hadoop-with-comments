@@ -28,40 +28,40 @@ import org.junit.runners.model.Statement;
 
 public class TestExceptionHelper implements MethodRule {
 
-  @Test
-  public void dummy() {
-  }
+    @Test
+    public void dummy() {
+    }
 
-  @Override
-  public Statement apply(final Statement statement, final FrameworkMethod frameworkMethod, final Object o) {
-    return new Statement() {
-      @Override
-      public void evaluate() throws Throwable {
-        TestException testExceptionAnnotation = frameworkMethod.getAnnotation(TestException.class);
-        try {
-          statement.evaluate();
-          if (testExceptionAnnotation != null) {
-            Class<? extends Throwable> klass = testExceptionAnnotation.exception();
-            fail("Expected Exception: " + klass.getSimpleName());
-          }
-        } catch (Throwable ex) {
-          if (testExceptionAnnotation != null) {
-            Class<? extends Throwable> klass = testExceptionAnnotation.exception();
-            if (klass.isInstance(ex)) {
-              String regExp = testExceptionAnnotation.msgRegExp();
-              Pattern pattern = Pattern.compile(regExp);
-              if (!pattern.matcher(ex.getMessage()).find()) {
-                fail("Expected Exception Message pattern: " + regExp + " got message: " + ex.getMessage());
-              }
-            } else {
-              fail("Expected Exception: " + klass.getSimpleName() + " got: " + ex.getClass().getSimpleName());
+    @Override
+    public Statement apply(final Statement statement, final FrameworkMethod frameworkMethod, final Object o) {
+        return new Statement() {
+            @Override
+            public void evaluate() throws Throwable {
+                TestException testExceptionAnnotation = frameworkMethod.getAnnotation(TestException.class);
+                try {
+                    statement.evaluate();
+                    if (testExceptionAnnotation != null) {
+                        Class<? extends Throwable> klass = testExceptionAnnotation.exception();
+                        fail("Expected Exception: " + klass.getSimpleName());
+                    }
+                } catch (Throwable ex) {
+                    if (testExceptionAnnotation != null) {
+                        Class<? extends Throwable> klass = testExceptionAnnotation.exception();
+                        if (klass.isInstance(ex)) {
+                            String regExp = testExceptionAnnotation.msgRegExp();
+                            Pattern pattern = Pattern.compile(regExp);
+                            if (!pattern.matcher(ex.getMessage()).find()) {
+                                fail("Expected Exception Message pattern: " + regExp + " got message: " + ex.getMessage());
+                            }
+                        } else {
+                            fail("Expected Exception: " + klass.getSimpleName() + " got: " + ex.getClass().getSimpleName());
+                        }
+                    } else {
+                        throw ex;
+                    }
+                }
             }
-          } else {
-            throw ex;
-          }
-        }
-      }
-    };
-  }
+        };
+    }
 
 }

@@ -33,42 +33,42 @@ import org.junit.Test;
 
 public class TestApplicationHistoryManagerImpl extends
     ApplicationHistoryStoreTestUtils {
-  ApplicationHistoryManagerImpl applicationHistoryManagerImpl = null;
+    ApplicationHistoryManagerImpl applicationHistoryManagerImpl = null;
 
-  @Before
-  public void setup() throws Exception {
-    Configuration config = new Configuration();
-    config.setClass(YarnConfiguration.APPLICATION_HISTORY_STORE,
-      MemoryApplicationHistoryStore.class, ApplicationHistoryStore.class);
-    applicationHistoryManagerImpl = new ApplicationHistoryManagerImpl();
-    applicationHistoryManagerImpl.init(config);
-    applicationHistoryManagerImpl.start();
-    store = applicationHistoryManagerImpl.getHistoryStore();
-  }
+    @Before
+    public void setup() throws Exception {
+        Configuration config = new Configuration();
+        config.setClass(YarnConfiguration.APPLICATION_HISTORY_STORE,
+                        MemoryApplicationHistoryStore.class, ApplicationHistoryStore.class);
+        applicationHistoryManagerImpl = new ApplicationHistoryManagerImpl();
+        applicationHistoryManagerImpl.init(config);
+        applicationHistoryManagerImpl.start();
+        store = applicationHistoryManagerImpl.getHistoryStore();
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    applicationHistoryManagerImpl.stop();
-  }
+    @After
+    public void tearDown() throws Exception {
+        applicationHistoryManagerImpl.stop();
+    }
 
-  @Test
-  public void testApplicationReport() throws IOException, YarnException {
-    ApplicationId appId = null;
-    appId = ApplicationId.newInstance(0, 1);
-    writeApplicationStartData(appId);
-    writeApplicationFinishData(appId);
-    ApplicationAttemptId appAttemptId =
-        ApplicationAttemptId.newInstance(appId, 1);
-    writeApplicationAttemptStartData(appAttemptId);
-    writeApplicationAttemptFinishData(appAttemptId);
-    ApplicationReport appReport =
-        applicationHistoryManagerImpl.getApplication(appId);
-    Assert.assertNotNull(appReport);
-    Assert.assertEquals(appId, appReport.getApplicationId());
-    Assert.assertEquals(appAttemptId,
-      appReport.getCurrentApplicationAttemptId());
-    Assert.assertEquals(appAttemptId.toString(), appReport.getHost());
-    Assert.assertEquals("test type", appReport.getApplicationType().toString());
-    Assert.assertEquals("test queue", appReport.getQueue().toString());
-  }
+    @Test
+    public void testApplicationReport() throws IOException, YarnException {
+        ApplicationId appId = null;
+        appId = ApplicationId.newInstance(0, 1);
+        writeApplicationStartData(appId);
+        writeApplicationFinishData(appId);
+        ApplicationAttemptId appAttemptId =
+            ApplicationAttemptId.newInstance(appId, 1);
+        writeApplicationAttemptStartData(appAttemptId);
+        writeApplicationAttemptFinishData(appAttemptId);
+        ApplicationReport appReport =
+            applicationHistoryManagerImpl.getApplication(appId);
+        Assert.assertNotNull(appReport);
+        Assert.assertEquals(appId, appReport.getApplicationId());
+        Assert.assertEquals(appAttemptId,
+                            appReport.getCurrentApplicationAttemptId());
+        Assert.assertEquals(appAttemptId.toString(), appReport.getHost());
+        Assert.assertEquals("test type", appReport.getApplicationType().toString());
+        Assert.assertEquals("test queue", appReport.getQueue().toString());
+    }
 }

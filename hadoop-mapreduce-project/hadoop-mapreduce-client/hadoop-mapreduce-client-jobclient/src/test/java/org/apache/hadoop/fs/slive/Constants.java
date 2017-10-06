@@ -23,70 +23,70 @@ package org.apache.hadoop.fs.slive;
  */
 class Constants {
 
-  /**
-   * This class should be static members only - no construction allowed
-   */
-  private Constants() {
-  }
-
-  /**
-   * The distributions supported (or that maybe supported)
-   */
-  enum Distribution {
-    BEG, END, UNIFORM, MID;
-    String lowerName() {
-      return this.name().toLowerCase();
+    /**
+     * This class should be static members only - no construction allowed
+     */
+    private Constants() {
     }
-  }
 
-  /**
-   * Allowed operation types
-   */
-  enum OperationType {
-    READ, APPEND, RENAME, LS, MKDIR, DELETE, CREATE;
-    String lowerName() {
-      return this.name().toLowerCase();
+    /**
+     * The distributions supported (or that maybe supported)
+     */
+    enum Distribution {
+        BEG, END, UNIFORM, MID;
+        String lowerName() {
+            return this.name().toLowerCase();
+        }
     }
-  }
 
-  // program info
-  static final String PROG_NAME = SliveTest.class.getSimpleName();
-  static final String PROG_VERSION = "0.0.2";
+    /**
+     * Allowed operation types
+     */
+    enum OperationType {
+        READ, APPEND, RENAME, LS, MKDIR, DELETE, CREATE;
+        String lowerName() {
+            return this.name().toLowerCase();
+        }
+    }
 
-  // useful constants
-  static final int MEGABYTES = 1048576;
+    // program info
+    static final String PROG_NAME = SliveTest.class.getSimpleName();
+    static final String PROG_VERSION = "0.0.2";
 
-  // must be a multiple of
-  // BYTES_PER_LONG - used for reading and writing buffer sizes
-  static final int BUFFERSIZE = 64 * 1024;
+    // useful constants
+    static final int MEGABYTES = 1048576;
 
-  // 8 bytes per long
-  static final int BYTES_PER_LONG = 8;
+    // must be a multiple of
+    // BYTES_PER_LONG - used for reading and writing buffer sizes
+    static final int BUFFERSIZE = 64 * 1024;
 
-  // used for finding the reducer file for a given number
-  static final String REDUCER_FILE = "part-%s";
+    // 8 bytes per long
+    static final int BYTES_PER_LONG = 8;
 
-  // this is used to ensure the blocksize is a multiple of this config setting
-  static final String BYTES_PER_CHECKSUM = "io.bytes.per.checksum";
+    // used for finding the reducer file for a given number
+    static final String REDUCER_FILE = "part-%s";
 
-  // min replication setting for verification
-  static final String MIN_REPLICATION = "dfs.namenode.replication.min";
+    // this is used to ensure the blocksize is a multiple of this config setting
+    static final String BYTES_PER_CHECKSUM = "io.bytes.per.checksum";
 
-  // used for getting an option description given a set of distributions
-  // to substitute
-  static final String OP_DESCR = "pct,distribution where distribution is one of %s";
+    // min replication setting for verification
+    static final String MIN_REPLICATION = "dfs.namenode.replication.min";
 
-  // keys for looking up a specific operation in the hadoop config
-  static final String OP_PERCENT = "slive.op.%s.pct";
-  static final String OP = "slive.op.%s";
-  static final String OP_DISTR = "slive.op.%s.dist";
+    // used for getting an option description given a set of distributions
+    // to substitute
+    static final String OP_DESCR = "pct,distribution where distribution is one of %s";
 
-  // path constants
-  static final String BASE_DIR = "slive";
-  static final String DATA_DIR = "data";
-  static final String OUTPUT_DIR = "output";
+    // keys for looking up a specific operation in the hadoop config
+    static final String OP_PERCENT = "slive.op.%s.pct";
+    static final String OP = "slive.op.%s";
+    static final String OP_DISTR = "slive.op.%s.dist";
 
-  // whether whenever data is written a flush should occur
-  static final boolean FLUSH_WRITES = false;
+    // path constants
+    static final String BASE_DIR = "slive";
+    static final String DATA_DIR = "data";
+    static final String OUTPUT_DIR = "output";
+
+    // whether whenever data is written a flush should occur
+    static final boolean FLUSH_WRITES = false;
 
 }

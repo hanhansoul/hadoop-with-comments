@@ -36,28 +36,28 @@ import org.junit.Test;
 
 public class TestNameNodeRpcServer {
 
-  @Test
-  public void testNamenodeRpcBindAny() throws IOException {
-    Configuration conf = new HdfsConfiguration();
+    @Test
+    public void testNamenodeRpcBindAny() throws IOException {
+        Configuration conf = new HdfsConfiguration();
 
-    // The name node in MiniDFSCluster only binds to 127.0.0.1.
-    // We can set the bind address to 0.0.0.0 to make it listen
-    // to all interfaces.
-    conf.set(DFS_NAMENODE_RPC_BIND_HOST_KEY, "0.0.0.0");
-    MiniDFSCluster cluster = null;
+        // The name node in MiniDFSCluster only binds to 127.0.0.1.
+        // We can set the bind address to 0.0.0.0 to make it listen
+        // to all interfaces.
+        conf.set(DFS_NAMENODE_RPC_BIND_HOST_KEY, "0.0.0.0");
+        MiniDFSCluster cluster = null;
 
-    try {
-      cluster = new MiniDFSCluster.Builder(conf).build();
-      cluster.waitActive();
-      assertEquals("0.0.0.0", ((NameNodeRpcServer)cluster.getNameNodeRpc())
-          .getClientRpcServer().getListenerAddress().getHostName());
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
-      // Reset the config
-      conf.unset(DFS_NAMENODE_RPC_BIND_HOST_KEY);
+        try {
+            cluster = new MiniDFSCluster.Builder(conf).build();
+            cluster.waitActive();
+            assertEquals("0.0.0.0", ((NameNodeRpcServer)cluster.getNameNodeRpc())
+                         .getClientRpcServer().getListenerAddress().getHostName());
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+            // Reset the config
+            conf.unset(DFS_NAMENODE_RPC_BIND_HOST_KEY);
+        }
     }
-  }
 }
 

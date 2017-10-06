@@ -34,104 +34,104 @@ import org.apache.hadoop.security.token.Token;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class JobTokenSecretManager extends SecretManager<JobTokenIdentifier> {
-  private final SecretKey masterKey;
-  private final Map<String, SecretKey> currentJobTokens;
+    private final SecretKey masterKey;
+    private final Map<String, SecretKey> currentJobTokens;
 
-  /**
-   * Convert the byte[] to a secret key
-   * @param key the byte[] to create the secret key from
-   * @return the secret key
-   */
-  public static SecretKey createSecretKey(byte[] key) {
-    return SecretManager.createSecretKey(key);
-  }
-  
-  /**
-   * Compute the HMAC hash of the message using the key
-   * @param msg the message to hash
-   * @param key the key to use
-   * @return the computed hash
-   */
-  public static byte[] computeHash(byte[] msg, SecretKey key) {
-    return createPassword(msg, key);
-  }
-  
-  /**
-   * Default constructor
-   */
-  public JobTokenSecretManager() {
-    this.masterKey = generateSecret();
-    this.currentJobTokens = new TreeMap<String, SecretKey>();
-  }
-  
-  /**
-   * Create a new password/secret for the given job token identifier.
-   * @param identifier the job token identifier
-   * @return token password/secret
-   */
-  @Override
-  public byte[] createPassword(JobTokenIdentifier identifier) {
-    byte[] result = createPassword(identifier.getBytes(), masterKey);
-    return result;
-  }
+    /**
+     * Convert the byte[] to a secret key
+     * @param key the byte[] to create the secret key from
+     * @return the secret key
+     */
+    public static SecretKey createSecretKey(byte[] key) {
+        return SecretManager.createSecretKey(key);
+    }
 
-  /**
-   * Add the job token of a job to cache
-   * @param jobId the job that owns the token
-   * @param token the job token
-   */
-  public void addTokenForJob(String jobId, Token<JobTokenIdentifier> token) {
-    SecretKey tokenSecret = createSecretKey(token.getPassword());
-    synchronized (currentJobTokens) {
-      currentJobTokens.put(jobId, tokenSecret);
+    /**
+     * Compute the HMAC hash of the message using the key
+     * @param msg the message to hash
+     * @param key the key to use
+     * @return the computed hash
+     */
+    public static byte[] computeHash(byte[] msg, SecretKey key) {
+        return createPassword(msg, key);
     }
-  }
 
-  /**
-   * Remove the cached job token of a job from cache
-   * @param jobId the job whose token is to be removed
-   */
-  public void removeTokenForJob(String jobId) {
-    synchronized (currentJobTokens) {
-      currentJobTokens.remove(jobId);
+    /**
+     * Default constructor
+     */
+    public JobTokenSecretManager() {
+        this.masterKey = generateSecret();
+        this.currentJobTokens = new TreeMap<String, SecretKey>();
     }
-  }
-  
-  /**
-   * Look up the token password/secret for the given jobId.
-   * @param jobId the jobId to look up
-   * @return token password/secret as SecretKey
-   * @throws InvalidToken
-   */
-  public SecretKey retrieveTokenSecret(String jobId) throws InvalidToken {
-    SecretKey tokenSecret = null;
-    synchronized (currentJobTokens) {
-      tokenSecret = currentJobTokens.get(jobId);
-    }
-    if (tokenSecret == null) {
-      throw new InvalidToken("Can't find job token for job " + jobId + " !!");
-    }
-    return tokenSecret;
-  }
-  
-  /**
-   * Look up the token password/secret for the given job token identifier.
-   * @param identifier the job token identifier to look up
-   * @return token password/secret as byte[]
-   * @throws InvalidToken
-   */
-  @Override
-  public byte[] retrievePassword(JobTokenIdentifier identifier)
-      throws InvalidToken {
-    return retrieveTokenSecret(identifier.getJobId().toString()).getEncoded();
-  }
 
-  /**
-   * Create an empty job token identifier
-   * @return a newly created empty job token identifier
-   */
-  @Override
-  public JobTokenIdentifier createIdentifier() {
-    return new JobTokenIdentifier();
-  }
+    /**
+     * Create a new password/secret for the given job token identifier.
+     * @param identifier the job token identifier
+     * @return token password/secret
+     */
+    @Override
+    public byte[] createPassword(JobTokenIdentifier identifier) {
+        byte[] result = createPassword(identifier.getBytes(), masterKey);
+        return result;
+    }
+
+    /**
+     * Add the job token of a job to cache
+     * @param jobId the job that owns the token
+     * @param token the job token
+     */
+    public void addTokenForJob(String jobId, Token<JobTokenIdentifier> token) {
+        SecretKey tokenSecret = createSecretKey(token.getPassword());
+        synchronized (currentJobTokens) {
+            currentJobTokens.put(jobId, tokenSecret);
+        }
+    }
+
+    /**
+     * Remove the cached job token of a job from cache
+     * @param jobId the job whose token is to be removed
+     */
+    public void removeTokenForJob(String jobId) {
+        synchronized (currentJobTokens) {
+            currentJobTokens.remove(jobId);
+        }
+    }
+
+    /**
+     * Look up the token password/secret for the given jobId.
+     * @param jobId the jobId to look up
+     * @return token password/secret as SecretKey
+     * @throws InvalidToken
+     */
+    public SecretKey retrieveTokenSecret(String jobId) throws InvalidToken {
+        SecretKey tokenSecret = null;
+        synchronized (currentJobTokens) {
+            tokenSecret = currentJobTokens.get(jobId);
+        }
+        if (tokenSecret == null) {
+            throw new InvalidToken("Can't find job token for job " + jobId + " !!");
+        }
+        return tokenSecret;
+    }
+
+    /**
+     * Look up the token password/secret for the given job token identifier.
+     * @param identifier the job token identifier to look up
+     * @return token password/secret as byte[]
+     * @throws InvalidToken
+     */
+    @Override
+    public byte[] retrievePassword(JobTokenIdentifier identifier)
+    throws InvalidToken {
+        return retrieveTokenSecret(identifier.getJobId().toString()).getEncoded();
+    }
+
+    /**
+     * Create an empty job token identifier
+     * @return a newly created empty job token identifier
+     */
+    @Override
+    public JobTokenIdentifier createIdentifier() {
+        return new JobTokenIdentifier();
+    }
 }

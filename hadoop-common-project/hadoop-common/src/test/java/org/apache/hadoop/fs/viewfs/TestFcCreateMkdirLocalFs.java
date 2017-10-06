@@ -24,21 +24,21 @@ import org.junit.After;
 import org.junit.Before;
 
 
-public class TestFcCreateMkdirLocalFs  extends 
-  FileContextCreateMkdirBaseTest {
+public class TestFcCreateMkdirLocalFs  extends
+    FileContextCreateMkdirBaseTest {
 
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    fc = ViewFsTestSetup.setupForViewFsLocalFs(fileContextTestHelper);
-    super.setUp();
-  }
-  
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    ViewFsTestSetup.tearDownForViewFsLocalFs(fileContextTestHelper);
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        fc = ViewFsTestSetup.setupForViewFsLocalFs(fileContextTestHelper);
+        super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        ViewFsTestSetup.tearDownForViewFsLocalFs(fileContextTestHelper);
+    }
 }

@@ -31,15 +31,15 @@ import org.apache.hadoop.io.Writable;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class ArrayListBackedIterator<X extends Writable> extends 
+public class ArrayListBackedIterator<X extends Writable> extends
     org.apache.hadoop.mapreduce.lib.join.ArrayListBackedIterator<X>
     implements ResetableIterator<X> {
 
-  public ArrayListBackedIterator() {
-    super();
-  }
+    public ArrayListBackedIterator() {
+        super();
+    }
 
-  public ArrayListBackedIterator(ArrayList<X> data) {
-    super(data);
-  }
+    public ArrayListBackedIterator(ArrayList<X> data) {
+        super(data);
+    }
 }

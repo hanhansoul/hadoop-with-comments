@@ -39,36 +39,36 @@ import org.apache.hadoop.mapred.TextInputFormat;
  */
 public class AutoInputFormat extends FileInputFormat {
 
-  private TextInputFormat textInputFormat = new TextInputFormat();
+    private TextInputFormat textInputFormat = new TextInputFormat();
 
-  private SequenceFileInputFormat seqFileInputFormat = 
-    new SequenceFileInputFormat();
+    private SequenceFileInputFormat seqFileInputFormat =
+        new SequenceFileInputFormat();
 
-  public void configure(JobConf job) {
-    textInputFormat.configure(job);
-    // SequenceFileInputFormat has no configure() method
-  }
-
-  public RecordReader getRecordReader(InputSplit split, JobConf job,
-    Reporter reporter) throws IOException {
-    FileSplit fileSplit = (FileSplit) split;
-    FileSystem fs = FileSystem.get(fileSplit.getPath().toUri(), job);
-    FSDataInputStream is = fs.open(fileSplit.getPath());
-    byte[] header = new byte[3];
-    RecordReader reader = null;
-    try {
-      is.readFully(header);
-    } catch (EOFException eof) {
-      reader = textInputFormat.getRecordReader(split, job, reporter);
-    } finally {
-      is.close();
+    public void configure(JobConf job) {
+        textInputFormat.configure(job);
+        // SequenceFileInputFormat has no configure() method
     }
-    if (header[0] == 'S' && header[1] == 'E' && header[2] == 'Q') {
-      reader = seqFileInputFormat.getRecordReader(split, job, reporter);
-    } else {
-      reader = textInputFormat.getRecordReader(split, job, reporter);
+
+    public RecordReader getRecordReader(InputSplit split, JobConf job,
+                                        Reporter reporter) throws IOException {
+        FileSplit fileSplit = (FileSplit) split;
+        FileSystem fs = FileSystem.get(fileSplit.getPath().toUri(), job);
+        FSDataInputStream is = fs.open(fileSplit.getPath());
+        byte[] header = new byte[3];
+        RecordReader reader = null;
+        try {
+            is.readFully(header);
+        } catch (EOFException eof) {
+            reader = textInputFormat.getRecordReader(split, job, reporter);
+        } finally {
+            is.close();
+        }
+        if (header[0] == 'S' && header[1] == 'E' && header[2] == 'Q') {
+            reader = seqFileInputFormat.getRecordReader(split, job, reporter);
+        } else {
+            reader = textInputFormat.getRecordReader(split, job, reporter);
+        }
+        return reader;
     }
-    return reader;
-  }
 
 }

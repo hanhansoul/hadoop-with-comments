@@ -32,44 +32,44 @@ import org.apache.hadoop.yarn.api.records.Resource;
 @Public
 @Evolving
 public class ContainerContext {
-  private final String user;
-  private final ContainerId containerId;
-  private final Resource resource;
+    private final String user;
+    private final ContainerId containerId;
+    private final Resource resource;
 
-  @Private
-  @Unstable
-  public ContainerContext(String user, ContainerId containerId,
-      Resource resource) {
-    this.user = user;
-    this.containerId = containerId;
-    this.resource = resource;
-  }
+    @Private
+    @Unstable
+    public ContainerContext(String user, ContainerId containerId,
+                            Resource resource) {
+        this.user = user;
+        this.containerId = containerId;
+        this.resource = resource;
+    }
 
-  /**
-   * Get user of the container being initialized or stopped.
-   *
-   * @return the user
-   */
-  public String getUser() {
-    return user;
-  }
+    /**
+     * Get user of the container being initialized or stopped.
+     *
+     * @return the user
+     */
+    public String getUser() {
+        return user;
+    }
 
-  /**
-   * Get {@link ContainerId} of the container being initialized or stopped.
-   *
-   * @return the container ID
-   */
-  public ContainerId getContainerId() {
-    return containerId;
-  }
+    /**
+     * Get {@link ContainerId} of the container being initialized or stopped.
+     *
+     * @return the container ID
+     */
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
-  /**
-   * Get {@link Resource} the resource capability allocated to the container
-   * being initialized or stopped.
-   *
-   * @return the resource capability.
-   */
-  public Resource getResource() {
-    return resource;
-  }
+    /**
+     * Get {@link Resource} the resource capability allocated to the container
+     * being initialized or stopped.
+     *
+     * @return the resource capability.
+     */
+    public Resource getResource() {
+        return resource;
+    }
 }

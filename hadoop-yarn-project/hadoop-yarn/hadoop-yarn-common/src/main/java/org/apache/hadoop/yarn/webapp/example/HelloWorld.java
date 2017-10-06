@@ -34,22 +34,28 @@ import org.apache.hadoop.yarn.webapp.view.HtmlPage;
  */
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class HelloWorld {
-  public static class Hello extends Controller {
-    @Override public void index() { renderText("Hello world!"); }
-    public void html() { setTitle("Hello world!"); }
-    public void json() { renderJSON("Hello world!"); }
-  }
-
-  public static class HelloView extends HtmlPage {
-    @Override protected void render(Page.HTML<_> html) {
-      html. // produces valid html 4.01 strict
-        title($("title")).
-        p("#hello-for-css").
-          _($("title"))._()._();
+    public static class Hello extends Controller {
+        @Override public void index() {
+            renderText("Hello world!");
+        }
+        public void html() {
+            setTitle("Hello world!");
+        }
+        public void json() {
+            renderJSON("Hello world!");
+        }
     }
-  }
 
-  public static void main(String[] args) {
-    WebApps.$for(new HelloWorld()).at(8888).inDevMode().start().joinThread();
-  }
+    public static class HelloView extends HtmlPage {
+        @Override protected void render(Page.HTML<_> html) {
+            html. // produces valid html 4.01 strict
+            title($("title")).
+            p("#hello-for-css").
+            _($("title"))._()._();
+        }
+    }
+
+    public static void main(String[] args) {
+        WebApps.$for(new HelloWorld()).at(8888).inDevMode().start().joinThread();
+    }
 }

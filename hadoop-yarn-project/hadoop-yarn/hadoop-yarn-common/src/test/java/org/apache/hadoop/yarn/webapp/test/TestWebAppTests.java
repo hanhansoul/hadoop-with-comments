@@ -32,72 +32,72 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 public class TestWebAppTests {
-  static final Logger LOG = LoggerFactory.getLogger(TestWebAppTests.class);
+    static final Logger LOG = LoggerFactory.getLogger(TestWebAppTests.class);
 
-  @Test public void testInstances() throws Exception {
-    Injector injector = WebAppTests.createMockInjector(this);
-    HttpServletRequest req = injector.getInstance(HttpServletRequest.class);
-    HttpServletResponse res = injector.getInstance(HttpServletResponse.class);
-    String val = req.getParameter("foo");
-    PrintWriter out = res.getWriter();
-    out.println("Hello world!");
-    logInstances(req, res, out);
+    @Test public void testInstances() throws Exception {
+        Injector injector = WebAppTests.createMockInjector(this);
+        HttpServletRequest req = injector.getInstance(HttpServletRequest.class);
+        HttpServletResponse res = injector.getInstance(HttpServletResponse.class);
+        String val = req.getParameter("foo");
+        PrintWriter out = res.getWriter();
+        out.println("Hello world!");
+        logInstances(req, res, out);
 
-    assertSame(req, injector.getInstance(HttpServletRequest.class));
-    assertSame(res, injector.getInstance(HttpServletResponse.class));
-    assertSame(this, injector.getInstance(TestWebAppTests.class));
+        assertSame(req, injector.getInstance(HttpServletRequest.class));
+        assertSame(res, injector.getInstance(HttpServletResponse.class));
+        assertSame(this, injector.getInstance(TestWebAppTests.class));
 
-    verify(req).getParameter("foo");
-    verify(res).getWriter();
-    verify(out).println("Hello world!");
-  }
+        verify(req).getParameter("foo");
+        verify(res).getWriter();
+        verify(out).println("Hello world!");
+    }
 
-  interface Foo {
-  }
+    interface Foo {
+    }
 
-  static class Bar implements Foo {
-  }
+    static class Bar implements Foo {
+    }
 
-  static class FooBar extends Bar {
-  }
+    static class FooBar extends Bar {
+    }
 
-  @Test public void testCreateInjector() throws Exception {
-    Bar bar = new Bar();
-    Injector injector = WebAppTests.createMockInjector(Foo.class, bar);
-    logInstances(injector.getInstance(HttpServletRequest.class),
-                 injector.getInstance(HttpServletResponse.class),
-                 injector.getInstance(HttpServletResponse.class).getWriter());
-    assertSame(bar, injector.getInstance(Foo.class));
-  }
+    @Test public void testCreateInjector() throws Exception {
+        Bar bar = new Bar();
+        Injector injector = WebAppTests.createMockInjector(Foo.class, bar);
+        logInstances(injector.getInstance(HttpServletRequest.class),
+                     injector.getInstance(HttpServletResponse.class),
+                     injector.getInstance(HttpServletResponse.class).getWriter());
+        assertSame(bar, injector.getInstance(Foo.class));
+    }
 
-  @Test public void testCreateInjector2() {
-    final FooBar foobar = new FooBar();
-    Bar bar = new Bar();
-    Injector injector = WebAppTests.createMockInjector(Foo.class, bar,
+    @Test public void testCreateInjector2() {
+        final FooBar foobar = new FooBar();
+        Bar bar = new Bar();
+        Injector injector = WebAppTests.createMockInjector(Foo.class, bar,
         new AbstractModule() {
-      @Override protected void configure() {
-        bind(Bar.class).toInstance(foobar);
-      }
-    });
-    assertNotSame(bar, injector.getInstance(Bar.class));
-    assertSame(foobar, injector.getInstance(Bar.class));
-  }
+            @Override protected void configure() {
+                bind(Bar.class).toInstance(foobar);
+            }
+        });
+        assertNotSame(bar, injector.getInstance(Bar.class));
+        assertSame(foobar, injector.getInstance(Bar.class));
+    }
 
-  @RequestScoped
-  static class ScopeTest {
-  }
+    @RequestScoped
+    static class ScopeTest {
+    }
 
-  @Test public void testRequestScope() {
-    Injector injector = WebAppTests.createMockInjector(this);
+    @Test public void testRequestScope() {
+        Injector injector = WebAppTests.createMockInjector(this);
 
-    assertSame(injector.getInstance(ScopeTest.class),
-               injector.getInstance(ScopeTest.class));
-  }
+        assertSame(injector.getInstance(ScopeTest.class),
+                   injector.getInstance(ScopeTest.class));
+    }
 
-  private void logInstances(HttpServletRequest req, HttpServletResponse res,
-                            PrintWriter out) {
-    LOG.info("request: {}", req);
-    LOG.info("response: {}", res);
-    LOG.info("writer: {}", out);
-  }
+    private void logInstances(HttpServletRequest req, HttpServletResponse res,
+                              PrintWriter out) {
+        LOG.info("request: {}", req);
+        LOG.info("response: {}", res);
+        LOG.info("writer: {}", out);
+    }
 }

@@ -27,36 +27,36 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.resourcemanager.QueueACLsTestBase;
 
 public class TestFairSchedulerQueueACLs extends QueueACLsTestBase {
-  @Override
-  protected Configuration createConfiguration() throws IOException {
-    FairSchedulerConfiguration fsConf = new FairSchedulerConfiguration();
-    
-    final String TEST_DIR = new File(System.getProperty("test.build.data",
-        "/tmp")).getAbsolutePath();
-    final String ALLOC_FILE = new File(TEST_DIR, "test-queues.xml")
+    @Override
+    protected Configuration createConfiguration() throws IOException {
+        FairSchedulerConfiguration fsConf = new FairSchedulerConfiguration();
+
+        final String TEST_DIR = new File(System.getProperty("test.build.data",
+                                         "/tmp")).getAbsolutePath();
+        final String ALLOC_FILE = new File(TEST_DIR, "test-queues.xml")
         .getAbsolutePath();
-    PrintWriter out = new PrintWriter(new FileWriter(ALLOC_FILE));
-    out.println("<?xml version=\"1.0\"?>");
-    out.println("<allocations>");
-    out.println("<queue name=\"root\">");
-    out.println("  <aclSubmitApps> </aclSubmitApps>");
-    out.println("  <aclAdministerApps>root_admin </aclAdministerApps>");
-    out.println("  <queue name=\"queueA\">");
-    out.println("    <aclSubmitApps>queueA_user,common_user </aclSubmitApps>");
-    out.println("    <aclAdministerApps>queueA_admin </aclAdministerApps>");
-    out.println("  </queue>");
-    out.println("  <queue name=\"queueB\">");
-    out.println("    <aclSubmitApps>queueB_user,common_user </aclSubmitApps>");
-    out.println("    <aclAdministerApps>queueB_admin </aclAdministerApps>");
-    out.println("  </queue>");
-    out.println("</queue>");
-    out.println("</allocations>");
-    out.close();
-    fsConf.set(FairSchedulerConfiguration.ALLOCATION_FILE, ALLOC_FILE);
+        PrintWriter out = new PrintWriter(new FileWriter(ALLOC_FILE));
+        out.println("<?xml version=\"1.0\"?>");
+        out.println("<allocations>");
+        out.println("<queue name=\"root\">");
+        out.println("  <aclSubmitApps> </aclSubmitApps>");
+        out.println("  <aclAdministerApps>root_admin </aclAdministerApps>");
+        out.println("  <queue name=\"queueA\">");
+        out.println("    <aclSubmitApps>queueA_user,common_user </aclSubmitApps>");
+        out.println("    <aclAdministerApps>queueA_admin </aclAdministerApps>");
+        out.println("  </queue>");
+        out.println("  <queue name=\"queueB\">");
+        out.println("    <aclSubmitApps>queueB_user,common_user </aclSubmitApps>");
+        out.println("    <aclAdministerApps>queueB_admin </aclAdministerApps>");
+        out.println("  </queue>");
+        out.println("</queue>");
+        out.println("</allocations>");
+        out.close();
+        fsConf.set(FairSchedulerConfiguration.ALLOCATION_FILE, ALLOC_FILE);
 
-    fsConf.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
-    fsConf.set("yarn.resourcemanager.scheduler.class", FairScheduler.class.getName());
+        fsConf.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
+        fsConf.set("yarn.resourcemanager.scheduler.class", FairScheduler.class.getName());
 
-    return fsConf;
-  }
+        return fsConf;
+    }
 }

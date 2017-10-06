@@ -31,98 +31,98 @@ import java.util.List;
 public class TestSwitchMapping extends Assert {
 
 
-  /**
-   * Verify the switch mapping query handles arbitrary DNSToSwitchMapping
-   * implementations
-   *
-   * @throws Throwable on any problem
-   */
-  @Test
-  public void testStandaloneClassesAssumedMultiswitch() throws Throwable {
-    DNSToSwitchMapping mapping = new StandaloneSwitchMapping();
-    assertFalse("Expected to be multi switch " + mapping,
-                AbstractDNSToSwitchMapping.isMappingSingleSwitch(mapping));
-  }
+    /**
+     * Verify the switch mapping query handles arbitrary DNSToSwitchMapping
+     * implementations
+     *
+     * @throws Throwable on any problem
+     */
+    @Test
+    public void testStandaloneClassesAssumedMultiswitch() throws Throwable {
+        DNSToSwitchMapping mapping = new StandaloneSwitchMapping();
+        assertFalse("Expected to be multi switch " + mapping,
+                    AbstractDNSToSwitchMapping.isMappingSingleSwitch(mapping));
+    }
 
 
-  /**
-   * Verify the cached mapper delegates the switch mapping query to the inner
-   * mapping, which again handles arbitrary DNSToSwitchMapping implementations
-   *
-   * @throws Throwable on any problem
-   */
-  @Test
-  public void testCachingRelays() throws Throwable {
-    CachedDNSToSwitchMapping mapping =
-        new CachedDNSToSwitchMapping(new StandaloneSwitchMapping());
-    assertFalse("Expected to be multi switch " + mapping,
-                mapping.isSingleSwitch());
-  }
+    /**
+     * Verify the cached mapper delegates the switch mapping query to the inner
+     * mapping, which again handles arbitrary DNSToSwitchMapping implementations
+     *
+     * @throws Throwable on any problem
+     */
+    @Test
+    public void testCachingRelays() throws Throwable {
+        CachedDNSToSwitchMapping mapping =
+            new CachedDNSToSwitchMapping(new StandaloneSwitchMapping());
+        assertFalse("Expected to be multi switch " + mapping,
+                    mapping.isSingleSwitch());
+    }
 
 
-  /**
-   * Verify the cached mapper delegates the switch mapping query to the inner
-   * mapping, which again handles arbitrary DNSToSwitchMapping implementations
-   *
-   * @throws Throwable on any problem
-   */
-  @Test
-  public void testCachingRelaysStringOperations() throws Throwable {
-    Configuration conf = new Configuration();
-    String scriptname = "mappingscript.sh";
-    conf.set(CommonConfigurationKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
-             scriptname);
-    ScriptBasedMapping scriptMapping = new ScriptBasedMapping(conf);
-    assertTrue("Did not find " + scriptname + " in " + scriptMapping,
-               scriptMapping.toString().contains(scriptname));
-    CachedDNSToSwitchMapping mapping =
-        new CachedDNSToSwitchMapping(scriptMapping);
-    assertTrue("Did not find " + scriptname + " in " + mapping,
-               mapping.toString().contains(scriptname));
-  }
+    /**
+     * Verify the cached mapper delegates the switch mapping query to the inner
+     * mapping, which again handles arbitrary DNSToSwitchMapping implementations
+     *
+     * @throws Throwable on any problem
+     */
+    @Test
+    public void testCachingRelaysStringOperations() throws Throwable {
+        Configuration conf = new Configuration();
+        String scriptname = "mappingscript.sh";
+        conf.set(CommonConfigurationKeys.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
+                 scriptname);
+        ScriptBasedMapping scriptMapping = new ScriptBasedMapping(conf);
+        assertTrue("Did not find " + scriptname + " in " + scriptMapping,
+                   scriptMapping.toString().contains(scriptname));
+        CachedDNSToSwitchMapping mapping =
+            new CachedDNSToSwitchMapping(scriptMapping);
+        assertTrue("Did not find " + scriptname + " in " + mapping,
+                   mapping.toString().contains(scriptname));
+    }
 
-  /**
-   * Verify the cached mapper delegates the switch mapping query to the inner
-   * mapping, which again handles arbitrary DNSToSwitchMapping implementations
-   *
-   * @throws Throwable on any problem
-   */
-  @Test
-  public void testCachingRelaysStringOperationsToNullScript() throws Throwable {
-    Configuration conf = new Configuration();
-    ScriptBasedMapping scriptMapping = new ScriptBasedMapping(conf);
-    assertTrue("Did not find " + ScriptBasedMapping.NO_SCRIPT
+    /**
+     * Verify the cached mapper delegates the switch mapping query to the inner
+     * mapping, which again handles arbitrary DNSToSwitchMapping implementations
+     *
+     * @throws Throwable on any problem
+     */
+    @Test
+    public void testCachingRelaysStringOperationsToNullScript() throws Throwable {
+        Configuration conf = new Configuration();
+        ScriptBasedMapping scriptMapping = new ScriptBasedMapping(conf);
+        assertTrue("Did not find " + ScriptBasedMapping.NO_SCRIPT
                    + " in " + scriptMapping,
-               scriptMapping.toString().contains(ScriptBasedMapping.NO_SCRIPT));
-    CachedDNSToSwitchMapping mapping =
-        new CachedDNSToSwitchMapping(scriptMapping);
-    assertTrue("Did not find " + ScriptBasedMapping.NO_SCRIPT
+                   scriptMapping.toString().contains(ScriptBasedMapping.NO_SCRIPT));
+        CachedDNSToSwitchMapping mapping =
+            new CachedDNSToSwitchMapping(scriptMapping);
+        assertTrue("Did not find " + ScriptBasedMapping.NO_SCRIPT
                    + " in " + mapping,
-               mapping.toString().contains(ScriptBasedMapping.NO_SCRIPT));
-  }
-
-  @Test
-  public void testNullMapping() {
-    assertFalse(AbstractDNSToSwitchMapping.isMappingSingleSwitch(null));
-  }
-
-  /**
-   * This class does not extend the abstract switch mapping, and verifies that
-   * the switch mapping logic assumes that this is multi switch
-   */
-
-  private static class StandaloneSwitchMapping implements DNSToSwitchMapping {
-    @Override
-    public List<String> resolve(List<String> names) {
-      return names;
+                   mapping.toString().contains(ScriptBasedMapping.NO_SCRIPT));
     }
 
-    @Override
-    public void reloadCachedMappings() {
+    @Test
+    public void testNullMapping() {
+        assertFalse(AbstractDNSToSwitchMapping.isMappingSingleSwitch(null));
     }
 
-    @Override
-    public void reloadCachedMappings(List<String> names) {
+    /**
+     * This class does not extend the abstract switch mapping, and verifies that
+     * the switch mapping logic assumes that this is multi switch
+     */
+
+    private static class StandaloneSwitchMapping implements DNSToSwitchMapping {
+        @Override
+        public List<String> resolve(List<String> names) {
+            return names;
+        }
+
+        @Override
+        public void reloadCachedMappings() {
+        }
+
+        @Override
+        public void reloadCachedMappings(List<String> names) {
+        }
     }
-  }
 }

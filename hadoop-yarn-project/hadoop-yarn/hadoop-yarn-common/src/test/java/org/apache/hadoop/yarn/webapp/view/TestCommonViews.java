@@ -32,25 +32,25 @@ import static org.mockito.Mockito.*;
 
 public class TestCommonViews {
 
-  @Test public void testErrorPage() {
-    Injector injector = WebAppTests.testPage(ErrorPage.class);
+    @Test public void testErrorPage() {
+        Injector injector = WebAppTests.testPage(ErrorPage.class);
 
-  }
+    }
 
-  @Test public void testHeaderBlock() {
-    WebAppTests.testBlock(HeaderBlock.class);
-  }
+    @Test public void testHeaderBlock() {
+        WebAppTests.testBlock(HeaderBlock.class);
+    }
 
-  @Test public void testFooterBlock() {
-    WebAppTests.testBlock(FooterBlock.class);
-  }
+    @Test public void testFooterBlock() {
+        WebAppTests.testBlock(FooterBlock.class);
+    }
 
-  @Test public void testJQueryUI() {
-    WebAppTests.testBlock(JQueryUI.class);
-  }
+    @Test public void testJQueryUI() {
+        WebAppTests.testBlock(JQueryUI.class);
+    }
 
-  @Test public void testInfoBlock() {
-    Injector injector = WebAppTests.createMockInjector(this);
-    ResponseInfo info = injector.getInstance(ResponseInfo.class);
-  }
+    @Test public void testInfoBlock() {
+        Injector injector = WebAppTests.createMockInjector(this);
+        ResponseInfo info = injector.getInstance(ResponseInfo.class);
+    }
 }

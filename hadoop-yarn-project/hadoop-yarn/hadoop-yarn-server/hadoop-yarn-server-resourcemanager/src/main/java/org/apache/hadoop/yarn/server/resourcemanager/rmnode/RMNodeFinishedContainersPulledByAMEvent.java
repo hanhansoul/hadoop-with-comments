@@ -27,15 +27,15 @@ import java.util.List;
 // been notified successfully to the AM
 public class RMNodeFinishedContainersPulledByAMEvent extends RMNodeEvent {
 
-  private List<ContainerId> containers;
+    private List<ContainerId> containers;
 
-  public RMNodeFinishedContainersPulledByAMEvent(NodeId nodeId,
-      List<ContainerId> containers) {
-    super(nodeId, RMNodeEventType.FINISHED_CONTAINERS_PULLED_BY_AM);
-    this.containers = containers;
-  }
+    public RMNodeFinishedContainersPulledByAMEvent(NodeId nodeId,
+            List<ContainerId> containers) {
+        super(nodeId, RMNodeEventType.FINISHED_CONTAINERS_PULLED_BY_AM);
+        this.containers = containers;
+    }
 
-  public List<ContainerId> getContainers() {
-    return this.containers;
-  }
+    public List<ContainerId> getContainers() {
+        return this.containers;
+    }
 }

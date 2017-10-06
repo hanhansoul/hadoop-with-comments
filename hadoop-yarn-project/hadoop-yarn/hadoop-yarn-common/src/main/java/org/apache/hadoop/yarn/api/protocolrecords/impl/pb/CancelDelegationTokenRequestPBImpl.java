@@ -5,9 +5,9 @@
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -33,94 +33,94 @@ import com.google.protobuf.TextFormat;
 public class CancelDelegationTokenRequestPBImpl extends
     CancelDelegationTokenRequest {
 
-  CancelDelegationTokenRequestProto proto = CancelDelegationTokenRequestProto
-      .getDefaultInstance();
-  CancelDelegationTokenRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    CancelDelegationTokenRequestProto proto = CancelDelegationTokenRequestProto
+            .getDefaultInstance();
+    CancelDelegationTokenRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public CancelDelegationTokenRequestPBImpl() {
-    builder = CancelDelegationTokenRequestProto.newBuilder();
-  }
-
-  public CancelDelegationTokenRequestPBImpl(
-      CancelDelegationTokenRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  Token token;
-
-  @Override
-  public Token getDelegationToken() {
-    CancelDelegationTokenRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.token != null) {
-      return this.token;
+    public CancelDelegationTokenRequestPBImpl() {
+        builder = CancelDelegationTokenRequestProto.newBuilder();
     }
-    this.token = convertFromProtoFormat(p.getToken());
-    return this.token;
-  }
 
-  @Override
-  public void setDelegationToken(Token token) {
-    maybeInitBuilder();
-    if (token == null)
-      builder.clearToken();
-    this.token = token;
-  }
-
-  public CancelDelegationTokenRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public CancelDelegationTokenRequestPBImpl(
+        CancelDelegationTokenRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    Token token;
 
-  private void mergeLocalToBuilder() {
-    if (token != null) {
-      builder.setToken(convertToProtoFormat(this.token));
+    @Override
+    public Token getDelegationToken() {
+        CancelDelegationTokenRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.token != null) {
+            return this.token;
+        }
+        this.token = convertFromProtoFormat(p.getToken());
+        return this.token;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = CancelDelegationTokenRequestProto.newBuilder(proto);
+    @Override
+    public void setDelegationToken(Token token) {
+        maybeInitBuilder();
+        if (token == null)
+            builder.clearToken();
+        this.token = token;
     }
-    viaProto = false;
-  }
 
-  private TokenPBImpl convertFromProtoFormat(TokenProto p) {
-    return new TokenPBImpl(p);
-  }
+    public CancelDelegationTokenRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
 
-  private TokenProto convertToProtoFormat(Token t) {
-    return ((TokenPBImpl) t).getProto();
-  }
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
+
+    private void mergeLocalToBuilder() {
+        if (token != null) {
+            builder.setToken(convertToProtoFormat(this.token));
+        }
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = CancelDelegationTokenRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private TokenPBImpl convertFromProtoFormat(TokenProto p) {
+        return new TokenPBImpl(p);
+    }
+
+    private TokenProto convertToProtoFormat(Token t) {
+        return ((TokenPBImpl) t).getProto();
+    }
 }

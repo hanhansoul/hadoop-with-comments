@@ -24,23 +24,23 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 public class TestParallelRead extends TestParallelReadUtil {
-  @BeforeClass
-  static public void setupCluster() throws Exception {
-    // This is a test of the normal (TCP) read path.  For this reason, we turn
-    // off both short-circuit local reads and UNIX domain socket data traffic.
-    HdfsConfiguration conf = new HdfsConfiguration();
-    conf.setBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY, false);
-    conf.setBoolean(DFSConfigKeys.DFS_CLIENT_DOMAIN_SOCKET_DATA_TRAFFIC,
-                    false);
-    // dfs.domain.socket.path should be ignored because the previous two keys
-    // were set to false.  This is a regression test for HDFS-4473.
-    conf.set(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY, "/will/not/be/created");
+    @BeforeClass
+    static public void setupCluster() throws Exception {
+        // This is a test of the normal (TCP) read path.  For this reason, we turn
+        // off both short-circuit local reads and UNIX domain socket data traffic.
+        HdfsConfiguration conf = new HdfsConfiguration();
+        conf.setBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY, false);
+        conf.setBoolean(DFSConfigKeys.DFS_CLIENT_DOMAIN_SOCKET_DATA_TRAFFIC,
+                        false);
+        // dfs.domain.socket.path should be ignored because the previous two keys
+        // were set to false.  This is a regression test for HDFS-4473.
+        conf.set(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY, "/will/not/be/created");
 
-    setupCluster(DEFAULT_REPLICATION_FACTOR, conf);
-  }
+        setupCluster(DEFAULT_REPLICATION_FACTOR, conf);
+    }
 
-  @AfterClass
-  static public void teardownCluster() throws Exception {
-    TestParallelReadUtil.teardownCluster();
-  }
+    @AfterClass
+    static public void teardownCluster() throws Exception {
+        TestParallelReadUtil.teardownCluster();
+    }
 }

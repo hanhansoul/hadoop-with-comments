@@ -31,52 +31,52 @@ import java.util.Map;
  */
 @InterfaceAudience.Private
 public class Parameters {
-  private Map<String, List<Param<?>>> params;
+    private Map<String, List<Param<?>>> params;
 
-  /**
-   * Constructor that receives the request parsed parameters.
-   *
-   * @param params the request parsed parameters.
-   */
-  public Parameters(Map<String, List<Param<?>>> params) {
-    this.params = params;
-  }
-
-  /**
-   * Returns the value of a request parsed parameter.
-   *
-   * @param name parameter name.
-   * @param klass class of the parameter, used for value casting.
-   * @return the value of the parameter.
-   */
-  @SuppressWarnings("unchecked")
-  public <V, T extends Param<V>> V get(String name, Class<T> klass) {
-    List<Param<?>> multiParams = (List<Param<?>>)params.get(name);
-    if (multiParams != null && multiParams.size() > 0) {
-      return ((T) multiParams.get(0)).value(); // Return first value;
+    /**
+     * Constructor that receives the request parsed parameters.
+     *
+     * @param params the request parsed parameters.
+     */
+    public Parameters(Map<String, List<Param<?>>> params) {
+        this.params = params;
     }
-    return null;
-  }
-  
-  /**
-   * Returns the values of a request parsed parameter.
-   *
-   * @param name parameter name.
-   * @param klass class of the parameter, used for value casting.
-   * @return List<V> the values of the parameter.
-   */
-  @SuppressWarnings("unchecked")
-  public <V, T extends Param<V>> List<V> getValues(String name, Class<T> klass) {
-    List<Param<?>> multiParams = (List<Param<?>>)params.get(name);
-    List<V> values = Lists.newArrayList();
-    if (multiParams != null) {
-      for (Param<?> param : multiParams) {
-        V value = ((T) param).value();
-        if (value != null) {
-          values.add(value);
+
+    /**
+     * Returns the value of a request parsed parameter.
+     *
+     * @param name parameter name.
+     * @param klass class of the parameter, used for value casting.
+     * @return the value of the parameter.
+     */
+    @SuppressWarnings("unchecked")
+    public <V, T extends Param<V>> V get(String name, Class<T> klass) {
+        List<Param<?>> multiParams = (List<Param<?>>)params.get(name);
+        if (multiParams != null && multiParams.size() > 0) {
+            return ((T) multiParams.get(0)).value(); // Return first value;
         }
-      }
+        return null;
     }
-    return values;
-  }
+
+    /**
+     * Returns the values of a request parsed parameter.
+     *
+     * @param name parameter name.
+     * @param klass class of the parameter, used for value casting.
+     * @return List<V> the values of the parameter.
+     */
+    @SuppressWarnings("unchecked")
+    public <V, T extends Param<V>> List<V> getValues(String name, Class<T> klass) {
+        List<Param<?>> multiParams = (List<Param<?>>)params.get(name);
+        List<V> values = Lists.newArrayList();
+        if (multiParams != null) {
+            for (Param<?> param : multiParams) {
+                V value = ((T) param).value();
+                if (value != null) {
+                    values.add(value);
+                }
+            }
+        }
+        return values;
+    }
 }

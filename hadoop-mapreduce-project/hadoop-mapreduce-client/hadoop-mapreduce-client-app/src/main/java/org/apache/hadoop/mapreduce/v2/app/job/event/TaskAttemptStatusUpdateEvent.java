@@ -27,32 +27,32 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptState;
 
 public class TaskAttemptStatusUpdateEvent extends TaskAttemptEvent {
 
-  private TaskAttemptStatus reportedTaskAttemptStatus;
+    private TaskAttemptStatus reportedTaskAttemptStatus;
 
-  public TaskAttemptStatusUpdateEvent(TaskAttemptId id,
-      TaskAttemptStatus taskAttemptStatus) {
-    super(id, TaskAttemptEventType.TA_UPDATE);
-    this.reportedTaskAttemptStatus = taskAttemptStatus;
-  }
+    public TaskAttemptStatusUpdateEvent(TaskAttemptId id,
+                                        TaskAttemptStatus taskAttemptStatus) {
+        super(id, TaskAttemptEventType.TA_UPDATE);
+        this.reportedTaskAttemptStatus = taskAttemptStatus;
+    }
 
-  public TaskAttemptStatus getReportedTaskAttemptStatus() {
-    return reportedTaskAttemptStatus;
-  }
+    public TaskAttemptStatus getReportedTaskAttemptStatus() {
+        return reportedTaskAttemptStatus;
+    }
 
-  /**
-   * The internal TaskAttemptStatus object corresponding to remote Task status.
-   * 
-   */
-  public static class TaskAttemptStatus {
-    public TaskAttemptId id;
-    public float progress;
-    public Counters counters;
-    public String stateString;
-    public Phase phase;
-    public List<TaskAttemptId> fetchFailedMaps;
-    public long mapFinishTime;
-    public long shuffleFinishTime;
-    public long sortFinishTime;
-    public TaskAttemptState taskState;
-  }
+    /**
+     * The internal TaskAttemptStatus object corresponding to remote Task status.
+     *
+     */
+    public static class TaskAttemptStatus {
+        public TaskAttemptId id;
+        public float progress;
+        public Counters counters;
+        public String stateString;
+        public Phase phase;
+        public List<TaskAttemptId> fetchFailedMaps;
+        public long mapFinishTime;
+        public long shuffleFinishTime;
+        public long sortFinishTime;
+        public TaskAttemptState taskState;
+    }
 }

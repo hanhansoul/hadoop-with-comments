@@ -21,25 +21,25 @@ package org.apache.hadoop.mapreduce.v2.app.job.event;
 import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class TaskAttemptContainerLaunchedEvent extends TaskAttemptEvent {
-  private int shufflePort;
+    private int shufflePort;
 
-  /**
-   * Create a new TaskAttemptEvent.
-   * @param id the id of the task attempt
-   * @param shufflePort the port that shuffle is listening on.
-   */
-  public TaskAttemptContainerLaunchedEvent(TaskAttemptId id, int shufflePort) {
-    super(id, TaskAttemptEventType.TA_CONTAINER_LAUNCHED);
-    this.shufflePort = shufflePort;
-  }
+    /**
+     * Create a new TaskAttemptEvent.
+     * @param id the id of the task attempt
+     * @param shufflePort the port that shuffle is listening on.
+     */
+    public TaskAttemptContainerLaunchedEvent(TaskAttemptId id, int shufflePort) {
+        super(id, TaskAttemptEventType.TA_CONTAINER_LAUNCHED);
+        this.shufflePort = shufflePort;
+    }
 
-  
-  /**
-   * Get the port that the shuffle handler is listening on. This is only
-   * valid if the type of the event is TA_CONTAINER_LAUNCHED
-   * @return the port the shuffle handler is listening on.
-   */
-  public int getShufflePort() {
-    return shufflePort;
-  }
+
+    /**
+     * Get the port that the shuffle handler is listening on. This is only
+     * valid if the type of the event is TA_CONTAINER_LAUNCHED
+     * @return the port the shuffle handler is listening on.
+     */
+    public int getShufflePort() {
+        return shufflePort;
+    }
 }

@@ -26,11 +26,11 @@ import org.apache.hadoop.mapreduce.jobhistory.HistoryEvent;
  * {@link JobHistoryParser} defines the interface of a Job History file parser.
  */
 public interface JobHistoryParser extends Closeable {
-  /**
-   * Get the next {@link HistoryEvent}
-   * @return the next {@link HistoryEvent}. If no more events left, return null.
-   * @throws IOException 
-   */
-  HistoryEvent nextEvent() throws IOException;
-  
+    /**
+     * Get the next {@link HistoryEvent}
+     * @return the next {@link HistoryEvent}. If no more events left, return null.
+     * @throws IOException
+     */
+    HistoryEvent nextEvent() throws IOException;
+
 }

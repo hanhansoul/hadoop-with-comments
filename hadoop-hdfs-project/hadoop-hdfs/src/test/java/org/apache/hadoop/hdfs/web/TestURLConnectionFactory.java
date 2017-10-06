@@ -30,21 +30,21 @@ import com.google.common.collect.Lists;
 
 public final class TestURLConnectionFactory {
 
-  @Test
-  public void testConnConfiguratior() throws IOException {
-    final URL u = new URL("http://localhost");
-    final List<HttpURLConnection> conns = Lists.newArrayList();
-    URLConnectionFactory fc = new URLConnectionFactory(new ConnectionConfigurator() {
-      @Override
-      public HttpURLConnection configure(HttpURLConnection conn)
-          throws IOException {
-        Assert.assertEquals(u, conn.getURL());
-        conns.add(conn);
-        return conn;
-      }
-    });
+    @Test
+    public void testConnConfiguratior() throws IOException {
+        final URL u = new URL("http://localhost");
+        final List<HttpURLConnection> conns = Lists.newArrayList();
+        URLConnectionFactory fc = new URLConnectionFactory(new ConnectionConfigurator() {
+            @Override
+            public HttpURLConnection configure(HttpURLConnection conn)
+            throws IOException {
+                Assert.assertEquals(u, conn.getURL());
+                conns.add(conn);
+                return conn;
+            }
+        });
 
-    fc.openConnection(u);
-    Assert.assertEquals(1, conns.size());
-  }
+        fc.openConnection(u);
+        Assert.assertEquals(1, conns.size());
+    }
 }

@@ -46,52 +46,52 @@ public class FixedLengthInputFormat
     extends FileInputFormat<LongWritable, BytesWritable>
     implements JobConfigurable {
 
-  private CompressionCodecFactory compressionCodecs = null;
-  
-  public static final String FIXED_RECORD_LENGTH =
-      "fixedlengthinputformat.record.length"; 
+    private CompressionCodecFactory compressionCodecs = null;
 
-  /**
-   * Set the length of each record
-   * @param conf configuration
-   * @param recordLength the length of a record
-   */
-  public static void setRecordLength(Configuration conf, int recordLength) {
-    conf.setInt(FIXED_RECORD_LENGTH, recordLength);
-  }
+    public static final String FIXED_RECORD_LENGTH =
+        "fixedlengthinputformat.record.length";
 
-  /**
-   * Get record length value
-   * @param conf configuration
-   * @return the record length, zero means none was set
-   */
-  public static int getRecordLength(Configuration conf) {
-    return conf.getInt(FIXED_RECORD_LENGTH, 0);
-  }
-
-  @Override
-  public void configure(JobConf conf) {
-    compressionCodecs = new CompressionCodecFactory(conf);
-  }
-
-  @Override
-  public RecordReader<LongWritable, BytesWritable>
-      getRecordReader(InputSplit genericSplit, JobConf job, Reporter reporter)
-      throws IOException {
-    reporter.setStatus(genericSplit.toString());
-    int recordLength = getRecordLength(job);
-    if (recordLength <= 0) {
-      throw new IOException("Fixed record length " + recordLength
-          + " is invalid.  It should be set to a value greater than zero");
+    /**
+     * Set the length of each record
+     * @param conf configuration
+     * @param recordLength the length of a record
+     */
+    public static void setRecordLength(Configuration conf, int recordLength) {
+        conf.setInt(FIXED_RECORD_LENGTH, recordLength);
     }
-    return new FixedLengthRecordReader(job, (FileSplit)genericSplit,
-                                       recordLength);
-  }
 
-  @Override
-  protected boolean isSplitable(FileSystem fs, Path file) {
-    final CompressionCodec codec = compressionCodecs.getCodec(file);
-    return(null == codec);
-  }
+    /**
+     * Get record length value
+     * @param conf configuration
+     * @return the record length, zero means none was set
+     */
+    public static int getRecordLength(Configuration conf) {
+        return conf.getInt(FIXED_RECORD_LENGTH, 0);
+    }
+
+    @Override
+    public void configure(JobConf conf) {
+        compressionCodecs = new CompressionCodecFactory(conf);
+    }
+
+    @Override
+    public RecordReader<LongWritable, BytesWritable>
+    getRecordReader(InputSplit genericSplit, JobConf job, Reporter reporter)
+    throws IOException {
+        reporter.setStatus(genericSplit.toString());
+        int recordLength = getRecordLength(job);
+        if (recordLength <= 0) {
+            throw new IOException("Fixed record length " + recordLength
+                                  + " is invalid.  It should be set to a value greater than zero");
+        }
+        return new FixedLengthRecordReader(job, (FileSplit)genericSplit,
+                                           recordLength);
+    }
+
+    @Override
+    protected boolean isSplitable(FileSystem fs, Path file) {
+        final CompressionCodec codec = compressionCodecs.getCodec(file);
+        return(null == codec);
+    }
 
 }

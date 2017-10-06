@@ -38,83 +38,83 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCryptoStreamsForLocalFS extends CryptoStreamsTestBase {
-  private static final String TEST_ROOT_DIR
-    = System.getProperty("test.build.data","build/test/data") + "/work-dir/localfs";
+    private static final String TEST_ROOT_DIR
+        = System.getProperty("test.build.data","build/test/data") + "/work-dir/localfs";
 
-  private final File base = new File(TEST_ROOT_DIR);
-  private final Path file = new Path(TEST_ROOT_DIR, "test-file");
-  private static LocalFileSystem fileSys;
-  
-  @BeforeClass
-  public static void init() throws Exception {
-    Configuration conf = new Configuration();
-    conf = new Configuration(false);
-    conf.set("fs.file.impl", LocalFileSystem.class.getName());
-    fileSys = FileSystem.getLocal(conf);
-    conf.set(
-        CommonConfigurationKeysPublic.HADOOP_SECURITY_CRYPTO_CODEC_CLASSES_KEY_PREFIX
+    private final File base = new File(TEST_ROOT_DIR);
+    private final Path file = new Path(TEST_ROOT_DIR, "test-file");
+    private static LocalFileSystem fileSys;
+
+    @BeforeClass
+    public static void init() throws Exception {
+        Configuration conf = new Configuration();
+        conf = new Configuration(false);
+        conf.set("fs.file.impl", LocalFileSystem.class.getName());
+        fileSys = FileSystem.getLocal(conf);
+        conf.set(
+            CommonConfigurationKeysPublic.HADOOP_SECURITY_CRYPTO_CODEC_CLASSES_KEY_PREFIX
             + CipherSuite.AES_CTR_NOPADDING.getConfigSuffix(),
-        OpensslAesCtrCryptoCodec.class.getName() + ","
+            OpensslAesCtrCryptoCodec.class.getName() + ","
             + JceAesCtrCryptoCodec.class.getName());
-    codec = CryptoCodec.getInstance(conf);
-  }
-  
-  @AfterClass
-  public static void shutdown() throws Exception {
-  }
-  
-  @Before
-  @Override
-  public void setUp() throws IOException {
-    fileSys.delete(new Path(TEST_ROOT_DIR), true);
-    super.setUp();
-  }
-  
-  @After
-  public void cleanUp() throws IOException {
-    FileUtil.setWritable(base, true);
-    FileUtil.fullyDelete(base);
-    assertTrue(!base.exists());
-  }
-  
-  @Override
-  protected OutputStream getOutputStream(int bufferSize, byte[] key, byte[] iv) 
-      throws IOException {
-    return new CryptoOutputStream(fileSys.create(file), codec, bufferSize, 
-        key, iv);
-  }
-  
-  @Override
-  protected InputStream getInputStream(int bufferSize, byte[] key, byte[] iv) 
-      throws IOException {
-    return new CryptoInputStream(fileSys.open(file), codec, bufferSize, 
-        key, iv);
-  }
-  
-  @Ignore("ChecksumFSInputChecker doesn't support ByteBuffer read")
-  @Override
-  @Test(timeout=1000)
-  public void testByteBufferRead() throws Exception {}
-  
-  @Ignore("ChecksumFSOutputSummer doesn't support Syncable")
-  @Override
-  @Test(timeout=1000)
-  public void testSyncable() throws IOException {}
-  
-  @Ignore("ChecksumFSInputChecker doesn't support ByteBuffer read")
-  @Override
-  @Test(timeout=1000)
-  public void testCombinedOp() throws Exception {}
-  
-  @Ignore("ChecksumFSInputChecker doesn't support enhanced ByteBuffer access")
-  @Override
-  @Test(timeout=1000)
-  public void testHasEnhancedByteBufferAccess() throws Exception {
-  }
-  
-  @Ignore("ChecksumFSInputChecker doesn't support seekToNewSource")
-  @Override
-  @Test(timeout=1000)
-  public void testSeekToNewSource() throws Exception {
-  }
+        codec = CryptoCodec.getInstance(conf);
+    }
+
+    @AfterClass
+    public static void shutdown() throws Exception {
+    }
+
+    @Before
+    @Override
+    public void setUp() throws IOException {
+        fileSys.delete(new Path(TEST_ROOT_DIR), true);
+        super.setUp();
+    }
+
+    @After
+    public void cleanUp() throws IOException {
+        FileUtil.setWritable(base, true);
+        FileUtil.fullyDelete(base);
+        assertTrue(!base.exists());
+    }
+
+    @Override
+    protected OutputStream getOutputStream(int bufferSize, byte[] key, byte[] iv)
+    throws IOException {
+        return new CryptoOutputStream(fileSys.create(file), codec, bufferSize,
+                                      key, iv);
+    }
+
+    @Override
+    protected InputStream getInputStream(int bufferSize, byte[] key, byte[] iv)
+    throws IOException {
+        return new CryptoInputStream(fileSys.open(file), codec, bufferSize,
+                                     key, iv);
+    }
+
+    @Ignore("ChecksumFSInputChecker doesn't support ByteBuffer read")
+    @Override
+    @Test(timeout=1000)
+    public void testByteBufferRead() throws Exception {}
+
+    @Ignore("ChecksumFSOutputSummer doesn't support Syncable")
+    @Override
+    @Test(timeout=1000)
+    public void testSyncable() throws IOException {}
+
+    @Ignore("ChecksumFSInputChecker doesn't support ByteBuffer read")
+    @Override
+    @Test(timeout=1000)
+    public void testCombinedOp() throws Exception {}
+
+    @Ignore("ChecksumFSInputChecker doesn't support enhanced ByteBuffer access")
+    @Override
+    @Test(timeout=1000)
+    public void testHasEnhancedByteBufferAccess() throws Exception {
+    }
+
+    @Ignore("ChecksumFSInputChecker doesn't support seekToNewSource")
+    @Override
+    @Test(timeout=1000)
+    public void testSeekToNewSource() throws Exception {
+    }
 }

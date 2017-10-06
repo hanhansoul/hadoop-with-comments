@@ -26,76 +26,76 @@ import junit.framework.TestCase;
 
 public class TestIFileStreams extends TestCase {
 
-  public void testIFileStream() throws Exception {
-    final int DLEN = 100;
-    DataOutputBuffer dob = new DataOutputBuffer(DLEN + 4);
-    IFileOutputStream ifos = new IFileOutputStream(dob);
-    for (int i = 0; i < DLEN; ++i) {
-      ifos.write(i);
-    }
-    ifos.close();
-    DataInputBuffer dib = new DataInputBuffer();
-    dib.reset(dob.getData(), DLEN + 4);
-    IFileInputStream ifis = new IFileInputStream(dib, 104, new Configuration());
-    for (int i = 0; i < DLEN; ++i) {
-      assertEquals(i, ifis.read());
-    }
-    ifis.close();
-  }
-
-  public void testBadIFileStream() throws Exception {
-    final int DLEN = 100;
-    DataOutputBuffer dob = new DataOutputBuffer(DLEN + 4);
-    IFileOutputStream ifos = new IFileOutputStream(dob);
-    for (int i = 0; i < DLEN; ++i) {
-      ifos.write(i);
-    }
-    ifos.close();
-    DataInputBuffer dib = new DataInputBuffer();
-    final byte[] b = dob.getData();
-    ++b[17];
-    dib.reset(b, DLEN + 4);
-    IFileInputStream ifis = new IFileInputStream(dib, 104, new Configuration());
-    int i = 0;
-    try {
-      while (i < DLEN) {
-        if (17 == i) {
-          assertEquals(18, ifis.read());
-        } else {
-          assertEquals(i, ifis.read());
+    public void testIFileStream() throws Exception {
+        final int DLEN = 100;
+        DataOutputBuffer dob = new DataOutputBuffer(DLEN + 4);
+        IFileOutputStream ifos = new IFileOutputStream(dob);
+        for (int i = 0; i < DLEN; ++i) {
+            ifos.write(i);
         }
-        ++i;
-      }
-      ifis.close();
-    } catch (ChecksumException e) {
-      assertEquals("Unexpected bad checksum", DLEN - 1, i);
-      return;
+        ifos.close();
+        DataInputBuffer dib = new DataInputBuffer();
+        dib.reset(dob.getData(), DLEN + 4);
+        IFileInputStream ifis = new IFileInputStream(dib, 104, new Configuration());
+        for (int i = 0; i < DLEN; ++i) {
+            assertEquals(i, ifis.read());
+        }
+        ifis.close();
     }
-    fail("Did not detect bad data in checksum");
-  }
 
-  public void testBadLength() throws Exception {
-    final int DLEN = 100;
-    DataOutputBuffer dob = new DataOutputBuffer(DLEN + 4);
-    IFileOutputStream ifos = new IFileOutputStream(dob);
-    for (int i = 0; i < DLEN; ++i) {
-      ifos.write(i);
+    public void testBadIFileStream() throws Exception {
+        final int DLEN = 100;
+        DataOutputBuffer dob = new DataOutputBuffer(DLEN + 4);
+        IFileOutputStream ifos = new IFileOutputStream(dob);
+        for (int i = 0; i < DLEN; ++i) {
+            ifos.write(i);
+        }
+        ifos.close();
+        DataInputBuffer dib = new DataInputBuffer();
+        final byte[] b = dob.getData();
+        ++b[17];
+        dib.reset(b, DLEN + 4);
+        IFileInputStream ifis = new IFileInputStream(dib, 104, new Configuration());
+        int i = 0;
+        try {
+            while (i < DLEN) {
+                if (17 == i) {
+                    assertEquals(18, ifis.read());
+                } else {
+                    assertEquals(i, ifis.read());
+                }
+                ++i;
+            }
+            ifis.close();
+        } catch (ChecksumException e) {
+            assertEquals("Unexpected bad checksum", DLEN - 1, i);
+            return;
+        }
+        fail("Did not detect bad data in checksum");
     }
-    ifos.close();
-    DataInputBuffer dib = new DataInputBuffer();
-    dib.reset(dob.getData(), DLEN + 4);
-    IFileInputStream ifis = new IFileInputStream(dib, 100, new Configuration());
-    int i = 0;
-    try {
-      while (i < DLEN - 8) {
-        assertEquals(i++, ifis.read());
-      }
-      ifis.close();
-    } catch (ChecksumException e) {
-      assertEquals("Checksum before close", i, DLEN - 8);
-      return;
+
+    public void testBadLength() throws Exception {
+        final int DLEN = 100;
+        DataOutputBuffer dob = new DataOutputBuffer(DLEN + 4);
+        IFileOutputStream ifos = new IFileOutputStream(dob);
+        for (int i = 0; i < DLEN; ++i) {
+            ifos.write(i);
+        }
+        ifos.close();
+        DataInputBuffer dib = new DataInputBuffer();
+        dib.reset(dob.getData(), DLEN + 4);
+        IFileInputStream ifis = new IFileInputStream(dib, 100, new Configuration());
+        int i = 0;
+        try {
+            while (i < DLEN - 8) {
+                assertEquals(i++, ifis.read());
+            }
+            ifis.close();
+        } catch (ChecksumException e) {
+            assertEquals("Checksum before close", i, DLEN - 8);
+            return;
+        }
+        fail("Did not detect bad data in checksum");
     }
-    fail("Did not detect bad data in checksum");
-  }
 
 }

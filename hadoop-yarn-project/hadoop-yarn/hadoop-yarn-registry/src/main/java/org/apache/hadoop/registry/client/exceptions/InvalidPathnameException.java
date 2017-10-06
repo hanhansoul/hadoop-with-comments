@@ -28,13 +28,13 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class InvalidPathnameException extends RegistryIOException {
-  public InvalidPathnameException(String path, String message) {
-    super(path, message);
-  }
+    public InvalidPathnameException(String path, String message) {
+        super(path, message);
+    }
 
-  public InvalidPathnameException(String path,
-      String message,
-      Throwable cause) {
-    super(path, message, cause);
-  }
+    public InvalidPathnameException(String path,
+                                    String message,
+                                    Throwable cause) {
+        super(path, message, cause);
+    }
 }

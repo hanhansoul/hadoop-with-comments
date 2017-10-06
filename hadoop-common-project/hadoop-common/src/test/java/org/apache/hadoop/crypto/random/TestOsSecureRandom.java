@@ -28,127 +28,127 @@ import org.junit.Test;
 
 public class TestOsSecureRandom {
 
-  private static OsSecureRandom getOsSecureRandom() throws IOException {
-    Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
-    OsSecureRandom random = new OsSecureRandom();
-    random.setConf(new Configuration());
-    return random;
-  }
+    private static OsSecureRandom getOsSecureRandom() throws IOException {
+        Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
+        OsSecureRandom random = new OsSecureRandom();
+        random.setConf(new Configuration());
+        return random;
+    }
 
-  @Test(timeout=120000)
-  public void testRandomBytes() throws Exception {
-    OsSecureRandom random = getOsSecureRandom();
-    // len = 16
-    checkRandomBytes(random, 16);
-    // len = 32
-    checkRandomBytes(random, 32);
-    // len = 128
-    checkRandomBytes(random, 128);
-    // len = 256
-    checkRandomBytes(random, 256);
-    random.close();
-  }
-  
-  /**
-   * Test will timeout if secure random implementation always returns a 
-   * constant value.
-   */
-  private void checkRandomBytes(OsSecureRandom random, int len) {
-    byte[] bytes = new byte[len];
-    byte[] bytes1 = new byte[len];
-    random.nextBytes(bytes);
-    random.nextBytes(bytes1);
-    
-    while (Arrays.equals(bytes, bytes1)) {
-      random.nextBytes(bytes1);
+    @Test(timeout=120000)
+    public void testRandomBytes() throws Exception {
+        OsSecureRandom random = getOsSecureRandom();
+        // len = 16
+        checkRandomBytes(random, 16);
+        // len = 32
+        checkRandomBytes(random, 32);
+        // len = 128
+        checkRandomBytes(random, 128);
+        // len = 256
+        checkRandomBytes(random, 256);
+        random.close();
     }
-  }
-  
-  /**
-   * Test will timeout if secure random implementation always returns a 
-   * constant value.
-   */
-  @Test(timeout=120000)
-  public void testRandomInt() throws Exception {
-    OsSecureRandom random = getOsSecureRandom();
-    
-    int rand1 = random.nextInt();
-    int rand2 = random.nextInt();
-    while (rand1 == rand2) {
-      rand2 = random.nextInt();
-    }
-    random.close();
-  }
-  
-  /**
-   * Test will timeout if secure random implementation always returns a 
-   * constant value.
-   */
-  @Test(timeout=120000)
-  public void testRandomLong() throws Exception {
-    OsSecureRandom random = getOsSecureRandom();
-    
-    long rand1 = random.nextLong();
-    long rand2 = random.nextLong();
-    while (rand1 == rand2) {
-      rand2 = random.nextLong();
-    }
-    random.close();
-  }
-  
-  /**
-   * Test will timeout if secure random implementation always returns a 
-   * constant value.
-   */
-  @Test(timeout=120000)
-  public void testRandomFloat() throws Exception {
-    OsSecureRandom random = getOsSecureRandom();
-    
-    float rand1 = random.nextFloat();
-    float rand2 = random.nextFloat();
-    while (rand1 == rand2) {
-      rand2 = random.nextFloat();
-    }
-    random.close();
-  }
-  
-  /**
-   * Test will timeout if secure random implementation always returns a 
-   * constant value.
-   */
-  @Test(timeout=120000)
-  public void testRandomDouble() throws Exception {
-    OsSecureRandom random = getOsSecureRandom();
-    
-    double rand1 = random.nextDouble();
-    double rand2 = random.nextDouble();
-    while (rand1 == rand2) {
-      rand2 = random.nextDouble();
-    }
-    random.close();
-  }
 
-  @Test(timeout=120000)
-  public void testRefillReservoir() throws Exception {
-    OsSecureRandom random = getOsSecureRandom();
+    /**
+     * Test will timeout if secure random implementation always returns a
+     * constant value.
+     */
+    private void checkRandomBytes(OsSecureRandom random, int len) {
+        byte[] bytes = new byte[len];
+        byte[] bytes1 = new byte[len];
+        random.nextBytes(bytes);
+        random.nextBytes(bytes1);
 
-    for (int i = 0; i < 8196; i++) {
-      random.nextLong();
+        while (Arrays.equals(bytes, bytes1)) {
+            random.nextBytes(bytes1);
+        }
     }
-    random.close();
-  }
-  
-  @Test(timeout=120000)
-  public void testOsSecureRandomSetConf() throws IOException {
-    Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
-    OsSecureRandom random = new OsSecureRandom();
-    for(int n = 0; n < 10; ++n) {
-      random.setConf(new Configuration());
-      String[] scmd = new String[] {"/bin/sh", "-c", "lsof | wc -l"};
-      ShellCommandExecutor sce = new ShellCommandExecutor(scmd);
-      sce.execute(); 
-      System.out.println("==lsof result " + n + ":");
-      System.out.println(sce.getOutput());
+
+    /**
+     * Test will timeout if secure random implementation always returns a
+     * constant value.
+     */
+    @Test(timeout=120000)
+    public void testRandomInt() throws Exception {
+        OsSecureRandom random = getOsSecureRandom();
+
+        int rand1 = random.nextInt();
+        int rand2 = random.nextInt();
+        while (rand1 == rand2) {
+            rand2 = random.nextInt();
+        }
+        random.close();
     }
-  }
+
+    /**
+     * Test will timeout if secure random implementation always returns a
+     * constant value.
+     */
+    @Test(timeout=120000)
+    public void testRandomLong() throws Exception {
+        OsSecureRandom random = getOsSecureRandom();
+
+        long rand1 = random.nextLong();
+        long rand2 = random.nextLong();
+        while (rand1 == rand2) {
+            rand2 = random.nextLong();
+        }
+        random.close();
+    }
+
+    /**
+     * Test will timeout if secure random implementation always returns a
+     * constant value.
+     */
+    @Test(timeout=120000)
+    public void testRandomFloat() throws Exception {
+        OsSecureRandom random = getOsSecureRandom();
+
+        float rand1 = random.nextFloat();
+        float rand2 = random.nextFloat();
+        while (rand1 == rand2) {
+            rand2 = random.nextFloat();
+        }
+        random.close();
+    }
+
+    /**
+     * Test will timeout if secure random implementation always returns a
+     * constant value.
+     */
+    @Test(timeout=120000)
+    public void testRandomDouble() throws Exception {
+        OsSecureRandom random = getOsSecureRandom();
+
+        double rand1 = random.nextDouble();
+        double rand2 = random.nextDouble();
+        while (rand1 == rand2) {
+            rand2 = random.nextDouble();
+        }
+        random.close();
+    }
+
+    @Test(timeout=120000)
+    public void testRefillReservoir() throws Exception {
+        OsSecureRandom random = getOsSecureRandom();
+
+        for (int i = 0; i < 8196; i++) {
+            random.nextLong();
+        }
+        random.close();
+    }
+
+    @Test(timeout=120000)
+    public void testOsSecureRandomSetConf() throws IOException {
+        Assume.assumeTrue(SystemUtils.IS_OS_LINUX);
+        OsSecureRandom random = new OsSecureRandom();
+        for(int n = 0; n < 10; ++n) {
+            random.setConf(new Configuration());
+            String[] scmd = new String[] {"/bin/sh", "-c", "lsof | wc -l"};
+            ShellCommandExecutor sce = new ShellCommandExecutor(scmd);
+            sce.execute();
+            System.out.println("==lsof result " + n + ":");
+            System.out.println(sce.getOutput());
+        }
+    }
 }

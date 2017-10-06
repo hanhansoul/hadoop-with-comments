@@ -31,162 +31,162 @@ import com.google.protobuf.ByteString;
 @Private
 @Unstable
 public class TokenPBImpl extends Token {
-  private TokenProto proto = TokenProto.getDefaultInstance();
-  private TokenProto.Builder builder = null;
-  private boolean viaProto = false;
+    private TokenProto proto = TokenProto.getDefaultInstance();
+    private TokenProto.Builder builder = null;
+    private boolean viaProto = false;
 
-  private ByteBuffer identifier;
-  private ByteBuffer password;
-  
-  public TokenPBImpl() {
-    builder = TokenProto.newBuilder();
-  }
+    private ByteBuffer identifier;
+    private ByteBuffer password;
 
-  public TokenPBImpl(TokenProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public synchronized TokenProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public TokenPBImpl() {
+        builder = TokenProto.newBuilder();
     }
-    return false;
-  }
 
-  protected final ByteBuffer convertFromProtoFormat(ByteString byteString) {
-    return ProtoUtils.convertFromProtoFormat(byteString);
-  }
-
-  protected final ByteString convertToProtoFormat(ByteBuffer byteBuffer) {
-    return ProtoUtils.convertToProtoFormat(byteBuffer);
-  }
-
-  private synchronized void mergeLocalToBuilder() {
-    if (this.identifier != null) {
-      builder.setIdentifier(convertToProtoFormat(this.identifier));
+    public TokenPBImpl(TokenProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (this.password != null) {
-      builder.setPassword(convertToProtoFormat(this.password));
+
+    public synchronized TokenProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private synchronized void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private synchronized void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = TokenProto.newBuilder(proto);
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    viaProto = false;
-  }
 
-  @Override
-  public synchronized ByteBuffer getIdentifier() {
-    TokenProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.identifier != null) {
-      return this.identifier;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    if (!p.hasIdentifier()) {
-      return null;
+
+    protected final ByteBuffer convertFromProtoFormat(ByteString byteString) {
+        return ProtoUtils.convertFromProtoFormat(byteString);
     }
-    this.identifier = convertFromProtoFormat(p.getIdentifier());
-    return this.identifier;
-  }
 
-  @Override
-  public synchronized void setIdentifier(ByteBuffer identifier) {
-    maybeInitBuilder();
-    if (identifier == null) 
-      builder.clearIdentifier();
-    this.identifier = identifier;
-  }
-
-  @Override
-  public synchronized ByteBuffer getPassword() {
-    TokenProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.password != null) {
-      return this.password;
+    protected final ByteString convertToProtoFormat(ByteBuffer byteBuffer) {
+        return ProtoUtils.convertToProtoFormat(byteBuffer);
     }
-    if (!p.hasPassword()) {
-      return null;
+
+    private synchronized void mergeLocalToBuilder() {
+        if (this.identifier != null) {
+            builder.setIdentifier(convertToProtoFormat(this.identifier));
+        }
+        if (this.password != null) {
+            builder.setPassword(convertToProtoFormat(this.password));
+        }
     }
-    this.password =  convertFromProtoFormat(p.getPassword());
-    return this.password;
-  }
 
-  @Override
-  public synchronized void setPassword(ByteBuffer password) {
-    maybeInitBuilder();
-    if (password == null) 
-      builder.clearPassword();
-    this.password = password;
-  }
-
-  @Override
-  public synchronized String getKind() {
-    TokenProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasKind()) {
-      return null;
+    private synchronized void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return (p.getKind());
-  }
 
-  @Override
-  public synchronized void setKind(String kind) {
-    maybeInitBuilder();
-    if (kind == null) {
-      builder.clearKind();
-      return;
+    private synchronized void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = TokenProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    builder.setKind((kind));
-  }
 
-  @Override
-  public synchronized String getService() {
-    TokenProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasService()) {
-      return null;
+    @Override
+    public synchronized ByteBuffer getIdentifier() {
+        TokenProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.identifier != null) {
+            return this.identifier;
+        }
+        if (!p.hasIdentifier()) {
+            return null;
+        }
+        this.identifier = convertFromProtoFormat(p.getIdentifier());
+        return this.identifier;
     }
-    return (p.getService());
-  }
 
-  @Override
-  public synchronized void setService(String service) {
-    maybeInitBuilder();
-    if (service == null) {
-      builder.clearService();
-      return;
+    @Override
+    public synchronized void setIdentifier(ByteBuffer identifier) {
+        maybeInitBuilder();
+        if (identifier == null)
+            builder.clearIdentifier();
+        this.identifier = identifier;
     }
-    builder.setService((service));
-  }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Token { ");
-    sb.append("kind: ").append(getKind()).append(", ");
-    sb.append("service: ").append(getService()).append(" }");
-    return sb.toString();
-  }
-}  
+    @Override
+    public synchronized ByteBuffer getPassword() {
+        TokenProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.password != null) {
+            return this.password;
+        }
+        if (!p.hasPassword()) {
+            return null;
+        }
+        this.password =  convertFromProtoFormat(p.getPassword());
+        return this.password;
+    }
+
+    @Override
+    public synchronized void setPassword(ByteBuffer password) {
+        maybeInitBuilder();
+        if (password == null)
+            builder.clearPassword();
+        this.password = password;
+    }
+
+    @Override
+    public synchronized String getKind() {
+        TokenProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasKind()) {
+            return null;
+        }
+        return (p.getKind());
+    }
+
+    @Override
+    public synchronized void setKind(String kind) {
+        maybeInitBuilder();
+        if (kind == null) {
+            builder.clearKind();
+            return;
+        }
+        builder.setKind((kind));
+    }
+
+    @Override
+    public synchronized String getService() {
+        TokenProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasService()) {
+            return null;
+        }
+        return (p.getService());
+    }
+
+    @Override
+    public synchronized void setService(String service) {
+        maybeInitBuilder();
+        if (service == null) {
+            builder.clearService();
+            return;
+        }
+        builder.setService((service));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Token { ");
+        sb.append("kind: ").append(getKind()).append(", ");
+        sb.append("service: ").append(getService()).append(" }");
+        return sb.toString();
+    }
+}

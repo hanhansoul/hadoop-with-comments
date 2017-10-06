@@ -34,99 +34,99 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestLogalyzer {
-  private static String EL = System.getProperty("line.separator");
-  private static String TAB = "\t";
-  private static final Log LOG = LogFactory.getLog(TestLogalyzer.class);
+    private static String EL = System.getProperty("line.separator");
+    private static String TAB = "\t";
+    private static final Log LOG = LogFactory.getLog(TestLogalyzer.class);
 
-  private static File workSpace = new File("target",
-      TestLogalyzer.class.getName() + "-workSpace");
-  private static File outdir = new File(workSpace.getAbsoluteFile()
-      + File.separator + "out");
+    private static File workSpace = new File("target",
+            TestLogalyzer.class.getName() + "-workSpace");
+    private static File outdir = new File(workSpace.getAbsoluteFile()
+                                          + File.separator + "out");
 
-  @Test
-  public void testLogalyzer() throws Exception {
-    Path f = createLogFile();
+    @Test
+    public void testLogalyzer() throws Exception {
+        Path f = createLogFile();
 
-    String[] args = new String[10];
+        String[] args = new String[10];
 
-    args[0] = "-archiveDir";
-    args[1] = f.toString();
-    args[2] = "-grep";
-    args[3] = "44";
-    args[4] = "-sort";
-    args[5] = "0";
-    args[6] = "-analysis";
-    args[7] = outdir.getAbsolutePath();
-    args[8] = "-separator";
-    args[9] = " ";
+        args[0] = "-archiveDir";
+        args[1] = f.toString();
+        args[2] = "-grep";
+        args[3] = "44";
+        args[4] = "-sort";
+        args[5] = "0";
+        args[6] = "-analysis";
+        args[7] = outdir.getAbsolutePath();
+        args[8] = "-separator";
+        args[9] = " ";
 
-    Logalyzer.main(args);
-    checkResult();
+        Logalyzer.main(args);
+        checkResult();
 
-  }
+    }
 
-  private void checkResult() throws Exception {
-    File result = new File(outdir.getAbsolutePath() + File.separator
-        + "part-00000");
-    File success = new File(outdir.getAbsolutePath() + File.separator
-        + "_SUCCESS");
-    Assert.assertTrue(success.exists());
+    private void checkResult() throws Exception {
+        File result = new File(outdir.getAbsolutePath() + File.separator
+                               + "part-00000");
+        File success = new File(outdir.getAbsolutePath() + File.separator
+                                + "_SUCCESS");
+        Assert.assertTrue(success.exists());
 
-    FileInputStream fis = new FileInputStream(result);
-    BufferedReader br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
-    String line = br.readLine();
-    Assert.assertTrue(("1 44" + TAB + "2").equals(line));
-    line = br.readLine();
+        FileInputStream fis = new FileInputStream(result);
+        BufferedReader br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
+        String line = br.readLine();
+        Assert.assertTrue(("1 44" + TAB + "2").equals(line));
+        line = br.readLine();
 
-    Assert.assertTrue(("3 44" + TAB + "1").equals(line));
-    line = br.readLine();
+        Assert.assertTrue(("3 44" + TAB + "1").equals(line));
+        line = br.readLine();
 
-    Assert.assertTrue(("4 44" + TAB + "1").equals(line));
+        Assert.assertTrue(("4 44" + TAB + "1").equals(line));
 
-    br.close();
+        br.close();
 
-  }
+    }
 
-  /**
-   * Create simple log file
-   * 
-   * @return
-   * @throws IOException
-   */
+    /**
+     * Create simple log file
+     *
+     * @return
+     * @throws IOException
+     */
 
-  private Path createLogFile() throws IOException {
+    private Path createLogFile() throws IOException {
 
-    FileContext files = FileContext.getLocalFSFileContext();
+        FileContext files = FileContext.getLocalFSFileContext();
 
-    Path ws = new Path(workSpace.getAbsoluteFile().getAbsolutePath());
+        Path ws = new Path(workSpace.getAbsoluteFile().getAbsolutePath());
 
-    files.delete(ws, true);
-    Path workSpacePath = new Path(workSpace.getAbsolutePath(), "log");
-    files.mkdir(workSpacePath, null, true);
+        files.delete(ws, true);
+        Path workSpacePath = new Path(workSpace.getAbsolutePath(), "log");
+        files.mkdir(workSpacePath, null, true);
 
-    LOG.info("create logfile.log");
-    Path logfile1 = new Path(workSpacePath, "logfile.log");
+        LOG.info("create logfile.log");
+        Path logfile1 = new Path(workSpacePath, "logfile.log");
 
-    FSDataOutputStream os = files.create(logfile1,
-        EnumSet.of(CreateFlag.CREATE));
-    os.writeBytes("4 3" + EL + "1 3" + EL + "4 44" + EL);
-    os.writeBytes("2 3" + EL + "1 3" + EL + "0 45" + EL);
-    os.writeBytes("4 3" + EL + "1 3" + EL + "1 44" + EL);
+        FSDataOutputStream os = files.create(logfile1,
+                                             EnumSet.of(CreateFlag.CREATE));
+        os.writeBytes("4 3" + EL + "1 3" + EL + "4 44" + EL);
+        os.writeBytes("2 3" + EL + "1 3" + EL + "0 45" + EL);
+        os.writeBytes("4 3" + EL + "1 3" + EL + "1 44" + EL);
 
-    os.flush();
-    os.close();
-    LOG.info("create logfile1.log");
+        os.flush();
+        os.close();
+        LOG.info("create logfile1.log");
 
-    Path logfile2 = new Path(workSpacePath, "logfile1.log");
+        Path logfile2 = new Path(workSpacePath, "logfile1.log");
 
-    os = files.create(logfile2, EnumSet.of(CreateFlag.CREATE));
-    os.writeBytes("4 3" + EL + "1 3" + EL + "3 44" + EL);
-    os.writeBytes("2 3" + EL + "1 3" + EL + "0 45" + EL);
-    os.writeBytes("4 3" + EL + "1 3" + EL + "1 44" + EL);
+        os = files.create(logfile2, EnumSet.of(CreateFlag.CREATE));
+        os.writeBytes("4 3" + EL + "1 3" + EL + "3 44" + EL);
+        os.writeBytes("2 3" + EL + "1 3" + EL + "0 45" + EL);
+        os.writeBytes("4 3" + EL + "1 3" + EL + "1 44" + EL);
 
-    os.flush();
-    os.close();
+        os.flush();
+        os.close();
 
-    return workSpacePath;
-  }
+        return workSpacePath;
+    }
 }

@@ -30,15 +30,15 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.Private
 public class InvalidMagicNumberException extends IOException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  /**
-   * Creates a new InvalidMagicNumberException.
-   *
-   * @param magicNumber expected value
-   */
-  public InvalidMagicNumberException(int magicNumber) {
-    super(String.format("Received %x instead of %x from client.",
-        magicNumber, SASL_TRANSFER_MAGIC_NUMBER));
-  }
+    /**
+     * Creates a new InvalidMagicNumberException.
+     *
+     * @param magicNumber expected value
+     */
+    public InvalidMagicNumberException(int magicNumber) {
+        super(String.format("Received %x instead of %x from client.",
+                            magicNumber, SASL_TRANSFER_MAGIC_NUMBER));
+    }
 }

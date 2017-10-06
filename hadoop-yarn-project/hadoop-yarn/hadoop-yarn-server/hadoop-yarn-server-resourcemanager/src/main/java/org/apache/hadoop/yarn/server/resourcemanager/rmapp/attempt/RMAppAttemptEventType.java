@@ -19,34 +19,34 @@
 package org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt;
 
 public enum RMAppAttemptEventType {
-  // Source: RMApp
-  START,
-  KILL,
+    // Source: RMApp
+    START,
+    KILL,
 
-  // Source: AMLauncher
-  LAUNCHED,
-  LAUNCH_FAILED,
+    // Source: AMLauncher
+    LAUNCHED,
+    LAUNCH_FAILED,
 
-  // Source: AMLivelinessMonitor
-  EXPIRE,
-  
-  // Source: ApplicationMasterService
-  REGISTERED,
-  STATUS_UPDATE,
-  UNREGISTERED,
+    // Source: AMLivelinessMonitor
+    EXPIRE,
 
-  // Source: Containers
-  CONTAINER_ALLOCATED,
-  CONTAINER_FINISHED,
-  
-  // Source: RMStateStore
-  ATTEMPT_NEW_SAVED,
-  ATTEMPT_UPDATE_SAVED,
+    // Source: ApplicationMasterService
+    REGISTERED,
+    STATUS_UPDATE,
+    UNREGISTERED,
 
-  // Source: Scheduler
-  ATTEMPT_ADDED,
-  
-  // Source: RMAttemptImpl.recover
-  RECOVER
+    // Source: Containers
+    CONTAINER_ALLOCATED,
+    CONTAINER_FINISHED,
+
+    // Source: RMStateStore
+    ATTEMPT_NEW_SAVED,
+    ATTEMPT_UPDATE_SAVED,
+
+    // Source: Scheduler
+    ATTEMPT_ADDED,
+
+    // Source: RMAttemptImpl.recover
+    RECOVER
 
 }

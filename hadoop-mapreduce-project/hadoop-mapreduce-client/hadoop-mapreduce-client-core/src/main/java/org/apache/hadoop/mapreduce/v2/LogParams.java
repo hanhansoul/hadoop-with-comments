@@ -20,48 +20,48 @@ package org.apache.hadoop.mapreduce.v2;
 
 public class LogParams {
 
-  private String containerId;
-  private String applicationId;
-  private String nodeId;
-  private String owner;
+    private String containerId;
+    private String applicationId;
+    private String nodeId;
+    private String owner;
 
-  public LogParams(String containerIdStr, String applicationIdStr,
-      String nodeIdStr, String owner) {
-    this.containerId = containerIdStr;
-    this.applicationId = applicationIdStr;
-    this.nodeId = nodeIdStr;
-    this.owner = owner;
-  }
+    public LogParams(String containerIdStr, String applicationIdStr,
+                     String nodeIdStr, String owner) {
+        this.containerId = containerIdStr;
+        this.applicationId = applicationIdStr;
+        this.nodeId = nodeIdStr;
+        this.owner = owner;
+    }
 
-  public String getContainerId() {
-    return containerId;
-  }
+    public String getContainerId() {
+        return containerId;
+    }
 
-  public void setContainerId(String containerId) {
-    this.containerId = containerId;
-  }
+    public void setContainerId(String containerId) {
+        this.containerId = containerId;
+    }
 
-  public String getApplicationId() {
-    return applicationId;
-  }
+    public String getApplicationId() {
+        return applicationId;
+    }
 
-  public void setApplicationId(String applicationId) {
-    this.applicationId = applicationId;
-  }
+    public void setApplicationId(String applicationId) {
+        this.applicationId = applicationId;
+    }
 
-  public String getNodeId() {
-    return nodeId;
-  }
+    public String getNodeId() {
+        return nodeId;
+    }
 
-  public void setNodeId(String nodeId) {
-    this.nodeId = nodeId;
-  }
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
 
-  public String getOwner() {
-    return this.owner;
-  }
+    public String getOwner() {
+        return this.owner;
+    }
 
-  public String setOwner(String owner) {
-    return this.owner;
-  }
+    public String setOwner(String owner) {
+        return this.owner;
+    }
 }

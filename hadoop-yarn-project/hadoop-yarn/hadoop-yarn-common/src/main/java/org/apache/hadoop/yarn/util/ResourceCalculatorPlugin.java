@@ -32,108 +32,108 @@ import org.apache.hadoop.util.Shell;
 @InterfaceAudience.LimitedPrivate({"YARN", "MAPREDUCE"})
 @InterfaceStability.Unstable
 public abstract class ResourceCalculatorPlugin extends Configured {
-  
-  protected String processPid = null;
 
-  /**
-   * set the pid of the process for which <code>getProcResourceValues</code>
-   * will be invoked
-   * 
-   * @param pid
-   */
-  public void setProcessPid(String pid) {
-    processPid = pid;
-  }
+    protected String processPid = null;
 
-  /**
-   * Obtain the total size of the virtual memory present in the system.
-   *
-   * @return virtual memory size in bytes.
-   */
-  public abstract long getVirtualMemorySize();
-
-  /**
-   * Obtain the total size of the physical memory present in the system.
-   *
-   * @return physical memory size bytes.
-   */
-  public abstract long getPhysicalMemorySize();
-
-  /**
-   * Obtain the total size of the available virtual memory present
-   * in the system.
-   *
-   * @return available virtual memory size in bytes.
-   */
-  public abstract long getAvailableVirtualMemorySize();
-
-  /**
-   * Obtain the total size of the available physical memory present
-   * in the system.
-   *
-   * @return available physical memory size bytes.
-   */
-  public abstract long getAvailablePhysicalMemorySize();
-
-  /**
-   * Obtain the total number of processors present on the system.
-   *
-   * @return number of processors
-   */
-  public abstract int getNumProcessors();
-
-  /**
-   * Obtain the CPU frequency of on the system.
-   *
-   * @return CPU frequency in kHz
-   */
-  public abstract long getCpuFrequency();
-
-  /**
-   * Obtain the cumulative CPU time since the system is on.
-   *
-   * @return cumulative CPU time in milliseconds
-   */
-  public abstract long getCumulativeCpuTime();
-
-  /**
-   * Obtain the CPU usage % of the machine. Return -1 if it is unavailable
-   *
-   * @return CPU usage in %
-   */
-  public abstract float getCpuUsage();
-
-  /**
-   * Create the ResourceCalculatorPlugin from the class name and configure it. If
-   * class name is null, this method will try and return a memory calculator
-   * plugin available for this system.
-   *
-   * @param clazz ResourceCalculator plugin class-name
-   * @param conf configure the plugin with this.
-   * @return ResourceCalculatorPlugin or null if ResourceCalculatorPlugin is not
-   * 		 available for current system
-   */
-  public static ResourceCalculatorPlugin getResourceCalculatorPlugin(
-      Class<? extends ResourceCalculatorPlugin> clazz, Configuration conf) {
-
-    if (clazz != null) {
-      return ReflectionUtils.newInstance(clazz, conf);
+    /**
+     * set the pid of the process for which <code>getProcResourceValues</code>
+     * will be invoked
+     *
+     * @param pid
+     */
+    public void setProcessPid(String pid) {
+        processPid = pid;
     }
 
-    // No class given, try a os specific class
-    try {
-      if (Shell.LINUX) {
-        return new LinuxResourceCalculatorPlugin();
-      }
-      if (Shell.WINDOWS) {
-        return new WindowsResourceCalculatorPlugin();
-      }
-    } catch (SecurityException se) {
-      // Failed to get Operating System name.
-      return null;
-    }
+    /**
+     * Obtain the total size of the virtual memory present in the system.
+     *
+     * @return virtual memory size in bytes.
+     */
+    public abstract long getVirtualMemorySize();
 
-    // Not supported on this system.
-    return null;
-  }
+    /**
+     * Obtain the total size of the physical memory present in the system.
+     *
+     * @return physical memory size bytes.
+     */
+    public abstract long getPhysicalMemorySize();
+
+    /**
+     * Obtain the total size of the available virtual memory present
+     * in the system.
+     *
+     * @return available virtual memory size in bytes.
+     */
+    public abstract long getAvailableVirtualMemorySize();
+
+    /**
+     * Obtain the total size of the available physical memory present
+     * in the system.
+     *
+     * @return available physical memory size bytes.
+     */
+    public abstract long getAvailablePhysicalMemorySize();
+
+    /**
+     * Obtain the total number of processors present on the system.
+     *
+     * @return number of processors
+     */
+    public abstract int getNumProcessors();
+
+    /**
+     * Obtain the CPU frequency of on the system.
+     *
+     * @return CPU frequency in kHz
+     */
+    public abstract long getCpuFrequency();
+
+    /**
+     * Obtain the cumulative CPU time since the system is on.
+     *
+     * @return cumulative CPU time in milliseconds
+     */
+    public abstract long getCumulativeCpuTime();
+
+    /**
+     * Obtain the CPU usage % of the machine. Return -1 if it is unavailable
+     *
+     * @return CPU usage in %
+     */
+    public abstract float getCpuUsage();
+
+    /**
+     * Create the ResourceCalculatorPlugin from the class name and configure it. If
+     * class name is null, this method will try and return a memory calculator
+     * plugin available for this system.
+     *
+     * @param clazz ResourceCalculator plugin class-name
+     * @param conf configure the plugin with this.
+     * @return ResourceCalculatorPlugin or null if ResourceCalculatorPlugin is not
+     *         available for current system
+     */
+    public static ResourceCalculatorPlugin getResourceCalculatorPlugin(
+        Class<? extends ResourceCalculatorPlugin> clazz, Configuration conf) {
+
+        if (clazz != null) {
+            return ReflectionUtils.newInstance(clazz, conf);
+        }
+
+        // No class given, try a os specific class
+        try {
+            if (Shell.LINUX) {
+                return new LinuxResourceCalculatorPlugin();
+            }
+            if (Shell.WINDOWS) {
+                return new WindowsResourceCalculatorPlugin();
+            }
+        } catch (SecurityException se) {
+            // Failed to get Operating System name.
+            return null;
+        }
+
+        // Not supported on this system.
+        return null;
+    }
 }

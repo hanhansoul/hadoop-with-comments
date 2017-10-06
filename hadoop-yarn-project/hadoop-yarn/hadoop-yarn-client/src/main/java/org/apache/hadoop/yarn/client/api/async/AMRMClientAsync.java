@@ -52,7 +52,7 @@ import com.google.common.annotations.VisibleForTesting;
  * and provides asynchronous updates on events such as container allocations and
  * completions.  It contains a thread that sends periodic heartbeats to the
  * ResourceManager.
- * 
+ *
  * It should be used by implementing a CallbackHandler:
  * <pre>
  * {@code
@@ -60,23 +60,23 @@ import com.google.common.annotations.VisibleForTesting;
  *   public void onContainersAllocated(List<Container> containers) {
  *     [run tasks on the containers]
  *   }
- *   
+ *
  *   public void onContainersCompleted(List<ContainerStatus> statuses) {
  *     [update progress, check whether app is done]
  *   }
- *   
+ *
  *   public void onNodesUpdated(List<NodeReport> updated) {}
- *   
+ *
  *   public void onReboot() {}
  * }
  * }
  * </pre>
- * 
+ *
  * The client's lifecycle should be managed similarly to the following:
- * 
+ *
  * <pre>
  * {@code
- * AMRMClientAsync asyncClient = 
+ * AMRMClientAsync asyncClient =
  *     createAMRMClientAsync(appAttId, 1000, new MyCallbackhandler());
  * asyncClient.init(conf);
  * asyncClient.start();
@@ -92,205 +92,205 @@ import com.google.common.annotations.VisibleForTesting;
  */
 @Public
 @Stable
-public abstract class AMRMClientAsync<T extends ContainerRequest> 
-extends AbstractService {
-  private static final Log LOG = LogFactory.getLog(AMRMClientAsync.class);
-  
-  protected final AMRMClient<T> client;
-  protected final CallbackHandler handler;
-  protected final AtomicInteger heartbeatIntervalMs = new AtomicInteger();
+public abstract class AMRMClientAsync<T extends ContainerRequest>
+    extends AbstractService {
+    private static final Log LOG = LogFactory.getLog(AMRMClientAsync.class);
 
-  public static <T extends ContainerRequest> AMRMClientAsync<T>
-      createAMRMClientAsync(int intervalMs, CallbackHandler callbackHandler) {
-    return new AMRMClientAsyncImpl<T>(intervalMs, callbackHandler);
-  }
-  
-  public static <T extends ContainerRequest> AMRMClientAsync<T>
-      createAMRMClientAsync(AMRMClient<T> client, int intervalMs,
-          CallbackHandler callbackHandler) {
-    return new AMRMClientAsyncImpl<T>(client, intervalMs, callbackHandler);
-  }
-  
-  protected AMRMClientAsync(int intervalMs, CallbackHandler callbackHandler) {
-    this(new AMRMClientImpl<T>(), intervalMs, callbackHandler);
-  }
-  
-  @Private
-  @VisibleForTesting
-  protected AMRMClientAsync(AMRMClient<T> client, int intervalMs,
-      CallbackHandler callbackHandler) {
-    super(AMRMClientAsync.class.getName());
-    this.client = client;
-    this.heartbeatIntervalMs.set(intervalMs);
-    this.handler = callbackHandler;
-  }
-    
-  public void setHeartbeatInterval(int interval) {
-    heartbeatIntervalMs.set(interval);
-  }
-  
-  public abstract List<? extends Collection<T>> getMatchingRequests(
-                                                   Priority priority, 
-                                                   String resourceName, 
-                                                   Resource capability);
-  
-  /**
-   * Registers this application master with the resource manager. On successful
-   * registration, starts the heartbeating thread.
-   * @throws YarnException
-   * @throws IOException
-   */
-  public abstract RegisterApplicationMasterResponse registerApplicationMaster(
-      String appHostName, int appHostPort, String appTrackingUrl)
-      throws YarnException, IOException;
+    protected final AMRMClient<T> client;
+    protected final CallbackHandler handler;
+    protected final AtomicInteger heartbeatIntervalMs = new AtomicInteger();
 
-  /**
-   * Unregister the application master. This must be called in the end.
-   * @param appStatus Success/Failure status of the master
-   * @param appMessage Diagnostics message on failure
-   * @param appTrackingUrl New URL to get master info
-   * @throws YarnException
-   * @throws IOException
-   */
-  public abstract void unregisterApplicationMaster(
-      FinalApplicationStatus appStatus, String appMessage, String appTrackingUrl) 
-  throws YarnException, IOException;
+    public static <T extends ContainerRequest> AMRMClientAsync<T>
+    createAMRMClientAsync(int intervalMs, CallbackHandler callbackHandler) {
+        return new AMRMClientAsyncImpl<T>(intervalMs, callbackHandler);
+    }
 
-  /**
-   * Request containers for resources before calling <code>allocate</code>
-   * @param req Resource request
-   */
-  public abstract void addContainerRequest(T req);
+    public static <T extends ContainerRequest> AMRMClientAsync<T>
+    createAMRMClientAsync(AMRMClient<T> client, int intervalMs,
+                          CallbackHandler callbackHandler) {
+        return new AMRMClientAsyncImpl<T>(client, intervalMs, callbackHandler);
+    }
 
-  /**
-   * Remove previous container request. The previous container request may have 
-   * already been sent to the ResourceManager. So even after the remove request 
-   * the app must be prepared to receive an allocation for the previous request 
-   * even after the remove request
-   * @param req Resource request
-   */
-  public abstract void removeContainerRequest(T req);
+    protected AMRMClientAsync(int intervalMs, CallbackHandler callbackHandler) {
+        this(new AMRMClientImpl<T>(), intervalMs, callbackHandler);
+    }
 
-  /**
-   * Release containers assigned by the Resource Manager. If the app cannot use
-   * the container or wants to give up the container then it can release them.
-   * The app needs to make new requests for the released resource capability if
-   * it still needs it. eg. it released non-local resources
-   * @param containerId
-   */
-  public abstract void releaseAssignedContainer(ContainerId containerId);
+    @Private
+    @VisibleForTesting
+    protected AMRMClientAsync(AMRMClient<T> client, int intervalMs,
+                              CallbackHandler callbackHandler) {
+        super(AMRMClientAsync.class.getName());
+        this.client = client;
+        this.heartbeatIntervalMs.set(intervalMs);
+        this.handler = callbackHandler;
+    }
 
-  /**
-   * Get the currently available resources in the cluster.
-   * A valid value is available after a call to allocate has been made
-   * @return Currently available resources
-   */
-  public abstract Resource getAvailableResources();
+    public void setHeartbeatInterval(int interval) {
+        heartbeatIntervalMs.set(interval);
+    }
 
-  /**
-   * Get the current number of nodes in the cluster.
-   * A valid values is available after a call to allocate has been made
-   * @return Current number of nodes in the cluster
-   */
-  public abstract int getClusterNodeCount();
+    public abstract List<? extends Collection<T>> getMatchingRequests(
+        Priority priority,
+        String resourceName,
+        Resource capability);
 
-  /**
-   * Wait for <code>check</code> to return true for each 1000 ms.
-   * See also {@link #waitFor(com.google.common.base.Supplier, int)}
-   * and {@link #waitFor(com.google.common.base.Supplier, int, int)}
-   * @param check
-   */
-  public void waitFor(Supplier<Boolean> check) throws InterruptedException {
-    waitFor(check, 1000);
-  }
-
-  /**
-   * Wait for <code>check</code> to return true for each
-   * <code>checkEveryMillis</code> ms.
-   * See also {@link #waitFor(com.google.common.base.Supplier, int, int)}
-   * @param check user defined checker
-   * @param checkEveryMillis interval to call <code>check</code>
-   */
-  public void waitFor(Supplier<Boolean> check, int checkEveryMillis)
-      throws InterruptedException {
-    waitFor(check, checkEveryMillis, 1);
-  };
-
-  /**
-   * Wait for <code>check</code> to return true for each
-   * <code>checkEveryMillis</code> ms. In the main loop, this method will log
-   * the message "waiting in main loop" for each <code>logInterval</code> times
-   * iteration to confirm the thread is alive.
-   * @param check user defined checker
-   * @param checkEveryMillis interval to call <code>check</code>
-   * @param logInterval interval to log for each
-   */
-  public void waitFor(Supplier<Boolean> check, int checkEveryMillis,
-      int logInterval) throws InterruptedException {
-    Preconditions.checkNotNull(check, "check should not be null");
-    Preconditions.checkArgument(checkEveryMillis >= 0,
-        "checkEveryMillis should be positive value");
-    Preconditions.checkArgument(logInterval >= 0,
-        "logInterval should be positive value");
-
-    int loggingCounter = logInterval;
-    do {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Check the condition for main loop.");
-      }
-
-      boolean result = check.get();
-      if (result) {
-        LOG.info("Exits the main loop.");
-        return;
-      }
-      if (--loggingCounter <= 0) {
-        LOG.info("Waiting in main loop.");
-        loggingCounter = logInterval;
-      }
-
-      Thread.sleep(checkEveryMillis);
-    } while (true);
-  }
-
-  public interface CallbackHandler {
-    
     /**
-     * Called when the ResourceManager responds to a heartbeat with completed
-     * containers. If the response contains both completed containers and
-     * allocated containers, this will be called before containersAllocated.
+     * Registers this application master with the resource manager. On successful
+     * registration, starts the heartbeating thread.
+     * @throws YarnException
+     * @throws IOException
      */
-    public void onContainersCompleted(List<ContainerStatus> statuses);
-    
+    public abstract RegisterApplicationMasterResponse registerApplicationMaster(
+        String appHostName, int appHostPort, String appTrackingUrl)
+    throws YarnException, IOException;
+
     /**
-     * Called when the ResourceManager responds to a heartbeat with allocated
-     * containers. If the response containers both completed containers and
-     * allocated containers, this will be called after containersCompleted.
+     * Unregister the application master. This must be called in the end.
+     * @param appStatus Success/Failure status of the master
+     * @param appMessage Diagnostics message on failure
+     * @param appTrackingUrl New URL to get master info
+     * @throws YarnException
+     * @throws IOException
      */
-    public void onContainersAllocated(List<Container> containers);
-    
+    public abstract void unregisterApplicationMaster(
+        FinalApplicationStatus appStatus, String appMessage, String appTrackingUrl)
+    throws YarnException, IOException;
+
     /**
-     * Called when the ResourceManager wants the ApplicationMaster to shutdown
-     * for being out of sync etc. The ApplicationMaster should not unregister
-     * with the RM unless the ApplicationMaster wants to be the last attempt.
+     * Request containers for resources before calling <code>allocate</code>
+     * @param req Resource request
      */
-    public void onShutdownRequest();
-    
+    public abstract void addContainerRequest(T req);
+
     /**
-     * Called when nodes tracked by the ResourceManager have changed in health,
-     * availability etc.
+     * Remove previous container request. The previous container request may have
+     * already been sent to the ResourceManager. So even after the remove request
+     * the app must be prepared to receive an allocation for the previous request
+     * even after the remove request
+     * @param req Resource request
      */
-    public void onNodesUpdated(List<NodeReport> updatedNodes);
-    
-    public float getProgress();
-    
+    public abstract void removeContainerRequest(T req);
+
     /**
-     * Called when error comes from RM communications as well as from errors in
-     * the callback itself from the app. Calling
-     * stop() is the recommended action.
-     *
-     * @param e
+     * Release containers assigned by the Resource Manager. If the app cannot use
+     * the container or wants to give up the container then it can release them.
+     * The app needs to make new requests for the released resource capability if
+     * it still needs it. eg. it released non-local resources
+     * @param containerId
      */
-    public void onError(Throwable e);
-  }
+    public abstract void releaseAssignedContainer(ContainerId containerId);
+
+    /**
+     * Get the currently available resources in the cluster.
+     * A valid value is available after a call to allocate has been made
+     * @return Currently available resources
+     */
+    public abstract Resource getAvailableResources();
+
+    /**
+     * Get the current number of nodes in the cluster.
+     * A valid values is available after a call to allocate has been made
+     * @return Current number of nodes in the cluster
+     */
+    public abstract int getClusterNodeCount();
+
+    /**
+     * Wait for <code>check</code> to return true for each 1000 ms.
+     * See also {@link #waitFor(com.google.common.base.Supplier, int)}
+     * and {@link #waitFor(com.google.common.base.Supplier, int, int)}
+     * @param check
+     */
+    public void waitFor(Supplier<Boolean> check) throws InterruptedException {
+        waitFor(check, 1000);
+    }
+
+    /**
+     * Wait for <code>check</code> to return true for each
+     * <code>checkEveryMillis</code> ms.
+     * See also {@link #waitFor(com.google.common.base.Supplier, int, int)}
+     * @param check user defined checker
+     * @param checkEveryMillis interval to call <code>check</code>
+     */
+    public void waitFor(Supplier<Boolean> check, int checkEveryMillis)
+    throws InterruptedException {
+        waitFor(check, checkEveryMillis, 1);
+    };
+
+    /**
+     * Wait for <code>check</code> to return true for each
+     * <code>checkEveryMillis</code> ms. In the main loop, this method will log
+     * the message "waiting in main loop" for each <code>logInterval</code> times
+     * iteration to confirm the thread is alive.
+     * @param check user defined checker
+     * @param checkEveryMillis interval to call <code>check</code>
+     * @param logInterval interval to log for each
+     */
+    public void waitFor(Supplier<Boolean> check, int checkEveryMillis,
+                        int logInterval) throws InterruptedException {
+        Preconditions.checkNotNull(check, "check should not be null");
+        Preconditions.checkArgument(checkEveryMillis >= 0,
+                                    "checkEveryMillis should be positive value");
+        Preconditions.checkArgument(logInterval >= 0,
+                                    "logInterval should be positive value");
+
+        int loggingCounter = logInterval;
+        do {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Check the condition for main loop.");
+            }
+
+            boolean result = check.get();
+            if (result) {
+                LOG.info("Exits the main loop.");
+                return;
+            }
+            if (--loggingCounter <= 0) {
+                LOG.info("Waiting in main loop.");
+                loggingCounter = logInterval;
+            }
+
+            Thread.sleep(checkEveryMillis);
+        } while (true);
+    }
+
+    public interface CallbackHandler {
+
+        /**
+         * Called when the ResourceManager responds to a heartbeat with completed
+         * containers. If the response contains both completed containers and
+         * allocated containers, this will be called before containersAllocated.
+         */
+        public void onContainersCompleted(List<ContainerStatus> statuses);
+
+        /**
+         * Called when the ResourceManager responds to a heartbeat with allocated
+         * containers. If the response containers both completed containers and
+         * allocated containers, this will be called after containersCompleted.
+         */
+        public void onContainersAllocated(List<Container> containers);
+
+        /**
+         * Called when the ResourceManager wants the ApplicationMaster to shutdown
+         * for being out of sync etc. The ApplicationMaster should not unregister
+         * with the RM unless the ApplicationMaster wants to be the last attempt.
+         */
+        public void onShutdownRequest();
+
+        /**
+         * Called when nodes tracked by the ResourceManager have changed in health,
+         * availability etc.
+         */
+        public void onNodesUpdated(List<NodeReport> updatedNodes);
+
+        public float getProgress();
+
+        /**
+         * Called when error comes from RM communications as well as from errors in
+         * the callback itself from the app. Calling
+         * stop() is the recommended action.
+         *
+         * @param e
+         */
+        public void onError(Throwable e);
+    }
 }

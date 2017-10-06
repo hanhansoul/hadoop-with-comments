@@ -27,24 +27,24 @@ import org.junit.Test;
  * Test for {@link RpcDeniedReply}
  */
 public class TestRpcDeniedReply {
-  @Test
-  public void testRejectStateFromValue() {
-    Assert.assertEquals(RejectState.RPC_MISMATCH, RejectState.fromValue(0));
-    Assert.assertEquals(RejectState.AUTH_ERROR, RejectState.fromValue(1));
-  }
-  
-  @Test(expected=IndexOutOfBoundsException.class)
-  public void testRejectStateFromInvalidValue1() {
-    RejectState.fromValue(2);
-  }
-  
-  @Test
-  public void testConstructor() {
-    RpcDeniedReply reply = new RpcDeniedReply(0, ReplyState.MSG_ACCEPTED,
-        RejectState.AUTH_ERROR, new VerifierNone());
-    Assert.assertEquals(0, reply.getXid());
-    Assert.assertEquals(RpcMessage.Type.RPC_REPLY, reply.getMessageType());
-    Assert.assertEquals(ReplyState.MSG_ACCEPTED, reply.getState());
-    Assert.assertEquals(RejectState.AUTH_ERROR, reply.getRejectState());
-  }
+    @Test
+    public void testRejectStateFromValue() {
+        Assert.assertEquals(RejectState.RPC_MISMATCH, RejectState.fromValue(0));
+        Assert.assertEquals(RejectState.AUTH_ERROR, RejectState.fromValue(1));
+    }
+
+    @Test(expected=IndexOutOfBoundsException.class)
+    public void testRejectStateFromInvalidValue1() {
+        RejectState.fromValue(2);
+    }
+
+    @Test
+    public void testConstructor() {
+        RpcDeniedReply reply = new RpcDeniedReply(0, ReplyState.MSG_ACCEPTED,
+                RejectState.AUTH_ERROR, new VerifierNone());
+        Assert.assertEquals(0, reply.getXid());
+        Assert.assertEquals(RpcMessage.Type.RPC_REPLY, reply.getMessageType());
+        Assert.assertEquals(ReplyState.MSG_ACCEPTED, reply.getState());
+        Assert.assertEquals(RejectState.AUTH_ERROR, reply.getRejectState());
+    }
 }

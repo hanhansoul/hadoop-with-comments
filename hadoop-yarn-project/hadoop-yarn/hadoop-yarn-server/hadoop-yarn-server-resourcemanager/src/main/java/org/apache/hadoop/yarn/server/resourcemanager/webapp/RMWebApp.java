@@ -38,84 +38,84 @@ import com.sun.jersey.guice.spi.container.servlet.GuiceContainer;
  */
 public class RMWebApp extends WebApp implements YarnWebParams {
 
-  private final ResourceManager rm;
-  private boolean standby = false;
+    private final ResourceManager rm;
+    private boolean standby = false;
 
-  public RMWebApp(ResourceManager rm) {
-    this.rm = rm;
-  }
-
-  @Override
-  public void setup() {
-    bind(JAXBContextResolver.class);
-    bind(RMWebServices.class);
-    bind(GenericExceptionHandler.class);
-    bind(RMWebApp.class).toInstance(this);
-
-    if (rm != null) {
-      bind(ResourceManager.class).toInstance(rm);
-      bind(ApplicationBaseProtocol.class).toInstance(rm.getClientRMService());
+    public RMWebApp(ResourceManager rm) {
+        this.rm = rm;
     }
-    route("/", RmController.class);
-    route(pajoin("/nodes", NODE_STATE), RmController.class, "nodes");
-    route(pajoin("/apps", APP_STATE), RmController.class);
-    route("/cluster", RmController.class, "about");
-    route(pajoin("/app", APPLICATION_ID), RmController.class, "app");
-    route("/scheduler", RmController.class, "scheduler");
-    route(pajoin("/queue", QUEUE_NAME), RmController.class, "queue");
-    route(pajoin("/appattempt", APPLICATION_ATTEMPT_ID), RmController.class,
-      "appattempt");
-    route(pajoin("/container", CONTAINER_ID), RmController.class, "container");
-  }
 
-  @Override
-  protected Class<? extends GuiceContainer> getWebAppFilterClass() {
-    return RMWebAppFilter.class;
-  }
+    @Override
+    public void setup() {
+        bind(JAXBContextResolver.class);
+        bind(RMWebServices.class);
+        bind(GenericExceptionHandler.class);
+        bind(RMWebApp.class).toInstance(this);
 
-  public void checkIfStandbyRM() {
-    standby = (rm.getRMContext().getHAServiceState() == HAServiceState.STANDBY);
-  }
-
-  public boolean isStandby() {
-    return standby;
-  }
-
-  @Override
-  public String getRedirectPath() {
-    if (standby) {
-      return buildRedirectPath();
-    } else
-      return super.getRedirectPath();
-  }
-
-  private String buildRedirectPath() {
-    // make a copy of the original configuration so not to mutate it. Also use
-    // an YarnConfiguration to force loading of yarn-site.xml.
-    YarnConfiguration yarnConf = new YarnConfiguration(rm.getConfig());
-    String activeRMHAId = RMHAUtils.findActiveRMHAId(yarnConf);
-    String path = "";
-    if (activeRMHAId != null) {
-      yarnConf.set(YarnConfiguration.RM_HA_ID, activeRMHAId);
-
-      InetSocketAddress sock = YarnConfiguration.useHttps(yarnConf)
-          ? yarnConf.getSocketAddr(YarnConfiguration.RM_WEBAPP_HTTPS_ADDRESS,
-              YarnConfiguration.DEFAULT_RM_WEBAPP_HTTPS_ADDRESS,
-              YarnConfiguration.DEFAULT_RM_WEBAPP_HTTPS_PORT)
-          : yarnConf.getSocketAddr(YarnConfiguration.RM_WEBAPP_ADDRESS,
-              YarnConfiguration.DEFAULT_RM_WEBAPP_ADDRESS,
-              YarnConfiguration.DEFAULT_RM_WEBAPP_PORT);
-
-      path = sock.getHostName() + ":" + Integer.toString(sock.getPort());
-      path = YarnConfiguration.useHttps(yarnConf)
-          ? "https://" + path
-          : "http://" + path;
+        if (rm != null) {
+            bind(ResourceManager.class).toInstance(rm);
+            bind(ApplicationBaseProtocol.class).toInstance(rm.getClientRMService());
+        }
+        route("/", RmController.class);
+        route(pajoin("/nodes", NODE_STATE), RmController.class, "nodes");
+        route(pajoin("/apps", APP_STATE), RmController.class);
+        route("/cluster", RmController.class, "about");
+        route(pajoin("/app", APPLICATION_ID), RmController.class, "app");
+        route("/scheduler", RmController.class, "scheduler");
+        route(pajoin("/queue", QUEUE_NAME), RmController.class, "queue");
+        route(pajoin("/appattempt", APPLICATION_ATTEMPT_ID), RmController.class,
+              "appattempt");
+        route(pajoin("/container", CONTAINER_ID), RmController.class, "container");
     }
-    return path;
-  }
 
-  public String getHAZookeeperConnectionState() {
-    return rm.getRMContext().getRMAdminService()
-      .getHAZookeeperConnectionState();
-  }
+    @Override
+    protected Class<? extends GuiceContainer> getWebAppFilterClass() {
+        return RMWebAppFilter.class;
+    }
+
+    public void checkIfStandbyRM() {
+        standby = (rm.getRMContext().getHAServiceState() == HAServiceState.STANDBY);
+    }
+
+    public boolean isStandby() {
+        return standby;
+    }
+
+    @Override
+    public String getRedirectPath() {
+        if (standby) {
+            return buildRedirectPath();
+        } else
+            return super.getRedirectPath();
+    }
+
+    private String buildRedirectPath() {
+        // make a copy of the original configuration so not to mutate it. Also use
+        // an YarnConfiguration to force loading of yarn-site.xml.
+        YarnConfiguration yarnConf = new YarnConfiguration(rm.getConfig());
+        String activeRMHAId = RMHAUtils.findActiveRMHAId(yarnConf);
+        String path = "";
+        if (activeRMHAId != null) {
+            yarnConf.set(YarnConfiguration.RM_HA_ID, activeRMHAId);
+
+            InetSocketAddress sock = YarnConfiguration.useHttps(yarnConf)
+                                     ? yarnConf.getSocketAddr(YarnConfiguration.RM_WEBAPP_HTTPS_ADDRESS,
+                                             YarnConfiguration.DEFAULT_RM_WEBAPP_HTTPS_ADDRESS,
+                                             YarnConfiguration.DEFAULT_RM_WEBAPP_HTTPS_PORT)
+                                     : yarnConf.getSocketAddr(YarnConfiguration.RM_WEBAPP_ADDRESS,
+                                             YarnConfiguration.DEFAULT_RM_WEBAPP_ADDRESS,
+                                             YarnConfiguration.DEFAULT_RM_WEBAPP_PORT);
+
+            path = sock.getHostName() + ":" + Integer.toString(sock.getPort());
+            path = YarnConfiguration.useHttps(yarnConf)
+                   ? "https://" + path
+                   : "http://" + path;
+        }
+        return path;
+    }
+
+    public String getHAZookeeperConnectionState() {
+        return rm.getRMContext().getRMAdminService()
+               .getHAZookeeperConnectionState();
+    }
 }

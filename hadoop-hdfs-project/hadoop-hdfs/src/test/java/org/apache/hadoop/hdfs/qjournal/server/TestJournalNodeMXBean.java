@@ -40,68 +40,68 @@ import org.mortbay.util.ajax.JSON;
  * Test {@link JournalNodeMXBean}
  */
 public class TestJournalNodeMXBean {
-  
-  private static final String NAMESERVICE = "ns1";
-  private static final int NUM_JN = 1;
-  
-  private MiniJournalCluster jCluster;
-  private JournalNode jn;
-  
-  @Before
-  public void setup() throws IOException {
-    // start 1 journal node
-    jCluster = new MiniJournalCluster.Builder(new Configuration()).format(true)
+
+    private static final String NAMESERVICE = "ns1";
+    private static final int NUM_JN = 1;
+
+    private MiniJournalCluster jCluster;
+    private JournalNode jn;
+
+    @Before
+    public void setup() throws IOException {
+        // start 1 journal node
+        jCluster = new MiniJournalCluster.Builder(new Configuration()).format(true)
         .numJournalNodes(NUM_JN).build();
-    jn = jCluster.getJournalNode(0);
-  }
-  
-  @After
-  public void cleanup() throws IOException {
-    if (jCluster != null) {
-      jCluster.shutdown();
+        jn = jCluster.getJournalNode(0);
     }
-  }
-  
-  @Test
-  public void testJournalNodeMXBean() throws Exception {
-    // we have not formatted the journals yet, and the journal status in jmx
-    // should be empty since journal objects are created lazily
-    MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-    ObjectName mxbeanName = new ObjectName(
-        "Hadoop:service=JournalNode,name=JournalNodeInfo");
 
-    // getJournalsStatus
-    String journalStatus = (String) mbs.getAttribute(mxbeanName,
-        "JournalsStatus");
-    assertEquals(jn.getJournalsStatus(), journalStatus);
-    assertFalse(journalStatus.contains(NAMESERVICE));
+    @After
+    public void cleanup() throws IOException {
+        if (jCluster != null) {
+            jCluster.shutdown();
+        }
+    }
 
-    // format the journal ns1
-    final NamespaceInfo FAKE_NSINFO = new NamespaceInfo(12345, "mycluster",
-        "my-bp", 0L);
-    jn.getOrCreateJournal(NAMESERVICE).format(FAKE_NSINFO);
+    @Test
+    public void testJournalNodeMXBean() throws Exception {
+        // we have not formatted the journals yet, and the journal status in jmx
+        // should be empty since journal objects are created lazily
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        ObjectName mxbeanName = new ObjectName(
+            "Hadoop:service=JournalNode,name=JournalNodeInfo");
 
-    // check again after format
-    // getJournalsStatus
-    journalStatus = (String) mbs.getAttribute(mxbeanName, "JournalsStatus");
-    assertEquals(jn.getJournalsStatus(), journalStatus);
-    Map<String, Map<String, String>> jMap = new HashMap<String, Map<String, String>>();
-    Map<String, String> infoMap = new HashMap<String, String>();
-    infoMap.put("Formatted", "true");
-    jMap.put(NAMESERVICE, infoMap);
-    assertEquals(JSON.toString(jMap), journalStatus);
-    
-    // restart journal node without formatting
-    jCluster = new MiniJournalCluster.Builder(new Configuration()).format(false)
+        // getJournalsStatus
+        String journalStatus = (String) mbs.getAttribute(mxbeanName,
+                               "JournalsStatus");
+        assertEquals(jn.getJournalsStatus(), journalStatus);
+        assertFalse(journalStatus.contains(NAMESERVICE));
+
+        // format the journal ns1
+        final NamespaceInfo FAKE_NSINFO = new NamespaceInfo(12345, "mycluster",
+                "my-bp", 0L);
+        jn.getOrCreateJournal(NAMESERVICE).format(FAKE_NSINFO);
+
+        // check again after format
+        // getJournalsStatus
+        journalStatus = (String) mbs.getAttribute(mxbeanName, "JournalsStatus");
+        assertEquals(jn.getJournalsStatus(), journalStatus);
+        Map<String, Map<String, String>> jMap = new HashMap<String, Map<String, String>>();
+        Map<String, String> infoMap = new HashMap<String, String>();
+        infoMap.put("Formatted", "true");
+        jMap.put(NAMESERVICE, infoMap);
+        assertEquals(JSON.toString(jMap), journalStatus);
+
+        // restart journal node without formatting
+        jCluster = new MiniJournalCluster.Builder(new Configuration()).format(false)
         .numJournalNodes(NUM_JN).build();
-    jn = jCluster.getJournalNode(0);
-    // re-check 
-    journalStatus = (String) mbs.getAttribute(mxbeanName, "JournalsStatus");
-    assertEquals(jn.getJournalsStatus(), journalStatus);
-    jMap = new HashMap<String, Map<String, String>>();
-    infoMap = new HashMap<String, String>();
-    infoMap.put("Formatted", "true");
-    jMap.put(NAMESERVICE, infoMap);
-    assertEquals(JSON.toString(jMap), journalStatus);
-  }
+        jn = jCluster.getJournalNode(0);
+        // re-check
+        journalStatus = (String) mbs.getAttribute(mxbeanName, "JournalsStatus");
+        assertEquals(jn.getJournalsStatus(), journalStatus);
+        jMap = new HashMap<String, Map<String, String>>();
+        infoMap = new HashMap<String, String>();
+        infoMap.put("Formatted", "true");
+        jMap.put(NAMESERVICE, infoMap);
+        assertEquals(JSON.toString(jMap), journalStatus);
+    }
 }

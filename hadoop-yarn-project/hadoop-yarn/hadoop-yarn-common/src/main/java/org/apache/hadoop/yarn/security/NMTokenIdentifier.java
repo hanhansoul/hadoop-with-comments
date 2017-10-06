@@ -42,102 +42,102 @@ import com.google.protobuf.TextFormat;
 @Evolving
 public class NMTokenIdentifier extends TokenIdentifier {
 
-  private static Log LOG = LogFactory.getLog(NMTokenIdentifier.class);
+    private static Log LOG = LogFactory.getLog(NMTokenIdentifier.class);
 
-  public static final Text KIND = new Text("NMToken");
-  
-  private NMTokenIdentifierProto proto;
+    public static final Text KIND = new Text("NMToken");
 
-  public NMTokenIdentifier(ApplicationAttemptId appAttemptId, 
-      NodeId nodeId, String applicationSubmitter, int masterKeyId) {
-    NMTokenIdentifierProto.Builder builder = NMTokenIdentifierProto.newBuilder();
-    if (appAttemptId != null) {
-      builder.setAppAttemptId(
-          ((ApplicationAttemptIdPBImpl)appAttemptId).getProto());
+    private NMTokenIdentifierProto proto;
+
+    public NMTokenIdentifier(ApplicationAttemptId appAttemptId,
+                             NodeId nodeId, String applicationSubmitter, int masterKeyId) {
+        NMTokenIdentifierProto.Builder builder = NMTokenIdentifierProto.newBuilder();
+        if (appAttemptId != null) {
+            builder.setAppAttemptId(
+                ((ApplicationAttemptIdPBImpl)appAttemptId).getProto());
+        }
+        if (nodeId != null) {
+            builder.setNodeId(((NodeIdPBImpl)nodeId).getProto());
+        }
+        builder.setAppSubmitter(applicationSubmitter);
+        builder.setKeyId(masterKeyId);
+        proto = builder.build();
     }
-    if (nodeId != null) {
-      builder.setNodeId(((NodeIdPBImpl)nodeId).getProto());
+
+    /**
+     * Default constructor needed by RPC/Secret manager
+     */
+    public NMTokenIdentifier() {
     }
-    builder.setAppSubmitter(applicationSubmitter);
-    builder.setKeyId(masterKeyId);
-    proto = builder.build();
-  }
-  
-  /**
-   * Default constructor needed by RPC/Secret manager
-   */
-  public NMTokenIdentifier() {
-  }
 
-  public ApplicationAttemptId getApplicationAttemptId() {
-    if (!proto.hasAppAttemptId()) {
-      return null;
+    public ApplicationAttemptId getApplicationAttemptId() {
+        if (!proto.hasAppAttemptId()) {
+            return null;
+        }
+        return new ApplicationAttemptIdPBImpl(proto.getAppAttemptId());
     }
-    return new ApplicationAttemptIdPBImpl(proto.getAppAttemptId());
-  }
-  
-  public NodeId getNodeId() {
-    if (!proto.hasNodeId()) {
-      return null;
+
+    public NodeId getNodeId() {
+        if (!proto.hasNodeId()) {
+            return null;
+        }
+        return new NodeIdPBImpl(proto.getNodeId());
     }
-    return new NodeIdPBImpl(proto.getNodeId());
-  }
-  
-  public String getApplicationSubmitter() {
-    return proto.getAppSubmitter();
-  }
-  
-  public int getKeyId() {
-    return proto.getKeyId();
-  }
-  
-  @Override
-  public void write(DataOutput out) throws IOException {
-    LOG.debug("Writing NMTokenIdentifier to RPC layer: " + this);
-    out.write(proto.toByteArray());
-  }
 
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    proto = NMTokenIdentifierProto.parseFrom((DataInputStream)in);
-  }
-
-  @Override
-  public Text getKind() {
-    return KIND;
-  }
-
-  @Override
-  public UserGroupInformation getUser() {
-    String appAttemptId = null;
-    if (proto.hasAppAttemptId()) {
-      appAttemptId = new ApplicationAttemptIdPBImpl(
-          proto.getAppAttemptId()).toString();
+    public String getApplicationSubmitter() {
+        return proto.getAppSubmitter();
     }
-    return UserGroupInformation.createRemoteUser(appAttemptId);
-  }
-  
-  public NMTokenIdentifierProto getProto() {
-    return proto;
-  }
-  
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public int getKeyId() {
+        return proto.getKeyId();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    @Override
+    public void write(DataOutput out) throws IOException {
+        LOG.debug("Writing NMTokenIdentifier to RPC layer: " + this);
+        out.write(proto.toByteArray());
+    }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        proto = NMTokenIdentifierProto.parseFrom((DataInputStream)in);
+    }
+
+    @Override
+    public Text getKind() {
+        return KIND;
+    }
+
+    @Override
+    public UserGroupInformation getUser() {
+        String appAttemptId = null;
+        if (proto.hasAppAttemptId()) {
+            appAttemptId = new ApplicationAttemptIdPBImpl(
+                proto.getAppAttemptId()).toString();
+        }
+        return UserGroupInformation.createRemoteUser(appAttemptId);
+    }
+
+    public NMTokenIdentifierProto getProto() {
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

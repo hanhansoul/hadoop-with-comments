@@ -23,17 +23,17 @@ import javax.servlet.ServletException;
 import java.util.Properties;
 
 public class HttpFSKerberosAuthenticationHandlerForTesting
-  extends KerberosDelegationTokenAuthenticationHandler {
+    extends KerberosDelegationTokenAuthenticationHandler {
 
-  @Override
-  public void init(Properties config) throws ServletException {
-    //NOP overwrite to avoid Kerberos initialization
-    config.setProperty(TOKEN_KIND, "t");
-    initTokenManager(config);
-  }
+    @Override
+    public void init(Properties config) throws ServletException {
+        //NOP overwrite to avoid Kerberos initialization
+        config.setProperty(TOKEN_KIND, "t");
+        initTokenManager(config);
+    }
 
-  @Override
-  public void destroy() {
-    //NOP overwrite to avoid Kerberos initialization
-  }
+    @Override
+    public void destroy() {
+        //NOP overwrite to avoid Kerberos initialization
+    }
 }

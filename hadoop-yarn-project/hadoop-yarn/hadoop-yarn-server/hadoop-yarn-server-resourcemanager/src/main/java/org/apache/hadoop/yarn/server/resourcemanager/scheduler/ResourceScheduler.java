@@ -27,26 +27,26 @@ import org.apache.hadoop.yarn.server.resourcemanager.RMContext;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.Recoverable;
 
 /**
- * This interface is the one implemented by the schedulers. It mainly extends 
- * {@link YarnScheduler}. 
+ * This interface is the one implemented by the schedulers. It mainly extends
+ * {@link YarnScheduler}.
  *
  */
 @LimitedPrivate("yarn")
 @Evolving
 public interface ResourceScheduler extends YarnScheduler, Recoverable {
 
-  /**
-   * Set RMContext for <code>ResourceScheduler</code>.
-   * This method should be called immediately after instantiating
-   * a scheduler once.
-   * @param rmContext created by ResourceManager
-   */
-  void setRMContext(RMContext rmContext);
+    /**
+     * Set RMContext for <code>ResourceScheduler</code>.
+     * This method should be called immediately after instantiating
+     * a scheduler once.
+     * @param rmContext created by ResourceManager
+     */
+    void setRMContext(RMContext rmContext);
 
-  /**
-   * Re-initialize the <code>ResourceScheduler</code>.
-   * @param conf configuration
-   * @throws IOException
-   */
-  void reinitialize(Configuration conf, RMContext rmContext) throws IOException;
+    /**
+     * Re-initialize the <code>ResourceScheduler</code>.
+     * @param conf configuration
+     * @throws IOException
+     */
+    void reinitialize(Configuration conf, RMContext rmContext) throws IOException;
 }

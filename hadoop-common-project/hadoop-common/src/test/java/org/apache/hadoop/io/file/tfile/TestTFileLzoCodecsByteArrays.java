@@ -23,19 +23,19 @@ import java.io.IOException;
 import org.apache.hadoop.io.file.tfile.Compression.Algorithm;
 
 public class TestTFileLzoCodecsByteArrays extends TestTFileByteArrays {
-  /**
-   * Test LZO compression codec, using the same test cases as in the ByteArrays.
-   */
-  @Override
-  public void setUp() throws IOException {
-    skip = !(Algorithm.LZO.isSupported());
-    if (skip) {
-      System.out.println("Skipped");
-    }
+    /**
+     * Test LZO compression codec, using the same test cases as in the ByteArrays.
+     */
+    @Override
+    public void setUp() throws IOException {
+        skip = !(Algorithm.LZO.isSupported());
+        if (skip) {
+            System.out.println("Skipped");
+        }
 
-    // TODO: sample the generated key/value records, and put the numbers below
-    init(Compression.Algorithm.LZO.getName(), "memcmp", 2605, 2558);
-    if (!skip)
-      super.setUp();
-  }
+        // TODO: sample the generated key/value records, and put the numbers below
+        init(Compression.Algorithm.LZO.getName(), "memcmp", 2605, 2558);
+        if (!skip)
+            super.setUp();
+    }
 }

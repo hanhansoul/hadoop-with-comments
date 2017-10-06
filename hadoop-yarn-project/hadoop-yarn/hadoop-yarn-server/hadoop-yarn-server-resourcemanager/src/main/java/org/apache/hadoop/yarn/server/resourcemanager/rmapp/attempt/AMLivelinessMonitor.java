@@ -29,29 +29,29 @@ import org.apache.hadoop.yarn.util.SystemClock;
 
 public class AMLivelinessMonitor extends AbstractLivelinessMonitor<ApplicationAttemptId> {
 
-  private EventHandler dispatcher;
-  
-  public AMLivelinessMonitor(Dispatcher d) {
-    super("AMLivelinessMonitor", new SystemClock());
-    this.dispatcher = d.getEventHandler();
-  }
+    private EventHandler dispatcher;
 
-  public AMLivelinessMonitor(Dispatcher d, Clock clock) {
-    super("AMLivelinessMonitor", clock);
-    this.dispatcher = d.getEventHandler();
-  }
+    public AMLivelinessMonitor(Dispatcher d) {
+        super("AMLivelinessMonitor", new SystemClock());
+        this.dispatcher = d.getEventHandler();
+    }
 
-  public void serviceInit(Configuration conf) throws Exception {
-    super.serviceInit(conf);
-    int expireIntvl = conf.getInt(YarnConfiguration.RM_AM_EXPIRY_INTERVAL_MS,
-            YarnConfiguration.DEFAULT_RM_AM_EXPIRY_INTERVAL_MS);
-    setExpireInterval(expireIntvl);
-    setMonitorInterval(expireIntvl/3);
-  }
+    public AMLivelinessMonitor(Dispatcher d, Clock clock) {
+        super("AMLivelinessMonitor", clock);
+        this.dispatcher = d.getEventHandler();
+    }
 
-  @Override
-  protected void expire(ApplicationAttemptId id) {
-    dispatcher.handle(
-        new RMAppAttemptEvent(id, RMAppAttemptEventType.EXPIRE));
-  }
+    public void serviceInit(Configuration conf) throws Exception {
+        super.serviceInit(conf);
+        int expireIntvl = conf.getInt(YarnConfiguration.RM_AM_EXPIRY_INTERVAL_MS,
+                                      YarnConfiguration.DEFAULT_RM_AM_EXPIRY_INTERVAL_MS);
+        setExpireInterval(expireIntvl);
+        setMonitorInterval(expireIntvl/3);
+    }
+
+    @Override
+    protected void expire(ApplicationAttemptId id) {
+        dispatcher.handle(
+            new RMAppAttemptEvent(id, RMAppAttemptEventType.EXPIRE));
+    }
 }

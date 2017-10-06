@@ -51,122 +51,122 @@ import org.junit.Test;
 
 /**
  * Startup and checkpoint tests
- * 
+ *
  */
 public class TestJMXGet {
 
-  private Configuration config;
-  private MiniDFSCluster cluster;
+    private Configuration config;
+    private MiniDFSCluster cluster;
 
-  static final long seed = 0xAAAAEEFL;
-  static final int blockSize = 4096;
-  static final int fileSize = 8192;
+    static final long seed = 0xAAAAEEFL;
+    static final int blockSize = 4096;
+    static final int fileSize = 8192;
 
-  private void writeFile(FileSystem fileSys, Path name, int repl)
-  throws IOException {
-    FSDataOutputStream stm = fileSys.create(name, true,
-        fileSys.getConf().getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
-        (short)repl, blockSize);
-    byte[] buffer = new byte[fileSize];
-    Random rand = new Random(seed);
-    rand.nextBytes(buffer);
-    stm.write(buffer);
-    stm.close();
-  }
-
-
-  @Before
-  public void setUp() throws Exception {
-    config = new HdfsConfiguration();
-  }
-
-  /**
-   * clean up
-   */
-  @After
-  public void tearDown() throws Exception {
-    if(cluster.isClusterUp())
-      cluster.shutdown();
-
-    File data_dir = new File(cluster.getDataDirectory());
-    if(data_dir.exists() && !FileUtil.fullyDelete(data_dir)) {
-      throw new IOException("Could not delete hdfs directory in tearDown '"
-          + data_dir + "'");
+    private void writeFile(FileSystem fileSys, Path name, int repl)
+    throws IOException {
+        FSDataOutputStream stm = fileSys.create(name, true,
+                                                fileSys.getConf().getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
+                                                (short)repl, blockSize);
+        byte[] buffer = new byte[fileSize];
+        Random rand = new Random(seed);
+        rand.nextBytes(buffer);
+        stm.write(buffer);
+        stm.close();
     }
-  }
 
-  /**
-   * test JMX connection to NameNode..
-   * @throws Exception 
-   */
-  @Test
-  public void testNameNode() throws Exception {
-    int numDatanodes = 2;
-    cluster = new MiniDFSCluster.Builder(config).numDataNodes(numDatanodes).build();
-    cluster.waitActive();
 
-    writeFile(cluster.getFileSystem(), new Path("/test1"), 2);
-
-    JMXGet jmx = new JMXGet();
-    String serviceName = "NameNode";
-    jmx.setService(serviceName);
-    jmx.init(); // default lists namenode mbeans only
-    assertTrue("error printAllValues", checkPrintAllValues(jmx));
-
-    //get some data from different source
-    assertEquals(numDatanodes, Integer.parseInt(
-        jmx.getValue("NumLiveDataNodes")));
-    assertGauge("CorruptBlocks", Long.parseLong(jmx.getValue("CorruptBlocks")),
-                getMetrics("FSNamesystem"));
-    assertEquals(numDatanodes, Integer.parseInt(
-        jmx.getValue("NumOpenConnections")));
-
-    cluster.shutdown();
-    MBeanServerConnection mbsc = ManagementFactory.getPlatformMBeanServer();
-    ObjectName query = new ObjectName("Hadoop:service=" + serviceName + ",*");
-    Set<ObjectName> names = mbsc.queryNames(query, null);
-    assertTrue("No beans should be registered for " + serviceName, names.isEmpty());
-  }
-  
-  private static boolean checkPrintAllValues(JMXGet jmx) throws Exception {
-    int size = 0; 
-    byte[] bytes = null;
-    String pattern = "List of all the available keys:";
-    PipedOutputStream pipeOut = new PipedOutputStream();
-    PipedInputStream pipeIn = new PipedInputStream(pipeOut);
-    System.setErr(new PrintStream(pipeOut));
-    jmx.printAllValues();
-    if ((size = pipeIn.available()) != 0) {
-      bytes = new byte[size];
-      pipeIn.read(bytes, 0, bytes.length);            
+    @Before
+    public void setUp() throws Exception {
+        config = new HdfsConfiguration();
     }
-    pipeOut.close();
-    pipeIn.close();
-    return bytes != null ? new String(bytes).contains(pattern) : false;
-  }
-  
-  /**
-   * test JMX connection to DataNode..
-   * @throws Exception 
-   */
-  @Test
-  public void testDataNode() throws Exception {
-    int numDatanodes = 2;
-    cluster = new MiniDFSCluster.Builder(config).numDataNodes(numDatanodes).build();
-    cluster.waitActive();
 
-    writeFile(cluster.getFileSystem(), new Path("/test"), 2);
+    /**
+     * clean up
+     */
+    @After
+    public void tearDown() throws Exception {
+        if(cluster.isClusterUp())
+            cluster.shutdown();
 
-    JMXGet jmx = new JMXGet();
-    String serviceName = "DataNode";
-    jmx.setService(serviceName);
-    jmx.init();
-    assertEquals(fileSize, Integer.parseInt(jmx.getValue("BytesWritten")));
+        File data_dir = new File(cluster.getDataDirectory());
+        if(data_dir.exists() && !FileUtil.fullyDelete(data_dir)) {
+            throw new IOException("Could not delete hdfs directory in tearDown '"
+                                  + data_dir + "'");
+        }
+    }
 
-    cluster.shutdown();
-    MBeanServerConnection mbsc = ManagementFactory.getPlatformMBeanServer();
-    ObjectName query = new ObjectName("Hadoop:service=" + serviceName + ",*");
-    Set<ObjectName> names = mbsc.queryNames(query, null);
-    assertTrue("No beans should be registered for " + serviceName, names.isEmpty());
-  }
+    /**
+     * test JMX connection to NameNode..
+     * @throws Exception
+     */
+    @Test
+    public void testNameNode() throws Exception {
+        int numDatanodes = 2;
+        cluster = new MiniDFSCluster.Builder(config).numDataNodes(numDatanodes).build();
+        cluster.waitActive();
+
+        writeFile(cluster.getFileSystem(), new Path("/test1"), 2);
+
+        JMXGet jmx = new JMXGet();
+        String serviceName = "NameNode";
+        jmx.setService(serviceName);
+        jmx.init(); // default lists namenode mbeans only
+        assertTrue("error printAllValues", checkPrintAllValues(jmx));
+
+        //get some data from different source
+        assertEquals(numDatanodes, Integer.parseInt(
+                         jmx.getValue("NumLiveDataNodes")));
+        assertGauge("CorruptBlocks", Long.parseLong(jmx.getValue("CorruptBlocks")),
+                    getMetrics("FSNamesystem"));
+        assertEquals(numDatanodes, Integer.parseInt(
+                         jmx.getValue("NumOpenConnections")));
+
+        cluster.shutdown();
+        MBeanServerConnection mbsc = ManagementFactory.getPlatformMBeanServer();
+        ObjectName query = new ObjectName("Hadoop:service=" + serviceName + ",*");
+        Set<ObjectName> names = mbsc.queryNames(query, null);
+        assertTrue("No beans should be registered for " + serviceName, names.isEmpty());
+    }
+
+    private static boolean checkPrintAllValues(JMXGet jmx) throws Exception {
+        int size = 0;
+        byte[] bytes = null;
+        String pattern = "List of all the available keys:";
+        PipedOutputStream pipeOut = new PipedOutputStream();
+        PipedInputStream pipeIn = new PipedInputStream(pipeOut);
+        System.setErr(new PrintStream(pipeOut));
+        jmx.printAllValues();
+        if ((size = pipeIn.available()) != 0) {
+            bytes = new byte[size];
+            pipeIn.read(bytes, 0, bytes.length);
+        }
+        pipeOut.close();
+        pipeIn.close();
+        return bytes != null ? new String(bytes).contains(pattern) : false;
+    }
+
+    /**
+     * test JMX connection to DataNode..
+     * @throws Exception
+     */
+    @Test
+    public void testDataNode() throws Exception {
+        int numDatanodes = 2;
+        cluster = new MiniDFSCluster.Builder(config).numDataNodes(numDatanodes).build();
+        cluster.waitActive();
+
+        writeFile(cluster.getFileSystem(), new Path("/test"), 2);
+
+        JMXGet jmx = new JMXGet();
+        String serviceName = "DataNode";
+        jmx.setService(serviceName);
+        jmx.init();
+        assertEquals(fileSize, Integer.parseInt(jmx.getValue("BytesWritten")));
+
+        cluster.shutdown();
+        MBeanServerConnection mbsc = ManagementFactory.getPlatformMBeanServer();
+        ObjectName query = new ObjectName("Hadoop:service=" + serviceName + ",*");
+        Set<ObjectName> names = mbsc.queryNames(query, null);
+        assertTrue("No beans should be registered for " + serviceName, names.isEmpty());
+    }
 }

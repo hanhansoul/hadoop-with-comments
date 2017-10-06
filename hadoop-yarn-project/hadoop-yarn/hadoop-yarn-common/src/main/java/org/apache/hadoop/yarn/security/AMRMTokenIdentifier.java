@@ -45,91 +45,91 @@ import com.google.protobuf.TextFormat;
 @Evolving
 public class AMRMTokenIdentifier extends TokenIdentifier {
 
-  public static final Text KIND_NAME = new Text("YARN_AM_RM_TOKEN");
-  private AMRMTokenIdentifierProto proto;
+    public static final Text KIND_NAME = new Text("YARN_AM_RM_TOKEN");
+    private AMRMTokenIdentifierProto proto;
 
-  public AMRMTokenIdentifier() {
-  }
-  
-  public AMRMTokenIdentifier(ApplicationAttemptId appAttemptId,
-      int masterKeyId) {
-    AMRMTokenIdentifierProto.Builder builder = 
-        AMRMTokenIdentifierProto.newBuilder();
-    if (appAttemptId != null) {
-      builder.setAppAttemptId(
-          ((ApplicationAttemptIdPBImpl)appAttemptId).getProto());
+    public AMRMTokenIdentifier() {
     }
-    builder.setKeyId(masterKeyId);
-    proto = builder.build();
-  }
 
-  @Private
-  public ApplicationAttemptId getApplicationAttemptId() {
-    if (!proto.hasAppAttemptId()) {
-      return null;
+    public AMRMTokenIdentifier(ApplicationAttemptId appAttemptId,
+                               int masterKeyId) {
+        AMRMTokenIdentifierProto.Builder builder =
+            AMRMTokenIdentifierProto.newBuilder();
+        if (appAttemptId != null) {
+            builder.setAppAttemptId(
+                ((ApplicationAttemptIdPBImpl)appAttemptId).getProto());
+        }
+        builder.setKeyId(masterKeyId);
+        proto = builder.build();
     }
-    return new ApplicationAttemptIdPBImpl(proto.getAppAttemptId());
-  }
 
-  @Override
-  public void write(DataOutput out) throws IOException {
-    out.write(proto.toByteArray());
-  }
-
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    proto = AMRMTokenIdentifierProto.parseFrom((DataInputStream)in);
-  }
-
-  @Override
-  public Text getKind() {
-    return KIND_NAME;
-  }
-
-  @Override
-  public UserGroupInformation getUser() {
-    String appAttemptId = null;
-    if (proto.hasAppAttemptId()) {
-      appAttemptId = 
-          new ApplicationAttemptIdPBImpl(proto.getAppAttemptId()).toString();
+    @Private
+    public ApplicationAttemptId getApplicationAttemptId() {
+        if (!proto.hasAppAttemptId()) {
+            return null;
+        }
+        return new ApplicationAttemptIdPBImpl(proto.getAppAttemptId());
     }
-    return UserGroupInformation.createRemoteUser(appAttemptId);
-  }
 
-  public int getKeyId() {
-    return proto.getKeyId();
-  }
-  
-  public AMRMTokenIdentifierProto getProto() {
-    return this.proto;
-  }
-
-  // TODO: Needed?
-  @InterfaceAudience.Private
-  public static class Renewer extends Token.TrivialRenewer {
     @Override
-    protected Text getKind() {
-      return KIND_NAME;
+    public void write(DataOutput out) throws IOException {
+        out.write(proto.toByteArray());
     }
-  }
-  
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        proto = AMRMTokenIdentifierProto.parseFrom((DataInputStream)in);
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    @Override
+    public Text getKind() {
+        return KIND_NAME;
+    }
+
+    @Override
+    public UserGroupInformation getUser() {
+        String appAttemptId = null;
+        if (proto.hasAppAttemptId()) {
+            appAttemptId =
+                new ApplicationAttemptIdPBImpl(proto.getAppAttemptId()).toString();
+        }
+        return UserGroupInformation.createRemoteUser(appAttemptId);
+    }
+
+    public int getKeyId() {
+        return proto.getKeyId();
+    }
+
+    public AMRMTokenIdentifierProto getProto() {
+        return this.proto;
+    }
+
+    // TODO: Needed?
+    @InterfaceAudience.Private
+    public static class Renewer extends Token.TrivialRenewer {
+        @Override
+        protected Text getKind() {
+            return KIND_NAME;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

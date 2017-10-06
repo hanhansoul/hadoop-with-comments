@@ -34,79 +34,79 @@ import static org.mockito.Mockito.*;
 
 /**
  * class emulates a connection to database
- * 
+ *
  */
 public class DriverForTest implements Driver {
 
-  public static Connection getConnection() {
-    Connection connection = mock(FakeConnection.class);
-    try {
-      Statement statement = mock(Statement.class);
-      ResultSet results = mock(ResultSet.class);
-      when(results.getLong(1)).thenReturn(15L);
-      when(statement.executeQuery(any(String.class))).thenReturn(results);
-      when(connection.createStatement()).thenReturn(statement);
+    public static Connection getConnection() {
+        Connection connection = mock(FakeConnection.class);
+        try {
+            Statement statement = mock(Statement.class);
+            ResultSet results = mock(ResultSet.class);
+            when(results.getLong(1)).thenReturn(15L);
+            when(statement.executeQuery(any(String.class))).thenReturn(results);
+            when(connection.createStatement()).thenReturn(statement);
 
-      DatabaseMetaData metadata = mock(DatabaseMetaData.class);
-      when(metadata.getDatabaseProductName()).thenReturn("Test");
-      when(connection.getMetaData()).thenReturn(metadata);
+            DatabaseMetaData metadata = mock(DatabaseMetaData.class);
+            when(metadata.getDatabaseProductName()).thenReturn("Test");
+            when(connection.getMetaData()).thenReturn(metadata);
 
-      PreparedStatement reparedStatement0= mock(PreparedStatement.class);
-      when(connection.prepareStatement(anyString())).thenReturn(
-          reparedStatement0);
+            PreparedStatement reparedStatement0= mock(PreparedStatement.class);
+            when(connection.prepareStatement(anyString())).thenReturn(
+                reparedStatement0);
 
-      PreparedStatement preparedStatement = mock(PreparedStatement.class);
-      ResultSet resultSet = mock(ResultSet.class);
-      when(resultSet.next()).thenReturn(false);
-      when(preparedStatement.executeQuery()).thenReturn(resultSet);
+            PreparedStatement preparedStatement = mock(PreparedStatement.class);
+            ResultSet resultSet = mock(ResultSet.class);
+            when(resultSet.next()).thenReturn(false);
+            when(preparedStatement.executeQuery()).thenReturn(resultSet);
 
-      when(connection.prepareStatement(anyString(), anyInt(), anyInt()))
-          .thenReturn(preparedStatement);
-    } catch (SQLException e) {
-      ;
+            when(connection.prepareStatement(anyString(), anyInt(), anyInt()))
+            .thenReturn(preparedStatement);
+        } catch (SQLException e) {
+            ;
+        }
+        return connection;
     }
-    return connection;
-  }
 
-  @Override
-  public boolean acceptsURL(String arg0) throws SQLException {
-    return "testUrl".equals(arg0);
-  }
+    @Override
+    public boolean acceptsURL(String arg0) throws SQLException {
+        return "testUrl".equals(arg0);
+    }
 
-  @Override
-  public Connection connect(String arg0, Properties arg1) throws SQLException {
-   
-    return getConnection();
-  }
+    @Override
+    public Connection connect(String arg0, Properties arg1) throws SQLException {
 
-  @Override
-  public int getMajorVersion() {
-    return 1;
-  }
+        return getConnection();
+    }
 
-  @Override
-  public int getMinorVersion() {
-    return 1;
-  }
+    @Override
+    public int getMajorVersion() {
+        return 1;
+    }
 
-  @Override
-  public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1)
-      throws SQLException {
+    @Override
+    public int getMinorVersion() {
+        return 1;
+    }
 
-    return null;
-  }
+    @Override
+    public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1)
+    throws SQLException {
 
-  @Override
-  public boolean jdbcCompliant() {
-    return true;
-  }
-  
-  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-    throw new SQLFeatureNotSupportedException();
-  }
+        return null;
+    }
 
-  private interface FakeConnection extends Connection{
-    public void setSessionTimeZone(String arg);
-  }
-  
+    @Override
+    public boolean jdbcCompliant() {
+        return true;
+    }
+
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException();
+    }
+
+    private interface FakeConnection extends Connection {
+        public void setSessionTimeZone(String arg);
+    }
+
 }

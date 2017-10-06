@@ -27,15 +27,15 @@ import org.apache.hadoop.mapreduce.v2.app.job.Task;
  */
 public class AppForTest extends App {
 
-  public AppForTest(AppContext ctx) {
-    super(ctx);
-  }
-  public void setJob(Job job) {
-    super.setJob(job);
-  }
-  @Override
-  public void setTask(Task task) {
-    super.setTask(task);
-  }
+    public AppForTest(AppContext ctx) {
+        super(ctx);
+    }
+    public void setJob(Job job) {
+        super.setJob(job);
+    }
+    @Override
+    public void setTask(Task task) {
+        super.setTask(task);
+    }
 
 }

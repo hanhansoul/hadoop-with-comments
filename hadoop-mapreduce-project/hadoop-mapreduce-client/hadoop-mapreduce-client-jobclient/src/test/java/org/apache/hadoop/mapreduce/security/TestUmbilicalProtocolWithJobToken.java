@@ -53,78 +53,78 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.log4j.Level;
 import org.junit.Test;
 
-/** Unit tests for using Job Token over RPC. 
- * 
+/** Unit tests for using Job Token over RPC.
+ *
  * System properties required:
- * -Djava.security.krb5.conf=.../hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-jobclient/target/test-classes/krb5.conf 
+ * -Djava.security.krb5.conf=.../hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-jobclient/target/test-classes/krb5.conf
  * -Djava.net.preferIPv4Stack=true
  */
 public class TestUmbilicalProtocolWithJobToken {
-  private static final String ADDRESS = "0.0.0.0";
+    private static final String ADDRESS = "0.0.0.0";
 
-  public static final Log LOG = LogFactory
-      .getLog(TestUmbilicalProtocolWithJobToken.class);
+    public static final Log LOG = LogFactory
+                                  .getLog(TestUmbilicalProtocolWithJobToken.class);
 
-  private static Configuration conf;
-  static {
-    conf = new Configuration();
-    conf.set(HADOOP_SECURITY_AUTHENTICATION, "kerberos");
-    UserGroupInformation.setConfiguration(conf);
-  }
+    private static Configuration conf;
+    static {
+        conf = new Configuration();
+        conf.set(HADOOP_SECURITY_AUTHENTICATION, "kerberos");
+        UserGroupInformation.setConfiguration(conf);
+    }
 
-  static {
-    ((Log4JLogger) Client.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) Server.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) SaslRpcClient.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) SaslRpcServer.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) SaslInputStream.LOG).getLogger().setLevel(Level.ALL);
-  }
+    static {
+        ((Log4JLogger) Client.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) Server.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) SaslRpcClient.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) SaslRpcServer.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) SaslInputStream.LOG).getLogger().setLevel(Level.ALL);
+    }
 
-  @Test
-  public void testJobTokenRpc() throws Exception {
-    TaskUmbilicalProtocol mockTT = mock(TaskUmbilicalProtocol.class);
-    doReturn(TaskUmbilicalProtocol.versionID)
-      .when(mockTT).getProtocolVersion(anyString(), anyLong());
-    doReturn(ProtocolSignature.getProtocolSignature(
-        mockTT, TaskUmbilicalProtocol.class.getName(),
-        TaskUmbilicalProtocol.versionID, 0))
-      .when(mockTT).getProtocolSignature(anyString(), anyLong(), anyInt());
+    @Test
+    public void testJobTokenRpc() throws Exception {
+        TaskUmbilicalProtocol mockTT = mock(TaskUmbilicalProtocol.class);
+        doReturn(TaskUmbilicalProtocol.versionID)
+        .when(mockTT).getProtocolVersion(anyString(), anyLong());
+        doReturn(ProtocolSignature.getProtocolSignature(
+                     mockTT, TaskUmbilicalProtocol.class.getName(),
+                     TaskUmbilicalProtocol.versionID, 0))
+        .when(mockTT).getProtocolSignature(anyString(), anyLong(), anyInt());
 
-    JobTokenSecretManager sm = new JobTokenSecretManager();
-    final Server server = new RPC.Builder(conf)
+        JobTokenSecretManager sm = new JobTokenSecretManager();
+        final Server server = new RPC.Builder(conf)
         .setProtocol(TaskUmbilicalProtocol.class).setInstance(mockTT)
         .setBindAddress(ADDRESS).setPort(0).setNumHandlers(5).setVerbose(true)
         .setSecretManager(sm).build();
 
-    server.start();
+        server.start();
 
-    final UserGroupInformation current = UserGroupInformation.getCurrentUser();
-    final InetSocketAddress addr = NetUtils.getConnectAddress(server);
-    String jobId = current.getUserName();
-    JobTokenIdentifier tokenId = new JobTokenIdentifier(new Text(jobId));
-    Token<JobTokenIdentifier> token = new Token<JobTokenIdentifier>(tokenId, sm);
-    sm.addTokenForJob(jobId, token);
-    SecurityUtil.setTokenService(token, addr);
-    LOG.info("Service address for token is " + token.getService());
-    current.addToken(token);
-    current.doAs(new PrivilegedExceptionAction<Object>() {
-      @Override
-      public Object run() throws Exception {
-        TaskUmbilicalProtocol proxy = null;
-        try {
-          proxy = (TaskUmbilicalProtocol) RPC.getProxy(
-              TaskUmbilicalProtocol.class, TaskUmbilicalProtocol.versionID,
-              addr, conf);
-          proxy.ping(null);
-        } finally {
-          server.stop();
-          if (proxy != null) {
-            RPC.stopProxy(proxy);
-          }
-        }
-        return null;
-      }
-    });
-  }
+        final UserGroupInformation current = UserGroupInformation.getCurrentUser();
+        final InetSocketAddress addr = NetUtils.getConnectAddress(server);
+        String jobId = current.getUserName();
+        JobTokenIdentifier tokenId = new JobTokenIdentifier(new Text(jobId));
+        Token<JobTokenIdentifier> token = new Token<JobTokenIdentifier>(tokenId, sm);
+        sm.addTokenForJob(jobId, token);
+        SecurityUtil.setTokenService(token, addr);
+        LOG.info("Service address for token is " + token.getService());
+        current.addToken(token);
+        current.doAs(new PrivilegedExceptionAction<Object>() {
+            @Override
+            public Object run() throws Exception {
+                TaskUmbilicalProtocol proxy = null;
+                try {
+                    proxy = (TaskUmbilicalProtocol) RPC.getProxy(
+                                TaskUmbilicalProtocol.class, TaskUmbilicalProtocol.versionID,
+                                addr, conf);
+                    proxy.ping(null);
+                } finally {
+                    server.stop();
+                    if (proxy != null) {
+                        RPC.stopProxy(proxy);
+                    }
+                }
+                return null;
+            }
+        });
+    }
 
 }

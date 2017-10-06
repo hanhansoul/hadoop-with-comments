@@ -48,143 +48,140 @@ import org.apache.hadoop.mapred.RawKeyValueIterator;
   */
 public class TestShufflePlugin<K, V> {
 
-  static class TestShuffleConsumerPlugin<K, V> implements ShuffleConsumerPlugin<K, V> {
+    static class TestShuffleConsumerPlugin<K, V> implements ShuffleConsumerPlugin<K, V> {
 
-    @Override
-    public void init(ShuffleConsumerPlugin.Context<K, V> context) {
-        // just verify that Context has kept its public interface
-      context.getReduceId();
-      context.getJobConf();
-      context.getLocalFS();
-      context.getUmbilical();
-      context.getLocalDirAllocator();
-      context.getReporter();
-      context.getCodec();
-      context.getCombinerClass();
-      context.getCombineCollector();
-      context.getSpilledRecordsCounter();
-      context.getReduceCombineInputCounter();
-      context.getShuffledMapsCounter();
-      context.getReduceShuffleBytes();
-      context.getFailedShuffleCounter();
-      context.getMergedMapOutputsCounter();
-      context.getStatus();
-      context.getCopyPhase();
-      context.getMergePhase();
-      context.getReduceTask();
-      context.getMapOutputFile();
+        @Override
+        public void init(ShuffleConsumerPlugin.Context<K, V> context) {
+            // just verify that Context has kept its public interface
+            context.getReduceId();
+            context.getJobConf();
+            context.getLocalFS();
+            context.getUmbilical();
+            context.getLocalDirAllocator();
+            context.getReporter();
+            context.getCodec();
+            context.getCombinerClass();
+            context.getCombineCollector();
+            context.getSpilledRecordsCounter();
+            context.getReduceCombineInputCounter();
+            context.getShuffledMapsCounter();
+            context.getReduceShuffleBytes();
+            context.getFailedShuffleCounter();
+            context.getMergedMapOutputsCounter();
+            context.getStatus();
+            context.getCopyPhase();
+            context.getMergePhase();
+            context.getReduceTask();
+            context.getMapOutputFile();
+        }
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public RawKeyValueIterator run() throws java.io.IOException, java.lang.InterruptedException {
+            return null;
+        }
     }
 
-    @Override
-    public void close(){
+
+
+    @Test
+    /**
+     * A testing method instructing core hadoop to load an external ShuffleConsumerPlugin
+     * as if it came from a 3rd party.
+     */
+    public void testPluginAbility() {
+
+        try {
+            // create JobConf with mapreduce.job.shuffle.consumer.plugin=TestShuffleConsumerPlugin
+            JobConf jobConf = new JobConf();
+            jobConf.setClass(MRConfig.SHUFFLE_CONSUMER_PLUGIN,
+                             TestShufflePlugin.TestShuffleConsumerPlugin.class,
+                             ShuffleConsumerPlugin.class);
+
+            ShuffleConsumerPlugin shuffleConsumerPlugin = null;
+            Class<? extends ShuffleConsumerPlugin> clazz =
+                jobConf.getClass(MRConfig.SHUFFLE_CONSUMER_PLUGIN, Shuffle.class, ShuffleConsumerPlugin.class);
+            assertNotNull("Unable to get " + MRConfig.SHUFFLE_CONSUMER_PLUGIN, clazz);
+
+            // load 3rd party plugin through core's factory method
+            shuffleConsumerPlugin = ReflectionUtils.newInstance(clazz, jobConf);
+            assertNotNull("Unable to load " + MRConfig.SHUFFLE_CONSUMER_PLUGIN, shuffleConsumerPlugin);
+        } catch (Exception e) {
+            assertTrue("Threw exception:" + e, false);
+        }
     }
 
-    @Override
-    public RawKeyValueIterator run() throws java.io.IOException, java.lang.InterruptedException{
-      return null;
-    }
-  }
+    @Test
+    /**
+     * A testing method verifying availability and accessibility of API that is needed
+     * for sub-classes of ShuffleConsumerPlugin
+     */
+    public void testConsumerApi() {
 
+        JobConf jobConf = new JobConf();
+        ShuffleConsumerPlugin<K, V> shuffleConsumerPlugin = new TestShuffleConsumerPlugin<K, V>();
 
+        //mock creation
+        ReduceTask mockReduceTask = mock(ReduceTask.class);
+        TaskUmbilicalProtocol mockUmbilical = mock(TaskUmbilicalProtocol.class);
+        Reporter mockReporter = mock(Reporter.class);
+        FileSystem mockFileSystem = mock(FileSystem.class);
+        Class<? extends org.apache.hadoop.mapred.Reducer>  combinerClass = jobConf.getCombinerClass();
+        @SuppressWarnings("unchecked")  // needed for mock with generic
+        CombineOutputCollector<K, V>  mockCombineOutputCollector =
+            (CombineOutputCollector<K, V>) mock(CombineOutputCollector.class);
+        org.apache.hadoop.mapreduce.TaskAttemptID mockTaskAttemptID =
+            mock(org.apache.hadoop.mapreduce.TaskAttemptID.class);
+        LocalDirAllocator mockLocalDirAllocator = mock(LocalDirAllocator.class);
+        CompressionCodec mockCompressionCodec = mock(CompressionCodec.class);
+        Counter mockCounter = mock(Counter.class);
+        TaskStatus mockTaskStatus = mock(TaskStatus.class);
+        Progress mockProgress = mock(Progress.class);
+        MapOutputFile mockMapOutputFile = mock(MapOutputFile.class);
+        Task mockTask = mock(Task.class);
 
-  @Test
-  /**
-   * A testing method instructing core hadoop to load an external ShuffleConsumerPlugin
-   * as if it came from a 3rd party.
-   */
-  public void testPluginAbility() {
+        try {
+            String [] dirs = jobConf.getLocalDirs();
+            // verify that these APIs are available through super class handler
+            ShuffleConsumerPlugin.Context<K, V> context =
+                new ShuffleConsumerPlugin.Context<K, V>(mockTaskAttemptID, jobConf, mockFileSystem,
+                        mockUmbilical, mockLocalDirAllocator,
+                        mockReporter, mockCompressionCodec,
+                        combinerClass, mockCombineOutputCollector,
+                        mockCounter, mockCounter, mockCounter,
+                        mockCounter, mockCounter, mockCounter,
+                        mockTaskStatus, mockProgress, mockProgress,
+                        mockTask, mockMapOutputFile, null);
+            shuffleConsumerPlugin.init(context);
+            shuffleConsumerPlugin.run();
+            shuffleConsumerPlugin.close();
+        } catch (Exception e) {
+            assertTrue("Threw exception:" + e, false);
+        }
 
-    try{
-      // create JobConf with mapreduce.job.shuffle.consumer.plugin=TestShuffleConsumerPlugin
-      JobConf jobConf = new JobConf();
-      jobConf.setClass(MRConfig.SHUFFLE_CONSUMER_PLUGIN,
-                       TestShufflePlugin.TestShuffleConsumerPlugin.class,
-                       ShuffleConsumerPlugin.class);
-
-      ShuffleConsumerPlugin shuffleConsumerPlugin = null;
-      Class<? extends ShuffleConsumerPlugin> clazz =
-        jobConf.getClass(MRConfig.SHUFFLE_CONSUMER_PLUGIN, Shuffle.class, ShuffleConsumerPlugin.class);
-      assertNotNull("Unable to get " + MRConfig.SHUFFLE_CONSUMER_PLUGIN, clazz);
-
-      // load 3rd party plugin through core's factory method
-      shuffleConsumerPlugin = ReflectionUtils.newInstance(clazz, jobConf);
-      assertNotNull("Unable to load " + MRConfig.SHUFFLE_CONSUMER_PLUGIN, shuffleConsumerPlugin);
-    }
-    catch (Exception e) {
-      assertTrue("Threw exception:" + e, false);
-    }
-  }
-
-  @Test
-  /**
-   * A testing method verifying availability and accessibility of API that is needed
-   * for sub-classes of ShuffleConsumerPlugin
-   */
-  public void testConsumerApi() {
-
-    JobConf jobConf = new JobConf();
-    ShuffleConsumerPlugin<K, V> shuffleConsumerPlugin = new TestShuffleConsumerPlugin<K, V>();
-
-    //mock creation
-    ReduceTask mockReduceTask = mock(ReduceTask.class);
-    TaskUmbilicalProtocol mockUmbilical = mock(TaskUmbilicalProtocol.class);
-    Reporter mockReporter = mock(Reporter.class);
-    FileSystem mockFileSystem = mock(FileSystem.class);
-    Class<? extends org.apache.hadoop.mapred.Reducer>  combinerClass = jobConf.getCombinerClass();
-    @SuppressWarnings("unchecked")  // needed for mock with generic
-    CombineOutputCollector<K, V>  mockCombineOutputCollector =
-      (CombineOutputCollector<K, V>) mock(CombineOutputCollector.class);
-    org.apache.hadoop.mapreduce.TaskAttemptID mockTaskAttemptID =
-      mock(org.apache.hadoop.mapreduce.TaskAttemptID.class);
-    LocalDirAllocator mockLocalDirAllocator = mock(LocalDirAllocator.class);
-    CompressionCodec mockCompressionCodec = mock(CompressionCodec.class);
-    Counter mockCounter = mock(Counter.class);
-    TaskStatus mockTaskStatus = mock(TaskStatus.class);
-    Progress mockProgress = mock(Progress.class);
-    MapOutputFile mockMapOutputFile = mock(MapOutputFile.class);
-    Task mockTask = mock(Task.class);
-
-    try {
-      String [] dirs = jobConf.getLocalDirs();
-      // verify that these APIs are available through super class handler
-      ShuffleConsumerPlugin.Context<K, V> context =
-	    new ShuffleConsumerPlugin.Context<K, V>(mockTaskAttemptID, jobConf, mockFileSystem,
-                                                mockUmbilical, mockLocalDirAllocator,
-                                                mockReporter, mockCompressionCodec,
-                                                combinerClass, mockCombineOutputCollector,
-                                                mockCounter, mockCounter, mockCounter,
-                                                mockCounter, mockCounter, mockCounter,
-                                                mockTaskStatus, mockProgress, mockProgress,
-                                                mockTask, mockMapOutputFile, null);
-      shuffleConsumerPlugin.init(context);
-      shuffleConsumerPlugin.run();
-      shuffleConsumerPlugin.close();
-    }
-    catch (Exception e) {
-      assertTrue("Threw exception:" + e, false);
+        // verify that these APIs are available for 3rd party plugins
+        mockReduceTask.getTaskID();
+        mockReduceTask.getJobID();
+        mockReduceTask.getNumMaps();
+        mockReduceTask.getPartition();
+        mockReporter.progress();
     }
 
-    // verify that these APIs are available for 3rd party plugins
-    mockReduceTask.getTaskID();
-    mockReduceTask.getJobID();
-    mockReduceTask.getNumMaps();
-    mockReduceTask.getPartition();
-    mockReporter.progress();
-  }
-
-  @Test
-  /**
-   * A testing method verifying availability and accessibility of API needed for
-   * AuxiliaryService(s) which are "Shuffle-Providers" (ShuffleHandler and 3rd party plugins)
-   */
-  public void testProviderApi() {
-    LocalDirAllocator mockLocalDirAllocator = mock(LocalDirAllocator.class);
-    JobConf mockJobConf = mock(JobConf.class);
-    try {
-      mockLocalDirAllocator.getLocalPathToRead("", mockJobConf);
+    @Test
+    /**
+     * A testing method verifying availability and accessibility of API needed for
+     * AuxiliaryService(s) which are "Shuffle-Providers" (ShuffleHandler and 3rd party plugins)
+     */
+    public void testProviderApi() {
+        LocalDirAllocator mockLocalDirAllocator = mock(LocalDirAllocator.class);
+        JobConf mockJobConf = mock(JobConf.class);
+        try {
+            mockLocalDirAllocator.getLocalPathToRead("", mockJobConf);
+        } catch (Exception e) {
+            assertTrue("Threw exception:" + e, false);
+        }
     }
-    catch (Exception e) {
-      assertTrue("Threw exception:" + e, false);
-    }
-  }
 }

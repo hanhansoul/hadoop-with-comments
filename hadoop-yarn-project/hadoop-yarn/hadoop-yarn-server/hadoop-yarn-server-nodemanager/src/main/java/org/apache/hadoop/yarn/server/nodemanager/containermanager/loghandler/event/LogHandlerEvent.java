@@ -20,10 +20,10 @@ package org.apache.hadoop.yarn.server.nodemanager.containermanager.loghandler.ev
 
 import org.apache.hadoop.yarn.event.AbstractEvent;
 
-public class LogHandlerEvent extends AbstractEvent<LogHandlerEventType>{
+public class LogHandlerEvent extends AbstractEvent<LogHandlerEventType> {
 
-  public LogHandlerEvent(LogHandlerEventType type) {
-    super(type);
-  }
+    public LogHandlerEvent(LogHandlerEventType type) {
+        super(type);
+    }
 
 }

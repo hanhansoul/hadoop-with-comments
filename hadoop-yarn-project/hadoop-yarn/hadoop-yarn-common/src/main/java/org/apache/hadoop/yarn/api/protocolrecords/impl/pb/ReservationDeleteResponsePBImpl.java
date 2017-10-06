@@ -25,44 +25,44 @@ import com.google.protobuf.TextFormat;
 
 public class ReservationDeleteResponsePBImpl extends ReservationDeleteResponse {
 
-  ReservationDeleteResponseProto proto = ReservationDeleteResponseProto
-      .getDefaultInstance();
-  ReservationDeleteResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    ReservationDeleteResponseProto proto = ReservationDeleteResponseProto
+                                           .getDefaultInstance();
+    ReservationDeleteResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public ReservationDeleteResponsePBImpl() {
-    builder = ReservationDeleteResponseProto.newBuilder();
-  }
-
-  public ReservationDeleteResponsePBImpl(ReservationDeleteResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public ReservationDeleteResponseProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public ReservationDeleteResponsePBImpl() {
+        builder = ReservationDeleteResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    public ReservationDeleteResponsePBImpl(ReservationDeleteResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public ReservationDeleteResponseProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
 }

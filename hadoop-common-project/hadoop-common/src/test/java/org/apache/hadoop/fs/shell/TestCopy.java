@@ -43,146 +43,146 @@ import org.junit.Test;
 import org.mockito.stubbing.OngoingStubbing;
 
 public class TestCopy {
-  static Configuration conf;
-  static Path path = new Path("mockfs:/file");
-  static Path tmpPath = new Path("mockfs:/file._COPYING_");
-  static Put cmd;
-  static FileSystem mockFs;
-  static PathData target;
-  static FileStatus fileStat;
-  
-  @BeforeClass
-  public static void setup() throws IOException {
-    conf = new Configuration();
-    conf.setClass("fs.mockfs.impl", MockFileSystem.class, FileSystem.class);
-    mockFs = mock(FileSystem.class);
-    fileStat = mock(FileStatus.class);
-    when(fileStat.isDirectory()).thenReturn(false);
-  }
-  
-  @Before
-  public void resetMock() throws IOException {
-    reset(mockFs);
-    target = new PathData(path.toString(), conf);
-    cmd = new CopyCommands.Put();
-    cmd.setConf(conf);
-  }
+    static Configuration conf;
+    static Path path = new Path("mockfs:/file");
+    static Path tmpPath = new Path("mockfs:/file._COPYING_");
+    static Put cmd;
+    static FileSystem mockFs;
+    static PathData target;
+    static FileStatus fileStat;
 
-  @Test
-  public void testCopyStreamTarget() throws Exception {
-    FSDataOutputStream out = mock(FSDataOutputStream.class);
-    whenFsCreate().thenReturn(out);
-    when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
-    when(mockFs.rename(eq(tmpPath), eq(path))).thenReturn(true);
-    FSInputStream in = mock(FSInputStream.class);
-    when(in.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
-    
-    tryCopyStream(in, true);
-    verify(mockFs, never()).delete(eq(path), anyBoolean());
-    verify(mockFs).rename(eq(tmpPath), eq(path));
-    verify(mockFs, never()).delete(eq(tmpPath), anyBoolean());
-    verify(mockFs, never()).close();
-  }
-
-  @Test
-  public void testCopyStreamTargetExists() throws Exception {
-    FSDataOutputStream out = mock(FSDataOutputStream.class);
-    whenFsCreate().thenReturn(out);
-    when(mockFs.getFileStatus(eq(path))).thenReturn(fileStat);
-    target.refreshStatus(); // so it's updated as existing
-    cmd.setOverwrite(true);
-    when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
-    when(mockFs.delete(eq(path), eq(false))).thenReturn(true);
-    when(mockFs.rename(eq(tmpPath), eq(path))).thenReturn(true);
-    FSInputStream in = mock(FSInputStream.class);
-    when(in.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
-    
-    tryCopyStream(in, true);
-    verify(mockFs).delete(eq(path), anyBoolean());
-    verify(mockFs).rename(eq(tmpPath), eq(path));
-    verify(mockFs, never()).delete(eq(tmpPath), anyBoolean());
-    verify(mockFs, never()).close();
-  }
-
-  @Test
-  public void testInterruptedCreate() throws Exception {
-    whenFsCreate().thenThrow(new InterruptedIOException());
-    when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
-    FSDataInputStream in = mock(FSDataInputStream.class);
-
-    tryCopyStream(in, false);
-    verify(mockFs).delete(eq(tmpPath), anyBoolean());
-    verify(mockFs, never()).rename(any(Path.class), any(Path.class));
-    verify(mockFs, never()).delete(eq(path), anyBoolean());
-    verify(mockFs, never()).close();
-  }
-
-  @Test
-  public void testInterruptedCopyBytes() throws Exception {
-    FSDataOutputStream out = mock(FSDataOutputStream.class);
-    whenFsCreate().thenReturn(out);
-    when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
-    FSInputStream in = mock(FSInputStream.class);
-    // make IOUtils.copyBytes fail
-    when(in.read(any(byte[].class), anyInt(), anyInt())).thenThrow(
-        new InterruptedIOException());
-    
-    tryCopyStream(in, false);
-    verify(mockFs).delete(eq(tmpPath), anyBoolean());
-    verify(mockFs, never()).rename(any(Path.class), any(Path.class));
-    verify(mockFs, never()).delete(eq(path), anyBoolean());
-    verify(mockFs, never()).close();
-  }
-
-  @Test
-  public void testInterruptedRename() throws Exception {
-    FSDataOutputStream out = mock(FSDataOutputStream.class);
-    whenFsCreate().thenReturn(out);
-    when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
-    when(mockFs.rename(eq(tmpPath), eq(path))).thenThrow(
-        new InterruptedIOException());
-    FSInputStream in = mock(FSInputStream.class);
-    when(in.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
-    
-    tryCopyStream(in, false);
-    verify(mockFs).delete(eq(tmpPath), anyBoolean());
-    verify(mockFs).rename(eq(tmpPath), eq(path));
-    verify(mockFs, never()).delete(eq(path), anyBoolean());
-    verify(mockFs, never()).close();
-  }
-
-  private OngoingStubbing<FSDataOutputStream> whenFsCreate() throws IOException {
-    return when(mockFs.create(eq(tmpPath), any(FsPermission.class),
-        anyBoolean(), anyInt(), anyShort(), anyLong(),
-        any(Progressable.class)));
-  }
-  
-  private void tryCopyStream(InputStream in, boolean shouldPass) {
-    try {
-      cmd.copyStreamToTarget(new FSDataInputStream(in), target);
-    } catch (InterruptedIOException e) {
-      assertFalse("copy failed", shouldPass);
-    } catch (Throwable e) {
-      assertFalse(e.getMessage(), shouldPass);
-    }    
-  }
-  
-  static class MockFileSystem extends FilterFileSystem {
-    Configuration conf;
-    MockFileSystem() {
-      super(mockFs);
+    @BeforeClass
+    public static void setup() throws IOException {
+        conf = new Configuration();
+        conf.setClass("fs.mockfs.impl", MockFileSystem.class, FileSystem.class);
+        mockFs = mock(FileSystem.class);
+        fileStat = mock(FileStatus.class);
+        when(fileStat.isDirectory()).thenReturn(false);
     }
-    @Override
-    public void initialize(URI uri, Configuration conf) {
-      this.conf = conf;
+
+    @Before
+    public void resetMock() throws IOException {
+        reset(mockFs);
+        target = new PathData(path.toString(), conf);
+        cmd = new CopyCommands.Put();
+        cmd.setConf(conf);
     }
-    @Override
-    public Path makeQualified(Path path) {
-      return path;
+
+    @Test
+    public void testCopyStreamTarget() throws Exception {
+        FSDataOutputStream out = mock(FSDataOutputStream.class);
+        whenFsCreate().thenReturn(out);
+        when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
+        when(mockFs.rename(eq(tmpPath), eq(path))).thenReturn(true);
+        FSInputStream in = mock(FSInputStream.class);
+        when(in.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+
+        tryCopyStream(in, true);
+        verify(mockFs, never()).delete(eq(path), anyBoolean());
+        verify(mockFs).rename(eq(tmpPath), eq(path));
+        verify(mockFs, never()).delete(eq(tmpPath), anyBoolean());
+        verify(mockFs, never()).close();
     }
-    @Override
-    public Configuration getConf() {
-      return conf;
+
+    @Test
+    public void testCopyStreamTargetExists() throws Exception {
+        FSDataOutputStream out = mock(FSDataOutputStream.class);
+        whenFsCreate().thenReturn(out);
+        when(mockFs.getFileStatus(eq(path))).thenReturn(fileStat);
+        target.refreshStatus(); // so it's updated as existing
+        cmd.setOverwrite(true);
+        when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
+        when(mockFs.delete(eq(path), eq(false))).thenReturn(true);
+        when(mockFs.rename(eq(tmpPath), eq(path))).thenReturn(true);
+        FSInputStream in = mock(FSInputStream.class);
+        when(in.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+
+        tryCopyStream(in, true);
+        verify(mockFs).delete(eq(path), anyBoolean());
+        verify(mockFs).rename(eq(tmpPath), eq(path));
+        verify(mockFs, never()).delete(eq(tmpPath), anyBoolean());
+        verify(mockFs, never()).close();
     }
-  }
+
+    @Test
+    public void testInterruptedCreate() throws Exception {
+        whenFsCreate().thenThrow(new InterruptedIOException());
+        when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
+        FSDataInputStream in = mock(FSDataInputStream.class);
+
+        tryCopyStream(in, false);
+        verify(mockFs).delete(eq(tmpPath), anyBoolean());
+        verify(mockFs, never()).rename(any(Path.class), any(Path.class));
+        verify(mockFs, never()).delete(eq(path), anyBoolean());
+        verify(mockFs, never()).close();
+    }
+
+    @Test
+    public void testInterruptedCopyBytes() throws Exception {
+        FSDataOutputStream out = mock(FSDataOutputStream.class);
+        whenFsCreate().thenReturn(out);
+        when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
+        FSInputStream in = mock(FSInputStream.class);
+        // make IOUtils.copyBytes fail
+        when(in.read(any(byte[].class), anyInt(), anyInt())).thenThrow(
+            new InterruptedIOException());
+
+        tryCopyStream(in, false);
+        verify(mockFs).delete(eq(tmpPath), anyBoolean());
+        verify(mockFs, never()).rename(any(Path.class), any(Path.class));
+        verify(mockFs, never()).delete(eq(path), anyBoolean());
+        verify(mockFs, never()).close();
+    }
+
+    @Test
+    public void testInterruptedRename() throws Exception {
+        FSDataOutputStream out = mock(FSDataOutputStream.class);
+        whenFsCreate().thenReturn(out);
+        when(mockFs.getFileStatus(eq(tmpPath))).thenReturn(fileStat);
+        when(mockFs.rename(eq(tmpPath), eq(path))).thenThrow(
+            new InterruptedIOException());
+        FSInputStream in = mock(FSInputStream.class);
+        when(in.read(any(byte[].class), anyInt(), anyInt())).thenReturn(-1);
+
+        tryCopyStream(in, false);
+        verify(mockFs).delete(eq(tmpPath), anyBoolean());
+        verify(mockFs).rename(eq(tmpPath), eq(path));
+        verify(mockFs, never()).delete(eq(path), anyBoolean());
+        verify(mockFs, never()).close();
+    }
+
+    private OngoingStubbing<FSDataOutputStream> whenFsCreate() throws IOException {
+        return when(mockFs.create(eq(tmpPath), any(FsPermission.class),
+                                  anyBoolean(), anyInt(), anyShort(), anyLong(),
+                                  any(Progressable.class)));
+    }
+
+    private void tryCopyStream(InputStream in, boolean shouldPass) {
+        try {
+            cmd.copyStreamToTarget(new FSDataInputStream(in), target);
+        } catch (InterruptedIOException e) {
+            assertFalse("copy failed", shouldPass);
+        } catch (Throwable e) {
+            assertFalse(e.getMessage(), shouldPass);
+        }
+    }
+
+    static class MockFileSystem extends FilterFileSystem {
+        Configuration conf;
+        MockFileSystem() {
+            super(mockFs);
+        }
+        @Override
+        public void initialize(URI uri, Configuration conf) {
+            this.conf = conf;
+        }
+        @Override
+        public Path makeQualified(Path path) {
+            return path;
+        }
+        @Override
+        public Configuration getConf() {
+            return conf;
+        }
+    }
 }

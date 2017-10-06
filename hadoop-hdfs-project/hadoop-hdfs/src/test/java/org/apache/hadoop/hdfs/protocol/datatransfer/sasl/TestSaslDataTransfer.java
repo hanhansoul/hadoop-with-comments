@@ -42,137 +42,137 @@ import org.junit.rules.Timeout;
 
 public class TestSaslDataTransfer extends SaslDataTransferTestCase {
 
-  private static final int BLOCK_SIZE = 4096;
-  private static final int BUFFER_SIZE= 1024;
-  private static final int NUM_BLOCKS = 3;
-  private static final Path PATH  = new Path("/file1");
-  private static final short REPLICATION = 3;
+    private static final int BLOCK_SIZE = 4096;
+    private static final int BUFFER_SIZE= 1024;
+    private static final int NUM_BLOCKS = 3;
+    private static final Path PATH  = new Path("/file1");
+    private static final short REPLICATION = 3;
 
-  private MiniDFSCluster cluster;
-  private FileSystem fs;
+    private MiniDFSCluster cluster;
+    private FileSystem fs;
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
-  @Rule
-  public Timeout timeout = new Timeout(60000);
+    @Rule
+    public Timeout timeout = new Timeout(60000);
 
-  @After
-  public void shutdown() {
-    IOUtils.cleanup(null, fs);
-    if (cluster != null) {
-      cluster.shutdown();
+    @After
+    public void shutdown() {
+        IOUtils.cleanup(null, fs);
+        if (cluster != null) {
+            cluster.shutdown();
+        }
     }
-  }
 
-  @Test
-  public void testAuthentication() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig(
-      "authentication,integrity,privacy");
-    startCluster(clusterConf);
-    HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
-    clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "authentication");
-    doTest(clientConf);
-  }
-
-  @Test
-  public void testIntegrity() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig(
-      "authentication,integrity,privacy");
-    startCluster(clusterConf);
-    HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
-    clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "integrity");
-    doTest(clientConf);
-  }
-
-  @Test
-  public void testPrivacy() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig(
-      "authentication,integrity,privacy");
-    startCluster(clusterConf);
-    HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
-    clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "privacy");
-    doTest(clientConf);
-  }
-
-  @Test
-  public void testClientAndServerDoNotHaveCommonQop() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig("privacy");
-    startCluster(clusterConf);
-    HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
-    clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "authentication");
-    exception.expect(IOException.class);
-    exception.expectMessage("could only be replicated to 0 nodes");
-    doTest(clientConf);
-  }
-
-  @Test
-  public void testServerSaslNoClientSasl() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig(
-      "authentication,integrity,privacy");
-    startCluster(clusterConf);
-    HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
-    clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "");
-    exception.expect(IOException.class);
-    exception.expectMessage("could only be replicated to 0 nodes");
-    doTest(clientConf);
-  }
-
-  @Test
-  public void testDataNodeAbortsIfNoSasl() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig("");
-    exception.expect(RuntimeException.class);
-    exception.expectMessage("Cannot start secure DataNode");
-    startCluster(clusterConf);
-  }
-
-  @Test
-  public void testDataNodeAbortsIfNotHttpsOnly() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig("authentication");
-    clusterConf.set(DFS_HTTP_POLICY_KEY,
-      HttpConfig.Policy.HTTP_AND_HTTPS.name());
-    exception.expect(RuntimeException.class);
-    exception.expectMessage("Cannot start secure DataNode");
-    startCluster(clusterConf);
-  }
-
-  @Test
-  public void testNoSaslAndSecurePortsIgnored() throws Exception {
-    HdfsConfiguration clusterConf = createSecureConfig("");
-    clusterConf.setBoolean(IGNORE_SECURE_PORTS_FOR_TESTING_KEY, true);
-    startCluster(clusterConf);
-    doTest(clusterConf);
-  }
-
-  /**
-   * Tests DataTransferProtocol with the given client configuration.
-   *
-   * @param conf client configuration
-   * @throws IOException if there is an I/O error
-   */
-  private void doTest(HdfsConfiguration conf) throws IOException {
-    fs = FileSystem.get(cluster.getURI(), conf);
-    FileSystemTestHelper.createFile(fs, PATH, NUM_BLOCKS, BLOCK_SIZE);
-    assertArrayEquals(FileSystemTestHelper.getFileData(NUM_BLOCKS, BLOCK_SIZE),
-      DFSTestUtil.readFile(fs, PATH).getBytes("UTF-8"));
-    BlockLocation[] blockLocations = fs.getFileBlockLocations(PATH, 0,
-      Long.MAX_VALUE);
-    assertNotNull(blockLocations);
-    assertEquals(NUM_BLOCKS, blockLocations.length);
-    for (BlockLocation blockLocation: blockLocations) {
-      assertNotNull(blockLocation.getHosts());
-      assertEquals(3, blockLocation.getHosts().length);
+    @Test
+    public void testAuthentication() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig(
+                                            "authentication,integrity,privacy");
+        startCluster(clusterConf);
+        HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
+        clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "authentication");
+        doTest(clientConf);
     }
-  }
 
-  /**
-   * Starts a cluster with the given configuration.
-   *
-   * @param conf cluster configuration
-   * @throws IOException if there is an I/O error
-   */
-  private void startCluster(HdfsConfiguration conf) throws IOException {
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(3).build();
-    cluster.waitActive();
-  }
+    @Test
+    public void testIntegrity() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig(
+                                            "authentication,integrity,privacy");
+        startCluster(clusterConf);
+        HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
+        clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "integrity");
+        doTest(clientConf);
+    }
+
+    @Test
+    public void testPrivacy() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig(
+                                            "authentication,integrity,privacy");
+        startCluster(clusterConf);
+        HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
+        clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "privacy");
+        doTest(clientConf);
+    }
+
+    @Test
+    public void testClientAndServerDoNotHaveCommonQop() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig("privacy");
+        startCluster(clusterConf);
+        HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
+        clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "authentication");
+        exception.expect(IOException.class);
+        exception.expectMessage("could only be replicated to 0 nodes");
+        doTest(clientConf);
+    }
+
+    @Test
+    public void testServerSaslNoClientSasl() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig(
+                                            "authentication,integrity,privacy");
+        startCluster(clusterConf);
+        HdfsConfiguration clientConf = new HdfsConfiguration(clusterConf);
+        clientConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "");
+        exception.expect(IOException.class);
+        exception.expectMessage("could only be replicated to 0 nodes");
+        doTest(clientConf);
+    }
+
+    @Test
+    public void testDataNodeAbortsIfNoSasl() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig("");
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Cannot start secure DataNode");
+        startCluster(clusterConf);
+    }
+
+    @Test
+    public void testDataNodeAbortsIfNotHttpsOnly() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig("authentication");
+        clusterConf.set(DFS_HTTP_POLICY_KEY,
+                        HttpConfig.Policy.HTTP_AND_HTTPS.name());
+        exception.expect(RuntimeException.class);
+        exception.expectMessage("Cannot start secure DataNode");
+        startCluster(clusterConf);
+    }
+
+    @Test
+    public void testNoSaslAndSecurePortsIgnored() throws Exception {
+        HdfsConfiguration clusterConf = createSecureConfig("");
+        clusterConf.setBoolean(IGNORE_SECURE_PORTS_FOR_TESTING_KEY, true);
+        startCluster(clusterConf);
+        doTest(clusterConf);
+    }
+
+    /**
+     * Tests DataTransferProtocol with the given client configuration.
+     *
+     * @param conf client configuration
+     * @throws IOException if there is an I/O error
+     */
+    private void doTest(HdfsConfiguration conf) throws IOException {
+        fs = FileSystem.get(cluster.getURI(), conf);
+        FileSystemTestHelper.createFile(fs, PATH, NUM_BLOCKS, BLOCK_SIZE);
+        assertArrayEquals(FileSystemTestHelper.getFileData(NUM_BLOCKS, BLOCK_SIZE),
+                          DFSTestUtil.readFile(fs, PATH).getBytes("UTF-8"));
+        BlockLocation[] blockLocations = fs.getFileBlockLocations(PATH, 0,
+                                         Long.MAX_VALUE);
+        assertNotNull(blockLocations);
+        assertEquals(NUM_BLOCKS, blockLocations.length);
+        for (BlockLocation blockLocation: blockLocations) {
+            assertNotNull(blockLocation.getHosts());
+            assertEquals(3, blockLocation.getHosts().length);
+        }
+    }
+
+    /**
+     * Starts a cluster with the given configuration.
+     *
+     * @param conf cluster configuration
+     * @throws IOException if there is an I/O error
+     */
+    private void startCluster(HdfsConfiguration conf) throws IOException {
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(3).build();
+        cluster.waitActive();
+    }
 }

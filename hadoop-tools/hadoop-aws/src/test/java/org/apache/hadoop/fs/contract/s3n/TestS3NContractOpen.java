@@ -24,8 +24,8 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
 
 public class TestS3NContractOpen extends AbstractContractOpenTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new NativeS3Contract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new NativeS3Contract(conf);
+    }
 }

@@ -45,198 +45,198 @@ import com.google.inject.Inject;
 import com.google.inject.servlet.RequestScoped;
 
 class CapacitySchedulerPage extends RmView {
-  static final String _Q = ".ui-state-default.ui-corner-all";
-  static final float Q_MAX_WIDTH = 0.8f;
-  static final float Q_STATS_POS = Q_MAX_WIDTH + 0.05f;
-  static final String Q_END = "left:101%";
-  static final String Q_GIVEN = "left:0%;background:none;border:1px dashed rgba(0,0,0,0.25)";
-  static final String Q_OVER = "background:rgba(255, 140, 0, 0.8)";
-  static final String Q_UNDER = "background:rgba(50, 205, 50, 0.8)";
+    static final String _Q = ".ui-state-default.ui-corner-all";
+    static final float Q_MAX_WIDTH = 0.8f;
+    static final float Q_STATS_POS = Q_MAX_WIDTH + 0.05f;
+    static final String Q_END = "left:101%";
+    static final String Q_GIVEN = "left:0%;background:none;border:1px dashed rgba(0,0,0,0.25)";
+    static final String Q_OVER = "background:rgba(255, 140, 0, 0.8)";
+    static final String Q_UNDER = "background:rgba(50, 205, 50, 0.8)";
 
-  @RequestScoped
-  static class CSQInfo {
-    CapacitySchedulerInfo csinfo;
-    CapacitySchedulerQueueInfo qinfo;
-  }
-
-  static class LeafQueueInfoBlock extends HtmlBlock {
-    final CapacitySchedulerLeafQueueInfo lqinfo;
-
-    @Inject LeafQueueInfoBlock(ViewContext ctx, CSQInfo info) {
-      super(ctx);
-      lqinfo = (CapacitySchedulerLeafQueueInfo) info.qinfo;
+    @RequestScoped
+    static class CSQInfo {
+        CapacitySchedulerInfo csinfo;
+        CapacitySchedulerQueueInfo qinfo;
     }
 
-    //Return a string describing one resource as a percentage of another
-    private String getPercentage(ResourceInfo numerator, ResourceInfo denominator) {
-      StringBuilder percentString = new StringBuilder("Memory: ");
-      if (numerator != null) {
-        percentString.append(numerator.getMemory());
-      }
-      if (denominator.getMemory() != 0) {
-        percentString.append(" (<span title='of used resources in this queue'>")
-          .append(StringUtils.format("%.2f", numerator.getMemory() * 100.0 /
-            denominator.getMemory()) + "%</span>)");
-      }
-      percentString.append(", vCores: ");
-      if (numerator != null) {
-        percentString.append(numerator.getvCores());
-      }
-      if (denominator.getvCores() != 0) {
-        percentString.append(" (<span title='of used resources in this queue'>")
-          .append(StringUtils.format("%.2f", numerator.getvCores() * 100.0 /
-          denominator.getvCores()) + "%</span>)");
-      }
-      return percentString.toString();
-    }
+    static class LeafQueueInfoBlock extends HtmlBlock {
+        final CapacitySchedulerLeafQueueInfo lqinfo;
 
-    @Override
-    protected void render(Block html) {
-      StringBuilder activeUserList = new StringBuilder("");
-      ResourceInfo usedResources = lqinfo.getResourcesUsed();
-      ArrayList<UserInfo> users = lqinfo.getUsers().getUsersList();
-      for (UserInfo entry: users) {
-        activeUserList.append(entry.getUsername()).append(" &lt;")
-          .append(getPercentage(entry.getResourcesUsed(), usedResources))
-          .append(", Schedulable Apps: " + entry.getNumActiveApplications())
-          .append(", Non-Schedulable Apps: " + entry.getNumPendingApplications())
-          .append("&gt;<br style='display:block'>"); //Force line break
-      }
-
-      ResponseInfo ri = info("\'" + lqinfo.getQueuePath().substring(5) + "\' Queue Status").
-          _("Queue State:", lqinfo.getQueueState()).
-          _("Used Capacity:", percent(lqinfo.getUsedCapacity() / 100)).
-          _("Absolute Used Capacity:", percent(lqinfo.getAbsoluteUsedCapacity() / 100)).
-          _("Absolute Capacity:", percent(lqinfo.getAbsoluteCapacity() / 100)).
-          _("Absolute Max Capacity:", percent(lqinfo.getAbsoluteMaxCapacity() / 100)).
-          _("Used Resources:", lqinfo.getResourcesUsed().toString()).
-          _("Num Schedulable Applications:", Integer.toString(lqinfo.getNumActiveApplications())).
-          _("Num Non-Schedulable Applications:", Integer.toString(lqinfo.getNumPendingApplications())).
-          _("Num Containers:", Integer.toString(lqinfo.getNumContainers())).
-          _("Max Applications:", Integer.toString(lqinfo.getMaxApplications())).
-          _("Max Applications Per User:", Integer.toString(lqinfo.getMaxApplicationsPerUser())).
-          _("Max Application Master Resources:", lqinfo.getAMResourceLimit().toString()).
-          _("Max Application Master Resources Per User:", lqinfo.getUserAMResourceLimit().toString()).
-          _("Configured Capacity:", percent(lqinfo.getCapacity() / 100)).
-          _("Configured Max Capacity:", percent(lqinfo.getMaxCapacity() / 100)).
-          _("Configured Minimum User Limit Percent:", Integer.toString(lqinfo.getUserLimit()) + "%").
-          _("Configured User Limit Factor:", String.format("%.1f", lqinfo.getUserLimitFactor())).
-          _r("Active Users: ", activeUserList.toString()).
-          _("Accessible Node Labels:", StringUtils.join(",", lqinfo.getNodeLabels()));
-
-      html._(InfoBlock.class);
-
-      // clear the info contents so this queue's info doesn't accumulate into another queue's info
-      ri.clear();
-    }
-  }
-
-  public static class QueueBlock extends HtmlBlock {
-    final CSQInfo csqinfo;
-
-    @Inject QueueBlock(CSQInfo info) {
-      csqinfo = info;
-    }
-
-    @Override
-    public void render(Block html) {
-      ArrayList<CapacitySchedulerQueueInfo> subQueues =
-          (csqinfo.qinfo == null) ? csqinfo.csinfo.getQueues().getQueueInfoList()
-              : csqinfo.qinfo.getQueues().getQueueInfoList();
-      UL<Hamlet> ul = html.ul("#pq");
-      for (CapacitySchedulerQueueInfo info : subQueues) {
-        float used = info.getUsedCapacity() / 100;
-        float absCap = info.getAbsoluteCapacity() / 100;
-        float absMaxCap = info.getAbsoluteMaxCapacity() / 100;
-        float absUsedCap = info.getAbsoluteUsedCapacity() / 100;
-        LI<UL<Hamlet>> li = ul.
-          li().
-            a(_Q).$style(width(absMaxCap * Q_MAX_WIDTH)).
-              $title(join("Absolute Capacity:", percent(absCap))).
-              span().$style(join(Q_GIVEN, ";font-size:1px;", width(absCap/absMaxCap))).
-                _('.')._().
-              span().$style(join(width(absUsedCap/absMaxCap),
-                ";font-size:1px;left:0%;", absUsedCap > absCap ? Q_OVER : Q_UNDER)).
-                _('.')._().
-              span(".q", info.getQueuePath().substring(5))._().
-            span().$class("qstats").$style(left(Q_STATS_POS)).
-              _(join(percent(used), " used"))._();
-
-        csqinfo.qinfo = info;
-        if (info.getQueues() == null) {
-          li.ul("#lq").li()._(LeafQueueInfoBlock.class)._()._();
-        } else {
-          li._(QueueBlock.class);
+        @Inject LeafQueueInfoBlock(ViewContext ctx, CSQInfo info) {
+            super(ctx);
+            lqinfo = (CapacitySchedulerLeafQueueInfo) info.qinfo;
         }
-        li._();
-      }
 
-      ul._();
+        //Return a string describing one resource as a percentage of another
+        private String getPercentage(ResourceInfo numerator, ResourceInfo denominator) {
+            StringBuilder percentString = new StringBuilder("Memory: ");
+            if (numerator != null) {
+                percentString.append(numerator.getMemory());
+            }
+            if (denominator.getMemory() != 0) {
+                percentString.append(" (<span title='of used resources in this queue'>")
+                .append(StringUtils.format("%.2f", numerator.getMemory() * 100.0 /
+                                           denominator.getMemory()) + "%</span>)");
+            }
+            percentString.append(", vCores: ");
+            if (numerator != null) {
+                percentString.append(numerator.getvCores());
+            }
+            if (denominator.getvCores() != 0) {
+                percentString.append(" (<span title='of used resources in this queue'>")
+                .append(StringUtils.format("%.2f", numerator.getvCores() * 100.0 /
+                                           denominator.getvCores()) + "%</span>)");
+            }
+            return percentString.toString();
+        }
+
+        @Override
+        protected void render(Block html) {
+            StringBuilder activeUserList = new StringBuilder("");
+            ResourceInfo usedResources = lqinfo.getResourcesUsed();
+            ArrayList<UserInfo> users = lqinfo.getUsers().getUsersList();
+            for (UserInfo entry: users) {
+                activeUserList.append(entry.getUsername()).append(" &lt;")
+                .append(getPercentage(entry.getResourcesUsed(), usedResources))
+                .append(", Schedulable Apps: " + entry.getNumActiveApplications())
+                .append(", Non-Schedulable Apps: " + entry.getNumPendingApplications())
+                .append("&gt;<br style='display:block'>"); //Force line break
+            }
+
+            ResponseInfo ri = info("\'" + lqinfo.getQueuePath().substring(5) + "\' Queue Status").
+                              _("Queue State:", lqinfo.getQueueState()).
+                              _("Used Capacity:", percent(lqinfo.getUsedCapacity() / 100)).
+                              _("Absolute Used Capacity:", percent(lqinfo.getAbsoluteUsedCapacity() / 100)).
+                              _("Absolute Capacity:", percent(lqinfo.getAbsoluteCapacity() / 100)).
+                              _("Absolute Max Capacity:", percent(lqinfo.getAbsoluteMaxCapacity() / 100)).
+                              _("Used Resources:", lqinfo.getResourcesUsed().toString()).
+                              _("Num Schedulable Applications:", Integer.toString(lqinfo.getNumActiveApplications())).
+                              _("Num Non-Schedulable Applications:", Integer.toString(lqinfo.getNumPendingApplications())).
+                              _("Num Containers:", Integer.toString(lqinfo.getNumContainers())).
+                              _("Max Applications:", Integer.toString(lqinfo.getMaxApplications())).
+                              _("Max Applications Per User:", Integer.toString(lqinfo.getMaxApplicationsPerUser())).
+                              _("Max Application Master Resources:", lqinfo.getAMResourceLimit().toString()).
+                              _("Max Application Master Resources Per User:", lqinfo.getUserAMResourceLimit().toString()).
+                              _("Configured Capacity:", percent(lqinfo.getCapacity() / 100)).
+                              _("Configured Max Capacity:", percent(lqinfo.getMaxCapacity() / 100)).
+                              _("Configured Minimum User Limit Percent:", Integer.toString(lqinfo.getUserLimit()) + "%").
+                              _("Configured User Limit Factor:", String.format("%.1f", lqinfo.getUserLimitFactor())).
+                              _r("Active Users: ", activeUserList.toString()).
+                              _("Accessible Node Labels:", StringUtils.join(",", lqinfo.getNodeLabels()));
+
+            html._(InfoBlock.class);
+
+            // clear the info contents so this queue's info doesn't accumulate into another queue's info
+            ri.clear();
+        }
     }
-  }
 
-  static class QueuesBlock extends HtmlBlock {
-    final CapacityScheduler cs;
-    final CSQInfo csqinfo;
+    public static class QueueBlock extends HtmlBlock {
+        final CSQInfo csqinfo;
 
-    @Inject QueuesBlock(ResourceManager rm, CSQInfo info) {
-      cs = (CapacityScheduler) rm.getResourceScheduler();
-      csqinfo = info;
+        @Inject QueueBlock(CSQInfo info) {
+            csqinfo = info;
+        }
+
+        @Override
+        public void render(Block html) {
+            ArrayList<CapacitySchedulerQueueInfo> subQueues =
+                (csqinfo.qinfo == null) ? csqinfo.csinfo.getQueues().getQueueInfoList()
+                : csqinfo.qinfo.getQueues().getQueueInfoList();
+            UL<Hamlet> ul = html.ul("#pq");
+            for (CapacitySchedulerQueueInfo info : subQueues) {
+                float used = info.getUsedCapacity() / 100;
+                float absCap = info.getAbsoluteCapacity() / 100;
+                float absMaxCap = info.getAbsoluteMaxCapacity() / 100;
+                float absUsedCap = info.getAbsoluteUsedCapacity() / 100;
+                LI<UL<Hamlet>> li = ul.
+                                    li().
+                                    a(_Q).$style(width(absMaxCap * Q_MAX_WIDTH)).
+                                    $title(join("Absolute Capacity:", percent(absCap))).
+                                    span().$style(join(Q_GIVEN, ";font-size:1px;", width(absCap/absMaxCap))).
+                                    _('.')._().
+                                    span().$style(join(width(absUsedCap/absMaxCap),
+                                                       ";font-size:1px;left:0%;", absUsedCap > absCap ? Q_OVER : Q_UNDER)).
+                                    _('.')._().
+                                    span(".q", info.getQueuePath().substring(5))._().
+                                    span().$class("qstats").$style(left(Q_STATS_POS)).
+                                    _(join(percent(used), " used"))._();
+
+                csqinfo.qinfo = info;
+                if (info.getQueues() == null) {
+                    li.ul("#lq").li()._(LeafQueueInfoBlock.class)._()._();
+                } else {
+                    li._(QueueBlock.class);
+                }
+                li._();
+            }
+
+            ul._();
+        }
     }
 
-    @Override
-    public void render(Block html) {
-      html._(MetricsOverviewTable.class);
-      UL<DIV<DIV<Hamlet>>> ul = html.
-        div("#cs-wrapper.ui-widget").
-          div(".ui-widget-header.ui-corner-top").
-            _("Application Queues")._().
-          div("#cs.ui-widget-content.ui-corner-bottom").
-            ul();
-      if (cs == null) {
-        ul.
-          li().
-            a(_Q).$style(width(Q_MAX_WIDTH)).
-              span().$style(Q_END)._("100% ")._().
-              span(".q", "default")._()._();
-      } else {
-        CSQueue root = cs.getRootQueue();
-        CapacitySchedulerInfo sinfo = new CapacitySchedulerInfo(root);
-        csqinfo.csinfo = sinfo;
-        csqinfo.qinfo = null;
+    static class QueuesBlock extends HtmlBlock {
+        final CapacityScheduler cs;
+        final CSQInfo csqinfo;
 
-        float used = sinfo.getUsedCapacity() / 100;
-        ul.
-          li().$style("margin-bottom: 1em").
-            span().$style("font-weight: bold")._("Legend:")._().
-            span().$class("qlegend ui-corner-all").$style(Q_GIVEN).
-              _("Capacity")._().
-            span().$class("qlegend ui-corner-all").$style(Q_UNDER).
-              _("Used")._().
-            span().$class("qlegend ui-corner-all").$style(Q_OVER).
-              _("Used (over capacity)")._().
-            span().$class("qlegend ui-corner-all ui-state-default").
-              _("Max Capacity")._().
-          _().
-          li().
-            a(_Q).$style(width(Q_MAX_WIDTH)).
-              span().$style(join(width(used), ";left:0%;",
-                  used > 1 ? Q_OVER : Q_UNDER))._(".")._().
-              span(".q", "root")._().
-            span().$class("qstats").$style(left(Q_STATS_POS)).
-              _(join(percent(used), " used"))._().
-            _(QueueBlock.class)._();
-      }
-      ul._()._().
-      script().$type("text/javascript").
-          _("$('#cs').hide();")._()._().
-      _(RMAppsBlock.class);
+        @Inject QueuesBlock(ResourceManager rm, CSQInfo info) {
+            cs = (CapacityScheduler) rm.getResourceScheduler();
+            csqinfo = info;
+        }
+
+        @Override
+        public void render(Block html) {
+            html._(MetricsOverviewTable.class);
+            UL<DIV<DIV<Hamlet>>> ul = html.
+                                      div("#cs-wrapper.ui-widget").
+                                      div(".ui-widget-header.ui-corner-top").
+                                      _("Application Queues")._().
+                                      div("#cs.ui-widget-content.ui-corner-bottom").
+                                      ul();
+            if (cs == null) {
+                ul.
+                li().
+                a(_Q).$style(width(Q_MAX_WIDTH)).
+                span().$style(Q_END)._("100% ")._().
+                span(".q", "default")._()._();
+            } else {
+                CSQueue root = cs.getRootQueue();
+                CapacitySchedulerInfo sinfo = new CapacitySchedulerInfo(root);
+                csqinfo.csinfo = sinfo;
+                csqinfo.qinfo = null;
+
+                float used = sinfo.getUsedCapacity() / 100;
+                ul.
+                li().$style("margin-bottom: 1em").
+                span().$style("font-weight: bold")._("Legend:")._().
+                span().$class("qlegend ui-corner-all").$style(Q_GIVEN).
+                _("Capacity")._().
+                span().$class("qlegend ui-corner-all").$style(Q_UNDER).
+                _("Used")._().
+                span().$class("qlegend ui-corner-all").$style(Q_OVER).
+                _("Used (over capacity)")._().
+                span().$class("qlegend ui-corner-all ui-state-default").
+                _("Max Capacity")._().
+                _().
+                li().
+                a(_Q).$style(width(Q_MAX_WIDTH)).
+                span().$style(join(width(used), ";left:0%;",
+                                   used > 1 ? Q_OVER : Q_UNDER))._(".")._().
+                span(".q", "root")._().
+                span().$class("qstats").$style(left(Q_STATS_POS)).
+                _(join(percent(used), " used"))._().
+                _(QueueBlock.class)._();
+            }
+            ul._()._().
+            script().$type("text/javascript").
+            _("$('#cs').hide();")._()._().
+            _(RMAppsBlock.class);
+        }
     }
-  }
 
-  @Override protected void postHead(Page.HTML<_> html) {
-    html.
-      style().$type("text/css").
+    @Override protected void postHead(Page.HTML<_> html) {
+        html.
+        style().$type("text/css").
         _("#cs { padding: 0.5em 0 1em 0; margin-bottom: 1em; position: relative }",
           "#cs ul { list-style: none }",
           "#cs a { font-weight: normal; margin: 2px; position: relative }",
@@ -245,8 +245,8 @@ class CapacitySchedulerPage extends RmView {
           ".qstats { font-weight: normal; font-size: 80%; position: absolute }",
           ".qlegend { font-weight: normal; padding: 0 1em; margin: 1em }",
           "table.info tr th {width: 50%}")._(). // to center info table
-      script("/static/jt/jquery.jstree.js").
-      script().$type("text/javascript").
+        script("/static/jt/jquery.jstree.js").
+        script().$type("text/javascript").
         _("$(function() {",
           "  $('#cs a span').addClass('ui-corner-all').css('position', 'absolute');",
           "  $('#cs').bind('loaded.jstree', function (e, data) {",
@@ -268,22 +268,22 @@ class CapacitySchedulerPage extends RmView {
           "  });",
           "  $('#cs').show();",
           "});")._().
-      _(SchedulerPageUtil.QueueBlockUtil.class);
-  }
+        _(SchedulerPageUtil.QueueBlockUtil.class);
+    }
 
-  @Override protected Class<? extends SubView> content() {
-    return QueuesBlock.class;
-  }
+    @Override protected Class<? extends SubView> content() {
+        return QueuesBlock.class;
+    }
 
-  static String percent(float f) {
-    return String.format("%.1f%%", f * 100);
-  }
+    static String percent(float f) {
+        return String.format("%.1f%%", f * 100);
+    }
 
-  static String width(float f) {
-    return String.format("width:%.1f%%", f * 100);
-  }
+    static String width(float f) {
+        return String.format("width:%.1f%%", f * 100);
+    }
 
-  static String left(float f) {
-    return String.format("left:%.1f%%", f * 100);
-  }
+    static String left(float f) {
+        return String.format("left:%.1f%%", f * 100);
+    }
 }

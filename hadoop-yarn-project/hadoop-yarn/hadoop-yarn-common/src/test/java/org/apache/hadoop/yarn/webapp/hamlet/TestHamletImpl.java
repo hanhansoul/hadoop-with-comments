@@ -27,82 +27,82 @@ import org.apache.hadoop.yarn.webapp.hamlet.HamletImpl;
 import org.apache.hadoop.yarn.webapp.hamlet.HamletSpec.*;
 
 public class TestHamletImpl {
-  /**
-   * Test the generic implementation methods
-   * @see TestHamlet for Hamlet syntax
-   */
-  @Test public void testGeneric() {
-    PrintWriter out = spy(new PrintWriter(System.out));
-    HamletImpl hi = new HamletImpl(out, 0, false);
-    hi.
-      root("start")._attr("name", "value").
+    /**
+     * Test the generic implementation methods
+     * @see TestHamlet for Hamlet syntax
+     */
+    @Test public void testGeneric() {
+        PrintWriter out = spy(new PrintWriter(System.out));
+        HamletImpl hi = new HamletImpl(out, 0, false);
+        hi.
+        root("start")._attr("name", "value").
         _("start text").
         elem("sub")._attr("name", "value").
-          _("sub text")._().
+        _("sub text")._().
         elem("sub1")._noEndTag()._attr("boolean", null).
-          _("sub1text")._().
+        _("sub1text")._().
         _("start text2").
         elem("pre")._pre().
-          _("pre text").
-          elem("i")._inline()._("inline")._()._().
+        _("pre text").
+        elem("i")._inline()._("inline")._()._().
         elem("i")._inline()._("inline after pre")._().
         _("start text3").
         elem("sub2").
-          _("sub2text")._().
+        _("sub2text")._().
         elem("sub3")._noEndTag().
-          _("sub3text")._().
+        _("sub3text")._().
         elem("sub4")._noEndTag().
-          elem("i")._inline()._("inline")._().
-          _("sub4text")._()._();
+        elem("i")._inline()._("inline")._().
+        _("sub4text")._()._();
 
-    out.flush();
-    assertEquals(0, hi.nestLevel);
-    assertEquals(20, hi.indents);
-    verify(out).print("<start");
-    verify(out, times(2)).print(" name=\"value\"");
-    verify(out).print(" boolean");
-    verify(out).print("</start>");
-    verify(out, never()).print("</sub1>");
-    verify(out, never()).print("</sub3>");
-    verify(out, never()).print("</sub4>");
-  }
+        out.flush();
+        assertEquals(0, hi.nestLevel);
+        assertEquals(20, hi.indents);
+        verify(out).print("<start");
+        verify(out, times(2)).print(" name=\"value\"");
+        verify(out).print(" boolean");
+        verify(out).print("</start>");
+        verify(out, never()).print("</sub1>");
+        verify(out, never()).print("</sub3>");
+        verify(out, never()).print("</sub4>");
+    }
 
-  @Test public void testSetSelector() {
-    CoreAttrs e = mock(CoreAttrs.class);
-    HamletImpl.setSelector(e, "#id.class");
+    @Test public void testSetSelector() {
+        CoreAttrs e = mock(CoreAttrs.class);
+        HamletImpl.setSelector(e, "#id.class");
 
-    verify(e).$id("id");
-    verify(e).$class("class");
+        verify(e).$id("id");
+        verify(e).$class("class");
 
-    H1 t = mock(H1.class);
-    HamletImpl.setSelector(t, "#id.class")._("heading");
+        H1 t = mock(H1.class);
+        HamletImpl.setSelector(t, "#id.class")._("heading");
 
-    verify(t).$id("id");
-    verify(t).$class("class");
-    verify(t)._("heading");
-  }
+        verify(t).$id("id");
+        verify(t).$class("class");
+        verify(t)._("heading");
+    }
 
-  @Test public void testSetLinkHref() {
-    LINK link = mock(LINK.class);
-    HamletImpl.setLinkHref(link, "uri");
-    HamletImpl.setLinkHref(link, "style.css");
+    @Test public void testSetLinkHref() {
+        LINK link = mock(LINK.class);
+        HamletImpl.setLinkHref(link, "uri");
+        HamletImpl.setLinkHref(link, "style.css");
 
-    verify(link).$href("uri");
-    verify(link).$rel("stylesheet");
-    verify(link).$href("style.css");
+        verify(link).$href("uri");
+        verify(link).$rel("stylesheet");
+        verify(link).$href("style.css");
 
-    verifyNoMoreInteractions(link);
-  }
+        verifyNoMoreInteractions(link);
+    }
 
-  @Test public void testSetScriptSrc() {
-    SCRIPT script = mock(SCRIPT.class);
-    HamletImpl.setScriptSrc(script, "uri");
-    HamletImpl.setScriptSrc(script, "script.js");
+    @Test public void testSetScriptSrc() {
+        SCRIPT script = mock(SCRIPT.class);
+        HamletImpl.setScriptSrc(script, "uri");
+        HamletImpl.setScriptSrc(script, "script.js");
 
-    verify(script).$src("uri");
-    verify(script).$type("text/javascript");
-    verify(script).$src("script.js");
+        verify(script).$src("uri");
+        verify(script).$type("text/javascript");
+        verify(script).$src("script.js");
 
-    verifyNoMoreInteractions(script);
-  }
+        verifyNoMoreInteractions(script);
+    }
 }

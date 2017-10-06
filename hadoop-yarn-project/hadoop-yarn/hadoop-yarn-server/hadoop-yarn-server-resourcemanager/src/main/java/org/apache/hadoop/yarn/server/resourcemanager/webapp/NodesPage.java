@@ -44,126 +44,126 @@ import com.google.inject.Inject;
 
 class NodesPage extends RmView {
 
-  static class NodesBlock extends HtmlBlock {
-    final ResourceManager rm;
-    private static final long BYTES_IN_MB = 1024 * 1024;
+    static class NodesBlock extends HtmlBlock {
+        final ResourceManager rm;
+        private static final long BYTES_IN_MB = 1024 * 1024;
 
-    @Inject
-    NodesBlock(ResourceManager rm, ViewContext ctx) {
-      super(ctx);
-      this.rm = rm;
+        @Inject
+        NodesBlock(ResourceManager rm, ViewContext ctx) {
+            super(ctx);
+            this.rm = rm;
+        }
+
+        @Override
+        protected void render(Block html) {
+            html._(MetricsOverviewTable.class);
+
+            ResourceScheduler sched = rm.getResourceScheduler();
+            String type = $(NODE_STATE);
+            TBODY<TABLE<Hamlet>> tbody = html.table("#nodes").
+                                         thead().
+                                         tr().
+                                         th(".nodelabels", "Node Labels").
+                                         th(".rack", "Rack").
+                                         th(".state", "Node State").
+                                         th(".nodeaddress", "Node Address").
+                                         th(".nodehttpaddress", "Node HTTP Address").
+                                         th(".lastHealthUpdate", "Last health-update").
+                                         th(".healthReport", "Health-report").
+                                         th(".containers", "Containers").
+                                         th(".mem", "Mem Used").
+                                         th(".mem", "Mem Avail").
+                                         th(".vcores", "VCores Used").
+                                         th(".vcores", "VCores Avail").
+                                         th(".nodeManagerVersion", "Version").
+                                         _()._().
+                                         tbody();
+            NodeState stateFilter = null;
+            if(type != null && !type.isEmpty()) {
+                stateFilter = NodeState.valueOf(type.toUpperCase());
+            }
+            Collection<RMNode> rmNodes = this.rm.getRMContext().getRMNodes().values();
+            boolean isInactive = false;
+            if (stateFilter != null) {
+                switch (stateFilter) {
+                    case DECOMMISSIONED:
+                    case LOST:
+                    case REBOOTED:
+                        rmNodes = this.rm.getRMContext().getInactiveRMNodes().values();
+                        isInactive = true;
+                        break;
+                }
+            }
+            for (RMNode ni : rmNodes) {
+                if(stateFilter != null) {
+                    NodeState state = ni.getState();
+                    if(!stateFilter.equals(state)) {
+                        continue;
+                    }
+                } else {
+                    // No filter. User is asking for all nodes. Make sure you skip the
+                    // unhealthy nodes.
+                    if (ni.getState() == NodeState.UNHEALTHY) {
+                        continue;
+                    }
+                }
+                NodeInfo info = new NodeInfo(ni, sched);
+                int usedMemory = (int)info.getUsedMemory();
+                int availableMemory = (int)info.getAvailableMemory();
+                TR<TBODY<TABLE<Hamlet>>> row = tbody.tr().
+                                               td(StringUtils.join(",", info.getNodeLabels())).
+                                               td(info.getRack()).
+                                               td(info.getState()).
+                                               td(info.getNodeId());
+                if (isInactive) {
+                    row.td()._("N/A")._();
+                } else {
+                    String httpAddress = info.getNodeHTTPAddress();
+                    row.td().a("//" + httpAddress,
+                               httpAddress)._();
+                }
+                row.td().br().$title(String.valueOf(info.getLastHealthUpdate()))._().
+                _(Times.format(info.getLastHealthUpdate()))._().
+                td(info.getHealthReport()).
+                td(String.valueOf(info.getNumContainers())).
+                td().br().$title(String.valueOf(usedMemory))._().
+                _(StringUtils.byteDesc(usedMemory * BYTES_IN_MB))._().
+                td().br().$title(String.valueOf(availableMemory))._().
+                _(StringUtils.byteDesc(availableMemory * BYTES_IN_MB))._().
+                td(String.valueOf(info.getUsedVirtualCores())).
+                td(String.valueOf(info.getAvailableVirtualCores())).
+                td(ni.getNodeManagerVersion()).
+                _();
+            }
+            tbody._()._();
+        }
     }
 
-    @Override
-    protected void render(Block html) {
-      html._(MetricsOverviewTable.class);
-
-      ResourceScheduler sched = rm.getResourceScheduler();
-      String type = $(NODE_STATE);
-      TBODY<TABLE<Hamlet>> tbody = html.table("#nodes").
-          thead().
-          tr().
-          th(".nodelabels", "Node Labels").
-          th(".rack", "Rack").
-          th(".state", "Node State").
-          th(".nodeaddress", "Node Address").
-          th(".nodehttpaddress", "Node HTTP Address").
-          th(".lastHealthUpdate", "Last health-update").
-          th(".healthReport", "Health-report").
-          th(".containers", "Containers").
-          th(".mem", "Mem Used").
-          th(".mem", "Mem Avail").
-          th(".vcores", "VCores Used").
-          th(".vcores", "VCores Avail").
-          th(".nodeManagerVersion", "Version").
-          _()._().
-          tbody();
-      NodeState stateFilter = null;
-      if(type != null && !type.isEmpty()) {
-        stateFilter = NodeState.valueOf(type.toUpperCase());
-      }
-      Collection<RMNode> rmNodes = this.rm.getRMContext().getRMNodes().values();
-      boolean isInactive = false;
-      if (stateFilter != null) {
-        switch (stateFilter) {
-        case DECOMMISSIONED:
-        case LOST:
-        case REBOOTED:
-          rmNodes = this.rm.getRMContext().getInactiveRMNodes().values();
-          isInactive = true;
-          break;
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        String type = $(NODE_STATE);
+        String title = "Nodes of the cluster";
+        if(type != null && !type.isEmpty()) {
+            title = title+" ("+type+")";
         }
-      }
-      for (RMNode ni : rmNodes) {
-        if(stateFilter != null) {
-          NodeState state = ni.getState();
-          if(!stateFilter.equals(state)) {
-            continue;
-          }
-        } else {
-          // No filter. User is asking for all nodes. Make sure you skip the
-          // unhealthy nodes.
-          if (ni.getState() == NodeState.UNHEALTHY) {
-            continue;
-          }
-        }
-        NodeInfo info = new NodeInfo(ni, sched);
-        int usedMemory = (int)info.getUsedMemory();
-        int availableMemory = (int)info.getAvailableMemory();
-        TR<TBODY<TABLE<Hamlet>>> row = tbody.tr().
-            td(StringUtils.join(",", info.getNodeLabels())).
-            td(info.getRack()).
-            td(info.getState()).
-            td(info.getNodeId());
-        if (isInactive) {
-          row.td()._("N/A")._();
-        } else {
-          String httpAddress = info.getNodeHTTPAddress();
-          row.td().a("//" + httpAddress,
-              httpAddress)._();
-        }
-        row.td().br().$title(String.valueOf(info.getLastHealthUpdate()))._().
-              _(Times.format(info.getLastHealthUpdate()))._().
-            td(info.getHealthReport()).
-            td(String.valueOf(info.getNumContainers())).
-            td().br().$title(String.valueOf(usedMemory))._().
-              _(StringUtils.byteDesc(usedMemory * BYTES_IN_MB))._().
-            td().br().$title(String.valueOf(availableMemory))._().
-              _(StringUtils.byteDesc(availableMemory * BYTES_IN_MB))._().
-              td(String.valueOf(info.getUsedVirtualCores())).
-              td(String.valueOf(info.getAvailableVirtualCores())).
-            td(ni.getNodeManagerVersion()).
-            _();
-      }
-      tbody._()._();
+        setTitle(title);
+        set(DATATABLES_ID, "nodes");
+        set(initID(DATATABLES, "nodes"), nodesTableInit());
+        setTableStyles(html, "nodes", ".healthStatus {width:10em}",
+                       ".healthReport {width:10em}");
     }
-  }
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    String type = $(NODE_STATE);
-    String title = "Nodes of the cluster";
-    if(type != null && !type.isEmpty()) {
-      title = title+" ("+type+")";
+    @Override protected Class<? extends SubView> content() {
+        return NodesBlock.class;
     }
-    setTitle(title);
-    set(DATATABLES_ID, "nodes");
-    set(initID(DATATABLES, "nodes"), nodesTableInit());
-    setTableStyles(html, "nodes", ".healthStatus {width:10em}",
-                   ".healthReport {width:10em}");
-  }
 
-  @Override protected Class<? extends SubView> content() {
-    return NodesBlock.class;
-  }
-
-  private String nodesTableInit() {
-    StringBuilder b = tableInit().append(", aoColumnDefs: [");
-    b.append("{'bSearchable': false, 'aTargets': [ 6 ]}");
-    b.append(", {'sType': 'title-numeric', 'bSearchable': false, " +
-        "'aTargets': [ 7, 8 ] }");
-    b.append(", {'sType': 'title-numeric', 'aTargets': [ 4 ]}");
-    b.append("]}");
-    return b.toString();
-  }
+    private String nodesTableInit() {
+        StringBuilder b = tableInit().append(", aoColumnDefs: [");
+        b.append("{'bSearchable': false, 'aTargets': [ 6 ]}");
+        b.append(", {'sType': 'title-numeric', 'bSearchable': false, " +
+                 "'aTargets': [ 7, 8 ] }");
+        b.append(", {'sType': 'title-numeric', 'aTargets': [ 4 ]}");
+        b.append("]}");
+        return b.toString();
+    }
 }

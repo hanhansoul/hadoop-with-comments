@@ -32,7 +32,7 @@ import org.apache.hadoop.yarn.util.Records;
  * the <code>ApplicationMaster</code> to the <code>NodeManager</code> to
  * <em>start</em> containers.
  * </p>
- * 
+ *
  * <p>
  * In each {@link StartContainerRequest}, the <code>ApplicationMaster</code> has
  * to provide details such as allocated resource capability, security tokens (if
@@ -40,37 +40,37 @@ import org.apache.hadoop.yarn.util.Records;
  * process, necessary binaries/jar/shared-objects etc. via the
  * {@link ContainerLaunchContext}.
  * </p>
- * 
+ *
  * @see ContainerManagementProtocol#startContainers(StartContainersRequest)
  */
 @Public
 @Stable
 public abstract class StartContainersRequest {
 
-  @Public
-  @Stable
-  public static StartContainersRequest newInstance(
-      List<StartContainerRequest> requests) {
-    StartContainersRequest request =
-        Records.newRecord(StartContainersRequest.class);
-    request.setStartContainerRequests(requests);
-    return request;
-  }
+    @Public
+    @Stable
+    public static StartContainersRequest newInstance(
+        List<StartContainerRequest> requests) {
+        StartContainersRequest request =
+            Records.newRecord(StartContainersRequest.class);
+        request.setStartContainerRequests(requests);
+        return request;
+    }
 
-  /**
-   * Get a list of {@link StartContainerRequest} to start containers.
-   * @return a list of {@link StartContainerRequest} to start containers.
-   */
-  @Public
-  @Stable
-  public abstract List<StartContainerRequest> getStartContainerRequests();
+    /**
+     * Get a list of {@link StartContainerRequest} to start containers.
+     * @return a list of {@link StartContainerRequest} to start containers.
+     */
+    @Public
+    @Stable
+    public abstract List<StartContainerRequest> getStartContainerRequests();
 
-  /**
-   * Set a list of {@link StartContainerRequest} to start containers.
-   * @param request a list of {@link StartContainerRequest} to start containers
-   */
-  @Public
-  @Stable
-  public abstract void setStartContainerRequests(
-      List<StartContainerRequest> request);
+    /**
+     * Set a list of {@link StartContainerRequest} to start containers.
+     * @param request a list of {@link StartContainerRequest} to start containers
+     */
+    @Public
+    @Stable
+    public abstract void setStartContainerRequests(
+        List<StartContainerRequest> request);
 }

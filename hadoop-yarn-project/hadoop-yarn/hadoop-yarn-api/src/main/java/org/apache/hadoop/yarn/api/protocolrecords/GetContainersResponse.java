@@ -31,12 +31,12 @@ import org.apache.hadoop.yarn.util.Records;
  * The response sent by the <code>ResourceManager</code> to a client requesting
  * a list of {@link ContainerReport} for containers.
  * </p>
- * 
+ *
  * <p>
  * The <code>ContainerReport</code> for each container includes the container
  * details.
  * </p>
- * 
+ *
  * @see ContainerReport
  * @see ApplicationHistoryProtocol#getContainers(GetContainersRequest)
  */
@@ -44,38 +44,38 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class GetContainersResponse {
 
-  @Public
-  @Unstable
-  public static GetContainersResponse newInstance(
-      List<ContainerReport> containers) {
-    GetContainersResponse response =
-        Records.newRecord(GetContainersResponse.class);
-    response.setContainerList(containers);
-    return response;
-  }
+    @Public
+    @Unstable
+    public static GetContainersResponse newInstance(
+        List<ContainerReport> containers) {
+        GetContainersResponse response =
+            Records.newRecord(GetContainersResponse.class);
+        response.setContainerList(containers);
+        return response;
+    }
 
-  /**
-   * Get a list of <code>ContainerReport</code> for all the containers of an
-   * application attempt.
-   * 
-   * @return a list of <code>ContainerReport</code> for all the containers of an
-   *         application attempt
-   * 
-   */
-  @Public
-  @Unstable
-  public abstract List<ContainerReport> getContainerList();
+    /**
+     * Get a list of <code>ContainerReport</code> for all the containers of an
+     * application attempt.
+     *
+     * @return a list of <code>ContainerReport</code> for all the containers of an
+     *         application attempt
+     *
+     */
+    @Public
+    @Unstable
+    public abstract List<ContainerReport> getContainerList();
 
-  /**
-   * Set a list of <code>ContainerReport</code> for all the containers of an
-   * application attempt.
-   * 
-   * @param containers
-   *          a list of <code>ContainerReport</code> for all the containers of
-   *          an application attempt
-   * 
-   */
-  @Public
-  @Unstable
-  public abstract void setContainerList(List<ContainerReport> containers);
+    /**
+     * Set a list of <code>ContainerReport</code> for all the containers of an
+     * application attempt.
+     *
+     * @param containers
+     *          a list of <code>ContainerReport</code> for all the containers of
+     *          an application attempt
+     *
+     */
+    @Public
+    @Unstable
+    public abstract void setContainerList(List<ContainerReport> containers);
 }

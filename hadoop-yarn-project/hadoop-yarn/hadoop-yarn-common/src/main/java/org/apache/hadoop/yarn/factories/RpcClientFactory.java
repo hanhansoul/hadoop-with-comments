@@ -25,10 +25,10 @@ import org.apache.hadoop.conf.Configuration;
 
 @InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
 public interface RpcClientFactory {
-  
-  public Object getClient(Class<?> protocol, long clientVersion,
-      InetSocketAddress addr, Configuration conf);
 
-  public void stopClient(Object proxy);
+    public Object getClient(Class<?> protocol, long clientVersion,
+                            InetSocketAddress addr, Configuration conf);
+
+    public void stopClient(Object proxy);
 
 }

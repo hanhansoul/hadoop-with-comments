@@ -25,29 +25,29 @@ import java.util.Map;
 @InterfaceAudience.Private
 public interface Instrumentation {
 
-  public interface Cron {
+    public interface Cron {
 
-    public Cron start();
+        public Cron start();
 
-    public Cron stop();
-  }
+        public Cron stop();
+    }
 
-  public interface Variable<T> {
+    public interface Variable<T> {
 
-    T getValue();
-  }
+        T getValue();
+    }
 
-  public Cron createCron();
+    public Cron createCron();
 
-  public void incr(String group, String name, long count);
+    public void incr(String group, String name, long count);
 
-  public void addCron(String group, String name, Cron cron);
+    public void addCron(String group, String name, Cron cron);
 
-  public void addVariable(String group, String name, Variable<?> variable);
+    public void addVariable(String group, String name, Variable<?> variable);
 
-  //sampling happens once a second
-  public void addSampler(String group, String name, int samplingSize, Variable<Long> variable);
+    //sampling happens once a second
+    public void addSampler(String group, String name, int samplingSize, Variable<Long> variable);
 
-  public Map<String, Map<String, ?>> getSnapshot();
+    public Map<String, Map<String, ?>> getSnapshot();
 
 }

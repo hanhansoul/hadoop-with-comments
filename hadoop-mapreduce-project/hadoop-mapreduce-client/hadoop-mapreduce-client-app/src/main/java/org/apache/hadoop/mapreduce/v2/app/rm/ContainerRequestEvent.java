@@ -23,46 +23,46 @@ import org.apache.hadoop.yarn.api.records.Resource;
 
 
 public class ContainerRequestEvent extends ContainerAllocatorEvent {
-  
-  private final Resource capability;
-  private final String[] hosts;
-  private final String[] racks;
-  private boolean earlierAttemptFailed = false;
 
-  public ContainerRequestEvent(TaskAttemptId attemptID, 
-      Resource capability,
-      String[] hosts, String[] racks) {
-    super(attemptID, ContainerAllocator.EventType.CONTAINER_REQ);
-    this.capability = capability;
-    this.hosts = hosts;
-    this.racks = racks;
-  }
-  
-  ContainerRequestEvent(TaskAttemptId attemptID, Resource capability) {
-    this(attemptID, capability, new String[0], new String[0]);
-    this.earlierAttemptFailed = true;
-  }
-  
-  public static ContainerRequestEvent createContainerRequestEventForFailedContainer(
-      TaskAttemptId attemptID, 
-      Resource capability) {
-    //ContainerRequest for failed events does not consider rack / node locality?
-    return new ContainerRequestEvent(attemptID, capability);
-  }
+    private final Resource capability;
+    private final String[] hosts;
+    private final String[] racks;
+    private boolean earlierAttemptFailed = false;
 
-  public Resource getCapability() {
-    return capability;
-  }
+    public ContainerRequestEvent(TaskAttemptId attemptID,
+                                 Resource capability,
+                                 String[] hosts, String[] racks) {
+        super(attemptID, ContainerAllocator.EventType.CONTAINER_REQ);
+        this.capability = capability;
+        this.hosts = hosts;
+        this.racks = racks;
+    }
 
-  public String[] getHosts() {
-    return hosts;
-  }
-  
-  public String[] getRacks() {
-    return racks;
-  }
-  
-  public boolean getEarlierAttemptFailed() {
-    return earlierAttemptFailed;
-  }
+    ContainerRequestEvent(TaskAttemptId attemptID, Resource capability) {
+        this(attemptID, capability, new String[0], new String[0]);
+        this.earlierAttemptFailed = true;
+    }
+
+    public static ContainerRequestEvent createContainerRequestEventForFailedContainer(
+        TaskAttemptId attemptID,
+        Resource capability) {
+        //ContainerRequest for failed events does not consider rack / node locality?
+        return new ContainerRequestEvent(attemptID, capability);
+    }
+
+    public Resource getCapability() {
+        return capability;
+    }
+
+    public String[] getHosts() {
+        return hosts;
+    }
+
+    public String[] getRacks() {
+        return racks;
+    }
+
+    public boolean getEarlierAttemptFailed() {
+        return earlierAttemptFailed;
+    }
 }

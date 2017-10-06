@@ -26,21 +26,21 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptE
 
 public class RMAppAttemptContainerFinishedEvent extends RMAppAttemptEvent {
 
-  private final ContainerStatus containerStatus;
-  private final NodeId nodeId;
+    private final ContainerStatus containerStatus;
+    private final NodeId nodeId;
 
-  public RMAppAttemptContainerFinishedEvent(ApplicationAttemptId appAttemptId, 
-      ContainerStatus containerStatus, NodeId nodeId) {
-    super(appAttemptId, RMAppAttemptEventType.CONTAINER_FINISHED);
-    this.containerStatus = containerStatus;
-    this.nodeId = nodeId;
-  }
+    public RMAppAttemptContainerFinishedEvent(ApplicationAttemptId appAttemptId,
+            ContainerStatus containerStatus, NodeId nodeId) {
+        super(appAttemptId, RMAppAttemptEventType.CONTAINER_FINISHED);
+        this.containerStatus = containerStatus;
+        this.nodeId = nodeId;
+    }
 
-  public ContainerStatus getContainerStatus() {
-    return this.containerStatus;
-  }
+    public ContainerStatus getContainerStatus() {
+        return this.containerStatus;
+    }
 
-  public NodeId getNodeId() {
-    return this.nodeId;
-  }
+    public NodeId getNodeId() {
+        return this.nodeId;
+    }
 }

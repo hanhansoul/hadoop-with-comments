@@ -31,21 +31,21 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Private
 @Unstable
 public class FifoAppComparator implements Comparator<FSAppAttempt>, Serializable {
-  private static final long serialVersionUID = 3428835083489547918L;
+    private static final long serialVersionUID = 3428835083489547918L;
 
-  public int compare(FSAppAttempt a1, FSAppAttempt a2) {
-    int res = a1.getPriority().compareTo(a2.getPriority());
-    if (res == 0) {
-      if (a1.getStartTime() < a2.getStartTime()) {
-        res = -1;
-      } else {
-        res = (a1.getStartTime() == a2.getStartTime() ? 0 : 1);
-      }
+    public int compare(FSAppAttempt a1, FSAppAttempt a2) {
+        int res = a1.getPriority().compareTo(a2.getPriority());
+        if (res == 0) {
+            if (a1.getStartTime() < a2.getStartTime()) {
+                res = -1;
+            } else {
+                res = (a1.getStartTime() == a2.getStartTime() ? 0 : 1);
+            }
+        }
+        if (res == 0) {
+            // If there is a tie, break it by app ID to get a deterministic order
+            res = a1.getApplicationId().compareTo(a2.getApplicationId());
+        }
+        return res;
     }
-    if (res == 0) {
-      // If there is a tie, break it by app ID to get a deterministic order
-      res = a1.getApplicationId().compareTo(a2.getApplicationId());
-    }
-    return res;
-  }
 }

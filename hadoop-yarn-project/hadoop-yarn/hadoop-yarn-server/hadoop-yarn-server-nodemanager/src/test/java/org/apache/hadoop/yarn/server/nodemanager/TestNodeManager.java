@@ -28,30 +28,30 @@ import org.junit.Test;
 
 public class TestNodeManager {
 
-  public static final class InvalidContainerExecutor extends
-      DefaultContainerExecutor {
-    @Override
-    public void init() throws IOException {
-      throw new IOException("dummy executor init called");
+    public static final class InvalidContainerExecutor extends
+        DefaultContainerExecutor {
+        @Override
+        public void init() throws IOException {
+            throw new IOException("dummy executor init called");
+        }
     }
-  }
 
-  @Test
-  public void testContainerExecutorInitCall() {
-    NodeManager nm = new NodeManager();
-    YarnConfiguration conf = new YarnConfiguration();
-    conf.setClass(YarnConfiguration.NM_CONTAINER_EXECUTOR,
-        InvalidContainerExecutor.class,
-        ContainerExecutor.class);
-    try {
-      nm.init(conf);
-      fail("Init should fail");
-    } catch (YarnRuntimeException e) {
-      //PASS
-      assert(e.getCause().getMessage().contains("dummy executor init called"));
-    } finally {
-      nm.stop();
+    @Test
+    public void testContainerExecutorInitCall() {
+        NodeManager nm = new NodeManager();
+        YarnConfiguration conf = new YarnConfiguration();
+        conf.setClass(YarnConfiguration.NM_CONTAINER_EXECUTOR,
+                      InvalidContainerExecutor.class,
+                      ContainerExecutor.class);
+        try {
+            nm.init(conf);
+            fail("Init should fail");
+        } catch (YarnRuntimeException e) {
+            //PASS
+            assert(e.getCause().getMessage().contains("dummy executor init called"));
+        } finally {
+            nm.stop();
+        }
     }
-  }
-  
+
 }

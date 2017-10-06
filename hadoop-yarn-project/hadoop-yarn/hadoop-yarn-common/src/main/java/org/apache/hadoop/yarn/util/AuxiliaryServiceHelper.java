@@ -26,26 +26,26 @@ import org.apache.commons.codec.binary.Base64;
 
 public class AuxiliaryServiceHelper {
 
-  public final static String NM_AUX_SERVICE = "NM_AUX_SERVICE_";
+    public final static String NM_AUX_SERVICE = "NM_AUX_SERVICE_";
 
-  public static ByteBuffer getServiceDataFromEnv(String serviceName,
-      Map<String, String> env) {
-    String meta = env.get(getPrefixServiceName(serviceName));
-    if (null == meta) {
-      return null;
+    public static ByteBuffer getServiceDataFromEnv(String serviceName,
+            Map<String, String> env) {
+        String meta = env.get(getPrefixServiceName(serviceName));
+        if (null == meta) {
+            return null;
+        }
+        byte[] metaData = Base64.decodeBase64(meta);
+        return ByteBuffer.wrap(metaData);
     }
-    byte[] metaData = Base64.decodeBase64(meta);
-    return ByteBuffer.wrap(metaData);
-  }
 
-  public static void setServiceDataIntoEnv(String serviceName,
-      ByteBuffer metaData, Map<String, String> env) {
-    byte[] byteData = metaData.array();
-    env.put(getPrefixServiceName(serviceName),
-        Base64.encodeBase64String(byteData));
-  }
+    public static void setServiceDataIntoEnv(String serviceName,
+            ByteBuffer metaData, Map<String, String> env) {
+        byte[] byteData = metaData.array();
+        env.put(getPrefixServiceName(serviceName),
+                Base64.encodeBase64String(byteData));
+    }
 
-  private static String getPrefixServiceName(String serviceName) {
-    return NM_AUX_SERVICE + serviceName;
-  }
+    private static String getPrefixServiceName(String serviceName) {
+        return NM_AUX_SERVICE + serviceName;
+    }
 }

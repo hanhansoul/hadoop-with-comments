@@ -36,56 +36,56 @@ import static org.junit.Assert.*;
 
 public class TestLoadTypedBytes {
 
-  @Test
-  public void testLoading() throws Exception {
-    Configuration conf = new Configuration();
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
+    @Test
+    public void testLoading() throws Exception {
+        Configuration conf = new Configuration();
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
         .build();
-    FileSystem fs = cluster.getFileSystem();
-    
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    TypedBytesOutput tboutput = new TypedBytesOutput(new DataOutputStream(out));
-    for (int i = 0; i < 100; i++) {
-      tboutput.write(new Long(i)); // key
-      tboutput.write("" + (10 * i)); // value
-    }
-    InputStream isBackup = System.in;
-    ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-    System.setIn(in);
-    LoadTypedBytes loadtb = new LoadTypedBytes(conf);
+        FileSystem fs = cluster.getFileSystem();
 
-    try {
-      Path root = new Path("/typedbytestest");
-      assertTrue(fs.mkdirs(root));
-      assertTrue(fs.exists(root));
-      
-      String[] args = new String[1];
-      args[0] = "/typedbytestest/test.seq";
-      int ret = loadtb.run(args);
-      assertEquals("Return value != 0.", 0, ret);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        TypedBytesOutput tboutput = new TypedBytesOutput(new DataOutputStream(out));
+        for (int i = 0; i < 100; i++) {
+            tboutput.write(new Long(i)); // key
+            tboutput.write("" + (10 * i)); // value
+        }
+        InputStream isBackup = System.in;
+        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+        System.setIn(in);
+        LoadTypedBytes loadtb = new LoadTypedBytes(conf);
 
-      Path file = new Path(root, "test.seq");
-      assertTrue(fs.exists(file));
-      SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, conf);
-      int counter = 0;
-      TypedBytesWritable key = new TypedBytesWritable();
-      TypedBytesWritable value = new TypedBytesWritable();
-      while (reader.next(key, value)) {
-        assertEquals(Long.class, key.getValue().getClass());
-        assertEquals(String.class, value.getValue().getClass());
-        assertTrue("Invalid record.",
-          Integer.parseInt(value.toString()) % 10 == 0);
-        counter++;
-      }
-      assertEquals("Wrong number of records.", 100, counter);
-    } finally {
-      try {
-        fs.close();
-      } catch (Exception e) {
-      }
-      System.setIn(isBackup);
-      cluster.shutdown();
+        try {
+            Path root = new Path("/typedbytestest");
+            assertTrue(fs.mkdirs(root));
+            assertTrue(fs.exists(root));
+
+            String[] args = new String[1];
+            args[0] = "/typedbytestest/test.seq";
+            int ret = loadtb.run(args);
+            assertEquals("Return value != 0.", 0, ret);
+
+            Path file = new Path(root, "test.seq");
+            assertTrue(fs.exists(file));
+            SequenceFile.Reader reader = new SequenceFile.Reader(fs, file, conf);
+            int counter = 0;
+            TypedBytesWritable key = new TypedBytesWritable();
+            TypedBytesWritable value = new TypedBytesWritable();
+            while (reader.next(key, value)) {
+                assertEquals(Long.class, key.getValue().getClass());
+                assertEquals(String.class, value.getValue().getClass());
+                assertTrue("Invalid record.",
+                           Integer.parseInt(value.toString()) % 10 == 0);
+                counter++;
+            }
+            assertEquals("Wrong number of records.", 100, counter);
+        } finally {
+            try {
+                fs.close();
+            } catch (Exception e) {
+            }
+            System.setIn(isBackup);
+            cluster.shutdown();
+        }
     }
-  }
-  
+
 }

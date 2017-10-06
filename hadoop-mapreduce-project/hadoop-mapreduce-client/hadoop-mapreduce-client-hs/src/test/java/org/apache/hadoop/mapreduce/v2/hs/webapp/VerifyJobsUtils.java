@@ -32,111 +32,111 @@ import org.codehaus.jettison.json.JSONObject;
 
 public class VerifyJobsUtils {
 
-  public static void verifyHsJobPartial(JSONObject info, Job job) throws JSONException {
-    assertEquals("incorrect number of elements", 12, info.length());
+    public static void verifyHsJobPartial(JSONObject info, Job job) throws JSONException {
+        assertEquals("incorrect number of elements", 12, info.length());
 
-    // everyone access fields
-    verifyHsJobGeneric(job, info.getString("id"), info.getString("user"),
-        info.getString("name"), info.getString("state"),
-        info.getString("queue"), info.getLong("startTime"),
-        info.getLong("finishTime"), info.getInt("mapsTotal"),
-        info.getInt("mapsCompleted"), info.getInt("reducesTotal"),
-        info.getInt("reducesCompleted"));
-  }
-  
-  public static void verifyHsJob(JSONObject info, Job job) throws JSONException {
-    assertEquals("incorrect number of elements", 25, info.length());
-
-    // everyone access fields
-    verifyHsJobGeneric(job, info.getString("id"), info.getString("user"),
-        info.getString("name"), info.getString("state"),
-        info.getString("queue"), info.getLong("startTime"),
-        info.getLong("finishTime"), info.getInt("mapsTotal"),
-        info.getInt("mapsCompleted"), info.getInt("reducesTotal"),
-        info.getInt("reducesCompleted"));
-
-    String diagnostics = "";
-    if (info.has("diagnostics")) {
-      diagnostics = info.getString("diagnostics");
+        // everyone access fields
+        verifyHsJobGeneric(job, info.getString("id"), info.getString("user"),
+                           info.getString("name"), info.getString("state"),
+                           info.getString("queue"), info.getLong("startTime"),
+                           info.getLong("finishTime"), info.getInt("mapsTotal"),
+                           info.getInt("mapsCompleted"), info.getInt("reducesTotal"),
+                           info.getInt("reducesCompleted"));
     }
 
-    // restricted access fields - if security and acls set
-    verifyHsJobGenericSecure(job, info.getBoolean("uberized"), diagnostics,
-        info.getLong("avgMapTime"), info.getLong("avgReduceTime"),
-        info.getLong("avgShuffleTime"), info.getLong("avgMergeTime"),
-        info.getInt("failedReduceAttempts"),
-        info.getInt("killedReduceAttempts"),
-        info.getInt("successfulReduceAttempts"),
-        info.getInt("failedMapAttempts"), info.getInt("killedMapAttempts"),
-        info.getInt("successfulMapAttempts"));
+    public static void verifyHsJob(JSONObject info, Job job) throws JSONException {
+        assertEquals("incorrect number of elements", 25, info.length());
 
-    // acls not being checked since
-    // we are using mock job instead of CompletedJob
-  }
+        // everyone access fields
+        verifyHsJobGeneric(job, info.getString("id"), info.getString("user"),
+                           info.getString("name"), info.getString("state"),
+                           info.getString("queue"), info.getLong("startTime"),
+                           info.getLong("finishTime"), info.getInt("mapsTotal"),
+                           info.getInt("mapsCompleted"), info.getInt("reducesTotal"),
+                           info.getInt("reducesCompleted"));
 
-  public static void verifyHsJobGeneric(Job job, String id, String user,
-      String name, String state, String queue, long startTime, long finishTime,
-      int mapsTotal, int mapsCompleted, int reducesTotal, int reducesCompleted) {
-    JobReport report = job.getReport();
+        String diagnostics = "";
+        if (info.has("diagnostics")) {
+            diagnostics = info.getString("diagnostics");
+        }
 
-    WebServicesTestUtils.checkStringMatch("id", MRApps.toString(job.getID()),
-        id);
-    WebServicesTestUtils.checkStringMatch("user", job.getUserName().toString(),
-        user);
-    WebServicesTestUtils.checkStringMatch("name", job.getName(), name);
-    WebServicesTestUtils.checkStringMatch("state", job.getState().toString(),
-        state);
-    WebServicesTestUtils.checkStringMatch("queue", job.getQueueName(), queue);
+        // restricted access fields - if security and acls set
+        verifyHsJobGenericSecure(job, info.getBoolean("uberized"), diagnostics,
+                                 info.getLong("avgMapTime"), info.getLong("avgReduceTime"),
+                                 info.getLong("avgShuffleTime"), info.getLong("avgMergeTime"),
+                                 info.getInt("failedReduceAttempts"),
+                                 info.getInt("killedReduceAttempts"),
+                                 info.getInt("successfulReduceAttempts"),
+                                 info.getInt("failedMapAttempts"), info.getInt("killedMapAttempts"),
+                                 info.getInt("successfulMapAttempts"));
 
-    assertEquals("startTime incorrect", report.getStartTime(), startTime);
-    assertEquals("finishTime incorrect", report.getFinishTime(), finishTime);
-
-    assertEquals("mapsTotal incorrect", job.getTotalMaps(), mapsTotal);
-    assertEquals("mapsCompleted incorrect", job.getCompletedMaps(),
-        mapsCompleted);
-    assertEquals("reducesTotal incorrect", job.getTotalReduces(), reducesTotal);
-    assertEquals("reducesCompleted incorrect", job.getCompletedReduces(),
-        reducesCompleted);
-  }
-
-  public static void verifyHsJobGenericSecure(Job job, Boolean uberized,
-      String diagnostics, long avgMapTime, long avgReduceTime,
-      long avgShuffleTime, long avgMergeTime, int failedReduceAttempts,
-      int killedReduceAttempts, int successfulReduceAttempts,
-      int failedMapAttempts, int killedMapAttempts, int successfulMapAttempts) {
-
-    String diagString = "";
-    List<String> diagList = job.getDiagnostics();
-    if (diagList != null && !diagList.isEmpty()) {
-      StringBuffer b = new StringBuffer();
-      for (String diag : diagList) {
-        b.append(diag);
-      }
-      diagString = b.toString();
+        // acls not being checked since
+        // we are using mock job instead of CompletedJob
     }
-    WebServicesTestUtils.checkStringMatch("diagnostics", diagString,
-        diagnostics);
 
-    assertEquals("isUber incorrect", job.isUber(), uberized);
+    public static void verifyHsJobGeneric(Job job, String id, String user,
+                                          String name, String state, String queue, long startTime, long finishTime,
+                                          int mapsTotal, int mapsCompleted, int reducesTotal, int reducesCompleted) {
+        JobReport report = job.getReport();
 
-    // unfortunately the following fields are all calculated in JobInfo
-    // so not easily accessible without doing all the calculations again.
-    // For now just make sure they are present.
+        WebServicesTestUtils.checkStringMatch("id", MRApps.toString(job.getID()),
+                                              id);
+        WebServicesTestUtils.checkStringMatch("user", job.getUserName().toString(),
+                                              user);
+        WebServicesTestUtils.checkStringMatch("name", job.getName(), name);
+        WebServicesTestUtils.checkStringMatch("state", job.getState().toString(),
+                                              state);
+        WebServicesTestUtils.checkStringMatch("queue", job.getQueueName(), queue);
 
-    assertTrue("failedReduceAttempts not >= 0", failedReduceAttempts >= 0);
-    assertTrue("killedReduceAttempts not >= 0", killedReduceAttempts >= 0);
-    assertTrue("successfulReduceAttempts not >= 0",
-        successfulReduceAttempts >= 0);
+        assertEquals("startTime incorrect", report.getStartTime(), startTime);
+        assertEquals("finishTime incorrect", report.getFinishTime(), finishTime);
 
-    assertTrue("failedMapAttempts not >= 0", failedMapAttempts >= 0);
-    assertTrue("killedMapAttempts not >= 0", killedMapAttempts >= 0);
-    assertTrue("successfulMapAttempts not >= 0", successfulMapAttempts >= 0);
+        assertEquals("mapsTotal incorrect", job.getTotalMaps(), mapsTotal);
+        assertEquals("mapsCompleted incorrect", job.getCompletedMaps(),
+                     mapsCompleted);
+        assertEquals("reducesTotal incorrect", job.getTotalReduces(), reducesTotal);
+        assertEquals("reducesCompleted incorrect", job.getCompletedReduces(),
+                     reducesCompleted);
+    }
 
-    assertTrue("avgMapTime not >= 0", avgMapTime >= 0);
-    assertTrue("avgReduceTime not >= 0", avgReduceTime >= 0);
-    assertTrue("avgShuffleTime not >= 0", avgShuffleTime >= 0);
-    assertTrue("avgMergeTime not >= 0", avgMergeTime >= 0);
+    public static void verifyHsJobGenericSecure(Job job, Boolean uberized,
+            String diagnostics, long avgMapTime, long avgReduceTime,
+            long avgShuffleTime, long avgMergeTime, int failedReduceAttempts,
+            int killedReduceAttempts, int successfulReduceAttempts,
+            int failedMapAttempts, int killedMapAttempts, int successfulMapAttempts) {
 
-  }
+        String diagString = "";
+        List<String> diagList = job.getDiagnostics();
+        if (diagList != null && !diagList.isEmpty()) {
+            StringBuffer b = new StringBuffer();
+            for (String diag : diagList) {
+                b.append(diag);
+            }
+            diagString = b.toString();
+        }
+        WebServicesTestUtils.checkStringMatch("diagnostics", diagString,
+                                              diagnostics);
+
+        assertEquals("isUber incorrect", job.isUber(), uberized);
+
+        // unfortunately the following fields are all calculated in JobInfo
+        // so not easily accessible without doing all the calculations again.
+        // For now just make sure they are present.
+
+        assertTrue("failedReduceAttempts not >= 0", failedReduceAttempts >= 0);
+        assertTrue("killedReduceAttempts not >= 0", killedReduceAttempts >= 0);
+        assertTrue("successfulReduceAttempts not >= 0",
+                   successfulReduceAttempts >= 0);
+
+        assertTrue("failedMapAttempts not >= 0", failedMapAttempts >= 0);
+        assertTrue("killedMapAttempts not >= 0", killedMapAttempts >= 0);
+        assertTrue("successfulMapAttempts not >= 0", successfulMapAttempts >= 0);
+
+        assertTrue("avgMapTime not >= 0", avgMapTime >= 0);
+        assertTrue("avgReduceTime not >= 0", avgReduceTime >= 0);
+        assertTrue("avgShuffleTime not >= 0", avgShuffleTime >= 0);
+        assertTrue("avgMergeTime not >= 0", avgMergeTime >= 0);
+
+    }
 
 }

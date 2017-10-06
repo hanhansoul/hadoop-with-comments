@@ -82,345 +82,345 @@ import org.mockito.stubbing.Answer;
 
 public class TestDefaultContainerExecutor {
 
-  /*
-  // XXX FileContext cannot be mocked to do this
-  static FSDataInputStream getRandomStream(Random r, int len)
-      throws IOException {
-    byte[] bytes = new byte[len];
-    r.nextBytes(bytes);
-    DataInputBuffer buf = new DataInputBuffer();
-    buf.reset(bytes, 0, bytes.length);
-    return new FSDataInputStream(new FakeFSDataInputStream(buf));
-  }
-
-  class PathEndsWith extends ArgumentMatcher<Path> {
-    final String suffix;
-    PathEndsWith(String suffix) {
-      this.suffix = suffix;
-    }
-    @Override
-    public boolean matches(Object o) {
-      return
-      suffix.equals(((Path)o).getName());
-    }
-  }
-
-  DataOutputBuffer mockStream(
-      AbstractFileSystem spylfs, Path p, Random r, int len) 
-      throws IOException {
-    DataOutputBuffer dob = new DataOutputBuffer();
-    doReturn(getRandomStream(r, len)).when(spylfs).open(p);
-    doReturn(new FileStatus(len, false, -1, -1L, -1L, p)).when(
-        spylfs).getFileStatus(argThat(new PathEndsWith(p.getName())));
-    doReturn(new FSDataOutputStream(dob)).when(spylfs).createInternal(
-        argThat(new PathEndsWith(p.getName())),
-        eq(EnumSet.of(OVERWRITE)),
-        Matchers.<FsPermission>anyObject(), anyInt(), anyShort(), anyLong(),
-        Matchers.<Progressable>anyObject(), anyInt(), anyBoolean());
-    return dob;
-  }
-  */
-
-  private static Path BASE_TMP_PATH = new Path("target",
-      TestDefaultContainerExecutor.class.getSimpleName());
-
-  @AfterClass
-  public static void deleteTmpFiles() throws IOException {
-    FileContext lfs = FileContext.getLocalFSFileContext();
-    try {
-      lfs.delete(BASE_TMP_PATH, true);
-    } catch (FileNotFoundException e) {
-    }
-  }
-
-  byte[] createTmpFile(Path dst, Random r, int len)
-      throws IOException {
-    // use unmodified local context
-    FileContext lfs = FileContext.getLocalFSFileContext();
-    dst = lfs.makeQualified(dst);
-    lfs.mkdir(dst.getParent(), null, true);
-    byte[] bytes = new byte[len];
-    FSDataOutputStream out = null;
-    try {
-      out = lfs.create(dst, EnumSet.of(CREATE, OVERWRITE));
+    /*
+    // XXX FileContext cannot be mocked to do this
+    static FSDataInputStream getRandomStream(Random r, int len)
+        throws IOException {
+      byte[] bytes = new byte[len];
       r.nextBytes(bytes);
-      out.write(bytes);
-    } finally {
-      if (out != null) out.close();
+      DataInputBuffer buf = new DataInputBuffer();
+      buf.reset(bytes, 0, bytes.length);
+      return new FSDataInputStream(new FakeFSDataInputStream(buf));
     }
-    return bytes;
-  }
 
-  @Test
-  public void testDirPermissions() throws Exception {
-    deleteTmpFiles();
-
-    final String user = "somebody";
-    final String appId = "app_12345_123";
-    final FsPermission userCachePerm = new FsPermission(
-        DefaultContainerExecutor.USER_PERM);
-    final FsPermission appCachePerm = new FsPermission(
-        DefaultContainerExecutor.APPCACHE_PERM);
-    final FsPermission fileCachePerm = new FsPermission(
-        DefaultContainerExecutor.FILECACHE_PERM);
-    final FsPermission appDirPerm = new FsPermission(
-        DefaultContainerExecutor.APPDIR_PERM);
-    final FsPermission logDirPerm = new FsPermission(
-        DefaultContainerExecutor.LOGDIR_PERM);
-    List<String> localDirs = new ArrayList<String>();
-    localDirs.add(new Path(BASE_TMP_PATH, "localDirA").toString());
-    localDirs.add(new Path(BASE_TMP_PATH, "localDirB").toString());
-    List<String> logDirs = new ArrayList<String>();
-    logDirs.add(new Path(BASE_TMP_PATH, "logDirA").toString());
-    logDirs.add(new Path(BASE_TMP_PATH, "logDirB").toString());
-
-    Configuration conf = new Configuration();
-    conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "077");
-    FileContext lfs = FileContext.getLocalFSFileContext(conf);
-    DefaultContainerExecutor executor = new DefaultContainerExecutor(lfs);
-    executor.init();
-
-    try {
-      executor.createUserLocalDirs(localDirs, user);
-      executor.createUserCacheDirs(localDirs, user);
-      executor.createAppDirs(localDirs, user, appId);
-
-      for (String dir : localDirs) {
-        FileStatus stats = lfs.getFileStatus(
-            new Path(new Path(dir, ContainerLocalizer.USERCACHE), user));
-        Assert.assertEquals(userCachePerm, stats.getPermission());
+    class PathEndsWith extends ArgumentMatcher<Path> {
+      final String suffix;
+      PathEndsWith(String suffix) {
+        this.suffix = suffix;
       }
-
-      for (String dir : localDirs) {
-        Path userCachePath = new Path(
-            new Path(dir, ContainerLocalizer.USERCACHE), user);
-        Path appCachePath = new Path(userCachePath,
-            ContainerLocalizer.APPCACHE);
-        FileStatus stats = lfs.getFileStatus(appCachePath);
-        Assert.assertEquals(appCachePerm, stats.getPermission());
-        stats = lfs.getFileStatus(
-            new Path(userCachePath, ContainerLocalizer.FILECACHE));
-        Assert.assertEquals(fileCachePerm, stats.getPermission());
-        stats = lfs.getFileStatus(new Path(appCachePath, appId));
-        Assert.assertEquals(appDirPerm, stats.getPermission());
+      @Override
+      public boolean matches(Object o) {
+        return
+        suffix.equals(((Path)o).getName());
       }
-
-      executor.createAppLogDirs(appId, logDirs, user);
-
-      for (String dir : logDirs) {
-        FileStatus stats = lfs.getFileStatus(new Path(dir, appId));
-        Assert.assertEquals(logDirPerm, stats.getPermission());
-      }
-    } finally {
-      deleteTmpFiles();
     }
-  }
 
-  @Test
-  public void testContainerLaunchError()
-      throws IOException, InterruptedException {
+    DataOutputBuffer mockStream(
+        AbstractFileSystem spylfs, Path p, Random r, int len)
+        throws IOException {
+      DataOutputBuffer dob = new DataOutputBuffer();
+      doReturn(getRandomStream(r, len)).when(spylfs).open(p);
+      doReturn(new FileStatus(len, false, -1, -1L, -1L, p)).when(
+          spylfs).getFileStatus(argThat(new PathEndsWith(p.getName())));
+      doReturn(new FSDataOutputStream(dob)).when(spylfs).createInternal(
+          argThat(new PathEndsWith(p.getName())),
+          eq(EnumSet.of(OVERWRITE)),
+          Matchers.<FsPermission>anyObject(), anyInt(), anyShort(), anyLong(),
+          Matchers.<Progressable>anyObject(), anyInt(), anyBoolean());
+      return dob;
+    }
+    */
 
-    if (Shell.WINDOWS) {
-      BASE_TMP_PATH =
-          new Path(new File("target").getAbsolutePath(),
+    private static Path BASE_TMP_PATH = new Path("target",
             TestDefaultContainerExecutor.class.getSimpleName());
+
+    @AfterClass
+    public static void deleteTmpFiles() throws IOException {
+        FileContext lfs = FileContext.getLocalFSFileContext();
+        try {
+            lfs.delete(BASE_TMP_PATH, true);
+        } catch (FileNotFoundException e) {
+        }
     }
 
-    Path localDir = new Path(BASE_TMP_PATH, "localDir");
-    List<String> localDirs = new ArrayList<String>();
-    localDirs.add(localDir.toString());
-    List<String> logDirs = new ArrayList<String>();
-    Path logDir = new Path(BASE_TMP_PATH, "logDir");
-    logDirs.add(logDir.toString());
-
-    Configuration conf = new Configuration();
-    conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "077");
-    conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir.toString());
-    conf.set(YarnConfiguration.NM_LOG_DIRS, logDir.toString());
-    
-    FileContext lfs = FileContext.getLocalFSFileContext(conf);
-    DefaultContainerExecutor mockExec = spy(new DefaultContainerExecutor(lfs));
-    mockExec.setConf(conf);
-    doAnswer(
-        new Answer() {
-          @Override
-          public Object answer(InvocationOnMock invocationOnMock)
-              throws Throwable {
-            String diagnostics = (String) invocationOnMock.getArguments()[0];
-            assertTrue("Invalid Diagnostics message: " + diagnostics,
-                diagnostics.contains("No such file or directory"));
-            return null;
-          }
+    byte[] createTmpFile(Path dst, Random r, int len)
+    throws IOException {
+        // use unmodified local context
+        FileContext lfs = FileContext.getLocalFSFileContext();
+        dst = lfs.makeQualified(dst);
+        lfs.mkdir(dst.getParent(), null, true);
+        byte[] bytes = new byte[len];
+        FSDataOutputStream out = null;
+        try {
+            out = lfs.create(dst, EnumSet.of(CREATE, OVERWRITE));
+            r.nextBytes(bytes);
+            out.write(bytes);
+        } finally {
+            if (out != null) out.close();
         }
-    ).when(mockExec).logOutput(any(String.class));
-
-    String appSubmitter = "nobody";
-    String appId = "APP_ID";
-    String containerId = "CONTAINER_ID";
-    Container container = mock(Container.class);
-    ContainerId cId = mock(ContainerId.class);
-    ContainerLaunchContext context = mock(ContainerLaunchContext.class);
-    HashMap<String, String> env = new HashMap<String, String>();
-
-    when(container.getContainerId()).thenReturn(cId);
-    when(container.getLaunchContext()).thenReturn(context);
-    try {
-      doAnswer(new Answer() {
-        @Override
-        public Object answer(InvocationOnMock invocationOnMock)
-            throws Throwable {
-          ContainerDiagnosticsUpdateEvent event =
-              (ContainerDiagnosticsUpdateEvent) invocationOnMock
-                  .getArguments()[0];
-          assertTrue("Invalid Diagnostics message: "
-                  + event.getDiagnosticsUpdate(),
-              event.getDiagnosticsUpdate().contains("No such file or directory")
-          );
-          return null;
-        }
-      }).when(container).handle(any(ContainerDiagnosticsUpdateEvent.class));
-
-      when(cId.toString()).thenReturn(containerId);
-      when(cId.getApplicationAttemptId()).thenReturn(
-          ApplicationAttemptId.newInstance(ApplicationId.newInstance(0, 1), 0));
-
-      when(context.getEnvironment()).thenReturn(env);
-
-      mockExec.createUserLocalDirs(localDirs, appSubmitter);
-      mockExec.createUserCacheDirs(localDirs, appSubmitter);
-      mockExec.createAppDirs(localDirs, appSubmitter, appId);
-      mockExec.createAppLogDirs(appId, logDirs, appSubmitter);
-
-      Path scriptPath = new Path("file:///bin/echo");
-      Path tokensPath = new Path("file:///dev/null");
-      if (Shell.WINDOWS) {
-        File tmp = new File(BASE_TMP_PATH.toString(), "test_echo.cmd");
-        BufferedWriter output = new BufferedWriter(new FileWriter(tmp));
-        output.write("Exit 1");
-        output.write("Echo No such file or directory 1>&2");
-        output.close();
-        scriptPath = new Path(tmp.getAbsolutePath());
-        tmp = new File(BASE_TMP_PATH.toString(), "tokens");
-        tmp.createNewFile();
-        tokensPath = new Path(tmp.getAbsolutePath());
-      }
-      Path workDir = localDir;
-      Path pidFile = new Path(workDir, "pid.txt");
-
-      mockExec.init();
-      mockExec.activateContainer(cId, pidFile);
-      int ret = mockExec
-          .launchContainer(container, scriptPath, tokensPath, appSubmitter,
-              appId, workDir, localDirs, localDirs);
-      Assert.assertNotSame(0, ret);
-    } finally {
-      mockExec.deleteAsUser(appSubmitter, localDir);
-      mockExec.deleteAsUser(appSubmitter, logDir);
+        return bytes;
     }
-  }
 
-  @Test(timeout = 30000)
-  public void testStartLocalizer()
-      throws IOException, InterruptedException {
-    InetSocketAddress localizationServerAddress;
-    
-    final Path firstDir = new Path(BASE_TMP_PATH, "localDir1");
-    List<String> localDirs = new ArrayList<String>();
-    final Path secondDir = new Path(BASE_TMP_PATH, "localDir2");
-    List<String> logDirs = new ArrayList<String>();
-    final Path logDir = new Path(BASE_TMP_PATH, "logDir");
-    final Path tokenDir = new Path(BASE_TMP_PATH, "tokenDir");
-    FsPermission perms = new FsPermission((short)0770);
+    @Test
+    public void testDirPermissions() throws Exception {
+        deleteTmpFiles();
 
-    Configuration conf = new Configuration();
-    localizationServerAddress = conf.getSocketAddr(
-        YarnConfiguration.NM_BIND_HOST,
-        YarnConfiguration.NM_LOCALIZER_ADDRESS,
-        YarnConfiguration.DEFAULT_NM_LOCALIZER_ADDRESS,
-        YarnConfiguration.DEFAULT_NM_LOCALIZER_PORT);
+        final String user = "somebody";
+        final String appId = "app_12345_123";
+        final FsPermission userCachePerm = new FsPermission(
+            DefaultContainerExecutor.USER_PERM);
+        final FsPermission appCachePerm = new FsPermission(
+            DefaultContainerExecutor.APPCACHE_PERM);
+        final FsPermission fileCachePerm = new FsPermission(
+            DefaultContainerExecutor.FILECACHE_PERM);
+        final FsPermission appDirPerm = new FsPermission(
+            DefaultContainerExecutor.APPDIR_PERM);
+        final FsPermission logDirPerm = new FsPermission(
+            DefaultContainerExecutor.LOGDIR_PERM);
+        List<String> localDirs = new ArrayList<String>();
+        localDirs.add(new Path(BASE_TMP_PATH, "localDirA").toString());
+        localDirs.add(new Path(BASE_TMP_PATH, "localDirB").toString());
+        List<String> logDirs = new ArrayList<String>();
+        logDirs.add(new Path(BASE_TMP_PATH, "logDirA").toString());
+        logDirs.add(new Path(BASE_TMP_PATH, "logDirB").toString());
 
-    final FileContext mockLfs = spy(FileContext.getLocalFSFileContext(conf));
-    final FileContext.Util mockUtil = spy(mockLfs.util());
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock)
-          throws Throwable {
-        return mockUtil;
-      }
-    }).when(mockLfs).util();
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock)
-          throws Throwable {
-        Path dest = (Path) invocationOnMock.getArguments()[1];
-        if (dest.toString().contains(firstDir.toString())) {
-          // throw an Exception when copy token to the first local dir
-          // to simulate no space on the first drive
-          throw new IOException("No space on this drive " +
-              dest.toString());
-        } else {
-          // copy token to the second local dir
-          DataOutputStream tokenOut = null;
-          try {
-            Credentials credentials = new Credentials();
-            tokenOut = mockLfs.create(dest,
-                EnumSet.of(CREATE, OVERWRITE));
-            credentials.writeTokenStorageToStream(tokenOut);
-          } finally {
-            if (tokenOut != null) {
-              tokenOut.close();
+        Configuration conf = new Configuration();
+        conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "077");
+        FileContext lfs = FileContext.getLocalFSFileContext(conf);
+        DefaultContainerExecutor executor = new DefaultContainerExecutor(lfs);
+        executor.init();
+
+        try {
+            executor.createUserLocalDirs(localDirs, user);
+            executor.createUserCacheDirs(localDirs, user);
+            executor.createAppDirs(localDirs, user, appId);
+
+            for (String dir : localDirs) {
+                FileStatus stats = lfs.getFileStatus(
+                                       new Path(new Path(dir, ContainerLocalizer.USERCACHE), user));
+                Assert.assertEquals(userCachePerm, stats.getPermission());
             }
-          }
-        }
-        return null;
-      }
-    }).when(mockUtil).copy(any(Path.class), any(Path.class));
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocationOnMock)
-          throws Throwable {
-        Path p = (Path) invocationOnMock.getArguments()[0];
-        // let second local directory return more free space than
-        // first local directory
-        if (p.toString().contains(firstDir.toString())) {
-          return new FsStatus(2000, 2000, 0);
-        } else {
-          return new FsStatus(1000, 0, 1000);
-        }
-      }
-    }).when(mockLfs).getFsStatus(any(Path.class));
 
-    DefaultContainerExecutor mockExec = spy(new DefaultContainerExecutor(
-        mockLfs));
-    mockExec.setConf(conf);
-    localDirs.add(mockLfs.makeQualified(firstDir).toString());
-    localDirs.add(mockLfs.makeQualified(secondDir).toString());
-    logDirs.add(mockLfs.makeQualified(logDir).toString());
-    conf.setStrings(YarnConfiguration.NM_LOCAL_DIRS,
-        localDirs.toArray(new String[localDirs.size()]));
-    conf.set(YarnConfiguration.NM_LOG_DIRS, logDir.toString());
-    mockLfs.mkdir(tokenDir, perms, true);
-    Path nmPrivateCTokensPath = new Path(tokenDir, "test.tokens");
-    String appSubmitter = "nobody";
-    String appId = "APP_ID";
-    String locId = "LOC_ID";
-    
-    LocalDirsHandlerService  dirsHandler = mock(LocalDirsHandlerService.class);
-    when(dirsHandler.getLocalDirs()).thenReturn(localDirs);
-    when(dirsHandler.getLogDirs()).thenReturn(logDirs);
-    
-    try {
-      mockExec.startLocalizer(nmPrivateCTokensPath, localizationServerAddress,
-          appSubmitter, appId, locId, dirsHandler);
-    } catch (IOException e) {
-      Assert.fail("StartLocalizer failed to copy token file " + e);
-    } finally {
-      mockExec.deleteAsUser(appSubmitter, firstDir);
-      mockExec.deleteAsUser(appSubmitter, secondDir);
-      mockExec.deleteAsUser(appSubmitter, logDir);
-      deleteTmpFiles();
+            for (String dir : localDirs) {
+                Path userCachePath = new Path(
+                    new Path(dir, ContainerLocalizer.USERCACHE), user);
+                Path appCachePath = new Path(userCachePath,
+                                             ContainerLocalizer.APPCACHE);
+                FileStatus stats = lfs.getFileStatus(appCachePath);
+                Assert.assertEquals(appCachePerm, stats.getPermission());
+                stats = lfs.getFileStatus(
+                            new Path(userCachePath, ContainerLocalizer.FILECACHE));
+                Assert.assertEquals(fileCachePerm, stats.getPermission());
+                stats = lfs.getFileStatus(new Path(appCachePath, appId));
+                Assert.assertEquals(appDirPerm, stats.getPermission());
+            }
+
+            executor.createAppLogDirs(appId, logDirs, user);
+
+            for (String dir : logDirs) {
+                FileStatus stats = lfs.getFileStatus(new Path(dir, appId));
+                Assert.assertEquals(logDirPerm, stats.getPermission());
+            }
+        } finally {
+            deleteTmpFiles();
+        }
     }
-  }
+
+    @Test
+    public void testContainerLaunchError()
+    throws IOException, InterruptedException {
+
+        if (Shell.WINDOWS) {
+            BASE_TMP_PATH =
+                new Path(new File("target").getAbsolutePath(),
+                         TestDefaultContainerExecutor.class.getSimpleName());
+        }
+
+        Path localDir = new Path(BASE_TMP_PATH, "localDir");
+        List<String> localDirs = new ArrayList<String>();
+        localDirs.add(localDir.toString());
+        List<String> logDirs = new ArrayList<String>();
+        Path logDir = new Path(BASE_TMP_PATH, "logDir");
+        logDirs.add(logDir.toString());
+
+        Configuration conf = new Configuration();
+        conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "077");
+        conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir.toString());
+        conf.set(YarnConfiguration.NM_LOG_DIRS, logDir.toString());
+
+        FileContext lfs = FileContext.getLocalFSFileContext(conf);
+        DefaultContainerExecutor mockExec = spy(new DefaultContainerExecutor(lfs));
+        mockExec.setConf(conf);
+        doAnswer(
+        new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock)
+            throws Throwable {
+                String diagnostics = (String) invocationOnMock.getArguments()[0];
+                assertTrue("Invalid Diagnostics message: " + diagnostics,
+                           diagnostics.contains("No such file or directory"));
+                return null;
+            }
+        }
+        ).when(mockExec).logOutput(any(String.class));
+
+        String appSubmitter = "nobody";
+        String appId = "APP_ID";
+        String containerId = "CONTAINER_ID";
+        Container container = mock(Container.class);
+        ContainerId cId = mock(ContainerId.class);
+        ContainerLaunchContext context = mock(ContainerLaunchContext.class);
+        HashMap<String, String> env = new HashMap<String, String>();
+
+        when(container.getContainerId()).thenReturn(cId);
+        when(container.getLaunchContext()).thenReturn(context);
+        try {
+            doAnswer(new Answer() {
+                @Override
+                public Object answer(InvocationOnMock invocationOnMock)
+                throws Throwable {
+                    ContainerDiagnosticsUpdateEvent event =
+                        (ContainerDiagnosticsUpdateEvent) invocationOnMock
+                        .getArguments()[0];
+                    assertTrue("Invalid Diagnostics message: "
+                               + event.getDiagnosticsUpdate(),
+                               event.getDiagnosticsUpdate().contains("No such file or directory")
+                              );
+                    return null;
+                }
+            }).when(container).handle(any(ContainerDiagnosticsUpdateEvent.class));
+
+            when(cId.toString()).thenReturn(containerId);
+            when(cId.getApplicationAttemptId()).thenReturn(
+                ApplicationAttemptId.newInstance(ApplicationId.newInstance(0, 1), 0));
+
+            when(context.getEnvironment()).thenReturn(env);
+
+            mockExec.createUserLocalDirs(localDirs, appSubmitter);
+            mockExec.createUserCacheDirs(localDirs, appSubmitter);
+            mockExec.createAppDirs(localDirs, appSubmitter, appId);
+            mockExec.createAppLogDirs(appId, logDirs, appSubmitter);
+
+            Path scriptPath = new Path("file:///bin/echo");
+            Path tokensPath = new Path("file:///dev/null");
+            if (Shell.WINDOWS) {
+                File tmp = new File(BASE_TMP_PATH.toString(), "test_echo.cmd");
+                BufferedWriter output = new BufferedWriter(new FileWriter(tmp));
+                output.write("Exit 1");
+                output.write("Echo No such file or directory 1>&2");
+                output.close();
+                scriptPath = new Path(tmp.getAbsolutePath());
+                tmp = new File(BASE_TMP_PATH.toString(), "tokens");
+                tmp.createNewFile();
+                tokensPath = new Path(tmp.getAbsolutePath());
+            }
+            Path workDir = localDir;
+            Path pidFile = new Path(workDir, "pid.txt");
+
+            mockExec.init();
+            mockExec.activateContainer(cId, pidFile);
+            int ret = mockExec
+                      .launchContainer(container, scriptPath, tokensPath, appSubmitter,
+                                       appId, workDir, localDirs, localDirs);
+            Assert.assertNotSame(0, ret);
+        } finally {
+            mockExec.deleteAsUser(appSubmitter, localDir);
+            mockExec.deleteAsUser(appSubmitter, logDir);
+        }
+    }
+
+    @Test(timeout = 30000)
+    public void testStartLocalizer()
+    throws IOException, InterruptedException {
+        InetSocketAddress localizationServerAddress;
+
+        final Path firstDir = new Path(BASE_TMP_PATH, "localDir1");
+        List<String> localDirs = new ArrayList<String>();
+        final Path secondDir = new Path(BASE_TMP_PATH, "localDir2");
+        List<String> logDirs = new ArrayList<String>();
+        final Path logDir = new Path(BASE_TMP_PATH, "logDir");
+        final Path tokenDir = new Path(BASE_TMP_PATH, "tokenDir");
+        FsPermission perms = new FsPermission((short)0770);
+
+        Configuration conf = new Configuration();
+        localizationServerAddress = conf.getSocketAddr(
+                                        YarnConfiguration.NM_BIND_HOST,
+                                        YarnConfiguration.NM_LOCALIZER_ADDRESS,
+                                        YarnConfiguration.DEFAULT_NM_LOCALIZER_ADDRESS,
+                                        YarnConfiguration.DEFAULT_NM_LOCALIZER_PORT);
+
+        final FileContext mockLfs = spy(FileContext.getLocalFSFileContext(conf));
+        final FileContext.Util mockUtil = spy(mockLfs.util());
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock)
+            throws Throwable {
+                return mockUtil;
+            }
+        }).when(mockLfs).util();
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock)
+            throws Throwable {
+                Path dest = (Path) invocationOnMock.getArguments()[1];
+                if (dest.toString().contains(firstDir.toString())) {
+                    // throw an Exception when copy token to the first local dir
+                    // to simulate no space on the first drive
+                    throw new IOException("No space on this drive " +
+                                          dest.toString());
+                } else {
+                    // copy token to the second local dir
+                    DataOutputStream tokenOut = null;
+                    try {
+                        Credentials credentials = new Credentials();
+                        tokenOut = mockLfs.create(dest,
+                                                  EnumSet.of(CREATE, OVERWRITE));
+                        credentials.writeTokenStorageToStream(tokenOut);
+                    } finally {
+                        if (tokenOut != null) {
+                            tokenOut.close();
+                        }
+                    }
+                }
+                return null;
+            }
+        }).when(mockUtil).copy(any(Path.class), any(Path.class));
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock)
+            throws Throwable {
+                Path p = (Path) invocationOnMock.getArguments()[0];
+                // let second local directory return more free space than
+                // first local directory
+                if (p.toString().contains(firstDir.toString())) {
+                    return new FsStatus(2000, 2000, 0);
+                } else {
+                    return new FsStatus(1000, 0, 1000);
+                }
+            }
+        }).when(mockLfs).getFsStatus(any(Path.class));
+
+        DefaultContainerExecutor mockExec = spy(new DefaultContainerExecutor(
+                mockLfs));
+        mockExec.setConf(conf);
+        localDirs.add(mockLfs.makeQualified(firstDir).toString());
+        localDirs.add(mockLfs.makeQualified(secondDir).toString());
+        logDirs.add(mockLfs.makeQualified(logDir).toString());
+        conf.setStrings(YarnConfiguration.NM_LOCAL_DIRS,
+                        localDirs.toArray(new String[localDirs.size()]));
+        conf.set(YarnConfiguration.NM_LOG_DIRS, logDir.toString());
+        mockLfs.mkdir(tokenDir, perms, true);
+        Path nmPrivateCTokensPath = new Path(tokenDir, "test.tokens");
+        String appSubmitter = "nobody";
+        String appId = "APP_ID";
+        String locId = "LOC_ID";
+
+        LocalDirsHandlerService  dirsHandler = mock(LocalDirsHandlerService.class);
+        when(dirsHandler.getLocalDirs()).thenReturn(localDirs);
+        when(dirsHandler.getLogDirs()).thenReturn(logDirs);
+
+        try {
+            mockExec.startLocalizer(nmPrivateCTokensPath, localizationServerAddress,
+                                    appSubmitter, appId, locId, dirsHandler);
+        } catch (IOException e) {
+            Assert.fail("StartLocalizer failed to copy token file " + e);
+        } finally {
+            mockExec.deleteAsUser(appSubmitter, firstDir);
+            mockExec.deleteAsUser(appSubmitter, secondDir);
+            mockExec.deleteAsUser(appSubmitter, logDir);
+            deleteTmpFiles();
+        }
+    }
 //  @Test
 //  public void testInit() throws IOException, InterruptedException {
 //    Configuration conf = new Configuration();

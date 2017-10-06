@@ -31,62 +31,62 @@ import org.apache.hadoop.yarn.webapp.SubView;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class TwoColumnCssLayout extends HtmlPage {
 
-  @Override protected void render(Page.HTML<_> html) {
-    preHead(html);
-    html.
-      title($("title")).
-      link(root_url("static","yarn.css")).
-      style(".main { min-height: 100%; height: auto !important; height: 100%;",
-            "  margin: 0 auto -4em; border: 0; }",
-            ".footer, .push { height: 4em; clear: both; border: 0 }",
-            ".main.ui-widget-content, .footer.ui-widget-content { border: 0; }",
-            ".cmask { position: relative; clear: both; float: left;",
-            "  width: 100%; overflow: hidden; }",   
-            ".leftnav .c1right { float: left; width: 200%; position: relative;",
-            "  left: 13em; border: 0; /* background: #fff; */ }",
-            ".leftnav .c1wrap { float: right; width: 50%; position: relative;",
-            "  right: 13em; padding-bottom: 1em; }",
-            ".leftnav .content { margin: 0 1em 0 14em; position: relative;",
-            "  right: 100%; overflow: hidden; }",
-            ".leftnav .nav { float: left; width: 11em; position: relative;",
-            "  right: 12em; overflow: hidden; }").
-      _(JQueryUI.class);
-    postHead(html);
-    JQueryUI.jsnotice(html);
-    html.
-      div(".main.ui-widget-content").
+    @Override protected void render(Page.HTML<_> html) {
+        preHead(html);
+        html.
+        title($("title")).
+        link(root_url("static","yarn.css")).
+        style(".main { min-height: 100%; height: auto !important; height: 100%;",
+              "  margin: 0 auto -4em; border: 0; }",
+              ".footer, .push { height: 4em; clear: both; border: 0 }",
+              ".main.ui-widget-content, .footer.ui-widget-content { border: 0; }",
+              ".cmask { position: relative; clear: both; float: left;",
+              "  width: 100%; overflow: hidden; }",
+              ".leftnav .c1right { float: left; width: 200%; position: relative;",
+              "  left: 13em; border: 0; /* background: #fff; */ }",
+              ".leftnav .c1wrap { float: right; width: 50%; position: relative;",
+              "  right: 13em; padding-bottom: 1em; }",
+              ".leftnav .content { margin: 0 1em 0 14em; position: relative;",
+              "  right: 100%; overflow: hidden; }",
+              ".leftnav .nav { float: left; width: 11em; position: relative;",
+              "  right: 12em; overflow: hidden; }").
+        _(JQueryUI.class);
+        postHead(html);
+        JQueryUI.jsnotice(html);
+        html.
+        div(".main.ui-widget-content").
         _(header()).
         div(".cmask.leftnav").
-          div(".c1right").
-            div(".c1wrap").
-              div(".content").
-                _(content())._()._().
-            div(".nav").
-              _(nav()).
-              div(".push")._()._()._()._()._().
-      div(".footer.ui-widget-content").
+        div(".c1right").
+        div(".c1wrap").
+        div(".content").
+        _(content())._()._().
+        div(".nav").
+        _(nav()).
+        div(".push")._()._()._()._()._().
+        div(".footer.ui-widget-content").
         _(footer())._()._();
-  }
+    }
 
-  protected void preHead(Page.HTML<_> html) {
-  }
+    protected void preHead(Page.HTML<_> html) {
+    }
 
-  protected void postHead(Page.HTML<_> html) {
-  }
+    protected void postHead(Page.HTML<_> html) {
+    }
 
-  protected Class<? extends SubView> header() {
-    return HeaderBlock.class;
-  }
+    protected Class<? extends SubView> header() {
+        return HeaderBlock.class;
+    }
 
-  protected Class<? extends SubView> content() {
-    return LipsumBlock.class;
-  }
+    protected Class<? extends SubView> content() {
+        return LipsumBlock.class;
+    }
 
-  protected Class<? extends SubView> nav() {
-    return NavBlock.class;
-  }
+    protected Class<? extends SubView> nav() {
+        return NavBlock.class;
+    }
 
-  protected Class<? extends SubView> footer() {
-    return FooterBlock.class;
-  }
+    protected Class<? extends SubView> footer() {
+        return FooterBlock.class;
+    }
 }

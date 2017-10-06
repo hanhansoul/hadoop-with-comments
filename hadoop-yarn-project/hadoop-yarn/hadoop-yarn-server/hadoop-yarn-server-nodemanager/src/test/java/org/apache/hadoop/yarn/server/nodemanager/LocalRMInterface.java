@@ -35,26 +35,27 @@ import org.apache.hadoop.yarn.server.api.records.impl.pb.MasterKeyPBImpl;
 
 public class LocalRMInterface implements ResourceTracker {
 
-  private static final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory(null);
-  
-  @Override
-  public RegisterNodeManagerResponse registerNodeManager(
-      RegisterNodeManagerRequest request) throws YarnException,
-      IOException {
-    RegisterNodeManagerResponse response = recordFactory.newRecordInstance(RegisterNodeManagerResponse.class);
-    MasterKey masterKey = new MasterKeyPBImpl();
-    masterKey.setKeyId(123);
-    masterKey.setBytes(ByteBuffer.wrap(new byte[] { new Integer(123)
-      .byteValue() }));
-    response.setContainerTokenMasterKey(masterKey);
-    response.setNMTokenMasterKey(masterKey);
-    return response;
-  }
+    private static final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory(null);
 
-  @Override
-  public NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
-      throws YarnException, IOException {
-    NodeHeartbeatResponse response = recordFactory.newRecordInstance(NodeHeartbeatResponse.class);
-    return response;
-  }
+    @Override
+    public RegisterNodeManagerResponse registerNodeManager(
+        RegisterNodeManagerRequest request) throws YarnException,
+        IOException {
+        RegisterNodeManagerResponse response = recordFactory.newRecordInstance(RegisterNodeManagerResponse.class);
+        MasterKey masterKey = new MasterKeyPBImpl();
+        masterKey.setKeyId(123);
+        masterKey.setBytes(ByteBuffer.wrap(new byte[] { new Integer(123)
+            .byteValue()
+        }));
+        response.setContainerTokenMasterKey(masterKey);
+        response.setNMTokenMasterKey(masterKey);
+        return response;
+    }
+
+    @Override
+    public NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
+    throws YarnException, IOException {
+        NodeHeartbeatResponse response = recordFactory.newRecordInstance(NodeHeartbeatResponse.class);
+        return response;
+    }
 }

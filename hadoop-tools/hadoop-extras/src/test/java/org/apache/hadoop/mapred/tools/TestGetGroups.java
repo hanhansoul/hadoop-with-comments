@@ -33,23 +33,23 @@ import org.junit.Ignore;
  */
 @Ignore
 public class TestGetGroups extends GetGroupsTestBase {
-  
-  private MiniMRCluster cluster;
 
-  @Before
-  public void setUpJobTracker() throws IOException, InterruptedException {
-    cluster = new MiniMRCluster(0, "file:///", 1);
-    conf = cluster.createJobConf();
-  }
-  
-  @After
-  public void tearDownJobTracker() throws IOException {
-    cluster.shutdown();
-  }
+    private MiniMRCluster cluster;
 
-  @Override
-  protected Tool getTool(PrintStream o) {
-    return new GetGroups(conf, o);
-  }
+    @Before
+    public void setUpJobTracker() throws IOException, InterruptedException {
+        cluster = new MiniMRCluster(0, "file:///", 1);
+        conf = cluster.createJobConf();
+    }
+
+    @After
+    public void tearDownJobTracker() throws IOException {
+        cluster.shutdown();
+    }
+
+    @Override
+    protected Tool getTool(PrintStream o) {
+        return new GetGroups(conf, o);
+    }
 
 }

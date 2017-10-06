@@ -29,36 +29,36 @@ import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.junit.Test;
 
 public class TestFairSchedulerConfiguration {
-  @Test
-  public void testParseResourceConfigValue() throws Exception {
-    assertEquals(BuilderUtils.newResource(1024, 2),
-        parseResourceConfigValue("2 vcores, 1024 mb"));
-    assertEquals(BuilderUtils.newResource(1024, 2),
-        parseResourceConfigValue("1024 mb, 2 vcores"));
-    assertEquals(BuilderUtils.newResource(1024, 2),
-        parseResourceConfigValue("2vcores,1024mb"));
-    assertEquals(BuilderUtils.newResource(1024, 2),
-        parseResourceConfigValue("1024mb,2vcores"));
-  }
-  
-  @Test(expected = AllocationConfigurationException.class)
-  public void testNoUnits() throws Exception {
-    parseResourceConfigValue("1024");
-  }
-  
-  @Test(expected = AllocationConfigurationException.class)
-  public void testOnlyMemory() throws Exception {
-    parseResourceConfigValue("1024mb");
-  }
+    @Test
+    public void testParseResourceConfigValue() throws Exception {
+        assertEquals(BuilderUtils.newResource(1024, 2),
+                     parseResourceConfigValue("2 vcores, 1024 mb"));
+        assertEquals(BuilderUtils.newResource(1024, 2),
+                     parseResourceConfigValue("1024 mb, 2 vcores"));
+        assertEquals(BuilderUtils.newResource(1024, 2),
+                     parseResourceConfigValue("2vcores,1024mb"));
+        assertEquals(BuilderUtils.newResource(1024, 2),
+                     parseResourceConfigValue("1024mb,2vcores"));
+    }
 
-  @Test(expected = AllocationConfigurationException.class)
-  public void testOnlyCPU() throws Exception {
-    parseResourceConfigValue("1024vcores");
-  }
-  
-  @Test(expected = AllocationConfigurationException.class)
-  public void testGibberish() throws Exception {
-    parseResourceConfigValue("1o24vc0res");
-  }
-  
+    @Test(expected = AllocationConfigurationException.class)
+    public void testNoUnits() throws Exception {
+        parseResourceConfigValue("1024");
+    }
+
+    @Test(expected = AllocationConfigurationException.class)
+    public void testOnlyMemory() throws Exception {
+        parseResourceConfigValue("1024mb");
+    }
+
+    @Test(expected = AllocationConfigurationException.class)
+    public void testOnlyCPU() throws Exception {
+        parseResourceConfigValue("1024vcores");
+    }
+
+    @Test(expected = AllocationConfigurationException.class)
+    public void testGibberish() throws Exception {
+        parseResourceConfigValue("1o24vc0res");
+    }
+
 }

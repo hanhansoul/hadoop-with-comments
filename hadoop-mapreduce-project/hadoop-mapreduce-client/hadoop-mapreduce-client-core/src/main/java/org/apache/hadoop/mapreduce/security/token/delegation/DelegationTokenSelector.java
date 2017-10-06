@@ -27,9 +27,9 @@ import org.apache.hadoop.security.token.delegation.AbstractDelegationTokenSelect
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class DelegationTokenSelector
-    extends AbstractDelegationTokenSelector<DelegationTokenIdentifier>{
+    extends AbstractDelegationTokenSelector<DelegationTokenIdentifier> {
 
-  public DelegationTokenSelector() {
-    super(DelegationTokenIdentifier.MAPREDUCE_DELEGATION_KIND);
-  }
+    public DelegationTokenSelector() {
+        super(DelegationTokenIdentifier.MAPREDUCE_DELEGATION_KIND);
+    }
 }

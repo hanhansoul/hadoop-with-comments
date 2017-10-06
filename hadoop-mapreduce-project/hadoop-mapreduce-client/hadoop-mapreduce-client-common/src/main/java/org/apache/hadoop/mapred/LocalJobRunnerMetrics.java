@@ -25,74 +25,74 @@ import org.apache.hadoop.metrics.jvm.JvmMetrics;
 
 @SuppressWarnings("deprecation")
 class LocalJobRunnerMetrics implements Updater {
-  private final MetricsRecord metricsRecord;
+    private final MetricsRecord metricsRecord;
 
-  private int numMapTasksLaunched = 0;
-  private int numMapTasksCompleted = 0;
-  private int numReduceTasksLaunched = 0;
-  private int numReduceTasksCompleted = 0;
-  private int numWaitingMaps = 0;
-  private int numWaitingReduces = 0;
-  
-  public LocalJobRunnerMetrics(JobConf conf) {
-    String sessionId = conf.getSessionId();
-    // Initiate JVM Metrics
-    JvmMetrics.init("JobTracker", sessionId);
-    // Create a record for map-reduce metrics
-    MetricsContext context = MetricsUtil.getContext("mapred");
-    // record name is jobtracker for compatibility 
-    metricsRecord = MetricsUtil.createRecord(context, "jobtracker");
-    metricsRecord.setTag("sessionId", sessionId);
-    context.registerUpdater(this);
-  }
-    
-  /**
-   * Since this object is a registered updater, this method will be called
-   * periodically, e.g. every 5 seconds.
-   */
-  public void doUpdates(MetricsContext unused) {
-    synchronized (this) {
-      metricsRecord.incrMetric("maps_launched", numMapTasksLaunched);
-      metricsRecord.incrMetric("maps_completed", numMapTasksCompleted);
-      metricsRecord.incrMetric("reduces_launched", numReduceTasksLaunched);
-      metricsRecord.incrMetric("reduces_completed", numReduceTasksCompleted);
-      metricsRecord.incrMetric("waiting_maps", numWaitingMaps);
-      metricsRecord.incrMetric("waiting_reduces", numWaitingReduces);
+    private int numMapTasksLaunched = 0;
+    private int numMapTasksCompleted = 0;
+    private int numReduceTasksLaunched = 0;
+    private int numReduceTasksCompleted = 0;
+    private int numWaitingMaps = 0;
+    private int numWaitingReduces = 0;
 
-      numMapTasksLaunched = 0;
-      numMapTasksCompleted = 0;
-      numReduceTasksLaunched = 0;
-      numReduceTasksCompleted = 0;
-      numWaitingMaps = 0;
-      numWaitingReduces = 0;
+    public LocalJobRunnerMetrics(JobConf conf) {
+        String sessionId = conf.getSessionId();
+        // Initiate JVM Metrics
+        JvmMetrics.init("JobTracker", sessionId);
+        // Create a record for map-reduce metrics
+        MetricsContext context = MetricsUtil.getContext("mapred");
+        // record name is jobtracker for compatibility
+        metricsRecord = MetricsUtil.createRecord(context, "jobtracker");
+        metricsRecord.setTag("sessionId", sessionId);
+        context.registerUpdater(this);
     }
-    metricsRecord.update();
-  }
 
-  public synchronized void launchMap(TaskAttemptID taskAttemptID) {
-    ++numMapTasksLaunched;
-    decWaitingMaps(taskAttemptID.getJobID(), 1);
-  }
+    /**
+     * Since this object is a registered updater, this method will be called
+     * periodically, e.g. every 5 seconds.
+     */
+    public void doUpdates(MetricsContext unused) {
+        synchronized (this) {
+            metricsRecord.incrMetric("maps_launched", numMapTasksLaunched);
+            metricsRecord.incrMetric("maps_completed", numMapTasksCompleted);
+            metricsRecord.incrMetric("reduces_launched", numReduceTasksLaunched);
+            metricsRecord.incrMetric("reduces_completed", numReduceTasksCompleted);
+            metricsRecord.incrMetric("waiting_maps", numWaitingMaps);
+            metricsRecord.incrMetric("waiting_reduces", numWaitingReduces);
 
-  public synchronized void completeMap(TaskAttemptID taskAttemptID) {
-    ++numMapTasksCompleted;
-  }
+            numMapTasksLaunched = 0;
+            numMapTasksCompleted = 0;
+            numReduceTasksLaunched = 0;
+            numReduceTasksCompleted = 0;
+            numWaitingMaps = 0;
+            numWaitingReduces = 0;
+        }
+        metricsRecord.update();
+    }
 
-  public synchronized void launchReduce(TaskAttemptID taskAttemptID) {
-    ++numReduceTasksLaunched;
-    decWaitingReduces(taskAttemptID.getJobID(), 1);
-  }
+    public synchronized void launchMap(TaskAttemptID taskAttemptID) {
+        ++numMapTasksLaunched;
+        decWaitingMaps(taskAttemptID.getJobID(), 1);
+    }
 
-  public synchronized void completeReduce(TaskAttemptID taskAttemptID) {
-    ++numReduceTasksCompleted;
-  }
+    public synchronized void completeMap(TaskAttemptID taskAttemptID) {
+        ++numMapTasksCompleted;
+    }
 
-  private synchronized void decWaitingMaps(JobID id, int task) {
-    numWaitingMaps -= task;
-  }
-  
-  private synchronized void decWaitingReduces(JobID id, int task){
-    numWaitingReduces -= task;
-  }
+    public synchronized void launchReduce(TaskAttemptID taskAttemptID) {
+        ++numReduceTasksLaunched;
+        decWaitingReduces(taskAttemptID.getJobID(), 1);
+    }
+
+    public synchronized void completeReduce(TaskAttemptID taskAttemptID) {
+        ++numReduceTasksCompleted;
+    }
+
+    private synchronized void decWaitingMaps(JobID id, int task) {
+        numWaitingMaps -= task;
+    }
+
+    private synchronized void decWaitingReduces(JobID id, int task) {
+        numWaitingReduces -= task;
+    }
 
 }

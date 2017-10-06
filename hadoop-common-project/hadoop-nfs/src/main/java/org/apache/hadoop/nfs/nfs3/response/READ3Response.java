@@ -28,72 +28,72 @@ import org.apache.hadoop.oncrpc.security.Verifier;
  * READ3 Response
  */
 public class READ3Response extends NFS3Response {
-  private final Nfs3FileAttributes postOpAttr;
-  private final int count; // The real bytes of read data
-  private final boolean eof;
-  private final ByteBuffer data;
+    private final Nfs3FileAttributes postOpAttr;
+    private final int count; // The real bytes of read data
+    private final boolean eof;
+    private final ByteBuffer data;
 
-  public READ3Response(int status) {
-    this(status, new Nfs3FileAttributes(), 0, false, null);
-  }
-  
-  public READ3Response(int status, Nfs3FileAttributes postOpAttr, int count,
-      boolean eof, ByteBuffer data) {
-    super(status);
-    this.postOpAttr = postOpAttr;
-    this.count = count;
-    this.eof = eof;
-    this.data = data;
-  }
-
-  public Nfs3FileAttributes getPostOpAttr() {
-    return postOpAttr;
-  }
-
-  public int getCount() {
-    return count;
-  }
-
-  public boolean isEof() {
-    return eof;
-  }
-
-  public ByteBuffer getData() {
-    return data;
-  }
-
-  public static READ3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    xdr.readBoolean();
-    Nfs3FileAttributes postOpAttr = Nfs3FileAttributes.deserialize(xdr);
-    int count = 0;
-    boolean eof = false;
-    byte[] data = new byte[0];
-
-    if (status == Nfs3Status.NFS3_OK) {
-      count = xdr.readInt();
-      eof = xdr.readBoolean();
-      int len = xdr.readInt();
-      assert (len == count);
-      data = xdr.readFixedOpaque(count);
+    public READ3Response(int status) {
+        this(status, new Nfs3FileAttributes(), 0, false, null);
     }
 
-    return new READ3Response(status, postOpAttr, count, eof,
-        ByteBuffer.wrap(data));
-  }
-
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    out.writeBoolean(true); // Attribute follows
-    postOpAttr.serialize(out);
-
-    if (getStatus() == Nfs3Status.NFS3_OK) {
-      out.writeInt(count);
-      out.writeBoolean(eof);
-      out.writeInt(count);
-      out.writeFixedOpaque(data.array(), count);
+    public READ3Response(int status, Nfs3FileAttributes postOpAttr, int count,
+                         boolean eof, ByteBuffer data) {
+        super(status);
+        this.postOpAttr = postOpAttr;
+        this.count = count;
+        this.eof = eof;
+        this.data = data;
     }
-    return out;
-  }
+
+    public Nfs3FileAttributes getPostOpAttr() {
+        return postOpAttr;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public boolean isEof() {
+        return eof;
+    }
+
+    public ByteBuffer getData() {
+        return data;
+    }
+
+    public static READ3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        xdr.readBoolean();
+        Nfs3FileAttributes postOpAttr = Nfs3FileAttributes.deserialize(xdr);
+        int count = 0;
+        boolean eof = false;
+        byte[] data = new byte[0];
+
+        if (status == Nfs3Status.NFS3_OK) {
+            count = xdr.readInt();
+            eof = xdr.readBoolean();
+            int len = xdr.readInt();
+            assert (len == count);
+            data = xdr.readFixedOpaque(count);
+        }
+
+        return new READ3Response(status, postOpAttr, count, eof,
+                                 ByteBuffer.wrap(data));
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        out.writeBoolean(true); // Attribute follows
+        postOpAttr.serialize(out);
+
+        if (getStatus() == Nfs3Status.NFS3_OK) {
+            out.writeInt(count);
+            out.writeBoolean(eof);
+            out.writeInt(count);
+            out.writeFixedOpaque(data.array(), count);
+        }
+        return out;
+    }
 }

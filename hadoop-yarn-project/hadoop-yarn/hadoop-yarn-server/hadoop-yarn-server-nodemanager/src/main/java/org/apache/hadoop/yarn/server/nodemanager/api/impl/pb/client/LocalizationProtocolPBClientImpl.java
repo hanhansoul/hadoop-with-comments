@@ -39,32 +39,32 @@ import com.google.protobuf.ServiceException;
 public class LocalizationProtocolPBClientImpl implements LocalizationProtocol,
     Closeable {
 
-  private LocalizationProtocolPB proxy;
-  
-  public LocalizationProtocolPBClientImpl(long clientVersion, InetSocketAddress addr, Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, LocalizationProtocolPB.class, ProtobufRpcEngine.class);
-    proxy = (LocalizationProtocolPB)RPC.getProxy(
-        LocalizationProtocolPB.class, clientVersion, addr, conf);
-  }
+    private LocalizationProtocolPB proxy;
 
-  @Override
-  public void close() {
-    if (this.proxy != null) {
-      RPC.stopProxy(this.proxy);
+    public LocalizationProtocolPBClientImpl(long clientVersion, InetSocketAddress addr, Configuration conf) throws IOException {
+        RPC.setProtocolEngine(conf, LocalizationProtocolPB.class, ProtobufRpcEngine.class);
+        proxy = (LocalizationProtocolPB)RPC.getProxy(
+                    LocalizationProtocolPB.class, clientVersion, addr, conf);
     }
-  }
 
-  @Override
-  public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status)
+    @Override
+    public void close() {
+        if (this.proxy != null) {
+            RPC.stopProxy(this.proxy);
+        }
+    }
+
+    @Override
+    public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status)
     throws YarnException, IOException {
-    LocalizerStatusProto statusProto = ((LocalizerStatusPBImpl)status).getProto();
-    try {
-      return new LocalizerHeartbeatResponsePBImpl(
-          proxy.heartbeat(null, statusProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+        LocalizerStatusProto statusProto = ((LocalizerStatusPBImpl)status).getProto();
+        try {
+            return new LocalizerHeartbeatResponsePBImpl(
+                       proxy.heartbeat(null, statusProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
 }

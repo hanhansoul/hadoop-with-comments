@@ -49,71 +49,71 @@ import org.junit.Test;
 
 /** Unit tests for using Delegation Token over RPC. */
 public class TestClientProtocolWithDelegationToken {
-  private static final String ADDRESS = "0.0.0.0";
+    private static final String ADDRESS = "0.0.0.0";
 
-  public static final Log LOG = LogFactory
-      .getLog(TestClientProtocolWithDelegationToken.class);
+    public static final Log LOG = LogFactory
+                                  .getLog(TestClientProtocolWithDelegationToken.class);
 
-  private static final Configuration conf;
-  static {
-    conf = new Configuration();
-    conf.set(HADOOP_SECURITY_AUTHENTICATION, "kerberos");
-    UserGroupInformation.setConfiguration(conf);
-  }
+    private static final Configuration conf;
+    static {
+        conf = new Configuration();
+        conf.set(HADOOP_SECURITY_AUTHENTICATION, "kerberos");
+        UserGroupInformation.setConfiguration(conf);
+    }
 
-  static {
-    ((Log4JLogger) Client.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) Server.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) SaslRpcClient.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) SaslRpcServer.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger) SaslInputStream.LOG).getLogger().setLevel(Level.ALL);
-  }
+    static {
+        ((Log4JLogger) Client.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) Server.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) SaslRpcClient.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) SaslRpcServer.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger) SaslInputStream.LOG).getLogger().setLevel(Level.ALL);
+    }
 
-  @Test
-  public void testDelegationTokenRpc() throws Exception {
-    ClientProtocol mockNN = mock(ClientProtocol.class);
-    FSNamesystem mockNameSys = mock(FSNamesystem.class);
+    @Test
+    public void testDelegationTokenRpc() throws Exception {
+        ClientProtocol mockNN = mock(ClientProtocol.class);
+        FSNamesystem mockNameSys = mock(FSNamesystem.class);
 
-    DelegationTokenSecretManager sm = new DelegationTokenSecretManager(
-        DFSConfigKeys.DFS_NAMENODE_DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT,
-        DFSConfigKeys.DFS_NAMENODE_DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT,
-        DFSConfigKeys.DFS_NAMENODE_DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT,
-        3600000, mockNameSys);
-    sm.startThreads();
-    final Server server = new RPC.Builder(conf)
+        DelegationTokenSecretManager sm = new DelegationTokenSecretManager(
+            DFSConfigKeys.DFS_NAMENODE_DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT,
+            DFSConfigKeys.DFS_NAMENODE_DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT,
+            DFSConfigKeys.DFS_NAMENODE_DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT,
+            3600000, mockNameSys);
+        sm.startThreads();
+        final Server server = new RPC.Builder(conf)
         .setProtocol(ClientProtocol.class).setInstance(mockNN)
         .setBindAddress(ADDRESS).setPort(0).setNumHandlers(5).setVerbose(true)
         .setSecretManager(sm).build();
-    
-    server.start();
 
-    final UserGroupInformation current = UserGroupInformation.getCurrentUser();
-    final InetSocketAddress addr = NetUtils.getConnectAddress(server);
-    String user = current.getUserName();
-    Text owner = new Text(user);
-    DelegationTokenIdentifier dtId = new DelegationTokenIdentifier(owner, owner, null);
-    Token<DelegationTokenIdentifier> token = new Token<DelegationTokenIdentifier>(
-        dtId, sm);
-    SecurityUtil.setTokenService(token, addr);
-    LOG.info("Service for token is " + token.getService());
-    current.addToken(token);
-    current.doAs(new PrivilegedExceptionAction<Object>() {
-      @Override
-      public Object run() throws Exception {
-        ClientProtocol proxy = null;
-        try {
-          proxy = RPC.getProxy(ClientProtocol.class,
-              ClientProtocol.versionID, addr, conf);
-          proxy.getServerDefaults();
-        } finally {
-          server.stop();
-          if (proxy != null) {
-            RPC.stopProxy(proxy);
-          }
-        }
-        return null;
-      }
-    });
-  }
+        server.start();
+
+        final UserGroupInformation current = UserGroupInformation.getCurrentUser();
+        final InetSocketAddress addr = NetUtils.getConnectAddress(server);
+        String user = current.getUserName();
+        Text owner = new Text(user);
+        DelegationTokenIdentifier dtId = new DelegationTokenIdentifier(owner, owner, null);
+        Token<DelegationTokenIdentifier> token = new Token<DelegationTokenIdentifier>(
+            dtId, sm);
+        SecurityUtil.setTokenService(token, addr);
+        LOG.info("Service for token is " + token.getService());
+        current.addToken(token);
+        current.doAs(new PrivilegedExceptionAction<Object>() {
+            @Override
+            public Object run() throws Exception {
+                ClientProtocol proxy = null;
+                try {
+                    proxy = RPC.getProxy(ClientProtocol.class,
+                                         ClientProtocol.versionID, addr, conf);
+                    proxy.getServerDefaults();
+                } finally {
+                    server.stop();
+                    if (proxy != null) {
+                        RPC.stopProxy(proxy);
+                    }
+                }
+                return null;
+            }
+        });
+    }
 
 }

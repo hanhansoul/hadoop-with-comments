@@ -24,15 +24,15 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
  * <code>AMRMClient.ContainerRequest</code> in an invalid way.
  */
 public class InvalidContainerRequestException extends YarnRuntimeException {
-  public InvalidContainerRequestException(Throwable cause) {
-    super(cause);
-  }
+    public InvalidContainerRequestException(Throwable cause) {
+        super(cause);
+    }
 
-  public InvalidContainerRequestException(String message) {
-    super(message);
-  }
+    public InvalidContainerRequestException(String message) {
+        super(message);
+    }
 
-  public InvalidContainerRequestException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public InvalidContainerRequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

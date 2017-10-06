@@ -18,16 +18,16 @@
 package org.apache.hadoop.util;
 
 public class ClassLoaderCheck {
-  /**
-   * Verifies the class is loaded by the right classloader.
-   */
-  public static void checkClassLoader(Class cls,
-      boolean shouldBeLoadedByAppClassLoader) {
-    boolean loadedByAppClassLoader =
-        cls.getClassLoader() instanceof ApplicationClassLoader;
-    if ((shouldBeLoadedByAppClassLoader && !loadedByAppClassLoader) ||
-        (!shouldBeLoadedByAppClassLoader && loadedByAppClassLoader)) {
-      throw new RuntimeException("incorrect classloader used");
+    /**
+     * Verifies the class is loaded by the right classloader.
+     */
+    public static void checkClassLoader(Class cls,
+                                        boolean shouldBeLoadedByAppClassLoader) {
+        boolean loadedByAppClassLoader =
+            cls.getClassLoader() instanceof ApplicationClassLoader;
+        if ((shouldBeLoadedByAppClassLoader && !loadedByAppClassLoader) ||
+            (!shouldBeLoadedByAppClassLoader && loadedByAppClassLoader)) {
+            throw new RuntimeException("incorrect classloader used");
+        }
     }
-  }
 }

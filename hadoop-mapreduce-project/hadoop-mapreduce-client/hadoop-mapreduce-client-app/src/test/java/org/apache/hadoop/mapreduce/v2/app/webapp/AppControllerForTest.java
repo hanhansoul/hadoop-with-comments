@@ -37,79 +37,79 @@ import static org.mockito.Mockito.*;
  * Class AppControllerForTest overrides some methods of AppController for test
  */
 public class AppControllerForTest extends AppController {
-  final private static Map<String, String> properties = new HashMap<String, String>();
+    final private static Map<String, String> properties = new HashMap<String, String>();
 
-  private ResponseInfo responseInfo = new ResponseInfo();
-  private View view = new ViewForTest();
-  private Class<?> clazz;
-  private HttpServletResponse response;
+    private ResponseInfo responseInfo = new ResponseInfo();
+    private View view = new ViewForTest();
+    private Class<?> clazz;
+    private HttpServletResponse response;
 
 
-  protected AppControllerForTest(App app, Configuration configuration, RequestContext ctx) {
-    super(app, configuration, ctx);
-  }
-
-  public Class<?> getClazz() {
-    return clazz;
-  }
-
-  @SuppressWarnings("unchecked")
-  public <T> T getInstance(Class<T> cls) {
-    clazz = cls;
-    if (cls.equals(ResponseInfo.class)) {
-      return (T) responseInfo;
+    protected AppControllerForTest(App app, Configuration configuration, RequestContext ctx) {
+        super(app, configuration, ctx);
     }
-    return (T) view;
-  }
 
-  public ResponseInfo getResponseInfo() {
-    return responseInfo;
-  }
-
-  public String get(String key, String defaultValue) {
-    String result = properties.get(key);
-    if (result == null) {
-      result = defaultValue;
+    public Class<?> getClazz() {
+        return clazz;
     }
-    return result;
-  }
 
-  public void set(String key, String value) {
-    properties.put(key, value);
-  }
-
-  public HttpServletRequest request() {
-    HttpServletRequest result = mock(HttpServletRequest.class);
-    when(result.getRemoteUser()).thenReturn("user");
-
-
-    return result;
-  }
-
-  @Override
-  public HttpServletResponse response() {
-    if (response == null) {
-      response = mock(HttpServletResponse.class);
+    @SuppressWarnings("unchecked")
+    public <T> T getInstance(Class<T> cls) {
+        clazz = cls;
+        if (cls.equals(ResponseInfo.class)) {
+            return (T) responseInfo;
+        }
+        return (T) view;
     }
-    return response;
-  }
 
-  public Map<String, String> getProperty() {
-    return properties;
-  }
-
-  OutputStream data = new ByteArrayOutputStream();
-  PrintWriter writer = new PrintWriter(data);
-
-  public String getData() {
-    writer.flush();
-    return data.toString();
-  }
-
-  protected PrintWriter writer() {
-    if (writer == null) {
-      writer = new PrintWriter(data);
+    public ResponseInfo getResponseInfo() {
+        return responseInfo;
     }
-    return writer;
-  }
+
+    public String get(String key, String defaultValue) {
+        String result = properties.get(key);
+        if (result == null) {
+            result = defaultValue;
+        }
+        return result;
+    }
+
+    public void set(String key, String value) {
+        properties.put(key, value);
+    }
+
+    public HttpServletRequest request() {
+        HttpServletRequest result = mock(HttpServletRequest.class);
+        when(result.getRemoteUser()).thenReturn("user");
+
+
+        return result;
+    }
+
+    @Override
+    public HttpServletResponse response() {
+        if (response == null) {
+            response = mock(HttpServletResponse.class);
+        }
+        return response;
+    }
+
+    public Map<String, String> getProperty() {
+        return properties;
+    }
+
+    OutputStream data = new ByteArrayOutputStream();
+    PrintWriter writer = new PrintWriter(data);
+
+    public String getData() {
+        writer.flush();
+        return data.toString();
+    }
+
+    protected PrintWriter writer() {
+        if (writer == null) {
+            writer = new PrintWriter(data);
+        }
+        return writer;
+    }
 }

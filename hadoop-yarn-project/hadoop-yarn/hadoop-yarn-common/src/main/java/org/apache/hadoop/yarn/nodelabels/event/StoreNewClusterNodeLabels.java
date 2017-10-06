@@ -21,14 +21,14 @@ package org.apache.hadoop.yarn.nodelabels.event;
 import java.util.Set;
 
 public class StoreNewClusterNodeLabels extends NodeLabelsStoreEvent {
-  private Set<String> labels;
-  
-  public StoreNewClusterNodeLabels(Set<String> labels) {
-    super(NodeLabelsStoreEventType.ADD_LABELS);
-    this.labels = labels;
-  }
-  
-  public Set<String> getLabels() {
-    return labels;
-  }
+    private Set<String> labels;
+
+    public StoreNewClusterNodeLabels(Set<String> labels) {
+        super(NodeLabelsStoreEventType.ADD_LABELS);
+        this.labels = labels;
+    }
+
+    public Set<String> getLabels() {
+        return labels;
+    }
 }

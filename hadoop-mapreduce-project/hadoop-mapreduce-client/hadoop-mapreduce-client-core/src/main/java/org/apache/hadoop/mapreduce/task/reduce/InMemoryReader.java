@@ -35,115 +35,115 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class InMemoryReader<K, V> extends Reader<K, V> {
-  private final TaskAttemptID taskAttemptId;
-  private final MergeManagerImpl<K,V> merger;
-  private final DataInputBuffer memDataIn = new DataInputBuffer();
-  private final int start;
-  private final int length;
-  
-  public InMemoryReader(MergeManagerImpl<K,V> merger, TaskAttemptID taskAttemptId,
-                        byte[] data, int start, int length, Configuration conf)
-  throws IOException {
-    super(conf, null, length - start, null, null);
-    this.merger = merger;
-    this.taskAttemptId = taskAttemptId;
+    private final TaskAttemptID taskAttemptId;
+    private final MergeManagerImpl<K,V> merger;
+    private final DataInputBuffer memDataIn = new DataInputBuffer();
+    private final int start;
+    private final int length;
 
-    buffer = data;
-    bufferSize = (int)fileLength;
-    memDataIn.reset(buffer, start, length - start);
-    this.start = start;
-    this.length = length;
-  }
+    public InMemoryReader(MergeManagerImpl<K,V> merger, TaskAttemptID taskAttemptId,
+                          byte[] data, int start, int length, Configuration conf)
+    throws IOException {
+        super(conf, null, length - start, null, null);
+        this.merger = merger;
+        this.taskAttemptId = taskAttemptId;
 
-  @Override
-  public void reset(int offset) {
-    memDataIn.reset(buffer, start + offset, length - start - offset);
-    bytesRead = offset;
-    eof = false;
-  }
-
-  @Override
-  public long getPosition() throws IOException {
-    // InMemoryReader does not initialize streams like Reader, so in.getPos()
-    // would not work. Instead, return the number of uncompressed bytes read,
-    // which will be correct since in-memory data is not compressed.
-    return bytesRead;
-  }
-  
-  @Override
-  public long getLength() { 
-    return fileLength;
-  }
-  
-  private void dumpOnError() {
-    File dumpFile = new File("../output/" + taskAttemptId + ".dump");
-    System.err.println("Dumping corrupt map-output of " + taskAttemptId + 
-                       " to " + dumpFile.getAbsolutePath());
-    try {
-      FileOutputStream fos = new FileOutputStream(dumpFile);
-      fos.write(buffer, 0, bufferSize);
-      fos.close();
-    } catch (IOException ioe) {
-      System.err.println("Failed to dump map-output of " + taskAttemptId);
+        buffer = data;
+        bufferSize = (int)fileLength;
+        memDataIn.reset(buffer, start, length - start);
+        this.start = start;
+        this.length = length;
     }
-  }
-  
-  public boolean nextRawKey(DataInputBuffer key) throws IOException {
-    try {
-      if (!positionToNextRecord(memDataIn)) {
-        return false;
-      }
-      // Setup the key
-      int pos = memDataIn.getPosition();
-      byte[] data = memDataIn.getData();
-      key.reset(data, pos, currentKeyLength);
-      // Position for the next value
-      long skipped = memDataIn.skip(currentKeyLength);
-      if (skipped != currentKeyLength) {
-        throw new IOException("Rec# " + recNo + 
-            ": Failed to skip past key of length: " + 
-            currentKeyLength);
-      }
 
-      // Record the byte
-      bytesRead += currentKeyLength;
-      return true;
-    } catch (IOException ioe) {
-      dumpOnError();
-      throw ioe;
+    @Override
+    public void reset(int offset) {
+        memDataIn.reset(buffer, start + offset, length - start - offset);
+        bytesRead = offset;
+        eof = false;
     }
-  }
-  
-  public void nextRawValue(DataInputBuffer value) throws IOException {
-    try {
-      int pos = memDataIn.getPosition();
-      byte[] data = memDataIn.getData();
-      value.reset(data, pos, currentValueLength);
 
-      // Position for the next record
-      long skipped = memDataIn.skip(currentValueLength);
-      if (skipped != currentValueLength) {
-        throw new IOException("Rec# " + recNo + 
-            ": Failed to skip past value of length: " + 
-            currentValueLength);
-      }
-      // Record the byte
-      bytesRead += currentValueLength;
+    @Override
+    public long getPosition() throws IOException {
+        // InMemoryReader does not initialize streams like Reader, so in.getPos()
+        // would not work. Instead, return the number of uncompressed bytes read,
+        // which will be correct since in-memory data is not compressed.
+        return bytesRead;
+    }
 
-      ++recNo;
-    } catch (IOException ioe) {
-      dumpOnError();
-      throw ioe;
+    @Override
+    public long getLength() {
+        return fileLength;
     }
-  }
-    
-  public void close() {
-    // Release
-    dataIn = null;
-    buffer = null;
-      // Inform the MergeManager
-    if (merger != null) {
-      merger.unreserve(bufferSize);
+
+    private void dumpOnError() {
+        File dumpFile = new File("../output/" + taskAttemptId + ".dump");
+        System.err.println("Dumping corrupt map-output of " + taskAttemptId +
+                           " to " + dumpFile.getAbsolutePath());
+        try {
+            FileOutputStream fos = new FileOutputStream(dumpFile);
+            fos.write(buffer, 0, bufferSize);
+            fos.close();
+        } catch (IOException ioe) {
+            System.err.println("Failed to dump map-output of " + taskAttemptId);
+        }
     }
-  }
+
+    public boolean nextRawKey(DataInputBuffer key) throws IOException {
+        try {
+            if (!positionToNextRecord(memDataIn)) {
+                return false;
+            }
+            // Setup the key
+            int pos = memDataIn.getPosition();
+            byte[] data = memDataIn.getData();
+            key.reset(data, pos, currentKeyLength);
+            // Position for the next value
+            long skipped = memDataIn.skip(currentKeyLength);
+            if (skipped != currentKeyLength) {
+                throw new IOException("Rec# " + recNo +
+                                      ": Failed to skip past key of length: " +
+                                      currentKeyLength);
+            }
+
+            // Record the byte
+            bytesRead += currentKeyLength;
+            return true;
+        } catch (IOException ioe) {
+            dumpOnError();
+            throw ioe;
+        }
+    }
+
+    public void nextRawValue(DataInputBuffer value) throws IOException {
+        try {
+            int pos = memDataIn.getPosition();
+            byte[] data = memDataIn.getData();
+            value.reset(data, pos, currentValueLength);
+
+            // Position for the next record
+            long skipped = memDataIn.skip(currentValueLength);
+            if (skipped != currentValueLength) {
+                throw new IOException("Rec# " + recNo +
+                                      ": Failed to skip past value of length: " +
+                                      currentValueLength);
+            }
+            // Record the byte
+            bytesRead += currentValueLength;
+
+            ++recNo;
+        } catch (IOException ioe) {
+            dumpOnError();
+            throw ioe;
+        }
+    }
+
+    public void close() {
+        // Release
+        dataIn = null;
+        buffer = null;
+        // Inform the MergeManager
+        if (merger != null) {
+            merger.unreserve(bufferSize);
+        }
+    }
 }

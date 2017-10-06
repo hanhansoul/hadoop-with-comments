@@ -39,33 +39,33 @@ import org.junit.Test;
 
 
 public class TestTaskHeartbeatHandler {
-  
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  @Test
-  public void testTimeout() throws InterruptedException {
-    EventHandler mockHandler = mock(EventHandler.class);
-    Clock clock = new SystemClock();
-    TaskHeartbeatHandler hb = new TaskHeartbeatHandler(mockHandler, clock, 1);
-    
-    
-    Configuration conf = new Configuration();
-    conf.setInt(MRJobConfig.TASK_TIMEOUT, 10); //10 ms
-    conf.setInt(MRJobConfig.TASK_TIMEOUT_CHECK_INTERVAL_MS, 10); //10 ms
-    
-    hb.init(conf);
-    hb.start();
-    try {
-      ApplicationId appId = ApplicationId.newInstance(0l, 5);
-      JobId jobId = MRBuilderUtils.newJobId(appId, 4);
-      TaskId tid = MRBuilderUtils.newTaskId(jobId, 3, TaskType.MAP);
-      TaskAttemptId taid = MRBuilderUtils.newTaskAttemptId(tid, 2);
-      hb.register(taid);
-      Thread.sleep(100);
-      //Events only happen when the task is canceled
-      verify(mockHandler, times(2)).handle(any(Event.class));
-    } finally {
-      hb.stop();
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Test
+    public void testTimeout() throws InterruptedException {
+        EventHandler mockHandler = mock(EventHandler.class);
+        Clock clock = new SystemClock();
+        TaskHeartbeatHandler hb = new TaskHeartbeatHandler(mockHandler, clock, 1);
+
+
+        Configuration conf = new Configuration();
+        conf.setInt(MRJobConfig.TASK_TIMEOUT, 10); //10 ms
+        conf.setInt(MRJobConfig.TASK_TIMEOUT_CHECK_INTERVAL_MS, 10); //10 ms
+
+        hb.init(conf);
+        hb.start();
+        try {
+            ApplicationId appId = ApplicationId.newInstance(0l, 5);
+            JobId jobId = MRBuilderUtils.newJobId(appId, 4);
+            TaskId tid = MRBuilderUtils.newTaskId(jobId, 3, TaskType.MAP);
+            TaskAttemptId taid = MRBuilderUtils.newTaskAttemptId(tid, 2);
+            hb.register(taid);
+            Thread.sleep(100);
+            //Events only happen when the task is canceled
+            verify(mockHandler, times(2)).handle(any(Event.class));
+        } finally {
+            hb.stop();
+        }
     }
-  }
 
 }

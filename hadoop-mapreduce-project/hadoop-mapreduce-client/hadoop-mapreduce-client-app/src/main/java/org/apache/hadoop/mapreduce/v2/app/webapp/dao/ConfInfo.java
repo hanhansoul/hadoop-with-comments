@@ -34,30 +34,30 @@ import org.apache.hadoop.mapreduce.v2.app.job.Job;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfInfo {
 
-  protected String path;
-  protected ArrayList<ConfEntryInfo> property;
+    protected String path;
+    protected ArrayList<ConfEntryInfo> property;
 
-  public ConfInfo() {
-  }
-
-  public ConfInfo(Job job) throws IOException {
-
-    this.property = new ArrayList<ConfEntryInfo>();
-    Configuration jobConf = job.loadConfFile();
-    this.path = job.getConfFile().toString();
-    for (Map.Entry<String, String> entry : jobConf) {
-      this.property.add(new ConfEntryInfo(entry.getKey(), entry.getValue(), 
-          jobConf.getPropertySources(entry.getKey())));
+    public ConfInfo() {
     }
 
-  }
+    public ConfInfo(Job job) throws IOException {
 
-  public ArrayList<ConfEntryInfo> getProperties() {
-    return this.property;
-  }
+        this.property = new ArrayList<ConfEntryInfo>();
+        Configuration jobConf = job.loadConfFile();
+        this.path = job.getConfFile().toString();
+        for (Map.Entry<String, String> entry : jobConf) {
+            this.property.add(new ConfEntryInfo(entry.getKey(), entry.getValue(),
+                                                jobConf.getPropertySources(entry.getKey())));
+        }
 
-  public String getPath() {
-    return this.path;
-  }
+    }
+
+    public ArrayList<ConfEntryInfo> getProperties() {
+        return this.property;
+    }
+
+    public String getPath() {
+        return this.path;
+    }
 
 }

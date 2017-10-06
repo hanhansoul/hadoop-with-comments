@@ -32,34 +32,34 @@ import java.io.Flushable;
 @Public
 @Unstable
 public class ContainerRollingLogAppender extends RollingFileAppender
-  implements Flushable {
-  private String containerLogDir;
+    implements Flushable {
+    private String containerLogDir;
 
-  @Override
-  public void activateOptions() {
-    synchronized (this) {
-      setFile(new File(this.containerLogDir, "syslog").toString());
-      setAppend(true);
-      super.activateOptions();
+    @Override
+    public void activateOptions() {
+        synchronized (this) {
+            setFile(new File(this.containerLogDir, "syslog").toString());
+            setAppend(true);
+            super.activateOptions();
+        }
     }
-  }
 
-  @Override
-  public void flush() {
-    if (qw != null) {
-      qw.flush();
+    @Override
+    public void flush() {
+        if (qw != null) {
+            qw.flush();
+        }
     }
-  }
 
-  /**
-   * Getter/Setter methods for log4j.
-   */
+    /**
+     * Getter/Setter methods for log4j.
+     */
 
-  public String getContainerLogDir() {
-    return this.containerLogDir;
-  }
+    public String getContainerLogDir() {
+        return this.containerLogDir;
+    }
 
-  public void setContainerLogDir(String containerLogDir) {
-    this.containerLogDir = containerLogDir;
-  }
+    public void setContainerLogDir(String containerLogDir) {
+        this.containerLogDir = containerLogDir;
+    }
 }

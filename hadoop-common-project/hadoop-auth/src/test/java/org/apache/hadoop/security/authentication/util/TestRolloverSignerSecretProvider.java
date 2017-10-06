@@ -18,62 +18,62 @@ import org.junit.Test;
 
 public class TestRolloverSignerSecretProvider {
 
-  @Test
-  public void testGetAndRollSecrets() throws Exception {
-    long rolloverFrequency = 15 * 1000; // rollover every 15 sec
-    byte[] secret1 = "doctor".getBytes();
-    byte[] secret2 = "who".getBytes();
-    byte[] secret3 = "tardis".getBytes();
-    TRolloverSignerSecretProvider secretProvider =
-        new TRolloverSignerSecretProvider(
-            new byte[][]{secret1, secret2, secret3});
-    try {
-      secretProvider.init(null, null, rolloverFrequency);
+    @Test
+    public void testGetAndRollSecrets() throws Exception {
+        long rolloverFrequency = 15 * 1000; // rollover every 15 sec
+        byte[] secret1 = "doctor".getBytes();
+        byte[] secret2 = "who".getBytes();
+        byte[] secret3 = "tardis".getBytes();
+        TRolloverSignerSecretProvider secretProvider =
+            new TRolloverSignerSecretProvider(
+            new byte[][] {secret1, secret2, secret3});
+        try {
+            secretProvider.init(null, null, rolloverFrequency);
 
-      byte[] currentSecret = secretProvider.getCurrentSecret();
-      byte[][] allSecrets = secretProvider.getAllSecrets();
-      Assert.assertArrayEquals(secret1, currentSecret);
-      Assert.assertEquals(2, allSecrets.length);
-      Assert.assertArrayEquals(secret1, allSecrets[0]);
-      Assert.assertNull(allSecrets[1]);
-      Thread.sleep(rolloverFrequency + 2000);
+            byte[] currentSecret = secretProvider.getCurrentSecret();
+            byte[][] allSecrets = secretProvider.getAllSecrets();
+            Assert.assertArrayEquals(secret1, currentSecret);
+            Assert.assertEquals(2, allSecrets.length);
+            Assert.assertArrayEquals(secret1, allSecrets[0]);
+            Assert.assertNull(allSecrets[1]);
+            Thread.sleep(rolloverFrequency + 2000);
 
-      currentSecret = secretProvider.getCurrentSecret();
-      allSecrets = secretProvider.getAllSecrets();
-      Assert.assertArrayEquals(secret2, currentSecret);
-      Assert.assertEquals(2, allSecrets.length);
-      Assert.assertArrayEquals(secret2, allSecrets[0]);
-      Assert.assertArrayEquals(secret1, allSecrets[1]);
-      Thread.sleep(rolloverFrequency + 2000);
+            currentSecret = secretProvider.getCurrentSecret();
+            allSecrets = secretProvider.getAllSecrets();
+            Assert.assertArrayEquals(secret2, currentSecret);
+            Assert.assertEquals(2, allSecrets.length);
+            Assert.assertArrayEquals(secret2, allSecrets[0]);
+            Assert.assertArrayEquals(secret1, allSecrets[1]);
+            Thread.sleep(rolloverFrequency + 2000);
 
-      currentSecret = secretProvider.getCurrentSecret();
-      allSecrets = secretProvider.getAllSecrets();
-      Assert.assertArrayEquals(secret3, currentSecret);
-      Assert.assertEquals(2, allSecrets.length);
-      Assert.assertArrayEquals(secret3, allSecrets[0]);
-      Assert.assertArrayEquals(secret2, allSecrets[1]);
-      Thread.sleep(rolloverFrequency + 2000);
-    } finally {
-      secretProvider.destroy();
+            currentSecret = secretProvider.getCurrentSecret();
+            allSecrets = secretProvider.getAllSecrets();
+            Assert.assertArrayEquals(secret3, currentSecret);
+            Assert.assertEquals(2, allSecrets.length);
+            Assert.assertArrayEquals(secret3, allSecrets[0]);
+            Assert.assertArrayEquals(secret2, allSecrets[1]);
+            Thread.sleep(rolloverFrequency + 2000);
+        } finally {
+            secretProvider.destroy();
+        }
     }
-  }
 
-  class TRolloverSignerSecretProvider extends RolloverSignerSecretProvider {
+    class TRolloverSignerSecretProvider extends RolloverSignerSecretProvider {
 
-    private byte[][] newSecretSequence;
-    private int newSecretSequenceIndex;
+        private byte[][] newSecretSequence;
+        private int newSecretSequenceIndex;
 
-    public TRolloverSignerSecretProvider(byte[][] newSecretSequence)
+        public TRolloverSignerSecretProvider(byte[][] newSecretSequence)
         throws Exception {
-      super();
-      this.newSecretSequence = newSecretSequence;
-      this.newSecretSequenceIndex = 0;
-    }
+            super();
+            this.newSecretSequence = newSecretSequence;
+            this.newSecretSequenceIndex = 0;
+        }
 
-    @Override
-    protected byte[] generateNewSecret() {
-      return newSecretSequence[newSecretSequenceIndex++];
-    }
+        @Override
+        protected byte[] generateNewSecret() {
+            return newSecretSequence[newSecretSequenceIndex++];
+        }
 
-  }
+    }
 }

@@ -23,18 +23,18 @@ import org.apache.hadoop.yarn.event.Event;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Container;
 
 public class ContainersLauncherEvent
-    extends AbstractEvent<ContainersLauncherEventType>{
+    extends AbstractEvent<ContainersLauncherEventType> {
 
-  private final Container container;
+    private final Container container;
 
-  public ContainersLauncherEvent(Container container,
-      ContainersLauncherEventType eventType) {
-    super(eventType);
-    this.container = container;
-  }
+    public ContainersLauncherEvent(Container container,
+                                   ContainersLauncherEventType eventType) {
+        super(eventType);
+        this.container = container;
+    }
 
-  public Container getContainer() {
-    return container;
-  }
+    public Container getContainer() {
+        return container;
+    }
 
 }

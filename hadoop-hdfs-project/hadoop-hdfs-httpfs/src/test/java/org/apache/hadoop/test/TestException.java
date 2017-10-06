@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(java.lang.annotation.ElementType.METHOD)
 public @interface TestException {
-  Class<? extends Throwable> exception();
+    Class<? extends Throwable> exception();
 
-  String msgRegExp() default ".*";
+String msgRegExp() default ".*";
 }

@@ -37,184 +37,184 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 
 public class MiniJournalCluster {
-  public static class Builder {
-    private String baseDir;
-    private int numJournalNodes = 3;
-    private boolean format = true;
-    private final Configuration conf;
-    
-    public Builder(Configuration conf) {
-      this.conf = conf;
-    }
-    
-    public Builder baseDir(String d) {
-      this.baseDir = d;
-      return this;
-    }
-    
-    public Builder numJournalNodes(int n) {
-      this.numJournalNodes = n;
-      return this;
-    }
+    public static class Builder {
+        private String baseDir;
+        private int numJournalNodes = 3;
+        private boolean format = true;
+        private final Configuration conf;
 
-    public Builder format(boolean f) {
-      this.format = f;
-      return this;
-    }
+        public Builder(Configuration conf) {
+            this.conf = conf;
+        }
 
-    public MiniJournalCluster build() throws IOException {
-      return new MiniJournalCluster(this);
-    }
-  }
+        public Builder baseDir(String d) {
+            this.baseDir = d;
+            return this;
+        }
 
-  private static final class JNInfo {
-    private JournalNode node;
-    private final InetSocketAddress ipcAddr;
-    private final String httpServerURI;
+        public Builder numJournalNodes(int n) {
+            this.numJournalNodes = n;
+            return this;
+        }
 
-    private JNInfo(JournalNode node) {
-      this.node = node;
-      this.ipcAddr = node.getBoundIpcAddress();
-      this.httpServerURI = node.getHttpServerURI();
-    }
-  }
+        public Builder format(boolean f) {
+            this.format = f;
+            return this;
+        }
 
-  private static final Log LOG = LogFactory.getLog(MiniJournalCluster.class);
-  private final File baseDir;
-  private final JNInfo[] nodes;
-  
-  private MiniJournalCluster(Builder b) throws IOException {
-    LOG.info("Starting MiniJournalCluster with " +
-        b.numJournalNodes + " journal nodes");
-    
-    if (b.baseDir != null) {
-      this.baseDir = new File(b.baseDir);
-    } else {
-      this.baseDir = new File(MiniDFSCluster.getBaseDirectory());
+        public MiniJournalCluster build() throws IOException {
+            return new MiniJournalCluster(this);
+        }
     }
 
-    nodes = new JNInfo[b.numJournalNodes];
+    private static final class JNInfo {
+        private JournalNode node;
+        private final InetSocketAddress ipcAddr;
+        private final String httpServerURI;
 
-    for (int i = 0; i < b.numJournalNodes; i++) {
-      if (b.format) {
-        File dir = getStorageDir(i);
-        LOG.debug("Fully deleting JN directory " + dir);
-        FileUtil.fullyDelete(dir);
-      }
-      JournalNode jn = new JournalNode();
-      jn.setConf(createConfForNode(b, i));
-      jn.start();
-      nodes[i] = new JNInfo(jn);
-    }
-  }
-
-  /**
-   * Set up the given Configuration object to point to the set of JournalNodes 
-   * in this cluster.
-   */
-  public URI getQuorumJournalURI(String jid) {
-    List<String> addrs = Lists.newArrayList();
-    for (JNInfo info : nodes) {
-      addrs.add("127.0.0.1:" + info.ipcAddr.getPort());
-    }
-    String addrsVal = Joiner.on(";").join(addrs);
-    LOG.debug("Setting logger addresses to: " + addrsVal);
-    try {
-      return new URI("qjournal://" + addrsVal + "/" + jid);
-    } catch (URISyntaxException e) {
-      throw new AssertionError(e);
-    }
-  }
-
-  /**
-   * Start the JournalNodes in the cluster.
-   */
-  public void start() throws IOException {
-    for (JNInfo info : nodes) {
-      info.node.start();
-    }
-  }
-
-  /**
-   * Shutdown all of the JournalNodes in the cluster.
-   * @throws IOException if one or more nodes failed to stop
-   */
-  public void shutdown() throws IOException {
-    boolean failed = false;
-    for (JNInfo info : nodes) {
-      try {
-        info.node.stopAndJoin(0);
-      } catch (Exception e) {
-        failed = true;
-        LOG.warn("Unable to stop journal node " + info.node, e);
-      }
-    }
-    if (failed) {
-      throw new IOException("Unable to shut down. Check log for details");
-    }
-  }
-
-  private Configuration createConfForNode(Builder b, int idx) {
-    Configuration conf = new Configuration(b.conf);
-    File logDir = getStorageDir(idx);
-    conf.set(DFSConfigKeys.DFS_JOURNALNODE_EDITS_DIR_KEY, logDir.toString());
-    conf.set(DFSConfigKeys.DFS_JOURNALNODE_RPC_ADDRESS_KEY, "localhost:0");
-    conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTP_ADDRESS_KEY, "localhost:0");
-    return conf;
-  }
-
-  public File getStorageDir(int idx) {
-    return new File(baseDir, "journalnode-" + idx).getAbsoluteFile();
-  }
-  
-  public File getJournalDir(int idx, String jid) {
-    return new File(getStorageDir(idx), jid);
-  }
-  
-  public File getCurrentDir(int idx, String jid) {
-    return new File(getJournalDir(idx, jid), "current");
-  }
-  
-  public File getPreviousDir(int idx, String jid) {
-    return new File(getJournalDir(idx, jid), "previous");
-  }
-
-  public JournalNode getJournalNode(int i) {
-    return nodes[i].node;
-  }
-  
-  public void restartJournalNode(int i) throws InterruptedException, IOException {
-    JNInfo info = nodes[i];
-    JournalNode jn = info.node;
-    Configuration conf = new Configuration(jn.getConf());
-    if (jn.isStarted()) {
-      jn.stopAndJoin(0);
-    }
-    
-    conf.set(DFSConfigKeys.DFS_JOURNALNODE_RPC_ADDRESS_KEY,
-        NetUtils.getHostPortString(info.ipcAddr));
-
-    final String uri = info.httpServerURI;
-    if (uri.startsWith("http://")) {
-      conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTP_ADDRESS_KEY,
-          uri.substring(("http://".length())));
-    } else if (info.httpServerURI.startsWith("https://")) {
-      conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTPS_ADDRESS_KEY,
-          uri.substring(("https://".length())));
+        private JNInfo(JournalNode node) {
+            this.node = node;
+            this.ipcAddr = node.getBoundIpcAddress();
+            this.httpServerURI = node.getHttpServerURI();
+        }
     }
 
-    JournalNode newJN = new JournalNode();
-    newJN.setConf(conf);
-    newJN.start();
-    info.node = newJN;
-  }
+    private static final Log LOG = LogFactory.getLog(MiniJournalCluster.class);
+    private final File baseDir;
+    private final JNInfo[] nodes;
 
-  public int getQuorumSize() {
-    return nodes.length / 2 + 1;
-  }
+    private MiniJournalCluster(Builder b) throws IOException {
+        LOG.info("Starting MiniJournalCluster with " +
+                 b.numJournalNodes + " journal nodes");
 
-  public int getNumNodes() {
-    return nodes.length;
-  }
+        if (b.baseDir != null) {
+            this.baseDir = new File(b.baseDir);
+        } else {
+            this.baseDir = new File(MiniDFSCluster.getBaseDirectory());
+        }
+
+        nodes = new JNInfo[b.numJournalNodes];
+
+        for (int i = 0; i < b.numJournalNodes; i++) {
+            if (b.format) {
+                File dir = getStorageDir(i);
+                LOG.debug("Fully deleting JN directory " + dir);
+                FileUtil.fullyDelete(dir);
+            }
+            JournalNode jn = new JournalNode();
+            jn.setConf(createConfForNode(b, i));
+            jn.start();
+            nodes[i] = new JNInfo(jn);
+        }
+    }
+
+    /**
+     * Set up the given Configuration object to point to the set of JournalNodes
+     * in this cluster.
+     */
+    public URI getQuorumJournalURI(String jid) {
+        List<String> addrs = Lists.newArrayList();
+        for (JNInfo info : nodes) {
+            addrs.add("127.0.0.1:" + info.ipcAddr.getPort());
+        }
+        String addrsVal = Joiner.on(";").join(addrs);
+        LOG.debug("Setting logger addresses to: " + addrsVal);
+        try {
+            return new URI("qjournal://" + addrsVal + "/" + jid);
+        } catch (URISyntaxException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    /**
+     * Start the JournalNodes in the cluster.
+     */
+    public void start() throws IOException {
+        for (JNInfo info : nodes) {
+            info.node.start();
+        }
+    }
+
+    /**
+     * Shutdown all of the JournalNodes in the cluster.
+     * @throws IOException if one or more nodes failed to stop
+     */
+    public void shutdown() throws IOException {
+        boolean failed = false;
+        for (JNInfo info : nodes) {
+            try {
+                info.node.stopAndJoin(0);
+            } catch (Exception e) {
+                failed = true;
+                LOG.warn("Unable to stop journal node " + info.node, e);
+            }
+        }
+        if (failed) {
+            throw new IOException("Unable to shut down. Check log for details");
+        }
+    }
+
+    private Configuration createConfForNode(Builder b, int idx) {
+        Configuration conf = new Configuration(b.conf);
+        File logDir = getStorageDir(idx);
+        conf.set(DFSConfigKeys.DFS_JOURNALNODE_EDITS_DIR_KEY, logDir.toString());
+        conf.set(DFSConfigKeys.DFS_JOURNALNODE_RPC_ADDRESS_KEY, "localhost:0");
+        conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTP_ADDRESS_KEY, "localhost:0");
+        return conf;
+    }
+
+    public File getStorageDir(int idx) {
+        return new File(baseDir, "journalnode-" + idx).getAbsoluteFile();
+    }
+
+    public File getJournalDir(int idx, String jid) {
+        return new File(getStorageDir(idx), jid);
+    }
+
+    public File getCurrentDir(int idx, String jid) {
+        return new File(getJournalDir(idx, jid), "current");
+    }
+
+    public File getPreviousDir(int idx, String jid) {
+        return new File(getJournalDir(idx, jid), "previous");
+    }
+
+    public JournalNode getJournalNode(int i) {
+        return nodes[i].node;
+    }
+
+    public void restartJournalNode(int i) throws InterruptedException, IOException {
+        JNInfo info = nodes[i];
+        JournalNode jn = info.node;
+        Configuration conf = new Configuration(jn.getConf());
+        if (jn.isStarted()) {
+            jn.stopAndJoin(0);
+        }
+
+        conf.set(DFSConfigKeys.DFS_JOURNALNODE_RPC_ADDRESS_KEY,
+                 NetUtils.getHostPortString(info.ipcAddr));
+
+        final String uri = info.httpServerURI;
+        if (uri.startsWith("http://")) {
+            conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTP_ADDRESS_KEY,
+                     uri.substring(("http://".length())));
+        } else if (info.httpServerURI.startsWith("https://")) {
+            conf.set(DFSConfigKeys.DFS_JOURNALNODE_HTTPS_ADDRESS_KEY,
+                     uri.substring(("https://".length())));
+        }
+
+        JournalNode newJN = new JournalNode();
+        newJN.setConf(conf);
+        newJN.start();
+        info.node = newJN;
+    }
+
+    public int getQuorumSize() {
+        return nodes.length / 2 + 1;
+    }
+
+    public int getNumNodes() {
+        return nodes.length;
+    }
 
 }

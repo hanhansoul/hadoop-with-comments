@@ -35,91 +35,91 @@ import org.junit.Test;
 
 public class TestClientBlockVerification {
 
-  static BlockReaderTestUtil util = null;
-  static final Path TEST_FILE = new Path("/test.file");
-  static final int FILE_SIZE_K = 256;
-  static LocatedBlock testBlock = null;
+    static BlockReaderTestUtil util = null;
+    static final Path TEST_FILE = new Path("/test.file");
+    static final int FILE_SIZE_K = 256;
+    static LocatedBlock testBlock = null;
 
-  static {
-    ((Log4JLogger)RemoteBlockReader2.LOG).getLogger().setLevel(Level.ALL);
-  }
-  @BeforeClass
-  public static void setupCluster() throws Exception {
-    final int REPLICATION_FACTOR = 1;
-    util = new BlockReaderTestUtil(REPLICATION_FACTOR);
-    util.writeFile(TEST_FILE, FILE_SIZE_K);
-    List<LocatedBlock> blkList = util.getFileBlocks(TEST_FILE, FILE_SIZE_K);
-    testBlock = blkList.get(0);     // Use the first block to test
-  }
+    static {
+        ((Log4JLogger)RemoteBlockReader2.LOG).getLogger().setLevel(Level.ALL);
+    }
+    @BeforeClass
+    public static void setupCluster() throws Exception {
+        final int REPLICATION_FACTOR = 1;
+        util = new BlockReaderTestUtil(REPLICATION_FACTOR);
+        util.writeFile(TEST_FILE, FILE_SIZE_K);
+        List<LocatedBlock> blkList = util.getFileBlocks(TEST_FILE, FILE_SIZE_K);
+        testBlock = blkList.get(0);     // Use the first block to test
+    }
 
-  /**
-   * Verify that if we read an entire block, we send CHECKSUM_OK
-   */
-  @Test
-  public void testBlockVerification() throws Exception {
-    RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
-        util.getBlockReader(testBlock, 0, FILE_SIZE_K * 1024));
-    util.readAndCheckEOS(reader, FILE_SIZE_K * 1024, true);
-    verify(reader).sendReadResult(Status.CHECKSUM_OK);
-    reader.close();
-  }
-
-  /**
-   * Test that if we do an incomplete read, we don't call CHECKSUM_OK
-   */
-  @Test
-  public void testIncompleteRead() throws Exception {
-    RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
-        util.getBlockReader(testBlock, 0, FILE_SIZE_K * 1024));
-    util.readAndCheckEOS(reader, FILE_SIZE_K / 2 * 1024, false);
-
-    // We asked the blockreader for the whole file, and only read
-    // half of it, so no CHECKSUM_OK
-    verify(reader, never()).sendReadResult(Status.CHECKSUM_OK);
-    reader.close();
-  }
-
-  /**
-   * Test that if we ask for a half block, and read it all, we *do*
-   * send CHECKSUM_OK. The DN takes care of knowing whether it was
-   * the whole block or not.
-   */
-  @Test
-  public void testCompletePartialRead() throws Exception {
-    // Ask for half the file
-    RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
-        util.getBlockReader(testBlock, 0, FILE_SIZE_K * 1024 / 2));
-    // And read half the file
-    util.readAndCheckEOS(reader, FILE_SIZE_K * 1024 / 2, true);
-    verify(reader).sendReadResult(Status.CHECKSUM_OK);
-    reader.close();
-  }
-
-  /**
-   * Test various unaligned reads to make sure that we properly
-   * account even when we don't start or end on a checksum boundary
-   */
-  @Test
-  public void testUnalignedReads() throws Exception {
-    int startOffsets[] = new int[] { 0, 3, 129 };
-    int lengths[] = new int[] { 30, 300, 512, 513, 1025 };
-    for (int startOffset : startOffsets) {
-      for (int length : lengths) {
-        DFSClient.LOG.info("Testing startOffset = " + startOffset + " and " +
-                           " len=" + length);
+    /**
+     * Verify that if we read an entire block, we send CHECKSUM_OK
+     */
+    @Test
+    public void testBlockVerification() throws Exception {
         RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
-            util.getBlockReader(testBlock, startOffset, length));
-        util.readAndCheckEOS(reader, length, true);
+                                        util.getBlockReader(testBlock, 0, FILE_SIZE_K * 1024));
+        util.readAndCheckEOS(reader, FILE_SIZE_K * 1024, true);
         verify(reader).sendReadResult(Status.CHECKSUM_OK);
         reader.close();
-      }
     }
-  }
+
+    /**
+     * Test that if we do an incomplete read, we don't call CHECKSUM_OK
+     */
+    @Test
+    public void testIncompleteRead() throws Exception {
+        RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
+                                        util.getBlockReader(testBlock, 0, FILE_SIZE_K * 1024));
+        util.readAndCheckEOS(reader, FILE_SIZE_K / 2 * 1024, false);
+
+        // We asked the blockreader for the whole file, and only read
+        // half of it, so no CHECKSUM_OK
+        verify(reader, never()).sendReadResult(Status.CHECKSUM_OK);
+        reader.close();
+    }
+
+    /**
+     * Test that if we ask for a half block, and read it all, we *do*
+     * send CHECKSUM_OK. The DN takes care of knowing whether it was
+     * the whole block or not.
+     */
+    @Test
+    public void testCompletePartialRead() throws Exception {
+        // Ask for half the file
+        RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
+                                        util.getBlockReader(testBlock, 0, FILE_SIZE_K * 1024 / 2));
+        // And read half the file
+        util.readAndCheckEOS(reader, FILE_SIZE_K * 1024 / 2, true);
+        verify(reader).sendReadResult(Status.CHECKSUM_OK);
+        reader.close();
+    }
+
+    /**
+     * Test various unaligned reads to make sure that we properly
+     * account even when we don't start or end on a checksum boundary
+     */
+    @Test
+    public void testUnalignedReads() throws Exception {
+        int startOffsets[] = new int[] { 0, 3, 129 };
+        int lengths[] = new int[] { 30, 300, 512, 513, 1025 };
+        for (int startOffset : startOffsets) {
+            for (int length : lengths) {
+                DFSClient.LOG.info("Testing startOffset = " + startOffset + " and " +
+                                   " len=" + length);
+                RemoteBlockReader2 reader = (RemoteBlockReader2)spy(
+                                                util.getBlockReader(testBlock, startOffset, length));
+                util.readAndCheckEOS(reader, length, true);
+                verify(reader).sendReadResult(Status.CHECKSUM_OK);
+                reader.close();
+            }
+        }
+    }
 
 
-  @AfterClass
-  public static void teardownCluster() throws Exception {
-    util.shutdown();
-  }
+    @AfterClass
+    public static void teardownCluster() throws Exception {
+        util.shutdown();
+    }
 
 }

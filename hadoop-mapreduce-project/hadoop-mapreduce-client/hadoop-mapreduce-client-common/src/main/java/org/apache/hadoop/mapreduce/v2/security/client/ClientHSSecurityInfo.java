@@ -30,50 +30,51 @@ import org.apache.hadoop.security.token.TokenInfo;
 import org.apache.hadoop.security.token.TokenSelector;
 
 public class ClientHSSecurityInfo extends SecurityInfo {
-    
-  @Override
-  public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol
-        .equals(HSClientProtocolPB.class)) {
-      return null;
+
+    @Override
+    public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol
+            .equals(HSClientProtocolPB.class)) {
+            return null;
+        }
+        return new KerberosInfo() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public String serverPrincipal() {
+                return JHAdminConfig.MR_HISTORY_PRINCIPAL;
+            }
+
+            @Override
+            public String clientPrincipal() {
+                return null;
+            }
+        };
     }
-    return new KerberosInfo() {
 
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return null;
-      }
+    @Override
+    public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol
+            .equals(HSClientProtocolPB.class)) {
+            return null;
+        }
+        return new TokenInfo() {
 
-      @Override
-      public String serverPrincipal() {
-        return JHAdminConfig.MR_HISTORY_PRINCIPAL;
-      }
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
 
-      @Override
-      public String clientPrincipal() {
-        return null;
-      }
-    };
-  }
-
-  @Override
-  public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol
-        .equals(HSClientProtocolPB.class)) {
-      return null;
+            @Override
+            public Class<? extends TokenSelector<? extends TokenIdentifier>>
+            value() {
+                return ClientHSTokenSelector.class;
+            }
+        };
     }
-    return new TokenInfo() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return null;
-      }
-
-      @Override
-      public Class<? extends TokenSelector<? extends TokenIdentifier>>
-          value() {
-        return ClientHSTokenSelector.class;
-      }
-    };  }
 
 }

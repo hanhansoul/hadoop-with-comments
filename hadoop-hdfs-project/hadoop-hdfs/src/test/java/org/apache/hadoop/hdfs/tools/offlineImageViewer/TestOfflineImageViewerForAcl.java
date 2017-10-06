@@ -64,143 +64,143 @@ import com.google.common.collect.Maps;
  */
 public class TestOfflineImageViewerForAcl {
 
-  private static final Log LOG =
-      LogFactory.getLog(TestOfflineImageViewerForAcl.class);
+    private static final Log LOG =
+        LogFactory.getLog(TestOfflineImageViewerForAcl.class);
 
-  private static File originalFsimage = null;
+    private static File originalFsimage = null;
 
-  // ACLs as set to dfs, to be compared with viewer's output
-  final static HashMap<String, AclStatus> writtenAcls = Maps.newHashMap();
+    // ACLs as set to dfs, to be compared with viewer's output
+    final static HashMap<String, AclStatus> writtenAcls = Maps.newHashMap();
 
-  /**
-   * Create a populated namespace for later testing. Save its contents to a
-   * data structure and store its fsimage location.
-   * We only want to generate the fsimage file once and use it for
-   * multiple tests.
-   */
-  @BeforeClass
-  public static void createOriginalFSImage() throws IOException {
-    MiniDFSCluster cluster = null;
-    try {
-      Configuration conf = new Configuration();
-      conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
-      cluster = new MiniDFSCluster.Builder(conf).build();
-      cluster.waitActive();
-      DistributedFileSystem hdfs = cluster.getFileSystem();
+    /**
+     * Create a populated namespace for later testing. Save its contents to a
+     * data structure and store its fsimage location.
+     * We only want to generate the fsimage file once and use it for
+     * multiple tests.
+     */
+    @BeforeClass
+    public static void createOriginalFSImage() throws IOException {
+        MiniDFSCluster cluster = null;
+        try {
+            Configuration conf = new Configuration();
+            conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+            cluster = new MiniDFSCluster.Builder(conf).build();
+            cluster.waitActive();
+            DistributedFileSystem hdfs = cluster.getFileSystem();
 
-      // Create a reasonable namespace with ACLs
-      Path dir = new Path("/dirWithNoAcl");
-      hdfs.mkdirs(dir);
-      writtenAcls.put(dir.toString(), hdfs.getAclStatus(dir));
+            // Create a reasonable namespace with ACLs
+            Path dir = new Path("/dirWithNoAcl");
+            hdfs.mkdirs(dir);
+            writtenAcls.put(dir.toString(), hdfs.getAclStatus(dir));
 
-      dir = new Path("/dirWithDefaultAcl");
-      hdfs.mkdirs(dir);
-      hdfs.setAcl(dir, Lists.newArrayList(
-          aclEntry(DEFAULT, USER, ALL),
-          aclEntry(DEFAULT, USER, "foo", ALL),
-          aclEntry(DEFAULT, GROUP, READ_EXECUTE),
-          aclEntry(DEFAULT, OTHER, NONE)));
-      writtenAcls.put(dir.toString(), hdfs.getAclStatus(dir));
+            dir = new Path("/dirWithDefaultAcl");
+            hdfs.mkdirs(dir);
+            hdfs.setAcl(dir, Lists.newArrayList(
+                            aclEntry(DEFAULT, USER, ALL),
+                            aclEntry(DEFAULT, USER, "foo", ALL),
+                            aclEntry(DEFAULT, GROUP, READ_EXECUTE),
+                            aclEntry(DEFAULT, OTHER, NONE)));
+            writtenAcls.put(dir.toString(), hdfs.getAclStatus(dir));
 
-      Path file = new Path("/noAcl");
-      FSDataOutputStream o = hdfs.create(file);
-      o.write(23);
-      o.close();
-      writtenAcls.put(file.toString(), hdfs.getAclStatus(file));
+            Path file = new Path("/noAcl");
+            FSDataOutputStream o = hdfs.create(file);
+            o.write(23);
+            o.close();
+            writtenAcls.put(file.toString(), hdfs.getAclStatus(file));
 
-      file = new Path("/withAcl");
-      o = hdfs.create(file);
-      o.write(23);
-      o.close();
-      hdfs.setAcl(file, Lists.newArrayList(
-          aclEntry(ACCESS, USER, READ_WRITE),
-          aclEntry(ACCESS, USER, "foo", READ),
-          aclEntry(ACCESS, GROUP, READ),
-          aclEntry(ACCESS, OTHER, NONE)));
-      writtenAcls.put(file.toString(), hdfs.getAclStatus(file));
+            file = new Path("/withAcl");
+            o = hdfs.create(file);
+            o.write(23);
+            o.close();
+            hdfs.setAcl(file, Lists.newArrayList(
+                            aclEntry(ACCESS, USER, READ_WRITE),
+                            aclEntry(ACCESS, USER, "foo", READ),
+                            aclEntry(ACCESS, GROUP, READ),
+                            aclEntry(ACCESS, OTHER, NONE)));
+            writtenAcls.put(file.toString(), hdfs.getAclStatus(file));
 
-      file = new Path("/withSeveralAcls");
-      o = hdfs.create(file);
-      o.write(23);
-      o.close();
-      hdfs.setAcl(file, Lists.newArrayList(
-          aclEntry(ACCESS, USER, READ_WRITE),
-          aclEntry(ACCESS, USER, "foo", READ_WRITE),
-          aclEntry(ACCESS, USER, "bar", READ),
-          aclEntry(ACCESS, GROUP, READ),
-          aclEntry(ACCESS, GROUP, "group", READ),
-          aclEntry(ACCESS, OTHER, NONE)));
-      writtenAcls.put(file.toString(), hdfs.getAclStatus(file));
+            file = new Path("/withSeveralAcls");
+            o = hdfs.create(file);
+            o.write(23);
+            o.close();
+            hdfs.setAcl(file, Lists.newArrayList(
+                            aclEntry(ACCESS, USER, READ_WRITE),
+                            aclEntry(ACCESS, USER, "foo", READ_WRITE),
+                            aclEntry(ACCESS, USER, "bar", READ),
+                            aclEntry(ACCESS, GROUP, READ),
+                            aclEntry(ACCESS, GROUP, "group", READ),
+                            aclEntry(ACCESS, OTHER, NONE)));
+            writtenAcls.put(file.toString(), hdfs.getAclStatus(file));
 
-      // Write results to the fsimage file
-      hdfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_ENTER, false);
-      hdfs.saveNamespace();
+            // Write results to the fsimage file
+            hdfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_ENTER, false);
+            hdfs.saveNamespace();
 
-      // Determine the location of the fsimage file
-      originalFsimage = FSImageTestUtil.findLatestImageFile(FSImageTestUtil
-          .getFSImage(cluster.getNameNode()).getStorage().getStorageDir(0));
-      if (originalFsimage == null) {
-        throw new RuntimeException("Didn't generate or can't find fsimage");
-      }
-      LOG.debug("original FS image file is " + originalFsimage);
-    } finally {
-      if (cluster != null)
-        cluster.shutdown();
+            // Determine the location of the fsimage file
+            originalFsimage = FSImageTestUtil.findLatestImageFile(FSImageTestUtil
+                              .getFSImage(cluster.getNameNode()).getStorage().getStorageDir(0));
+            if (originalFsimage == null) {
+                throw new RuntimeException("Didn't generate or can't find fsimage");
+            }
+            LOG.debug("original FS image file is " + originalFsimage);
+        } finally {
+            if (cluster != null)
+                cluster.shutdown();
+        }
     }
-  }
 
-  @AfterClass
-  public static void deleteOriginalFSImage() throws IOException {
-    if (originalFsimage != null && originalFsimage.exists()) {
-      originalFsimage.delete();
+    @AfterClass
+    public static void deleteOriginalFSImage() throws IOException {
+        if (originalFsimage != null && originalFsimage.exists()) {
+            originalFsimage.delete();
+        }
     }
-  }
 
-  @Test
-  public void testWebImageViewerForAcl() throws IOException,
-      InterruptedException, URISyntaxException {
-    WebImageViewer viewer = new WebImageViewer(
-        NetUtils.createSocketAddr("localhost:0"));
-    try {
-      viewer.initServer(originalFsimage.getAbsolutePath());
-      int port = viewer.getPort();
+    @Test
+    public void testWebImageViewerForAcl() throws IOException,
+        InterruptedException, URISyntaxException {
+        WebImageViewer viewer = new WebImageViewer(
+            NetUtils.createSocketAddr("localhost:0"));
+        try {
+            viewer.initServer(originalFsimage.getAbsolutePath());
+            int port = viewer.getPort();
 
-      // create a WebHdfsFileSystem instance
-      URI uri = new URI("webhdfs://localhost:" + String.valueOf(port));
-      Configuration conf = new Configuration();
-      WebHdfsFileSystem webhdfs = (WebHdfsFileSystem)FileSystem.get(uri, conf);
+            // create a WebHdfsFileSystem instance
+            URI uri = new URI("webhdfs://localhost:" + String.valueOf(port));
+            Configuration conf = new Configuration();
+            WebHdfsFileSystem webhdfs = (WebHdfsFileSystem)FileSystem.get(uri, conf);
 
-      // GETACLSTATUS operation to a directory without ACL
-      AclStatus acl = webhdfs.getAclStatus(new Path("/dirWithNoAcl"));
-      assertEquals(writtenAcls.get("/dirWithNoAcl"), acl);
+            // GETACLSTATUS operation to a directory without ACL
+            AclStatus acl = webhdfs.getAclStatus(new Path("/dirWithNoAcl"));
+            assertEquals(writtenAcls.get("/dirWithNoAcl"), acl);
 
-      // GETACLSTATUS operation to a directory with a default ACL
-      acl = webhdfs.getAclStatus(new Path("/dirWithDefaultAcl"));
-      assertEquals(writtenAcls.get("/dirWithDefaultAcl"), acl);
+            // GETACLSTATUS operation to a directory with a default ACL
+            acl = webhdfs.getAclStatus(new Path("/dirWithDefaultAcl"));
+            assertEquals(writtenAcls.get("/dirWithDefaultAcl"), acl);
 
-      // GETACLSTATUS operation to a file without ACL
-      acl = webhdfs.getAclStatus(new Path("/noAcl"));
-      assertEquals(writtenAcls.get("/noAcl"), acl);
+            // GETACLSTATUS operation to a file without ACL
+            acl = webhdfs.getAclStatus(new Path("/noAcl"));
+            assertEquals(writtenAcls.get("/noAcl"), acl);
 
-      // GETACLSTATUS operation to a file with a ACL
-      acl = webhdfs.getAclStatus(new Path("/withAcl"));
-      assertEquals(writtenAcls.get("/withAcl"), acl);
+            // GETACLSTATUS operation to a file with a ACL
+            acl = webhdfs.getAclStatus(new Path("/withAcl"));
+            assertEquals(writtenAcls.get("/withAcl"), acl);
 
-      // GETACLSTATUS operation to a file with several ACL entries
-      acl = webhdfs.getAclStatus(new Path("/withSeveralAcls"));
-      assertEquals(writtenAcls.get("/withSeveralAcls"), acl);
+            // GETACLSTATUS operation to a file with several ACL entries
+            acl = webhdfs.getAclStatus(new Path("/withSeveralAcls"));
+            assertEquals(writtenAcls.get("/withSeveralAcls"), acl);
 
-      // GETACLSTATUS operation to a invalid path
-      URL url = new URL("http://localhost:" + port +
-          "/webhdfs/v1/invalid/?op=GETACLSTATUS");
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-      connection.setRequestMethod("GET");
-      connection.connect();
-      assertEquals(HttpURLConnection.HTTP_NOT_FOUND,
-          connection.getResponseCode());
-    } finally {
-      // shutdown the viewer
-      viewer.shutdown();
+            // GETACLSTATUS operation to a invalid path
+            URL url = new URL("http://localhost:" + port +
+                              "/webhdfs/v1/invalid/?op=GETACLSTATUS");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.connect();
+            assertEquals(HttpURLConnection.HTTP_NOT_FOUND,
+                         connection.getResponseCode());
+        } finally {
+            // shutdown the viewer
+            viewer.shutdown();
+        }
     }
-  }
 }

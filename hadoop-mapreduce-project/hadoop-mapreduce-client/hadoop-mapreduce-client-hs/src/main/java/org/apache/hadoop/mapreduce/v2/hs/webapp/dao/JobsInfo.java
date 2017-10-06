@@ -27,17 +27,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JobsInfo {
 
-  protected ArrayList<JobInfo> job = new ArrayList<JobInfo>();
+    protected ArrayList<JobInfo> job = new ArrayList<JobInfo>();
 
-  public JobsInfo() {
-  } // JAXB needs this
+    public JobsInfo() {
+    } // JAXB needs this
 
-  public void add(JobInfo jobInfo) {
-    this.job.add(jobInfo);
-  }
+    public void add(JobInfo jobInfo) {
+        this.job.add(jobInfo);
+    }
 
-  public ArrayList<JobInfo> getJobs() {
-    return this.job;
-  }
+    public ArrayList<JobInfo> getJobs() {
+        return this.job;
+    }
 
 }

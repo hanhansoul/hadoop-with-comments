@@ -32,26 +32,26 @@ import org.apache.hadoop.mapreduce.Reducer;
 
 /**
  * This class implements a reducer class that can be used to perform field
- * selections in a manner similar to unix cut. 
- * 
+ * selections in a manner similar to unix cut.
+ *
  * The input data is treated as fields separated by a user specified
  * separator (the default value is "\t"). The user can specify a list of
  * fields that form the reduce output keys, and a list of fields that form
  * the reduce output values. The fields are the union of those from the key
  * and those from the value.
- * 
+ *
  * The field separator is under attribute "mapreduce.fieldsel.data.field.separator"
- * 
- * The reduce output field list spec is under attribute 
- * "mapreduce.fieldsel.reduce.output.key.value.fields.spec". 
+ *
+ * The reduce output field list spec is under attribute
+ * "mapreduce.fieldsel.reduce.output.key.value.fields.spec".
  * The value is expected to be like
- * "keyFieldsSpec:valueFieldsSpec" key/valueFieldsSpec are comma (,) 
+ * "keyFieldsSpec:valueFieldsSpec" key/valueFieldsSpec are comma (,)
  * separated field spec: fieldSpec,fieldSpec,fieldSpec ... Each field spec
  * can be a simple number (e.g. 5) specifying a specific field, or a range
- * (like 2-5) to specify a range of fields, or an open range (like 3-) 
+ * (like 2-5) to specify a range of fields, or an open range (like 3-)
  * specifying all the fields starting from field 3. The open range field
  * spec applies value fields only. They have no effect on the key fields.
- * 
+ *
  * Here is an example: "4,3,0,1:6,5,1-3,7-". It specifies to use fields
  * 4,3,0 and 1 for keys, and use fields 6,5,1,2,3,7 and above for values.
  */
@@ -60,47 +60,47 @@ import org.apache.hadoop.mapreduce.Reducer;
 public class FieldSelectionReducer<K, V>
     extends Reducer<Text, Text, Text, Text> {
 
-  private String fieldSeparator = "\t";
+    private String fieldSeparator = "\t";
 
-  private String reduceOutputKeyValueSpec;
+    private String reduceOutputKeyValueSpec;
 
-  private List<Integer> reduceOutputKeyFieldList = new ArrayList<Integer>();
+    private List<Integer> reduceOutputKeyFieldList = new ArrayList<Integer>();
 
-  private List<Integer> reduceOutputValueFieldList = new ArrayList<Integer>();
+    private List<Integer> reduceOutputValueFieldList = new ArrayList<Integer>();
 
-  private int allReduceValueFieldsFrom = -1;
+    private int allReduceValueFieldsFrom = -1;
 
-  public static final Log LOG = LogFactory.getLog("FieldSelectionMapReduce");
+    public static final Log LOG = LogFactory.getLog("FieldSelectionMapReduce");
 
-  public void setup(Context context) 
-      throws IOException, InterruptedException {
-    Configuration conf = context.getConfiguration();
-    
-    this.fieldSeparator = 
-      conf.get(FieldSelectionHelper.DATA_FIELD_SEPERATOR, "\t");
-    
-    this.reduceOutputKeyValueSpec = 
-      conf.get(FieldSelectionHelper.REDUCE_OUTPUT_KEY_VALUE_SPEC, "0-:");
-    
-    allReduceValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
-      reduceOutputKeyValueSpec, reduceOutputKeyFieldList,
-      reduceOutputValueFieldList);
+    public void setup(Context context)
+    throws IOException, InterruptedException {
+        Configuration conf = context.getConfiguration();
 
-    LOG.info(FieldSelectionHelper.specToString(fieldSeparator,
-      reduceOutputKeyValueSpec, allReduceValueFieldsFrom,
-      reduceOutputKeyFieldList, reduceOutputValueFieldList));
-  }
+        this.fieldSeparator =
+            conf.get(FieldSelectionHelper.DATA_FIELD_SEPERATOR, "\t");
 
-  public void reduce(Text key, Iterable<Text> values, Context context)
-      throws IOException, InterruptedException {
-    String keyStr = key.toString() + this.fieldSeparator;
-    
-    for (Text val : values) {
-      FieldSelectionHelper helper = new FieldSelectionHelper();
-      helper.extractOutputKeyValue(keyStr, val.toString(),
-        fieldSeparator, reduceOutputKeyFieldList,
-        reduceOutputValueFieldList, allReduceValueFieldsFrom, false, false);
-      context.write(helper.getKey(), helper.getValue());
+        this.reduceOutputKeyValueSpec =
+            conf.get(FieldSelectionHelper.REDUCE_OUTPUT_KEY_VALUE_SPEC, "0-:");
+
+        allReduceValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
+                                       reduceOutputKeyValueSpec, reduceOutputKeyFieldList,
+                                       reduceOutputValueFieldList);
+
+        LOG.info(FieldSelectionHelper.specToString(fieldSeparator,
+                 reduceOutputKeyValueSpec, allReduceValueFieldsFrom,
+                 reduceOutputKeyFieldList, reduceOutputValueFieldList));
     }
-  }
+
+    public void reduce(Text key, Iterable<Text> values, Context context)
+    throws IOException, InterruptedException {
+        String keyStr = key.toString() + this.fieldSeparator;
+
+        for (Text val : values) {
+            FieldSelectionHelper helper = new FieldSelectionHelper();
+            helper.extractOutputKeyValue(keyStr, val.toString(),
+                                         fieldSeparator, reduceOutputKeyFieldList,
+                                         reduceOutputValueFieldList, allReduceValueFieldsFrom, false, false);
+            context.write(helper.getKey(), helper.getValue());
+        }
+    }
 }

@@ -26,86 +26,86 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class SerializedException {
 
-  @Private
-  @Unstable
-  public static SerializedException newInstance(Throwable e) {
-    SerializedException exception =
-        Records.newRecord(SerializedException.class);
-    exception.init(e);
-    return exception;
-  }
+    @Private
+    @Unstable
+    public static SerializedException newInstance(Throwable e) {
+        SerializedException exception =
+            Records.newRecord(SerializedException.class);
+        exception.init(e);
+        return exception;
+    }
 
-  /**
-   * Constructs a new <code>SerializedException</code> with the specified detail
-   * message and cause.
-   */
-  @Private
-  @Unstable
-  public abstract void init(String message, Throwable cause);
+    /**
+     * Constructs a new <code>SerializedException</code> with the specified detail
+     * message and cause.
+     */
+    @Private
+    @Unstable
+    public abstract void init(String message, Throwable cause);
 
-  /**
-   * Constructs a new <code>SerializedException</code> with the specified detail
-   * message.
-   */
-  @Private
-  @Unstable
-  public abstract void init(String message);
+    /**
+     * Constructs a new <code>SerializedException</code> with the specified detail
+     * message.
+     */
+    @Private
+    @Unstable
+    public abstract void init(String message);
 
-  /**
-   * Constructs a new <code>SerializedException</code> with the specified cause.
-   */
-  @Private
-  @Unstable
-  public abstract void init(Throwable cause);
+    /**
+     * Constructs a new <code>SerializedException</code> with the specified cause.
+     */
+    @Private
+    @Unstable
+    public abstract void init(Throwable cause);
 
-  /**
-   * Get the detail message string of this exception.
-   * @return the detail message string of this exception.
-   */
-  @Private
-  @Unstable
-  public abstract String getMessage();
+    /**
+     * Get the detail message string of this exception.
+     * @return the detail message string of this exception.
+     */
+    @Private
+    @Unstable
+    public abstract String getMessage();
 
-  /**
-   * Get the backtrace of this exception. 
-   * @return the backtrace of this exception.
-   */
-  @Private
-  @Unstable
-  public abstract String getRemoteTrace();
+    /**
+     * Get the backtrace of this exception.
+     * @return the backtrace of this exception.
+     */
+    @Private
+    @Unstable
+    public abstract String getRemoteTrace();
 
-  /**
-   * Get the cause of this exception or null if the cause is nonexistent or
-   * unknown.
-   * @return the cause of this exception.
-   */
-  @Private
-  @Unstable
-  public abstract SerializedException getCause();
+    /**
+     * Get the cause of this exception or null if the cause is nonexistent or
+     * unknown.
+     * @return the cause of this exception.
+     */
+    @Private
+    @Unstable
+    public abstract SerializedException getCause();
 
-  /**
-   * Deserialize the exception to a new Throwable. 
-   * @return the Throwable form of this serialized exception.
-   */
-  @Private
-  @Unstable
-  public abstract Throwable deSerialize();
+    /**
+     * Deserialize the exception to a new Throwable.
+     * @return the Throwable form of this serialized exception.
+     */
+    @Private
+    @Unstable
+    public abstract Throwable deSerialize();
 
-  private void stringify(StringBuilder sb) {
-    sb.append(getMessage())
+    private void stringify(StringBuilder sb) {
+        sb.append(getMessage())
         .append("\n")
         .append(getRemoteTrace());
-    final SerializedException cause = getCause();
-    if (cause != null) {
-      sb.append("Caused by: ");
-      cause.stringify(sb);
+        final SerializedException cause = getCause();
+        if (cause != null) {
+            sb.append("Caused by: ");
+            cause.stringify(sb);
+        }
     }
-  }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb = new StringBuilder(128);
-    stringify(sb);
-    return sb.toString();
-  }
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder(128);
+        stringify(sb);
+        return sb.toString();
+    }
 }

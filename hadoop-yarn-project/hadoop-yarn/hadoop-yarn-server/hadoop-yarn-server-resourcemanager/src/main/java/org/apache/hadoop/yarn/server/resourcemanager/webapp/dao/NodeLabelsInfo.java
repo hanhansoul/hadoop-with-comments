@@ -28,25 +28,25 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodeLabelsInfo {
 
-  protected ArrayList<String> nodeLabels = new ArrayList<String>();
+    protected ArrayList<String> nodeLabels = new ArrayList<String>();
 
-  public NodeLabelsInfo() {
-  } // JAXB needs this
-  
-  public NodeLabelsInfo(ArrayList<String> nodeLabels) {
-   this.nodeLabels = nodeLabels; 
-  }
-  
-  public NodeLabelsInfo(Set<String> nodeLabelsSet) {
-   this.nodeLabels = new ArrayList<String>(nodeLabelsSet); 
-  }
-  
-  public ArrayList<String> getNodeLabels() {
-    return nodeLabels;
-  }
-  
-  public void setNodeLabels(ArrayList<String> nodeLabels) {
-    this.nodeLabels = nodeLabels; 
-  }
-  
+    public NodeLabelsInfo() {
+    } // JAXB needs this
+
+    public NodeLabelsInfo(ArrayList<String> nodeLabels) {
+        this.nodeLabels = nodeLabels;
+    }
+
+    public NodeLabelsInfo(Set<String> nodeLabelsSet) {
+        this.nodeLabels = new ArrayList<String>(nodeLabelsSet);
+    }
+
+    public ArrayList<String> getNodeLabels() {
+        return nodeLabels;
+    }
+
+    public void setNodeLabels(ArrayList<String> nodeLabels) {
+        this.nodeLabels = nodeLabels;
+    }
+
 }

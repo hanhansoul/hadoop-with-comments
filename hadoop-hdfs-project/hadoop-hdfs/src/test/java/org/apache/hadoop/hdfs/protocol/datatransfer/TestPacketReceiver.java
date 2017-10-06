@@ -31,76 +31,76 @@ import static org.junit.Assert.*;
 
 public class TestPacketReceiver {
 
-  private static final long OFFSET_IN_BLOCK = 12345L;
-  private static final int SEQNO = 54321;
+    private static final long OFFSET_IN_BLOCK = 12345L;
+    private static final int SEQNO = 54321;
 
-  private byte[] prepareFakePacket(byte[] data, byte[] sums) throws IOException {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    
-    int packetLen = data.length + sums.length + 4;
-    PacketHeader header = new PacketHeader(
-        packetLen, OFFSET_IN_BLOCK, SEQNO, false, data.length, false);
-    header.write(dos);
-    
-    dos.write(sums);
-    dos.write(data);
-    dos.flush();
-    return baos.toByteArray();
-  }
-  
-  private static byte[] remainingAsArray(ByteBuffer buf) {
-    byte[] b = new byte[buf.remaining()];
-    buf.get(b);
-    return b;
-  }
-  
-  @Test
-  public void testReceiveAndMirror() throws IOException {
-    PacketReceiver pr = new PacketReceiver(false);
+    private byte[] prepareFakePacket(byte[] data, byte[] sums) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
 
-    // Test three different lengths, to force reallocing
-    // the buffer as it grows.
-    doTestReceiveAndMirror(pr, 100, 10);
-    doTestReceiveAndMirror(pr, 50, 10);
-    doTestReceiveAndMirror(pr, 150, 10);
+        int packetLen = data.length + sums.length + 4;
+        PacketHeader header = new PacketHeader(
+            packetLen, OFFSET_IN_BLOCK, SEQNO, false, data.length, false);
+        header.write(dos);
 
-    pr.close();
-  }
-  
-  private void doTestReceiveAndMirror(PacketReceiver pr,
-      int dataLen, int checksumsLen) throws IOException {
-    final byte[] DATA = AppendTestUtil.initBuffer(dataLen);
-    final byte[] CHECKSUMS = AppendTestUtil.initBuffer(checksumsLen);
+        dos.write(sums);
+        dos.write(data);
+        dos.flush();
+        return baos.toByteArray();
+    }
 
-    byte[] packet = prepareFakePacket(DATA, CHECKSUMS);
-    ByteArrayInputStream in = new ByteArrayInputStream(packet);
-    
-    pr.receiveNextPacket(in);
-    
-    ByteBuffer parsedData = pr.getDataSlice();
-    assertArrayEquals(DATA, remainingAsArray(parsedData));
+    private static byte[] remainingAsArray(ByteBuffer buf) {
+        byte[] b = new byte[buf.remaining()];
+        buf.get(b);
+        return b;
+    }
 
-    ByteBuffer parsedChecksums = pr.getChecksumSlice();
-    assertArrayEquals(CHECKSUMS, remainingAsArray(parsedChecksums));
-    
-    PacketHeader header = pr.getHeader();
-    assertEquals(SEQNO, header.getSeqno());
-    assertEquals(OFFSET_IN_BLOCK, header.getOffsetInBlock());
-    
-    // Mirror the packet to an output stream and make sure it matches
-    // the packet we sent.
-    ByteArrayOutputStream mirrored = new ByteArrayOutputStream();
-    mirrored = Mockito.spy(mirrored);
+    @Test
+    public void testReceiveAndMirror() throws IOException {
+        PacketReceiver pr = new PacketReceiver(false);
 
-    pr.mirrorPacketTo(new DataOutputStream(mirrored));
-    // The write should be done in a single call. Otherwise we may hit
-    // nasty interactions with nagling (eg HDFS-4049).
-    Mockito.verify(mirrored, Mockito.times(1))
-      .write(Mockito.<byte[]>any(), Mockito.anyInt(),
-          Mockito.eq(packet.length));
-    Mockito.verifyNoMoreInteractions(mirrored);
+        // Test three different lengths, to force reallocing
+        // the buffer as it grows.
+        doTestReceiveAndMirror(pr, 100, 10);
+        doTestReceiveAndMirror(pr, 50, 10);
+        doTestReceiveAndMirror(pr, 150, 10);
 
-    assertArrayEquals(packet, mirrored.toByteArray());
-  }
+        pr.close();
+    }
+
+    private void doTestReceiveAndMirror(PacketReceiver pr,
+                                        int dataLen, int checksumsLen) throws IOException {
+        final byte[] DATA = AppendTestUtil.initBuffer(dataLen);
+        final byte[] CHECKSUMS = AppendTestUtil.initBuffer(checksumsLen);
+
+        byte[] packet = prepareFakePacket(DATA, CHECKSUMS);
+        ByteArrayInputStream in = new ByteArrayInputStream(packet);
+
+        pr.receiveNextPacket(in);
+
+        ByteBuffer parsedData = pr.getDataSlice();
+        assertArrayEquals(DATA, remainingAsArray(parsedData));
+
+        ByteBuffer parsedChecksums = pr.getChecksumSlice();
+        assertArrayEquals(CHECKSUMS, remainingAsArray(parsedChecksums));
+
+        PacketHeader header = pr.getHeader();
+        assertEquals(SEQNO, header.getSeqno());
+        assertEquals(OFFSET_IN_BLOCK, header.getOffsetInBlock());
+
+        // Mirror the packet to an output stream and make sure it matches
+        // the packet we sent.
+        ByteArrayOutputStream mirrored = new ByteArrayOutputStream();
+        mirrored = Mockito.spy(mirrored);
+
+        pr.mirrorPacketTo(new DataOutputStream(mirrored));
+        // The write should be done in a single call. Otherwise we may hit
+        // nasty interactions with nagling (eg HDFS-4049).
+        Mockito.verify(mirrored, Mockito.times(1))
+        .write(Mockito.<byte[]>any(), Mockito.anyInt(),
+               Mockito.eq(packet.length));
+        Mockito.verifyNoMoreInteractions(mirrored);
+
+        assertArrayEquals(packet, mirrored.toByteArray());
+    }
 }

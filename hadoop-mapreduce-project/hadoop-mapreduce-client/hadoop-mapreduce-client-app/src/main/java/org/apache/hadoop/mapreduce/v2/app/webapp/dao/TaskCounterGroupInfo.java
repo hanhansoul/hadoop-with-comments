@@ -31,19 +31,19 @@ import org.apache.hadoop.mapreduce.CounterGroup;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaskCounterGroupInfo {
 
-  protected String counterGroupName;
-  protected ArrayList<TaskCounterInfo> counter;
+    protected String counterGroupName;
+    protected ArrayList<TaskCounterInfo> counter;
 
-  public TaskCounterGroupInfo() {
-  }
-
-  public TaskCounterGroupInfo(String name, CounterGroup group) {
-    this.counterGroupName = name;
-    this.counter = new ArrayList<TaskCounterInfo>();
-
-    for (Counter c : group) {
-      TaskCounterInfo cinfo = new TaskCounterInfo(c.getName(), c.getValue());
-      this.counter.add(cinfo);
+    public TaskCounterGroupInfo() {
     }
-  }
+
+    public TaskCounterGroupInfo(String name, CounterGroup group) {
+        this.counterGroupName = name;
+        this.counter = new ArrayList<TaskCounterInfo>();
+
+        for (Counter c : group) {
+            TaskCounterInfo cinfo = new TaskCounterInfo(c.getName(), c.getValue());
+            this.counter.add(cinfo);
+        }
+    }
 }

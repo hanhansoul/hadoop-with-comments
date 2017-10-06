@@ -23,45 +23,45 @@ import org.apache.hadoop.tools.rumen.anonymization.WordListAnonymizerUtility;
 import org.apache.hadoop.tools.rumen.state.StatePool;
 
 /**
- * Represents a default anonymizable Rumen data-type. It uses 
+ * Represents a default anonymizable Rumen data-type. It uses
  * {@link WordListAnonymizerUtility} for anonymization.
  */
-public abstract class DefaultAnonymizableDataType 
-implements AnonymizableDataType<String> {
-  private static final String DEFAULT_PREFIX = "data";
-  
-  protected String getPrefix() {
-    return DEFAULT_PREFIX;
-  }
-  
-  // Determines if the contained data needs anonymization
-  protected boolean needsAnonymization(Configuration conf) {
-    return true;
-  }
-  
-  @Override
-  public final String getAnonymizedValue(StatePool statePool, 
-                                         Configuration conf) {
-    if (needsAnonymization(conf)) {
-      WordList state = (WordList) statePool.getState(getClass());
-      if (state == null) {
-        state = new WordList(getPrefix());
-        statePool.addState(getClass(), state);
-      }
-      return anonymize(getValue(), state);
-    } else {
-      return getValue();
-    }
-  }
-  
-  private static String anonymize(String data, WordList wordList) {
-    if (data == null) {
-      return null;
+public abstract class DefaultAnonymizableDataType
+    implements AnonymizableDataType<String> {
+    private static final String DEFAULT_PREFIX = "data";
+
+    protected String getPrefix() {
+        return DEFAULT_PREFIX;
     }
 
-    if (!wordList.contains(data)) {
-      wordList.add(data);
+    // Determines if the contained data needs anonymization
+    protected boolean needsAnonymization(Configuration conf) {
+        return true;
     }
-    return wordList.getName() + wordList.indexOf(data);
-  }
+
+    @Override
+    public final String getAnonymizedValue(StatePool statePool,
+                                           Configuration conf) {
+        if (needsAnonymization(conf)) {
+            WordList state = (WordList) statePool.getState(getClass());
+            if (state == null) {
+                state = new WordList(getPrefix());
+                statePool.addState(getClass(), state);
+            }
+            return anonymize(getValue(), state);
+        } else {
+            return getValue();
+        }
+    }
+
+    private static String anonymize(String data, WordList wordList) {
+        if (data == null) {
+            return null;
+        }
+
+        if (!wordList.contains(data)) {
+            wordList.add(data);
+        }
+        return wordList.getName() + wordList.indexOf(data);
+    }
 }

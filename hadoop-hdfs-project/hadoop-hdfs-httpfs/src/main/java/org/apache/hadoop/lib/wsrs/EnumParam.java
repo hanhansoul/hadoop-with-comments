@@ -25,21 +25,21 @@ import java.util.Arrays;
 
 @InterfaceAudience.Private
 public abstract class EnumParam<E extends Enum<E>> extends Param<E> {
-  Class<E> klass;
+    Class<E> klass;
 
-  public EnumParam(String name, Class<E> e, E defaultValue) {
-    super(name, defaultValue);
-    klass = e;
-  }
+    public EnumParam(String name, Class<E> e, E defaultValue) {
+        super(name, defaultValue);
+        klass = e;
+    }
 
-  @Override
-  protected E parse(String str) throws Exception {
-    return Enum.valueOf(klass, str.toUpperCase());
-  }
+    @Override
+    protected E parse(String str) throws Exception {
+        return Enum.valueOf(klass, str.toUpperCase());
+    }
 
-  @Override
-  protected String getDomain() {
-    return StringUtils.join(",", Arrays.asList(klass.getEnumConstants()));
-  }
+    @Override
+    protected String getDomain() {
+        return StringUtils.join(",", Arrays.asList(klass.getEnumConstants()));
+    }
 
 }

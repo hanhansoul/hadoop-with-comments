@@ -35,332 +35,332 @@ import org.junit.Test;
 
 public class TestLightWeightLinkedSet {
 
-  private static final Log LOG = LogFactory
-	  .getLog("org.apache.hadoop.hdfs.TestLightWeightLinkedSet");
-  private final ArrayList<Integer> list = new ArrayList<Integer>();
-  private final int NUM = 100;
-  private LightWeightLinkedSet<Integer> set;
-  private Random rand;
+    private static final Log LOG = LogFactory
+                                   .getLog("org.apache.hadoop.hdfs.TestLightWeightLinkedSet");
+    private final ArrayList<Integer> list = new ArrayList<Integer>();
+    private final int NUM = 100;
+    private LightWeightLinkedSet<Integer> set;
+    private Random rand;
 
-  @Before
-  public void setUp() {
-    float maxF = LightWeightLinkedSet.DEFAULT_MAX_LOAD_FACTOR;
-    float minF = LightWeightLinkedSet.DEFAUT_MIN_LOAD_FACTOR;
-    int initCapacity = LightWeightLinkedSet.MINIMUM_CAPACITY;
-    rand = new Random(Time.now());
-    list.clear();
-    for (int i = 0; i < NUM; i++) {
-      list.add(rand.nextInt());
-    }
-    set = new LightWeightLinkedSet<Integer>(initCapacity, maxF, minF);
-  }
-
-  @Test
-  public void testEmptyBasic() {
-    LOG.info("Test empty basic");
-    Iterator<Integer> iter = set.iterator();
-    // iterator should not have next
-    assertFalse(iter.hasNext());
-    assertEquals(0, set.size());
-    assertTrue(set.isEmpty());
-
-    // poll should return nothing
-    assertNull(set.pollFirst());
-    assertEquals(0, set.pollAll().size());
-    assertEquals(0, set.pollN(10).size());
-
-    LOG.info("Test empty - DONE");
-  }
-
-  @Test
-  public void testOneElementBasic() {
-    LOG.info("Test one element basic");
-    set.add(list.get(0));
-    // set should be non-empty
-    assertEquals(1, set.size());
-    assertFalse(set.isEmpty());
-
-    // iterator should have next
-    Iterator<Integer> iter = set.iterator();
-    assertTrue(iter.hasNext());
-
-    // iterator should not have next
-    assertEquals(list.get(0), iter.next());
-    assertFalse(iter.hasNext());
-    LOG.info("Test one element basic - DONE");
-  }
-
-  @Test
-  public void testMultiBasic() {
-    LOG.info("Test multi element basic");
-    // add once
-    for (Integer i : list) {
-      assertTrue(set.add(i));
-    }
-    assertEquals(list.size(), set.size());
-
-    // check if the elements are in the set
-    for (Integer i : list) {
-      assertTrue(set.contains(i));
+    @Before
+    public void setUp() {
+        float maxF = LightWeightLinkedSet.DEFAULT_MAX_LOAD_FACTOR;
+        float minF = LightWeightLinkedSet.DEFAUT_MIN_LOAD_FACTOR;
+        int initCapacity = LightWeightLinkedSet.MINIMUM_CAPACITY;
+        rand = new Random(Time.now());
+        list.clear();
+        for (int i = 0; i < NUM; i++) {
+            list.add(rand.nextInt());
+        }
+        set = new LightWeightLinkedSet<Integer>(initCapacity, maxF, minF);
     }
 
-    // add again - should return false each time
-    for (Integer i : list) {
-      assertFalse(set.add(i));
+    @Test
+    public void testEmptyBasic() {
+        LOG.info("Test empty basic");
+        Iterator<Integer> iter = set.iterator();
+        // iterator should not have next
+        assertFalse(iter.hasNext());
+        assertEquals(0, set.size());
+        assertTrue(set.isEmpty());
+
+        // poll should return nothing
+        assertNull(set.pollFirst());
+        assertEquals(0, set.pollAll().size());
+        assertEquals(0, set.pollN(10).size());
+
+        LOG.info("Test empty - DONE");
     }
 
-    // check again if the elements are there
-    for (Integer i : list) {
-      assertTrue(set.contains(i));
+    @Test
+    public void testOneElementBasic() {
+        LOG.info("Test one element basic");
+        set.add(list.get(0));
+        // set should be non-empty
+        assertEquals(1, set.size());
+        assertFalse(set.isEmpty());
+
+        // iterator should have next
+        Iterator<Integer> iter = set.iterator();
+        assertTrue(iter.hasNext());
+
+        // iterator should not have next
+        assertEquals(list.get(0), iter.next());
+        assertFalse(iter.hasNext());
+        LOG.info("Test one element basic - DONE");
     }
 
-    Iterator<Integer> iter = set.iterator();
-    int num = 0;
-    while (iter.hasNext()) {
-      assertEquals(list.get(num++), iter.next());
-    }
-    // check the number of element from the iterator
-    assertEquals(list.size(), num);
-    LOG.info("Test multi element basic - DONE");
-  }
+    @Test
+    public void testMultiBasic() {
+        LOG.info("Test multi element basic");
+        // add once
+        for (Integer i : list) {
+            assertTrue(set.add(i));
+        }
+        assertEquals(list.size(), set.size());
 
-  @Test
-  public void testRemoveOne() {
-    LOG.info("Test remove one");
-    assertTrue(set.add(list.get(0)));
-    assertEquals(1, set.size());
+        // check if the elements are in the set
+        for (Integer i : list) {
+            assertTrue(set.contains(i));
+        }
 
-    // remove from the head/tail
-    assertTrue(set.remove(list.get(0)));
-    assertEquals(0, set.size());
+        // add again - should return false each time
+        for (Integer i : list) {
+            assertFalse(set.add(i));
+        }
 
-    // check the iterator
-    Iterator<Integer> iter = set.iterator();
-    assertFalse(iter.hasNext());
+        // check again if the elements are there
+        for (Integer i : list) {
+            assertTrue(set.contains(i));
+        }
 
-    // poll should return nothing
-    assertNull(set.pollFirst());
-    assertEquals(0, set.pollAll().size());
-    assertEquals(0, set.pollN(10).size());
-
-    // add the element back to the set
-    assertTrue(set.add(list.get(0)));
-    assertEquals(1, set.size());
-
-    iter = set.iterator();
-    assertTrue(iter.hasNext());
-    LOG.info("Test remove one - DONE");
-  }
-
-  @Test
-  public void testRemoveMulti() {
-    LOG.info("Test remove multi");
-    for (Integer i : list) {
-      assertTrue(set.add(i));
-    }
-    for (int i = 0; i < NUM / 2; i++) {
-      assertTrue(set.remove(list.get(i)));
+        Iterator<Integer> iter = set.iterator();
+        int num = 0;
+        while (iter.hasNext()) {
+            assertEquals(list.get(num++), iter.next());
+        }
+        // check the number of element from the iterator
+        assertEquals(list.size(), num);
+        LOG.info("Test multi element basic - DONE");
     }
 
-    // the deleted elements should not be there
-    for (int i = 0; i < NUM / 2; i++) {
-      assertFalse(set.contains(list.get(i)));
+    @Test
+    public void testRemoveOne() {
+        LOG.info("Test remove one");
+        assertTrue(set.add(list.get(0)));
+        assertEquals(1, set.size());
+
+        // remove from the head/tail
+        assertTrue(set.remove(list.get(0)));
+        assertEquals(0, set.size());
+
+        // check the iterator
+        Iterator<Integer> iter = set.iterator();
+        assertFalse(iter.hasNext());
+
+        // poll should return nothing
+        assertNull(set.pollFirst());
+        assertEquals(0, set.pollAll().size());
+        assertEquals(0, set.pollN(10).size());
+
+        // add the element back to the set
+        assertTrue(set.add(list.get(0)));
+        assertEquals(1, set.size());
+
+        iter = set.iterator();
+        assertTrue(iter.hasNext());
+        LOG.info("Test remove one - DONE");
     }
 
-    // the rest should be there
-    for (int i = NUM / 2; i < NUM; i++) {
-      assertTrue(set.contains(list.get(i)));
+    @Test
+    public void testRemoveMulti() {
+        LOG.info("Test remove multi");
+        for (Integer i : list) {
+            assertTrue(set.add(i));
+        }
+        for (int i = 0; i < NUM / 2; i++) {
+            assertTrue(set.remove(list.get(i)));
+        }
+
+        // the deleted elements should not be there
+        for (int i = 0; i < NUM / 2; i++) {
+            assertFalse(set.contains(list.get(i)));
+        }
+
+        // the rest should be there
+        for (int i = NUM / 2; i < NUM; i++) {
+            assertTrue(set.contains(list.get(i)));
+        }
+
+        Iterator<Integer> iter = set.iterator();
+        // the remaining elements should be in order
+        int num = NUM / 2;
+        while (iter.hasNext()) {
+            assertEquals(list.get(num++), iter.next());
+        }
+        assertEquals(num, NUM);
+        LOG.info("Test remove multi - DONE");
     }
 
-    Iterator<Integer> iter = set.iterator();
-    // the remaining elements should be in order
-    int num = NUM / 2;
-    while (iter.hasNext()) {
-      assertEquals(list.get(num++), iter.next());
-    }
-    assertEquals(num, NUM);
-    LOG.info("Test remove multi - DONE");
-  }
+    @Test
+    public void testRemoveAll() {
+        LOG.info("Test remove all");
+        for (Integer i : list) {
+            assertTrue(set.add(i));
+        }
+        for (int i = 0; i < NUM; i++) {
+            assertTrue(set.remove(list.get(i)));
+        }
+        // the deleted elements should not be there
+        for (int i = 0; i < NUM; i++) {
+            assertFalse(set.contains(list.get(i)));
+        }
 
-  @Test
-  public void testRemoveAll() {
-    LOG.info("Test remove all");
-    for (Integer i : list) {
-      assertTrue(set.add(i));
-    }
-    for (int i = 0; i < NUM; i++) {
-      assertTrue(set.remove(list.get(i)));
-    }
-    // the deleted elements should not be there
-    for (int i = 0; i < NUM; i++) {
-      assertFalse(set.contains(list.get(i)));
+        // iterator should not have next
+        Iterator<Integer> iter = set.iterator();
+        assertFalse(iter.hasNext());
+        assertTrue(set.isEmpty());
+        LOG.info("Test remove all - DONE");
     }
 
-    // iterator should not have next
-    Iterator<Integer> iter = set.iterator();
-    assertFalse(iter.hasNext());
-    assertTrue(set.isEmpty());
-    LOG.info("Test remove all - DONE");
-  }
-
-  @Test
-  public void testPollOneElement() {
-    LOG.info("Test poll one element");
-    set.add(list.get(0));
-    assertEquals(list.get(0), set.pollFirst());
-    assertNull(set.pollFirst());
-    LOG.info("Test poll one element - DONE");
-  }
-
-  @Test
-  public void testPollMulti() {
-    LOG.info("Test poll multi");
-    for (Integer i : list) {
-      assertTrue(set.add(i));
-    }
-    // remove half of the elements by polling
-    for (int i = 0; i < NUM / 2; i++) {
-      assertEquals(list.get(i), set.pollFirst());
-    }
-    assertEquals(NUM / 2, set.size());
-    // the deleted elements should not be there
-    for (int i = 0; i < NUM / 2; i++) {
-      assertFalse(set.contains(list.get(i)));
-    }
-    // the rest should be there
-    for (int i = NUM / 2; i < NUM; i++) {
-      assertTrue(set.contains(list.get(i)));
-    }
-    Iterator<Integer> iter = set.iterator();
-    // the remaining elements should be in order
-    int num = NUM / 2;
-    while (iter.hasNext()) {
-      assertEquals(list.get(num++), iter.next());
-    }
-    assertEquals(num, NUM);
-
-    // add elements back
-    for (int i = 0; i < NUM / 2; i++) {
-      assertTrue(set.add(list.get(i)));
-    }
-    // order should be switched
-    assertEquals(NUM, set.size());
-    for (int i = NUM / 2; i < NUM; i++) {
-      assertEquals(list.get(i), set.pollFirst());
-    }
-    for (int i = 0; i < NUM / 2; i++) {
-      assertEquals(list.get(i), set.pollFirst());
-    }
-    assertEquals(0, set.size());
-    assertTrue(set.isEmpty());
-    LOG.info("Test poll multi - DONE");
-  }
-
-  @Test
-  public void testPollAll() {
-    LOG.info("Test poll all");
-    for (Integer i : list) {
-      assertTrue(set.add(i));
-    }
-    // remove all elements by polling
-    while (set.pollFirst() != null);
-    assertEquals(0, set.size());
-    assertTrue(set.isEmpty());
-
-    // the deleted elements should not be there
-    for (int i = 0; i < NUM; i++) {
-      assertFalse(set.contains(list.get(i)));
+    @Test
+    public void testPollOneElement() {
+        LOG.info("Test poll one element");
+        set.add(list.get(0));
+        assertEquals(list.get(0), set.pollFirst());
+        assertNull(set.pollFirst());
+        LOG.info("Test poll one element - DONE");
     }
 
-    Iterator<Integer> iter = set.iterator();
-    assertFalse(iter.hasNext());
-    LOG.info("Test poll all - DONE");
-  }
+    @Test
+    public void testPollMulti() {
+        LOG.info("Test poll multi");
+        for (Integer i : list) {
+            assertTrue(set.add(i));
+        }
+        // remove half of the elements by polling
+        for (int i = 0; i < NUM / 2; i++) {
+            assertEquals(list.get(i), set.pollFirst());
+        }
+        assertEquals(NUM / 2, set.size());
+        // the deleted elements should not be there
+        for (int i = 0; i < NUM / 2; i++) {
+            assertFalse(set.contains(list.get(i)));
+        }
+        // the rest should be there
+        for (int i = NUM / 2; i < NUM; i++) {
+            assertTrue(set.contains(list.get(i)));
+        }
+        Iterator<Integer> iter = set.iterator();
+        // the remaining elements should be in order
+        int num = NUM / 2;
+        while (iter.hasNext()) {
+            assertEquals(list.get(num++), iter.next());
+        }
+        assertEquals(num, NUM);
 
-  @Test
-  public void testPollNOne() {
-    LOG.info("Test pollN one");
-    set.add(list.get(0));
-    List<Integer> l = set.pollN(10);
-    assertEquals(1, l.size());
-    assertEquals(list.get(0), l.get(0));
-    LOG.info("Test pollN one - DONE");
-  }
-
-  @Test
-  public void testPollNMulti() {
-    LOG.info("Test pollN multi");
-
-    // use addAll
-    set.addAll(list);
-
-    // poll existing elements
-    List<Integer> l = set.pollN(10);
-    assertEquals(10, l.size());
-
-    for (int i = 0; i < 10; i++) {
-      assertEquals(list.get(i), l.get(i));
+        // add elements back
+        for (int i = 0; i < NUM / 2; i++) {
+            assertTrue(set.add(list.get(i)));
+        }
+        // order should be switched
+        assertEquals(NUM, set.size());
+        for (int i = NUM / 2; i < NUM; i++) {
+            assertEquals(list.get(i), set.pollFirst());
+        }
+        for (int i = 0; i < NUM / 2; i++) {
+            assertEquals(list.get(i), set.pollFirst());
+        }
+        assertEquals(0, set.size());
+        assertTrue(set.isEmpty());
+        LOG.info("Test poll multi - DONE");
     }
 
-    // poll more elements than present
-    l = set.pollN(1000);
-    assertEquals(NUM - 10, l.size());
+    @Test
+    public void testPollAll() {
+        LOG.info("Test poll all");
+        for (Integer i : list) {
+            assertTrue(set.add(i));
+        }
+        // remove all elements by polling
+        while (set.pollFirst() != null);
+        assertEquals(0, set.size());
+        assertTrue(set.isEmpty());
 
-    // check the order
-    for (int i = 10; i < NUM; i++) {
-      assertEquals(list.get(i), l.get(i - 10));
+        // the deleted elements should not be there
+        for (int i = 0; i < NUM; i++) {
+            assertFalse(set.contains(list.get(i)));
+        }
+
+        Iterator<Integer> iter = set.iterator();
+        assertFalse(iter.hasNext());
+        LOG.info("Test poll all - DONE");
     }
-    // set is empty
-    assertTrue(set.isEmpty());
-    assertEquals(0, set.size());
 
-    LOG.info("Test pollN multi - DONE");
-  }
-
-  @Test
-  public void testClear() {
-    LOG.info("Test clear");
-    // use addAll
-    set.addAll(list);
-    assertEquals(NUM, set.size());
-    assertFalse(set.isEmpty());
-
-    // clear the set
-    set.clear();
-    assertEquals(0, set.size());
-    assertTrue(set.isEmpty());
-
-    // poll should return an empty list
-    assertEquals(0, set.pollAll().size());
-    assertEquals(0, set.pollN(10).size());
-    assertNull(set.pollFirst());
-
-    // iterator should be empty
-    Iterator<Integer> iter = set.iterator();
-    assertFalse(iter.hasNext());
-
-    LOG.info("Test clear - DONE");
-  }
-
-  @Test
-  public void testOther() {
-    LOG.info("Test other");
-    assertTrue(set.addAll(list));
-    // to array
-    Integer[] array = set.toArray(new Integer[0]);
-    assertEquals(NUM, array.length);
-    for (int i = 0; i < array.length; i++) {
-      assertTrue(list.contains(array[i]));
+    @Test
+    public void testPollNOne() {
+        LOG.info("Test pollN one");
+        set.add(list.get(0));
+        List<Integer> l = set.pollN(10);
+        assertEquals(1, l.size());
+        assertEquals(list.get(0), l.get(0));
+        LOG.info("Test pollN one - DONE");
     }
-    assertEquals(NUM, set.size());
 
-    // to array
-    Object[] array2 = set.toArray();
-    assertEquals(NUM, array2.length);
-    for (int i = 0; i < array2.length; i++) {
-      assertTrue(list.contains(array2[i]));
+    @Test
+    public void testPollNMulti() {
+        LOG.info("Test pollN multi");
+
+        // use addAll
+        set.addAll(list);
+
+        // poll existing elements
+        List<Integer> l = set.pollN(10);
+        assertEquals(10, l.size());
+
+        for (int i = 0; i < 10; i++) {
+            assertEquals(list.get(i), l.get(i));
+        }
+
+        // poll more elements than present
+        l = set.pollN(1000);
+        assertEquals(NUM - 10, l.size());
+
+        // check the order
+        for (int i = 10; i < NUM; i++) {
+            assertEquals(list.get(i), l.get(i - 10));
+        }
+        // set is empty
+        assertTrue(set.isEmpty());
+        assertEquals(0, set.size());
+
+        LOG.info("Test pollN multi - DONE");
     }
-    LOG.info("Test capacity - DONE");
-  }
+
+    @Test
+    public void testClear() {
+        LOG.info("Test clear");
+        // use addAll
+        set.addAll(list);
+        assertEquals(NUM, set.size());
+        assertFalse(set.isEmpty());
+
+        // clear the set
+        set.clear();
+        assertEquals(0, set.size());
+        assertTrue(set.isEmpty());
+
+        // poll should return an empty list
+        assertEquals(0, set.pollAll().size());
+        assertEquals(0, set.pollN(10).size());
+        assertNull(set.pollFirst());
+
+        // iterator should be empty
+        Iterator<Integer> iter = set.iterator();
+        assertFalse(iter.hasNext());
+
+        LOG.info("Test clear - DONE");
+    }
+
+    @Test
+    public void testOther() {
+        LOG.info("Test other");
+        assertTrue(set.addAll(list));
+        // to array
+        Integer[] array = set.toArray(new Integer[0]);
+        assertEquals(NUM, array.length);
+        for (int i = 0; i < array.length; i++) {
+            assertTrue(list.contains(array[i]));
+        }
+        assertEquals(NUM, set.size());
+
+        // to array
+        Object[] array2 = set.toArray();
+        assertEquals(NUM, array2.length);
+        for (int i = 0; i < array2.length; i++) {
+            assertTrue(list.contains(array2[i]));
+        }
+        LOG.info("Test capacity - DONE");
+    }
 
 }

@@ -41,24 +41,24 @@ import org.mortbay.util.ajax.JSON;
  */
 @Path("")
 public class JerseyResource {
-  static final Log LOG = LogFactory.getLog(JerseyResource.class);
+    static final Log LOG = LogFactory.getLog(JerseyResource.class);
 
-  public static final String PATH = "path";
-  public static final String OP = "op";
+    public static final String PATH = "path";
+    public static final String OP = "op";
 
-  @GET
-  @Path("{" + PATH + ":.*}")
-  @Produces({MediaType.APPLICATION_JSON})
-  public Response get(
-      @PathParam(PATH) @DefaultValue("UNKNOWN_" + PATH) final String path,
-      @QueryParam(OP) @DefaultValue("UNKNOWN_" + OP) final String op
-      ) throws IOException {
-    LOG.info("get: " + PATH + "=" + path + ", " + OP + "=" + op);
+    @GET
+    @Path("{" + PATH + ":.*}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response get(
+        @PathParam(PATH) @DefaultValue("UNKNOWN_" + PATH) final String path,
+        @QueryParam(OP) @DefaultValue("UNKNOWN_" + OP) final String op
+    ) throws IOException {
+        LOG.info("get: " + PATH + "=" + path + ", " + OP + "=" + op);
 
-    final Map<String, Object> m = new TreeMap<String, Object>();
-    m.put(PATH, path);
-    m.put(OP, op);
-    final String js = JSON.toString(m);
-    return Response.ok(js).type(MediaType.APPLICATION_JSON).build();
-  }
+        final Map<String, Object> m = new TreeMap<String, Object>();
+        m.put(PATH, path);
+        m.put(OP, op);
+        final String js = JSON.toString(m);
+        return Response.ok(js).type(MediaType.APPLICATION_JSON).build();
+    }
 }

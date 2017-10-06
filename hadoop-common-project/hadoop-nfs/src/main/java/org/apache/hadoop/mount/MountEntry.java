@@ -21,39 +21,39 @@ package org.apache.hadoop.mount;
  * Represents a mount entry.
  */
 public class MountEntry {
-  /** Host corresponding to the mount entry */
-  private final String host;
-  /** Path corresponding to the mount entry */
-  private final String path;
+    /** Host corresponding to the mount entry */
+    private final String host;
+    /** Path corresponding to the mount entry */
+    private final String path;
 
-  public MountEntry(String host, String path) {
-    this.host = host;
-    this.path = path;
-  }
-
-  public String getHost() {
-    return this.host;
-  }
-
-  public String getPath() {
-    return this.path;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-
-    if (!(o instanceof MountEntry)) {
-      return false;
+    public MountEntry(String host, String path) {
+        this.host = host;
+        this.path = path;
     }
 
-    MountEntry m = (MountEntry) o;
-    return getHost().equals(m.getHost()) && getPath().equals(m.getPath());
-  }
+    public String getHost() {
+        return this.host;
+    }
 
-  @Override
-  public int hashCode() {
-    return host.hashCode() * 31 + path.hashCode();
-  }
+    public String getPath() {
+        return this.path;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+
+        if (!(o instanceof MountEntry)) {
+            return false;
+        }
+
+        MountEntry m = (MountEntry) o;
+        return getHost().equals(m.getHost()) && getPath().equals(m.getPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return host.hashCode() * 31 + path.hashCode();
+    }
 }

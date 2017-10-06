@@ -27,19 +27,19 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.util.Records;
 
 public abstract class GetNodesToLabelsResponse {
-  public static GetNodesToLabelsResponse newInstance(
-      Map<NodeId, Set<String>> map) {
-    GetNodesToLabelsResponse response =
-        Records.newRecord(GetNodesToLabelsResponse.class);
-    response.setNodeToLabels(map);
-    return response;
-  }
+    public static GetNodesToLabelsResponse newInstance(
+        Map<NodeId, Set<String>> map) {
+        GetNodesToLabelsResponse response =
+            Records.newRecord(GetNodesToLabelsResponse.class);
+        response.setNodeToLabels(map);
+        return response;
+    }
 
-  @Public
-  @Evolving
-  public abstract void setNodeToLabels(Map<NodeId, Set<String>> map);
+    @Public
+    @Evolving
+    public abstract void setNodeToLabels(Map<NodeId, Set<String>> map);
 
-  @Public
-  @Evolving
-  public abstract Map<NodeId, Set<String>> getNodeToLabels();
+    @Public
+    @Evolving
+    public abstract Map<NodeId, Set<String>> getNodeToLabels();
 }

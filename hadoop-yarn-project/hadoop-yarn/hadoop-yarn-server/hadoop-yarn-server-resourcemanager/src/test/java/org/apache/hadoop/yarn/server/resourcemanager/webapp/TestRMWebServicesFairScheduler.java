@@ -43,71 +43,71 @@ import com.sun.jersey.test.framework.JerseyTest;
 import com.sun.jersey.test.framework.WebAppDescriptor;
 
 public class TestRMWebServicesFairScheduler extends JerseyTest {
-  private static MockRM rm;
-  private YarnConfiguration conf;
-  
-  private Injector injector = Guice.createInjector(new ServletModule() {
-    @Override
-    protected void configureServlets() {
-      bind(JAXBContextResolver.class);
-      bind(RMWebServices.class);
-      bind(GenericExceptionHandler.class);
-      conf = new YarnConfiguration();
-      conf.setClass(YarnConfiguration.RM_SCHEDULER, FairScheduler.class,
-        ResourceScheduler.class);
-      rm = new MockRM(conf);
-      bind(ResourceManager.class).toInstance(rm);
-      serve("/*").with(GuiceContainer.class);
-    }
-  });
-  
-  public class GuiceServletConfig extends GuiceServletContextListener {
+    private static MockRM rm;
+    private YarnConfiguration conf;
 
-    @Override
-    protected Injector getInjector() {
-      return injector;
-    }
-  }
-  
-  public TestRMWebServicesFairScheduler() {
-    super(new WebAppDescriptor.Builder(
-        "org.apache.hadoop.yarn.server.resourcemanager.webapp")
-        .contextListenerClass(GuiceServletConfig.class)
-        .filterClass(com.google.inject.servlet.GuiceFilter.class)
-        .contextPath("jersey-guice-filter").servletPath("/").build());
-  }
-  
-  @Test
-  public void testClusterScheduler() throws JSONException, Exception {
-    WebResource r = resource();
-    ClientResponse response = r.path("ws").path("v1").path("cluster")
-        .path("scheduler").accept(MediaType.APPLICATION_JSON)
-        .get(ClientResponse.class);
-    assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getType());
-    JSONObject json = response.getEntity(JSONObject.class);
-    verifyClusterScheduler(json);
-  }
+    private Injector injector = Guice.createInjector(new ServletModule() {
+        @Override
+        protected void configureServlets() {
+            bind(JAXBContextResolver.class);
+            bind(RMWebServices.class);
+            bind(GenericExceptionHandler.class);
+            conf = new YarnConfiguration();
+            conf.setClass(YarnConfiguration.RM_SCHEDULER, FairScheduler.class,
+                          ResourceScheduler.class);
+            rm = new MockRM(conf);
+            bind(ResourceManager.class).toInstance(rm);
+            serve("/*").with(GuiceContainer.class);
+        }
+    });
 
-  @Test
-  public void testClusterSchedulerSlash() throws JSONException, Exception {
-    WebResource r = resource();
-    ClientResponse response = r.path("ws").path("v1").path("cluster")
-        .path("scheduler/").accept(MediaType.APPLICATION_JSON)
-        .get(ClientResponse.class);
-    assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getType());
-    JSONObject json = response.getEntity(JSONObject.class);
-    verifyClusterScheduler(json);
-  }
-  
-  private void verifyClusterScheduler(JSONObject json) throws JSONException,
-      Exception {
-    assertEquals("incorrect number of elements", 1, json.length());
-    JSONObject info = json.getJSONObject("scheduler");
-    assertEquals("incorrect number of elements", 1, info.length());
-    info = info.getJSONObject("schedulerInfo");
-    assertEquals("incorrect number of elements", 2, info.length());
-    JSONObject rootQueue = info.getJSONObject("rootQueue");
-    assertEquals("root", rootQueue.getString("queueName"));
-  }
+    public class GuiceServletConfig extends GuiceServletContextListener {
+
+        @Override
+        protected Injector getInjector() {
+            return injector;
+        }
+    }
+
+    public TestRMWebServicesFairScheduler() {
+        super(new WebAppDescriptor.Builder(
+                  "org.apache.hadoop.yarn.server.resourcemanager.webapp")
+              .contextListenerClass(GuiceServletConfig.class)
+              .filterClass(com.google.inject.servlet.GuiceFilter.class)
+              .contextPath("jersey-guice-filter").servletPath("/").build());
+    }
+
+    @Test
+    public void testClusterScheduler() throws JSONException, Exception {
+        WebResource r = resource();
+        ClientResponse response = r.path("ws").path("v1").path("cluster")
+                                  .path("scheduler").accept(MediaType.APPLICATION_JSON)
+                                  .get(ClientResponse.class);
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getType());
+        JSONObject json = response.getEntity(JSONObject.class);
+        verifyClusterScheduler(json);
+    }
+
+    @Test
+    public void testClusterSchedulerSlash() throws JSONException, Exception {
+        WebResource r = resource();
+        ClientResponse response = r.path("ws").path("v1").path("cluster")
+                                  .path("scheduler/").accept(MediaType.APPLICATION_JSON)
+                                  .get(ClientResponse.class);
+        assertEquals(MediaType.APPLICATION_JSON_TYPE, response.getType());
+        JSONObject json = response.getEntity(JSONObject.class);
+        verifyClusterScheduler(json);
+    }
+
+    private void verifyClusterScheduler(JSONObject json) throws JSONException,
+        Exception {
+        assertEquals("incorrect number of elements", 1, json.length());
+        JSONObject info = json.getJSONObject("scheduler");
+        assertEquals("incorrect number of elements", 1, info.length());
+        info = info.getJSONObject("schedulerInfo");
+        assertEquals("incorrect number of elements", 2, info.length());
+        JSONObject rootQueue = info.getJSONObject("rootQueue");
+        assertEquals("root", rootQueue.getString("queueName"));
+    }
 
 }

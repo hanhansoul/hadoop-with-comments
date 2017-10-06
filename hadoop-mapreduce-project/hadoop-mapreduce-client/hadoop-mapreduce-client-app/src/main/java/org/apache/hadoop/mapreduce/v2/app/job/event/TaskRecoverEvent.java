@@ -24,27 +24,27 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskId;
 
 public class TaskRecoverEvent extends TaskEvent {
 
-  private TaskInfo taskInfo;
-  private OutputCommitter committer;
-  private boolean recoverTaskOutput;
+    private TaskInfo taskInfo;
+    private OutputCommitter committer;
+    private boolean recoverTaskOutput;
 
-  public TaskRecoverEvent(TaskId taskID, TaskInfo taskInfo,
-      OutputCommitter committer, boolean recoverTaskOutput) {
-    super(taskID, TaskEventType.T_RECOVER);
-    this.taskInfo = taskInfo;
-    this.committer = committer;
-    this.recoverTaskOutput = recoverTaskOutput;
-  }
+    public TaskRecoverEvent(TaskId taskID, TaskInfo taskInfo,
+                            OutputCommitter committer, boolean recoverTaskOutput) {
+        super(taskID, TaskEventType.T_RECOVER);
+        this.taskInfo = taskInfo;
+        this.committer = committer;
+        this.recoverTaskOutput = recoverTaskOutput;
+    }
 
-  public TaskInfo getTaskInfo() {
-    return taskInfo;
-  }
+    public TaskInfo getTaskInfo() {
+        return taskInfo;
+    }
 
-  public OutputCommitter getOutputCommitter() {
-    return committer;
-  }
+    public OutputCommitter getOutputCommitter() {
+        return committer;
+    }
 
-  public boolean getRecoverTaskOutput() {
-    return recoverTaskOutput;
-  }
+    public boolean getRecoverTaskOutput() {
+        return recoverTaskOutput;
+    }
 }

@@ -23,24 +23,24 @@ import org.junit.Before;
 /**
  * Test permissions for localFs using FileContext API.
  */
-public class TestFcLocalFsPermission extends 
-  FileContextPermissionBase {
+public class TestFcLocalFsPermission extends
+    FileContextPermissionBase {
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    super.setUp();
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-  @Override
-  protected FileContext getFileContext() throws UnsupportedFileSystemException {
-    return FileContext.getLocalFSFileContext();
-  }
+    @Override
+    protected FileContext getFileContext() throws UnsupportedFileSystemException {
+        return FileContext.getLocalFSFileContext();
+    }
 
 }

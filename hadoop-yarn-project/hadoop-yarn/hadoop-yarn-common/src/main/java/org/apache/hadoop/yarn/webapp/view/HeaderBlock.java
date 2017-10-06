@@ -23,17 +23,17 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class HeaderBlock extends HtmlBlock {
 
-  @Override protected void render(Block html) {
-    String loggedIn = ""; 
-    if (request().getRemoteUser() != null) {
-      loggedIn = "Logged in as: " + request().getRemoteUser();
-    }
-    html.
-      div("#header.ui-widget").
+    @Override protected void render(Block html) {
+        String loggedIn = "";
+        if (request().getRemoteUser() != null) {
+            loggedIn = "Logged in as: " + request().getRemoteUser();
+        }
+        html.
+        div("#header.ui-widget").
         div("#user").
-          _(loggedIn)._().
+        _(loggedIn)._().
         div("#logo").
-          img("/static/hadoop-st.png")._().
+        img("/static/hadoop-st.png")._().
         h1($(TITLE))._();
-  }
+    }
 }

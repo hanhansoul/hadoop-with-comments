@@ -28,34 +28,34 @@ import org.apache.hadoop.yarn.api.records.Resource;
 @Private
 @Stable
 public class SchedulerNodeReport {
-  private final Resource used;
-  private final Resource avail;
-  private final int num;
-  
-  public SchedulerNodeReport(SchedulerNode node) {
-    this.used = node.getUsedResource();
-    this.avail = node.getAvailableResource();
-    this.num = node.getNumContainers();
-  }
-  
-  /**
-   * @return the amount of resources currently used by the node.
-   */
-  public Resource getUsedResource() {
-    return used;
-  }
+    private final Resource used;
+    private final Resource avail;
+    private final int num;
 
-  /**
-   * @return the amount of resources currently available on the node
-   */
-  public Resource getAvailableResource() {
-    return avail;
-  }
+    public SchedulerNodeReport(SchedulerNode node) {
+        this.used = node.getUsedResource();
+        this.avail = node.getAvailableResource();
+        this.num = node.getNumContainers();
+    }
 
-  /**
-   * @return the number of containers currently running on this node.
-   */
-  public int getNumContainers() {
-    return num;
-  }
+    /**
+     * @return the amount of resources currently used by the node.
+     */
+    public Resource getUsedResource() {
+        return used;
+    }
+
+    /**
+     * @return the amount of resources currently available on the node
+     */
+    public Resource getAvailableResource() {
+        return avail;
+    }
+
+    /**
+     * @return the number of containers currently running on this node.
+     */
+    public int getNumContainers() {
+        return num;
+    }
 }

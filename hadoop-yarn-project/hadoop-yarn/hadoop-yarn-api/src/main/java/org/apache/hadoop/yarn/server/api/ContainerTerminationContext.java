@@ -28,17 +28,17 @@ import org.apache.hadoop.yarn.api.records.Resource;
 /**
  * Termination context for {@link AuxiliaryService} when stopping a
  * container.
- * 
+ *
  */
 @Public
 @Evolving
 public class ContainerTerminationContext extends ContainerContext {
 
-  @Private
-  @Unstable
-  public ContainerTerminationContext(String user, ContainerId containerId,
-      Resource resource) {
-    super(user, containerId, resource);
-  }
+    @Private
+    @Unstable
+    public ContainerTerminationContext(String user, ContainerId containerId,
+                                       Resource resource) {
+        super(user, containerId, resource);
+    }
 
 }

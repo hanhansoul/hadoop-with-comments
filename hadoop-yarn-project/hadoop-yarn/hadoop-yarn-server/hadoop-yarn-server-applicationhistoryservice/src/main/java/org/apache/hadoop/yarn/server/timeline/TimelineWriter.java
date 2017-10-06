@@ -33,26 +33,26 @@ import org.apache.hadoop.yarn.api.records.timeline.TimelinePutResponse;
 @InterfaceStability.Unstable
 public interface TimelineWriter {
 
-  /**
-   * Stores entity information to the timeline store. Any errors occurring for
-   * individual put request objects will be reported in the response.
-   * 
-   * @param data
-   *          a {@link TimelineEntities} object.
-   * @return a {@link TimelinePutResponse} object.
-   * @throws IOException
-   */
-  TimelinePutResponse put(TimelineEntities data) throws IOException;
+    /**
+     * Stores entity information to the timeline store. Any errors occurring for
+     * individual put request objects will be reported in the response.
+     *
+     * @param data
+     *          a {@link TimelineEntities} object.
+     * @return a {@link TimelinePutResponse} object.
+     * @throws IOException
+     */
+    TimelinePutResponse put(TimelineEntities data) throws IOException;
 
-  /**
-   * Store domain information to the timeline store. If A domain of the
-   * same ID already exists in the timeline store, it will be COMPLETELY updated
-   * with the given domain.
-   * 
-   * @param domain
-   *          a {@link TimelineDomain} object
-   * @throws IOException
-   */
-   void put(TimelineDomain domain) throws IOException;
+    /**
+     * Store domain information to the timeline store. If A domain of the
+     * same ID already exists in the timeline store, it will be COMPLETELY updated
+     * with the given domain.
+     *
+     * @param domain
+     *          a {@link TimelineDomain} object
+     * @throws IOException
+     */
+    void put(TimelineDomain domain) throws IOException;
 
 }

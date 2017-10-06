@@ -22,14 +22,14 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 public class RMAppFinishedAttemptEvent extends RMAppEvent {
 
-  private final String diagnostics;
+    private final String diagnostics;
 
-  public RMAppFinishedAttemptEvent(ApplicationId appId, String diagnostics) {
-    super(appId, RMAppEventType.ATTEMPT_FINISHED);
-    this.diagnostics = diagnostics;
-  }
+    public RMAppFinishedAttemptEvent(ApplicationId appId, String diagnostics) {
+        super(appId, RMAppEventType.ATTEMPT_FINISHED);
+        this.diagnostics = diagnostics;
+    }
 
-  public String getDiagnostics() {
-    return this.diagnostics;
-  }
+    public String getDiagnostics() {
+        return this.diagnostics;
+    }
 }

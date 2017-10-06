@@ -37,18 +37,18 @@ import java.util.Map;
 @InterfaceAudience.Private
 public class KMSJSONReader implements MessageBodyReader<Map> {
 
-  @Override
-  public boolean isReadable(Class<?> type, Type genericType,
-      Annotation[] annotations, MediaType mediaType) {
-    return type.isAssignableFrom(Map.class);
-  }
+    @Override
+    public boolean isReadable(Class<?> type, Type genericType,
+                              Annotation[] annotations, MediaType mediaType) {
+        return type.isAssignableFrom(Map.class);
+    }
 
-  @Override
-  public Map readFrom(Class<Map> type, Type genericType,
-      Annotation[] annotations, MediaType mediaType,
-      MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
-      throws IOException, WebApplicationException {
-    ObjectMapper mapper = new ObjectMapper();
-    return mapper.readValue(entityStream, type);
-  }
+    @Override
+    public Map readFrom(Class<Map> type, Type genericType,
+                        Annotation[] annotations, MediaType mediaType,
+                        MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
+    throws IOException, WebApplicationException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(entityStream, type);
+    }
 }

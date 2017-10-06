@@ -23,22 +23,22 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ResourceRequestEvent extends ResourceEvent {
 
-  private final LocalizerContext context;
-  private final LocalResourceVisibility vis;
+    private final LocalizerContext context;
+    private final LocalResourceVisibility vis;
 
-  public ResourceRequestEvent(LocalResourceRequest resource,
-      LocalResourceVisibility vis, LocalizerContext context) {
-    super(resource, ResourceEventType.REQUEST);
-    this.vis = vis;
-    this.context = context;
-  }
+    public ResourceRequestEvent(LocalResourceRequest resource,
+                                LocalResourceVisibility vis, LocalizerContext context) {
+        super(resource, ResourceEventType.REQUEST);
+        this.vis = vis;
+        this.context = context;
+    }
 
-  public LocalizerContext getContext() {
-    return context;
-  }
+    public LocalizerContext getContext() {
+        return context;
+    }
 
-  public LocalResourceVisibility getVisibility() {
-    return vis;
-  }
+    public LocalResourceVisibility getVisibility() {
+        return vis;
+    }
 
 }

@@ -27,26 +27,26 @@ import org.apache.hadoop.conf.Configuration;
 
 public class AggregatedLogsBlockForTest extends AggregatedLogsBlock {
 
-  final private Map<String, String> params = new HashMap<String, String>();
-  private HttpServletRequest request;
-  public AggregatedLogsBlockForTest(Configuration conf) {
-    super(conf);
-  }
+    final private Map<String, String> params = new HashMap<String, String>();
+    private HttpServletRequest request;
+    public AggregatedLogsBlockForTest(Configuration conf) {
+        super(conf);
+    }
 
-  @Override
-  public void render(Block html) {
-    super.render(html);
-  }
+    @Override
+    public void render(Block html) {
+        super.render(html);
+    }
 
-  public Map<String, String> moreParams() {
-    return params;
-  }
+    public Map<String, String> moreParams() {
+        return params;
+    }
 
-  public HttpServletRequest request() {
-    return request;
-  }
-  public  void setRequest(HttpServletRequest request) {
-     this.request = request;
-  }
+    public HttpServletRequest request() {
+        return request;
+    }
+    public  void setRequest(HttpServletRequest request) {
+        this.request = request;
+    }
 
 }

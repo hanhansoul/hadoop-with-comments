@@ -31,34 +31,34 @@ import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 import com.google.common.annotations.VisibleForTesting;
 
 public class AmFilterInitializer extends FilterInitializer {
-  private static final String FILTER_NAME = "AM_PROXY_FILTER";
-  private static final String FILTER_CLASS = AmIpFilter.class.getCanonicalName();
-  
-  @Override
-  public void initFilter(FilterContainer container, Configuration conf) {
-    Map<String, String> params = new HashMap<String, String>();
-    List<String> proxies = WebAppUtils.getProxyHostsAndPortsForAmFilter(conf);
-    StringBuilder sb = new StringBuilder();
-    for (String proxy : proxies) {
-      sb.append(proxy.split(":")[0]).append(AmIpFilter.PROXY_HOSTS_DELIMITER);
-    }
-    sb.setLength(sb.length() - 1);
-    params.put(AmIpFilter.PROXY_HOSTS, sb.toString());
+    private static final String FILTER_NAME = "AM_PROXY_FILTER";
+    private static final String FILTER_CLASS = AmIpFilter.class.getCanonicalName();
 
-    String prefix = WebAppUtils.getHttpSchemePrefix(conf);
-    String proxyBase = getApplicationWebProxyBase();
-    sb = new StringBuilder();
-    for (String proxy : proxies) {
-      sb.append(prefix).append(proxy).append(proxyBase)
-          .append(AmIpFilter.PROXY_HOSTS_DELIMITER);
-    }
-    sb.setLength(sb.length() - 1);
-    params.put(AmIpFilter.PROXY_URI_BASES, sb.toString());
-    container.addFilter(FILTER_NAME, FILTER_CLASS, params);
-  }
+    @Override
+    public void initFilter(FilterContainer container, Configuration conf) {
+        Map<String, String> params = new HashMap<String, String>();
+        List<String> proxies = WebAppUtils.getProxyHostsAndPortsForAmFilter(conf);
+        StringBuilder sb = new StringBuilder();
+        for (String proxy : proxies) {
+            sb.append(proxy.split(":")[0]).append(AmIpFilter.PROXY_HOSTS_DELIMITER);
+        }
+        sb.setLength(sb.length() - 1);
+        params.put(AmIpFilter.PROXY_HOSTS, sb.toString());
 
-  @VisibleForTesting
-  protected String getApplicationWebProxyBase() {
-    return System.getenv(ApplicationConstants.APPLICATION_WEB_PROXY_BASE_ENV);
-  }
+        String prefix = WebAppUtils.getHttpSchemePrefix(conf);
+        String proxyBase = getApplicationWebProxyBase();
+        sb = new StringBuilder();
+        for (String proxy : proxies) {
+            sb.append(prefix).append(proxy).append(proxyBase)
+            .append(AmIpFilter.PROXY_HOSTS_DELIMITER);
+        }
+        sb.setLength(sb.length() - 1);
+        params.put(AmIpFilter.PROXY_URI_BASES, sb.toString());
+        container.addFilter(FILTER_NAME, FILTER_CLASS, params);
+    }
+
+    @VisibleForTesting
+    protected String getApplicationWebProxyBase() {
+        return System.getenv(ApplicationConstants.APPLICATION_WEB_PROXY_BASE_ENV);
+    }
 }

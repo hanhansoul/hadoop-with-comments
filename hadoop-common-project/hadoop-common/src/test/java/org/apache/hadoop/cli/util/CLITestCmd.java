@@ -23,34 +23,34 @@ import org.apache.hadoop.fs.FsShell;
  * Class to define Test Command along with its type
  */
 public class CLITestCmd implements CLICommand {
-  private final CLICommandTypes type;
-  private final String cmd;
+    private final CLICommandTypes type;
+    private final String cmd;
 
-  public CLITestCmd(String str, CLICommandTypes type) {
-    cmd = str;
-    this.type = type;
-  }
+    public CLITestCmd(String str, CLICommandTypes type) {
+        cmd = str;
+        this.type = type;
+    }
 
-  @Override
-  public CommandExecutor getExecutor(String tag) throws IllegalArgumentException {
-    if (getType() instanceof CLICommandFS)
-      return new FSCmdExecutor(tag, new FsShell());
-    throw new
+    @Override
+    public CommandExecutor getExecutor(String tag) throws IllegalArgumentException {
+        if (getType() instanceof CLICommandFS)
+            return new FSCmdExecutor(tag, new FsShell());
+        throw new
         IllegalArgumentException("Unknown type of test command: " + getType());
-  }
+    }
 
-  @Override
-  public CLICommandTypes getType() {
-    return type;
-  }
-  
-  @Override
-  public String getCmd() {
-    return cmd;
-  }
-  
-  @Override
-  public String toString() {
-    return cmd;
-  }
+    @Override
+    public CLICommandTypes getType() {
+        return type;
+    }
+
+    @Override
+    public String getCmd() {
+        return cmd;
+    }
+
+    @Override
+    public String toString() {
+        return cmd;
+    }
 }

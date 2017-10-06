@@ -38,59 +38,59 @@ import org.junit.BeforeClass;
  */
 public class TestFileContextXAttr extends FSXAttrBaseTest  {
 
-  @Override
-  protected FileSystem createFileSystem() throws Exception {
-    FileContextFS fcFs = new FileContextFS();
-    fcFs.initialize(FileSystem.getDefaultUri(conf), conf);
-    return fcFs;
-  }
+    @Override
+    protected FileSystem createFileSystem() throws Exception {
+        FileContextFS fcFs = new FileContextFS();
+        fcFs.initialize(FileSystem.getDefaultUri(conf), conf);
+        return fcFs;
+    }
 
-  /**
-   * This reuses FSXAttrBaseTest's testcases by creating a filesystem
-   * implementation which uses FileContext by only overriding the xattr related
-   * methods. Other operations will use the normal filesystem.
-   */
-  public static class FileContextFS extends DistributedFileSystem {
+    /**
+     * This reuses FSXAttrBaseTest's testcases by creating a filesystem
+     * implementation which uses FileContext by only overriding the xattr related
+     * methods. Other operations will use the normal filesystem.
+     */
+    public static class FileContextFS extends DistributedFileSystem {
 
-    private FileContext fc;
+        private FileContext fc;
 
-    @Override
-    public void initialize(URI uri, Configuration conf) throws IOException {
-      super.initialize(uri, conf);
-      fc = FileContext.getFileContext(conf);
-    }
-    
-    @Override
-    public void setXAttr(Path path, final String name, final byte[] value)
-      throws IOException {
-      fc.setXAttr(path, name, value);
-    }
-    
-    @Override
-    public void setXAttr(Path path, final String name, final byte[] value, 
-        final EnumSet<XAttrSetFlag> flag) throws IOException {
-      fc.setXAttr(path, name, value, flag);
-    }
-    
-    @Override
-    public byte[] getXAttr(Path path, final String name) throws IOException {
-      return fc.getXAttr(path, name);
-    }
-    
-    @Override
-    public Map<String, byte[]> getXAttrs(Path path) throws IOException {
-      return fc.getXAttrs(path);
-    }
-    
-    @Override
-    public Map<String, byte[]> getXAttrs(Path path, final List<String> names) 
+        @Override
+        public void initialize(URI uri, Configuration conf) throws IOException {
+            super.initialize(uri, conf);
+            fc = FileContext.getFileContext(conf);
+        }
+
+        @Override
+        public void setXAttr(Path path, final String name, final byte[] value)
         throws IOException {
-      return fc.getXAttrs(path, names);
+            fc.setXAttr(path, name, value);
+        }
+
+        @Override
+        public void setXAttr(Path path, final String name, final byte[] value,
+                             final EnumSet<XAttrSetFlag> flag) throws IOException {
+            fc.setXAttr(path, name, value, flag);
+        }
+
+        @Override
+        public byte[] getXAttr(Path path, final String name) throws IOException {
+            return fc.getXAttr(path, name);
+        }
+
+        @Override
+        public Map<String, byte[]> getXAttrs(Path path) throws IOException {
+            return fc.getXAttrs(path);
+        }
+
+        @Override
+        public Map<String, byte[]> getXAttrs(Path path, final List<String> names)
+        throws IOException {
+            return fc.getXAttrs(path, names);
+        }
+
+        @Override
+        public void removeXAttr(Path path, final String name) throws IOException {
+            fc.removeXAttr(path, name);
+        }
     }
-    
-    @Override
-    public void removeXAttr(Path path, final String name) throws IOException {
-      fc.removeXAttr(path, name);
-    }
-  }
 }

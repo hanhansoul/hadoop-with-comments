@@ -22,14 +22,14 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class JobSetupFailedEvent extends JobEvent {
 
-  private String message;
+    private String message;
 
-  public JobSetupFailedEvent(JobId jobID, String message) {
-    super(jobID, JobEventType.JOB_SETUP_FAILED);
-    this.message = message;
-  }
+    public JobSetupFailedEvent(JobId jobID, String message) {
+        super(jobID, JobEventType.JOB_SETUP_FAILED);
+        this.message = message;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 }

@@ -26,56 +26,56 @@ import java.util.HashMap;
 import java.util.Map;
 
 class KerberosConfiguration extends javax.security.auth.login.Configuration {
-  private String principal;
-  private String keytab;
-  private boolean isInitiator;
+    private String principal;
+    private String keytab;
+    private boolean isInitiator;
 
-  KerberosConfiguration(String principal, File keytab,
-      boolean client) {
-    this.principal = principal;
-    this.keytab = keytab.getAbsolutePath();
-    this.isInitiator = client;
-  }
-
-  public static javax.security.auth.login.Configuration createClientConfig(
-      String principal,
-      File keytab) {
-    return new KerberosConfiguration(principal, keytab, true);
-  }
-
-  public static javax.security.auth.login.Configuration createServerConfig(
-      String principal,
-      File keytab) {
-    return new KerberosConfiguration(principal, keytab, false);
-  }
-
-  @Override
-  public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
-    Map<String, String> options = new HashMap<String, String>();
-    options.put("keyTab", keytab);
-    options.put("principal", principal);
-    options.put("useKeyTab", "true");
-    options.put("storeKey", "true");
-    options.put("doNotPrompt", "true");
-    options.put("useTicketCache", "true");
-    options.put("renewTGT", "true");
-    options.put("refreshKrb5Config", "true");
-    options.put("isInitiator", Boolean.toString(isInitiator));
-    String ticketCache = System.getenv("KRB5CCNAME");
-    if (ticketCache != null) {
-      options.put("ticketCache", ticketCache);
+    KerberosConfiguration(String principal, File keytab,
+                          boolean client) {
+        this.principal = principal;
+        this.keytab = keytab.getAbsolutePath();
+        this.isInitiator = client;
     }
-    options.put("debug", "true");
 
-    return new AppConfigurationEntry[]{
-        new AppConfigurationEntry(KerberosUtil.getKrb5LoginModuleName(),
-            AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-            options)
-    };
-  }
+    public static javax.security.auth.login.Configuration createClientConfig(
+        String principal,
+        File keytab) {
+        return new KerberosConfiguration(principal, keytab, true);
+    }
 
-  @Override
-  public String toString() {
-    return "KerberosConfiguration with principal " + principal;
-  }
+    public static javax.security.auth.login.Configuration createServerConfig(
+        String principal,
+        File keytab) {
+        return new KerberosConfiguration(principal, keytab, false);
+    }
+
+    @Override
+    public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("keyTab", keytab);
+        options.put("principal", principal);
+        options.put("useKeyTab", "true");
+        options.put("storeKey", "true");
+        options.put("doNotPrompt", "true");
+        options.put("useTicketCache", "true");
+        options.put("renewTGT", "true");
+        options.put("refreshKrb5Config", "true");
+        options.put("isInitiator", Boolean.toString(isInitiator));
+        String ticketCache = System.getenv("KRB5CCNAME");
+        if (ticketCache != null) {
+            options.put("ticketCache", ticketCache);
+        }
+        options.put("debug", "true");
+
+        return new AppConfigurationEntry[] {
+                   new AppConfigurationEntry(KerberosUtil.getKrb5LoginModuleName(),
+                                             AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
+                                             options)
+               };
+    }
+
+    @Override
+    public String toString() {
+        return "KerberosConfiguration with principal " + principal;
+    }
 }

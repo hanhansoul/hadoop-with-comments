@@ -29,32 +29,32 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
  */
 public interface TaskAttemptListener {
 
-  InetSocketAddress getAddress();
+    InetSocketAddress getAddress();
 
-  /**
-   * Register a JVM with the listener.  This should be called as soon as a 
-   * JVM ID is assigned to a task attempt, before it has been launched.
-   * @param task the task itself for this JVM.
-   * @param jvmID The ID of the JVM .
-   */
-  void registerPendingTask(Task task, WrappedJvmID jvmID);
-  
-  /**
-   * Register task attempt. This should be called when the JVM has been
-   * launched.
-   * 
-   * @param attemptID
-   *          the id of the attempt for this JVM.
-   * @param jvmID the ID of the JVM.
-   */
-  void registerLaunchedTask(TaskAttemptId attemptID, WrappedJvmID jvmID);
+    /**
+     * Register a JVM with the listener.  This should be called as soon as a
+     * JVM ID is assigned to a task attempt, before it has been launched.
+     * @param task the task itself for this JVM.
+     * @param jvmID The ID of the JVM .
+     */
+    void registerPendingTask(Task task, WrappedJvmID jvmID);
 
-  /**
-   * Unregister the JVM and the attempt associated with it.  This should be 
-   * called when the attempt/JVM has finished executing and is being cleaned up.
-   * @param attemptID the ID of the attempt.
-   * @param jvmID the ID of the JVM for that attempt.
-   */
-  void unregister(TaskAttemptId attemptID, WrappedJvmID jvmID);
+    /**
+     * Register task attempt. This should be called when the JVM has been
+     * launched.
+     *
+     * @param attemptID
+     *          the id of the attempt for this JVM.
+     * @param jvmID the ID of the JVM.
+     */
+    void registerLaunchedTask(TaskAttemptId attemptID, WrappedJvmID jvmID);
+
+    /**
+     * Unregister the JVM and the attempt associated with it.  This should be
+     * called when the attempt/JVM has finished executing and is being cleaned up.
+     * @param attemptID the ID of the attempt.
+     * @param jvmID the ID of the JVM for that attempt.
+     */
+    void unregister(TaskAttemptId attemptID, WrappedJvmID jvmID);
 
 }

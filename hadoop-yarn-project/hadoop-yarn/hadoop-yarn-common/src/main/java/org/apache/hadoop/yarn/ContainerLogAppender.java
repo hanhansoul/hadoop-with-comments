@@ -30,80 +30,79 @@ import org.apache.log4j.spi.LoggingEvent;
 
 /**
  * A simple log4j-appender for container's logs.
- * 
+ *
  */
 @Public
 @Unstable
 public class ContainerLogAppender extends FileAppender
-  implements Flushable
-{
-  private String containerLogDir;
-  //so that log4j can configure it from the configuration(log4j.properties). 
-  private int maxEvents;
-  private Queue<LoggingEvent> tail = null;
+    implements Flushable {
+    private String containerLogDir;
+    //so that log4j can configure it from the configuration(log4j.properties).
+    private int maxEvents;
+    private Queue<LoggingEvent> tail = null;
 
-  @Override
-  public void activateOptions() {
-    synchronized (this) {
-      if (maxEvents > 0) {
-        tail = new LinkedList<LoggingEvent>();
-      }
-      setFile(new File(this.containerLogDir, "syslog").toString());
-      setAppend(true);
-      super.activateOptions();
-    }
-  }
-  
-  @Override
-  public void append(LoggingEvent event) {
-    synchronized (this) {
-      if (tail == null) {
-        super.append(event);
-      } else {
-        if (tail.size() >= maxEvents) {
-          tail.remove();
+    @Override
+    public void activateOptions() {
+        synchronized (this) {
+            if (maxEvents > 0) {
+                tail = new LinkedList<LoggingEvent>();
+            }
+            setFile(new File(this.containerLogDir, "syslog").toString());
+            setAppend(true);
+            super.activateOptions();
         }
-        tail.add(event);
-      }
     }
-  }
-  
-  @Override
-  public void flush() {
-    if (qw != null) {
-      qw.flush();
+
+    @Override
+    public void append(LoggingEvent event) {
+        synchronized (this) {
+            if (tail == null) {
+                super.append(event);
+            } else {
+                if (tail.size() >= maxEvents) {
+                    tail.remove();
+                }
+                tail.add(event);
+            }
+        }
     }
-  }
 
-  @Override
-  public synchronized void close() {
-    if (tail != null) {
-      for(LoggingEvent event: tail) {
-        super.append(event);
-      }
+    @Override
+    public void flush() {
+        if (qw != null) {
+            qw.flush();
+        }
     }
-    super.close();
-  }
 
-  /**
-   * Getter/Setter methods for log4j.
-   */
-  
-  public String getContainerLogDir() {
-    return this.containerLogDir;
-  }
+    @Override
+    public synchronized void close() {
+        if (tail != null) {
+            for(LoggingEvent event: tail) {
+                super.append(event);
+            }
+        }
+        super.close();
+    }
 
-  public void setContainerLogDir(String containerLogDir) {
-    this.containerLogDir = containerLogDir;
-  }
+    /**
+     * Getter/Setter methods for log4j.
+     */
 
-  private static final int EVENT_SIZE = 100;
-  
-  public long getTotalLogFileSize() {
-    return maxEvents * EVENT_SIZE;
-  }
+    public String getContainerLogDir() {
+        return this.containerLogDir;
+    }
 
-  public void setTotalLogFileSize(long logSize) {
-    maxEvents = (int) logSize / EVENT_SIZE;
-  }
+    public void setContainerLogDir(String containerLogDir) {
+        this.containerLogDir = containerLogDir;
+    }
+
+    private static final int EVENT_SIZE = 100;
+
+    public long getTotalLogFileSize() {
+        return maxEvents * EVENT_SIZE;
+    }
+
+    public void setTotalLogFileSize(long logSize) {
+        maxEvents = (int) logSize / EVENT_SIZE;
+    }
 }

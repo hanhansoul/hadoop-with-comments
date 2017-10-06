@@ -24,15 +24,15 @@ import org.apache.hadoop.yarn.api.ContainerManagementProtocol;
 
 /**
  * <p><code>LocalResourceType</code> specifies the <em>type</em>
- * of a resource localized by the <code>NodeManager</code>.</p> 
+ * of a resource localized by the <code>NodeManager</code>.</p>
  *
  * <p>The <em>type</em> can be one of:
  *   <ul>
  *     <li>
- *       {@link #FILE} - Regular file i.e. uninterpreted bytes. 
+ *       {@link #FILE} - Regular file i.e. uninterpreted bytes.
  *     </li>
  *     <li>
- *       {@link #ARCHIVE} - Archive, which is automatically unarchived by the 
+ *       {@link #ARCHIVE} - Archive, which is automatically unarchived by the
  *       <code>NodeManager</code>.
  *     </li>
  *     <li>
@@ -48,23 +48,23 @@ import org.apache.hadoop.yarn.api.ContainerManagementProtocol;
 @Public
 @Stable
 public enum LocalResourceType {
-  
-  /**
-   * Archive, which is automatically unarchived by the <code>NodeManager</code>.
-   */
-  ARCHIVE,
-  
-  /**
-   * Regular file i.e. uninterpreted bytes.
-   */
-  FILE,
-  
-  /**
-   * A hybrid between archive and file.  Only part of the file is unarchived,
-   * and the original file is left in place, but in the same directory as the
-   * unarchived part.  The part that is unarchived is determined by pattern
-   * in #{@link LocalResource}.  Currently only jars support pattern, all
-   * others will be treated like a #{@link LocalResourceType#ARCHIVE}.
-   */
-  PATTERN
+
+    /**
+     * Archive, which is automatically unarchived by the <code>NodeManager</code>.
+     */
+    ARCHIVE,
+
+    /**
+     * Regular file i.e. uninterpreted bytes.
+     */
+    FILE,
+
+    /**
+     * A hybrid between archive and file.  Only part of the file is unarchived,
+     * and the original file is left in place, but in the same directory as the
+     * unarchived part.  The part that is unarchived is determined by pattern
+     * in #{@link LocalResource}.  Currently only jars support pattern, all
+     * others will be treated like a #{@link LocalResourceType#ARCHIVE}.
+     */
+    PATTERN
 }

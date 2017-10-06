@@ -26,27 +26,27 @@ import org.apache.hadoop.security.authentication.server.AuthenticationFilter;
 @InterfaceAudience.Private
 public class StringSignerSecretProvider extends SignerSecretProvider {
 
-  private byte[] secret;
-  private byte[][] secrets;
+    private byte[] secret;
+    private byte[][] secrets;
 
-  public StringSignerSecretProvider() {}
+    public StringSignerSecretProvider() {}
 
-  @Override
-  public void init(Properties config, ServletContext servletContext,
-          long tokenValidity) throws Exception {
-    String signatureSecret = config.getProperty(
-            AuthenticationFilter.SIGNATURE_SECRET, null);
-    secret = signatureSecret.getBytes();
-    secrets = new byte[][]{secret};
-  }
+    @Override
+    public void init(Properties config, ServletContext servletContext,
+                     long tokenValidity) throws Exception {
+        String signatureSecret = config.getProperty(
+                                     AuthenticationFilter.SIGNATURE_SECRET, null);
+        secret = signatureSecret.getBytes();
+        secrets = new byte[][] {secret};
+    }
 
-  @Override
-  public byte[] getCurrentSecret() {
-    return secret;
-  }
+    @Override
+    public byte[] getCurrentSecret() {
+        return secret;
+    }
 
-  @Override
-  public byte[][] getAllSecrets() {
-    return secrets;
-  }
+    @Override
+    public byte[][] getAllSecrets() {
+        return secrets;
+    }
 }

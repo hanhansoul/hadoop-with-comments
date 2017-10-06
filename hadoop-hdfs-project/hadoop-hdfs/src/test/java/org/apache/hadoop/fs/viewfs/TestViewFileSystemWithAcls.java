@@ -50,141 +50,145 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestViewFileSystemWithAcls {
 
-  private static MiniDFSCluster cluster;
-  private static Configuration clusterConf = new Configuration();
-  private static FileSystem fHdfs;
-  private static FileSystem fHdfs2;
-  private FileSystem fsView;
-  private Configuration fsViewConf;
-  private FileSystem fsTarget, fsTarget2;
-  private Path targetTestRoot, targetTestRoot2, mountOnNn1, mountOnNn2;
-  private FileSystemTestHelper fileSystemTestHelper =
-      new FileSystemTestHelper("/tmp/TestViewFileSystemWithAcls");
+    private static MiniDFSCluster cluster;
+    private static Configuration clusterConf = new Configuration();
+    private static FileSystem fHdfs;
+    private static FileSystem fHdfs2;
+    private FileSystem fsView;
+    private Configuration fsViewConf;
+    private FileSystem fsTarget, fsTarget2;
+    private Path targetTestRoot, targetTestRoot2, mountOnNn1, mountOnNn2;
+    private FileSystemTestHelper fileSystemTestHelper =
+        new FileSystemTestHelper("/tmp/TestViewFileSystemWithAcls");
 
-  @BeforeClass
-  public static void clusterSetupAtBeginning() throws IOException {
-    clusterConf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
-    cluster = new MiniDFSCluster.Builder(clusterConf)
+    @BeforeClass
+    public static void clusterSetupAtBeginning() throws IOException {
+        clusterConf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+        cluster = new MiniDFSCluster.Builder(clusterConf)
         .nnTopology(MiniDFSNNTopology.simpleFederatedTopology(2))
         .numDataNodes(2)
         .build();
-    cluster.waitClusterUp();
+        cluster.waitClusterUp();
 
-    fHdfs = cluster.getFileSystem(0);
-    fHdfs2 = cluster.getFileSystem(1);
-  }
+        fHdfs = cluster.getFileSystem(0);
+        fHdfs2 = cluster.getFileSystem(1);
+    }
 
-  @AfterClass
-  public static void ClusterShutdownAtEnd() throws Exception {
-    cluster.shutdown();
-  }
+    @AfterClass
+    public static void ClusterShutdownAtEnd() throws Exception {
+        cluster.shutdown();
+    }
 
-  @Before
-  public void setUp() throws Exception {
-    fsTarget = fHdfs;
-    fsTarget2 = fHdfs2;
-    targetTestRoot = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget);
-    targetTestRoot2 = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget2);
+    @Before
+    public void setUp() throws Exception {
+        fsTarget = fHdfs;
+        fsTarget2 = fHdfs2;
+        targetTestRoot = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget);
+        targetTestRoot2 = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget2);
 
-    fsTarget.delete(targetTestRoot, true);
-    fsTarget2.delete(targetTestRoot2, true);
-    fsTarget.mkdirs(targetTestRoot);
-    fsTarget2.mkdirs(targetTestRoot2);
+        fsTarget.delete(targetTestRoot, true);
+        fsTarget2.delete(targetTestRoot2, true);
+        fsTarget.mkdirs(targetTestRoot);
+        fsTarget2.mkdirs(targetTestRoot2);
 
-    fsViewConf = ViewFileSystemTestSetup.createConfig();
-    setupMountPoints();
-    fsView = FileSystem.get(FsConstants.VIEWFS_URI, fsViewConf);
-  }
+        fsViewConf = ViewFileSystemTestSetup.createConfig();
+        setupMountPoints();
+        fsView = FileSystem.get(FsConstants.VIEWFS_URI, fsViewConf);
+    }
 
-  private void setupMountPoints() {
-    mountOnNn1 = new Path("/mountOnNn1");
-    mountOnNn2 = new Path("/mountOnNn2");
-    ConfigUtil.addLink(fsViewConf, mountOnNn1.toString(), targetTestRoot.toUri());
-    ConfigUtil.addLink(fsViewConf, mountOnNn2.toString(), targetTestRoot2.toUri());
-  }
+    private void setupMountPoints() {
+        mountOnNn1 = new Path("/mountOnNn1");
+        mountOnNn2 = new Path("/mountOnNn2");
+        ConfigUtil.addLink(fsViewConf, mountOnNn1.toString(), targetTestRoot.toUri());
+        ConfigUtil.addLink(fsViewConf, mountOnNn2.toString(), targetTestRoot2.toUri());
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    fsTarget.delete(fileSystemTestHelper.getTestRootPath(fsTarget), true);
-    fsTarget2.delete(fileSystemTestHelper.getTestRootPath(fsTarget2), true);
-  }
+    @After
+    public void tearDown() throws Exception {
+        fsTarget.delete(fileSystemTestHelper.getTestRootPath(fsTarget), true);
+        fsTarget2.delete(fileSystemTestHelper.getTestRootPath(fsTarget2), true);
+    }
 
-  /**
-   * Verify a ViewFs wrapped over multiple federated NameNodes will
-   * dispatch the ACL operations to the correct NameNode.
-   */
-  @Test
-  public void testAclOnMountEntry() throws Exception {
-    // Set ACLs on the first namespace and verify they are correct
-    List<AclEntry> aclSpec = Lists.newArrayList(
-        aclEntry(ACCESS, USER, READ_WRITE),
-        aclEntry(ACCESS, USER, "foo", READ),
-        aclEntry(ACCESS, GROUP, READ),
-        aclEntry(ACCESS, OTHER, NONE));
-    fsView.setAcl(mountOnNn1, aclSpec);
+    /**
+     * Verify a ViewFs wrapped over multiple federated NameNodes will
+     * dispatch the ACL operations to the correct NameNode.
+     */
+    @Test
+    public void testAclOnMountEntry() throws Exception {
+        // Set ACLs on the first namespace and verify they are correct
+        List<AclEntry> aclSpec = Lists.newArrayList(
+                                     aclEntry(ACCESS, USER, READ_WRITE),
+                                     aclEntry(ACCESS, USER, "foo", READ),
+                                     aclEntry(ACCESS, GROUP, READ),
+                                     aclEntry(ACCESS, OTHER, NONE));
+        fsView.setAcl(mountOnNn1, aclSpec);
 
-    AclEntry[] expected = new AclEntry[] {
-        aclEntry(ACCESS, USER, "foo", READ),
-        aclEntry(ACCESS, GROUP, READ) };
-    assertArrayEquals(expected,  aclEntryArray(fsView.getAclStatus(mountOnNn1)));
-    // Double-check by getting ACL status using FileSystem
-    // instead of ViewFs
-    assertArrayEquals(expected, aclEntryArray(fHdfs.getAclStatus(targetTestRoot)));
+        AclEntry[] expected = new AclEntry[] {
+            aclEntry(ACCESS, USER, "foo", READ),
+            aclEntry(ACCESS, GROUP, READ)
+        };
+        assertArrayEquals(expected,  aclEntryArray(fsView.getAclStatus(mountOnNn1)));
+        // Double-check by getting ACL status using FileSystem
+        // instead of ViewFs
+        assertArrayEquals(expected, aclEntryArray(fHdfs.getAclStatus(targetTestRoot)));
 
-    // Modify the ACL entries on the first namespace
-    aclSpec = Lists.newArrayList(
-        aclEntry(DEFAULT, USER, "foo", READ));
-    fsView.modifyAclEntries(mountOnNn1, aclSpec);
-    expected = new AclEntry[] {
-        aclEntry(ACCESS, USER, "foo", READ),
-        aclEntry(ACCESS, GROUP, READ),
-        aclEntry(DEFAULT, USER, READ_WRITE),
-        aclEntry(DEFAULT, USER, "foo", READ),
-        aclEntry(DEFAULT, GROUP, READ),
-        aclEntry(DEFAULT, MASK, READ),
-        aclEntry(DEFAULT, OTHER, NONE) };
-    assertArrayEquals(expected, aclEntryArray(fsView.getAclStatus(mountOnNn1)));
+        // Modify the ACL entries on the first namespace
+        aclSpec = Lists.newArrayList(
+                      aclEntry(DEFAULT, USER, "foo", READ));
+        fsView.modifyAclEntries(mountOnNn1, aclSpec);
+        expected = new AclEntry[] {
+            aclEntry(ACCESS, USER, "foo", READ),
+            aclEntry(ACCESS, GROUP, READ),
+            aclEntry(DEFAULT, USER, READ_WRITE),
+            aclEntry(DEFAULT, USER, "foo", READ),
+            aclEntry(DEFAULT, GROUP, READ),
+            aclEntry(DEFAULT, MASK, READ),
+            aclEntry(DEFAULT, OTHER, NONE)
+        };
+        assertArrayEquals(expected, aclEntryArray(fsView.getAclStatus(mountOnNn1)));
 
-    fsView.removeDefaultAcl(mountOnNn1);
-    expected = new AclEntry[] {
-        aclEntry(ACCESS, USER, "foo", READ),
-        aclEntry(ACCESS, GROUP, READ) };
-    assertArrayEquals(expected, aclEntryArray(fsView.getAclStatus(mountOnNn1)));
-    assertArrayEquals(expected, aclEntryArray(fHdfs.getAclStatus(targetTestRoot)));
+        fsView.removeDefaultAcl(mountOnNn1);
+        expected = new AclEntry[] {
+            aclEntry(ACCESS, USER, "foo", READ),
+            aclEntry(ACCESS, GROUP, READ)
+        };
+        assertArrayEquals(expected, aclEntryArray(fsView.getAclStatus(mountOnNn1)));
+        assertArrayEquals(expected, aclEntryArray(fHdfs.getAclStatus(targetTestRoot)));
 
-    // Paranoid check: verify the other namespace does not
-    // have ACLs set on the same path.
-    assertEquals(0, fsView.getAclStatus(mountOnNn2).getEntries().size());
-    assertEquals(0, fHdfs2.getAclStatus(targetTestRoot2).getEntries().size());
+        // Paranoid check: verify the other namespace does not
+        // have ACLs set on the same path.
+        assertEquals(0, fsView.getAclStatus(mountOnNn2).getEntries().size());
+        assertEquals(0, fHdfs2.getAclStatus(targetTestRoot2).getEntries().size());
 
-    // Remove the ACL entries on the first namespace
-    fsView.removeAcl(mountOnNn1);
-    assertEquals(0, fsView.getAclStatus(mountOnNn1).getEntries().size());
-    assertEquals(0, fHdfs.getAclStatus(targetTestRoot).getEntries().size());
+        // Remove the ACL entries on the first namespace
+        fsView.removeAcl(mountOnNn1);
+        assertEquals(0, fsView.getAclStatus(mountOnNn1).getEntries().size());
+        assertEquals(0, fHdfs.getAclStatus(targetTestRoot).getEntries().size());
 
-    // Now set ACLs on the second namespace
-    aclSpec = Lists.newArrayList(
-        aclEntry(ACCESS, USER, "bar", READ));
-    fsView.modifyAclEntries(mountOnNn2, aclSpec);
-    expected = new AclEntry[] {
-        aclEntry(ACCESS, USER, "bar", READ),
-        aclEntry(ACCESS, GROUP, READ_EXECUTE) };
-    assertArrayEquals(expected, aclEntryArray(fsView.getAclStatus(mountOnNn2)));
-    assertArrayEquals(expected, aclEntryArray(fHdfs2.getAclStatus(targetTestRoot2)));
+        // Now set ACLs on the second namespace
+        aclSpec = Lists.newArrayList(
+                      aclEntry(ACCESS, USER, "bar", READ));
+        fsView.modifyAclEntries(mountOnNn2, aclSpec);
+        expected = new AclEntry[] {
+            aclEntry(ACCESS, USER, "bar", READ),
+            aclEntry(ACCESS, GROUP, READ_EXECUTE)
+        };
+        assertArrayEquals(expected, aclEntryArray(fsView.getAclStatus(mountOnNn2)));
+        assertArrayEquals(expected, aclEntryArray(fHdfs2.getAclStatus(targetTestRoot2)));
 
-    // Remove the ACL entries on the second namespace
-    fsView.removeAclEntries(mountOnNn2, Lists.newArrayList(
-        aclEntry(ACCESS, USER, "bar", READ)
-    ));
-    expected = new AclEntry[] { aclEntry(ACCESS, GROUP, READ_EXECUTE) };
-    assertArrayEquals(expected, aclEntryArray(fHdfs2.getAclStatus(targetTestRoot2)));
-    fsView.removeAcl(mountOnNn2);
-    assertEquals(0, fsView.getAclStatus(mountOnNn2).getEntries().size());
-    assertEquals(0, fHdfs2.getAclStatus(targetTestRoot2).getEntries().size());
-  }
+        // Remove the ACL entries on the second namespace
+        fsView.removeAclEntries(mountOnNn2, Lists.newArrayList(
+                                    aclEntry(ACCESS, USER, "bar", READ)
+                                ));
+        expected = new AclEntry[] { aclEntry(ACCESS, GROUP, READ_EXECUTE) };
+        assertArrayEquals(expected, aclEntryArray(fHdfs2.getAclStatus(targetTestRoot2)));
+        fsView.removeAcl(mountOnNn2);
+        assertEquals(0, fsView.getAclStatus(mountOnNn2).getEntries().size());
+        assertEquals(0, fHdfs2.getAclStatus(targetTestRoot2).getEntries().size());
+    }
 
-  private AclEntry[] aclEntryArray(AclStatus aclStatus) {
-    return aclStatus.getEntries().toArray(new AclEntry[0]);
-  }
+    private AclEntry[] aclEntryArray(AclStatus aclStatus) {
+        return aclStatus.getEntries().toArray(new AclEntry[0]);
+    }
 
 }

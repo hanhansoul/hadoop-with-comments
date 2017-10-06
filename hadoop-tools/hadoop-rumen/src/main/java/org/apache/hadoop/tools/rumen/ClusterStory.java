@@ -25,59 +25,59 @@ import java.util.Random;
  * including nodes, network topology, and slot configurations.
  */
 public interface ClusterStory {
-  /**
-   * Get all machines of the cluster.
-   * @return A read-only set that contains all machines of the cluster.
-   */
-  public Set<MachineNode> getMachines();
+    /**
+     * Get all machines of the cluster.
+     * @return A read-only set that contains all machines of the cluster.
+     */
+    public Set<MachineNode> getMachines();
 
-  /**
-   * Get all racks of the cluster.
-   * @return A read-only set that contains all racks of the cluster.
-   */
-  public Set<RackNode> getRacks();
-  
-  /**
-   * Get the cluster topology tree.
-   * @return The root node of the cluster topology tree.
-   */
-  public Node getClusterTopology();
-  
-  /**
-   * Select a random set of machines.
-   * @param expected The expected sample size.
-   * @param random Random number generator to use.
-   * @return An array of up to expected number of {@link MachineNode}s.
-   */
-  public MachineNode[] getRandomMachines(int expected, Random random);
+    /**
+     * Get all racks of the cluster.
+     * @return A read-only set that contains all racks of the cluster.
+     */
+    public Set<RackNode> getRacks();
 
-  /**
-   * Get {@link MachineNode} by its host name.
-   * 
-   * @return The {@link MachineNode} with the same name. Or null if not found.
-   */
-  public MachineNode getMachineByName(String name);
-  
-  /**
-   * Get {@link RackNode} by its name.
-   * @return The {@link RackNode} with the same name. Or null if not found.
-   */
-  public RackNode getRackByName(String name);
+    /**
+     * Get the cluster topology tree.
+     * @return The root node of the cluster topology tree.
+     */
+    public Node getClusterTopology();
 
-  /**
-   * Determine the distance between two {@link Node}s. Currently, the distance
-   * is loosely defined as the length of the longer path for either a or b to
-   * reach their common ancestor.
-   * 
-   * @param a
-   * @param b
-   * @return The distance between {@link Node} a and {@link Node} b.
-   */
-  int distance(Node a, Node b);
-  
-  /**
-   * Get the maximum distance possible between any two nodes.
-   * @return the maximum distance possible between any two nodes.
-   */
-  int getMaximumDistance();
+    /**
+     * Select a random set of machines.
+     * @param expected The expected sample size.
+     * @param random Random number generator to use.
+     * @return An array of up to expected number of {@link MachineNode}s.
+     */
+    public MachineNode[] getRandomMachines(int expected, Random random);
+
+    /**
+     * Get {@link MachineNode} by its host name.
+     *
+     * @return The {@link MachineNode} with the same name. Or null if not found.
+     */
+    public MachineNode getMachineByName(String name);
+
+    /**
+     * Get {@link RackNode} by its name.
+     * @return The {@link RackNode} with the same name. Or null if not found.
+     */
+    public RackNode getRackByName(String name);
+
+    /**
+     * Determine the distance between two {@link Node}s. Currently, the distance
+     * is loosely defined as the length of the longer path for either a or b to
+     * reach their common ancestor.
+     *
+     * @param a
+     * @param b
+     * @return The distance between {@link Node} a and {@link Node} b.
+     */
+    int distance(Node a, Node b);
+
+    /**
+     * Get the maximum distance possible between any two nodes.
+     * @return the maximum distance possible between any two nodes.
+     */
+    int getMaximumDistance();
 }

@@ -24,56 +24,56 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestUtils {
-  private static final Path[] LOG_PATHS = new Path[] {
-    new Path("file:///foo/_logs"),
-    new Path("file:///foo/_logs/"),
-    new Path("_logs/"),
-    new Path("_logs")
-  };
+    private static final Path[] LOG_PATHS = new Path[] {
+        new Path("file:///foo/_logs"),
+        new Path("file:///foo/_logs/"),
+        new Path("_logs/"),
+        new Path("_logs")
+    };
 
-  private static final Path[] SUCCEEDED_PATHS = new Path[] {
-    new Path("file:///blah/" + FileOutputCommitter.SUCCEEDED_FILE_NAME)
-  };
+    private static final Path[] SUCCEEDED_PATHS = new Path[] {
+        new Path("file:///blah/" + FileOutputCommitter.SUCCEEDED_FILE_NAME)
+    };
 
-  private static final Path[] PASS_PATHS = new Path[] {
-    new Path("file:///my_logs/blah"),
-    new Path("file:///a/b/c"),
-    new Path("file:///foo/_logs/blah"),
-    new Path("_logs/foo"),
-    new Path("file:///blah/" +
-             FileOutputCommitter.SUCCEEDED_FILE_NAME +
-             "/bar")
-  };
+    private static final Path[] PASS_PATHS = new Path[] {
+        new Path("file:///my_logs/blah"),
+        new Path("file:///a/b/c"),
+        new Path("file:///foo/_logs/blah"),
+        new Path("_logs/foo"),
+        new Path("file:///blah/" +
+                 FileOutputCommitter.SUCCEEDED_FILE_NAME +
+                 "/bar")
+    };
 
-  @Test
-  public void testOutputFilesFilter() {
-    PathFilter filter = new Utils.OutputFileUtils.OutputFilesFilter();
-    for (Path p : LOG_PATHS) {
-      assertFalse(filter.accept(p));
+    @Test
+    public void testOutputFilesFilter() {
+        PathFilter filter = new Utils.OutputFileUtils.OutputFilesFilter();
+        for (Path p : LOG_PATHS) {
+            assertFalse(filter.accept(p));
+        }
+
+        for (Path p : SUCCEEDED_PATHS) {
+            assertFalse(filter.accept(p));
+        }
+
+        for (Path p : PASS_PATHS) {
+            assertTrue(filter.accept(p));
+        }
     }
 
-    for (Path p : SUCCEEDED_PATHS) {
-      assertFalse(filter.accept(p));
-    }
+    @Test
+    public void testLogFilter() {
+        PathFilter filter = new Utils.OutputFileUtils.OutputLogFilter();
+        for (Path p : LOG_PATHS) {
+            assertFalse(filter.accept(p));
+        }
 
-    for (Path p : PASS_PATHS) {
-      assertTrue(filter.accept(p));
-    }
-  }
+        for (Path p : SUCCEEDED_PATHS) {
+            assertTrue(filter.accept(p));
+        }
 
-  @Test
-  public void testLogFilter() {
-    PathFilter filter = new Utils.OutputFileUtils.OutputLogFilter();
-    for (Path p : LOG_PATHS) {
-      assertFalse(filter.accept(p));
+        for (Path p : PASS_PATHS) {
+            assertTrue(filter.accept(p));
+        }
     }
-
-    for (Path p : SUCCEEDED_PATHS) {
-      assertTrue(filter.accept(p));
-    }
-
-    for (Path p : PASS_PATHS) {
-      assertTrue(filter.accept(p));
-    }
-  }
 }

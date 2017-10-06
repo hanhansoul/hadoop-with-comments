@@ -28,19 +28,19 @@ import org.junit.Test;
  */
 public class TestCredentialsSys {
 
-  @Test
-  public void testReadWrite() {
-    CredentialsSys credential = new CredentialsSys();
-    credential.setUID(0);
-    credential.setGID(1);
-    
-    XDR xdr = new XDR();
-    credential.write(xdr);
-    
-    CredentialsSys newCredential = new CredentialsSys();
-    newCredential.read(xdr.asReadOnlyWrap());
-    
-    assertEquals(0, newCredential.getUID());
-    assertEquals(1, newCredential.getGID());
-  }
+    @Test
+    public void testReadWrite() {
+        CredentialsSys credential = new CredentialsSys();
+        credential.setUID(0);
+        credential.setGID(1);
+
+        XDR xdr = new XDR();
+        credential.write(xdr);
+
+        CredentialsSys newCredential = new CredentialsSys();
+        newCredential.read(xdr.asReadOnlyWrap());
+
+        assertEquals(0, newCredential.getUID());
+        assertEquals(1, newCredential.getGID());
+    }
 }

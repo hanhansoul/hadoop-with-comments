@@ -33,31 +33,31 @@ import org.apache.hadoop.hdfs.server.namenode.NNStorage.NameNodeDirType;
 import org.junit.Test;
 
 public class TestFSImageStorageInspector {
-  /**
-   * Simple test with image, edits, and inprogress edits
-   */
-  @Test
-  public void testCurrentStorageInspector() throws IOException {
-    FSImageTransactionalStorageInspector inspector = 
-        new FSImageTransactionalStorageInspector();
-    
-    StorageDirectory mockDir = FSImageTestUtil.mockStorageDirectory(
-        NameNodeDirType.IMAGE_AND_EDITS,
-        false,
-        "/foo/current/" + getImageFileName(123),
-        "/foo/current/" + getFinalizedEditsFileName(123, 456),
-        "/foo/current/" + getImageFileName(456),
-        "/foo/current/" + getInProgressEditsFileName(457));
+    /**
+     * Simple test with image, edits, and inprogress edits
+     */
+    @Test
+    public void testCurrentStorageInspector() throws IOException {
+        FSImageTransactionalStorageInspector inspector =
+            new FSImageTransactionalStorageInspector();
 
-    inspector.inspectDirectory(mockDir);
-    assertEquals(2, inspector.foundImages.size());
+        StorageDirectory mockDir = FSImageTestUtil.mockStorageDirectory(
+                                       NameNodeDirType.IMAGE_AND_EDITS,
+                                       false,
+                                       "/foo/current/" + getImageFileName(123),
+                                       "/foo/current/" + getFinalizedEditsFileName(123, 456),
+                                       "/foo/current/" + getImageFileName(456),
+                                       "/foo/current/" + getInProgressEditsFileName(457));
 
-    FSImageFile latestImage = inspector.getLatestImages().get(0);
-    assertEquals(456, latestImage.txId);
-    assertSame(mockDir, latestImage.sd);
-    assertTrue(inspector.isUpgradeFinalized());
-    
-    assertEquals(new File("/foo/current/"+getImageFileName(456)), 
-        latestImage.getFile());
-  }
+        inspector.inspectDirectory(mockDir);
+        assertEquals(2, inspector.foundImages.size());
+
+        FSImageFile latestImage = inspector.getLatestImages().get(0);
+        assertEquals(456, latestImage.txId);
+        assertSame(mockDir, latestImage.sd);
+        assertTrue(inspector.isUpgradeFinalized());
+
+        assertEquals(new File("/foo/current/"+getImageFileName(456)),
+                     latestImage.getFile());
+    }
 }

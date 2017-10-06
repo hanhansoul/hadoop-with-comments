@@ -27,7 +27,7 @@ import org.apache.hadoop.yarn.util.Records;
  * <p>
  * <code>ContainerReport</code> is a report of an container.
  * </p>
- * 
+ *
  * <p>
  * It includes details such as:
  * <ul>
@@ -44,174 +44,174 @@ import org.apache.hadoop.yarn.util.Records;
  * <li>nodeHttpAddress</li>
  * </ul>
  * </p>
- * 
+ *
  */
 
 @Public
 @Unstable
 public abstract class ContainerReport {
-  @Private
-  @Unstable
-  public static ContainerReport newInstance(ContainerId containerId,
-      Resource allocatedResource, NodeId assignedNode, Priority priority,
-      long creationTime, long finishTime, String diagnosticInfo, String logUrl,
-      int containerExitStatus, ContainerState containerState,
-      String nodeHttpAddress) {
-    ContainerReport report = Records.newRecord(ContainerReport.class);
-    report.setContainerId(containerId);
-    report.setAllocatedResource(allocatedResource);
-    report.setAssignedNode(assignedNode);
-    report.setPriority(priority);
-    report.setCreationTime(creationTime);
-    report.setFinishTime(finishTime);
-    report.setDiagnosticsInfo(diagnosticInfo);
-    report.setLogUrl(logUrl);
-    report.setContainerExitStatus(containerExitStatus);
-    report.setContainerState(containerState);
-    report.setNodeHttpAddress(nodeHttpAddress);
-    return report;
-  }
+    @Private
+    @Unstable
+    public static ContainerReport newInstance(ContainerId containerId,
+            Resource allocatedResource, NodeId assignedNode, Priority priority,
+            long creationTime, long finishTime, String diagnosticInfo, String logUrl,
+            int containerExitStatus, ContainerState containerState,
+            String nodeHttpAddress) {
+        ContainerReport report = Records.newRecord(ContainerReport.class);
+        report.setContainerId(containerId);
+        report.setAllocatedResource(allocatedResource);
+        report.setAssignedNode(assignedNode);
+        report.setPriority(priority);
+        report.setCreationTime(creationTime);
+        report.setFinishTime(finishTime);
+        report.setDiagnosticsInfo(diagnosticInfo);
+        report.setLogUrl(logUrl);
+        report.setContainerExitStatus(containerExitStatus);
+        report.setContainerState(containerState);
+        report.setNodeHttpAddress(nodeHttpAddress);
+        return report;
+    }
 
-  /**
-   * Get the <code>ContainerId</code> of the container.
-   * 
-   * @return <code>ContainerId</code> of the container.
-   */
-  @Public
-  @Unstable
-  public abstract ContainerId getContainerId();
+    /**
+     * Get the <code>ContainerId</code> of the container.
+     *
+     * @return <code>ContainerId</code> of the container.
+     */
+    @Public
+    @Unstable
+    public abstract ContainerId getContainerId();
 
-  @Public
-  @Unstable
-  public abstract void setContainerId(ContainerId containerId);
+    @Public
+    @Unstable
+    public abstract void setContainerId(ContainerId containerId);
 
-  /**
-   * Get the allocated <code>Resource</code> of the container.
-   * 
-   * @return allocated <code>Resource</code> of the container.
-   */
-  @Public
-  @Unstable
-  public abstract Resource getAllocatedResource();
+    /**
+     * Get the allocated <code>Resource</code> of the container.
+     *
+     * @return allocated <code>Resource</code> of the container.
+     */
+    @Public
+    @Unstable
+    public abstract Resource getAllocatedResource();
 
-  @Public
-  @Unstable
-  public abstract void setAllocatedResource(Resource resource);
+    @Public
+    @Unstable
+    public abstract void setAllocatedResource(Resource resource);
 
-  /**
-   * Get the allocated <code>NodeId</code> where container is running.
-   * 
-   * @return allocated <code>NodeId</code> where container is running.
-   */
-  @Public
-  @Unstable
-  public abstract NodeId getAssignedNode();
+    /**
+     * Get the allocated <code>NodeId</code> where container is running.
+     *
+     * @return allocated <code>NodeId</code> where container is running.
+     */
+    @Public
+    @Unstable
+    public abstract NodeId getAssignedNode();
 
-  @Public
-  @Unstable
-  public abstract void setAssignedNode(NodeId nodeId);
+    @Public
+    @Unstable
+    public abstract void setAssignedNode(NodeId nodeId);
 
-  /**
-   * Get the allocated <code>Priority</code> of the container.
-   * 
-   * @return allocated <code>Priority</code> of the container.
-   */
-  @Public
-  @Unstable
-  public abstract Priority getPriority();
+    /**
+     * Get the allocated <code>Priority</code> of the container.
+     *
+     * @return allocated <code>Priority</code> of the container.
+     */
+    @Public
+    @Unstable
+    public abstract Priority getPriority();
 
-  @Public
-  @Unstable
-  public abstract void setPriority(Priority priority);
+    @Public
+    @Unstable
+    public abstract void setPriority(Priority priority);
 
-  /**
-   * Get the creation time of the container.
-   * 
-   * @return creation time of the container
-   */
-  @Public
-  @Unstable
-  public abstract long getCreationTime();
+    /**
+     * Get the creation time of the container.
+     *
+     * @return creation time of the container
+     */
+    @Public
+    @Unstable
+    public abstract long getCreationTime();
 
-  @Public
-  @Unstable
-  public abstract void setCreationTime(long creationTime);
+    @Public
+    @Unstable
+    public abstract void setCreationTime(long creationTime);
 
-  /**
-   * Get the Finish time of the container.
-   * 
-   * @return Finish time of the container
-   */
-  @Public
-  @Unstable
-  public abstract long getFinishTime();
+    /**
+     * Get the Finish time of the container.
+     *
+     * @return Finish time of the container
+     */
+    @Public
+    @Unstable
+    public abstract long getFinishTime();
 
-  @Public
-  @Unstable
-  public abstract void setFinishTime(long finishTime);
+    @Public
+    @Unstable
+    public abstract void setFinishTime(long finishTime);
 
-  /**
-   * Get the DiagnosticsInfo of the container.
-   * 
-   * @return DiagnosticsInfo of the container
-   */
-  @Public
-  @Unstable
-  public abstract String getDiagnosticsInfo();
+    /**
+     * Get the DiagnosticsInfo of the container.
+     *
+     * @return DiagnosticsInfo of the container
+     */
+    @Public
+    @Unstable
+    public abstract String getDiagnosticsInfo();
 
-  @Public
-  @Unstable
-  public abstract void setDiagnosticsInfo(String diagnosticsInfo);
+    @Public
+    @Unstable
+    public abstract void setDiagnosticsInfo(String diagnosticsInfo);
 
-  /**
-   * Get the LogURL of the container.
-   * 
-   * @return LogURL of the container
-   */
-  @Public
-  @Unstable
-  public abstract String getLogUrl();
+    /**
+     * Get the LogURL of the container.
+     *
+     * @return LogURL of the container
+     */
+    @Public
+    @Unstable
+    public abstract String getLogUrl();
 
-  @Public
-  @Unstable
-  public abstract void setLogUrl(String logUrl);
+    @Public
+    @Unstable
+    public abstract void setLogUrl(String logUrl);
 
-  /**
-   * Get the final <code>ContainerState</code> of the container.
-   * 
-   * @return final <code>ContainerState</code> of the container.
-   */
-  @Public
-  @Unstable
-  public abstract ContainerState getContainerState();
+    /**
+     * Get the final <code>ContainerState</code> of the container.
+     *
+     * @return final <code>ContainerState</code> of the container.
+     */
+    @Public
+    @Unstable
+    public abstract ContainerState getContainerState();
 
-  @Public
-  @Unstable
-  public abstract void setContainerState(ContainerState containerState);
+    @Public
+    @Unstable
+    public abstract void setContainerState(ContainerState containerState);
 
-  /**
-   * Get the final <code>exit status</code> of the container.
-   * 
-   * @return final <code>exit status</code> of the container.
-   */
-  @Public
-  @Unstable
-  public abstract int getContainerExitStatus();
+    /**
+     * Get the final <code>exit status</code> of the container.
+     *
+     * @return final <code>exit status</code> of the container.
+     */
+    @Public
+    @Unstable
+    public abstract int getContainerExitStatus();
 
-  @Public
-  @Unstable
-  public abstract void setContainerExitStatus(int containerExitStatus);
+    @Public
+    @Unstable
+    public abstract void setContainerExitStatus(int containerExitStatus);
 
-  /**
-   * Get the Node Http address of the container
-   * 
-   * @return the node http address of the container
-   */
-  @Public
-  @Unstable
-  public abstract String getNodeHttpAddress();
+    /**
+     * Get the Node Http address of the container
+     *
+     * @return the node http address of the container
+     */
+    @Public
+    @Unstable
+    public abstract String getNodeHttpAddress();
 
-  @Private
-  @Unstable
-  public abstract void setNodeHttpAddress(String nodeHttpAddress);
+    @Private
+    @Unstable
+    public abstract void setNodeHttpAddress(String nodeHttpAddress);
 }

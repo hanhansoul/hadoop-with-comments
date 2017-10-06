@@ -30,148 +30,148 @@ import org.apache.hadoop.mapreduce.v2.util.MRProtoUtils;
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class TaskAttemptCompletionEventPBImpl extends ProtoBase<TaskAttemptCompletionEventProto> implements TaskAttemptCompletionEvent {
-  TaskAttemptCompletionEventProto proto = TaskAttemptCompletionEventProto.getDefaultInstance();
-  TaskAttemptCompletionEventProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private TaskAttemptId taskAttemptId = null;
-  
-  
-  public TaskAttemptCompletionEventPBImpl() {
-    builder = TaskAttemptCompletionEventProto.newBuilder();
-  }
+    TaskAttemptCompletionEventProto proto = TaskAttemptCompletionEventProto.getDefaultInstance();
+    TaskAttemptCompletionEventProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public TaskAttemptCompletionEventPBImpl(TaskAttemptCompletionEventProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public TaskAttemptCompletionEventProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private TaskAttemptId taskAttemptId = null;
 
-  private void mergeLocalToBuilder() {
-    if (this.taskAttemptId != null) {
-      builder.setAttemptId(convertToProtoFormat(this.taskAttemptId));
+
+    public TaskAttemptCompletionEventPBImpl() {
+        builder = TaskAttemptCompletionEventProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = TaskAttemptCompletionEventProto.newBuilder(proto);
+    public TaskAttemptCompletionEventPBImpl(TaskAttemptCompletionEventProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public TaskAttemptId getAttemptId() {
-    TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.taskAttemptId != null) {
-      return this.taskAttemptId;
+
+    public TaskAttemptCompletionEventProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasAttemptId()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.taskAttemptId != null) {
+            builder.setAttemptId(convertToProtoFormat(this.taskAttemptId));
+        }
     }
-    this.taskAttemptId = convertFromProtoFormat(p.getAttemptId());
-    return this.taskAttemptId;
-  }
 
-  @Override
-  public void setAttemptId(TaskAttemptId attemptId) {
-    maybeInitBuilder();
-    if (attemptId == null) 
-      builder.clearAttemptId();
-    this.taskAttemptId = attemptId;
-  }
-  @Override
-  public TaskAttemptCompletionEventStatus getStatus() {
-    TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasStatus()) {
-      return null;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return convertFromProtoFormat(p.getStatus());
-  }
 
-  @Override
-  public void setStatus(TaskAttemptCompletionEventStatus status) {
-    maybeInitBuilder();
-    if (status == null) {
-      builder.clearStatus();
-      return;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = TaskAttemptCompletionEventProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    builder.setStatus(convertToProtoFormat(status));
-  }
-  @Override
-  public String getMapOutputServerAddress() {
-    TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasMapOutputServerAddress()) {
-      return null;
+
+
+    @Override
+    public TaskAttemptId getAttemptId() {
+        TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.taskAttemptId != null) {
+            return this.taskAttemptId;
+        }
+        if (!p.hasAttemptId()) {
+            return null;
+        }
+        this.taskAttemptId = convertFromProtoFormat(p.getAttemptId());
+        return this.taskAttemptId;
     }
-    return (p.getMapOutputServerAddress());
-  }
 
-  @Override
-  public void setMapOutputServerAddress(String mapOutputServerAddress) {
-    maybeInitBuilder();
-    if (mapOutputServerAddress == null) {
-      builder.clearMapOutputServerAddress();
-      return;
+    @Override
+    public void setAttemptId(TaskAttemptId attemptId) {
+        maybeInitBuilder();
+        if (attemptId == null)
+            builder.clearAttemptId();
+        this.taskAttemptId = attemptId;
     }
-    builder.setMapOutputServerAddress((mapOutputServerAddress));
-  }
-  @Override
-  public int getAttemptRunTime() {
-    TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getAttemptRunTime());
-  }
+    @Override
+    public TaskAttemptCompletionEventStatus getStatus() {
+        TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasStatus()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getStatus());
+    }
 
-  @Override
-  public void setAttemptRunTime(int attemptRunTime) {
-    maybeInitBuilder();
-    builder.setAttemptRunTime((attemptRunTime));
-  }
-  @Override
-  public int getEventId() {
-    TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getEventId());
-  }
+    @Override
+    public void setStatus(TaskAttemptCompletionEventStatus status) {
+        maybeInitBuilder();
+        if (status == null) {
+            builder.clearStatus();
+            return;
+        }
+        builder.setStatus(convertToProtoFormat(status));
+    }
+    @Override
+    public String getMapOutputServerAddress() {
+        TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasMapOutputServerAddress()) {
+            return null;
+        }
+        return (p.getMapOutputServerAddress());
+    }
 
-  @Override
-  public void setEventId(int eventId) {
-    maybeInitBuilder();
-    builder.setEventId((eventId));
-  }
+    @Override
+    public void setMapOutputServerAddress(String mapOutputServerAddress) {
+        maybeInitBuilder();
+        if (mapOutputServerAddress == null) {
+            builder.clearMapOutputServerAddress();
+            return;
+        }
+        builder.setMapOutputServerAddress((mapOutputServerAddress));
+    }
+    @Override
+    public int getAttemptRunTime() {
+        TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getAttemptRunTime());
+    }
 
-  private TaskAttemptIdPBImpl convertFromProtoFormat(TaskAttemptIdProto p) {
-    return new TaskAttemptIdPBImpl(p);
-  }
+    @Override
+    public void setAttemptRunTime(int attemptRunTime) {
+        maybeInitBuilder();
+        builder.setAttemptRunTime((attemptRunTime));
+    }
+    @Override
+    public int getEventId() {
+        TaskAttemptCompletionEventProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getEventId());
+    }
 
-  private TaskAttemptIdProto convertToProtoFormat(TaskAttemptId t) {
-    return ((TaskAttemptIdPBImpl)t).getProto();
-  }
+    @Override
+    public void setEventId(int eventId) {
+        maybeInitBuilder();
+        builder.setEventId((eventId));
+    }
 
-  private TaskAttemptCompletionEventStatusProto convertToProtoFormat(TaskAttemptCompletionEventStatus e) {
-    return MRProtoUtils.convertToProtoFormat(e);
-  }
+    private TaskAttemptIdPBImpl convertFromProtoFormat(TaskAttemptIdProto p) {
+        return new TaskAttemptIdPBImpl(p);
+    }
 
-  private TaskAttemptCompletionEventStatus convertFromProtoFormat(TaskAttemptCompletionEventStatusProto e) {
-    return MRProtoUtils.convertFromProtoFormat(e);
-  }
+    private TaskAttemptIdProto convertToProtoFormat(TaskAttemptId t) {
+        return ((TaskAttemptIdPBImpl)t).getProto();
+    }
+
+    private TaskAttemptCompletionEventStatusProto convertToProtoFormat(TaskAttemptCompletionEventStatus e) {
+        return MRProtoUtils.convertToProtoFormat(e);
+    }
+
+    private TaskAttemptCompletionEventStatus convertFromProtoFormat(TaskAttemptCompletionEventStatusProto e) {
+        return MRProtoUtils.convertFromProtoFormat(e);
+    }
 
 
 
-}  
+}

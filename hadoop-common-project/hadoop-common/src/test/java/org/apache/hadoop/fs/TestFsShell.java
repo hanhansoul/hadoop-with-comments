@@ -22,21 +22,21 @@ import org.junit.Test;
 
 public class TestFsShell {
 
-  @Test
-  public void testConfWithInvalidFile() throws Throwable {
-    String[] args = new String[1];
-    args[0] = "--conf=invalidFile";
-    Throwable th = null;
-    try {
-      FsShell.main(args);
-    } catch (Exception e) {
-      th = e;
-    }
+    @Test
+    public void testConfWithInvalidFile() throws Throwable {
+        String[] args = new String[1];
+        args[0] = "--conf=invalidFile";
+        Throwable th = null;
+        try {
+            FsShell.main(args);
+        } catch (Exception e) {
+            th = e;
+        }
 
-    if (!(th instanceof RuntimeException)) {
-      throw new AssertionFailedError("Expected Runtime exception, got: " + th)
-          .initCause(th);
+        if (!(th instanceof RuntimeException)) {
+            throw new AssertionFailedError("Expected Runtime exception, got: " + th)
+            .initCause(th);
+        }
     }
-  }
 
 }

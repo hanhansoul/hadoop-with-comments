@@ -29,22 +29,22 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
 @Stable
 public class YarnException extends Exception {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public YarnException() {
-    super();
-  }
+    public YarnException() {
+        super();
+    }
 
-  public YarnException(String message) {
-    super(message);
-  }
+    public YarnException(String message) {
+        super(message);
+    }
 
-  public YarnException(Throwable cause) {
-    super(cause);
-  }
+    public YarnException(Throwable cause) {
+        super(cause);
+    }
 
-  public YarnException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public YarnException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

@@ -33,100 +33,100 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class KillApplicationRequestPBImpl extends KillApplicationRequest {
-  KillApplicationRequestProto proto = KillApplicationRequestProto.getDefaultInstance();
-  KillApplicationRequestProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private ApplicationId applicationId = null;
-  
-  
-  public KillApplicationRequestPBImpl() {
-    builder = KillApplicationRequestProto.newBuilder();
-  }
+    KillApplicationRequestProto proto = KillApplicationRequestProto.getDefaultInstance();
+    KillApplicationRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public KillApplicationRequestPBImpl(KillApplicationRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public KillApplicationRequestProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private ApplicationId applicationId = null;
 
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public KillApplicationRequestPBImpl() {
+        builder = KillApplicationRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.applicationId != null) {
-      builder.setApplicationId(convertToProtoFormat(this.applicationId));
+    public KillApplicationRequestPBImpl(KillApplicationRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = KillApplicationRequestProto.newBuilder(proto);
+    public KillApplicationRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public ApplicationId getApplicationId() {
-    KillApplicationRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.applicationId != null) {
-      return this.applicationId;
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    if (!p.hasApplicationId()) {
-      return null;
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    this.applicationId = convertFromProtoFormat(p.getApplicationId());
-    return this.applicationId;
-  }
 
-  @Override
-  public void setApplicationId(ApplicationId applicationId) {
-    maybeInitBuilder();
-    if (applicationId == null) 
-      builder.clearApplicationId();
-    this.applicationId = applicationId;
-  }
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-  private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
-    return new ApplicationIdPBImpl(p);
-  }
+    private void mergeLocalToBuilder() {
+        if (this.applicationId != null) {
+            builder.setApplicationId(convertToProtoFormat(this.applicationId));
+        }
+    }
 
-  private ApplicationIdProto convertToProtoFormat(ApplicationId t) {
-    return ((ApplicationIdPBImpl)t).getProto();
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = KillApplicationRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+
+    @Override
+    public ApplicationId getApplicationId() {
+        KillApplicationRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.applicationId != null) {
+            return this.applicationId;
+        }
+        if (!p.hasApplicationId()) {
+            return null;
+        }
+        this.applicationId = convertFromProtoFormat(p.getApplicationId());
+        return this.applicationId;
+    }
+
+    @Override
+    public void setApplicationId(ApplicationId applicationId) {
+        maybeInitBuilder();
+        if (applicationId == null)
+            builder.clearApplicationId();
+        this.applicationId = applicationId;
+    }
+
+    private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
+        return new ApplicationIdPBImpl(p);
+    }
+
+    private ApplicationIdProto convertToProtoFormat(ApplicationId t) {
+        return ((ApplicationIdPBImpl)t).getProto();
+    }
 
 
 
-}  
+}

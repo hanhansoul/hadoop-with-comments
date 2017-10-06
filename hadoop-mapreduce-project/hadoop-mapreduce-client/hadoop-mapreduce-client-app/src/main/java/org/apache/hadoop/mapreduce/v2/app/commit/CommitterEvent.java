@@ -22,7 +22,7 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class CommitterEvent extends AbstractEvent<CommitterEventType> {
 
-  public CommitterEvent(CommitterEventType type) {
-    super(type);
-  }
+    public CommitterEvent(CommitterEventType type) {
+        super(type);
+    }
 }

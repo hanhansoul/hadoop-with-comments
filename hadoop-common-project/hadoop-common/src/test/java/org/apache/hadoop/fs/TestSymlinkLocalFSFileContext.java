@@ -26,15 +26,15 @@ import static org.junit.Assume.assumeTrue;
 
 public class TestSymlinkLocalFSFileContext extends TestSymlinkLocalFS {
 
-  @BeforeClass
-  public static void testSetup() throws Exception {
-    FileContext context = FileContext.getLocalFSFileContext();
-    wrapper = new FileContextTestWrapper(context);
-  }
+    @BeforeClass
+    public static void testSetup() throws Exception {
+        FileContext context = FileContext.getLocalFSFileContext();
+        wrapper = new FileContextTestWrapper(context);
+    }
 
-  @Override
-  public void testRenameFileWithDestParentSymlink() throws IOException {
-    assumeTrue(!Shell.WINDOWS);
-    super.testRenameFileWithDestParentSymlink();
-  }
+    @Override
+    public void testRenameFileWithDestParentSymlink() throws IOException {
+        assumeTrue(!Shell.WINDOWS);
+        super.testRenameFileWithDestParentSymlink();
+    }
 }

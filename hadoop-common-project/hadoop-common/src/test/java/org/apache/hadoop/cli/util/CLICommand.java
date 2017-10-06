@@ -21,9 +21,9 @@ package org.apache.hadoop.cli.util;
  * This interface is to generalize types of test command for upstream projects
  */
 public interface CLICommand {
-  public CommandExecutor getExecutor(String tag) throws IllegalArgumentException;
-  public CLICommandTypes getType();
-  public String getCmd();
-  @Override
-  public String toString();
+    public CommandExecutor getExecutor(String tag) throws IllegalArgumentException;
+    public CLICommandTypes getType();
+    public String getCmd();
+    @Override
+    public String toString();
 }

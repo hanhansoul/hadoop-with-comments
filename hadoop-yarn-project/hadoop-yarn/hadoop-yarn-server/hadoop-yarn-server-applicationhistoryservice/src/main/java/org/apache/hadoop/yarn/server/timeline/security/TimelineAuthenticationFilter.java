@@ -31,19 +31,19 @@ import org.apache.hadoop.yarn.server.timeline.security.TimelineDelegationTokenSe
 public class TimelineAuthenticationFilter
     extends DelegationTokenAuthenticationFilter {
 
-  private static TimelineDelegationTokenSecretManager secretManager;
+    private static TimelineDelegationTokenSecretManager secretManager;
 
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-    filterConfig.getServletContext().setAttribute(
-        DelegationTokenAuthenticationFilter.DELEGATION_TOKEN_SECRET_MANAGER_ATTR,
-        secretManager);
-    super.init(filterConfig);
-  }
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        filterConfig.getServletContext().setAttribute(
+            DelegationTokenAuthenticationFilter.DELEGATION_TOKEN_SECRET_MANAGER_ATTR,
+            secretManager);
+        super.init(filterConfig);
+    }
 
-  public static void setTimelineDelegationTokenSecretManager(
-      TimelineDelegationTokenSecretManager secretManager) {
-    TimelineAuthenticationFilter.secretManager = secretManager;
-  }
+    public static void setTimelineDelegationTokenSecretManager(
+        TimelineDelegationTokenSecretManager secretManager) {
+        TimelineAuthenticationFilter.secretManager = secretManager;
+    }
 
 }

@@ -27,9 +27,9 @@ import org.apache.hadoop.classification.InterfaceAudience;
  */
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class Html {
-  static final Pattern validIdRe = Pattern.compile("^[a-zA-Z_.0-9]+$");
+    static final Pattern validIdRe = Pattern.compile("^[a-zA-Z_.0-9]+$");
 
-  public static boolean isValidId(String id) {
-    return validIdRe.matcher(id).matches();
-  }
+    public static boolean isValidId(String id) {
+        return validIdRe.matcher(id).matches();
+    }
 }

@@ -30,27 +30,27 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.io.LongWritable;
 
-/** 
- * A {@link Reducer} that sums long values. 
+/**
+ * A {@link Reducer} that sums long values.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class LongSumReducer<K> extends MapReduceBase
     implements Reducer<K, LongWritable, K, LongWritable> {
 
-  public void reduce(K key, Iterator<LongWritable> values,
-                     OutputCollector<K, LongWritable> output,
-                     Reporter reporter)
+    public void reduce(K key, Iterator<LongWritable> values,
+                       OutputCollector<K, LongWritable> output,
+                       Reporter reporter)
     throws IOException {
 
-    // sum all values for this key
-    long sum = 0;
-    while (values.hasNext()) {
-      sum += values.next().get();
-    }
+        // sum all values for this key
+        long sum = 0;
+        while (values.hasNext()) {
+            sum += values.next().get();
+        }
 
-    // output sum
-    output.collect(key, new LongWritable(sum));
-  }
+        // output sum
+        output.collect(key, new LongWritable(sum));
+    }
 
 }

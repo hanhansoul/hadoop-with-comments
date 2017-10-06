@@ -31,98 +31,98 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class PreemptionContainerPBImpl extends PreemptionContainer {
 
-  PreemptionContainerProto proto =
-    PreemptionContainerProto.getDefaultInstance();
-  PreemptionContainerProto.Builder builder = null;
+    PreemptionContainerProto proto =
+        PreemptionContainerProto.getDefaultInstance();
+    PreemptionContainerProto.Builder builder = null;
 
-  boolean viaProto = false;
-  private ContainerId id;
+    boolean viaProto = false;
+    private ContainerId id;
 
-  public PreemptionContainerPBImpl() {
-    builder = PreemptionContainerProto.newBuilder();
-  }
-
-  public PreemptionContainerPBImpl(PreemptionContainerProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public synchronized PreemptionContainerProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public PreemptionContainerPBImpl() {
+        builder = PreemptionContainerProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (id != null) {
-      builder.setId(convertToProtoFormat(id));
+    public PreemptionContainerPBImpl(PreemptionContainerProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = PreemptionContainerProto.newBuilder(proto);
+    public synchronized PreemptionContainerProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public synchronized ContainerId getId() {
-    PreemptionContainerProtoOrBuilder p = viaProto ? proto : builder;
-    if (id != null) {
-      return id;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    if (!p.hasId()) {
-      return null;
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    id = convertFromProtoFormat(p.getId());
-    return id;
-  }
 
-  @Override
-  public synchronized void setId(final ContainerId id) {
-    maybeInitBuilder();
-    if (null == id) {
-      builder.clearId();
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    this.id = id;
-  }
 
-  private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
-    return new ContainerIdPBImpl(p);
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private ContainerIdProto convertToProtoFormat(ContainerId t) {
-    return ((ContainerIdPBImpl)t).getProto();
-  }
+    private void mergeLocalToBuilder() {
+        if (id != null) {
+            builder.setId(convertToProtoFormat(id));
+        }
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = PreemptionContainerProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public synchronized ContainerId getId() {
+        PreemptionContainerProtoOrBuilder p = viaProto ? proto : builder;
+        if (id != null) {
+            return id;
+        }
+        if (!p.hasId()) {
+            return null;
+        }
+        id = convertFromProtoFormat(p.getId());
+        return id;
+    }
+
+    @Override
+    public synchronized void setId(final ContainerId id) {
+        maybeInitBuilder();
+        if (null == id) {
+            builder.clearId();
+        }
+        this.id = id;
+    }
+
+    private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
+        return new ContainerIdPBImpl(p);
+    }
+
+    private ContainerIdProto convertToProtoFormat(ContainerId t) {
+        return ((ContainerIdPBImpl)t).getProto();
+    }
 
 }

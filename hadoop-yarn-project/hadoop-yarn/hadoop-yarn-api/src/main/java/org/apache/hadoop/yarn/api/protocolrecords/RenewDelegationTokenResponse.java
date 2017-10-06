@@ -29,20 +29,20 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class RenewDelegationTokenResponse {
 
-  @Private
-  @Unstable
-  public static RenewDelegationTokenResponse newInstance(long expTime) {
-    RenewDelegationTokenResponse response =
-        Records.newRecord(RenewDelegationTokenResponse.class);
-    response.setNextExpirationTime(expTime);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static RenewDelegationTokenResponse newInstance(long expTime) {
+        RenewDelegationTokenResponse response =
+            Records.newRecord(RenewDelegationTokenResponse.class);
+        response.setNextExpirationTime(expTime);
+        return response;
+    }
 
-  @Private
-  @Unstable
-  public abstract long getNextExpirationTime();
+    @Private
+    @Unstable
+    public abstract long getNextExpirationTime();
 
-  @Private
-  @Unstable
-  public abstract void setNextExpirationTime(long expTime);
+    @Private
+    @Unstable
+    public abstract void setNextExpirationTime(long expTime);
 }

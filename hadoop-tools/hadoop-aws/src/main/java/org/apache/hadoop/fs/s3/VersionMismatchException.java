@@ -27,11 +27,11 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class VersionMismatchException extends S3FileSystemException {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public VersionMismatchException(String clientVersion, String dataVersion) {
-    super("Version mismatch: client expects version " + clientVersion +
-        ", but data has version " +
-        (dataVersion == null ? "[unversioned]" : dataVersion));
-  }
+    public VersionMismatchException(String clientVersion, String dataVersion) {
+        super("Version mismatch: client expects version " + clientVersion +
+              ", but data has version " +
+              (dataVersion == null ? "[unversioned]" : dataVersion));
+    }
 }

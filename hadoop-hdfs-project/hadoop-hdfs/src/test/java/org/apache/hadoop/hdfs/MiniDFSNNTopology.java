@@ -33,220 +33,220 @@ import com.google.common.collect.Lists;
 @InterfaceAudience.LimitedPrivate({"HBase", "HDFS", "Hive", "MapReduce", "Pig"})
 @InterfaceStability.Unstable
 public class MiniDFSNNTopology {
-  private final List<NSConf> nameservices = Lists.newArrayList();
-  private boolean federation;
+    private final List<NSConf> nameservices = Lists.newArrayList();
+    private boolean federation;
 
-  public MiniDFSNNTopology() {
-  }
-
-  /**
-   * Set up a simple non-federated non-HA NN.
-   */
-  public static MiniDFSNNTopology simpleSingleNN(
-      int nameNodePort, int nameNodeHttpPort) {
-    return new MiniDFSNNTopology()
-      .addNameservice(new MiniDFSNNTopology.NSConf(null)
-        .addNN(new MiniDFSNNTopology.NNConf(null)
-          .setHttpPort(nameNodeHttpPort)
-          .setIpcPort(nameNodePort)));
-  }
-  
-
-  /**
-   * Set up an HA topology with a single HA nameservice.
-   */
-  public static MiniDFSNNTopology simpleHATopology() {
-    return new MiniDFSNNTopology()
-      .addNameservice(new MiniDFSNNTopology.NSConf("minidfs-ns")
-        .addNN(new MiniDFSNNTopology.NNConf("nn1"))
-        .addNN(new MiniDFSNNTopology.NNConf("nn2")));
-  }
-
-  /**
-   * Set up federated cluster with the given number of nameservices, each
-   * of which has only a single NameNode.
-   */
-  public static MiniDFSNNTopology simpleFederatedTopology(
-      int numNameservices) {
-    MiniDFSNNTopology topology = new MiniDFSNNTopology();
-    for (int i = 1; i <= numNameservices; i++) {
-      topology.addNameservice(new MiniDFSNNTopology.NSConf("ns" + i)
-        .addNN(new MiniDFSNNTopology.NNConf(null)));
+    public MiniDFSNNTopology() {
     }
-    topology.setFederation(true);
-    return topology;
-  }
 
-  /**
-   * Set up federated cluster with the given nameservices, each
-   * of which has only a single NameNode.
-   */
-  public static MiniDFSNNTopology simpleFederatedTopology(String nameservicesIds) {
-    MiniDFSNNTopology topology = new MiniDFSNNTopology();
-    String nsIds[] = nameservicesIds.split(",");
-    for (String nsId : nsIds) {
-      topology.addNameservice(new MiniDFSNNTopology.NSConf(nsId)
-        .addNN(new MiniDFSNNTopology.NNConf(null)));
+    /**
+     * Set up a simple non-federated non-HA NN.
+     */
+    public static MiniDFSNNTopology simpleSingleNN(
+        int nameNodePort, int nameNodeHttpPort) {
+        return new MiniDFSNNTopology()
+               .addNameservice(new MiniDFSNNTopology.NSConf(null)
+                               .addNN(new MiniDFSNNTopology.NNConf(null)
+                                      .setHttpPort(nameNodeHttpPort)
+                                      .setIpcPort(nameNodePort)));
     }
-    topology.setFederation(true);
-    return topology;
-  }
 
-  /**
-   * Set up federated cluster with the given number of nameservices, each
-   * of which has two NameNodes.
-   */
-  public static MiniDFSNNTopology simpleHAFederatedTopology(
-      int numNameservices) {
-    MiniDFSNNTopology topology = new MiniDFSNNTopology();
-    for (int i = 0; i < numNameservices; i++) {
-      topology.addNameservice(new MiniDFSNNTopology.NSConf("ns" + i)
-        .addNN(new MiniDFSNNTopology.NNConf("nn0"))
-        .addNN(new MiniDFSNNTopology.NNConf("nn1")));
+
+    /**
+     * Set up an HA topology with a single HA nameservice.
+     */
+    public static MiniDFSNNTopology simpleHATopology() {
+        return new MiniDFSNNTopology()
+               .addNameservice(new MiniDFSNNTopology.NSConf("minidfs-ns")
+                               .addNN(new MiniDFSNNTopology.NNConf("nn1"))
+                               .addNN(new MiniDFSNNTopology.NNConf("nn2")));
     }
-    topology.setFederation(true);
-    return topology;
-  }
 
-  public MiniDFSNNTopology setFederation(boolean federation) {
-    this.federation = federation;
-    return this;
-  }
-
-  public MiniDFSNNTopology addNameservice(NSConf nameservice) {
-    Preconditions.checkArgument(!nameservice.getNNs().isEmpty(),
-        "Must have at least one NN in a nameservice");
-    this.nameservices.add(nameservice);
-    return this;
-  }
-
-  public int countNameNodes() {
-    int count = 0;
-    for (NSConf ns : nameservices) {
-      count += ns.nns.size();
+    /**
+     * Set up federated cluster with the given number of nameservices, each
+     * of which has only a single NameNode.
+     */
+    public static MiniDFSNNTopology simpleFederatedTopology(
+        int numNameservices) {
+        MiniDFSNNTopology topology = new MiniDFSNNTopology();
+        for (int i = 1; i <= numNameservices; i++) {
+            topology.addNameservice(new MiniDFSNNTopology.NSConf("ns" + i)
+                                    .addNN(new MiniDFSNNTopology.NNConf(null)));
+        }
+        topology.setFederation(true);
+        return topology;
     }
-    return count;
-  }
-  
-  public NNConf getOnlyNameNode() {
-    Preconditions.checkState(countNameNodes() == 1,
-        "must have exactly one NN!");
-    return nameservices.get(0).getNNs().get(0);
-  }
 
-  public boolean isFederated() {
-    return nameservices.size() > 1 || federation;
-  }
-  
-  /**
-   * @return true if at least one of the nameservices
-   * in the topology has HA enabled.
-   */
-  public boolean isHA() {
-    for (NSConf ns : nameservices) {
-      if (ns.getNNs().size() > 1) {
+    /**
+     * Set up federated cluster with the given nameservices, each
+     * of which has only a single NameNode.
+     */
+    public static MiniDFSNNTopology simpleFederatedTopology(String nameservicesIds) {
+        MiniDFSNNTopology topology = new MiniDFSNNTopology();
+        String nsIds[] = nameservicesIds.split(",");
+        for (String nsId : nsIds) {
+            topology.addNameservice(new MiniDFSNNTopology.NSConf(nsId)
+                                    .addNN(new MiniDFSNNTopology.NNConf(null)));
+        }
+        topology.setFederation(true);
+        return topology;
+    }
+
+    /**
+     * Set up federated cluster with the given number of nameservices, each
+     * of which has two NameNodes.
+     */
+    public static MiniDFSNNTopology simpleHAFederatedTopology(
+        int numNameservices) {
+        MiniDFSNNTopology topology = new MiniDFSNNTopology();
+        for (int i = 0; i < numNameservices; i++) {
+            topology.addNameservice(new MiniDFSNNTopology.NSConf("ns" + i)
+                                    .addNN(new MiniDFSNNTopology.NNConf("nn0"))
+                                    .addNN(new MiniDFSNNTopology.NNConf("nn1")));
+        }
+        topology.setFederation(true);
+        return topology;
+    }
+
+    public MiniDFSNNTopology setFederation(boolean federation) {
+        this.federation = federation;
+        return this;
+    }
+
+    public MiniDFSNNTopology addNameservice(NSConf nameservice) {
+        Preconditions.checkArgument(!nameservice.getNNs().isEmpty(),
+                                    "Must have at least one NN in a nameservice");
+        this.nameservices.add(nameservice);
+        return this;
+    }
+
+    public int countNameNodes() {
+        int count = 0;
+        for (NSConf ns : nameservices) {
+            count += ns.nns.size();
+        }
+        return count;
+    }
+
+    public NNConf getOnlyNameNode() {
+        Preconditions.checkState(countNameNodes() == 1,
+                                 "must have exactly one NN!");
+        return nameservices.get(0).getNNs().get(0);
+    }
+
+    public boolean isFederated() {
+        return nameservices.size() > 1 || federation;
+    }
+
+    /**
+     * @return true if at least one of the nameservices
+     * in the topology has HA enabled.
+     */
+    public boolean isHA() {
+        for (NSConf ns : nameservices) {
+            if (ns.getNNs().size() > 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return true if all of the NNs in the cluster have their HTTP
+     * port specified to be non-ephemeral.
+     */
+    public boolean allHttpPortsSpecified() {
+        for (NSConf ns : nameservices) {
+            for (NNConf nn : ns.getNNs()) {
+                if (nn.getHttpPort() == 0) {
+                    return false;
+                }
+            }
+        }
         return true;
-      }
     }
-    return false;
-  }
 
-  /**
-   * @return true if all of the NNs in the cluster have their HTTP
-   * port specified to be non-ephemeral.
-   */
-  public boolean allHttpPortsSpecified() {
-    for (NSConf ns : nameservices) {
-      for (NNConf nn : ns.getNNs()) {
-        if (nn.getHttpPort() == 0) {
-          return false;
+    /**
+     * @return true if all of the NNs in the cluster have their IPC
+     * port specified to be non-ephemeral.
+     */
+    public boolean allIpcPortsSpecified() {
+        for (NSConf ns : nameservices) {
+            for (NNConf nn : ns.getNNs()) {
+                if (nn.getIpcPort() == 0) {
+                    return false;
+                }
+            }
         }
-      }
+        return true;
     }
-    return true;
-  }
-  
-  /**
-   * @return true if all of the NNs in the cluster have their IPC
-   * port specified to be non-ephemeral.
-   */
-  public boolean allIpcPortsSpecified() {
-    for (NSConf ns : nameservices) {
-      for (NNConf nn : ns.getNNs()) {
-        if (nn.getIpcPort() == 0) {
-          return false;
+
+    public List<NSConf> getNameservices() {
+        return nameservices;
+    }
+
+    public static class NSConf {
+        private final String id;
+        private final List<NNConf> nns = Lists.newArrayList();
+
+        public NSConf(String id) {
+            this.id = id;
         }
-      }
-    }
-    return true;
-  }
 
-  public List<NSConf> getNameservices() {
-    return nameservices;
-  }
-  
-  public static class NSConf {
-    private final String id;
-    private final List<NNConf> nns = Lists.newArrayList();
-    
-    public NSConf(String id) {
-      this.id = id;
-    }
-    
-    public NSConf addNN(NNConf nn) {
-      this.nns.add(nn);
-      return this;
+        public NSConf addNN(NNConf nn) {
+            this.nns.add(nn);
+            return this;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public List<NNConf> getNNs() {
+            return nns;
+        }
     }
 
-    public String getId() {
-      return id;
-    }
+    public static class NNConf {
+        private final String nnId;
+        private int httpPort;
+        private int ipcPort;
+        private String clusterId;
 
-    public List<NNConf> getNNs() {
-      return nns;
-    }
-  }
-  
-  public static class NNConf {
-    private final String nnId;
-    private int httpPort;
-    private int ipcPort;
-    private String clusterId;
-    
-    public NNConf(String nnId) {
-      this.nnId = nnId;
-    }
+        public NNConf(String nnId) {
+            this.nnId = nnId;
+        }
 
-    String getNnId() {
-      return nnId;
-    }
+        String getNnId() {
+            return nnId;
+        }
 
-    int getIpcPort() {
-      return ipcPort;
-    }
-    
-    int getHttpPort() {
-      return httpPort;
-    }
+        int getIpcPort() {
+            return ipcPort;
+        }
 
-    String getClusterId() {
-      return clusterId;
-    }
+        int getHttpPort() {
+            return httpPort;
+        }
 
-    public NNConf setHttpPort(int httpPort) {
-      this.httpPort = httpPort;
-      return this;
-    }
+        String getClusterId() {
+            return clusterId;
+        }
 
-    public NNConf setIpcPort(int ipcPort) {
-      this.ipcPort = ipcPort;
-      return this;
-    }
+        public NNConf setHttpPort(int httpPort) {
+            this.httpPort = httpPort;
+            return this;
+        }
 
-    public NNConf setClusterId(String clusterId) {
-      this.clusterId = clusterId;
-      return this;
+        public NNConf setIpcPort(int ipcPort) {
+            this.ipcPort = ipcPort;
+            return this;
+        }
+
+        public NNConf setClusterId(String clusterId) {
+            this.clusterId = clusterId;
+            return this;
+        }
     }
-  }
 
 }

@@ -26,25 +26,25 @@ import org.apache.hadoop.registry.client.types.ServiceRecord;
 
 public interface PersistencePolicies {
 
-  /**
-   * The record persists until removed manually: {@value}.
-   */
-  String PERMANENT = "permanent";
+    /**
+     * The record persists until removed manually: {@value}.
+     */
+    String PERMANENT = "permanent";
 
-  /**
-   * Remove when the YARN application defined in the id field
-   * terminates: {@value}.
-   */
-  String APPLICATION = "application";
+    /**
+     * Remove when the YARN application defined in the id field
+     * terminates: {@value}.
+     */
+    String APPLICATION = "application";
 
-  /**
-   * Remove when the current YARN application attempt ID finishes: {@value}.
-   */
-  String APPLICATION_ATTEMPT = "application-attempt";
+    /**
+     * Remove when the current YARN application attempt ID finishes: {@value}.
+     */
+    String APPLICATION_ATTEMPT = "application-attempt";
 
-  /**
-   * Remove when the YARN container in the ID field finishes: {@value}
-   */
-  String CONTAINER = "container";
+    /**
+     * Remove when the YARN container in the ID field finishes: {@value}
+     */
+    String CONTAINER = "container";
 
 }

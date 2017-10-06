@@ -39,255 +39,256 @@ import org.mockito.stubbing.Answer;
 import com.google.common.collect.HashMultiset;
 
 public class TestPeerCache {
-  static final Log LOG = LogFactory.getLog(TestPeerCache.class);
+    static final Log LOG = LogFactory.getLog(TestPeerCache.class);
 
-  private static class FakePeer implements Peer {
-    private boolean closed = false;
-    private final boolean hasDomain;
+    private static class FakePeer implements Peer {
+        private boolean closed = false;
+        private final boolean hasDomain;
 
-    private final DatanodeID dnId;
+        private final DatanodeID dnId;
 
-    public FakePeer(DatanodeID dnId, boolean hasDomain) {
-      this.dnId = dnId;
-      this.hasDomain = hasDomain;
-    }
+        public FakePeer(DatanodeID dnId, boolean hasDomain) {
+            this.dnId = dnId;
+            this.hasDomain = hasDomain;
+        }
 
-    @Override
-    public ReadableByteChannel getInputStreamChannel() {
-      throw new UnsupportedOperationException();
-    }
+        @Override
+        public ReadableByteChannel getInputStreamChannel() {
+            throw new UnsupportedOperationException();
+        }
 
-    @Override
-    public void setReadTimeout(int timeoutMs) throws IOException {
-      throw new UnsupportedOperationException();
-    }
+        @Override
+        public void setReadTimeout(int timeoutMs) throws IOException {
+            throw new UnsupportedOperationException();
+        }
 
-    @Override
-    public int getReceiveBufferSize() throws IOException {
-      throw new UnsupportedOperationException();
-    }
+        @Override
+        public int getReceiveBufferSize() throws IOException {
+            throw new UnsupportedOperationException();
+        }
 
-    @Override
-    public boolean getTcpNoDelay() throws IOException {
-      return false;
-    }
+        @Override
+        public boolean getTcpNoDelay() throws IOException {
+            return false;
+        }
 
-    @Override
-    public void setWriteTimeout(int timeoutMs) throws IOException {
-      throw new UnsupportedOperationException();
-    }
+        @Override
+        public void setWriteTimeout(int timeoutMs) throws IOException {
+            throw new UnsupportedOperationException();
+        }
 
-    @Override
-    public boolean isClosed() {
-      return closed;
-    }
-  
-    @Override
-    public void close() throws IOException {
-      closed = true;
-    }
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
 
-    @Override
-    public String getRemoteAddressString() {
-      return dnId.getInfoAddr();
-    }
+        @Override
+        public void close() throws IOException {
+            closed = true;
+        }
 
-    @Override
-    public String getLocalAddressString() {
-      return "127.0.0.1:123";
-    }
+        @Override
+        public String getRemoteAddressString() {
+            return dnId.getInfoAddr();
+        }
 
-    @Override
-    public InputStream getInputStream() throws IOException {
-      throw new UnsupportedOperationException();
-    }
-  
-    @Override
-    public OutputStream getOutputStream() throws IOException {
-      throw new UnsupportedOperationException();
-    }
-  
-    @Override
-    public boolean isLocal() {
-      return true;
-    }
-  
-    @Override
-    public String toString() {
-      return "FakePeer(dnId=" + dnId + ")";
-    }
+        @Override
+        public String getLocalAddressString() {
+            return "127.0.0.1:123";
+        }
 
-    @Override
-    public DomainSocket getDomainSocket() {
-      if (!hasDomain) return null;
-      // Return a mock which throws an exception whenever any function is
-      // called.
-      return Mockito.mock(DomainSocket.class,
-          new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation)
+        @Override
+        public InputStream getInputStream() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public OutputStream getOutputStream() throws IOException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isLocal() {
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "FakePeer(dnId=" + dnId + ")";
+        }
+
+        @Override
+        public DomainSocket getDomainSocket() {
+            if (!hasDomain) return null;
+            // Return a mock which throws an exception whenever any function is
+            // called.
+            return Mockito.mock(DomainSocket.class,
+            new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocation)
                 throws Throwable {
-              throw new RuntimeException("injected fault.");
-          } });
+                    throw new RuntimeException("injected fault.");
+                }
+            });
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof FakePeer)) return false;
+            FakePeer other = (FakePeer)o;
+            return hasDomain == other.hasDomain &&
+                   dnId.equals(other.dnId);
+        }
+
+        @Override
+        public int hashCode() {
+            return dnId.hashCode() ^ (hasDomain ? 1 : 0);
+        }
+
+        @Override
+        public boolean hasSecureChannel() {
+            return false;
+        }
     }
 
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof FakePeer)) return false;
-      FakePeer other = (FakePeer)o;
-      return hasDomain == other.hasDomain &&
-          dnId.equals(other.dnId);
+    @Test
+    public void testAddAndRetrieve() throws Exception {
+        PeerCache cache = new PeerCache(3, 100000);
+        DatanodeID dnId = new DatanodeID("192.168.0.1",
+                                         "fakehostname", "fake_datanode_id",
+                                         100, 101, 102, 103);
+        FakePeer peer = new FakePeer(dnId, false);
+        cache.put(dnId, peer);
+        assertTrue(!peer.isClosed());
+        assertEquals(1, cache.size());
+        assertEquals(peer, cache.get(dnId, false));
+        assertEquals(0, cache.size());
+        cache.close();
     }
 
-    @Override
-    public int hashCode() {
-      return dnId.hashCode() ^ (hasDomain ? 1 : 0);
+    @Test
+    public void testExpiry() throws Exception {
+        final int CAPACITY = 3;
+        final int EXPIRY_PERIOD = 10;
+        PeerCache cache = new PeerCache(CAPACITY, EXPIRY_PERIOD);
+        DatanodeID dnIds[] = new DatanodeID[CAPACITY];
+        FakePeer peers[] = new FakePeer[CAPACITY];
+        for (int i = 0; i < CAPACITY; ++i) {
+            dnIds[i] = new DatanodeID("192.168.0.1",
+                                      "fakehostname_" + i, "fake_datanode_id",
+                                      100, 101, 102, 103);
+            peers[i] = new FakePeer(dnIds[i], false);
+        }
+        for (int i = 0; i < CAPACITY; ++i) {
+            cache.put(dnIds[i], peers[i]);
+        }
+
+        // Wait for the peers to expire
+        Thread.sleep(EXPIRY_PERIOD * 50);
+        assertEquals(0, cache.size());
+
+        // make sure that the peers were closed when they were expired
+        for (int i = 0; i < CAPACITY; ++i) {
+            assertTrue(peers[i].isClosed());
+        }
+
+        // sleep for another second and see if
+        // the daemon thread runs fine on empty cache
+        Thread.sleep(EXPIRY_PERIOD * 50);
+        cache.close();
     }
 
-    @Override
-    public boolean hasSecureChannel() {
-      return false;
-    }
-  }
+    @Test
+    public void testEviction() throws Exception {
+        final int CAPACITY = 3;
+        PeerCache cache = new PeerCache(CAPACITY, 100000);
+        DatanodeID dnIds[] = new DatanodeID[CAPACITY + 1];
+        FakePeer peers[] = new FakePeer[CAPACITY + 1];
+        for (int i = 0; i < dnIds.length; ++i) {
+            dnIds[i] = new DatanodeID("192.168.0.1",
+                                      "fakehostname_" + i, "fake_datanode_id_" + i,
+                                      100, 101, 102, 103);
+            peers[i] = new FakePeer(dnIds[i], false);
+        }
+        for (int i = 0; i < CAPACITY; ++i) {
+            cache.put(dnIds[i], peers[i]);
+        }
+        // Check that the peers are cached
+        assertEquals(CAPACITY, cache.size());
 
-  @Test
-  public void testAddAndRetrieve() throws Exception {
-    PeerCache cache = new PeerCache(3, 100000);
-    DatanodeID dnId = new DatanodeID("192.168.0.1",
-          "fakehostname", "fake_datanode_id",
-          100, 101, 102, 103);
-    FakePeer peer = new FakePeer(dnId, false);
-    cache.put(dnId, peer);
-    assertTrue(!peer.isClosed());
-    assertEquals(1, cache.size());
-    assertEquals(peer, cache.get(dnId, false));
-    assertEquals(0, cache.size());
-    cache.close();
-  }
+        // Add another entry and check that the first entry was evicted
+        cache.put(dnIds[CAPACITY], peers[CAPACITY]);
+        assertEquals(CAPACITY, cache.size());
+        assertSame(null, cache.get(dnIds[0], false));
 
-  @Test
-  public void testExpiry() throws Exception {
-    final int CAPACITY = 3;
-    final int EXPIRY_PERIOD = 10;
-    PeerCache cache = new PeerCache(CAPACITY, EXPIRY_PERIOD);
-    DatanodeID dnIds[] = new DatanodeID[CAPACITY];
-    FakePeer peers[] = new FakePeer[CAPACITY];
-    for (int i = 0; i < CAPACITY; ++i) {
-      dnIds[i] = new DatanodeID("192.168.0.1",
-          "fakehostname_" + i, "fake_datanode_id",
-          100, 101, 102, 103);
-      peers[i] = new FakePeer(dnIds[i], false);
-    }
-    for (int i = 0; i < CAPACITY; ++i) {
-      cache.put(dnIds[i], peers[i]);
+        // Make sure that the other entries are still there
+        for (int i = 1; i < CAPACITY; ++i) {
+            Peer peer = cache.get(dnIds[i], false);
+            assertSame(peers[i], peer);
+            assertTrue(!peer.isClosed());
+            peer.close();
+        }
+        assertEquals(1, cache.size());
+        cache.close();
     }
 
-    // Wait for the peers to expire
-    Thread.sleep(EXPIRY_PERIOD * 50);
-    assertEquals(0, cache.size());
-
-    // make sure that the peers were closed when they were expired
-    for (int i = 0; i < CAPACITY; ++i) {
-      assertTrue(peers[i].isClosed());
+    @Test
+    public void testMultiplePeersWithSameKey() throws Exception {
+        final int CAPACITY = 3;
+        PeerCache cache = new PeerCache(CAPACITY, 100000);
+        DatanodeID dnId = new DatanodeID("192.168.0.1",
+                                         "fakehostname", "fake_datanode_id",
+                                         100, 101, 102, 103);
+        HashMultiset<FakePeer> peers = HashMultiset.create(CAPACITY);
+        for (int i = 0; i < CAPACITY; ++i) {
+            FakePeer peer = new FakePeer(dnId, false);
+            peers.add(peer);
+            cache.put(dnId, peer);
+        }
+        // Check that all of the peers ended up in the cache
+        assertEquals(CAPACITY, cache.size());
+        while (!peers.isEmpty()) {
+            Peer peer = cache.get(dnId, false);
+            assertTrue(peer != null);
+            assertTrue(!peer.isClosed());
+            peers.remove(peer);
+        }
+        assertEquals(0, cache.size());
+        cache.close();
     }
 
-    // sleep for another second and see if 
-    // the daemon thread runs fine on empty cache
-    Thread.sleep(EXPIRY_PERIOD * 50);
-    cache.close();
-  }
-
-  @Test
-  public void testEviction() throws Exception {
-    final int CAPACITY = 3;
-    PeerCache cache = new PeerCache(CAPACITY, 100000);
-    DatanodeID dnIds[] = new DatanodeID[CAPACITY + 1];
-    FakePeer peers[] = new FakePeer[CAPACITY + 1];
-    for (int i = 0; i < dnIds.length; ++i) {
-      dnIds[i] = new DatanodeID("192.168.0.1",
-          "fakehostname_" + i, "fake_datanode_id_" + i,
-          100, 101, 102, 103);
-      peers[i] = new FakePeer(dnIds[i], false);
+    @Test
+    public void testDomainSocketPeers() throws Exception {
+        final int CAPACITY = 3;
+        PeerCache cache = new PeerCache(CAPACITY, 100000);
+        DatanodeID dnId = new DatanodeID("192.168.0.1",
+                                         "fakehostname", "fake_datanode_id",
+                                         100, 101, 102, 103);
+        HashMultiset<FakePeer> peers = HashMultiset.create(CAPACITY);
+        for (int i = 0; i < CAPACITY; ++i) {
+            FakePeer peer = new FakePeer(dnId, i == CAPACITY - 1);
+            peers.add(peer);
+            cache.put(dnId, peer);
+        }
+        // Check that all of the peers ended up in the cache
+        assertEquals(CAPACITY, cache.size());
+        // Test that get(requireDomainPeer=true) finds the peer with the
+        // domain socket.
+        Peer peer = cache.get(dnId, true);
+        assertTrue(peer.getDomainSocket() != null);
+        peers.remove(peer);
+        // Test that get(requireDomainPeer=true) returns null when there are
+        // no more peers with domain sockets.
+        peer = cache.get(dnId, true);
+        assertTrue(peer == null);
+        // Check that all of the other peers ended up in the cache.
+        while (!peers.isEmpty()) {
+            peer = cache.get(dnId, false);
+            assertTrue(peer != null);
+            assertTrue(!peer.isClosed());
+            peers.remove(peer);
+        }
+        assertEquals(0, cache.size());
+        cache.close();
     }
-    for (int i = 0; i < CAPACITY; ++i) {
-      cache.put(dnIds[i], peers[i]);
-    }
-    // Check that the peers are cached
-    assertEquals(CAPACITY, cache.size());
-
-    // Add another entry and check that the first entry was evicted
-    cache.put(dnIds[CAPACITY], peers[CAPACITY]);
-    assertEquals(CAPACITY, cache.size());
-    assertSame(null, cache.get(dnIds[0], false));
-
-    // Make sure that the other entries are still there
-    for (int i = 1; i < CAPACITY; ++i) {
-      Peer peer = cache.get(dnIds[i], false);
-      assertSame(peers[i], peer);
-      assertTrue(!peer.isClosed());
-      peer.close();
-    }
-    assertEquals(1, cache.size());
-    cache.close();
-  }
-
-  @Test
-  public void testMultiplePeersWithSameKey() throws Exception {
-    final int CAPACITY = 3;
-    PeerCache cache = new PeerCache(CAPACITY, 100000);
-    DatanodeID dnId = new DatanodeID("192.168.0.1",
-          "fakehostname", "fake_datanode_id",
-          100, 101, 102, 103);
-    HashMultiset<FakePeer> peers = HashMultiset.create(CAPACITY);
-    for (int i = 0; i < CAPACITY; ++i) {
-      FakePeer peer = new FakePeer(dnId, false);
-      peers.add(peer);
-      cache.put(dnId, peer);
-    }
-    // Check that all of the peers ended up in the cache
-    assertEquals(CAPACITY, cache.size());
-    while (!peers.isEmpty()) {
-      Peer peer = cache.get(dnId, false);
-      assertTrue(peer != null);
-      assertTrue(!peer.isClosed());
-      peers.remove(peer);
-    }
-    assertEquals(0, cache.size());
-    cache.close();
-  }
-
-  @Test
-  public void testDomainSocketPeers() throws Exception {
-    final int CAPACITY = 3;
-    PeerCache cache = new PeerCache(CAPACITY, 100000);
-    DatanodeID dnId = new DatanodeID("192.168.0.1",
-          "fakehostname", "fake_datanode_id",
-          100, 101, 102, 103);
-    HashMultiset<FakePeer> peers = HashMultiset.create(CAPACITY);
-    for (int i = 0; i < CAPACITY; ++i) {
-      FakePeer peer = new FakePeer(dnId, i == CAPACITY - 1);
-      peers.add(peer);
-      cache.put(dnId, peer);
-    }
-    // Check that all of the peers ended up in the cache
-    assertEquals(CAPACITY, cache.size());
-    // Test that get(requireDomainPeer=true) finds the peer with the 
-    // domain socket.
-    Peer peer = cache.get(dnId, true);
-    assertTrue(peer.getDomainSocket() != null);
-    peers.remove(peer);
-    // Test that get(requireDomainPeer=true) returns null when there are
-    // no more peers with domain sockets.
-    peer = cache.get(dnId, true);
-    assertTrue(peer == null);
-    // Check that all of the other peers ended up in the cache.
-    while (!peers.isEmpty()) {
-      peer = cache.get(dnId, false);
-      assertTrue(peer != null);
-      assertTrue(!peer.isClosed());
-      peers.remove(peer);
-    }
-    assertEquals(0, cache.size());
-    cache.close();
-  }
 }

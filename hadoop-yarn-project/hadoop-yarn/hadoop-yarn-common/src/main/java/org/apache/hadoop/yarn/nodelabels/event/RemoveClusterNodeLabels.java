@@ -21,14 +21,14 @@ package org.apache.hadoop.yarn.nodelabels.event;
 import java.util.Collection;
 
 public class RemoveClusterNodeLabels extends NodeLabelsStoreEvent {
-  private Collection<String> labels;
-  
-  public RemoveClusterNodeLabels(Collection<String> labels) {
-    super(NodeLabelsStoreEventType.REMOVE_LABELS);
-    this.labels = labels;
-  }
-  
-  public Collection<String> getLabels() {
-    return labels;
-  }
+    private Collection<String> labels;
+
+    public RemoveClusterNodeLabels(Collection<String> labels) {
+        super(NodeLabelsStoreEventType.REMOVE_LABELS);
+        this.labels = labels;
+    }
+
+    public Collection<String> getLabels() {
+        return labels;
+    }
 }

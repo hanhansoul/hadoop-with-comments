@@ -51,142 +51,142 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TestFsDatasetCacheRevocation {
-  private static final Logger LOG = LoggerFactory.getLogger(
-      TestFsDatasetCacheRevocation.class);
+    private static final Logger LOG = LoggerFactory.getLogger(
+                                          TestFsDatasetCacheRevocation.class);
 
-  private static CacheManipulator prevCacheManipulator;
+    private static CacheManipulator prevCacheManipulator;
 
-  private static TemporarySocketDirectory sockDir;
+    private static TemporarySocketDirectory sockDir;
 
-  private static final int BLOCK_SIZE = 4096;
+    private static final int BLOCK_SIZE = 4096;
 
-  @Before
-  public void setUp() throws Exception {
-    prevCacheManipulator = NativeIO.POSIX.getCacheManipulator();
-    NativeIO.POSIX.setCacheManipulator(new NoMlockCacheManipulator());
-    DomainSocket.disableBindPathValidation();
-    sockDir = new TemporarySocketDirectory();
-  }
+    @Before
+    public void setUp() throws Exception {
+        prevCacheManipulator = NativeIO.POSIX.getCacheManipulator();
+        NativeIO.POSIX.setCacheManipulator(new NoMlockCacheManipulator());
+        DomainSocket.disableBindPathValidation();
+        sockDir = new TemporarySocketDirectory();
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    // Restore the original CacheManipulator
-    NativeIO.POSIX.setCacheManipulator(prevCacheManipulator);
-    sockDir.close();
-  }
+    @After
+    public void tearDown() throws Exception {
+        // Restore the original CacheManipulator
+        NativeIO.POSIX.setCacheManipulator(prevCacheManipulator);
+        sockDir.close();
+    }
 
-  private static Configuration getDefaultConf() {
-    HdfsConfiguration conf = new HdfsConfiguration();
-    conf.setLong(
-        DFSConfigKeys.DFS_NAMENODE_PATH_BASED_CACHE_REFRESH_INTERVAL_MS, 50);
-    conf.setLong(DFSConfigKeys.DFS_CACHEREPORT_INTERVAL_MSEC_KEY, 250);
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
-    conf.setLong(DFSConfigKeys.DFS_DATANODE_MAX_LOCKED_MEMORY_KEY,
-        TestFsDatasetCache.CACHE_CAPACITY);
-    conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
-    conf.setBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY, true);
-    conf.set(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY,
-      new File(sockDir.getDir(), "sock").getAbsolutePath());
-    return conf;
-  }
+    private static Configuration getDefaultConf() {
+        HdfsConfiguration conf = new HdfsConfiguration();
+        conf.setLong(
+            DFSConfigKeys.DFS_NAMENODE_PATH_BASED_CACHE_REFRESH_INTERVAL_MS, 50);
+        conf.setLong(DFSConfigKeys.DFS_CACHEREPORT_INTERVAL_MSEC_KEY, 250);
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
+        conf.setLong(DFSConfigKeys.DFS_DATANODE_MAX_LOCKED_MEMORY_KEY,
+                     TestFsDatasetCache.CACHE_CAPACITY);
+        conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
+        conf.setBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY, true);
+        conf.set(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY,
+                 new File(sockDir.getDir(), "sock").getAbsolutePath());
+        return conf;
+    }
 
-  /**
-   * Test that when a client has a replica mmapped, we will not un-mlock that
-   * replica for a reasonable amount of time, even if an uncache request
-   * occurs.
-   */
-  @Test(timeout=120000)
-  public void testPinning() throws Exception {
-    assumeTrue(NativeCodeLoader.isNativeCodeLoaded() && !Path.WINDOWS);
-    Configuration conf = getDefaultConf();
-    // Set a really long revocation timeout, so that we won't reach it during
-    // this test.
-    conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_TIMEOUT_MS,
-        1800000L);
-    // Poll very often
-    conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_POLLING_MS, 2L);
-    MiniDFSCluster cluster = null;
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    cluster.waitActive();
-    DistributedFileSystem dfs = cluster.getFileSystem();
+    /**
+     * Test that when a client has a replica mmapped, we will not un-mlock that
+     * replica for a reasonable amount of time, even if an uncache request
+     * occurs.
+     */
+    @Test(timeout=120000)
+    public void testPinning() throws Exception {
+        assumeTrue(NativeCodeLoader.isNativeCodeLoaded() && !Path.WINDOWS);
+        Configuration conf = getDefaultConf();
+        // Set a really long revocation timeout, so that we won't reach it during
+        // this test.
+        conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_TIMEOUT_MS,
+                     1800000L);
+        // Poll very often
+        conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_POLLING_MS, 2L);
+        MiniDFSCluster cluster = null;
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        cluster.waitActive();
+        DistributedFileSystem dfs = cluster.getFileSystem();
 
-    // Create and cache a file.
-    final String TEST_FILE = "/test_file";
-    DFSTestUtil.createFile(dfs, new Path(TEST_FILE),
-        BLOCK_SIZE, (short)1, 0xcafe);
-    dfs.addCachePool(new CachePoolInfo("pool"));
-    long cacheDirectiveId =
-      dfs.addCacheDirective(new CacheDirectiveInfo.Builder().
-        setPool("pool").setPath(new Path(TEST_FILE)).
-          setReplication((short) 1).build());
-    FsDatasetSpi<?> fsd = cluster.getDataNodes().get(0).getFSDataset();
-    DFSTestUtil.verifyExpectedCacheUsage(BLOCK_SIZE, 1, fsd);
+        // Create and cache a file.
+        final String TEST_FILE = "/test_file";
+        DFSTestUtil.createFile(dfs, new Path(TEST_FILE),
+                               BLOCK_SIZE, (short)1, 0xcafe);
+        dfs.addCachePool(new CachePoolInfo("pool"));
+        long cacheDirectiveId =
+            dfs.addCacheDirective(new CacheDirectiveInfo.Builder().
+                                  setPool("pool").setPath(new Path(TEST_FILE)).
+                                  setReplication((short) 1).build());
+        FsDatasetSpi<?> fsd = cluster.getDataNodes().get(0).getFSDataset();
+        DFSTestUtil.verifyExpectedCacheUsage(BLOCK_SIZE, 1, fsd);
 
-    // Mmap the file.
-    FSDataInputStream in = dfs.open(new Path(TEST_FILE));
-    ByteBuffer buf =
-        in.read(null, BLOCK_SIZE, EnumSet.noneOf(ReadOption.class));
+        // Mmap the file.
+        FSDataInputStream in = dfs.open(new Path(TEST_FILE));
+        ByteBuffer buf =
+            in.read(null, BLOCK_SIZE, EnumSet.noneOf(ReadOption.class));
 
-    // Attempt to uncache file.  The file should still be cached.
-    dfs.removeCacheDirective(cacheDirectiveId);
-    Thread.sleep(500);
-    DFSTestUtil.verifyExpectedCacheUsage(BLOCK_SIZE, 1, fsd);
+        // Attempt to uncache file.  The file should still be cached.
+        dfs.removeCacheDirective(cacheDirectiveId);
+        Thread.sleep(500);
+        DFSTestUtil.verifyExpectedCacheUsage(BLOCK_SIZE, 1, fsd);
 
-    // Un-mmap the file.  The file should be uncached after this.
-    in.releaseBuffer(buf);
-    DFSTestUtil.verifyExpectedCacheUsage(0, 0, fsd);
+        // Un-mmap the file.  The file should be uncached after this.
+        in.releaseBuffer(buf);
+        DFSTestUtil.verifyExpectedCacheUsage(0, 0, fsd);
 
-    // Cleanup
-    in.close();
-    cluster.shutdown();
-  }
+        // Cleanup
+        in.close();
+        cluster.shutdown();
+    }
 
-  /**
-   * Test that when we have an uncache request, and the client refuses to release
-   * the replica for a long time, we will un-mlock it.
-   */
-  @Test(timeout=120000)
-  public void testRevocation() throws Exception {
-    assumeTrue(NativeCodeLoader.isNativeCodeLoaded() && !Path.WINDOWS);
-    BlockReaderTestUtil.enableHdfsCachingTracing();
-    BlockReaderTestUtil.enableShortCircuitShmTracing();
-    Configuration conf = getDefaultConf();
-    // Set a really short revocation timeout.
-    conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_TIMEOUT_MS, 250L);
-    // Poll very often
-    conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_POLLING_MS, 2L);
-    MiniDFSCluster cluster = null;
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    cluster.waitActive();
-    DistributedFileSystem dfs = cluster.getFileSystem();
+    /**
+     * Test that when we have an uncache request, and the client refuses to release
+     * the replica for a long time, we will un-mlock it.
+     */
+    @Test(timeout=120000)
+    public void testRevocation() throws Exception {
+        assumeTrue(NativeCodeLoader.isNativeCodeLoaded() && !Path.WINDOWS);
+        BlockReaderTestUtil.enableHdfsCachingTracing();
+        BlockReaderTestUtil.enableShortCircuitShmTracing();
+        Configuration conf = getDefaultConf();
+        // Set a really short revocation timeout.
+        conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_TIMEOUT_MS, 250L);
+        // Poll very often
+        conf.setLong(DFSConfigKeys.DFS_DATANODE_CACHE_REVOCATION_POLLING_MS, 2L);
+        MiniDFSCluster cluster = null;
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        cluster.waitActive();
+        DistributedFileSystem dfs = cluster.getFileSystem();
 
-    // Create and cache a file.
-    final String TEST_FILE = "/test_file2";
-    DFSTestUtil.createFile(dfs, new Path(TEST_FILE),
-        BLOCK_SIZE, (short)1, 0xcafe);
-    dfs.addCachePool(new CachePoolInfo("pool"));
-    long cacheDirectiveId =
-        dfs.addCacheDirective(new CacheDirectiveInfo.Builder().
-            setPool("pool").setPath(new Path(TEST_FILE)).
-            setReplication((short) 1).build());
-    FsDatasetSpi<?> fsd = cluster.getDataNodes().get(0).getFSDataset();
-    DFSTestUtil.verifyExpectedCacheUsage(BLOCK_SIZE, 1, fsd);
+        // Create and cache a file.
+        final String TEST_FILE = "/test_file2";
+        DFSTestUtil.createFile(dfs, new Path(TEST_FILE),
+                               BLOCK_SIZE, (short)1, 0xcafe);
+        dfs.addCachePool(new CachePoolInfo("pool"));
+        long cacheDirectiveId =
+            dfs.addCacheDirective(new CacheDirectiveInfo.Builder().
+                                  setPool("pool").setPath(new Path(TEST_FILE)).
+                                  setReplication((short) 1).build());
+        FsDatasetSpi<?> fsd = cluster.getDataNodes().get(0).getFSDataset();
+        DFSTestUtil.verifyExpectedCacheUsage(BLOCK_SIZE, 1, fsd);
 
-    // Mmap the file.
-    FSDataInputStream in = dfs.open(new Path(TEST_FILE));
-    ByteBuffer buf =
-        in.read(null, BLOCK_SIZE, EnumSet.noneOf(ReadOption.class));
+        // Mmap the file.
+        FSDataInputStream in = dfs.open(new Path(TEST_FILE));
+        ByteBuffer buf =
+            in.read(null, BLOCK_SIZE, EnumSet.noneOf(ReadOption.class));
 
-    // Attempt to uncache file.  The file should get uncached.
-    LOG.info("removing cache directive {}", cacheDirectiveId);
-    dfs.removeCacheDirective(cacheDirectiveId);
-    LOG.info("finished removing cache directive {}", cacheDirectiveId);
-    Thread.sleep(1000);
-    DFSTestUtil.verifyExpectedCacheUsage(0, 0, fsd);
+        // Attempt to uncache file.  The file should get uncached.
+        LOG.info("removing cache directive {}", cacheDirectiveId);
+        dfs.removeCacheDirective(cacheDirectiveId);
+        LOG.info("finished removing cache directive {}", cacheDirectiveId);
+        Thread.sleep(1000);
+        DFSTestUtil.verifyExpectedCacheUsage(0, 0, fsd);
 
-    // Cleanup
-    in.releaseBuffer(buf);
-    in.close();
-    cluster.shutdown();
-  }
+        // Cleanup
+        in.releaseBuffer(buf);
+        in.close();
+        cluster.shutdown();
+    }
 }

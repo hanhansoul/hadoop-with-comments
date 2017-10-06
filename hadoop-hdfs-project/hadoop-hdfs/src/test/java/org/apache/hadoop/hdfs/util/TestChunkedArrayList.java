@@ -27,67 +27,67 @@ import com.google.common.base.Stopwatch;
 
 public class TestChunkedArrayList {
 
-  @Test
-  public void testBasics() {
-    final int N_ELEMS = 100000;
-    ChunkedArrayList<Integer> l = new ChunkedArrayList<Integer>();
-    assertTrue(l.isEmpty());
-    // Insert a bunch of elements.
-    for (int i = 0; i < N_ELEMS; i++) {
-      l.add(i);
-    }
-    assertFalse(l.isEmpty());
-    assertEquals(N_ELEMS, l.size());
+    @Test
+    public void testBasics() {
+        final int N_ELEMS = 100000;
+        ChunkedArrayList<Integer> l = new ChunkedArrayList<Integer>();
+        assertTrue(l.isEmpty());
+        // Insert a bunch of elements.
+        for (int i = 0; i < N_ELEMS; i++) {
+            l.add(i);
+        }
+        assertFalse(l.isEmpty());
+        assertEquals(N_ELEMS, l.size());
 
-    // Check that it got chunked.
-    assertTrue(l.getNumChunks() > 10);
-    assertEquals(8192, l.getMaxChunkSize());
-  }
-  
-  @Test
-  public void testIterator() {
-    ChunkedArrayList<Integer> l = new ChunkedArrayList<Integer>();
-    for (int i = 0; i < 30000; i++) {
-      l.add(i);
+        // Check that it got chunked.
+        assertTrue(l.getNumChunks() > 10);
+        assertEquals(8192, l.getMaxChunkSize());
     }
-    
-    int i = 0;
-    for (int fromList : l) {
-      assertEquals(i, fromList);
-      i++;
-    }
-  }
-  
-  @Test
-  public void testPerformance() {
-    String obj = "hello world";
-    
-    final int numElems = 1000000;
-    final int numTrials = 5;
-    
-    for (int trial = 0; trial < numTrials; trial++) {
-      System.gc();
-      {
-        ArrayList<String> arrayList = new ArrayList<String>();
-        Stopwatch sw = new Stopwatch();
-        sw.start();
-        for (int i = 0; i < numElems; i++) {
-          arrayList.add(obj);
+
+    @Test
+    public void testIterator() {
+        ChunkedArrayList<Integer> l = new ChunkedArrayList<Integer>();
+        for (int i = 0; i < 30000; i++) {
+            l.add(i);
         }
-        System.out.println("       ArrayList " + sw.elapsedMillis());
-      }
-      
-      // test ChunkedArrayList
-      System.gc();
-      {
-        ChunkedArrayList<String> chunkedList = new ChunkedArrayList<String>();
-        Stopwatch sw = new Stopwatch();
-        sw.start();
-        for (int i = 0; i < numElems; i++) {
-          chunkedList.add(obj);
+
+        int i = 0;
+        for (int fromList : l) {
+            assertEquals(i, fromList);
+            i++;
         }
-        System.out.println("ChunkedArrayList " + sw.elapsedMillis());
-      }
     }
-  }
+
+    @Test
+    public void testPerformance() {
+        String obj = "hello world";
+
+        final int numElems = 1000000;
+        final int numTrials = 5;
+
+        for (int trial = 0; trial < numTrials; trial++) {
+            System.gc();
+            {
+                ArrayList<String> arrayList = new ArrayList<String>();
+                Stopwatch sw = new Stopwatch();
+                sw.start();
+                for (int i = 0; i < numElems; i++) {
+                    arrayList.add(obj);
+                }
+                System.out.println("       ArrayList " + sw.elapsedMillis());
+            }
+
+            // test ChunkedArrayList
+            System.gc();
+            {
+                ChunkedArrayList<String> chunkedList = new ChunkedArrayList<String>();
+                Stopwatch sw = new Stopwatch();
+                sw.start();
+                for (int i = 0; i < numElems; i++) {
+                    chunkedList.add(obj);
+                }
+                System.out.println("ChunkedArrayList " + sw.elapsedMillis());
+            }
+        }
+    }
 }

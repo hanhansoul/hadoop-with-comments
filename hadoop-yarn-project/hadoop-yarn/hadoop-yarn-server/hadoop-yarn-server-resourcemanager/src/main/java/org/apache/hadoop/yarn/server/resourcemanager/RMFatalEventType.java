@@ -22,12 +22,12 @@ import org.apache.hadoop.classification.InterfaceAudience;
 
 @InterfaceAudience.Private
 public enum RMFatalEventType {
-  // Source <- Store
-  STATE_STORE_OP_FAILED,
+    // Source <- Store
+    STATE_STORE_OP_FAILED,
 
-  // Source <- Embedded Elector
-  EMBEDDED_ELECTOR_FAILED,
+    // Source <- Embedded Elector
+    EMBEDDED_ELECTOR_FAILED,
 
-  // Source <- Admin Service
-  TRANSITION_TO_ACTIVE_FAILED
+    // Source <- Admin Service
+    TRANSITION_TO_ACTIVE_FAILED
 }

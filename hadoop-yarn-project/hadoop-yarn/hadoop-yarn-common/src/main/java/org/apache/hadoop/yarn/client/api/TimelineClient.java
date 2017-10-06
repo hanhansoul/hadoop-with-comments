@@ -40,96 +40,96 @@ import org.apache.hadoop.yarn.security.client.TimelineDelegationTokenIdentifier;
 @Unstable
 public abstract class TimelineClient extends AbstractService {
 
-  @Public
-  public static TimelineClient createTimelineClient() {
-    TimelineClient client = new TimelineClientImpl();
-    return client;
-  }
+    @Public
+    public static TimelineClient createTimelineClient() {
+        TimelineClient client = new TimelineClientImpl();
+        return client;
+    }
 
-  @Private
-  protected TimelineClient(String name) {
-    super(name);
-  }
+    @Private
+    protected TimelineClient(String name) {
+        super(name);
+    }
 
-  /**
-   * <p>
-   * Send the information of a number of conceptual entities to the timeline
-   * server. It is a blocking API. The method will not return until it gets the
-   * response from the timeline server.
-   * </p>
-   * 
-   * @param entities
-   *          the collection of {@link TimelineEntity}
-   * @return the error information if the sent entities are not correctly stored
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract TimelinePutResponse putEntities(
-      TimelineEntity... entities) throws IOException, YarnException;
+    /**
+     * <p>
+     * Send the information of a number of conceptual entities to the timeline
+     * server. It is a blocking API. The method will not return until it gets the
+     * response from the timeline server.
+     * </p>
+     *
+     * @param entities
+     *          the collection of {@link TimelineEntity}
+     * @return the error information if the sent entities are not correctly stored
+     * @throws IOException
+     * @throws YarnException
+     */
+    @Public
+    public abstract TimelinePutResponse putEntities(
+        TimelineEntity... entities) throws IOException, YarnException;
 
-  /**
-   * <p>
-   * Send the information of a domain to the timeline server. It is a
-   * blocking API. The method will not return until it gets the response from
-   * the timeline server.
-   * </p>
-   * 
-   * @param domain
-   *          an {@link TimelineDomain} object
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract void putDomain(
-      TimelineDomain domain) throws IOException, YarnException;
+    /**
+     * <p>
+     * Send the information of a domain to the timeline server. It is a
+     * blocking API. The method will not return until it gets the response from
+     * the timeline server.
+     * </p>
+     *
+     * @param domain
+     *          an {@link TimelineDomain} object
+     * @throws IOException
+     * @throws YarnException
+     */
+    @Public
+    public abstract void putDomain(
+        TimelineDomain domain) throws IOException, YarnException;
 
-  /**
-   * <p>
-   * Get a delegation token so as to be able to talk to the timeline server in a
-   * secure way.
-   * </p>
-   * 
-   * @param renewer
-   *          Address of the renewer who can renew these tokens when needed by
-   *          securely talking to the timeline server
-   * @return a delegation token ({@link Token}) that can be used to talk to the
-   *         timeline server
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract Token<TimelineDelegationTokenIdentifier> getDelegationToken(
-      String renewer) throws IOException, YarnException;
+    /**
+     * <p>
+     * Get a delegation token so as to be able to talk to the timeline server in a
+     * secure way.
+     * </p>
+     *
+     * @param renewer
+     *          Address of the renewer who can renew these tokens when needed by
+     *          securely talking to the timeline server
+     * @return a delegation token ({@link Token}) that can be used to talk to the
+     *         timeline server
+     * @throws IOException
+     * @throws YarnException
+     */
+    @Public
+    public abstract Token<TimelineDelegationTokenIdentifier> getDelegationToken(
+        String renewer) throws IOException, YarnException;
 
-  /**
-   * <p>
-   * Renew a timeline delegation token.
-   * </p>
-   * 
-   * @param timelineDT
-   *          the delegation token to renew
-   * @return the new expiration time
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract long renewDelegationToken(
-      Token<TimelineDelegationTokenIdentifier> timelineDT)
-          throws IOException, YarnException;
+    /**
+     * <p>
+     * Renew a timeline delegation token.
+     * </p>
+     *
+     * @param timelineDT
+     *          the delegation token to renew
+     * @return the new expiration time
+     * @throws IOException
+     * @throws YarnException
+     */
+    @Public
+    public abstract long renewDelegationToken(
+        Token<TimelineDelegationTokenIdentifier> timelineDT)
+    throws IOException, YarnException;
 
-  /**
-   * <p>
-   * Cancel a timeline delegation token.
-   * </p>
-   * 
-   * @param timelineDT
-   *          the delegation token to cancel
-   * @throws IOException
-   * @throws YarnException
-   */
-  @Public
-  public abstract void cancelDelegationToken(
-      Token<TimelineDelegationTokenIdentifier> timelineDT)
-          throws IOException, YarnException;
+    /**
+     * <p>
+     * Cancel a timeline delegation token.
+     * </p>
+     *
+     * @param timelineDT
+     *          the delegation token to cancel
+     * @throws IOException
+     * @throws YarnException
+     */
+    @Public
+    public abstract void cancelDelegationToken(
+        Token<TimelineDelegationTokenIdentifier> timelineDT)
+    throws IOException, YarnException;
 }

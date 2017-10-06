@@ -23,15 +23,15 @@ import org.apache.hadoop.yarn.api.records.ResourceOption;
 
 public class RMNodeResourceUpdateEvent extends RMNodeEvent {
 
-  private final ResourceOption resourceOption;
-  
-  public RMNodeResourceUpdateEvent(NodeId nodeId, ResourceOption resourceOption) {
-    super(nodeId, RMNodeEventType.RESOURCE_UPDATE);
-    this.resourceOption = resourceOption;
-  }
+    private final ResourceOption resourceOption;
 
-  public ResourceOption getResourceOption() {
-    return resourceOption;
-  }
+    public RMNodeResourceUpdateEvent(NodeId nodeId, ResourceOption resourceOption) {
+        super(nodeId, RMNodeEventType.RESOURCE_UPDATE);
+        this.resourceOption = resourceOption;
+    }
+
+    public ResourceOption getResourceOption() {
+        return resourceOption;
+    }
 
 }

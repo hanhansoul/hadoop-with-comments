@@ -40,113 +40,113 @@ import org.apache.hadoop.mapreduce.counters.FrameworkCounterGroup;
 @InterfaceStability.Stable
 public class Counters extends AbstractCounters<Counter, CounterGroup> {
 
-  // Mix framework group implementation into CounterGroup interface
-  private static class FrameworkGroupImpl<T extends Enum<T>>
-      extends FrameworkCounterGroup<T, Counter> implements CounterGroup {
+    // Mix framework group implementation into CounterGroup interface
+    private static class FrameworkGroupImpl<T extends Enum<T>>
+        extends FrameworkCounterGroup<T, Counter> implements CounterGroup {
 
-    FrameworkGroupImpl(Class<T> cls) {
-      super(cls);
-    }
-
-    @Override
-    protected FrameworkCounter<T> newCounter(T key) {
-      return new FrameworkCounter<T>(key, getName());
-    }
-
-    @Override
-    public CounterGroupBase<Counter> getUnderlyingGroup() {
-      return this;
-    }
-  }
-
-  // Mix generic group implementation into CounterGroup interface
-  // and provide some mandatory group factory methods.
-  private static class GenericGroup extends AbstractCounterGroup<Counter>
-      implements CounterGroup {
-
-    GenericGroup(String name, String displayName, Limits limits) {
-      super(name, displayName, limits);
-    }
-
-    @Override
-    protected Counter newCounter(String name, String displayName, long value) {
-      return new GenericCounter(name, displayName, value);
-    }
-
-    @Override
-    protected Counter newCounter() {
-      return new GenericCounter();
-    }
-
-    @Override
-    public CounterGroupBase<Counter> getUnderlyingGroup() {
-      return this;
-    }
-  }
-
-  // Mix file system group implementation into the CounterGroup interface
-  private static class FileSystemGroup extends FileSystemCounterGroup<Counter>
-      implements CounterGroup {
-
-    @Override
-    protected Counter newCounter(String scheme, FileSystemCounter key) {
-      return new FSCounter(scheme, key);
-    }
-
-    @Override
-    public CounterGroupBase<Counter> getUnderlyingGroup() {
-      return this;
-    }
-  }
-
-  /**
-   * Provide factory methods for counter group factory implementation.
-   * See also the GroupFactory in
-   *  {@link org.apache.hadoop.mapred.Counters mapred.Counters}
-   */
-  private static class GroupFactory
-      extends CounterGroupFactory<Counter, CounterGroup> {
-
-    @Override
-    protected <T extends Enum<T>>
-    FrameworkGroupFactory<CounterGroup>
-        newFrameworkGroupFactory(final Class<T> cls) {
-      return new FrameworkGroupFactory<CounterGroup>() {
-        @Override public CounterGroup newGroup(String name) {
-          return new FrameworkGroupImpl<T>(cls); // impl in this package
+        FrameworkGroupImpl(Class<T> cls) {
+            super(cls);
         }
-      };
+
+        @Override
+        protected FrameworkCounter<T> newCounter(T key) {
+            return new FrameworkCounter<T>(key, getName());
+        }
+
+        @Override
+        public CounterGroupBase<Counter> getUnderlyingGroup() {
+            return this;
+        }
     }
 
-    @Override
-    protected CounterGroup newGenericGroup(String name, String displayName,
-                                           Limits limits) {
-      return new GenericGroup(name, displayName, limits);
+    // Mix generic group implementation into CounterGroup interface
+    // and provide some mandatory group factory methods.
+    private static class GenericGroup extends AbstractCounterGroup<Counter>
+        implements CounterGroup {
+
+        GenericGroup(String name, String displayName, Limits limits) {
+            super(name, displayName, limits);
+        }
+
+        @Override
+        protected Counter newCounter(String name, String displayName, long value) {
+            return new GenericCounter(name, displayName, value);
+        }
+
+        @Override
+        protected Counter newCounter() {
+            return new GenericCounter();
+        }
+
+        @Override
+        public CounterGroupBase<Counter> getUnderlyingGroup() {
+            return this;
+        }
     }
 
-    @Override
-    protected CounterGroup newFileSystemGroup() {
-      return new FileSystemGroup();
+    // Mix file system group implementation into the CounterGroup interface
+    private static class FileSystemGroup extends FileSystemCounterGroup<Counter>
+        implements CounterGroup {
+
+        @Override
+        protected Counter newCounter(String scheme, FileSystemCounter key) {
+            return new FSCounter(scheme, key);
+        }
+
+        @Override
+        public CounterGroupBase<Counter> getUnderlyingGroup() {
+            return this;
+        }
     }
-  }
 
-  private static final GroupFactory groupFactory = new GroupFactory();
+    /**
+     * Provide factory methods for counter group factory implementation.
+     * See also the GroupFactory in
+     *  {@link org.apache.hadoop.mapred.Counters mapred.Counters}
+     */
+    private static class GroupFactory
+        extends CounterGroupFactory<Counter, CounterGroup> {
 
-  /**
-   * Default constructor
-   */
-  public Counters() {
-    super(groupFactory);
-  }
+        @Override
+        protected <T extends Enum<T>>
+        FrameworkGroupFactory<CounterGroup>
+        newFrameworkGroupFactory(final Class<T> cls) {
+            return new FrameworkGroupFactory<CounterGroup>() {
+                @Override public CounterGroup newGroup(String name) {
+                    return new FrameworkGroupImpl<T>(cls); // impl in this package
+                }
+            };
+        }
 
-  /**
-   * Construct the Counters object from the another counters object
-   * @param <C> the type of counter
-   * @param <G> the type of counter group
-   * @param counters the old counters object
-   */
-  public <C extends Counter, G extends CounterGroupBase<C>>
-  Counters(AbstractCounters<C, G> counters) {
-    super(counters, groupFactory);
-  }
+        @Override
+        protected CounterGroup newGenericGroup(String name, String displayName,
+                                               Limits limits) {
+            return new GenericGroup(name, displayName, limits);
+        }
+
+        @Override
+        protected CounterGroup newFileSystemGroup() {
+            return new FileSystemGroup();
+        }
+    }
+
+    private static final GroupFactory groupFactory = new GroupFactory();
+
+    /**
+     * Default constructor
+     */
+    public Counters() {
+        super(groupFactory);
+    }
+
+    /**
+     * Construct the Counters object from the another counters object
+     * @param <C> the type of counter
+     * @param <G> the type of counter group
+     * @param counters the old counters object
+     */
+    public <C extends Counter, G extends CounterGroupBase<C>>
+    Counters(AbstractCounters<C, G> counters) {
+        super(counters, groupFactory);
+    }
 }

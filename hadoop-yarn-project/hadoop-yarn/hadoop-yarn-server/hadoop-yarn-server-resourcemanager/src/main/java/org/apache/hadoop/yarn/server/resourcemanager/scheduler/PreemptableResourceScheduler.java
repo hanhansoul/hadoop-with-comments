@@ -26,25 +26,25 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
  */
 public interface PreemptableResourceScheduler extends ResourceScheduler {
 
-  /**
-   * If the scheduler support container reservations, this method is used to
-   * ask the scheduler to drop the reservation for the given container.
-   * @param container Reference to reserved container allocation.
-   */
-  void dropContainerReservation(RMContainer container);
+    /**
+     * If the scheduler support container reservations, this method is used to
+     * ask the scheduler to drop the reservation for the given container.
+     * @param container Reference to reserved container allocation.
+     */
+    void dropContainerReservation(RMContainer container);
 
-  /**
-   * Ask the scheduler to obtain back the container from a specific application
-   * by issuing a preemption request
-   * @param aid the application from which we want to get a container back
-   * @param container the container we want back
-   */
-  void preemptContainer(ApplicationAttemptId aid, RMContainer container);
+    /**
+     * Ask the scheduler to obtain back the container from a specific application
+     * by issuing a preemption request
+     * @param aid the application from which we want to get a container back
+     * @param container the container we want back
+     */
+    void preemptContainer(ApplicationAttemptId aid, RMContainer container);
 
-  /**
-   * Ask the scheduler to forcibly interrupt the container given as input
-   * @param container
-   */
-  void killContainer(RMContainer container);
+    /**
+     * Ask the scheduler to forcibly interrupt the container given as input
+     * @param container
+     */
+    void killContainer(RMContainer container);
 
 }

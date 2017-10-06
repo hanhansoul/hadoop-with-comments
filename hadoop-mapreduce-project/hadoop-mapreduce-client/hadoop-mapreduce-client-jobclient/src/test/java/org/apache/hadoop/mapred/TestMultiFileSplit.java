@@ -32,59 +32,59 @@ import junit.framework.TestCase;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 /**
- * 
+ *
  * test MultiFileSplit class
  */
-public class TestMultiFileSplit extends TestCase{
+public class TestMultiFileSplit extends TestCase {
 
     public void testReadWrite() throws Exception {
-      MultiFileSplit split = new MultiFileSplit(new JobConf(), new Path[] {new Path("/test/path/1"), new Path("/test/path/2")}, new long[] {100,200});
-        
-      ByteArrayOutputStream bos = null;
-      byte[] result = null;
-      try {    
-        bos = new ByteArrayOutputStream();
-        split.write(new DataOutputStream(bos));
-        result = bos.toByteArray();
-      } finally {
-        IOUtils.closeStream(bos);
-      }
-      
-      MultiFileSplit readSplit = new MultiFileSplit();
-      ByteArrayInputStream bis = null;
-      try {
-        bis = new ByteArrayInputStream(result);
-        readSplit.readFields(new DataInputStream(bis));
-      } finally {
-        IOUtils.closeStream(bis);
-      }
-      
-      assertTrue(split.getLength() != 0);
-      assertEquals(split.getLength(), readSplit.getLength());
-      assertTrue(Arrays.equals(split.getPaths(), readSplit.getPaths()));
-      assertTrue(Arrays.equals(split.getLengths(), readSplit.getLengths()));
-      System.out.println(split.toString());
+        MultiFileSplit split = new MultiFileSplit(new JobConf(), new Path[] {new Path("/test/path/1"), new Path("/test/path/2")}, new long[] {100,200});
+
+        ByteArrayOutputStream bos = null;
+        byte[] result = null;
+        try {
+            bos = new ByteArrayOutputStream();
+            split.write(new DataOutputStream(bos));
+            result = bos.toByteArray();
+        } finally {
+            IOUtils.closeStream(bos);
+        }
+
+        MultiFileSplit readSplit = new MultiFileSplit();
+        ByteArrayInputStream bis = null;
+        try {
+            bis = new ByteArrayInputStream(result);
+            readSplit.readFields(new DataInputStream(bis));
+        } finally {
+            IOUtils.closeStream(bis);
+        }
+
+        assertTrue(split.getLength() != 0);
+        assertEquals(split.getLength(), readSplit.getLength());
+        assertTrue(Arrays.equals(split.getPaths(), readSplit.getPaths()));
+        assertTrue(Arrays.equals(split.getLengths(), readSplit.getLengths()));
+        System.out.println(split.toString());
     }
-    
+
     /**
      * test method getLocations
      * @throws IOException
      */
-    public void testgetLocations() throws IOException{
+    public void testgetLocations() throws IOException {
         JobConf job= new JobConf();
-      
-      File tmpFile = File.createTempFile("test","txt");
-      tmpFile.createNewFile();
-      OutputStream out=new FileOutputStream(tmpFile);
-      out.write("tempfile".getBytes());
-      out.flush();
-      out.close();
-      Path[] path= {new Path(tmpFile.getAbsolutePath())};
-      long[] lengths = {100};
-      
-      MultiFileSplit  split = new MultiFileSplit(job,path,lengths);
-     String [] locations= split.getLocations();
-     assertTrue(locations.length==1);
-     assertEquals(locations[0], "localhost");
+
+        File tmpFile = File.createTempFile("test","txt");
+        tmpFile.createNewFile();
+        OutputStream out=new FileOutputStream(tmpFile);
+        out.write("tempfile".getBytes());
+        out.flush();
+        out.close();
+        Path[] path= {new Path(tmpFile.getAbsolutePath())};
+        long[] lengths = {100};
+
+        MultiFileSplit  split = new MultiFileSplit(job,path,lengths);
+        String [] locations= split.getLocations();
+        assertTrue(locations.length==1);
+        assertEquals(locations[0], "localhost");
     }
 }

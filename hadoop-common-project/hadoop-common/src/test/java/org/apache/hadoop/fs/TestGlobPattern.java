@@ -26,49 +26,48 @@ import static org.junit.Assert.*;
  * Tests for glob patterns
  */
 public class TestGlobPattern {
-  private void assertMatch(boolean yes, String glob, String...input) {
-    GlobPattern pattern = new GlobPattern(glob);
+    private void assertMatch(boolean yes, String glob, String...input) {
+        GlobPattern pattern = new GlobPattern(glob);
 
-    for (String s : input) {
-      boolean result = pattern.matches(s);
-      assertTrue(glob +" should"+ (yes ? "" : " not") +" match "+ s,
-                 yes ? result : !result);
+        for (String s : input) {
+            boolean result = pattern.matches(s);
+            assertTrue(glob +" should"+ (yes ? "" : " not") +" match "+ s,
+                       yes ? result : !result);
+        }
     }
-  }
 
-  private void shouldThrow(String... globs) {
-    for (String glob : globs) {
-      try {
-        GlobPattern.compile(glob);
-      }
-      catch (PatternSyntaxException e) {
-        e.printStackTrace();
-        continue;
-      }
-      assertTrue("glob "+ glob +" should throw", false);
+    private void shouldThrow(String... globs) {
+        for (String glob : globs) {
+            try {
+                GlobPattern.compile(glob);
+            } catch (PatternSyntaxException e) {
+                e.printStackTrace();
+                continue;
+            }
+            assertTrue("glob "+ glob +" should throw", false);
+        }
     }
-  }
 
-  @Test public void testValidPatterns() {
-    assertMatch(true, "*", "^$", "foo", "bar");
-    assertMatch(true, "?", "?", "^", "[", "]", "$");
-    assertMatch(true, "foo*", "foo", "food", "fool");
-    assertMatch(true, "f*d", "fud", "food");
-    assertMatch(true, "*d", "good", "bad");
-    assertMatch(true, "\\*\\?\\[\\{\\\\", "*?[{\\");
-    assertMatch(true, "[]^-]", "]", "-", "^");
-    assertMatch(true, "]", "]");
-    assertMatch(true, "^.$()|+", "^.$()|+");
-    assertMatch(true, "[^^]", ".", "$", "[", "]");
-    assertMatch(false, "[^^]", "^");
-    assertMatch(true, "[!!-]", "^", "?");
-    assertMatch(false, "[!!-]", "!", "-");
-    assertMatch(true, "{[12]*,[45]*,[78]*}", "1", "2!", "4", "42", "7", "7$");
-    assertMatch(false, "{[12]*,[45]*,[78]*}", "3", "6", "9ß");
-    assertMatch(true, "}", "}");
-  }
+    @Test public void testValidPatterns() {
+        assertMatch(true, "*", "^$", "foo", "bar");
+        assertMatch(true, "?", "?", "^", "[", "]", "$");
+        assertMatch(true, "foo*", "foo", "food", "fool");
+        assertMatch(true, "f*d", "fud", "food");
+        assertMatch(true, "*d", "good", "bad");
+        assertMatch(true, "\\*\\?\\[\\{\\\\", "*?[{\\");
+        assertMatch(true, "[]^-]", "]", "-", "^");
+        assertMatch(true, "]", "]");
+        assertMatch(true, "^.$()|+", "^.$()|+");
+        assertMatch(true, "[^^]", ".", "$", "[", "]");
+        assertMatch(false, "[^^]", "^");
+        assertMatch(true, "[!!-]", "^", "?");
+        assertMatch(false, "[!!-]", "!", "-");
+        assertMatch(true, "{[12]*,[45]*,[78]*}", "1", "2!", "4", "42", "7", "7$");
+        assertMatch(false, "{[12]*,[45]*,[78]*}", "3", "6", "9ß");
+        assertMatch(true, "}", "}");
+    }
 
-  @Test public void testInvalidPatterns() {
-    shouldThrow("[", "[[]]", "[][]", "{", "\\");
-  }
+    @Test public void testInvalidPatterns() {
+        shouldThrow("[", "[[]]", "[][]", "{", "\\");
+    }
 }

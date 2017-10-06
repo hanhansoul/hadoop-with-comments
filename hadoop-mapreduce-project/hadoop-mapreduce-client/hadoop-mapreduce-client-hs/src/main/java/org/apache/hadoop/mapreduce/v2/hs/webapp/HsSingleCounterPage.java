@@ -29,41 +29,41 @@ import org.apache.hadoop.yarn.webapp.SubView;
  */
 public class HsSingleCounterPage extends HsView {
 
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
-   */
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    String tid = $(TASK_ID);
-    String activeNav = "2";
-    if(tid == null || tid.isEmpty()) {
-      activeNav = "1";
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
+     */
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        String tid = $(TASK_ID);
+        String activeNav = "2";
+        if(tid == null || tid.isEmpty()) {
+            activeNav = "1";
+        }
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:"+activeNav+"}");
+        set(DATATABLES_ID, "singleCounter");
+        set(initID(DATATABLES, "singleCounter"), counterTableInit());
+        setTableStyles(html, "singleCounter");
     }
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:"+activeNav+"}");
-    set(DATATABLES_ID, "singleCounter");
-    set(initID(DATATABLES, "singleCounter"), counterTableInit());
-    setTableStyles(html, "singleCounter");
-  }
 
-  /**
-   * @return The end of a javascript map that is the jquery datatable 
-   * configuration for the jobs table.  the Jobs table is assumed to be
-   * rendered by the class returned from {@link #content()} 
-   */
-  private String counterTableInit() {
-    return tableInit().
-        append(", aoColumnDefs:[").
-        append("{'sType':'title-numeric', 'aTargets': [ 1 ] }").
-        append("]}").
-        toString();
-  }
-  
-  /**
-   * The content of this page is the CountersBlock now.
-   * @return CountersBlock.class
-   */
-  @Override protected Class<? extends SubView> content() {
-    return SingleCounterBlock.class;
-  }
+    /**
+     * @return The end of a javascript map that is the jquery datatable
+     * configuration for the jobs table.  the Jobs table is assumed to be
+     * rendered by the class returned from {@link #content()}
+     */
+    private String counterTableInit() {
+        return tableInit().
+               append(", aoColumnDefs:[").
+               append("{'sType':'title-numeric', 'aTargets': [ 1 ] }").
+               append("]}").
+               toString();
+    }
+
+    /**
+     * The content of this page is the CountersBlock now.
+     * @return CountersBlock.class
+     */
+    @Override protected Class<? extends SubView> content() {
+        return SingleCounterBlock.class;
+    }
 }

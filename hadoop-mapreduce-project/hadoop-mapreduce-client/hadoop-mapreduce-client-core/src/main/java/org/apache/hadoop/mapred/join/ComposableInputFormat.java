@@ -36,9 +36,9 @@ import org.apache.hadoop.mapred.Reporter;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface ComposableInputFormat<K extends WritableComparable,
-                                       V extends Writable>
+    V extends Writable>
     extends InputFormat<K,V> {
 
-  ComposableRecordReader<K,V> getRecordReader(InputSplit split,
-      JobConf job, Reporter reporter) throws IOException;
+    ComposableRecordReader<K,V> getRecordReader(InputSplit split,
+            JobConf job, Reporter reporter) throws IOException;
 }

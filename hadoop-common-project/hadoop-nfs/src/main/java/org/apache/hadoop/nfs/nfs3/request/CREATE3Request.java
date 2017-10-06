@@ -27,60 +27,60 @@ import org.apache.hadoop.oncrpc.XDR;
  * CREATE3 Request
  */
 public class CREATE3Request extends RequestWithHandle {
-  private final String name;
-  private final int mode;
-  private final SetAttr3 objAttr;
-  private long verf = 0;
+    private final String name;
+    private final int mode;
+    private final SetAttr3 objAttr;
+    private long verf = 0;
 
-  public CREATE3Request(FileHandle handle, String name, int mode,
-      SetAttr3 objAttr, long verf) {
-    super(handle);
-    this.name = name;
-    this.mode = mode;
-    this.objAttr = objAttr;
-    this.verf = verf;
-  }
-  
-  public static CREATE3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    int mode = xdr.readInt();
-    SetAttr3 objAttr = new SetAttr3();
-    long verf = 0;
-    if ((mode == Nfs3Constant.CREATE_UNCHECKED)
-        || (mode == Nfs3Constant.CREATE_GUARDED)) {
-      objAttr.deserialize(xdr);
-    } else if (mode == Nfs3Constant.CREATE_EXCLUSIVE) {
-      verf = xdr.readHyper();
-    } else {
-      throw new IOException("Wrong create mode:" + mode);
+    public CREATE3Request(FileHandle handle, String name, int mode,
+                          SetAttr3 objAttr, long verf) {
+        super(handle);
+        this.name = name;
+        this.mode = mode;
+        this.objAttr = objAttr;
+        this.verf = verf;
     }
-    return new CREATE3Request(handle, name, mode, objAttr, verf);
-  }
 
-  public String getName() {
-    return name;
-  }
+    public static CREATE3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        int mode = xdr.readInt();
+        SetAttr3 objAttr = new SetAttr3();
+        long verf = 0;
+        if ((mode == Nfs3Constant.CREATE_UNCHECKED)
+            || (mode == Nfs3Constant.CREATE_GUARDED)) {
+            objAttr.deserialize(xdr);
+        } else if (mode == Nfs3Constant.CREATE_EXCLUSIVE) {
+            verf = xdr.readHyper();
+        } else {
+            throw new IOException("Wrong create mode:" + mode);
+        }
+        return new CREATE3Request(handle, name, mode, objAttr, verf);
+    }
 
-  public int getMode() {
-    return mode;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public SetAttr3 getObjAttr() {
-    return objAttr;
-  }
+    public int getMode() {
+        return mode;
+    }
 
-  public long getVerf() {
-    return verf;
-  }
-  
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.length());
-    xdr.writeFixedOpaque(name.getBytes(), name.length());
-    xdr.writeInt(mode);
-    objAttr.serialize(xdr);
-  }
+    public SetAttr3 getObjAttr() {
+        return objAttr;
+    }
+
+    public long getVerf() {
+        return verf;
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.length());
+        xdr.writeFixedOpaque(name.getBytes(), name.length());
+        xdr.writeInt(mode);
+        objAttr.serialize(xdr);
+    }
 
 }

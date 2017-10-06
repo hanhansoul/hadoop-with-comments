@@ -36,125 +36,126 @@ import com.google.common.io.ByteStreams;
 
 public class TestTools {
 
-  private static final int PIPE_BUFFER_SIZE = 1024 * 5;
-  private final static String INVALID_OPTION = "-invalidOption";
-  private static final String[] OPTIONS = new String[2];
+    private static final int PIPE_BUFFER_SIZE = 1024 * 5;
+    private final static String INVALID_OPTION = "-invalidOption";
+    private static final String[] OPTIONS = new String[2];
 
-  @BeforeClass
-  public static void before() {
-    ExitUtil.disableSystemExit();
-    OPTIONS[1] = INVALID_OPTION;
-  }
-
-  @Test  
-  public void testDelegationTokenFetcherPrintUsage() {
-    String pattern = "Options:";
-    checkOutput(new String[] { "-help" }, pattern, System.out,
-        DelegationTokenFetcher.class);
-  }
-
-  @Test  
-  public void testDelegationTokenFetcherErrorOption() {
-    String pattern = "ERROR: Only specify cancel, renew or print.";
-    checkOutput(new String[] { "-cancel", "-renew" }, pattern, System.err,
-        DelegationTokenFetcher.class);
-  }
-
-  @Test  
-  public void testJMXToolHelp() {
-    String pattern = "usage: jmxget options are:";
-    checkOutput(new String[] { "-help" }, pattern, System.out, JMXGet.class);
-  }
-
-  @Test  
-  public void testJMXToolAdditionParameter() {
-    String pattern = "key = -addition";
-    checkOutput(new String[] { "-service=NameNode", "-server=localhost",
-        "-addition" }, pattern, System.err, JMXGet.class);
-  }
-
-  @Test
-  public void testDFSAdminInvalidUsageHelp() {
-    ImmutableSet<String> args = ImmutableSet.of("-report", "-saveNamespace",
-        "-rollEdits", "-restoreFailedStorage", "-refreshNodes",
-        "-finalizeUpgrade", "-metasave", "-refreshUserToGroupsMappings",
-        "-printTopology", "-refreshNamenodes", "-deleteBlockPool",
-        "-setBalancerBandwidth", "-fetchImage");
-    try {
-      for (String arg : args)
-        assertTrue(ToolRunner.run(new DFSAdmin(), fillArgs(arg)) == -1);
-      
-      assertTrue(ToolRunner.run(new DFSAdmin(),
-          new String[] { "-help", "-some" }) == 0);
-    } catch (Exception e) {
-      fail("testDFSAdminHelp error" + e);
+    @BeforeClass
+    public static void before() {
+        ExitUtil.disableSystemExit();
+        OPTIONS[1] = INVALID_OPTION;
     }
 
-    String pattern = "Usage: hdfs dfsadmin";
-    checkOutput(new String[] { "-cancel", "-renew" }, pattern, System.err,
-        DFSAdmin.class);
-  }
-
-  private static String[] fillArgs(String arg) {
-    OPTIONS[0] = arg;
-    return OPTIONS;
-  }
-
-  private void checkOutput(String[] args, String pattern, PrintStream out,
-      Class<?> clazz) {       
-    ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
-    try {
-      PipedOutputStream pipeOut = new PipedOutputStream();
-      PipedInputStream pipeIn = new PipedInputStream(pipeOut, PIPE_BUFFER_SIZE);
-      if (out == System.out) {
-        System.setOut(new PrintStream(pipeOut));
-      } else if (out == System.err) {
-        System.setErr(new PrintStream(pipeOut));
-      }
-
-      if (clazz == DelegationTokenFetcher.class) {
-        expectDelegationTokenFetcherExit(args);
-      } else if (clazz == JMXGet.class) {
-        expectJMXGetExit(args);
-      } else if (clazz == DFSAdmin.class) {
-        expectDfsAdminPrint(args);
-      }
-      pipeOut.close();
-      ByteStreams.copy(pipeIn, outBytes);      
-      pipeIn.close();
-      assertTrue(new String(outBytes.toByteArray()).contains(pattern));            
-    } catch (Exception ex) {
-      fail("checkOutput error " + ex);
+    @Test
+    public void testDelegationTokenFetcherPrintUsage() {
+        String pattern = "Options:";
+        checkOutput(new String[] { "-help" }, pattern, System.out,
+                    DelegationTokenFetcher.class);
     }
-  }
 
-  private void expectDfsAdminPrint(String[] args) {
-    try {
-      ToolRunner.run(new DFSAdmin(), args);
-    } catch (Exception ex) {
-      fail("expectDelegationTokenFetcherExit ex error " + ex);
+    @Test
+    public void testDelegationTokenFetcherErrorOption() {
+        String pattern = "ERROR: Only specify cancel, renew or print.";
+        checkOutput(new String[] { "-cancel", "-renew" }, pattern, System.err,
+                    DelegationTokenFetcher.class);
     }
-  }
 
-  private static void expectDelegationTokenFetcherExit(String[] args) {
-    try {
-      DelegationTokenFetcher.main(args);
-      fail("should call exit");
-    } catch (ExitException e) {
-      ExitUtil.resetFirstExitException();
-    } catch (Exception ex) {
-      fail("expectDelegationTokenFetcherExit ex error " + ex);
+    @Test
+    public void testJMXToolHelp() {
+        String pattern = "usage: jmxget options are:";
+        checkOutput(new String[] { "-help" }, pattern, System.out, JMXGet.class);
     }
-  }
 
-  private static void expectJMXGetExit(String[] args) {
-    try {
-      JMXGet.main(args);
-      fail("should call exit");
-    } catch (ExitException e) {
-      ExitUtil.resetFirstExitException();
-    } catch (Exception ex) {
-      fail("expectJMXGetExit ex error " + ex);
+    @Test
+    public void testJMXToolAdditionParameter() {
+        String pattern = "key = -addition";
+        checkOutput(new String[] { "-service=NameNode", "-server=localhost",
+                                   "-addition"
+                                 }, pattern, System.err, JMXGet.class);
     }
-  }
+
+    @Test
+    public void testDFSAdminInvalidUsageHelp() {
+        ImmutableSet<String> args = ImmutableSet.of("-report", "-saveNamespace",
+                                    "-rollEdits", "-restoreFailedStorage", "-refreshNodes",
+                                    "-finalizeUpgrade", "-metasave", "-refreshUserToGroupsMappings",
+                                    "-printTopology", "-refreshNamenodes", "-deleteBlockPool",
+                                    "-setBalancerBandwidth", "-fetchImage");
+        try {
+            for (String arg : args)
+                assertTrue(ToolRunner.run(new DFSAdmin(), fillArgs(arg)) == -1);
+
+            assertTrue(ToolRunner.run(new DFSAdmin(),
+                                      new String[] { "-help", "-some" }) == 0);
+        } catch (Exception e) {
+            fail("testDFSAdminHelp error" + e);
+        }
+
+        String pattern = "Usage: hdfs dfsadmin";
+        checkOutput(new String[] { "-cancel", "-renew" }, pattern, System.err,
+                    DFSAdmin.class);
+    }
+
+    private static String[] fillArgs(String arg) {
+        OPTIONS[0] = arg;
+        return OPTIONS;
+    }
+
+    private void checkOutput(String[] args, String pattern, PrintStream out,
+                             Class<?> clazz) {
+        ByteArrayOutputStream outBytes = new ByteArrayOutputStream();
+        try {
+            PipedOutputStream pipeOut = new PipedOutputStream();
+            PipedInputStream pipeIn = new PipedInputStream(pipeOut, PIPE_BUFFER_SIZE);
+            if (out == System.out) {
+                System.setOut(new PrintStream(pipeOut));
+            } else if (out == System.err) {
+                System.setErr(new PrintStream(pipeOut));
+            }
+
+            if (clazz == DelegationTokenFetcher.class) {
+                expectDelegationTokenFetcherExit(args);
+            } else if (clazz == JMXGet.class) {
+                expectJMXGetExit(args);
+            } else if (clazz == DFSAdmin.class) {
+                expectDfsAdminPrint(args);
+            }
+            pipeOut.close();
+            ByteStreams.copy(pipeIn, outBytes);
+            pipeIn.close();
+            assertTrue(new String(outBytes.toByteArray()).contains(pattern));
+        } catch (Exception ex) {
+            fail("checkOutput error " + ex);
+        }
+    }
+
+    private void expectDfsAdminPrint(String[] args) {
+        try {
+            ToolRunner.run(new DFSAdmin(), args);
+        } catch (Exception ex) {
+            fail("expectDelegationTokenFetcherExit ex error " + ex);
+        }
+    }
+
+    private static void expectDelegationTokenFetcherExit(String[] args) {
+        try {
+            DelegationTokenFetcher.main(args);
+            fail("should call exit");
+        } catch (ExitException e) {
+            ExitUtil.resetFirstExitException();
+        } catch (Exception ex) {
+            fail("expectDelegationTokenFetcherExit ex error " + ex);
+        }
+    }
+
+    private static void expectJMXGetExit(String[] args) {
+        try {
+            JMXGet.main(args);
+            fail("should call exit");
+        } catch (ExitException e) {
+            ExitUtil.resetFirstExitException();
+        } catch (Exception ex) {
+            fail("expectJMXGetExit ex error " + ex);
+        }
+    }
 }

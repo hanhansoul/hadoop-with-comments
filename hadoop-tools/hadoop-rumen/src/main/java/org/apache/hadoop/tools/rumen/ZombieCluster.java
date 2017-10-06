@@ -33,118 +33,118 @@ import org.apache.hadoop.fs.Path;
  * obtained from job history logs.
  */
 public class ZombieCluster extends AbstractClusterStory {
-  private Node root;
+    private Node root;
 
-  /**
-   * Construct a homogeneous cluster. We assume that the leaves on the topology
-   * are {@link MachineNode}s, and the parents of {@link MachineNode}s are
-   * {@link RackNode}s. We also expect all leaf nodes are on the same level.
-   * 
-   * @param topology
-   *          The network topology.
-   * @param defaultNode
-   *          The default node setting.
-   */
-  public ZombieCluster(LoggedNetworkTopology topology, MachineNode defaultNode) {
-    buildCluster(topology, defaultNode);
-  }
-
-  /**
-   * Construct a homogeneous cluster. We assume that the leaves on the topology
-   * are {@link MachineNode}s, and the parents of {@link MachineNode}s are
-   * {@link RackNode}s. We also expect all leaf nodes are on the same level.
-   * 
-   * @param path Path to the JSON-encoded topology file.
-   * @param conf
-   * @param defaultNode
-   *          The default node setting.
-   * @throws IOException 
-   */
-  public ZombieCluster(Path path, MachineNode defaultNode, Configuration conf) throws IOException {
-    this(new ClusterTopologyReader(path, conf).get(), defaultNode);
-  }
-  
-  /**
-   * Construct a homogeneous cluster. We assume that the leaves on the topology
-   * are {@link MachineNode}s, and the parents of {@link MachineNode}s are
-   * {@link RackNode}s. We also expect all leaf nodes are on the same level.
-   * 
-   * @param input The input stream for the JSON-encoded topology file.
-   * @param defaultNode
-   *          The default node setting.
-   * @throws IOException 
-   */
-  public ZombieCluster(InputStream input, MachineNode defaultNode) throws IOException {
-    this(new ClusterTopologyReader(input).get(), defaultNode);
-  }
-
-  @Override
-  public Node getClusterTopology() {
-    return root;
-  }
-
-  private final void buildCluster(LoggedNetworkTopology topology,
-      MachineNode defaultNode) {
-    Map<LoggedNetworkTopology, Integer> levelMapping = 
-      new IdentityHashMap<LoggedNetworkTopology, Integer>();
-    Deque<LoggedNetworkTopology> unvisited = 
-      new ArrayDeque<LoggedNetworkTopology>();
-    unvisited.add(topology);
-    levelMapping.put(topology, 0);
-    
-    // building levelMapping and determine leafLevel
-    int leafLevel = -1; // -1 means leafLevel unknown.
-    for (LoggedNetworkTopology n = unvisited.poll(); n != null; 
-      n = unvisited.poll()) {
-      int level = levelMapping.get(n);
-      List<LoggedNetworkTopology> children = n.getChildren();
-      if (children == null || children.isEmpty()) {
-        if (leafLevel == -1) {
-          leafLevel = level;
-        } else if (leafLevel != level) {
-          throw new IllegalArgumentException(
-              "Leaf nodes are not on the same level");
-        }
-      } else {
-        for (LoggedNetworkTopology child : children) {
-          levelMapping.put(child, level + 1);
-          unvisited.addFirst(child);
-        }
-      }
+    /**
+     * Construct a homogeneous cluster. We assume that the leaves on the topology
+     * are {@link MachineNode}s, and the parents of {@link MachineNode}s are
+     * {@link RackNode}s. We also expect all leaf nodes are on the same level.
+     *
+     * @param topology
+     *          The network topology.
+     * @param defaultNode
+     *          The default node setting.
+     */
+    public ZombieCluster(LoggedNetworkTopology topology, MachineNode defaultNode) {
+        buildCluster(topology, defaultNode);
     }
 
     /**
-     * A second-pass dfs traverse of topology tree. path[i] contains the parent
-     * of the node at level i+1.
+     * Construct a homogeneous cluster. We assume that the leaves on the topology
+     * are {@link MachineNode}s, and the parents of {@link MachineNode}s are
+     * {@link RackNode}s. We also expect all leaf nodes are on the same level.
+     *
+     * @param path Path to the JSON-encoded topology file.
+     * @param conf
+     * @param defaultNode
+     *          The default node setting.
+     * @throws IOException
      */
-    Node[] path = new Node[leafLevel];
-    unvisited.add(topology);
-    for (LoggedNetworkTopology n = unvisited.poll(); n != null; 
-      n = unvisited.poll()) {
-      int level = levelMapping.get(n);
-      Node current;
-      if (level == leafLevel) { // a machine node
-        MachineNode.Builder builder = 
-          new MachineNode.Builder(n.getName().getValue(), level);
-        if (defaultNode != null) {
-          builder.cloneFrom(defaultNode);
-        }
-        current = builder.build();
-      } else {
-        current = (level == leafLevel - 1) 
-          ? new RackNode(n.getName().getValue(), level) : 
-            new Node(n.getName().getValue(), level);
-        path[level] = current;
-        // Add all children to the front of the queue.
-        for (LoggedNetworkTopology child : n.getChildren()) {
-          unvisited.addFirst(child);
-        }
-      }
-      if (level != 0) {
-        path[level - 1].addChild(current);
-      }
+    public ZombieCluster(Path path, MachineNode defaultNode, Configuration conf) throws IOException {
+        this(new ClusterTopologyReader(path, conf).get(), defaultNode);
     }
 
-    root = path[0];
-  }
+    /**
+     * Construct a homogeneous cluster. We assume that the leaves on the topology
+     * are {@link MachineNode}s, and the parents of {@link MachineNode}s are
+     * {@link RackNode}s. We also expect all leaf nodes are on the same level.
+     *
+     * @param input The input stream for the JSON-encoded topology file.
+     * @param defaultNode
+     *          The default node setting.
+     * @throws IOException
+     */
+    public ZombieCluster(InputStream input, MachineNode defaultNode) throws IOException {
+        this(new ClusterTopologyReader(input).get(), defaultNode);
+    }
+
+    @Override
+    public Node getClusterTopology() {
+        return root;
+    }
+
+    private final void buildCluster(LoggedNetworkTopology topology,
+                                    MachineNode defaultNode) {
+        Map<LoggedNetworkTopology, Integer> levelMapping =
+            new IdentityHashMap<LoggedNetworkTopology, Integer>();
+        Deque<LoggedNetworkTopology> unvisited =
+            new ArrayDeque<LoggedNetworkTopology>();
+        unvisited.add(topology);
+        levelMapping.put(topology, 0);
+
+        // building levelMapping and determine leafLevel
+        int leafLevel = -1; // -1 means leafLevel unknown.
+        for (LoggedNetworkTopology n = unvisited.poll(); n != null;
+             n = unvisited.poll()) {
+            int level = levelMapping.get(n);
+            List<LoggedNetworkTopology> children = n.getChildren();
+            if (children == null || children.isEmpty()) {
+                if (leafLevel == -1) {
+                    leafLevel = level;
+                } else if (leafLevel != level) {
+                    throw new IllegalArgumentException(
+                        "Leaf nodes are not on the same level");
+                }
+            } else {
+                for (LoggedNetworkTopology child : children) {
+                    levelMapping.put(child, level + 1);
+                    unvisited.addFirst(child);
+                }
+            }
+        }
+
+        /**
+         * A second-pass dfs traverse of topology tree. path[i] contains the parent
+         * of the node at level i+1.
+         */
+        Node[] path = new Node[leafLevel];
+        unvisited.add(topology);
+        for (LoggedNetworkTopology n = unvisited.poll(); n != null;
+             n = unvisited.poll()) {
+            int level = levelMapping.get(n);
+            Node current;
+            if (level == leafLevel) { // a machine node
+                MachineNode.Builder builder =
+                    new MachineNode.Builder(n.getName().getValue(), level);
+                if (defaultNode != null) {
+                    builder.cloneFrom(defaultNode);
+                }
+                current = builder.build();
+            } else {
+                current = (level == leafLevel - 1)
+                          ? new RackNode(n.getName().getValue(), level) :
+                          new Node(n.getName().getValue(), level);
+                path[level] = current;
+                // Add all children to the front of the queue.
+                for (LoggedNetworkTopology child : n.getChildren()) {
+                    unvisited.addFirst(child);
+                }
+            }
+            if (level != 0) {
+                path[level - 1].addChild(current);
+            }
+        }
+
+        root = path[0];
+    }
 }

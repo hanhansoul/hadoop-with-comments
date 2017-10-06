@@ -72,9 +72,9 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
     protected int maxCnxns = 0;
     protected ServerCnxnFactory serverFactory = null;
     protected File tmpDir = null;
-    
+
     long initialFdCount;
-    
+
     /**
      * In general don't use this. Only use in the special case that you
      * want to ignore results (for whatever reason) in your test. Don't
@@ -123,7 +123,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
         }
         @VisibleForTesting
         public synchronized void waitForConnected(long timeout)
-            throws InterruptedException, TimeoutException {
+        throws InterruptedException, TimeoutException {
             long expire = Time.now() + timeout;
             long left = timeout;
             while(!connected && left > 0) {
@@ -137,7 +137,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
         }
         @VisibleForTesting
         public synchronized void waitForDisconnected(long timeout)
-            throws InterruptedException, TimeoutException {
+        throws InterruptedException, TimeoutException {
             long expire = Time.now() + timeout;
             long left = timeout;
             while(connected && left > 0) {
@@ -152,14 +152,12 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
     }
 
     protected TestableZooKeeper createClient()
-        throws IOException, InterruptedException
-    {
+    throws IOException, InterruptedException {
         return createClient(hostPort);
     }
 
     protected TestableZooKeeper createClient(String hp)
-        throws IOException, InterruptedException
-    {
+    throws IOException, InterruptedException {
         CountdownWatcher watcher = new CountdownWatcher();
         return createClient(watcher, hp);
     }
@@ -172,19 +170,16 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
     private File portNumFile;
 
     protected TestableZooKeeper createClient(CountdownWatcher watcher, String hp)
-        throws IOException, InterruptedException
-    {
+    throws IOException, InterruptedException {
         return createClient(watcher, hp, CONNECTION_TIMEOUT);
     }
 
     protected TestableZooKeeper createClient(CountdownWatcher watcher,
             String hp, int timeout)
-        throws IOException, InterruptedException
-    {
+    throws IOException, InterruptedException {
         watcher.reset();
         TestableZooKeeper zk = new TestableZooKeeper(hp, timeout, watcher);
-        if (!watcher.clientConnected.await(timeout, TimeUnit.MILLISECONDS))
-        {
+        if (!watcher.clientConnected.await(timeout, TimeUnit.MILLISECONDS)) {
             Assert.fail("Unable to connect to server");
         }
         synchronized(this) {
@@ -236,8 +231,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
      * @throws IOException
      */
     public static String send4LetterWord(String host, int port, String cmd)
-        throws IOException
-    {
+    throws IOException {
         LOG.info("connecting to " + host + " " + port);
         Socket sock = new Socket(host, port);
         BufferedReader reader = null;
@@ -250,7 +244,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
 
             reader =
                 new BufferedReader(
-                        new InputStreamReader(sock.getInputStream()));
+                new InputStreamReader(sock.getInputStream()));
             StringBuilder sb = new StringBuilder();
             String line;
             while((line = reader.readLine()) != null) {
@@ -273,7 +267,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
                 HostPort hpobj = parseHostPortList(hp).get(0);
                 String result = send4LetterWord(hpobj.host, hpobj.port, "stat");
                 if (result.startsWith("Zookeeper version:") &&
-                        !result.contains("READ-ONLY")) {
+                    !result.contains("READ-ONLY")) {
                     return true;
                 }
             } catch (IOException e) {
@@ -340,8 +334,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
 
     static ServerCnxnFactory createNewServerInstance(File dataDir,
             ServerCnxnFactory factory, String hostPort, int maxCnxns)
-        throws IOException, InterruptedException
-    {
+    throws IOException, InterruptedException {
         ZooKeeperServer zks = new ZooKeeperServer(dataDir, dataDir, 3000);
         final int PORT = getPort(hostPort);
         if (factory == null) {
@@ -349,20 +342,19 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
         }
         factory.startup(zks);
         Assert.assertTrue("waiting for server up",
-                   ClientBaseWithFixes.waitForServerUp("127.0.0.1:" + PORT,
-                                              CONNECTION_TIMEOUT));
+                          ClientBaseWithFixes.waitForServerUp("127.0.0.1:" + PORT,
+                                  CONNECTION_TIMEOUT));
 
         return factory;
     }
 
     static void shutdownServerInstance(ServerCnxnFactory factory,
-            String hostPort)
-    {
+                                       String hostPort) {
         if (factory != null) {
             ZKDatabase zkDb;
             {
                 ZooKeeperServer zs = getServer(factory);
-        
+
                 zkDb = zs.getZKDatabase();
             }
             factory.shutdown();
@@ -374,8 +366,8 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
             final int PORT = getPort(hostPort);
 
             Assert.assertTrue("waiting for server down",
-                       ClientBaseWithFixes.waitForServerDown("127.0.0.1:" + PORT,
-                                                    CONNECTION_TIMEOUT));
+                              ClientBaseWithFixes.waitForServerDown("127.0.0.1:" + PORT,
+                                      CONNECTION_TIMEOUT));
         }
     }
 
@@ -461,13 +453,13 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
     protected void tearDownAll() throws Exception {
         synchronized (this) {
             if (allClients != null) for (ZooKeeper zk : allClients) {
-                try {
-                    if (zk != null)
-                        zk.close();
-                } catch (InterruptedException e) {
-                    LOG.warn("ignoring interrupt", e);
+                    try {
+                        if (zk != null)
+                            zk.close();
+                    } catch (InterruptedException e) {
+                        LOG.warn("ignoring interrupt", e);
+                    }
                 }
-            }
             allClients = null;
         }
     }
@@ -482,7 +474,7 @@ public abstract class ClientBaseWithFixes extends ZKTestCase {
 
         portNumLockFile.close();
         portNumFile.delete();
-        
+
         if (tmpDir != null) {
             Assert.assertTrue("delete " + tmpDir.toString(), recursiveDelete(tmpDir));
         }

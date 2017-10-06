@@ -27,20 +27,20 @@ import org.junit.Test;
 import org.junit.Assert;
 
 public class TestRecordFactory {
-  
-  @Test
-  public void testPbRecordFactory() {
-    RecordFactory pbRecordFactory = RecordFactoryPBImpl.get();
-    
-    try {
-      LocalizerHeartbeatResponse response = pbRecordFactory.newRecordInstance(
-          LocalizerHeartbeatResponse.class);
-      Assert.assertEquals(LocalizerHeartbeatResponsePBImpl.class,
-                          response.getClass());
-    } catch (YarnRuntimeException e) {
-      e.printStackTrace();
-      Assert.fail("Failed to crete record");
+
+    @Test
+    public void testPbRecordFactory() {
+        RecordFactory pbRecordFactory = RecordFactoryPBImpl.get();
+
+        try {
+            LocalizerHeartbeatResponse response = pbRecordFactory.newRecordInstance(
+                    LocalizerHeartbeatResponse.class);
+            Assert.assertEquals(LocalizerHeartbeatResponsePBImpl.class,
+                                response.getClass());
+        } catch (YarnRuntimeException e) {
+            e.printStackTrace();
+            Assert.fail("Failed to crete record");
+        }
     }
-  }
 
 }

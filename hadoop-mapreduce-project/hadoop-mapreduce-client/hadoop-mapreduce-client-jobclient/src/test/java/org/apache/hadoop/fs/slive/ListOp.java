@@ -33,7 +33,7 @@ import org.apache.hadoop.fs.slive.OperationOutput.OutputType;
 /**
  * Operation which selects a random directory and attempts to list that
  * directory (if it exists)
- * 
+ *
  * This operation will capture statistics on success the time taken to list that
  * directory and the number of successful listings that occurred as well as the
  * number of entries in the selected directory and on failure or error it will
@@ -41,53 +41,53 @@ import org.apache.hadoop.fs.slive.OperationOutput.OutputType;
  */
 class ListOp extends Operation {
 
-  private static final Log LOG = LogFactory.getLog(ListOp.class);
+    private static final Log LOG = LogFactory.getLog(ListOp.class);
 
-  ListOp(ConfigExtractor cfg, Random rnd) {
-    super(ListOp.class.getSimpleName(), cfg, rnd);
-  }
-
-  /**
-   * Gets the directory to list
-   * 
-   * @return Path
-   */
-  protected Path getDirectory() {
-    Path dir = getFinder().getDirectory();
-    return dir;
-  }
-
-  @Override // Operation
-  List<OperationOutput> run(FileSystem fs) {
-    List<OperationOutput> out = super.run(fs);
-    try {
-      Path dir = getDirectory();
-      long dirEntries = 0;
-      long timeTaken = 0;
-      {
-        long startTime = Timer.now();
-        FileStatus[] files = fs.listStatus(dir);
-        timeTaken = Timer.elapsed(startTime);
-        dirEntries = files.length;
-      }
-      // log stats
-      out.add(new OperationOutput(OutputType.LONG, getType(),
-          ReportWriter.OK_TIME_TAKEN, timeTaken));
-      out.add(new OperationOutput(OutputType.LONG, getType(),
-          ReportWriter.SUCCESSES, 1L));
-      out.add(new OperationOutput(OutputType.LONG, getType(),
-          ReportWriter.DIR_ENTRIES, dirEntries));
-      LOG.info("Directory " + dir + " has " + dirEntries + " entries");
-    } catch (FileNotFoundException e) {
-      out.add(new OperationOutput(OutputType.LONG, getType(),
-          ReportWriter.NOT_FOUND, 1L));
-      LOG.warn("Error with listing", e);
-    } catch (IOException e) {
-      out.add(new OperationOutput(OutputType.LONG, getType(),
-          ReportWriter.FAILURES, 1L));
-      LOG.warn("Error with listing", e);
+    ListOp(ConfigExtractor cfg, Random rnd) {
+        super(ListOp.class.getSimpleName(), cfg, rnd);
     }
-    return out;
-  }
+
+    /**
+     * Gets the directory to list
+     *
+     * @return Path
+     */
+    protected Path getDirectory() {
+        Path dir = getFinder().getDirectory();
+        return dir;
+    }
+
+    @Override // Operation
+    List<OperationOutput> run(FileSystem fs) {
+        List<OperationOutput> out = super.run(fs);
+        try {
+            Path dir = getDirectory();
+            long dirEntries = 0;
+            long timeTaken = 0;
+            {
+                long startTime = Timer.now();
+                FileStatus[] files = fs.listStatus(dir);
+                timeTaken = Timer.elapsed(startTime);
+                dirEntries = files.length;
+            }
+            // log stats
+            out.add(new OperationOutput(OutputType.LONG, getType(),
+                                        ReportWriter.OK_TIME_TAKEN, timeTaken));
+            out.add(new OperationOutput(OutputType.LONG, getType(),
+                                        ReportWriter.SUCCESSES, 1L));
+            out.add(new OperationOutput(OutputType.LONG, getType(),
+                                        ReportWriter.DIR_ENTRIES, dirEntries));
+            LOG.info("Directory " + dir + " has " + dirEntries + " entries");
+        } catch (FileNotFoundException e) {
+            out.add(new OperationOutput(OutputType.LONG, getType(),
+                                        ReportWriter.NOT_FOUND, 1L));
+            LOG.warn("Error with listing", e);
+        } catch (IOException e) {
+            out.add(new OperationOutput(OutputType.LONG, getType(),
+                                        ReportWriter.FAILURES, 1L));
+            LOG.warn("Error with listing", e);
+        }
+        return out;
+    }
 
 }

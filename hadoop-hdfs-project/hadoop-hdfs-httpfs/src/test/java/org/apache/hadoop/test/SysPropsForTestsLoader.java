@@ -26,45 +26,45 @@ import java.util.Properties;
 
 public class SysPropsForTestsLoader {
 
-  public static final String TEST_PROPERTIES_PROP = "test.properties";
+    public static final String TEST_PROPERTIES_PROP = "test.properties";
 
-  static {
-    try {
-      String testFileName = System.getProperty(TEST_PROPERTIES_PROP, "test.properties");
-      File currentDir = new File(testFileName).getAbsoluteFile().getParentFile();
-      File testFile = new File(currentDir, testFileName);
-      while (currentDir != null && !testFile.exists()) {
-        testFile = new File(testFile.getAbsoluteFile().getParentFile().getParentFile(), testFileName);
-        currentDir = currentDir.getParentFile();
-        if (currentDir != null) {
-          testFile = new File(currentDir, testFileName);
+    static {
+        try {
+            String testFileName = System.getProperty(TEST_PROPERTIES_PROP, "test.properties");
+            File currentDir = new File(testFileName).getAbsoluteFile().getParentFile();
+            File testFile = new File(currentDir, testFileName);
+            while (currentDir != null && !testFile.exists()) {
+                testFile = new File(testFile.getAbsoluteFile().getParentFile().getParentFile(), testFileName);
+                currentDir = currentDir.getParentFile();
+                if (currentDir != null) {
+                    testFile = new File(currentDir, testFileName);
+                }
+            }
+
+            if (testFile.exists()) {
+                System.out.println();
+                System.out.println(">>> " + TEST_PROPERTIES_PROP + " : " + testFile.getAbsolutePath());
+                Properties testProperties = new Properties();
+                testProperties.load(new FileReader(testFile));
+                for (Map.Entry entry : testProperties.entrySet()) {
+                    if (!System.getProperties().containsKey(entry.getKey())) {
+                        System.setProperty((String) entry.getKey(), (String) entry.getValue());
+                    }
+                }
+            } else if (System.getProperty(TEST_PROPERTIES_PROP) != null) {
+                System.err.println(MessageFormat.format("Specified 'test.properties' file does not exist [{0}]",
+                                                        System.getProperty(TEST_PROPERTIES_PROP)));
+                System.exit(-1);
+
+            } else {
+                System.out.println(">>> " + TEST_PROPERTIES_PROP + " : <NONE>");
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
-      }
-
-      if (testFile.exists()) {
-        System.out.println();
-        System.out.println(">>> " + TEST_PROPERTIES_PROP + " : " + testFile.getAbsolutePath());
-        Properties testProperties = new Properties();
-        testProperties.load(new FileReader(testFile));
-        for (Map.Entry entry : testProperties.entrySet()) {
-          if (!System.getProperties().containsKey(entry.getKey())) {
-            System.setProperty((String) entry.getKey(), (String) entry.getValue());
-          }
-        }
-      } else if (System.getProperty(TEST_PROPERTIES_PROP) != null) {
-        System.err.println(MessageFormat.format("Specified 'test.properties' file does not exist [{0}]",
-                                                System.getProperty(TEST_PROPERTIES_PROP)));
-        System.exit(-1);
-
-      } else {
-        System.out.println(">>> " + TEST_PROPERTIES_PROP + " : <NONE>");
-      }
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
     }
-  }
 
-  public static void init() {
-  }
+    public static void init() {
+    }
 
 }

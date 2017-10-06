@@ -36,56 +36,56 @@ import static org.mockito.Mockito.*;
 
 
 public class TestPipesNonJavaInputFormat {
-  private static File workSpace = new File("target",
-      TestPipesNonJavaInputFormat.class.getName() + "-workSpace");
+    private static File workSpace = new File("target",
+            TestPipesNonJavaInputFormat.class.getName() + "-workSpace");
 
-  /**
-   *  test PipesNonJavaInputFormat
-    */
+    /**
+     *  test PipesNonJavaInputFormat
+      */
 
-  @Test
-  public void testFormat() throws IOException {
+    @Test
+    public void testFormat() throws IOException {
 
-    PipesNonJavaInputFormat inputFormat = new PipesNonJavaInputFormat();
-    JobConf conf = new JobConf();
+        PipesNonJavaInputFormat inputFormat = new PipesNonJavaInputFormat();
+        JobConf conf = new JobConf();
 
-    Reporter reporter= mock(Reporter.class);
-    RecordReader<FloatWritable, NullWritable> reader = inputFormat
-        .getRecordReader(new FakeSplit(), conf, reporter);
-    assertEquals(0.0f, reader.getProgress(), 0.001);
+        Reporter reporter= mock(Reporter.class);
+        RecordReader<FloatWritable, NullWritable> reader = inputFormat
+                .getRecordReader(new FakeSplit(), conf, reporter);
+        assertEquals(0.0f, reader.getProgress(), 0.001);
 
-    // input and output files
-    File input1 = new File(workSpace + File.separator + "input1");
-    if (!input1.getParentFile().exists()) {
-      Assert.assertTrue(input1.getParentFile().mkdirs());
+        // input and output files
+        File input1 = new File(workSpace + File.separator + "input1");
+        if (!input1.getParentFile().exists()) {
+            Assert.assertTrue(input1.getParentFile().mkdirs());
+        }
+
+        if (!input1.exists()) {
+            Assert.assertTrue(input1.createNewFile());
+        }
+
+        File input2 = new File(workSpace + File.separator + "input2");
+        if (!input2.exists()) {
+            Assert.assertTrue(input2.createNewFile());
+        }
+        // set data for splits
+        conf.set(org.apache.hadoop.mapreduce.lib.input.FileInputFormat.INPUT_DIR,
+                 StringUtils.escapeString(input1.getAbsolutePath()) + ","
+                 + StringUtils.escapeString(input2.getAbsolutePath()));
+        InputSplit[] splits = inputFormat.getSplits(conf, 2);
+        assertEquals(2, splits.length);
+
+        PipesNonJavaInputFormat.PipesDummyRecordReader dummyRecordReader = new PipesNonJavaInputFormat.PipesDummyRecordReader(
+            conf, splits[0]);
+        // empty dummyRecordReader
+        assertNull(dummyRecordReader.createKey());
+        assertNull(dummyRecordReader.createValue());
+        assertEquals(0, dummyRecordReader.getPos());
+        assertEquals(0.0, dummyRecordReader.getProgress(), 0.001);
+        // test method next
+        assertTrue(dummyRecordReader.next(new FloatWritable(2.0f), NullWritable.get()));
+        assertEquals(2.0, dummyRecordReader.getProgress(), 0.001);
+        dummyRecordReader.close();
     }
-
-    if (!input1.exists()) {
-      Assert.assertTrue(input1.createNewFile());
-    }
-
-    File input2 = new File(workSpace + File.separator + "input2");
-    if (!input2.exists()) {
-      Assert.assertTrue(input2.createNewFile());
-    }
-    // set data for splits
-    conf.set(org.apache.hadoop.mapreduce.lib.input.FileInputFormat.INPUT_DIR,
-        StringUtils.escapeString(input1.getAbsolutePath()) + ","
-            + StringUtils.escapeString(input2.getAbsolutePath()));
-    InputSplit[] splits = inputFormat.getSplits(conf, 2);
-    assertEquals(2, splits.length);
-
-    PipesNonJavaInputFormat.PipesDummyRecordReader dummyRecordReader = new PipesNonJavaInputFormat.PipesDummyRecordReader(
-        conf, splits[0]);
-    // empty dummyRecordReader
-    assertNull(dummyRecordReader.createKey());
-    assertNull(dummyRecordReader.createValue());
-    assertEquals(0, dummyRecordReader.getPos());
-    assertEquals(0.0, dummyRecordReader.getProgress(), 0.001);
-     // test method next
-    assertTrue(dummyRecordReader.next(new FloatWritable(2.0f), NullWritable.get()));
-    assertEquals(2.0, dummyRecordReader.getProgress(), 0.001);
-    dummyRecordReader.close();
-  }
 
 }

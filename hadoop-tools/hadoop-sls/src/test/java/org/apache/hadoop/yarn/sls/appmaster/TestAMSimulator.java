@@ -32,55 +32,55 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestAMSimulator {
-  private ResourceManager rm;
-  private YarnConfiguration conf;
+    private ResourceManager rm;
+    private YarnConfiguration conf;
 
-  @Before
-  public void setup() {
-    conf = new YarnConfiguration();
-    conf.set(YarnConfiguration.RM_SCHEDULER,
-        "org.apache.hadoop.yarn.sls.scheduler.ResourceSchedulerWrapper");
-    conf.set(SLSConfiguration.RM_SCHEDULER,
-        "org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler");
-    conf.setBoolean(SLSConfiguration.METRICS_SWITCH, false);
-    rm = new ResourceManager();
-    rm.init(conf);
-    rm.start();
-  }
+    @Before
+    public void setup() {
+        conf = new YarnConfiguration();
+        conf.set(YarnConfiguration.RM_SCHEDULER,
+                 "org.apache.hadoop.yarn.sls.scheduler.ResourceSchedulerWrapper");
+        conf.set(SLSConfiguration.RM_SCHEDULER,
+                 "org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler");
+        conf.setBoolean(SLSConfiguration.METRICS_SWITCH, false);
+        rm = new ResourceManager();
+        rm.init(conf);
+        rm.start();
+    }
 
-  class MockAMSimulator extends AMSimulator {
-    @Override
-    protected void processResponseQueue()
+    class MockAMSimulator extends AMSimulator {
+        @Override
+        protected void processResponseQueue()
         throws InterruptedException, YarnException, IOException {
-    }
+        }
 
-    @Override
-    protected void sendContainerRequest()
+        @Override
+        protected void sendContainerRequest()
         throws YarnException, IOException, InterruptedException {
+        }
+
+        @Override
+        protected void checkStop() {
+        }
     }
 
-    @Override
-    protected void checkStop() {
+    @Test
+    public void testAMSimulator() throws Exception {
+        // Register one app
+        MockAMSimulator app = new MockAMSimulator();
+        List<ContainerSimulator> containers = new ArrayList<ContainerSimulator>();
+        app.init(1, 1000, containers, rm, null, 0, 1000000l, "user1", "default",
+                 false, "app1");
+        app.firstStep();
+        Assert.assertEquals(1, rm.getRMContext().getRMApps().size());
+        Assert.assertNotNull(rm.getRMContext().getRMApps().get(app.appId));
+
+        // Finish this app
+        app.lastStep();
     }
-  }
 
-  @Test
-  public void testAMSimulator() throws Exception {
-    // Register one app
-    MockAMSimulator app = new MockAMSimulator();
-    List<ContainerSimulator> containers = new ArrayList<ContainerSimulator>();
-    app.init(1, 1000, containers, rm, null, 0, 1000000l, "user1", "default",
-        false, "app1");
-    app.firstStep();
-    Assert.assertEquals(1, rm.getRMContext().getRMApps().size());
-    Assert.assertNotNull(rm.getRMContext().getRMApps().get(app.appId));
-
-    // Finish this app
-    app.lastStep();
-  }
-
-  @After
-  public void tearDown() {
-    rm.stop();
-  }
+    @After
+    public void tearDown() {
+        rm.stop();
+    }
 }

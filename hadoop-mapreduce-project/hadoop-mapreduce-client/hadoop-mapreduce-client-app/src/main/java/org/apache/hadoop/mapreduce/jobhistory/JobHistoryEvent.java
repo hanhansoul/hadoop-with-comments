@@ -21,27 +21,27 @@ package org.apache.hadoop.mapreduce.jobhistory;
 import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 
-public class JobHistoryEvent extends AbstractEvent<EventType>{
+public class JobHistoryEvent extends AbstractEvent<EventType> {
 
-  private final JobId jobID;
-  private final HistoryEvent historyEvent;
+    private final JobId jobID;
+    private final HistoryEvent historyEvent;
 
-  public JobHistoryEvent(JobId jobID, HistoryEvent historyEvent) {
-    this(jobID, historyEvent, System.currentTimeMillis());
-  }
+    public JobHistoryEvent(JobId jobID, HistoryEvent historyEvent) {
+        this(jobID, historyEvent, System.currentTimeMillis());
+    }
 
-  public JobHistoryEvent(JobId jobID, HistoryEvent historyEvent,
-          long timestamp) {
-    super(historyEvent.getEventType(), timestamp);
-    this.jobID = jobID;
-    this.historyEvent = historyEvent;
-  }
+    public JobHistoryEvent(JobId jobID, HistoryEvent historyEvent,
+                           long timestamp) {
+        super(historyEvent.getEventType(), timestamp);
+        this.jobID = jobID;
+        this.historyEvent = historyEvent;
+    }
 
-  public JobId getJobID() {
-    return jobID;
-  }
+    public JobId getJobID() {
+        return jobID;
+    }
 
-  public HistoryEvent getHistoryEvent() {
-    return historyEvent;
-  }
+    public HistoryEvent getHistoryEvent() {
+        return historyEvent;
+    }
 }

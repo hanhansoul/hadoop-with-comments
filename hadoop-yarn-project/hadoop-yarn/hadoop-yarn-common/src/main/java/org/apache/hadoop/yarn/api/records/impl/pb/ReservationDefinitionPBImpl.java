@@ -26,159 +26,159 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ReservationRequestsProto;
 
 public class ReservationDefinitionPBImpl extends ReservationDefinition {
 
-  ReservationDefinitionProto proto = ReservationDefinitionProto
-      .getDefaultInstance();
-  ReservationDefinitionProto.Builder builder = null;
-  boolean viaProto = false;
+    ReservationDefinitionProto proto = ReservationDefinitionProto
+                                       .getDefaultInstance();
+    ReservationDefinitionProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ReservationRequests reservationReqs;
+    private ReservationRequests reservationReqs;
 
-  public ReservationDefinitionPBImpl() {
-    builder = ReservationDefinitionProto.newBuilder();
-  }
-
-  public ReservationDefinitionPBImpl(ReservationDefinitionProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public ReservationDefinitionProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.reservationReqs != null) {
-      builder
-          .setReservationRequests(convertToProtoFormat(this.reservationReqs));
+    public ReservationDefinitionPBImpl() {
+        builder = ReservationDefinitionProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ReservationDefinitionProto.newBuilder(proto);
+    public ReservationDefinitionPBImpl(ReservationDefinitionProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public long getArrival() {
-    ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasArrival()) {
-      return 0;
+    public ReservationDefinitionProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    return (p.getArrival());
-  }
 
-  @Override
-  public void setArrival(long earliestStartTime) {
-    maybeInitBuilder();
-    if (earliestStartTime <= 0) {
-      builder.clearArrival();
-      return;
+    private void mergeLocalToBuilder() {
+        if (this.reservationReqs != null) {
+            builder
+            .setReservationRequests(convertToProtoFormat(this.reservationReqs));
+        }
     }
-    builder.setArrival(earliestStartTime);
-  }
 
-  @Override
-  public long getDeadline() {
-    ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasDeadline()) {
-      return 0;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return (p.getDeadline());
-  }
 
-  @Override
-  public void setDeadline(long latestEndTime) {
-    maybeInitBuilder();
-    if (latestEndTime <= 0) {
-      builder.clearDeadline();
-      return;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ReservationDefinitionProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    builder.setDeadline(latestEndTime);
-  }
 
-  @Override
-  public ReservationRequests getReservationRequests() {
-    ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
-    if (reservationReqs != null) {
-      return reservationReqs;
+    @Override
+    public long getArrival() {
+        ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasArrival()) {
+            return 0;
+        }
+        return (p.getArrival());
     }
-    if (!p.hasReservationRequests()) {
-      return null;
+
+    @Override
+    public void setArrival(long earliestStartTime) {
+        maybeInitBuilder();
+        if (earliestStartTime <= 0) {
+            builder.clearArrival();
+            return;
+        }
+        builder.setArrival(earliestStartTime);
     }
-    reservationReqs = convertFromProtoFormat(p.getReservationRequests());
-    return reservationReqs;
-  }
 
-  @Override
-  public void setReservationRequests(ReservationRequests reservationRequests) {
-    if (reservationRequests == null) {
-      builder.clearReservationRequests();
-      return;
+    @Override
+    public long getDeadline() {
+        ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasDeadline()) {
+            return 0;
+        }
+        return (p.getDeadline());
     }
-    this.reservationReqs = reservationRequests;
-  }
 
-  @Override
-  public String getReservationName() {
-    ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasReservationName()) {
-      return null;
+    @Override
+    public void setDeadline(long latestEndTime) {
+        maybeInitBuilder();
+        if (latestEndTime <= 0) {
+            builder.clearDeadline();
+            return;
+        }
+        builder.setDeadline(latestEndTime);
     }
-    return (p.getReservationName());
-  }
 
-  @Override
-  public void setReservationName(String name) {
-    maybeInitBuilder();
-    if (name == null) {
-      builder.clearReservationName();
-      return;
+    @Override
+    public ReservationRequests getReservationRequests() {
+        ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
+        if (reservationReqs != null) {
+            return reservationReqs;
+        }
+        if (!p.hasReservationRequests()) {
+            return null;
+        }
+        reservationReqs = convertFromProtoFormat(p.getReservationRequests());
+        return reservationReqs;
     }
-    builder.setReservationName(name);
-  }
 
-  private ReservationRequestsPBImpl convertFromProtoFormat(
-      ReservationRequestsProto p) {
-    return new ReservationRequestsPBImpl(p);
-  }
-
-  private ReservationRequestsProto convertToProtoFormat(ReservationRequests t) {
-    return ((ReservationRequestsPBImpl) t).getProto();
-  }
-
-  @Override
-  public String toString() {
-    return "{Arrival: " + getArrival() + ", Deadline: " + getDeadline()
-        + ", Reservation Name: " + getReservationName() + ", Resources: "
-        + getReservationRequests() + "}";
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public void setReservationRequests(ReservationRequests reservationRequests) {
+        if (reservationRequests == null) {
+            builder.clearReservationRequests();
+            return;
+        }
+        this.reservationReqs = reservationRequests;
     }
-    return false;
-  }
+
+    @Override
+    public String getReservationName() {
+        ReservationDefinitionProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasReservationName()) {
+            return null;
+        }
+        return (p.getReservationName());
+    }
+
+    @Override
+    public void setReservationName(String name) {
+        maybeInitBuilder();
+        if (name == null) {
+            builder.clearReservationName();
+            return;
+        }
+        builder.setReservationName(name);
+    }
+
+    private ReservationRequestsPBImpl convertFromProtoFormat(
+        ReservationRequestsProto p) {
+        return new ReservationRequestsPBImpl(p);
+    }
+
+    private ReservationRequestsProto convertToProtoFormat(ReservationRequests t) {
+        return ((ReservationRequestsPBImpl) t).getProto();
+    }
+
+    @Override
+    public String toString() {
+        return "{Arrival: " + getArrival() + ", Deadline: " + getDeadline()
+               + ", Reservation Name: " + getReservationName() + ", Resources: "
+               + getReservationRequests() + "}";
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 
 }

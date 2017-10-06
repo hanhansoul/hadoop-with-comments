@@ -37,124 +37,124 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetClusterNodesRequestPBImpl extends GetClusterNodesRequest {
 
-  GetClusterNodesRequestProto proto = GetClusterNodesRequestProto.getDefaultInstance();
-  GetClusterNodesRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    GetClusterNodesRequestProto proto = GetClusterNodesRequestProto.getDefaultInstance();
+    GetClusterNodesRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private EnumSet<NodeState> states = null;
-  
-  public GetClusterNodesRequestPBImpl() {
-    builder = GetClusterNodesRequestProto.newBuilder();
-  }
+    private EnumSet<NodeState> states = null;
 
-  public GetClusterNodesRequestPBImpl(GetClusterNodesRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public GetClusterNodesRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-  
-  @Override
-  public EnumSet<NodeState> getNodeStates() {
-    initNodeStates();
-    return this.states;
-  }
-  
-  @Override
-  public void setNodeStates(final EnumSet<NodeState> states) {
-    initNodeStates();
-    this.states.clear();
-    if (states == null) {
-      return;
+    public GetClusterNodesRequestPBImpl() {
+        builder = GetClusterNodesRequestProto.newBuilder();
     }
-    this.states.addAll(states);
-  }
-  
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+
+    public GetClusterNodesRequestPBImpl(GetClusterNodesRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetClusterNodesRequestProto.newBuilder(proto);
+    public GetClusterNodesRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
-  
-  private void mergeLocalToBuilder() {
-    if (this.states != null) {
-      maybeInitBuilder();
-      builder.clearNodeStates();
-      Iterable<NodeStateProto> iterable = new Iterable<NodeStateProto>() {
-        @Override
-        public Iterator<NodeStateProto> iterator() {
-          return new Iterator<NodeStateProto>() {
 
-            Iterator<NodeState> iter = states.iterator();
+    @Override
+    public EnumSet<NodeState> getNodeStates() {
+        initNodeStates();
+        return this.states;
+    }
 
-            @Override
-            public boolean hasNext() {
-              return iter.hasNext();
-            }
-
-            @Override
-            public NodeStateProto next() {
-              return ProtoUtils.convertToProtoFormat(iter.next());
-            }
-
-            @Override
-            public void remove() {
-              throw new UnsupportedOperationException();
-
-            }
-          };
-
+    @Override
+    public void setNodeStates(final EnumSet<NodeState> states) {
+        initNodeStates();
+        this.states.clear();
+        if (states == null) {
+            return;
         }
-      };
-      builder.addAllNodeStates(iterable);
+        this.states.addAll(states);
     }
-  }
-  
-  private void initNodeStates() {
-    if (this.states != null) {
-      return;
-    }
-    GetClusterNodesRequestProtoOrBuilder p = viaProto ? proto : builder;
-    List<NodeStateProto> list = p.getNodeStatesList();
-    this.states = EnumSet.noneOf(NodeState.class);
 
-    for (NodeStateProto c : list) {
-      this.states.add(ProtoUtils.convertFromProtoFormat(c));
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-  }
-  
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetClusterNodesRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    private void mergeLocalToBuilder() {
+        if (this.states != null) {
+            maybeInitBuilder();
+            builder.clearNodeStates();
+            Iterable<NodeStateProto> iterable = new Iterable<NodeStateProto>() {
+                @Override
+                public Iterator<NodeStateProto> iterator() {
+                    return new Iterator<NodeStateProto>() {
+
+                        Iterator<NodeState> iter = states.iterator();
+
+                        @Override
+                        public boolean hasNext() {
+                            return iter.hasNext();
+                        }
+
+                        @Override
+                        public NodeStateProto next() {
+                            return ProtoUtils.convertToProtoFormat(iter.next());
+                        }
+
+                        @Override
+                        public void remove() {
+                            throw new UnsupportedOperationException();
+
+                        }
+                    };
+
+                }
+            };
+            builder.addAllNodeStates(iterable);
+        }
+    }
+
+    private void initNodeStates() {
+        if (this.states != null) {
+            return;
+        }
+        GetClusterNodesRequestProtoOrBuilder p = viaProto ? proto : builder;
+        List<NodeStateProto> list = p.getNodeStatesList();
+        this.states = EnumSet.noneOf(NodeState.class);
+
+        for (NodeStateProto c : list) {
+            this.states.add(ProtoUtils.convertFromProtoFormat(c));
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

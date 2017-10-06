@@ -30,46 +30,46 @@ import static org.mockito.Mockito.*;
 
 public class TestSubViews {
 
-  static public class MainView extends HtmlPage {
-    @Override
-    public void render(Page.HTML<_> html) {
-      html.
-        body().
-          div().
+    static public class MainView extends HtmlPage {
+        @Override
+        public void render(Page.HTML<_> html) {
+            html.
+            body().
+            div().
             _(Sub1.class)._().
-          div().
+            div().
             i("inline text").
             _(Sub2.class)._()._()._();
+        }
     }
-  }
 
-  static public class Sub1 extends HtmlBlock {
-    @Override
-    public void render(Block html) {
-      html.
-        div("#sub1").
-          _("sub1 text")._();
+    static public class Sub1 extends HtmlBlock {
+        @Override
+        public void render(Block html) {
+            html.
+            div("#sub1").
+            _("sub1 text")._();
+        }
     }
-  }
 
-  static public class Sub2 extends HtmlBlock {
-    @Override
-    public void render(Block html) {
-      html.
-        pre().
-          _("sub2 text")._();
+    static public class Sub2 extends HtmlBlock {
+        @Override
+        public void render(Block html) {
+            html.
+            pre().
+            _("sub2 text")._();
+        }
     }
-  }
 
-  @Test public void testSubView() throws Exception {
-    Injector injector = WebAppTests.createMockInjector(this);
-    injector.getInstance(MainView.class).render();
+    @Test public void testSubView() throws Exception {
+        Injector injector = WebAppTests.createMockInjector(this);
+        injector.getInstance(MainView.class).render();
 
-    PrintWriter out =
-        injector.getInstance(HttpServletResponse.class).getWriter();
-    out.flush();
-    verify(out).print("sub1 text");
-    verify(out).print("sub2 text");
-    verify(out, times(16)).println(); // test inline transition across views
-  }
+        PrintWriter out =
+            injector.getInstance(HttpServletResponse.class).getWriter();
+        out.flush();
+        verify(out).print("sub1 text");
+        verify(out).print("sub2 text");
+        verify(out, times(16)).println(); // test inline transition across views
+    }
 }

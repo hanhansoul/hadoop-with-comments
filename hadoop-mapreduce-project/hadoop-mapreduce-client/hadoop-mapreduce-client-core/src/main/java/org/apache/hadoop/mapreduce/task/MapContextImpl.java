@@ -41,44 +41,43 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
  */
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
-public class MapContextImpl<KEYIN,VALUEIN,KEYOUT,VALUEOUT> 
-    extends TaskInputOutputContextImpl<KEYIN,VALUEIN,KEYOUT,VALUEOUT> 
+public class MapContextImpl<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
+    extends TaskInputOutputContextImpl<KEYIN,VALUEIN,KEYOUT,VALUEOUT>
     implements MapContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-  private RecordReader<KEYIN,VALUEIN> reader;
-  private InputSplit split;
+    private RecordReader<KEYIN,VALUEIN> reader;
+    private InputSplit split;
 
-  public MapContextImpl(Configuration conf, TaskAttemptID taskid,
-                        RecordReader<KEYIN,VALUEIN> reader,
-                        RecordWriter<KEYOUT,VALUEOUT> writer,
-                        OutputCommitter committer,
-                        StatusReporter reporter,
-                        InputSplit split) {
-    super(conf, taskid, writer, committer, reporter);
-    this.reader = reader;
-    this.split = split;
-  }
+    public MapContextImpl(Configuration conf, TaskAttemptID taskid,
+                          RecordReader<KEYIN,VALUEIN> reader,
+                          RecordWriter<KEYOUT,VALUEOUT> writer,
+                          OutputCommitter committer,
+                          StatusReporter reporter,
+                          InputSplit split) {
+        super(conf, taskid, writer, committer, reporter);
+        this.reader = reader;
+        this.split = split;
+    }
 
-  /**
-   * Get the input split for this map.
-   */
-  public InputSplit getInputSplit() {
-    return split;
-  }
+    /**
+     * Get the input split for this map.
+     */
+    public InputSplit getInputSplit() {
+        return split;
+    }
 
-  @Override
-  public KEYIN getCurrentKey() throws IOException, InterruptedException {
-    return reader.getCurrentKey();
-  }
+    @Override
+    public KEYIN getCurrentKey() throws IOException, InterruptedException {
+        return reader.getCurrentKey();
+    }
 
-  @Override
-  public VALUEIN getCurrentValue() throws IOException, InterruptedException {
-    return reader.getCurrentValue();
-  }
+    @Override
+    public VALUEIN getCurrentValue() throws IOException, InterruptedException {
+        return reader.getCurrentValue();
+    }
 
-  @Override
-  public boolean nextKeyValue() throws IOException, InterruptedException {
-    return reader.nextKeyValue();
-  }
+    @Override
+    public boolean nextKeyValue() throws IOException, InterruptedException {
+        return reader.nextKeyValue();
+    }
 
 }
-     

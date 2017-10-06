@@ -37,48 +37,48 @@ import org.junit.Test;
 
 public class TestAMInfos {
 
-  @Test
-  public void testAMInfosWithoutRecoveryEnabled() throws Exception {
-    int runCount = 0;
-    MRApp app =
-        new MRAppWithHistory(1, 0, false, this.getClass().getName(), true,
-          ++runCount);
-    Configuration conf = new Configuration();
-    conf.setBoolean(MRJobConfig.JOB_UBERTASK_ENABLE, false);
-    Job job = app.submit(conf);
-    app.waitForState(job, JobState.RUNNING);
+    @Test
+    public void testAMInfosWithoutRecoveryEnabled() throws Exception {
+        int runCount = 0;
+        MRApp app =
+            new MRAppWithHistory(1, 0, false, this.getClass().getName(), true,
+                                 ++runCount);
+        Configuration conf = new Configuration();
+        conf.setBoolean(MRJobConfig.JOB_UBERTASK_ENABLE, false);
+        Job job = app.submit(conf);
+        app.waitForState(job, JobState.RUNNING);
 
-    long am1StartTime = app.getAllAMInfos().get(0).getStartTime();
+        long am1StartTime = app.getAllAMInfos().get(0).getStartTime();
 
-    Assert.assertEquals("No of tasks not correct", 1, job.getTasks().size());
-    Iterator<Task> it = job.getTasks().values().iterator();
-    Task mapTask = it.next();
-    app.waitForState(mapTask, TaskState.RUNNING);
-    TaskAttempt taskAttempt = mapTask.getAttempts().values().iterator().next();
-    app.waitForState(taskAttempt, TaskAttemptState.RUNNING);
+        Assert.assertEquals("No of tasks not correct", 1, job.getTasks().size());
+        Iterator<Task> it = job.getTasks().values().iterator();
+        Task mapTask = it.next();
+        app.waitForState(mapTask, TaskState.RUNNING);
+        TaskAttempt taskAttempt = mapTask.getAttempts().values().iterator().next();
+        app.waitForState(taskAttempt, TaskAttemptState.RUNNING);
 
-    // stop the app
-    app.stop();
+        // stop the app
+        app.stop();
 
-    // rerun
-    app =
-        new MRAppWithHistory(1, 0, false, this.getClass().getName(), false,
-          ++runCount);
-    conf = new Configuration();
-    // in rerun the AMInfo will be recovered from previous run even if recovery
-    // is not enabled.
-    conf.setBoolean(MRJobConfig.MR_AM_JOB_RECOVERY_ENABLE, false);
-    conf.setBoolean(MRJobConfig.JOB_UBERTASK_ENABLE, false);
-    job = app.submit(conf);
-    app.waitForState(job, JobState.RUNNING);
-    Assert.assertEquals("No of tasks not correct", 1, job.getTasks().size());
-    it = job.getTasks().values().iterator();
-    mapTask = it.next();
-    // There should be two AMInfos
-    List<AMInfo> amInfos = app.getAllAMInfos();
-    Assert.assertEquals(2, amInfos.size());
-    AMInfo amInfoOne = amInfos.get(0);
-    Assert.assertEquals(am1StartTime, amInfoOne.getStartTime());
-    app.stop();
-  }
+        // rerun
+        app =
+            new MRAppWithHistory(1, 0, false, this.getClass().getName(), false,
+                                 ++runCount);
+        conf = new Configuration();
+        // in rerun the AMInfo will be recovered from previous run even if recovery
+        // is not enabled.
+        conf.setBoolean(MRJobConfig.MR_AM_JOB_RECOVERY_ENABLE, false);
+        conf.setBoolean(MRJobConfig.JOB_UBERTASK_ENABLE, false);
+        job = app.submit(conf);
+        app.waitForState(job, JobState.RUNNING);
+        Assert.assertEquals("No of tasks not correct", 1, job.getTasks().size());
+        it = job.getTasks().values().iterator();
+        mapTask = it.next();
+        // There should be two AMInfos
+        List<AMInfo> amInfos = app.getAllAMInfos();
+        Assert.assertEquals(2, amInfos.size());
+        AMInfo amInfoOne = amInfos.get(0);
+        Assert.assertEquals(am1StartTime, amInfoOne.getStartTime());
+        app.stop();
+    }
 }

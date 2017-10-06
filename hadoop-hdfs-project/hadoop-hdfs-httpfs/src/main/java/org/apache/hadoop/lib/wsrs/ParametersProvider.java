@@ -37,90 +37,89 @@ import java.util.Map;
 
 /**
  * Jersey provider that parses the request parameters based on the
- * given parameter definition. 
+ * given parameter definition.
  */
 @InterfaceAudience.Private
 public class ParametersProvider
-  extends AbstractHttpContextInjectable<Parameters>
-  implements InjectableProvider<Context, Type> {
+    extends AbstractHttpContextInjectable<Parameters>
+    implements InjectableProvider<Context, Type> {
 
-  private String driverParam;
-  private Class<? extends Enum> enumClass;
-  private Map<Enum, Class<Param<?>>[]> paramsDef;
+    private String driverParam;
+    private Class<? extends Enum> enumClass;
+    private Map<Enum, Class<Param<?>>[]> paramsDef;
 
-  public ParametersProvider(String driverParam, Class<? extends Enum> enumClass,
-                            Map<Enum, Class<Param<?>>[]> paramsDef) {
-    this.driverParam = driverParam;
-    this.enumClass = enumClass;
-    this.paramsDef = paramsDef;
-  }
+    public ParametersProvider(String driverParam, Class<? extends Enum> enumClass,
+                              Map<Enum, Class<Param<?>>[]> paramsDef) {
+        this.driverParam = driverParam;
+        this.enumClass = enumClass;
+        this.paramsDef = paramsDef;
+    }
 
-  @Override
-  @SuppressWarnings("unchecked")
-  public Parameters getValue(HttpContext httpContext) {
-    Map<String, List<Param<?>>> map = new HashMap<String, List<Param<?>>>();
-    Map<String, List<String>> queryString =
-      httpContext.getRequest().getQueryParameters();
-    String str = ((MultivaluedMap<String, String>) queryString).
-        getFirst(driverParam);
-    if (str == null) {
-      throw new IllegalArgumentException(
-        MessageFormat.format("Missing Operation parameter [{0}]",
-                             driverParam));
-    }
-    Enum op;
-    try {
-      op = Enum.valueOf(enumClass, str.toUpperCase());
-    } catch (IllegalArgumentException ex) {
-      throw new IllegalArgumentException(
-        MessageFormat.format("Invalid Operation [{0}]", str));
-    }
-    if (!paramsDef.containsKey(op)) {
-      throw new IllegalArgumentException(
-        MessageFormat.format("Unsupported Operation [{0}]", op));
-    }
-    for (Class<Param<?>> paramClass : paramsDef.get(op)) {
-      Param<?> param = newParam(paramClass);
-      List<Param<?>> paramList = Lists.newArrayList();
-      List<String> ps = queryString.get(param.getName());
-      if (ps != null) {
-        for (String p : ps) {
-          try {
-            param.parseParam(p);
-          }
-          catch (Exception ex) {
-            throw new IllegalArgumentException(ex.toString(), ex);
-          }
-          paramList.add(param);
-          param = newParam(paramClass);
+    @Override
+    @SuppressWarnings("unchecked")
+    public Parameters getValue(HttpContext httpContext) {
+        Map<String, List<Param<?>>> map = new HashMap<String, List<Param<?>>>();
+        Map<String, List<String>> queryString =
+            httpContext.getRequest().getQueryParameters();
+        String str = ((MultivaluedMap<String, String>) queryString).
+                     getFirst(driverParam);
+        if (str == null) {
+            throw new IllegalArgumentException(
+                MessageFormat.format("Missing Operation parameter [{0}]",
+                                     driverParam));
         }
-      } else {
-        paramList.add(param);
-      }
+        Enum op;
+        try {
+            op = Enum.valueOf(enumClass, str.toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(
+                MessageFormat.format("Invalid Operation [{0}]", str));
+        }
+        if (!paramsDef.containsKey(op)) {
+            throw new IllegalArgumentException(
+                MessageFormat.format("Unsupported Operation [{0}]", op));
+        }
+        for (Class<Param<?>> paramClass : paramsDef.get(op)) {
+            Param<?> param = newParam(paramClass);
+            List<Param<?>> paramList = Lists.newArrayList();
+            List<String> ps = queryString.get(param.getName());
+            if (ps != null) {
+                for (String p : ps) {
+                    try {
+                        param.parseParam(p);
+                    } catch (Exception ex) {
+                        throw new IllegalArgumentException(ex.toString(), ex);
+                    }
+                    paramList.add(param);
+                    param = newParam(paramClass);
+                }
+            } else {
+                paramList.add(param);
+            }
 
-      map.put(param.getName(), paramList);
+            map.put(param.getName(), paramList);
+        }
+        return new Parameters(map);
     }
-    return new Parameters(map);
-  }
 
-  private Param<?> newParam(Class<Param<?>> paramClass) {
-    try {
-      return paramClass.newInstance();
-    } catch (Exception ex) {
-      throw new UnsupportedOperationException(
-        MessageFormat.format(
-          "Param class [{0}] does not have default constructor",
-          paramClass.getName()));
+    private Param<?> newParam(Class<Param<?>> paramClass) {
+        try {
+            return paramClass.newInstance();
+        } catch (Exception ex) {
+            throw new UnsupportedOperationException(
+                MessageFormat.format(
+                    "Param class [{0}] does not have default constructor",
+                    paramClass.getName()));
+        }
     }
-  }
 
-  @Override
-  public ComponentScope getScope() {
-    return ComponentScope.PerRequest;
-  }
+    @Override
+    public ComponentScope getScope() {
+        return ComponentScope.PerRequest;
+    }
 
-  @Override
-  public Injectable getInjectable(ComponentContext componentContext, Context context, Type type) {
-    return (type.equals(Parameters.class)) ? this : null;
-  }
+    @Override
+    public Injectable getInjectable(ComponentContext componentContext, Context context, Type type) {
+        return (type.equals(Parameters.class)) ? this : null;
+    }
 }

@@ -26,23 +26,23 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class JobTaskAttemptFetchFailureEvent extends JobEvent {
 
-  private final TaskAttemptId reduce;
-  private final List<TaskAttemptId> maps;
+    private final TaskAttemptId reduce;
+    private final List<TaskAttemptId> maps;
 
-  public JobTaskAttemptFetchFailureEvent(TaskAttemptId reduce, 
-      List<TaskAttemptId> maps) {
-    super(reduce.getTaskId().getJobId(), 
-        JobEventType.JOB_TASK_ATTEMPT_FETCH_FAILURE);
-    this.reduce = reduce;
-    this.maps = maps;
-  }
+    public JobTaskAttemptFetchFailureEvent(TaskAttemptId reduce,
+                                           List<TaskAttemptId> maps) {
+        super(reduce.getTaskId().getJobId(),
+              JobEventType.JOB_TASK_ATTEMPT_FETCH_FAILURE);
+        this.reduce = reduce;
+        this.maps = maps;
+    }
 
-  public List<TaskAttemptId> getMaps() {
-    return maps;
-  }
+    public List<TaskAttemptId> getMaps() {
+        return maps;
+    }
 
-  public TaskAttemptId getReduce() {
-    return reduce;
-  }
+    public TaskAttemptId getReduce() {
+        return reduce;
+    }
 
 }

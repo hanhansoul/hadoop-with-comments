@@ -31,174 +31,174 @@ import org.apache.hadoop.yarn.api.records.ResourceRequest;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * <p>The core request sent by the <code>ApplicationMaster</code> to the 
- * <code>ResourceManager</code> to obtain resources in the cluster.</p> 
+ * <p>The core request sent by the <code>ApplicationMaster</code> to the
+ * <code>ResourceManager</code> to obtain resources in the cluster.</p>
  *
  * <p>The request includes:
  *   <ul>
  *     <li>A response id to track duplicate responses.</li>
  *     <li>Progress information.</li>
  *     <li>
- *       A list of {@link ResourceRequest} to inform the 
- *       <code>ResourceManager</code> about the application's 
+ *       A list of {@link ResourceRequest} to inform the
+ *       <code>ResourceManager</code> about the application's
  *       resource requirements.
  *     </li>
  *     <li>
- *       A list of unused {@link Container} which are being returned. 
+ *       A list of unused {@link Container} which are being returned.
  *     </li>
  *   </ul>
  * </p>
- * 
+ *
  * @see ApplicationMasterProtocol#allocate(AllocateRequest)
  */
 @Public
 @Stable
 public abstract class AllocateRequest {
 
-  @Public
-  @Stable
-  public static AllocateRequest newInstance(int responseID, float appProgress,
-      List<ResourceRequest> resourceAsk,
-      List<ContainerId> containersToBeReleased,
-      ResourceBlacklistRequest resourceBlacklistRequest) {
-    return newInstance(responseID, appProgress, resourceAsk,
-        containersToBeReleased, resourceBlacklistRequest, null);
-  }
-  
-  @Public
-  @Stable
-  public static AllocateRequest newInstance(int responseID, float appProgress,
-      List<ResourceRequest> resourceAsk,
-      List<ContainerId> containersToBeReleased,
-      ResourceBlacklistRequest resourceBlacklistRequest,
-      List<ContainerResourceIncreaseRequest> increaseRequests) {
-    AllocateRequest allocateRequest = Records.newRecord(AllocateRequest.class);
-    allocateRequest.setResponseId(responseID);
-    allocateRequest.setProgress(appProgress);
-    allocateRequest.setAskList(resourceAsk);
-    allocateRequest.setReleaseList(containersToBeReleased);
-    allocateRequest.setResourceBlacklistRequest(resourceBlacklistRequest);
-    allocateRequest.setIncreaseRequests(increaseRequests);
-    return allocateRequest;
-  }
-  
-  /**
-   * Get the <em>response id</em> used to track duplicate responses.
-   * @return <em>response id</em>
-   */
-  @Public
-  @Stable
-  public abstract int getResponseId();
+    @Public
+    @Stable
+    public static AllocateRequest newInstance(int responseID, float appProgress,
+            List<ResourceRequest> resourceAsk,
+            List<ContainerId> containersToBeReleased,
+            ResourceBlacklistRequest resourceBlacklistRequest) {
+        return newInstance(responseID, appProgress, resourceAsk,
+                           containersToBeReleased, resourceBlacklistRequest, null);
+    }
 
-  /**
-   * Set the <em>response id</em> used to track duplicate responses.
-   * @param id <em>response id</em>
-   */
-  @Public
-  @Stable
-  public abstract void setResponseId(int id);
+    @Public
+    @Stable
+    public static AllocateRequest newInstance(int responseID, float appProgress,
+            List<ResourceRequest> resourceAsk,
+            List<ContainerId> containersToBeReleased,
+            ResourceBlacklistRequest resourceBlacklistRequest,
+            List<ContainerResourceIncreaseRequest> increaseRequests) {
+        AllocateRequest allocateRequest = Records.newRecord(AllocateRequest.class);
+        allocateRequest.setResponseId(responseID);
+        allocateRequest.setProgress(appProgress);
+        allocateRequest.setAskList(resourceAsk);
+        allocateRequest.setReleaseList(containersToBeReleased);
+        allocateRequest.setResourceBlacklistRequest(resourceBlacklistRequest);
+        allocateRequest.setIncreaseRequests(increaseRequests);
+        return allocateRequest;
+    }
 
-  /**
-   * Get the <em>current progress</em> of application. 
-   * @return <em>current progress</em> of application
-   */
-  @Public
-  @Stable
-  public abstract float getProgress();
-  
-  /**
-   * Set the <em>current progress</em> of application
-   * @param progress <em>current progress</em> of application
-   */
-  @Public
-  @Stable
-  public abstract void setProgress(float progress);
+    /**
+     * Get the <em>response id</em> used to track duplicate responses.
+     * @return <em>response id</em>
+     */
+    @Public
+    @Stable
+    public abstract int getResponseId();
 
-  /**
-   * Get the list of <code>ResourceRequest</code> to update the 
-   * <code>ResourceManager</code> about the application's resource requirements.
-   * @return the list of <code>ResourceRequest</code>
-   * @see ResourceRequest
-   */
-  @Public
-  @Stable
-  public abstract List<ResourceRequest> getAskList();
-  
-  /**
-   * Set list of <code>ResourceRequest</code> to update the
-   * <code>ResourceManager</code> about the application's resource requirements.
-   * @param resourceRequests list of <code>ResourceRequest</code> to update the 
-   *                        <code>ResourceManager</code> about the application's 
-   *                        resource requirements
-   * @see ResourceRequest
-   */
-  @Public
-  @Stable
-  public abstract void setAskList(List<ResourceRequest> resourceRequests);
+    /**
+     * Set the <em>response id</em> used to track duplicate responses.
+     * @param id <em>response id</em>
+     */
+    @Public
+    @Stable
+    public abstract void setResponseId(int id);
 
-  /**
-   * Get the list of <code>ContainerId</code> of containers being 
-   * released by the <code>ApplicationMaster</code>.
-   * @return list of <code>ContainerId</code> of containers being 
-   *         released by the <code>ApplicationMaster</code> 
-   */
-  @Public
-  @Stable
-  public abstract List<ContainerId> getReleaseList();
+    /**
+     * Get the <em>current progress</em> of application.
+     * @return <em>current progress</em> of application
+     */
+    @Public
+    @Stable
+    public abstract float getProgress();
 
-  /**
-   * Set the list of <code>ContainerId</code> of containers being
-   * released by the <code>ApplicationMaster</code>
-   * @param releaseContainers list of <code>ContainerId</code> of 
-   *                          containers being released by the 
-   *                          <code>ApplicationMaster</code>
-   */
-  @Public
-  @Stable
-  public abstract void setReleaseList(List<ContainerId> releaseContainers);
-  
-  /**
-   * Get the <code>ResourceBlacklistRequest</code> being sent by the 
-   * <code>ApplicationMaster</code>.
-   * @return the <code>ResourceBlacklistRequest</code> being sent by the 
-   *         <code>ApplicationMaster</code>
-   * @see ResourceBlacklistRequest
-   */
-  @Public
-  @Stable
-  public abstract ResourceBlacklistRequest getResourceBlacklistRequest();
-  
-  /**
-   * Set the <code>ResourceBlacklistRequest</code> to inform the 
-   * <code>ResourceManager</code> about the blacklist additions and removals
-   * per the <code>ApplicationMaster</code>.
-   * 
-   * @param resourceBlacklistRequest the <code>ResourceBlacklistRequest</code>  
-   *                         to inform the <code>ResourceManager</code> about  
-   *                         the blacklist additions and removals
-   *                         per the <code>ApplicationMaster</code>
-   * @see ResourceBlacklistRequest
-   */
-  @Public
-  @Stable
-  public abstract void setResourceBlacklistRequest(
-      ResourceBlacklistRequest resourceBlacklistRequest);
-  
-  /**
-   * Get the <code>ContainerResourceIncreaseRequest</code> being sent by the
-   * <code>ApplicationMaster</code>
-   */
-  @Public
-  @Stable
-  public abstract List<ContainerResourceIncreaseRequest> getIncreaseRequests();
-  
-  /**
-   * Set the <code>ContainerResourceIncreaseRequest</code> to inform the
-   * <code>ResourceManager</code> about some container's resources need to be
-   * increased
-   */
-  @Public
-  @Stable
-  public abstract void setIncreaseRequests(
-      List<ContainerResourceIncreaseRequest> increaseRequests);
+    /**
+     * Set the <em>current progress</em> of application
+     * @param progress <em>current progress</em> of application
+     */
+    @Public
+    @Stable
+    public abstract void setProgress(float progress);
+
+    /**
+     * Get the list of <code>ResourceRequest</code> to update the
+     * <code>ResourceManager</code> about the application's resource requirements.
+     * @return the list of <code>ResourceRequest</code>
+     * @see ResourceRequest
+     */
+    @Public
+    @Stable
+    public abstract List<ResourceRequest> getAskList();
+
+    /**
+     * Set list of <code>ResourceRequest</code> to update the
+     * <code>ResourceManager</code> about the application's resource requirements.
+     * @param resourceRequests list of <code>ResourceRequest</code> to update the
+     *                        <code>ResourceManager</code> about the application's
+     *                        resource requirements
+     * @see ResourceRequest
+     */
+    @Public
+    @Stable
+    public abstract void setAskList(List<ResourceRequest> resourceRequests);
+
+    /**
+     * Get the list of <code>ContainerId</code> of containers being
+     * released by the <code>ApplicationMaster</code>.
+     * @return list of <code>ContainerId</code> of containers being
+     *         released by the <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    public abstract List<ContainerId> getReleaseList();
+
+    /**
+     * Set the list of <code>ContainerId</code> of containers being
+     * released by the <code>ApplicationMaster</code>
+     * @param releaseContainers list of <code>ContainerId</code> of
+     *                          containers being released by the
+     *                          <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    public abstract void setReleaseList(List<ContainerId> releaseContainers);
+
+    /**
+     * Get the <code>ResourceBlacklistRequest</code> being sent by the
+     * <code>ApplicationMaster</code>.
+     * @return the <code>ResourceBlacklistRequest</code> being sent by the
+     *         <code>ApplicationMaster</code>
+     * @see ResourceBlacklistRequest
+     */
+    @Public
+    @Stable
+    public abstract ResourceBlacklistRequest getResourceBlacklistRequest();
+
+    /**
+     * Set the <code>ResourceBlacklistRequest</code> to inform the
+     * <code>ResourceManager</code> about the blacklist additions and removals
+     * per the <code>ApplicationMaster</code>.
+     *
+     * @param resourceBlacklistRequest the <code>ResourceBlacklistRequest</code>
+     *                         to inform the <code>ResourceManager</code> about
+     *                         the blacklist additions and removals
+     *                         per the <code>ApplicationMaster</code>
+     * @see ResourceBlacklistRequest
+     */
+    @Public
+    @Stable
+    public abstract void setResourceBlacklistRequest(
+        ResourceBlacklistRequest resourceBlacklistRequest);
+
+    /**
+     * Get the <code>ContainerResourceIncreaseRequest</code> being sent by the
+     * <code>ApplicationMaster</code>
+     */
+    @Public
+    @Stable
+    public abstract List<ContainerResourceIncreaseRequest> getIncreaseRequests();
+
+    /**
+     * Set the <code>ContainerResourceIncreaseRequest</code> to inform the
+     * <code>ResourceManager</code> about some container's resources need to be
+     * increased
+     */
+    @Public
+    @Stable
+    public abstract void setIncreaseRequests(
+        List<ContainerResourceIncreaseRequest> increaseRequests);
 }

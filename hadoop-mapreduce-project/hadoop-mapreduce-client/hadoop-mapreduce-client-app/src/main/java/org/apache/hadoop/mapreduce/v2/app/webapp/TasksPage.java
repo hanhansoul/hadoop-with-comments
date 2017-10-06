@@ -24,39 +24,39 @@ import static org.apache.hadoop.yarn.webapp.view.JQueryUI.*;
 
 public class TasksPage extends AppView {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    set(DATATABLES_ID, "tasks");
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:2}");
-    set(initID(DATATABLES, "tasks"), tasksTableInit());
-    setTableStyles(html, "tasks");
-  }
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        set(DATATABLES_ID, "tasks");
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:2}");
+        set(initID(DATATABLES, "tasks"), tasksTableInit());
+        setTableStyles(html, "tasks");
+    }
 
-  @Override protected Class<? extends SubView> content() {
-    return TasksBlock.class;
-  }
+    @Override protected Class<? extends SubView> content() {
+        return TasksBlock.class;
+    }
 
-  private String tasksTableInit() {
-    return tableInit()
-      .append(", 'aaData': tasksTableData")
-      .append(", bDeferRender: true")
-      .append(", bProcessing: true")
+    private String tasksTableInit() {
+        return tableInit()
+               .append(", 'aaData': tasksTableData")
+               .append(", bDeferRender: true")
+               .append(", bProcessing: true")
 
-      .append("\n, aoColumnDefs: [\n")
-      .append("{'sType':'string', 'aTargets': [0]")
-      .append(", 'mRender': parseHadoopID }")
+               .append("\n, aoColumnDefs: [\n")
+               .append("{'sType':'string', 'aTargets': [0]")
+               .append(", 'mRender': parseHadoopID }")
 
-      .append("\n, {'sType':'numeric', bSearchable:false, 'aTargets': [1]")
-      .append(", 'mRender': parseHadoopProgress }")
+               .append("\n, {'sType':'numeric', bSearchable:false, 'aTargets': [1]")
+               .append(", 'mRender': parseHadoopProgress }")
 
 
-      .append("\n, {'sType':'numeric', 'aTargets': [4, 5]")
-      .append(", 'mRender': renderHadoopDate }")
+               .append("\n, {'sType':'numeric', 'aTargets': [4, 5]")
+               .append(", 'mRender': renderHadoopDate }")
 
-      .append("\n, {'sType':'numeric', 'aTargets': [6]")
-      .append(", 'mRender': renderHadoopElapsedTime }]")
+               .append("\n, {'sType':'numeric', 'aTargets': [6]")
+               .append(", 'mRender': renderHadoopElapsedTime }]")
 
-      // Sort by id upon page load
-      .append(", aaSorting: [[0, 'asc']] }").toString();
-  }
+               // Sort by id upon page load
+               .append(", aaSorting: [[0, 'asc']] }").toString();
+    }
 }

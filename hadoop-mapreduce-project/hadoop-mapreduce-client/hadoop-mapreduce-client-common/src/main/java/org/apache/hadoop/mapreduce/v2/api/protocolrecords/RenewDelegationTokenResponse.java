@@ -27,6 +27,6 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Public
 @Evolving
 public interface RenewDelegationTokenResponse {
-  long getNextExpirationTime();
-  void setNextExpirationTime(long expTime);
+    long getNextExpirationTime();
+    void setNextExpirationTime(long expTime);
 }

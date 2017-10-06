@@ -36,205 +36,205 @@ import com.google.common.collect.ImmutableSet;
 
 public class TestBloomFilters {
 
-  int numInsertions = 1000;
-  int bitSize = BloomFilterCommonTester.optimalNumOfBits(numInsertions, 0.03);
-  int hashFunctionNumber = 5;
-
-  private static final ImmutableMap<Integer, ? extends AbstractCollection<Key>> FALSE_POSITIVE_UNDER_1000 = ImmutableMap
-      .of(Hash.JENKINS_HASH, new AbstractCollection<Key>() {
-        final ImmutableList<Key> falsePositive = ImmutableList.<Key> of(
-            new Key("99".getBytes()), new Key("963".getBytes()));
-
-        @Override
-        public Iterator<Key> iterator() {
-          return falsePositive.iterator();
-        }
-
-        @Override
-        public int size() {
-          return falsePositive.size();
-        }
-      }, Hash.MURMUR_HASH, new AbstractCollection<Key>() {
-        final ImmutableList<Key> falsePositive = ImmutableList.<Key> of(
-            new Key("769".getBytes()), new Key("772".getBytes()),
-            new Key("810".getBytes()), new Key("874".getBytes()));
-
-        @Override
-        public Iterator<Key> iterator() {
-          return falsePositive.iterator();
-        }
-
-        @Override
-        public int size() {
-          return falsePositive.size();
-        }
-      });
-
-  private enum Digits {
-    ODD(1), EVEN(0);
-
-    int start;
-
-    Digits(int start) {
-      this.start = start;
-    }
-
-    int getStart() {
-      return start;
-    }
-  }
-  
-  @Test
-  public void testDynamicBloomFilter() {
-    int hashId = Hash.JENKINS_HASH;    
-    Filter filter = new DynamicBloomFilter(bitSize, hashFunctionNumber,
-        Hash.JENKINS_HASH, 3);    
-    BloomFilterCommonTester.of(hashId, numInsertions)
-        .withFilterInstance(filter)
-        .withTestCases(ImmutableSet.of(BloomFilterTestStrategy.KEY_TEST_STRATEGY,
-                BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
-                BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
-                BloomFilterTestStrategy.WRITE_READ_STRATEGY,
-                BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY))
-                .test();
-    
-    assertNotNull("testDynamicBloomFilter error ", filter.toString());
-  }
-
-  @Test
-  public void testCountingBloomFilter() {
-    int hashId = Hash.JENKINS_HASH;
-
-    CountingBloomFilter filter = new CountingBloomFilter(bitSize,
-        hashFunctionNumber, hashId);
-
-    Key key = new Key(new byte[] { 48, 48 });
-
-    filter.add(key);
-    assertTrue("CountingBloomFilter.membership error ",
-        filter.membershipTest(key));
-    assertTrue("CountingBloomFilter.approximateCount error",
-        filter.approximateCount(key) == 1);
-
-    filter.add(key);
-    assertTrue("CountingBloomFilter.approximateCount error",
-        filter.approximateCount(key) == 2);
-
-    filter.delete(key);
-    assertTrue("CountingBloomFilter.membership error ",
-        filter.membershipTest(key));
-
-    filter.delete(key);
-    assertFalse("CountingBloomFilter.membership error ",
-        filter.membershipTest(key));
-    assertTrue("CountingBloomFilter.approximateCount error",
-        filter.approximateCount(key) == 0);
-
-    BloomFilterCommonTester.of(hashId, numInsertions)
-        .withFilterInstance(filter)
-        .withTestCases(ImmutableSet.of(BloomFilterTestStrategy.KEY_TEST_STRATEGY,
-                BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
-                BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
-                BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY,
-                BloomFilterTestStrategy.WRITE_READ_STRATEGY,
-                BloomFilterTestStrategy.FILTER_OR_STRATEGY,
-                BloomFilterTestStrategy.FILTER_XOR_STRATEGY)).test();
-  }
-
-  @Test
-  public void testRetouchedBloomFilterSpecific() {
     int numInsertions = 1000;
+    int bitSize = BloomFilterCommonTester.optimalNumOfBits(numInsertions, 0.03);
     int hashFunctionNumber = 5;
 
-    ImmutableSet<Integer> hashes = ImmutableSet.of(Hash.MURMUR_HASH,
-        Hash.JENKINS_HASH);
+    private static final ImmutableMap<Integer, ? extends AbstractCollection<Key>> FALSE_POSITIVE_UNDER_1000 = ImmutableMap
+    .of(Hash.JENKINS_HASH, new AbstractCollection<Key>() {
+        final ImmutableList<Key> falsePositive = ImmutableList.<Key> of(
+                    new Key("99".getBytes()), new Key("963".getBytes()));
 
-    for (Integer hashId : hashes) {      
-      RetouchedBloomFilter filter = new RetouchedBloomFilter(bitSize,
-          hashFunctionNumber, hashId);
+        @Override
+        public Iterator<Key> iterator() {
+            return falsePositive.iterator();
+        }
 
-      checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.ODD,
-          RemoveScheme.MAXIMUM_FP);
-      filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+        @Override
+        public int size() {
+            return falsePositive.size();
+        }
+    }, Hash.MURMUR_HASH, new AbstractCollection<Key>() {
+        final ImmutableList<Key> falsePositive = ImmutableList.<Key> of(
+                    new Key("769".getBytes()), new Key("772".getBytes()),
+                    new Key("810".getBytes()), new Key("874".getBytes()));
 
-      checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.EVEN,
-          RemoveScheme.MAXIMUM_FP);
-      filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+        @Override
+        public Iterator<Key> iterator() {
+            return falsePositive.iterator();
+        }
 
-      checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.ODD,
-          RemoveScheme.MINIMUM_FN);
-      filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+        @Override
+        public int size() {
+            return falsePositive.size();
+        }
+    });
 
-      checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.EVEN,
-          RemoveScheme.MINIMUM_FN);
-      filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+    private enum Digits {
+        ODD(1), EVEN(0);
 
-      checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.ODD,
-          RemoveScheme.RATIO);
-      filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+        int start;
 
-      checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.EVEN,
-          RemoveScheme.RATIO);
-      filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
-    }
-  }
+        Digits(int start) {
+            this.start = start;
+        }
 
-  private void checkOnAbsentFalsePositive(int hashId, int numInsertions,
-      final RetouchedBloomFilter filter, Digits digits, short removeSchema) {
-    AbstractCollection<Key> falsePositives = FALSE_POSITIVE_UNDER_1000
-        .get(hashId);
-
-    if (falsePositives == null)
-      Assert.fail(String.format("false positives for hash %d not founded",
-          hashId));
-
-    filter.addFalsePositive(falsePositives);
-
-    for (int i = digits.getStart(); i < numInsertions; i += 2) {
-      filter.add(new Key(Integer.toString(i).getBytes()));
+        int getStart() {
+            return start;
+        }
     }
 
-    for (Key key : falsePositives) {
-      filter.selectiveClearing(key, removeSchema);
+    @Test
+    public void testDynamicBloomFilter() {
+        int hashId = Hash.JENKINS_HASH;
+        Filter filter = new DynamicBloomFilter(bitSize, hashFunctionNumber,
+                                               Hash.JENKINS_HASH, 3);
+        BloomFilterCommonTester.of(hashId, numInsertions)
+        .withFilterInstance(filter)
+        .withTestCases(ImmutableSet.of(BloomFilterTestStrategy.KEY_TEST_STRATEGY,
+                                       BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
+                                       BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
+                                       BloomFilterTestStrategy.WRITE_READ_STRATEGY,
+                                       BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY))
+        .test();
+
+        assertNotNull("testDynamicBloomFilter error ", filter.toString());
     }
 
-    for (int i = 1 - digits.getStart(); i < numInsertions; i += 2) {
-      assertFalse(" testRetouchedBloomFilterAddFalsePositive error " + i,
-          filter.membershipTest(new Key(Integer.toString(i).getBytes())));
+    @Test
+    public void testCountingBloomFilter() {
+        int hashId = Hash.JENKINS_HASH;
+
+        CountingBloomFilter filter = new CountingBloomFilter(bitSize,
+                hashFunctionNumber, hashId);
+
+        Key key = new Key(new byte[] { 48, 48 });
+
+        filter.add(key);
+        assertTrue("CountingBloomFilter.membership error ",
+                   filter.membershipTest(key));
+        assertTrue("CountingBloomFilter.approximateCount error",
+                   filter.approximateCount(key) == 1);
+
+        filter.add(key);
+        assertTrue("CountingBloomFilter.approximateCount error",
+                   filter.approximateCount(key) == 2);
+
+        filter.delete(key);
+        assertTrue("CountingBloomFilter.membership error ",
+                   filter.membershipTest(key));
+
+        filter.delete(key);
+        assertFalse("CountingBloomFilter.membership error ",
+                    filter.membershipTest(key));
+        assertTrue("CountingBloomFilter.approximateCount error",
+                   filter.approximateCount(key) == 0);
+
+        BloomFilterCommonTester.of(hashId, numInsertions)
+        .withFilterInstance(filter)
+        .withTestCases(ImmutableSet.of(BloomFilterTestStrategy.KEY_TEST_STRATEGY,
+                                       BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
+                                       BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
+                                       BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY,
+                                       BloomFilterTestStrategy.WRITE_READ_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_OR_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_XOR_STRATEGY)).test();
     }
-  }
 
-  @Test
-  public void testFiltersWithJenkinsHash() {
-    int hashId = Hash.JENKINS_HASH;
+    @Test
+    public void testRetouchedBloomFilterSpecific() {
+        int numInsertions = 1000;
+        int hashFunctionNumber = 5;
 
-    BloomFilterCommonTester.of(hashId, numInsertions)
+        ImmutableSet<Integer> hashes = ImmutableSet.of(Hash.MURMUR_HASH,
+                                       Hash.JENKINS_HASH);
+
+        for (Integer hashId : hashes) {
+            RetouchedBloomFilter filter = new RetouchedBloomFilter(bitSize,
+                    hashFunctionNumber, hashId);
+
+            checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.ODD,
+                                       RemoveScheme.MAXIMUM_FP);
+            filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+
+            checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.EVEN,
+                                       RemoveScheme.MAXIMUM_FP);
+            filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+
+            checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.ODD,
+                                       RemoveScheme.MINIMUM_FN);
+            filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+
+            checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.EVEN,
+                                       RemoveScheme.MINIMUM_FN);
+            filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+
+            checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.ODD,
+                                       RemoveScheme.RATIO);
+            filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+
+            checkOnAbsentFalsePositive(hashId, numInsertions, filter, Digits.EVEN,
+                                       RemoveScheme.RATIO);
+            filter.and(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId));
+        }
+    }
+
+    private void checkOnAbsentFalsePositive(int hashId, int numInsertions,
+                                            final RetouchedBloomFilter filter, Digits digits, short removeSchema) {
+        AbstractCollection<Key> falsePositives = FALSE_POSITIVE_UNDER_1000
+                .get(hashId);
+
+        if (falsePositives == null)
+            Assert.fail(String.format("false positives for hash %d not founded",
+                                      hashId));
+
+        filter.addFalsePositive(falsePositives);
+
+        for (int i = digits.getStart(); i < numInsertions; i += 2) {
+            filter.add(new Key(Integer.toString(i).getBytes()));
+        }
+
+        for (Key key : falsePositives) {
+            filter.selectiveClearing(key, removeSchema);
+        }
+
+        for (int i = 1 - digits.getStart(); i < numInsertions; i += 2) {
+            assertFalse(" testRetouchedBloomFilterAddFalsePositive error " + i,
+                        filter.membershipTest(new Key(Integer.toString(i).getBytes())));
+        }
+    }
+
+    @Test
+    public void testFiltersWithJenkinsHash() {
+        int hashId = Hash.JENKINS_HASH;
+
+        BloomFilterCommonTester.of(hashId, numInsertions)
         .withFilterInstance(new BloomFilter(bitSize, hashFunctionNumber, hashId))
         .withFilterInstance(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId))
         .withTestCases(ImmutableSet.of(BloomFilterTestStrategy.KEY_TEST_STRATEGY,
-                BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
-                BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
-                BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY,
-                BloomFilterTestStrategy.WRITE_READ_STRATEGY,
-                BloomFilterTestStrategy.FILTER_OR_STRATEGY,
-                BloomFilterTestStrategy.FILTER_AND_STRATEGY,
-                BloomFilterTestStrategy.FILTER_XOR_STRATEGY)).test();
-  }
+                                       BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
+                                       BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
+                                       BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY,
+                                       BloomFilterTestStrategy.WRITE_READ_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_OR_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_AND_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_XOR_STRATEGY)).test();
+    }
 
-  @Test
-  public void testFiltersWithMurmurHash() {
-    int hashId = Hash.MURMUR_HASH;
+    @Test
+    public void testFiltersWithMurmurHash() {
+        int hashId = Hash.MURMUR_HASH;
 
-    BloomFilterCommonTester.of(hashId, numInsertions)
+        BloomFilterCommonTester.of(hashId, numInsertions)
         .withFilterInstance(new BloomFilter(bitSize, hashFunctionNumber, hashId))
         .withFilterInstance(new RetouchedBloomFilter(bitSize, hashFunctionNumber, hashId))
         .withTestCases(ImmutableSet.of(BloomFilterTestStrategy.KEY_TEST_STRATEGY,
-                BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
-                BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
-                BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY,
-                BloomFilterTestStrategy.WRITE_READ_STRATEGY,
-                BloomFilterTestStrategy.FILTER_OR_STRATEGY,
-                BloomFilterTestStrategy.FILTER_AND_STRATEGY,
-                BloomFilterTestStrategy.FILTER_XOR_STRATEGY)).test();
-  }
+                                       BloomFilterTestStrategy.ADD_KEYS_STRATEGY,
+                                       BloomFilterTestStrategy.EXCEPTIONS_CHECK_STRATEGY,
+                                       BloomFilterTestStrategy.ODD_EVEN_ABSENT_STRATEGY,
+                                       BloomFilterTestStrategy.WRITE_READ_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_OR_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_AND_STRATEGY,
+                                       BloomFilterTestStrategy.FILTER_XOR_STRATEGY)).test();
+    }
 }

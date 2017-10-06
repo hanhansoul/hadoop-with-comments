@@ -28,19 +28,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppAttemptsInfo {
 
-  @XmlElement(name = "appAttempt")
-  protected ArrayList<AppAttemptInfo> attempt = new ArrayList<AppAttemptInfo>();
+    @XmlElement(name = "appAttempt")
+    protected ArrayList<AppAttemptInfo> attempt = new ArrayList<AppAttemptInfo>();
 
-  public AppAttemptsInfo() {
-    // JAXB needs this
-  }
+    public AppAttemptsInfo() {
+        // JAXB needs this
+    }
 
-  public void add(AppAttemptInfo info) {
-    this.attempt.add(info);
-  }
+    public void add(AppAttemptInfo info) {
+        this.attempt.add(info);
+    }
 
-  public ArrayList<AppAttemptInfo> getAttempts() {
-    return this.attempt;
-  }
+    public ArrayList<AppAttemptInfo> getAttempts() {
+        return this.attempt;
+    }
 
 }

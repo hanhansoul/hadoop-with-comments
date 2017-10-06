@@ -27,14 +27,14 @@ import org.apache.hadoop.yarn.api.records.NodeReport;
 
 public class JobUpdatedNodesEvent extends JobEvent {
 
-  private final List<NodeReport> updatedNodes;
-  public JobUpdatedNodesEvent(JobId jobId, List<NodeReport> updatedNodes) {
-    super(jobId, JobEventType.JOB_UPDATED_NODES);
-    this.updatedNodes = updatedNodes;
-  }
+    private final List<NodeReport> updatedNodes;
+    public JobUpdatedNodesEvent(JobId jobId, List<NodeReport> updatedNodes) {
+        super(jobId, JobEventType.JOB_UPDATED_NODES);
+        this.updatedNodes = updatedNodes;
+    }
 
-  public List<NodeReport> getUpdatedNodes() {
-    return updatedNodes;
-  }
+    public List<NodeReport> getUpdatedNodes() {
+        return updatedNodes;
+    }
 
 }

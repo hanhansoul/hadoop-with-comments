@@ -29,18 +29,18 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class PlanningQuotaException extends PlanningException {
 
-  private static final long serialVersionUID = 8206629288380246166L;
+    private static final long serialVersionUID = 8206629288380246166L;
 
-  public PlanningQuotaException(String message) {
-    super(message);
-  }
+    public PlanningQuotaException(String message) {
+        super(message);
+    }
 
-  public PlanningQuotaException(Throwable cause) {
-    super(cause);
-  }
+    public PlanningQuotaException(Throwable cause) {
+        super(cause);
+    }
 
-  public PlanningQuotaException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public PlanningQuotaException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

@@ -36,135 +36,135 @@ import static org.junit.Assert.assertTrue;
  * Unit tests for SwiftObjectPath class.
  */
 public class TestSwiftObjectPath implements SwiftTestConstants {
-  private static final Log LOG = LogFactory.getLog(TestSwiftObjectPath.class);
+    private static final Log LOG = LogFactory.getLog(TestSwiftObjectPath.class);
 
-  /**
-   * What an endpoint looks like. This is derived from a (valid)
-   * rackspace endpoint address
-   */
-  private static final String ENDPOINT =
-          "https://storage101.region1.example.org/v1/MossoCloudFS_9fb40cc0-1234-5678-9abc-def000c9a66";
+    /**
+     * What an endpoint looks like. This is derived from a (valid)
+     * rackspace endpoint address
+     */
+    private static final String ENDPOINT =
+        "https://storage101.region1.example.org/v1/MossoCloudFS_9fb40cc0-1234-5678-9abc-def000c9a66";
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testParsePath() throws Exception {
-    final String pathString = "/home/user/files/file1";
-    final Path path = new Path(pathString);
-    final URI uri = new URI("http://container.localhost");
-    final SwiftObjectPath expected = SwiftObjectPath.fromPath(uri, path);
-    final SwiftObjectPath actual = new SwiftObjectPath(
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testParsePath() throws Exception {
+        final String pathString = "/home/user/files/file1";
+        final Path path = new Path(pathString);
+        final URI uri = new URI("http://container.localhost");
+        final SwiftObjectPath expected = SwiftObjectPath.fromPath(uri, path);
+        final SwiftObjectPath actual = new SwiftObjectPath(
             RestClientBindings.extractContainerName(uri),
             pathString);
 
-    assertEquals(expected, actual);
-  }
+        assertEquals(expected, actual);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testParseUrlPath() throws Exception {
-    final String pathString = "swift://container.service1/home/user/files/file1";
-    final URI uri = new URI(pathString);
-    final Path path = new Path(pathString);
-    final SwiftObjectPath expected = SwiftObjectPath.fromPath(uri, path);
-    final SwiftObjectPath actual = new SwiftObjectPath(
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testParseUrlPath() throws Exception {
+        final String pathString = "swift://container.service1/home/user/files/file1";
+        final URI uri = new URI(pathString);
+        final Path path = new Path(pathString);
+        final SwiftObjectPath expected = SwiftObjectPath.fromPath(uri, path);
+        final SwiftObjectPath actual = new SwiftObjectPath(
             RestClientBindings.extractContainerName(uri),
             "/home/user/files/file1");
 
-    assertEquals(expected, actual);
-  }
+        assertEquals(expected, actual);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testHandleUrlAsPath() throws Exception {
-    final String hostPart = "swift://container.service1";
-    final String pathPart = "/home/user/files/file1";
-    final String uriString = hostPart + pathPart;
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testHandleUrlAsPath() throws Exception {
+        final String hostPart = "swift://container.service1";
+        final String pathPart = "/home/user/files/file1";
+        final String uriString = hostPart + pathPart;
 
-    final SwiftObjectPath expected = new SwiftObjectPath(uriString, pathPart);
-    final SwiftObjectPath actual = new SwiftObjectPath(uriString, uriString);
+        final SwiftObjectPath expected = new SwiftObjectPath(uriString, pathPart);
+        final SwiftObjectPath actual = new SwiftObjectPath(uriString, uriString);
 
-    assertEquals(expected, actual);
-  }
+        assertEquals(expected, actual);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testParseAuthenticatedUrl() throws Exception {
-    final String pathString = "swift://container.service1/v2/AUTH_00345h34l93459y4/home/tom/documents/finance.docx";
-    final URI uri = new URI(pathString);
-    final Path path = new Path(pathString);
-    final SwiftObjectPath expected = SwiftObjectPath.fromPath(uri, path);
-    final SwiftObjectPath actual = new SwiftObjectPath(
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testParseAuthenticatedUrl() throws Exception {
+        final String pathString = "swift://container.service1/v2/AUTH_00345h34l93459y4/home/tom/documents/finance.docx";
+        final URI uri = new URI(pathString);
+        final Path path = new Path(pathString);
+        final SwiftObjectPath expected = SwiftObjectPath.fromPath(uri, path);
+        final SwiftObjectPath actual = new SwiftObjectPath(
             RestClientBindings.extractContainerName(uri),
             "/home/tom/documents/finance.docx");
 
-    assertEquals(expected, actual);
-  }
+        assertEquals(expected, actual);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testConvertToPath() throws Throwable {
-    String initialpath = "/dir/file1";
-    Path ipath = new Path(initialpath);
-    SwiftObjectPath objectPath = SwiftObjectPath.fromPath(new URI(initialpath),
-            ipath);
-    URI endpoint = new URI(ENDPOINT);
-    URI uri = SwiftRestClient.pathToURI(objectPath, endpoint);
-    LOG.info("Inital Hadoop Path =" + initialpath);
-    LOG.info("Merged URI=" + uri);
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testConvertToPath() throws Throwable {
+        String initialpath = "/dir/file1";
+        Path ipath = new Path(initialpath);
+        SwiftObjectPath objectPath = SwiftObjectPath.fromPath(new URI(initialpath),
+                                     ipath);
+        URI endpoint = new URI(ENDPOINT);
+        URI uri = SwiftRestClient.pathToURI(objectPath, endpoint);
+        LOG.info("Inital Hadoop Path =" + initialpath);
+        LOG.info("Merged URI=" + uri);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testRootDirProbeEmptyPath() throws Throwable {
-    SwiftObjectPath object=new SwiftObjectPath("container","");
-    assertTrue(SwiftUtils.isRootDir(object));
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testRootDirProbeEmptyPath() throws Throwable {
+        SwiftObjectPath object=new SwiftObjectPath("container","");
+        assertTrue(SwiftUtils.isRootDir(object));
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testRootDirProbeRootPath() throws Throwable {
-    SwiftObjectPath object=new SwiftObjectPath("container","/");
-    assertTrue(SwiftUtils.isRootDir(object));
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testRootDirProbeRootPath() throws Throwable {
+        SwiftObjectPath object=new SwiftObjectPath("container","/");
+        assertTrue(SwiftUtils.isRootDir(object));
+    }
 
-  private void assertParentOf(SwiftObjectPath p1, SwiftObjectPath p2) {
-    assertTrue(p1.toString() + " is not a parent of " + p2 ,p1.isEqualToOrParentOf(
-      p2));
-  }
+    private void assertParentOf(SwiftObjectPath p1, SwiftObjectPath p2) {
+        assertTrue(p1.toString() + " is not a parent of " + p2,p1.isEqualToOrParentOf(
+                       p2));
+    }
 
-  private void assertNotParentOf(SwiftObjectPath p1, SwiftObjectPath p2) {
-    assertFalse(p1.toString() + " is a parent of " + p2, p1.isEqualToOrParentOf(
-      p2));
-  }
+    private void assertNotParentOf(SwiftObjectPath p1, SwiftObjectPath p2) {
+        assertFalse(p1.toString() + " is a parent of " + p2, p1.isEqualToOrParentOf(
+                        p2));
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testChildOfProbe() throws Throwable {
-    SwiftObjectPath parent = new SwiftObjectPath("container",
-                                                 "/parent");
-    SwiftObjectPath parent2 = new SwiftObjectPath("container",
-                                                 "/parent2");
-    SwiftObjectPath child = new SwiftObjectPath("container",
-                                                 "/parent/child");
-    SwiftObjectPath sibling = new SwiftObjectPath("container",
-                                                 "/parent/sibling");
-    SwiftObjectPath grandchild = new SwiftObjectPath("container",
-                                                     "/parent/child/grandchild");
-    assertParentOf(parent, child);
-    assertParentOf(parent, grandchild);
-    assertParentOf(child, grandchild);
-    assertParentOf(parent, parent);
-    assertNotParentOf(child, parent);
-    assertParentOf(child, child);
-    assertNotParentOf(parent, parent2);
-    assertNotParentOf(grandchild, parent);
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testChildOfProbe() throws Throwable {
+        SwiftObjectPath parent = new SwiftObjectPath("container",
+                "/parent");
+        SwiftObjectPath parent2 = new SwiftObjectPath("container",
+                "/parent2");
+        SwiftObjectPath child = new SwiftObjectPath("container",
+                "/parent/child");
+        SwiftObjectPath sibling = new SwiftObjectPath("container",
+                "/parent/sibling");
+        SwiftObjectPath grandchild = new SwiftObjectPath("container",
+                "/parent/child/grandchild");
+        assertParentOf(parent, child);
+        assertParentOf(parent, grandchild);
+        assertParentOf(child, grandchild);
+        assertParentOf(parent, parent);
+        assertNotParentOf(child, parent);
+        assertParentOf(child, child);
+        assertNotParentOf(parent, parent2);
+        assertNotParentOf(grandchild, parent);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testChildOfRoot() throws Throwable {
-    SwiftObjectPath root = new SwiftObjectPath("container", "/");
-    SwiftObjectPath child = new SwiftObjectPath("container", "child");
-    SwiftObjectPath grandchild = new SwiftObjectPath("container",
-                                                     "/child/grandchild");
-    assertParentOf(root, child);
-    assertParentOf(root, grandchild);
-    assertParentOf(child, grandchild);
-    assertParentOf(root, root);
-    assertNotParentOf(child, root);
-    assertParentOf(child, child);
-    assertNotParentOf(grandchild, root);
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testChildOfRoot() throws Throwable {
+        SwiftObjectPath root = new SwiftObjectPath("container", "/");
+        SwiftObjectPath child = new SwiftObjectPath("container", "child");
+        SwiftObjectPath grandchild = new SwiftObjectPath("container",
+                "/child/grandchild");
+        assertParentOf(root, child);
+        assertParentOf(root, grandchild);
+        assertParentOf(child, grandchild);
+        assertParentOf(root, root);
+        assertNotParentOf(child, root);
+        assertParentOf(child, child);
+        assertNotParentOf(grandchild, root);
+    }
 
 }

@@ -24,21 +24,21 @@ import org.apache.hadoop.yarn.util.Records;
 
 @InterfaceAudience.LimitedPrivate("MapReduce")
 public class ClusterInfo {
-  private Resource maxContainerCapability;
+    private Resource maxContainerCapability;
 
-  public ClusterInfo() {
-    this.maxContainerCapability = Records.newRecord(Resource.class);
-  }
+    public ClusterInfo() {
+        this.maxContainerCapability = Records.newRecord(Resource.class);
+    }
 
-  public ClusterInfo(Resource maxCapability) {
-    this.maxContainerCapability = maxCapability;
-  }
+    public ClusterInfo(Resource maxCapability) {
+        this.maxContainerCapability = maxCapability;
+    }
 
-  public Resource getMaxContainerCapability() {
-    return maxContainerCapability;
-  }
+    public Resource getMaxContainerCapability() {
+        return maxContainerCapability;
+    }
 
-  public void setMaxContainerCapability(Resource maxContainerCapability) {
-    this.maxContainerCapability = maxContainerCapability;
-  }
+    public void setMaxContainerCapability(Resource maxContainerCapability) {
+        this.maxContainerCapability = maxContainerCapability;
+    }
 }

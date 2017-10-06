@@ -24,13 +24,13 @@ import junit.framework.TestCase;
 import org.apache.hadoop.conf.Configuration;
 
 public class TestS3Credentials extends TestCase {
-  public void testInvalidHostnameWithUnderscores() throws Exception {
-    S3Credentials s3Credentials = new S3Credentials();
-    try {
-      s3Credentials.initialize(new URI("s3://a:b@c_d"), new Configuration());
-      fail("Should throw IllegalArgumentException");
-    } catch (IllegalArgumentException e) {
-      assertEquals("Invalid hostname in URI s3://a:b@c_d", e.getMessage());
+    public void testInvalidHostnameWithUnderscores() throws Exception {
+        S3Credentials s3Credentials = new S3Credentials();
+        try {
+            s3Credentials.initialize(new URI("s3://a:b@c_d"), new Configuration());
+            fail("Should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            assertEquals("Invalid hostname in URI s3://a:b@c_d", e.getMessage());
+        }
     }
-  }
 }

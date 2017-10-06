@@ -39,58 +39,58 @@ import com.google.common.collect.Sets;
  * Tests datanode refresh namenode list functionality.
  */
 public class TestRefreshNamenodes {
-  private final int nnPort1 = 2221;
-  private final int nnPort2 = 2224;
-  private final int nnPort3 = 2227;
-  private final int nnPort4 = 2230;
+    private final int nnPort1 = 2221;
+    private final int nnPort2 = 2224;
+    private final int nnPort3 = 2227;
+    private final int nnPort4 = 2230;
 
-  @Test
-  public void testRefreshNamenodes() throws IOException {
-    // Start cluster with a single NN and DN
-    Configuration conf = new Configuration();
-    MiniDFSCluster cluster = null;
-    try {
-      MiniDFSNNTopology topology = new MiniDFSNNTopology()
-        .addNameservice(new NSConf("ns1").addNN(
-            new NNConf(null).setIpcPort(nnPort1)))
-        .setFederation(true);
-      cluster = new MiniDFSCluster.Builder(conf)
-        .nnTopology(topology)
-        .build();
+    @Test
+    public void testRefreshNamenodes() throws IOException {
+        // Start cluster with a single NN and DN
+        Configuration conf = new Configuration();
+        MiniDFSCluster cluster = null;
+        try {
+            MiniDFSNNTopology topology = new MiniDFSNNTopology()
+            .addNameservice(new NSConf("ns1").addNN(
+                                new NNConf(null).setIpcPort(nnPort1)))
+            .setFederation(true);
+            cluster = new MiniDFSCluster.Builder(conf)
+            .nnTopology(topology)
+            .build();
 
-      DataNode dn = cluster.getDataNodes().get(0);
-      assertEquals(1, dn.getAllBpOs().length);
+            DataNode dn = cluster.getDataNodes().get(0);
+            assertEquals(1, dn.getAllBpOs().length);
 
-      cluster.addNameNode(conf, nnPort2);
-      assertEquals(2, dn.getAllBpOs().length);
+            cluster.addNameNode(conf, nnPort2);
+            assertEquals(2, dn.getAllBpOs().length);
 
-      cluster.addNameNode(conf, nnPort3);
-      assertEquals(3, dn.getAllBpOs().length);
+            cluster.addNameNode(conf, nnPort3);
+            assertEquals(3, dn.getAllBpOs().length);
 
-      cluster.addNameNode(conf, nnPort4);
+            cluster.addNameNode(conf, nnPort4);
 
-      // Ensure a BPOfferService in the datanodes corresponds to
-      // a namenode in the cluster
-      Set<InetSocketAddress> nnAddrsFromCluster = Sets.newHashSet();
-      for (int i = 0; i < 4; i++) {
-        assertTrue(nnAddrsFromCluster.add(
-            cluster.getNameNode(i).getNameNodeAddress()));
-      }
-      
-      Set<InetSocketAddress> nnAddrsFromDN = Sets.newHashSet();
-      for (BPOfferService bpos : dn.getAllBpOs()) {
-        for (BPServiceActor bpsa : bpos.getBPServiceActors()) {
-          assertTrue(nnAddrsFromDN.add(bpsa.getNNSocketAddress()));
+            // Ensure a BPOfferService in the datanodes corresponds to
+            // a namenode in the cluster
+            Set<InetSocketAddress> nnAddrsFromCluster = Sets.newHashSet();
+            for (int i = 0; i < 4; i++) {
+                assertTrue(nnAddrsFromCluster.add(
+                               cluster.getNameNode(i).getNameNodeAddress()));
+            }
+
+            Set<InetSocketAddress> nnAddrsFromDN = Sets.newHashSet();
+            for (BPOfferService bpos : dn.getAllBpOs()) {
+                for (BPServiceActor bpsa : bpos.getBPServiceActors()) {
+                    assertTrue(nnAddrsFromDN.add(bpsa.getNNSocketAddress()));
+                }
+            }
+
+            assertEquals("",
+                         Joiner.on(",").join(
+                             Sets.symmetricDifference(nnAddrsFromCluster, nnAddrsFromDN)));
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
         }
-      }
-      
-      assertEquals("",
-          Joiner.on(",").join(
-            Sets.symmetricDifference(nnAddrsFromCluster, nnAddrsFromDN)));
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
     }
-  }
 }

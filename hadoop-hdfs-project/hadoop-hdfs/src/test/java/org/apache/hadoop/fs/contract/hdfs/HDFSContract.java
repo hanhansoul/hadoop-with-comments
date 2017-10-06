@@ -38,59 +38,59 @@ import java.io.IOException;
  */
 public class HDFSContract extends AbstractFSContract {
 
-  public static final String CONTRACT_HDFS_XML = "contract/hdfs.xml";
-  public static final int BLOCK_SIZE = AbstractFSContractTestBase.TEST_FILE_LEN;
-  private static MiniDFSCluster cluster;
+    public static final String CONTRACT_HDFS_XML = "contract/hdfs.xml";
+    public static final int BLOCK_SIZE = AbstractFSContractTestBase.TEST_FILE_LEN;
+    private static MiniDFSCluster cluster;
 
-  public HDFSContract(Configuration conf) {
-    super(conf);
-    //insert the base features
-    addConfResource(CONTRACT_HDFS_XML);
-  }
-
-  public static void createCluster() throws IOException {
-    HdfsConfiguration conf = new HdfsConfiguration();
-    conf.addResource(CONTRACT_HDFS_XML);
-    //hack in a 256 byte block size
-    conf.setInt(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
-
-    cluster =
-      new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
-    cluster.waitClusterUp();
-  }
-
-  public static void destroyCluster() throws IOException {
-    if (cluster != null) {
-      cluster.shutdown();
+    public HDFSContract(Configuration conf) {
+        super(conf);
+        //insert the base features
+        addConfResource(CONTRACT_HDFS_XML);
     }
-  }
 
-  public static MiniDFSCluster getCluster() {
-    return cluster;
-  }
+    public static void createCluster() throws IOException {
+        HdfsConfiguration conf = new HdfsConfiguration();
+        conf.addResource(CONTRACT_HDFS_XML);
+        //hack in a 256 byte block size
+        conf.setInt(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
 
-  @Override
-  public void init() throws IOException {
-    super.init();
-    Assert.assertTrue("contract options not loaded",
-                      isSupported(ContractOptions.IS_CASE_SENSITIVE, false));
-  }
+        cluster =
+            new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
+        cluster.waitClusterUp();
+    }
 
-  @Override
-  public FileSystem getTestFileSystem() throws IOException {
-    //assumes cluster is not null
-    Assert.assertNotNull("cluster not created", cluster);
-    return cluster.getFileSystem();
-  }
+    public static void destroyCluster() throws IOException {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
 
-  @Override
-  public String getScheme() {
-    return "hdfs";
-  }
+    public static MiniDFSCluster getCluster() {
+        return cluster;
+    }
 
-  @Override
-  public Path getTestPath() {
-    Path path = new Path("/test");
-    return path;
-  }
+    @Override
+    public void init() throws IOException {
+        super.init();
+        Assert.assertTrue("contract options not loaded",
+                          isSupported(ContractOptions.IS_CASE_SENSITIVE, false));
+    }
+
+    @Override
+    public FileSystem getTestFileSystem() throws IOException {
+        //assumes cluster is not null
+        Assert.assertNotNull("cluster not created", cluster);
+        return cluster.getFileSystem();
+    }
+
+    @Override
+    public String getScheme() {
+        return "hdfs";
+    }
+
+    @Override
+    public Path getTestPath() {
+        Path path = new Path("/test");
+        return path;
+    }
 }

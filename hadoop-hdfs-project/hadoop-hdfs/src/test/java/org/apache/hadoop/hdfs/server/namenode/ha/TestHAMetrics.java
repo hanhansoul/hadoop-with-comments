@@ -37,73 +37,73 @@ import static org.junit.Assert.assertTrue;
  * Make sure HA-related metrics are updated and reported appropriately.
  */
 public class TestHAMetrics {
-  
-  private static final Log LOG = LogFactory.getLog(TestHAMetrics.class);
 
-  @Test(timeout = 300000)
-  public void testHAMetrics() throws Exception {
-    Configuration conf = new Configuration();
-    conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
-    conf.setInt(DFSConfigKeys.DFS_HA_LOGROLL_PERIOD_KEY, Integer.MAX_VALUE);
+    private static final Log LOG = LogFactory.getLog(TestHAMetrics.class);
 
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+    @Test(timeout = 300000)
+    public void testHAMetrics() throws Exception {
+        Configuration conf = new Configuration();
+        conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
+        conf.setInt(DFSConfigKeys.DFS_HA_LOGROLL_PERIOD_KEY, Integer.MAX_VALUE);
+
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
         .nnTopology(MiniDFSNNTopology.simpleHATopology()).numDataNodes(1)
         .build();
-    FileSystem fs = null;
-    try {
-      cluster.waitActive();
-      
-      FSNamesystem nn0 = cluster.getNamesystem(0);
-      FSNamesystem nn1 = cluster.getNamesystem(1);
-      
-      assertEquals(nn0.getHAState(), "standby");
-      assertTrue(0 < nn0.getMillisSinceLastLoadedEdits());
-      assertEquals(nn1.getHAState(), "standby");
-      assertTrue(0 < nn1.getMillisSinceLastLoadedEdits());
+        FileSystem fs = null;
+        try {
+            cluster.waitActive();
 
-      cluster.transitionToActive(0);
-      
-      assertEquals("active", nn0.getHAState());
-      assertEquals(0, nn0.getMillisSinceLastLoadedEdits());
-      assertEquals("standby", nn1.getHAState());
-      assertTrue(0 < nn1.getMillisSinceLastLoadedEdits());
-      
-      cluster.transitionToStandby(0);
-      cluster.transitionToActive(1);
-      
-      assertEquals("standby", nn0.getHAState());
-      assertTrue(0 < nn0.getMillisSinceLastLoadedEdits());
-      assertEquals("active", nn1.getHAState());
-      assertEquals(0, nn1.getMillisSinceLastLoadedEdits());
-      
-      Thread.sleep(2000); // make sure standby gets a little out-of-date
-      assertTrue(2000 <= nn0.getMillisSinceLastLoadedEdits());
-      
-      assertEquals(0, nn0.getPendingDataNodeMessageCount());
-      assertEquals(0, nn1.getPendingDataNodeMessageCount());
-      
-      fs = HATestUtil.configureFailoverFs(cluster, conf);
-      DFSTestUtil.createFile(fs, new Path("/foo"),
-          10, (short)1, 1L);
-      
-      assertTrue(0 < nn0.getPendingDataNodeMessageCount());
-      assertEquals(0, nn1.getPendingDataNodeMessageCount());
-      long millisSinceLastLoadedEdits = nn0.getMillisSinceLastLoadedEdits();
-      
-      HATestUtil.waitForStandbyToCatchUp(cluster.getNameNode(1),
-          cluster.getNameNode(0));
-      
-      assertEquals(0, nn0.getPendingDataNodeMessageCount());
-      assertEquals(0, nn1.getPendingDataNodeMessageCount());
-      long newMillisSinceLastLoadedEdits = nn0.getMillisSinceLastLoadedEdits();
-      // Since we just waited for the standby to catch up, the time since we
-      // last loaded edits should be very low.
-      assertTrue("expected " + millisSinceLastLoadedEdits + " > " +
-          newMillisSinceLastLoadedEdits,
-          millisSinceLastLoadedEdits > newMillisSinceLastLoadedEdits);
-    } finally {
-      IOUtils.cleanup(LOG, fs);
-      cluster.shutdown();
+            FSNamesystem nn0 = cluster.getNamesystem(0);
+            FSNamesystem nn1 = cluster.getNamesystem(1);
+
+            assertEquals(nn0.getHAState(), "standby");
+            assertTrue(0 < nn0.getMillisSinceLastLoadedEdits());
+            assertEquals(nn1.getHAState(), "standby");
+            assertTrue(0 < nn1.getMillisSinceLastLoadedEdits());
+
+            cluster.transitionToActive(0);
+
+            assertEquals("active", nn0.getHAState());
+            assertEquals(0, nn0.getMillisSinceLastLoadedEdits());
+            assertEquals("standby", nn1.getHAState());
+            assertTrue(0 < nn1.getMillisSinceLastLoadedEdits());
+
+            cluster.transitionToStandby(0);
+            cluster.transitionToActive(1);
+
+            assertEquals("standby", nn0.getHAState());
+            assertTrue(0 < nn0.getMillisSinceLastLoadedEdits());
+            assertEquals("active", nn1.getHAState());
+            assertEquals(0, nn1.getMillisSinceLastLoadedEdits());
+
+            Thread.sleep(2000); // make sure standby gets a little out-of-date
+            assertTrue(2000 <= nn0.getMillisSinceLastLoadedEdits());
+
+            assertEquals(0, nn0.getPendingDataNodeMessageCount());
+            assertEquals(0, nn1.getPendingDataNodeMessageCount());
+
+            fs = HATestUtil.configureFailoverFs(cluster, conf);
+            DFSTestUtil.createFile(fs, new Path("/foo"),
+                                   10, (short)1, 1L);
+
+            assertTrue(0 < nn0.getPendingDataNodeMessageCount());
+            assertEquals(0, nn1.getPendingDataNodeMessageCount());
+            long millisSinceLastLoadedEdits = nn0.getMillisSinceLastLoadedEdits();
+
+            HATestUtil.waitForStandbyToCatchUp(cluster.getNameNode(1),
+                                               cluster.getNameNode(0));
+
+            assertEquals(0, nn0.getPendingDataNodeMessageCount());
+            assertEquals(0, nn1.getPendingDataNodeMessageCount());
+            long newMillisSinceLastLoadedEdits = nn0.getMillisSinceLastLoadedEdits();
+            // Since we just waited for the standby to catch up, the time since we
+            // last loaded edits should be very low.
+            assertTrue("expected " + millisSinceLastLoadedEdits + " > " +
+                       newMillisSinceLastLoadedEdits,
+                       millisSinceLastLoadedEdits > newMillisSinceLastLoadedEdits);
+        } finally {
+            IOUtils.cleanup(LOG, fs);
+            cluster.shutdown();
+        }
     }
-  }
 }

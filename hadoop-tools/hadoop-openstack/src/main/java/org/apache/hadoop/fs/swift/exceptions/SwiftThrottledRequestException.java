@@ -27,11 +27,11 @@ import java.net.URI;
  * the caller is being throttled.
  */
 public class SwiftThrottledRequestException extends
-                                            SwiftInvalidResponseException {
-  public SwiftThrottledRequestException(String message,
-                                        String operation,
-                                        URI uri,
-                                        HttpMethod method) {
-    super(message, operation, uri, method);
-  }
+    SwiftInvalidResponseException {
+    public SwiftThrottledRequestException(String message,
+                                          String operation,
+                                          URI uri,
+                                          HttpMethod method) {
+        super(message, operation, uri, method);
+    }
 }

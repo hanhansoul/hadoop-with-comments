@@ -35,17 +35,17 @@ import org.apache.hadoop.mapreduce.JobContext;
  *  with 1; a character position of zero in pos2 indicates the field's last
  *  character. If '.c' is omitted from pos1, it defaults to 1 (the beginning
  *  of the field); if omitted from pos2, it defaults to 0 (the end of the
- *  field). opts are ordering options (any of 'nr' as described above). 
+ *  field). opts are ordering options (any of 'nr' as described above).
  * We assume that the fields in the key are separated by
- * {@link JobContext#MAP_OUTPUT_KEY_FIELD_SEPERATOR} 
+ * {@link JobContext#MAP_OUTPUT_KEY_FIELD_SEPERATOR}
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class KeyFieldBasedComparator<K, V> extends 
+public class KeyFieldBasedComparator<K, V> extends
     org.apache.hadoop.mapreduce.lib.partition.KeyFieldBasedComparator<K, V>
     implements JobConfigurable {
 
-  public void configure(JobConf job) {
-    super.setConf(job);
-  }
+    public void configure(JobConf job) {
+        super.setConf(job);
+    }
 }

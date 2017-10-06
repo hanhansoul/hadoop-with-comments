@@ -31,91 +31,91 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.QueueMetrics;
 @Metrics(context="yarn")
 public class FSQueueMetrics extends QueueMetrics {
 
-  @Metric("Fair share of memory in MB") MutableGaugeInt fairShareMB;
-  @Metric("Fair share of CPU in vcores") MutableGaugeInt fairShareVCores;
-  @Metric("Steady fair share of memory in MB") MutableGaugeInt steadyFairShareMB;
-  @Metric("Steady fair share of CPU in vcores") MutableGaugeInt steadyFairShareVCores;
-  @Metric("Minimum share of memory in MB") MutableGaugeInt minShareMB;
-  @Metric("Minimum share of CPU in vcores") MutableGaugeInt minShareVCores;
-  @Metric("Maximum share of memory in MB") MutableGaugeInt maxShareMB;
-  @Metric("Maximum share of CPU in vcores") MutableGaugeInt maxShareVCores;
-  
-  FSQueueMetrics(MetricsSystem ms, String queueName, Queue parent,
-      boolean enableUserMetrics, Configuration conf) {
-    super(ms, queueName, parent, enableUserMetrics, conf);
-  }
-  
-  public void setFairShare(Resource resource) {
-    fairShareMB.set(resource.getMemory());
-    fairShareVCores.set(resource.getVirtualCores());
-  }
-  
-  public int getFairShareMB() {
-    return fairShareMB.value();
-  }
-  
-  public int getFairShareVirtualCores() {
-    return fairShareVCores.value();
-  }
+    @Metric("Fair share of memory in MB") MutableGaugeInt fairShareMB;
+    @Metric("Fair share of CPU in vcores") MutableGaugeInt fairShareVCores;
+    @Metric("Steady fair share of memory in MB") MutableGaugeInt steadyFairShareMB;
+    @Metric("Steady fair share of CPU in vcores") MutableGaugeInt steadyFairShareVCores;
+    @Metric("Minimum share of memory in MB") MutableGaugeInt minShareMB;
+    @Metric("Minimum share of CPU in vcores") MutableGaugeInt minShareVCores;
+    @Metric("Maximum share of memory in MB") MutableGaugeInt maxShareMB;
+    @Metric("Maximum share of CPU in vcores") MutableGaugeInt maxShareVCores;
 
-  public void setSteadyFairShare(Resource resource) {
-    steadyFairShareMB.set(resource.getMemory());
-    steadyFairShareVCores.set(resource.getVirtualCores());
-  }
-
-  public int getSteadyFairShareMB() {
-    return steadyFairShareMB.value();
-  }
-
-  public int getSteadyFairShareVCores() {
-    return steadyFairShareVCores.value();
-  }
-
-  public void setMinShare(Resource resource) {
-    minShareMB.set(resource.getMemory());
-    minShareVCores.set(resource.getVirtualCores());
-  }
-  
-  public int getMinShareMB() {
-    return minShareMB.value();
-  }
-  
-  public int getMinShareVirtualCores() {
-    return minShareVCores.value();
-  }
-  
-  public void setMaxShare(Resource resource) {
-    maxShareMB.set(resource.getMemory());
-    maxShareVCores.set(resource.getVirtualCores());
-  }
-  
-  public int getMaxShareMB() {
-    return maxShareMB.value();
-  }
-  
-  public int getMaxShareVirtualCores() {
-    return maxShareVCores.value();
-  }
-  
-  public synchronized 
-  static FSQueueMetrics forQueue(String queueName, Queue parent,
-      boolean enableUserMetrics, Configuration conf) {
-    MetricsSystem ms = DefaultMetricsSystem.instance();
-    QueueMetrics metrics = queueMetrics.get(queueName);
-    if (metrics == null) {
-      metrics = new FSQueueMetrics(ms, queueName, parent, enableUserMetrics, conf)
-          .tag(QUEUE_INFO, queueName);
-      
-      // Register with the MetricsSystems
-      if (ms != null) {
-        metrics = ms.register(
-                sourceName(queueName).toString(), 
-                "Metrics for queue: " + queueName, metrics);
-      }
-      queueMetrics.put(queueName, metrics);
+    FSQueueMetrics(MetricsSystem ms, String queueName, Queue parent,
+                   boolean enableUserMetrics, Configuration conf) {
+        super(ms, queueName, parent, enableUserMetrics, conf);
     }
 
-    return (FSQueueMetrics)metrics;
-  }
+    public void setFairShare(Resource resource) {
+        fairShareMB.set(resource.getMemory());
+        fairShareVCores.set(resource.getVirtualCores());
+    }
+
+    public int getFairShareMB() {
+        return fairShareMB.value();
+    }
+
+    public int getFairShareVirtualCores() {
+        return fairShareVCores.value();
+    }
+
+    public void setSteadyFairShare(Resource resource) {
+        steadyFairShareMB.set(resource.getMemory());
+        steadyFairShareVCores.set(resource.getVirtualCores());
+    }
+
+    public int getSteadyFairShareMB() {
+        return steadyFairShareMB.value();
+    }
+
+    public int getSteadyFairShareVCores() {
+        return steadyFairShareVCores.value();
+    }
+
+    public void setMinShare(Resource resource) {
+        minShareMB.set(resource.getMemory());
+        minShareVCores.set(resource.getVirtualCores());
+    }
+
+    public int getMinShareMB() {
+        return minShareMB.value();
+    }
+
+    public int getMinShareVirtualCores() {
+        return minShareVCores.value();
+    }
+
+    public void setMaxShare(Resource resource) {
+        maxShareMB.set(resource.getMemory());
+        maxShareVCores.set(resource.getVirtualCores());
+    }
+
+    public int getMaxShareMB() {
+        return maxShareMB.value();
+    }
+
+    public int getMaxShareVirtualCores() {
+        return maxShareVCores.value();
+    }
+
+    public synchronized
+    static FSQueueMetrics forQueue(String queueName, Queue parent,
+                                   boolean enableUserMetrics, Configuration conf) {
+        MetricsSystem ms = DefaultMetricsSystem.instance();
+        QueueMetrics metrics = queueMetrics.get(queueName);
+        if (metrics == null) {
+            metrics = new FSQueueMetrics(ms, queueName, parent, enableUserMetrics, conf)
+            .tag(QUEUE_INFO, queueName);
+
+            // Register with the MetricsSystems
+            if (ms != null) {
+                metrics = ms.register(
+                              sourceName(queueName).toString(),
+                              "Metrics for queue: " + queueName, metrics);
+            }
+            queueMetrics.put(queueName, metrics);
+        }
+
+        return (FSQueueMetrics)metrics;
+    }
 
 }

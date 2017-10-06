@@ -28,41 +28,40 @@ import org.apache.commons.logging.Log;
 
 public class TestFilterFs extends TestCase {
 
-  private static final Log LOG = FileSystem.LOG;
+    private static final Log LOG = FileSystem.LOG;
 
-  public static class DontCheck {
-    public void checkScheme(URI uri, String supportedScheme) { }
-    public Iterator<FileStatus> listStatusIterator(Path f) {
-      return null;
-    }
-    public Iterator<LocatedFileStatus> listLocatedStatus(final Path f) {
-      return null;
-    }
-  }
-  
-  public void testFilterFileSystem() throws Exception {
-    for (Method m : AbstractFileSystem.class.getDeclaredMethods()) {
-      if (Modifier.isStatic(m.getModifiers()))
-        continue;
-      if (Modifier.isPrivate(m.getModifiers()))
-        continue;
-      if (Modifier.isFinal(m.getModifiers()))
-        continue;
-      
-      try {
-        DontCheck.class.getMethod(m.getName(), m.getParameterTypes());
-        LOG.info("Skipping " + m);
-      } catch (NoSuchMethodException exc) {
-        LOG.info("Testing " + m);
-        try{
-          FilterFs.class.getDeclaredMethod(m.getName(), m.getParameterTypes());
+    public static class DontCheck {
+        public void checkScheme(URI uri, String supportedScheme) { }
+        public Iterator<FileStatus> listStatusIterator(Path f) {
+            return null;
         }
-        catch(NoSuchMethodException exc2){
-          LOG.error("FilterFileSystem doesn't implement " + m);
-          throw exc2;
+        public Iterator<LocatedFileStatus> listLocatedStatus(final Path f) {
+            return null;
         }
-      }
     }
-  }
-  
+
+    public void testFilterFileSystem() throws Exception {
+        for (Method m : AbstractFileSystem.class.getDeclaredMethods()) {
+            if (Modifier.isStatic(m.getModifiers()))
+                continue;
+            if (Modifier.isPrivate(m.getModifiers()))
+                continue;
+            if (Modifier.isFinal(m.getModifiers()))
+                continue;
+
+            try {
+                DontCheck.class.getMethod(m.getName(), m.getParameterTypes());
+                LOG.info("Skipping " + m);
+            } catch (NoSuchMethodException exc) {
+                LOG.info("Testing " + m);
+                try {
+                    FilterFs.class.getDeclaredMethod(m.getName(), m.getParameterTypes());
+                } catch(NoSuchMethodException exc2) {
+                    LOG.error("FilterFileSystem doesn't implement " + m);
+                    throw exc2;
+                }
+            }
+        }
+    }
+
 }

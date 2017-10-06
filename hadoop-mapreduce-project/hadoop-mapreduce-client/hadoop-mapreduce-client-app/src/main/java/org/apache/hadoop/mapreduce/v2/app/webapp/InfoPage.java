@@ -23,12 +23,12 @@ import org.apache.hadoop.yarn.webapp.view.InfoBlock;
 
 public class InfoPage extends AppView {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    setTitle("About the Application Master");
-  }
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        setTitle("About the Application Master");
+    }
 
-  @Override protected Class<? extends SubView> content() {
-    return InfoBlock.class;
-  }
+    @Override protected Class<? extends SubView> content() {
+        return InfoBlock.class;
+    }
 }

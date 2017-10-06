@@ -28,18 +28,18 @@ import org.apache.hadoop.yarn.api.protocolrecords.AllocateRequest;
  */
 public class InvalidContainerReleaseException extends YarnException {
 
-  private static final long serialVersionUID = 13498237L;
-  
-  public InvalidContainerReleaseException(Throwable cause) {
-    super(cause);
-  }
-  
-  public InvalidContainerReleaseException(String message) {
-    super(message);
-  }
-  
-  public InvalidContainerReleaseException(String message,
-      Throwable cause) {
-    super(message, cause);
-  }
+    private static final long serialVersionUID = 13498237L;
+
+    public InvalidContainerReleaseException(Throwable cause) {
+        super(cause);
+    }
+
+    public InvalidContainerReleaseException(String message) {
+        super(message);
+    }
+
+    public InvalidContainerReleaseException(String message,
+                                            Throwable cause) {
+        super(message, cause);
+    }
 }

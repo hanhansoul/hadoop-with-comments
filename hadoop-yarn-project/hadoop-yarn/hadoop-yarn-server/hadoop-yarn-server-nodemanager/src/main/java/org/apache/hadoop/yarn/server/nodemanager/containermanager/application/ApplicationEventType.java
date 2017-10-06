@@ -20,20 +20,20 @@ package org.apache.hadoop.yarn.server.nodemanager.containermanager.application;
 
 public enum ApplicationEventType {
 
-  // Source: ContainerManager
-  INIT_APPLICATION,
-  INIT_CONTAINER,
-  FINISH_APPLICATION, // Source: LogAggregationService if init fails
+    // Source: ContainerManager
+    INIT_APPLICATION,
+    INIT_CONTAINER,
+    FINISH_APPLICATION, // Source: LogAggregationService if init fails
 
-  // Source: ResourceLocalizationService
-  APPLICATION_INITED,
-  APPLICATION_RESOURCES_CLEANEDUP,
+    // Source: ResourceLocalizationService
+    APPLICATION_INITED,
+    APPLICATION_RESOURCES_CLEANEDUP,
 
-  // Source: Container
-  APPLICATION_CONTAINER_FINISHED,
+    // Source: Container
+    APPLICATION_CONTAINER_FINISHED,
 
-  // Source: Log Handler
-  APPLICATION_LOG_HANDLING_INITED,
-  APPLICATION_LOG_HANDLING_FINISHED,
-  APPLICATION_LOG_HANDLING_FAILED
+    // Source: Log Handler
+    APPLICATION_LOG_HANDLING_INITED,
+    APPLICATION_LOG_HANDLING_FINISHED,
+    APPLICATION_LOG_HANDLING_FAILED
 }

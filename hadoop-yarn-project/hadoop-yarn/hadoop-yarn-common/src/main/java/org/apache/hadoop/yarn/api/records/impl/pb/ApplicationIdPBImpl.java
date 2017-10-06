@@ -29,47 +29,47 @@ import com.google.common.base.Preconditions;
 @Private
 @Unstable
 public class ApplicationIdPBImpl extends ApplicationId {
-  ApplicationIdProto proto = null;
-  ApplicationIdProto.Builder builder = null;
+    ApplicationIdProto proto = null;
+    ApplicationIdProto.Builder builder = null;
 
-  public ApplicationIdPBImpl() {
-    builder = ApplicationIdProto.newBuilder();
-  }
+    public ApplicationIdPBImpl() {
+        builder = ApplicationIdProto.newBuilder();
+    }
 
-  public ApplicationIdPBImpl(ApplicationIdProto proto) {
-    this.proto = proto;
-  }
+    public ApplicationIdPBImpl(ApplicationIdProto proto) {
+        this.proto = proto;
+    }
 
-  public ApplicationIdProto getProto() {
-    return proto;
-  }
+    public ApplicationIdProto getProto() {
+        return proto;
+    }
 
-  @Override
-  public int getId() {
-    Preconditions.checkNotNull(proto);
-    return proto.getId();
-  }
+    @Override
+    public int getId() {
+        Preconditions.checkNotNull(proto);
+        return proto.getId();
+    }
 
-  @Override
-  protected void setId(int id) {
-    Preconditions.checkNotNull(builder);
-    builder.setId(id);
-  }
-  @Override
-  public long getClusterTimestamp() {
-    Preconditions.checkNotNull(proto);
-    return proto.getClusterTimestamp();
-  }
+    @Override
+    protected void setId(int id) {
+        Preconditions.checkNotNull(builder);
+        builder.setId(id);
+    }
+    @Override
+    public long getClusterTimestamp() {
+        Preconditions.checkNotNull(proto);
+        return proto.getClusterTimestamp();
+    }
 
-  @Override
-  protected void setClusterTimestamp(long clusterTimestamp) {
-    Preconditions.checkNotNull(builder);
-    builder.setClusterTimestamp((clusterTimestamp));
-  }
+    @Override
+    protected void setClusterTimestamp(long clusterTimestamp) {
+        Preconditions.checkNotNull(builder);
+        builder.setClusterTimestamp((clusterTimestamp));
+    }
 
-  @Override
-  protected void build() {
-    proto = builder.build();
-    builder = null;
-  }
+    @Override
+    protected void build() {
+        proto = builder.build();
+        builder = null;
+    }
 }

@@ -23,26 +23,26 @@ import java.util.Set;
  * {@link RackNode} represents a rack node in the cluster topology.
  */
 public final class RackNode extends Node {
-  public RackNode(String name, int level) {
-    // Hack: ensuring rack name starts with "/".
-    super(name.startsWith("/") ? name : "/" + name, level);
-  }
-  
-  @Override
-  public synchronized boolean addChild(Node child) {
-    if (!(child instanceof MachineNode)) {
-      throw new IllegalArgumentException(
-          "Only MachineNode can be added to RackNode");
+    public RackNode(String name, int level) {
+        // Hack: ensuring rack name starts with "/".
+        super(name.startsWith("/") ? name : "/" + name, level);
     }
-    return super.addChild(child);
-  }
-  
-  /**
-   * Get the machine nodes that belong to the rack.
-   * @return The machine nodes that belong to the rack.
-   */
-  @SuppressWarnings({ "cast", "unchecked" })
-  public Set<MachineNode> getMachinesInRack() {
-    return (Set<MachineNode>)(Set)getChildren();
-  }
+
+    @Override
+    public synchronized boolean addChild(Node child) {
+        if (!(child instanceof MachineNode)) {
+            throw new IllegalArgumentException(
+                "Only MachineNode can be added to RackNode");
+        }
+        return super.addChild(child);
+    }
+
+    /**
+     * Get the machine nodes that belong to the rack.
+     * @return The machine nodes that belong to the rack.
+     */
+    @SuppressWarnings({ "cast", "unchecked" })
+    public Set<MachineNode> getMachinesInRack() {
+        return (Set<MachineNode>)(Set)getChildren();
+    }
 }

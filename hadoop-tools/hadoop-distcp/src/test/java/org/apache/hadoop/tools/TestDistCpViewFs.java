@@ -37,451 +37,448 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class TestDistCpViewFs {
-  private static final Log LOG = LogFactory.getLog(TestDistCpViewFs.class);
+    private static final Log LOG = LogFactory.getLog(TestDistCpViewFs.class);
 
-  private static FileSystem fs;
+    private static FileSystem fs;
 
-  private static Path listFile;
-  private static Path target;
-  private static String root;
+    private static Path listFile;
+    private static Path target;
+    private static String root;
 
-  private static Configuration getConf() throws URISyntaxException {
-    Configuration conf = new Configuration();
-    conf.set("mapred.job.tracker", "local");
-    conf.set("fs.default.name", "file:///");
-    return conf;
-  }
-
-  @BeforeClass
-  public static void setup() throws URISyntaxException{
-    try {
-      Path fswd = FileSystem.get(getConf()).getWorkingDirectory();
-      Configuration vConf = ViewFileSystemTestSetup.createConfig(false); 
-      ConfigUtil.addLink(vConf, "/usr", new URI(fswd.toString())); 
-      fs = FileSystem.get(FsConstants.VIEWFS_URI, vConf);
-      fs.setWorkingDirectory(new Path("/usr"));
-      listFile = new Path("target/tmp/listing").makeQualified(fs.getUri(),
-              fs.getWorkingDirectory());
-      target = new Path("target/tmp/target").makeQualified(fs.getUri(),
-              fs.getWorkingDirectory()); 
-      root = new Path("target/tmp").makeQualified(fs.getUri(),
-              fs.getWorkingDirectory()).toString();
-      TestDistCpUtils.delete(fs, root);
-    } catch (IOException e) {
-      LOG.error("Exception encountered ", e);
+    private static Configuration getConf() throws URISyntaxException {
+        Configuration conf = new Configuration();
+        conf.set("mapred.job.tracker", "local");
+        conf.set("fs.default.name", "file:///");
+        return conf;
     }
-  }
 
-  @Test
-  public void testSingleFileMissingTarget() {
-    caseSingleFileMissingTarget(false);
-    caseSingleFileMissingTarget(true);
-  }
-
-
-  private void caseSingleFileMissingTarget(boolean sync) {
-
-    try {
-      addEntries(listFile, "singlefile1/file1");
-      createFiles("singlefile1/file1");
-
-      runTest(listFile, target, false, sync);
-
-      checkResult(target, 1);
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+    @BeforeClass
+    public static void setup() throws URISyntaxException {
+        try {
+            Path fswd = FileSystem.get(getConf()).getWorkingDirectory();
+            Configuration vConf = ViewFileSystemTestSetup.createConfig(false);
+            ConfigUtil.addLink(vConf, "/usr", new URI(fswd.toString()));
+            fs = FileSystem.get(FsConstants.VIEWFS_URI, vConf);
+            fs.setWorkingDirectory(new Path("/usr"));
+            listFile = new Path("target/tmp/listing").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory());
+            target = new Path("target/tmp/target").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory());
+            root = new Path("target/tmp").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory()).toString();
+            TestDistCpUtils.delete(fs, root);
+        } catch (IOException e) {
+            LOG.error("Exception encountered ", e);
+        }
     }
-  }
 
-  @Test
-  public void testSingleFileTargetFile() {
-    caseSingleFileTargetFile(false);
-    caseSingleFileTargetFile(true);
-  }
-
-  private void caseSingleFileTargetFile(boolean sync) {
-
-    try {
-      addEntries(listFile, "singlefile1/file1");
-      createFiles("singlefile1/file1", target.toString());
-
-      runTest(listFile, target, false, sync);
-
-      checkResult(target, 1);
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+    @Test
+    public void testSingleFileMissingTarget() {
+        caseSingleFileMissingTarget(false);
+        caseSingleFileMissingTarget(true);
     }
-  }
 
-  @Test
-  public void testSingleFileTargetDir() {
-    caseSingleFileTargetDir(false);
-    caseSingleFileTargetDir(true);
-  }
 
-  private void caseSingleFileTargetDir(boolean sync) {
+    private void caseSingleFileMissingTarget(boolean sync) {
 
-    try {
-      addEntries(listFile, "singlefile2/file2");
-      createFiles("singlefile2/file2");
-      mkdirs(target.toString());
+        try {
+            addEntries(listFile, "singlefile1/file1");
+            createFiles("singlefile1/file1");
 
-      runTest(listFile, target, true, sync);
+            runTest(listFile, target, false, sync);
 
-      checkResult(target, 1, "file2");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+            checkResult(target, 1);
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testSingleDirTargetMissing() {
-    caseSingleDirTargetMissing(false);
-    caseSingleDirTargetMissing(true);
-  }
-
-  private void caseSingleDirTargetMissing(boolean sync) {
-
-    try {
-      addEntries(listFile, "singledir");
-      mkdirs(root + "/singledir/dir1");
-
-      runTest(listFile, target, false, sync);
-
-      checkResult(target, 1, "dir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+    @Test
+    public void testSingleFileTargetFile() {
+        caseSingleFileTargetFile(false);
+        caseSingleFileTargetFile(true);
     }
-  }
 
-  @Test
-  public void testSingleDirTargetPresent() {
+    private void caseSingleFileTargetFile(boolean sync) {
 
-    try {
-      addEntries(listFile, "singledir");
-      mkdirs(root + "/singledir/dir1");
-      mkdirs(target.toString());
+        try {
+            addEntries(listFile, "singlefile1/file1");
+            createFiles("singlefile1/file1", target.toString());
 
-      runTest(listFile, target, true, false);
+            runTest(listFile, target, false, sync);
 
-      checkResult(target, 1, "singledir/dir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+            checkResult(target, 1);
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testUpdateSingleDirTargetPresent() {
-
-    try {
-      addEntries(listFile, "Usingledir");
-      mkdirs(root + "/Usingledir/Udir1");
-      mkdirs(target.toString());
-
-      runTest(listFile, target, true, true);
-
-      checkResult(target, 1, "Udir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+    @Test
+    public void testSingleFileTargetDir() {
+        caseSingleFileTargetDir(false);
+        caseSingleFileTargetDir(true);
     }
-  }
 
-  @Test
-  public void testMultiFileTargetPresent() {
-    caseMultiFileTargetPresent(false);
-    caseMultiFileTargetPresent(true);
-  }
+    private void caseSingleFileTargetDir(boolean sync) {
 
-  private void caseMultiFileTargetPresent(boolean sync) {
+        try {
+            addEntries(listFile, "singlefile2/file2");
+            createFiles("singlefile2/file2");
+            mkdirs(target.toString());
 
-    try {
-      addEntries(listFile, "multifile/file3", "multifile/file4", "multifile/file5");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      mkdirs(target.toString());
+            runTest(listFile, target, true, sync);
 
-      runTest(listFile, target, true, sync);
-
-      checkResult(target, 3, "file3", "file4", "file5");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+            checkResult(target, 1, "file2");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testMultiFileTargetMissing() {
-    caseMultiFileTargetMissing(false);
-    caseMultiFileTargetMissing(true);
-  }
-
-  private void caseMultiFileTargetMissing(boolean sync) {
-
-    try {
-      addEntries(listFile, "multifile/file3", "multifile/file4", "multifile/file5");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-
-      runTest(listFile, target, false, sync);
-
-      checkResult(target, 3, "file3", "file4", "file5");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+    @Test
+    public void testSingleDirTargetMissing() {
+        caseSingleDirTargetMissing(false);
+        caseSingleDirTargetMissing(true);
     }
-  }
 
-  @Test
-  public void testMultiDirTargetPresent() {
+    private void caseSingleDirTargetMissing(boolean sync) {
 
-    try {
-      addEntries(listFile, "multifile", "singledir");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      mkdirs(target.toString(), root + "/singledir/dir1");
+        try {
+            addEntries(listFile, "singledir");
+            mkdirs(root + "/singledir/dir1");
 
-      runTest(listFile, target, true, false);
+            runTest(listFile, target, false, sync);
 
-      checkResult(target, 2, "multifile/file3", "multifile/file4", "multifile/file5", "singledir/dir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+            checkResult(target, 1, "dir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testUpdateMultiDirTargetPresent() {
+    @Test
+    public void testSingleDirTargetPresent() {
 
-    try {
-      addEntries(listFile, "Umultifile", "Usingledir");
-      createFiles("Umultifile/Ufile3", "Umultifile/Ufile4", "Umultifile/Ufile5");
-      mkdirs(target.toString(), root + "/Usingledir/Udir1");
+        try {
+            addEntries(listFile, "singledir");
+            mkdirs(root + "/singledir/dir1");
+            mkdirs(target.toString());
 
-      runTest(listFile, target, true, true);
+            runTest(listFile, target, true, false);
 
-      checkResult(target, 4, "Ufile3", "Ufile4", "Ufile5", "Udir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+            checkResult(target, 1, "singledir/dir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testMultiDirTargetMissing() {
+    @Test
+    public void testUpdateSingleDirTargetPresent() {
 
-    try {
-      addEntries(listFile, "multifile", "singledir");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      mkdirs(root + "/singledir/dir1");
+        try {
+            addEntries(listFile, "Usingledir");
+            mkdirs(root + "/Usingledir/Udir1");
+            mkdirs(target.toString());
 
-      runTest(listFile, target, false, false);
+            runTest(listFile, target, true, true);
 
-      checkResult(target, 2, "multifile/file3", "multifile/file4",
-          "multifile/file5", "singledir/dir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+            checkResult(target, 1, "Udir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testUpdateMultiDirTargetMissing() {
-
-    try {
-      addEntries(listFile, "multifile", "singledir");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      mkdirs(root + "/singledir/dir1");
-
-      runTest(listFile, target, false, true);
-
-      checkResult(target, 4, "file3", "file4", "file5", "dir1");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
+    @Test
+    public void testMultiFileTargetPresent() {
+        caseMultiFileTargetPresent(false);
+        caseMultiFileTargetPresent(true);
     }
-  }
 
-  @Test
-  public void testGlobTargetMissingSingleLevel() {
+    private void caseMultiFileTargetPresent(boolean sync) {
 
-    try {
-      Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
-                                fs.getWorkingDirectory());
-      addEntries(listFile, "*");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      createFiles("singledir/dir2/file6");
+        try {
+            addEntries(listFile, "multifile/file3", "multifile/file4", "multifile/file5");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            mkdirs(target.toString());
 
-      runTest(listFile, target, false, false);
+            runTest(listFile, target, true, sync);
 
-      checkResult(target, 2, "multifile/file3", "multifile/file4", "multifile/file5",
-          "singledir/dir2/file6");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while testing distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
-      TestDistCpUtils.delete(fs, "target/tmp1");
+            checkResult(target, 3, "file3", "file4", "file5");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testUpdateGlobTargetMissingSingleLevel() {
-
-    try {
-      Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
-                                  fs.getWorkingDirectory());
-      addEntries(listFile, "*");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      createFiles("singledir/dir2/file6");
-
-      runTest(listFile, target, false, true);
-
-      checkResult(target, 4, "file3", "file4", "file5", "dir2/file6");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while running distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
-      TestDistCpUtils.delete(fs, "target/tmp1");
+    @Test
+    public void testMultiFileTargetMissing() {
+        caseMultiFileTargetMissing(false);
+        caseMultiFileTargetMissing(true);
     }
-  }
 
-  @Test
-  public void testGlobTargetMissingMultiLevel() {
+    private void caseMultiFileTargetMissing(boolean sync) {
 
-    try {
-      Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
-              fs.getWorkingDirectory());
-      addEntries(listFile, "*/*");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      createFiles("singledir1/dir3/file7", "singledir1/dir3/file8",
-          "singledir1/dir3/file9");
+        try {
+            addEntries(listFile, "multifile/file3", "multifile/file4", "multifile/file5");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
 
-      runTest(listFile, target, false, false);
+            runTest(listFile, target, false, sync);
 
-      checkResult(target, 4, "file3", "file4", "file5",
-          "dir3/file7", "dir3/file8", "dir3/file9");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while running distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
-      TestDistCpUtils.delete(fs, "target/tmp1");
+            checkResult(target, 3, "file3", "file4", "file5");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  @Test
-  public void testUpdateGlobTargetMissingMultiLevel() {
+    @Test
+    public void testMultiDirTargetPresent() {
 
-    try {
-      Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
-              fs.getWorkingDirectory());
-      addEntries(listFile, "*/*");
-      createFiles("multifile/file3", "multifile/file4", "multifile/file5");
-      createFiles("singledir1/dir3/file7", "singledir1/dir3/file8",
-          "singledir1/dir3/file9");
+        try {
+            addEntries(listFile, "multifile", "singledir");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            mkdirs(target.toString(), root + "/singledir/dir1");
 
-      runTest(listFile, target, false, true);
+            runTest(listFile, target, true, false);
 
-      checkResult(target, 6, "file3", "file4", "file5",
-          "file7", "file8", "file9");
-    } catch (IOException e) {
-      LOG.error("Exception encountered while running distcp", e);
-      Assert.fail("distcp failure");
-    } finally {
-      TestDistCpUtils.delete(fs, root);
-      TestDistCpUtils.delete(fs, "target/tmp1");
+            checkResult(target, 2, "multifile/file3", "multifile/file4", "multifile/file5", "singledir/dir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  private void addEntries(Path listFile, String... entries) throws IOException {
-    OutputStream out = fs.create(listFile);
-    try {
-      for (String entry : entries){
-        out.write((root + "/" + entry).getBytes());
-        out.write("\n".getBytes());
-      }
-    } finally {
-      out.close();
-    }
-  }
+    @Test
+    public void testUpdateMultiDirTargetPresent() {
 
-  private void createFiles(String... entries) throws IOException {
-    String e;
-    for (String entry : entries){
-      if ((new Path(entry)).isAbsolute()) 
-      {
-        e = entry;
-      } 
-      else 
-      { 
-        e = root + "/" + entry;
-      }
-      OutputStream out = fs.create(new Path(e));
-      try {
-        out.write((e).getBytes());
-        out.write("\n".getBytes());
-      } finally {
-        out.close();
-      }
-    }
-  }
+        try {
+            addEntries(listFile, "Umultifile", "Usingledir");
+            createFiles("Umultifile/Ufile3", "Umultifile/Ufile4", "Umultifile/Ufile5");
+            mkdirs(target.toString(), root + "/Usingledir/Udir1");
 
-  private void mkdirs(String... entries) throws IOException {
-    for (String entry : entries){
-      fs.mkdirs(new Path(entry));
-    }
-  }
+            runTest(listFile, target, true, true);
 
-  private void runTest(Path listFile, Path target, boolean targetExists, 
-      boolean sync) throws IOException {
-    DistCpOptions options = new DistCpOptions(listFile, target);
-    options.setSyncFolder(sync);
-    options.setTargetPathExists(targetExists);
-    try {
-      new DistCp(getConf(), options).execute();
-    } catch (Exception e) {
-      LOG.error("Exception encountered ", e);
-      throw new IOException(e);
+            checkResult(target, 4, "Ufile3", "Ufile4", "Ufile5", "Udir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
 
-  private void checkResult(Path target, int count, String... relPaths) throws IOException {
-    Assert.assertEquals(count, fs.listStatus(target).length);
-    if (relPaths == null || relPaths.length == 0) {
-      Assert.assertTrue(target.toString(), fs.exists(target));
-      return;
+    @Test
+    public void testMultiDirTargetMissing() {
+
+        try {
+            addEntries(listFile, "multifile", "singledir");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            mkdirs(root + "/singledir/dir1");
+
+            runTest(listFile, target, false, false);
+
+            checkResult(target, 2, "multifile/file3", "multifile/file4",
+                        "multifile/file5", "singledir/dir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-    for (String relPath : relPaths) {
-      Assert.assertTrue(new Path(target, relPath).toString(), fs.exists(new Path(target, relPath)));
+
+    @Test
+    public void testUpdateMultiDirTargetMissing() {
+
+        try {
+            addEntries(listFile, "multifile", "singledir");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            mkdirs(root + "/singledir/dir1");
+
+            runTest(listFile, target, false, true);
+
+            checkResult(target, 4, "file3", "file4", "file5", "dir1");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+        }
     }
-  }
+
+    @Test
+    public void testGlobTargetMissingSingleLevel() {
+
+        try {
+            Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory());
+            addEntries(listFile, "*");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            createFiles("singledir/dir2/file6");
+
+            runTest(listFile, target, false, false);
+
+            checkResult(target, 2, "multifile/file3", "multifile/file4", "multifile/file5",
+                        "singledir/dir2/file6");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while testing distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+            TestDistCpUtils.delete(fs, "target/tmp1");
+        }
+    }
+
+    @Test
+    public void testUpdateGlobTargetMissingSingleLevel() {
+
+        try {
+            Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory());
+            addEntries(listFile, "*");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            createFiles("singledir/dir2/file6");
+
+            runTest(listFile, target, false, true);
+
+            checkResult(target, 4, "file3", "file4", "file5", "dir2/file6");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while running distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+            TestDistCpUtils.delete(fs, "target/tmp1");
+        }
+    }
+
+    @Test
+    public void testGlobTargetMissingMultiLevel() {
+
+        try {
+            Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory());
+            addEntries(listFile, "*/*");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            createFiles("singledir1/dir3/file7", "singledir1/dir3/file8",
+                        "singledir1/dir3/file9");
+
+            runTest(listFile, target, false, false);
+
+            checkResult(target, 4, "file3", "file4", "file5",
+                        "dir3/file7", "dir3/file8", "dir3/file9");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while running distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+            TestDistCpUtils.delete(fs, "target/tmp1");
+        }
+    }
+
+    @Test
+    public void testUpdateGlobTargetMissingMultiLevel() {
+
+        try {
+            Path listFile = new Path("target/tmp1/listing").makeQualified(fs.getUri(),
+                    fs.getWorkingDirectory());
+            addEntries(listFile, "*/*");
+            createFiles("multifile/file3", "multifile/file4", "multifile/file5");
+            createFiles("singledir1/dir3/file7", "singledir1/dir3/file8",
+                        "singledir1/dir3/file9");
+
+            runTest(listFile, target, false, true);
+
+            checkResult(target, 6, "file3", "file4", "file5",
+                        "file7", "file8", "file9");
+        } catch (IOException e) {
+            LOG.error("Exception encountered while running distcp", e);
+            Assert.fail("distcp failure");
+        } finally {
+            TestDistCpUtils.delete(fs, root);
+            TestDistCpUtils.delete(fs, "target/tmp1");
+        }
+    }
+
+    private void addEntries(Path listFile, String... entries) throws IOException {
+        OutputStream out = fs.create(listFile);
+        try {
+            for (String entry : entries) {
+                out.write((root + "/" + entry).getBytes());
+                out.write("\n".getBytes());
+            }
+        } finally {
+            out.close();
+        }
+    }
+
+    private void createFiles(String... entries) throws IOException {
+        String e;
+        for (String entry : entries) {
+            if ((new Path(entry)).isAbsolute()) {
+                e = entry;
+            } else {
+                e = root + "/" + entry;
+            }
+            OutputStream out = fs.create(new Path(e));
+            try {
+                out.write((e).getBytes());
+                out.write("\n".getBytes());
+            } finally {
+                out.close();
+            }
+        }
+    }
+
+    private void mkdirs(String... entries) throws IOException {
+        for (String entry : entries) {
+            fs.mkdirs(new Path(entry));
+        }
+    }
+
+    private void runTest(Path listFile, Path target, boolean targetExists,
+                         boolean sync) throws IOException {
+        DistCpOptions options = new DistCpOptions(listFile, target);
+        options.setSyncFolder(sync);
+        options.setTargetPathExists(targetExists);
+        try {
+            new DistCp(getConf(), options).execute();
+        } catch (Exception e) {
+            LOG.error("Exception encountered ", e);
+            throw new IOException(e);
+        }
+    }
+
+    private void checkResult(Path target, int count, String... relPaths) throws IOException {
+        Assert.assertEquals(count, fs.listStatus(target).length);
+        if (relPaths == null || relPaths.length == 0) {
+            Assert.assertTrue(target.toString(), fs.exists(target));
+            return;
+        }
+        for (String relPath : relPaths) {
+            Assert.assertTrue(new Path(target, relPath).toString(), fs.exists(new Path(target, relPath)));
+        }
+    }
 
 }

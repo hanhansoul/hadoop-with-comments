@@ -19,6 +19,6 @@
 package org.apache.hadoop.yarn.server.nodemanager.containermanager.monitor;
 
 public enum ContainersMonitorEventType {
-  START_MONITORING_CONTAINER,
-  STOP_MONITORING_CONTAINER
+    START_MONITORING_CONTAINER,
+    STOP_MONITORING_CONTAINER
 }

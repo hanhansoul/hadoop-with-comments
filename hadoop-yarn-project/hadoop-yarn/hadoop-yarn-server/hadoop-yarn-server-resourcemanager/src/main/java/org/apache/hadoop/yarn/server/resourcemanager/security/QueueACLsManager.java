@@ -27,25 +27,25 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.ResourceScheduler
 import com.google.common.annotations.VisibleForTesting;
 
 public class QueueACLsManager {
-  private ResourceScheduler scheduler;
-  private boolean isACLsEnable;
-  
-  @VisibleForTesting
-  public QueueACLsManager() {
-    this(null, new Configuration());
-  }
+    private ResourceScheduler scheduler;
+    private boolean isACLsEnable;
 
-  public QueueACLsManager(ResourceScheduler scheduler, Configuration conf) {
-    this.scheduler = scheduler;
-    this.isACLsEnable = conf.getBoolean(YarnConfiguration.YARN_ACL_ENABLE,
-        YarnConfiguration.DEFAULT_YARN_ACL_ENABLE);
-  }
-
-  public boolean checkAccess(UserGroupInformation callerUGI,
-      QueueACL acl, String queueName) {
-    if (!isACLsEnable) {
-      return true;
+    @VisibleForTesting
+    public QueueACLsManager() {
+        this(null, new Configuration());
     }
-    return scheduler.checkAccess(callerUGI, acl, queueName);
-  }
+
+    public QueueACLsManager(ResourceScheduler scheduler, Configuration conf) {
+        this.scheduler = scheduler;
+        this.isACLsEnable = conf.getBoolean(YarnConfiguration.YARN_ACL_ENABLE,
+                                            YarnConfiguration.DEFAULT_YARN_ACL_ENABLE);
+    }
+
+    public boolean checkAccess(UserGroupInformation callerUGI,
+                               QueueACL acl, String queueName) {
+        if (!isACLsEnable) {
+            return true;
+        }
+        return scheduler.checkAccess(callerUGI, acl, queueName);
+    }
 }

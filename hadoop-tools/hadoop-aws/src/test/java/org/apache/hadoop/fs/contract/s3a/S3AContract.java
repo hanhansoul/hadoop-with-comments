@@ -26,18 +26,18 @@ import org.apache.hadoop.fs.contract.AbstractBondedFSContract;
  */
 public class S3AContract extends AbstractBondedFSContract {
 
-  public static final String CONTRACT_XML = "contract/s3a.xml";
+    public static final String CONTRACT_XML = "contract/s3a.xml";
 
 
-  public S3AContract(Configuration conf) {
-    super(conf);
-    //insert the base features
-    addConfResource(CONTRACT_XML);
-  }
+    public S3AContract(Configuration conf) {
+        super(conf);
+        //insert the base features
+        addConfResource(CONTRACT_XML);
+    }
 
-  @Override
-  public String getScheme() {
-    return "s3a";
-  }
+    @Override
+    public String getScheme() {
+        return "s3a";
+    }
 
 }

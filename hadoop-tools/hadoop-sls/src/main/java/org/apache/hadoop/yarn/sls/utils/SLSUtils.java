@@ -42,96 +42,96 @@ import java.util.Iterator;
 @Unstable
 public class SLSUtils {
 
-  public static String[] getRackHostName(String hostname) {
-    hostname = hostname.substring(1);
-    return hostname.split("/");
-  }
+    public static String[] getRackHostName(String hostname) {
+        hostname = hostname.substring(1);
+        return hostname.split("/");
+    }
 
-  /**
-   * parse the rumen trace file, return each host name
-   */
-  public static Set<String> parseNodesFromRumenTrace(String jobTrace)
-          throws IOException {
-    Set<String> nodeSet = new HashSet<String>();
+    /**
+     * parse the rumen trace file, return each host name
+     */
+    public static Set<String> parseNodesFromRumenTrace(String jobTrace)
+    throws IOException {
+        Set<String> nodeSet = new HashSet<String>();
 
-    File fin = new File(jobTrace);
-    Configuration conf = new Configuration();
-    conf.set("fs.defaultFS", "file:///");
-    JobTraceReader reader = new JobTraceReader(
+        File fin = new File(jobTrace);
+        Configuration conf = new Configuration();
+        conf.set("fs.defaultFS", "file:///");
+        JobTraceReader reader = new JobTraceReader(
             new Path(fin.getAbsolutePath()), conf);
-    try {
-      LoggedJob job = null;
-      while ((job = reader.getNext()) != null) {
-        for(LoggedTask mapTask : job.getMapTasks()) {
-          // select the last attempt
-          LoggedTaskAttempt taskAttempt = mapTask.getAttempts()
-                  .get(mapTask.getAttempts().size() - 1);
-          nodeSet.add(taskAttempt.getHostName().getValue());
+        try {
+            LoggedJob job = null;
+            while ((job = reader.getNext()) != null) {
+                for(LoggedTask mapTask : job.getMapTasks()) {
+                    // select the last attempt
+                    LoggedTaskAttempt taskAttempt = mapTask.getAttempts()
+                                                    .get(mapTask.getAttempts().size() - 1);
+                    nodeSet.add(taskAttempt.getHostName().getValue());
+                }
+                for(LoggedTask reduceTask : job.getReduceTasks()) {
+                    LoggedTaskAttempt taskAttempt = reduceTask.getAttempts()
+                                                    .get(reduceTask.getAttempts().size() - 1);
+                    nodeSet.add(taskAttempt.getHostName().getValue());
+                }
+            }
+        } finally {
+            reader.close();
         }
-        for(LoggedTask reduceTask : job.getReduceTasks()) {
-          LoggedTaskAttempt taskAttempt = reduceTask.getAttempts()
-                  .get(reduceTask.getAttempts().size() - 1);
-          nodeSet.add(taskAttempt.getHostName().getValue());
-        }
-      }
-    } finally {
-      reader.close();
+
+        return nodeSet;
     }
 
-    return nodeSet;
-  }
-
-  /**
-   * parse the sls trace file, return each host name
-   */
-  public static Set<String> parseNodesFromSLSTrace(String jobTrace)
-          throws IOException {
-    Set<String> nodeSet = new HashSet<String>();
-    JsonFactory jsonF = new JsonFactory();
-    ObjectMapper mapper = new ObjectMapper();
-    Reader input = new FileReader(jobTrace);
-    try {
-      Iterator<Map> i = mapper.readValues(
-              jsonF.createJsonParser(input), Map.class);
-      while (i.hasNext()) {
-        Map jsonE = i.next();
-        List tasks = (List) jsonE.get("job.tasks");
-        for (Object o : tasks) {
-          Map jsonTask = (Map) o;
-          String hostname = jsonTask.get("container.host").toString();
-          nodeSet.add(hostname);
+    /**
+     * parse the sls trace file, return each host name
+     */
+    public static Set<String> parseNodesFromSLSTrace(String jobTrace)
+    throws IOException {
+        Set<String> nodeSet = new HashSet<String>();
+        JsonFactory jsonF = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper();
+        Reader input = new FileReader(jobTrace);
+        try {
+            Iterator<Map> i = mapper.readValues(
+                                  jsonF.createJsonParser(input), Map.class);
+            while (i.hasNext()) {
+                Map jsonE = i.next();
+                List tasks = (List) jsonE.get("job.tasks");
+                for (Object o : tasks) {
+                    Map jsonTask = (Map) o;
+                    String hostname = jsonTask.get("container.host").toString();
+                    nodeSet.add(hostname);
+                }
+            }
+        } finally {
+            input.close();
         }
-      }
-    } finally {
-      input.close();
+        return nodeSet;
     }
-    return nodeSet;
-  }
 
-  /**
-   * parse the input node file, return each host name
-   */
-  public static Set<String> parseNodesFromNodeFile(String nodeFile)
-          throws IOException {
-    Set<String> nodeSet = new HashSet<String>();
-    JsonFactory jsonF = new JsonFactory();
-    ObjectMapper mapper = new ObjectMapper();
-    Reader input = new FileReader(nodeFile);
-    try {
-      Iterator<Map> i = mapper.readValues(
-              jsonF.createJsonParser(input), Map.class);
-      while (i.hasNext()) {
-        Map jsonE = i.next();
-        String rack = "/" + jsonE.get("rack");
-        List tasks = (List) jsonE.get("nodes");
-        for (Object o : tasks) {
-          Map jsonNode = (Map) o;
-          nodeSet.add(rack + "/" + jsonNode.get("node"));
+    /**
+     * parse the input node file, return each host name
+     */
+    public static Set<String> parseNodesFromNodeFile(String nodeFile)
+    throws IOException {
+        Set<String> nodeSet = new HashSet<String>();
+        JsonFactory jsonF = new JsonFactory();
+        ObjectMapper mapper = new ObjectMapper();
+        Reader input = new FileReader(nodeFile);
+        try {
+            Iterator<Map> i = mapper.readValues(
+                                  jsonF.createJsonParser(input), Map.class);
+            while (i.hasNext()) {
+                Map jsonE = i.next();
+                String rack = "/" + jsonE.get("rack");
+                List tasks = (List) jsonE.get("nodes");
+                for (Object o : tasks) {
+                    Map jsonNode = (Map) o;
+                    nodeSet.add(rack + "/" + jsonNode.get("node"));
+                }
+            }
+        } finally {
+            input.close();
         }
-      }
-    } finally {
-      input.close();
+        return nodeSet;
     }
-    return nodeSet;
-  }
 }

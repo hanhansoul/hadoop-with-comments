@@ -23,43 +23,43 @@ import org.apache.hadoop.yarn.api.records.ContainerState;
 
 public class ContainerFinishedEvent extends SystemMetricsEvent {
 
-  private ContainerId containerId;
-  private String diagnosticsInfo;
-  private int containerExitStatus;
-  private ContainerState state;
+    private ContainerId containerId;
+    private String diagnosticsInfo;
+    private int containerExitStatus;
+    private ContainerState state;
 
-  public ContainerFinishedEvent(
-      ContainerId containerId,
-      String diagnosticsInfo,
-      int containerExitStatus,
-      ContainerState state,
-      long finishedTime) {
-    super(SystemMetricsEventType.CONTAINER_FINISHED, finishedTime);
-    this.containerId = containerId;
-    this.diagnosticsInfo = diagnosticsInfo;
-    this.containerExitStatus = containerExitStatus;
-    this.state = state;
-  }
+    public ContainerFinishedEvent(
+        ContainerId containerId,
+        String diagnosticsInfo,
+        int containerExitStatus,
+        ContainerState state,
+        long finishedTime) {
+        super(SystemMetricsEventType.CONTAINER_FINISHED, finishedTime);
+        this.containerId = containerId;
+        this.diagnosticsInfo = diagnosticsInfo;
+        this.containerExitStatus = containerExitStatus;
+        this.state = state;
+    }
 
-  @Override
-  public int hashCode() {
-    return containerId.getApplicationAttemptId().getApplicationId().hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return containerId.getApplicationAttemptId().getApplicationId().hashCode();
+    }
 
-  public ContainerId getContainerId() {
-    return containerId;
-  }
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
-  public String getDiagnosticsInfo() {
-    return diagnosticsInfo;
-  }
+    public String getDiagnosticsInfo() {
+        return diagnosticsInfo;
+    }
 
-  public int getContainerExitStatus() {
-    return containerExitStatus;
-  }
+    public int getContainerExitStatus() {
+        return containerExitStatus;
+    }
 
-  public ContainerState getContainerState() {
-    return state;
-  }
+    public ContainerState getContainerState() {
+        return state;
+    }
 
 }

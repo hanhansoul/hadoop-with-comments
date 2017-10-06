@@ -35,64 +35,64 @@ import org.apache.hadoop.security.UserGroupInformation;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class JobTokenIdentifier extends TokenIdentifier {
-  private Text jobid;
-  public final static Text KIND_NAME = new Text("mapreduce.job");
-  
-  /**
-   * Default constructor
-   */
-  public JobTokenIdentifier() {
-    this.jobid = new Text();
-  }
+    private Text jobid;
+    public final static Text KIND_NAME = new Text("mapreduce.job");
 
-  /**
-   * Create a job token identifier from a jobid
-   * @param jobid the jobid to use
-   */
-  public JobTokenIdentifier(Text jobid) {
-    this.jobid = jobid;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public Text getKind() {
-    return KIND_NAME;
-  }
-  
-  /** {@inheritDoc} */
-  @Override
-  public UserGroupInformation getUser() {
-    if (jobid == null || "".equals(jobid.toString())) {
-      return null;
+    /**
+     * Default constructor
+     */
+    public JobTokenIdentifier() {
+        this.jobid = new Text();
     }
-    return UserGroupInformation.createRemoteUser(jobid.toString());
-  }
-  
-  /**
-   * Get the jobid
-   * @return the jobid
-   */
-  public Text getJobId() {
-    return jobid;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    jobid.readFields(in);
-  }
+    /**
+     * Create a job token identifier from a jobid
+     * @param jobid the jobid to use
+     */
+    public JobTokenIdentifier(Text jobid) {
+        this.jobid = jobid;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public void write(DataOutput out) throws IOException {
-    jobid.write(out);
-  }
-
-  @InterfaceAudience.Private
-  public static class Renewer extends Token.TrivialRenewer {
+    /** {@inheritDoc} */
     @Override
-    protected Text getKind() {
-      return KIND_NAME;
+    public Text getKind() {
+        return KIND_NAME;
     }
-  }
+
+    /** {@inheritDoc} */
+    @Override
+    public UserGroupInformation getUser() {
+        if (jobid == null || "".equals(jobid.toString())) {
+            return null;
+        }
+        return UserGroupInformation.createRemoteUser(jobid.toString());
+    }
+
+    /**
+     * Get the jobid
+     * @return the jobid
+     */
+    public Text getJobId() {
+        return jobid;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        jobid.readFields(in);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void write(DataOutput out) throws IOException {
+        jobid.write(out);
+    }
+
+    @InterfaceAudience.Private
+    public static class Renewer extends Token.TrivialRenewer {
+        @Override
+        protected Text getKind() {
+            return KIND_NAME;
+        }
+    }
 }

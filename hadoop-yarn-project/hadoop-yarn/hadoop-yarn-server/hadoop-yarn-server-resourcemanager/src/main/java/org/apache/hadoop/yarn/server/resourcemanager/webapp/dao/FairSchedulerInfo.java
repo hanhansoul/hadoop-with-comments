@@ -32,35 +32,35 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairSchedule
 @XmlType(name = "fairScheduler")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FairSchedulerInfo extends SchedulerInfo {
-  public static final int INVALID_FAIR_SHARE = -1;
-  private FairSchedulerQueueInfo rootQueue;
-  
-  @XmlTransient
-  private FairScheduler scheduler;
-  
-  public FairSchedulerInfo() {
-  } // JAXB needs this
-  
-  public FairSchedulerInfo(FairScheduler fs) {
-    scheduler = fs;
-    rootQueue = new FairSchedulerQueueInfo(scheduler.getQueueManager().
-        getRootQueue(), scheduler);
-  }
+    public static final int INVALID_FAIR_SHARE = -1;
+    private FairSchedulerQueueInfo rootQueue;
 
-  /**
-   * Get the fair share assigned to the appAttemptId.
-   * @param appAttemptId
-   * @return The fair share assigned to the appAttemptId,
-   * <code>FairSchedulerInfo#INVALID_FAIR_SHARE</code> if the scheduler does
-   * not know about this application attempt.
-   */
-  public int getAppFairShare(ApplicationAttemptId appAttemptId) {
-    FSAppAttempt fsAppAttempt = scheduler.getSchedulerApp(appAttemptId);
-    return fsAppAttempt == null ?
-        INVALID_FAIR_SHARE :  fsAppAttempt.getFairShare().getMemory();
-  }
-  
-  public FairSchedulerQueueInfo getRootQueueInfo() {
-    return rootQueue;
-  }
+    @XmlTransient
+    private FairScheduler scheduler;
+
+    public FairSchedulerInfo() {
+    } // JAXB needs this
+
+    public FairSchedulerInfo(FairScheduler fs) {
+        scheduler = fs;
+        rootQueue = new FairSchedulerQueueInfo(scheduler.getQueueManager().
+                                               getRootQueue(), scheduler);
+    }
+
+    /**
+     * Get the fair share assigned to the appAttemptId.
+     * @param appAttemptId
+     * @return The fair share assigned to the appAttemptId,
+     * <code>FairSchedulerInfo#INVALID_FAIR_SHARE</code> if the scheduler does
+     * not know about this application attempt.
+     */
+    public int getAppFairShare(ApplicationAttemptId appAttemptId) {
+        FSAppAttempt fsAppAttempt = scheduler.getSchedulerApp(appAttemptId);
+        return fsAppAttempt == null ?
+               INVALID_FAIR_SHARE :  fsAppAttempt.getFairShare().getMemory();
+    }
+
+    public FairSchedulerQueueInfo getRootQueueInfo() {
+        return rootQueue;
+    }
 }

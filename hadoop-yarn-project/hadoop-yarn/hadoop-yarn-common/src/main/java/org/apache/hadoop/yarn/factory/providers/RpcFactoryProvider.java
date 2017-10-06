@@ -34,43 +34,43 @@ import org.apache.hadoop.yarn.factories.RpcServerFactory;
 @InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
 public class RpcFactoryProvider {
 
-  private RpcFactoryProvider() {
-    
-  }
-  
-  
-  public static RpcServerFactory getServerFactory(Configuration conf) {
-    if (conf == null) {
-      conf = new Configuration();
-    }
-    String serverFactoryClassName = conf.get(
-        YarnConfiguration.IPC_SERVER_FACTORY_CLASS,
-        YarnConfiguration.DEFAULT_IPC_SERVER_FACTORY_CLASS);
-    return (RpcServerFactory) getFactoryClassInstance(serverFactoryClassName);
-  }
+    private RpcFactoryProvider() {
 
-  public static RpcClientFactory getClientFactory(Configuration conf) {
-    String clientFactoryClassName = conf.get(
-        YarnConfiguration.IPC_CLIENT_FACTORY_CLASS,
-        YarnConfiguration.DEFAULT_IPC_CLIENT_FACTORY_CLASS);
-    return (RpcClientFactory) getFactoryClassInstance(clientFactoryClassName);
-  }
-
-  private static Object getFactoryClassInstance(String factoryClassName) {
-    try {
-      Class<?> clazz = Class.forName(factoryClassName);
-      Method method = clazz.getMethod("get", null);
-      method.setAccessible(true);
-      return method.invoke(null, null);
-    } catch (ClassNotFoundException e) {
-      throw new YarnRuntimeException(e);
-    } catch (NoSuchMethodException e) {
-      throw new YarnRuntimeException(e);
-    } catch (InvocationTargetException e) {
-      throw new YarnRuntimeException(e);
-    } catch (IllegalAccessException e) {
-      throw new YarnRuntimeException(e);
     }
-  }
-  
+
+
+    public static RpcServerFactory getServerFactory(Configuration conf) {
+        if (conf == null) {
+            conf = new Configuration();
+        }
+        String serverFactoryClassName = conf.get(
+                                            YarnConfiguration.IPC_SERVER_FACTORY_CLASS,
+                                            YarnConfiguration.DEFAULT_IPC_SERVER_FACTORY_CLASS);
+        return (RpcServerFactory) getFactoryClassInstance(serverFactoryClassName);
+    }
+
+    public static RpcClientFactory getClientFactory(Configuration conf) {
+        String clientFactoryClassName = conf.get(
+                                            YarnConfiguration.IPC_CLIENT_FACTORY_CLASS,
+                                            YarnConfiguration.DEFAULT_IPC_CLIENT_FACTORY_CLASS);
+        return (RpcClientFactory) getFactoryClassInstance(clientFactoryClassName);
+    }
+
+    private static Object getFactoryClassInstance(String factoryClassName) {
+        try {
+            Class<?> clazz = Class.forName(factoryClassName);
+            Method method = clazz.getMethod("get", null);
+            method.setAccessible(true);
+            return method.invoke(null, null);
+        } catch (ClassNotFoundException e) {
+            throw new YarnRuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new YarnRuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new YarnRuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new YarnRuntimeException(e);
+        }
+    }
+
 }

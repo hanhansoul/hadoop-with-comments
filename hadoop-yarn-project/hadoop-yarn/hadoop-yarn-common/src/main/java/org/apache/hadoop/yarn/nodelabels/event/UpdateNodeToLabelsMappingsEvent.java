@@ -24,14 +24,14 @@ import java.util.Set;
 import org.apache.hadoop.yarn.api.records.NodeId;
 
 public class UpdateNodeToLabelsMappingsEvent extends NodeLabelsStoreEvent {
-  private Map<NodeId, Set<String>> nodeToLabels;
+    private Map<NodeId, Set<String>> nodeToLabels;
 
-  public UpdateNodeToLabelsMappingsEvent(Map<NodeId, Set<String>> nodeToLabels) {
-    super(NodeLabelsStoreEventType.STORE_NODE_TO_LABELS);
-    this.nodeToLabels = nodeToLabels;
-  }
+    public UpdateNodeToLabelsMappingsEvent(Map<NodeId, Set<String>> nodeToLabels) {
+        super(NodeLabelsStoreEventType.STORE_NODE_TO_LABELS);
+        this.nodeToLabels = nodeToLabels;
+    }
 
-  public Map<NodeId, Set<String>> getNodeToLabels() {
-    return nodeToLabels;
-  }
+    public Map<NodeId, Set<String>> getNodeToLabels() {
+        return nodeToLabels;
+    }
 }

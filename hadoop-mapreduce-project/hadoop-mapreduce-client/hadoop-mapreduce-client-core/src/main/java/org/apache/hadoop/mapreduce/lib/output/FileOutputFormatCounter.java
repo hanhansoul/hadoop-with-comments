@@ -25,5 +25,5 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public enum FileOutputFormatCounter {
-  BYTES_WRITTEN
+    BYTES_WRITTEN
 }

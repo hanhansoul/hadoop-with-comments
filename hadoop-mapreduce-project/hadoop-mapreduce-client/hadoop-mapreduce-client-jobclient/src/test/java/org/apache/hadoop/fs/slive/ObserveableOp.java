@@ -28,45 +28,45 @@ import org.apache.hadoop.fs.FileSystem;
  */
 class ObserveableOp extends Operation {
 
-  /**
-   * The observation interface which class that wish to monitor starting and
-   * ending events must implement.
-   */
-  interface Observer {
-    void notifyStarting(Operation op);
-    void notifyFinished(Operation op);
-  }
-
-  private Operation op;
-  private Observer observer;
-
-  ObserveableOp(Operation op, Observer observer) {
-    super(op.getType(), op.getConfig(), op.getRandom());
-    this.op = op;
-    this.observer = observer;
-  }
-
-  /**
-   * Proxy to underlying operation toString()
-   */
-  public String toString() {
-    return op.toString();
-  }
-
-  @Override // Operation
-  List<OperationOutput> run(FileSystem fs) {
-    List<OperationOutput> result = null;
-    try {
-      if (observer != null) {
-        observer.notifyStarting(op);
-      }
-      result = op.run(fs);
-    } finally {
-      if (observer != null) {
-        observer.notifyFinished(op);
-      }
+    /**
+     * The observation interface which class that wish to monitor starting and
+     * ending events must implement.
+     */
+    interface Observer {
+        void notifyStarting(Operation op);
+        void notifyFinished(Operation op);
     }
-    return result;
-  }
+
+    private Operation op;
+    private Observer observer;
+
+    ObserveableOp(Operation op, Observer observer) {
+        super(op.getType(), op.getConfig(), op.getRandom());
+        this.op = op;
+        this.observer = observer;
+    }
+
+    /**
+     * Proxy to underlying operation toString()
+     */
+    public String toString() {
+        return op.toString();
+    }
+
+    @Override // Operation
+    List<OperationOutput> run(FileSystem fs) {
+        List<OperationOutput> result = null;
+        try {
+            if (observer != null) {
+                observer.notifyStarting(op);
+            }
+            result = op.run(fs);
+        } finally {
+            if (observer != null) {
+                observer.notifyFinished(op);
+            }
+        }
+        return result;
+    }
 
 }

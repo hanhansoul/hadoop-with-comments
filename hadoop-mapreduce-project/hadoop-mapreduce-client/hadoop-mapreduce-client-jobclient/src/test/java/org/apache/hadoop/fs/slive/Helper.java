@@ -23,67 +23,67 @@ package org.apache.hadoop.fs.slive;
  */
 class Helper {
 
-  private Helper() {
+    private Helper() {
 
-  }
-
-  private static final String[] emptyStringArray = {};
-
-  /**
-   * Splits strings on comma and trims accordingly
-   * 
-   * @param str
-   * @return array of split
-   */
-  static String[] getTrimmedStrings(String str) {
-    if (null == str || "".equals(str.trim())) {
-      return emptyStringArray;
     }
-    return str.trim().split("\\s*,\\s*");
-  }
 
-  /**
-   * Converts a byte value into a useful string for output
-   * 
-   * @param bytes
-   * 
-   * @return String
-   */
-  static String toByteInfo(long bytes) {
-    StringBuilder str = new StringBuilder();
-    if (bytes < 0) {
-      bytes = 0;
-    }
-    str.append(bytes);
-    str.append(" bytes or ");
-    str.append(bytes / 1024);
-    str.append(" kilobytes or ");
-    str.append(bytes / (1024 * 1024));
-    str.append(" megabytes or ");
-    str.append(bytes / (1024 * 1024 * 1024));
-    str.append(" gigabytes");
-    return str.toString();
-  }
+    private static final String[] emptyStringArray = {};
 
-  /**
-   * Stringifys an array using the given separator.
-   * 
-   * @param args
-   *          the array to format
-   * @param sep
-   *          the separator string to use (ie comma or space)
-   * 
-   * @return String representing that array
-   */
-  static String stringifyArray(Object[] args, String sep) {
-    StringBuilder optStr = new StringBuilder();
-    for (int i = 0; i < args.length; ++i) {
-      optStr.append(args[i]);
-      if ((i + 1) != args.length) {
-        optStr.append(sep);
-      }
+    /**
+     * Splits strings on comma and trims accordingly
+     *
+     * @param str
+     * @return array of split
+     */
+    static String[] getTrimmedStrings(String str) {
+        if (null == str || "".equals(str.trim())) {
+            return emptyStringArray;
+        }
+        return str.trim().split("\\s*,\\s*");
     }
-    return optStr.toString();
-  }
+
+    /**
+     * Converts a byte value into a useful string for output
+     *
+     * @param bytes
+     *
+     * @return String
+     */
+    static String toByteInfo(long bytes) {
+        StringBuilder str = new StringBuilder();
+        if (bytes < 0) {
+            bytes = 0;
+        }
+        str.append(bytes);
+        str.append(" bytes or ");
+        str.append(bytes / 1024);
+        str.append(" kilobytes or ");
+        str.append(bytes / (1024 * 1024));
+        str.append(" megabytes or ");
+        str.append(bytes / (1024 * 1024 * 1024));
+        str.append(" gigabytes");
+        return str.toString();
+    }
+
+    /**
+     * Stringifys an array using the given separator.
+     *
+     * @param args
+     *          the array to format
+     * @param sep
+     *          the separator string to use (ie comma or space)
+     *
+     * @return String representing that array
+     */
+    static String stringifyArray(Object[] args, String sep) {
+        StringBuilder optStr = new StringBuilder();
+        for (int i = 0; i < args.length; ++i) {
+            optStr.append(args[i]);
+            if ((i + 1) != args.length) {
+                optStr.append(sep);
+            }
+        }
+        return optStr.toString();
+    }
 
 }

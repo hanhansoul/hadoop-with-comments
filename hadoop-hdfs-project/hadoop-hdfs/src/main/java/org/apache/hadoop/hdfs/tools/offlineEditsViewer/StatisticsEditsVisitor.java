@@ -40,84 +40,84 @@ import com.google.common.base.Charsets;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class StatisticsEditsVisitor implements OfflineEditsVisitor {
-  final private PrintWriter out;
+    final private PrintWriter out;
 
-  private int version = -1;
-  private final Map<FSEditLogOpCodes, Long> opCodeCount =
-    new HashMap<FSEditLogOpCodes, Long>();
+    private int version = -1;
+    private final Map<FSEditLogOpCodes, Long> opCodeCount =
+        new HashMap<FSEditLogOpCodes, Long>();
 
-  /**
-   * Create a processor that writes to the file named and may or may not
-   * also output to the screen, as specified.
-   *
-   * @param filename Name of file to write output to
-   * @param tokenizer Input tokenizer
-   * @param printToScreen Mirror output to screen?
-   */
-  public StatisticsEditsVisitor(OutputStream out) throws IOException {
-    this.out = new PrintWriter(new OutputStreamWriter(out, Charsets.UTF_8));
-  }
-
-  /** Start the visitor */
-  @Override
-  public void start(int version) throws IOException {
-    this.version = version;
-  }
-  
-  /** Close the visitor */
-  @Override
-  public void close(Throwable error) throws IOException {
-    out.print(getStatisticsString());
-    if (error != null) {
-      out.print("EXITING ON ERROR: " + error.toString() + "\n");
+    /**
+     * Create a processor that writes to the file named and may or may not
+     * also output to the screen, as specified.
+     *
+     * @param filename Name of file to write output to
+     * @param tokenizer Input tokenizer
+     * @param printToScreen Mirror output to screen?
+     */
+    public StatisticsEditsVisitor(OutputStream out) throws IOException {
+        this.out = new PrintWriter(new OutputStreamWriter(out, Charsets.UTF_8));
     }
-    out.close();
-  }
 
-  @Override
-  public void visitOp(FSEditLogOp op) throws IOException {
-    incrementOpCodeCount(op.opCode);
-  }
-
-  /**
-   * Increment the op code counter
-   *
-   * @param opCode opCode for which to increment count
-   */
-  private void incrementOpCodeCount(FSEditLogOpCodes opCode) {
-    if(!opCodeCount.containsKey(opCode)) {
-      opCodeCount.put(opCode, 0L);
+    /** Start the visitor */
+    @Override
+    public void start(int version) throws IOException {
+        this.version = version;
     }
-    Long newValue = opCodeCount.get(opCode) + 1;
-    opCodeCount.put(opCode, newValue);
-  }
 
-  /**
-   * Get statistics
-   *
-   * @return statistics, map of counts per opCode
-   */
-  public Map<FSEditLogOpCodes, Long> getStatistics() {
-    return opCodeCount;
-  }
-
-  /**
-   * Get the statistics in string format, suitable for printing
-   *
-   * @return statistics in in string format, suitable for printing
-   */
-  public String getStatisticsString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append(String.format(
-        "    %-30.30s      : %d%n",
-        "VERSION", version));
-    for(FSEditLogOpCodes opCode : FSEditLogOpCodes.values()) {
-      sb.append(String.format(
-        "    %-30.30s (%3d): %d%n",
-        opCode.toString(),
-        opCode.getOpCode(),
-        opCodeCount.get(opCode)));
+    /** Close the visitor */
+    @Override
+    public void close(Throwable error) throws IOException {
+        out.print(getStatisticsString());
+        if (error != null) {
+            out.print("EXITING ON ERROR: " + error.toString() + "\n");
+        }
+        out.close();
     }
-    return sb.toString();
-  }
+
+    @Override
+    public void visitOp(FSEditLogOp op) throws IOException {
+        incrementOpCodeCount(op.opCode);
+    }
+
+    /**
+     * Increment the op code counter
+     *
+     * @param opCode opCode for which to increment count
+     */
+    private void incrementOpCodeCount(FSEditLogOpCodes opCode) {
+        if(!opCodeCount.containsKey(opCode)) {
+            opCodeCount.put(opCode, 0L);
+        }
+        Long newValue = opCodeCount.get(opCode) + 1;
+        opCodeCount.put(opCode, newValue);
+    }
+
+    /**
+     * Get statistics
+     *
+     * @return statistics, map of counts per opCode
+     */
+    public Map<FSEditLogOpCodes, Long> getStatistics() {
+        return opCodeCount;
+    }
+
+    /**
+     * Get the statistics in string format, suitable for printing
+     *
+     * @return statistics in in string format, suitable for printing
+     */
+    public String getStatisticsString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(String.format(
+                      "    %-30.30s      : %d%n",
+                      "VERSION", version));
+        for(FSEditLogOpCodes opCode : FSEditLogOpCodes.values()) {
+            sb.append(String.format(
+                          "    %-30.30s (%3d): %d%n",
+                          opCode.toString(),
+                          opCode.getOpCode(),
+                          opCodeCount.get(opCode)));
+        }
+        return sb.toString();
+    }
 }

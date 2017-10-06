@@ -28,29 +28,29 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class TestHttpFSWithHttpFSFileSystem extends BaseTestHttpFSWith {
 
-  public TestHttpFSWithHttpFSFileSystem(Operation operation) {
-    super(operation);
-  }
+    public TestHttpFSWithHttpFSFileSystem(Operation operation) {
+        super(operation);
+    }
 
-  @Override
-  protected Class getFileSystemClass() {
-    return HttpFSFileSystem.class;
-  }
+    @Override
+    protected Class getFileSystemClass() {
+        return HttpFSFileSystem.class;
+    }
 
-  @Override
-  protected Path getProxiedFSTestDir() {
-    return TestHdfsHelper.getHdfsTestDir();
-  }
+    @Override
+    protected Path getProxiedFSTestDir() {
+        return TestHdfsHelper.getHdfsTestDir();
+    }
 
-  @Override
-  protected String getProxiedFSURI() {
-    return TestHdfsHelper.getHdfsConf().get(
-      CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY);
-  }
+    @Override
+    protected String getProxiedFSURI() {
+        return TestHdfsHelper.getHdfsConf().get(
+                   CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY);
+    }
 
-  @Override
-  protected Configuration getProxiedFSConf() {
-    return TestHdfsHelper.getHdfsConf();
-  }
+    @Override
+    protected Configuration getProxiedFSConf() {
+        return TestHdfsHelper.getHdfsConf();
+    }
 
 }

@@ -29,36 +29,36 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The response sent by the <code>ResourceManager</code> to a client
  * requesting an application report.</p>
- * 
- * <p>The response includes an {@link ApplicationReport} which has details such 
- * as user, queue, name, host on which the <code>ApplicationMaster</code> is 
+ *
+ * <p>The response includes an {@link ApplicationReport} which has details such
+ * as user, queue, name, host on which the <code>ApplicationMaster</code> is
  * running, RPC port, tracking URL, diagnostics, start time etc.</p>
- * 
+ *
  * @see ApplicationClientProtocol#getApplicationReport(GetApplicationReportRequest)
  */
 @Public
 @Stable
 public abstract class GetApplicationReportResponse {
 
-  @Private
-  @Unstable
-  public static GetApplicationReportResponse newInstance(
-      ApplicationReport ApplicationReport) {
-    GetApplicationReportResponse response =
-        Records.newRecord(GetApplicationReportResponse.class);
-    response.setApplicationReport(ApplicationReport);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetApplicationReportResponse newInstance(
+        ApplicationReport ApplicationReport) {
+        GetApplicationReportResponse response =
+            Records.newRecord(GetApplicationReportResponse.class);
+        response.setApplicationReport(ApplicationReport);
+        return response;
+    }
 
-  /**
-   * Get the <code>ApplicationReport</code> for the application.
-   * @return <code>ApplicationReport</code> for the application
-   */
-  @Public
-  @Stable
-  public abstract ApplicationReport getApplicationReport();
-  
-  @Private
-  @Unstable
-  public abstract void setApplicationReport(ApplicationReport ApplicationReport);
+    /**
+     * Get the <code>ApplicationReport</code> for the application.
+     * @return <code>ApplicationReport</code> for the application
+     */
+    @Public
+    @Stable
+    public abstract ApplicationReport getApplicationReport();
+
+    @Private
+    @Unstable
+    public abstract void setApplicationReport(ApplicationReport ApplicationReport);
 }

@@ -29,28 +29,28 @@ import org.junit.BeforeClass;
  * This class tests the FileStatus API.
  */
 public class TestListFilesInDFS extends TestListFiles {
-  {
-    ((Log4JLogger)FileSystem.LOG).getLogger().setLevel(Level.ALL);
-  }
+    {
+        ((Log4JLogger)FileSystem.LOG).getLogger().setLevel(Level.ALL);
+    }
 
 
-  private static MiniDFSCluster cluster;
+    private static MiniDFSCluster cluster;
 
-  @BeforeClass
-  public static void testSetUp() throws Exception {
-    setTestPaths(new Path("/tmp/TestListFilesInDFS"));
-    cluster = new MiniDFSCluster.Builder(conf).build();
-    fs = cluster.getFileSystem();
-    fs.delete(TEST_DIR, true);
-  }
-  
-  @AfterClass
-  public static void testShutdown() throws Exception {
-    fs.close();
-    cluster.shutdown();
-  }
-  
-  protected static Path getTestDir() {
-    return new Path("/main_");
-  }
+    @BeforeClass
+    public static void testSetUp() throws Exception {
+        setTestPaths(new Path("/tmp/TestListFilesInDFS"));
+        cluster = new MiniDFSCluster.Builder(conf).build();
+        fs = cluster.getFileSystem();
+        fs.delete(TEST_DIR, true);
+    }
+
+    @AfterClass
+    public static void testShutdown() throws Exception {
+        fs.close();
+        cluster.shutdown();
+    }
+
+    protected static Path getTestDir() {
+        return new Path("/main_");
+    }
 }

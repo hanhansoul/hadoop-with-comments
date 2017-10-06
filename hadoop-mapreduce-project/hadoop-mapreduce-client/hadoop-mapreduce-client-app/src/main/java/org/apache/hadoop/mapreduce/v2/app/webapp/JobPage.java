@@ -27,16 +27,16 @@ import org.apache.hadoop.yarn.webapp.SubView;
 
 public class JobPage extends AppView {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    String jobID = $(JOB_ID);
-    set(TITLE, jobID.isEmpty() ? "Bad request: missing job ID"
-               : join("MapReduce Job ", $(JOB_ID)));
-    commonPreHead(html);
+    @Override protected void preHead(Page.HTML<_> html) {
+        String jobID = $(JOB_ID);
+        set(TITLE, jobID.isEmpty() ? "Bad request: missing job ID"
+            : join("MapReduce Job ", $(JOB_ID)));
+        commonPreHead(html);
 
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:2}");
-  }
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:2}");
+    }
 
-  @Override protected Class<? extends SubView> content() {
-    return JobBlock.class;
-  }
+    @Override protected Class<? extends SubView> content() {
+        return JobBlock.class;
+    }
 }

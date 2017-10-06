@@ -24,28 +24,28 @@ import org.apache.hadoop.yarn.server.applicationhistoryservice.records.Applicati
 public class WritingApplicationAttemptFinishEvent extends
     WritingApplicationHistoryEvent {
 
-  private ApplicationAttemptId appAttemptId;
-  private ApplicationAttemptFinishData appAttemptFinish;
+    private ApplicationAttemptId appAttemptId;
+    private ApplicationAttemptFinishData appAttemptFinish;
 
-  public WritingApplicationAttemptFinishEvent(
-      ApplicationAttemptId appAttemptId,
-      ApplicationAttemptFinishData appAttemptFinish) {
-    super(WritingHistoryEventType.APP_ATTEMPT_FINISH);
-    this.appAttemptId = appAttemptId;
-    this.appAttemptFinish = appAttemptFinish;
-  }
+    public WritingApplicationAttemptFinishEvent(
+        ApplicationAttemptId appAttemptId,
+        ApplicationAttemptFinishData appAttemptFinish) {
+        super(WritingHistoryEventType.APP_ATTEMPT_FINISH);
+        this.appAttemptId = appAttemptId;
+        this.appAttemptFinish = appAttemptFinish;
+    }
 
-  @Override
-  public int hashCode() {
-    return appAttemptId.getApplicationId().hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return appAttemptId.getApplicationId().hashCode();
+    }
 
-  public ApplicationAttemptId getApplicationAttemptId() {
-    return appAttemptId;
-  }
+    public ApplicationAttemptId getApplicationAttemptId() {
+        return appAttemptId;
+    }
 
-  public ApplicationAttemptFinishData getApplicationAttemptFinishData() {
-    return appAttemptFinish;
-  }
+    public ApplicationAttemptFinishData getApplicationAttemptFinishData() {
+        return appAttemptFinish;
+    }
 
 }

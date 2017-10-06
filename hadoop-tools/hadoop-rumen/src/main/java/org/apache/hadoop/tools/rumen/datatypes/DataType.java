@@ -21,5 +21,5 @@ package org.apache.hadoop.tools.rumen.datatypes;
  * Represents a Rumen data-type.
  */
 public interface DataType<T> {
-  T getValue();
+    T getValue();
 }

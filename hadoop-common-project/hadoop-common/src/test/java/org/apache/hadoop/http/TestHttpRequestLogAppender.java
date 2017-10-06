@@ -23,15 +23,15 @@ import static org.junit.Assert.assertEquals;
 
 public class TestHttpRequestLogAppender {
 
-  @Test
-  public void testParameterPropagation() {
+    @Test
+    public void testParameterPropagation() {
 
-    HttpRequestLogAppender requestLogAppender = new HttpRequestLogAppender();
-    requestLogAppender.setFilename("jetty-namenode-yyyy_mm_dd.log");
-    requestLogAppender.setRetainDays(17);
-    assertEquals("Filename mismatch", "jetty-namenode-yyyy_mm_dd.log",
-        requestLogAppender.getFilename());
-    assertEquals("Retain days mismatch", 17,
-        requestLogAppender.getRetainDays());
-  }
+        HttpRequestLogAppender requestLogAppender = new HttpRequestLogAppender();
+        requestLogAppender.setFilename("jetty-namenode-yyyy_mm_dd.log");
+        requestLogAppender.setRetainDays(17);
+        assertEquals("Filename mismatch", "jetty-namenode-yyyy_mm_dd.log",
+                     requestLogAppender.getFilename());
+        assertEquals("Retain days mismatch", 17,
+                     requestLogAppender.getRetainDays());
+    }
 }

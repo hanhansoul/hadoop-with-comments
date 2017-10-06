@@ -21,13 +21,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.test.GenericTestUtils;
 import org.junit.BeforeClass;
 
-public class TestCryptoStreamsWithOpensslAesCtrCryptoCodec 
+public class TestCryptoStreamsWithOpensslAesCtrCryptoCodec
     extends TestCryptoStreams {
-  
-  @BeforeClass
-  public static void init() throws Exception {
-    GenericTestUtils.assumeInNativeProfile();
-    Configuration conf = new Configuration();
-    codec = CryptoCodec.getInstance(conf);
-  }
+
+    @BeforeClass
+    public static void init() throws Exception {
+        GenericTestUtils.assumeInNativeProfile();
+        Configuration conf = new Configuration();
+        codec = CryptoCodec.getInstance(conf);
+    }
 }

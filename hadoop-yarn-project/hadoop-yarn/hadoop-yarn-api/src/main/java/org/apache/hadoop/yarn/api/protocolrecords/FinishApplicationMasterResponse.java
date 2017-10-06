@@ -30,7 +30,7 @@ import org.apache.hadoop.yarn.util.Records;
  * The response sent by the <code>ResourceManager</code> to a
  * <code>ApplicationMaster</code> on it's completion.
  * </p>
- * 
+ *
  * <p>
  * The response, includes:
  * <ul>
@@ -42,36 +42,36 @@ import org.apache.hadoop.yarn.util.Records;
  * unregistered and is safe to stop. The application may stop after the flag is
  * true. If the application stops before the flag is true then the RM may retry
  * the application .
- * 
+ *
  * @see ApplicationMasterProtocol#finishApplicationMaster(FinishApplicationMasterRequest)
  */
 @Public
 @Stable
 public abstract class FinishApplicationMasterResponse {
 
-  @Private
-  @Unstable
-  public static FinishApplicationMasterResponse newInstance(
-      boolean isRemovedFromRMStateStore) {
-    FinishApplicationMasterResponse response =
-        Records.newRecord(FinishApplicationMasterResponse.class);
-    response.setIsUnregistered(isRemovedFromRMStateStore);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static FinishApplicationMasterResponse newInstance(
+        boolean isRemovedFromRMStateStore) {
+        FinishApplicationMasterResponse response =
+            Records.newRecord(FinishApplicationMasterResponse.class);
+        response.setIsUnregistered(isRemovedFromRMStateStore);
+        return response;
+    }
 
-  /**
-   * Get the flag which indicates that the application has successfully
-   * unregistered with the RM and the application can safely stop.
-   */
-  @Public
-  @Stable
-  public abstract boolean getIsUnregistered();
+    /**
+     * Get the flag which indicates that the application has successfully
+     * unregistered with the RM and the application can safely stop.
+     */
+    @Public
+    @Stable
+    public abstract boolean getIsUnregistered();
 
-  /**
-   * Set the flag which indicates that the application has successfully
-   * unregistered with the RM and the application can safely stop.
-   */
-  @Private
-  @Unstable
-  public abstract void setIsUnregistered(boolean isUnregistered);
+    /**
+     * Set the flag which indicates that the application has successfully
+     * unregistered with the RM and the application can safely stop.
+     */
+    @Private
+    @Unstable
+    public abstract void setIsUnregistered(boolean isUnregistered);
 }

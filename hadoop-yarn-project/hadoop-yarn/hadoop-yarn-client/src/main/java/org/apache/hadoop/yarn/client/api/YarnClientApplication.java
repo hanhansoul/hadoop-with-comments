@@ -32,21 +32,21 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
  * .yarn.client.api.YarnClient#createApplication()}
  */
 public  class YarnClientApplication {
-  private final GetNewApplicationResponse newAppResponse;
-  private final ApplicationSubmissionContext appSubmissionContext;
+    private final GetNewApplicationResponse newAppResponse;
+    private final ApplicationSubmissionContext appSubmissionContext;
 
-  public YarnClientApplication(GetNewApplicationResponse newAppResponse,
-                               ApplicationSubmissionContext appContext) {
-    this.newAppResponse = newAppResponse;
-    this.appSubmissionContext = appContext;
-  }
+    public YarnClientApplication(GetNewApplicationResponse newAppResponse,
+                                 ApplicationSubmissionContext appContext) {
+        this.newAppResponse = newAppResponse;
+        this.appSubmissionContext = appContext;
+    }
 
-  public GetNewApplicationResponse getNewApplicationResponse() {
-    return newAppResponse;
-  }
+    public GetNewApplicationResponse getNewApplicationResponse() {
+        return newAppResponse;
+    }
 
-  public ApplicationSubmissionContext getApplicationSubmissionContext() {
-    return appSubmissionContext;
-  }
+    public ApplicationSubmissionContext getApplicationSubmissionContext() {
+        return appSubmissionContext;
+    }
 }
 

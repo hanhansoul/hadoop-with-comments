@@ -29,31 +29,31 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 class FileMetadata {
-  private final String key;
-  private final long length;
-  private final long lastModified;
-  
-  public FileMetadata(String key, long length, long lastModified) {
-    this.key = key;
-    this.length = length;
-    this.lastModified = lastModified;
-  }
-  
-  public String getKey() {
-    return key;
-  }
-  
-  public long getLength() {
-    return length;
-  }
+    private final String key;
+    private final long length;
+    private final long lastModified;
 
-  public long getLastModified() {
-    return lastModified;
-  }
-  
-  @Override
-  public String toString() {
-    return "FileMetadata[" + key + ", " + length + ", " + lastModified + "]";
-  }
-  
+    public FileMetadata(String key, long length, long lastModified) {
+        this.key = key;
+        this.length = length;
+        this.lastModified = lastModified;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    @Override
+    public String toString() {
+        return "FileMetadata[" + key + ", " + length + ", " + lastModified + "]";
+    }
+
 }

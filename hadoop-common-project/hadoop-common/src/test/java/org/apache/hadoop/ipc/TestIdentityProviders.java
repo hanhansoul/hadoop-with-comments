@@ -43,46 +43,46 @@ import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.conf.Configuration;
 
 public class TestIdentityProviders {
-  public class FakeSchedulable implements Schedulable {
-    public FakeSchedulable() {
+    public class FakeSchedulable implements Schedulable {
+        public FakeSchedulable() {
+        }
+
+        public UserGroupInformation getUserGroupInformation() {
+            try {
+                return UserGroupInformation.getCurrentUser();
+            } catch (IOException e) {
+                return null;
+            }
+        }
+
     }
 
-    public UserGroupInformation getUserGroupInformation() {
-      try {
-        return UserGroupInformation.getCurrentUser();
-      } catch (IOException e) {
-        return null;
-      }
+    @Test
+    public void testPluggableIdentityProvider() {
+        Configuration conf = new Configuration();
+        conf.set(CommonConfigurationKeys.IPC_CALLQUEUE_IDENTITY_PROVIDER_KEY,
+                 "org.apache.hadoop.ipc.UserIdentityProvider");
+
+        List<IdentityProvider> providers = conf.getInstances(
+                                               CommonConfigurationKeys.IPC_CALLQUEUE_IDENTITY_PROVIDER_KEY,
+                                               IdentityProvider.class);
+
+        assertTrue(providers.size() == 1);
+
+        IdentityProvider ip = providers.get(0);
+        assertNotNull(ip);
+        assertEquals(ip.getClass(), UserIdentityProvider.class);
     }
 
-  }
+    @Test
+    public void testUserIdentityProvider() throws IOException {
+        UserIdentityProvider uip = new UserIdentityProvider();
+        String identity = uip.makeIdentity(new FakeSchedulable());
 
-  @Test
-  public void testPluggableIdentityProvider() {
-    Configuration conf = new Configuration();
-    conf.set(CommonConfigurationKeys.IPC_CALLQUEUE_IDENTITY_PROVIDER_KEY,
-      "org.apache.hadoop.ipc.UserIdentityProvider");
+        // Get our username
+        UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+        String username = ugi.getUserName();
 
-    List<IdentityProvider> providers = conf.getInstances(
-      CommonConfigurationKeys.IPC_CALLQUEUE_IDENTITY_PROVIDER_KEY,
-      IdentityProvider.class);
-
-    assertTrue(providers.size() == 1);
-
-    IdentityProvider ip = providers.get(0);
-    assertNotNull(ip);
-    assertEquals(ip.getClass(), UserIdentityProvider.class);
-  }
-
-  @Test
-  public void testUserIdentityProvider() throws IOException {
-    UserIdentityProvider uip = new UserIdentityProvider();
-    String identity = uip.makeIdentity(new FakeSchedulable());
-
-    // Get our username
-    UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-    String username = ugi.getUserName();
-
-    assertEquals(username, identity);
-  }
+        assertEquals(username, identity);
+    }
 }

@@ -32,47 +32,47 @@ import static org.junit.Assert.assertTrue;
 
 public class TestJobIdHistoryFileInfoMap {
 
-  private boolean checkSize(JobIdHistoryFileInfoMap map, int size)
-      throws InterruptedException {
-    for (int i = 0; i < 100; i++) {
-      if (map.size() != size)
-        Thread.sleep(20);
-      else
-        return true;
+    private boolean checkSize(JobIdHistoryFileInfoMap map, int size)
+    throws InterruptedException {
+        for (int i = 0; i < 100; i++) {
+            if (map.size() != size)
+                Thread.sleep(20);
+            else
+                return true;
+        }
+        return false;
     }
-    return false;
-  }
 
-  /**
-   * Trivial test case that verifies basic functionality of {@link
-   * JobIdHistoryFileInfoMap}
-   */
-  @Test(timeout = 2000)
-  public void testWithSingleElement() throws InterruptedException {
-    JobIdHistoryFileInfoMap mapWithSize = new JobIdHistoryFileInfoMap();
+    /**
+     * Trivial test case that verifies basic functionality of {@link
+     * JobIdHistoryFileInfoMap}
+     */
+    @Test(timeout = 2000)
+    public void testWithSingleElement() throws InterruptedException {
+        JobIdHistoryFileInfoMap mapWithSize = new JobIdHistoryFileInfoMap();
 
-    JobId jobId = MRBuilderUtils.newJobId(1, 1, 1);
-    HistoryFileInfo fileInfo1 = Mockito.mock(HistoryFileInfo.class);
-    Mockito.when(fileInfo1.getJobId()).thenReturn(jobId);
+        JobId jobId = MRBuilderUtils.newJobId(1, 1, 1);
+        HistoryFileInfo fileInfo1 = Mockito.mock(HistoryFileInfo.class);
+        Mockito.when(fileInfo1.getJobId()).thenReturn(jobId);
 
-    // add it twice
-    assertEquals("Incorrect return on putIfAbsent()",
-        null, mapWithSize.putIfAbsent(jobId, fileInfo1));
-    assertEquals("Incorrect return on putIfAbsent()",
-        fileInfo1, mapWithSize.putIfAbsent(jobId, fileInfo1));
+        // add it twice
+        assertEquals("Incorrect return on putIfAbsent()",
+                     null, mapWithSize.putIfAbsent(jobId, fileInfo1));
+        assertEquals("Incorrect return on putIfAbsent()",
+                     fileInfo1, mapWithSize.putIfAbsent(jobId, fileInfo1));
 
-    // check get()
-    assertEquals("Incorrect get()", fileInfo1, mapWithSize.get(jobId));
-    assertTrue("Incorrect size()", checkSize(mapWithSize, 1));
+        // check get()
+        assertEquals("Incorrect get()", fileInfo1, mapWithSize.get(jobId));
+        assertTrue("Incorrect size()", checkSize(mapWithSize, 1));
 
-    // check navigableKeySet()
-    NavigableSet<JobId> set = mapWithSize.navigableKeySet();
-    assertEquals("Incorrect navigableKeySet()", 1, set.size());
-    assertTrue("Incorrect navigableKeySet()", set.contains(jobId));
+        // check navigableKeySet()
+        NavigableSet<JobId> set = mapWithSize.navigableKeySet();
+        assertEquals("Incorrect navigableKeySet()", 1, set.size());
+        assertTrue("Incorrect navigableKeySet()", set.contains(jobId));
 
-    // check values()
-    Collection<HistoryFileInfo> values = mapWithSize.values();
-    assertEquals("Incorrect values()", 1, values.size());
-    assertTrue("Incorrect values()", values.contains(fileInfo1));
-  }
+        // check values()
+        Collection<HistoryFileInfo> values = mapWithSize.values();
+        assertEquals("Incorrect values()", 1, values.size());
+        assertTrue("Incorrect values()", values.contains(fileInfo1));
+    }
 }

@@ -27,65 +27,64 @@ import java.util.MissingResourceException;
  */
 public class ResourceBundles {
 
-  /**
-   * Get a resource bundle
-   * @param bundleName of the resource
-   * @return the resource bundle
-   * @throws MissingResourceException
-   */
-  public static ResourceBundle getBundle(String bundleName) {
-    return ResourceBundle.getBundle(bundleName.replace('$', '_'),
-        Locale.getDefault(), Thread.currentThread().getContextClassLoader());
-  }
-
-  /**
-   * Get a resource given bundle name and key
-   * @param <T> type of the resource
-   * @param bundleName name of the resource bundle
-   * @param key to lookup the resource
-   * @param suffix for the key to lookup
-   * @param defaultValue of the resource
-   * @return the resource or the defaultValue
-   * @throws ClassCastException if the resource found doesn't match T
-   */
-  @SuppressWarnings("unchecked")
-  public static synchronized <T> T getValue(String bundleName, String key,
-                                            String suffix, T defaultValue) {
-    T value;
-    try {
-      ResourceBundle bundle = getBundle(bundleName);
-      value = (T) bundle.getObject(getLookupKey(key, suffix));
+    /**
+     * Get a resource bundle
+     * @param bundleName of the resource
+     * @return the resource bundle
+     * @throws MissingResourceException
+     */
+    public static ResourceBundle getBundle(String bundleName) {
+        return ResourceBundle.getBundle(bundleName.replace('$', '_'),
+                                        Locale.getDefault(), Thread.currentThread().getContextClassLoader());
     }
-    catch (Exception e) {
-      return defaultValue;
+
+    /**
+     * Get a resource given bundle name and key
+     * @param <T> type of the resource
+     * @param bundleName name of the resource bundle
+     * @param key to lookup the resource
+     * @param suffix for the key to lookup
+     * @param defaultValue of the resource
+     * @return the resource or the defaultValue
+     * @throws ClassCastException if the resource found doesn't match T
+     */
+    @SuppressWarnings("unchecked")
+    public static synchronized <T> T getValue(String bundleName, String key,
+            String suffix, T defaultValue) {
+        T value;
+        try {
+            ResourceBundle bundle = getBundle(bundleName);
+            value = (T) bundle.getObject(getLookupKey(key, suffix));
+        } catch (Exception e) {
+            return defaultValue;
+        }
+        return value == null ? defaultValue : value;
     }
-    return value == null ? defaultValue : value;
-  }
 
-  private static String getLookupKey(String key, String suffix) {
-    if (suffix == null || suffix.isEmpty()) return key;
-    return key + suffix;
-  }
+    private static String getLookupKey(String key, String suffix) {
+        if (suffix == null || suffix.isEmpty()) return key;
+        return key + suffix;
+    }
 
-  /**
-   * Get the counter group display name
-   * @param group the group name to lookup
-   * @param defaultValue of the group
-   * @return the group display name
-   */
-  public static String getCounterGroupName(String group, String defaultValue) {
-    return getValue(group, "CounterGroupName", "", defaultValue);
-  }
+    /**
+     * Get the counter group display name
+     * @param group the group name to lookup
+     * @param defaultValue of the group
+     * @return the group display name
+     */
+    public static String getCounterGroupName(String group, String defaultValue) {
+        return getValue(group, "CounterGroupName", "", defaultValue);
+    }
 
-  /**
-   * Get the counter display name
-   * @param group the counter group name for the counter
-   * @param counter the counter name to lookup
-   * @param defaultValue of the counter
-   * @return the counter display name
-   */
-  public static String getCounterName(String group, String counter,
-                                      String defaultValue) {
-    return getValue(group, counter, ".name", defaultValue);
-  }
+    /**
+     * Get the counter display name
+     * @param group the counter group name for the counter
+     * @param counter the counter name to lookup
+     * @param defaultValue of the counter
+     * @return the counter display name
+     */
+    public static String getCounterName(String group, String counter,
+                                        String defaultValue) {
+        return getValue(group, counter, ".name", defaultValue);
+    }
 }

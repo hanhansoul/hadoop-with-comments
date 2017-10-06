@@ -27,11 +27,11 @@ import com.google.common.annotations.VisibleForTesting;
 @VisibleForTesting
 public interface ResourceLocalizationSpec {
 
-  public void setResource(LocalResource rsrc);
+    public void setResource(LocalResource rsrc);
 
-  public LocalResource getResource();
+    public LocalResource getResource();
 
-  public void setDestinationDirectory(URL destinationDirectory);
+    public void setDestinationDirectory(URL destinationDirectory);
 
-  public URL getDestinationDirectory();
+    public URL getDestinationDirectory();
 }

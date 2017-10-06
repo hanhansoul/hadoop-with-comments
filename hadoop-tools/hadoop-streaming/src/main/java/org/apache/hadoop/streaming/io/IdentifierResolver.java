@@ -31,102 +31,102 @@ import org.apache.hadoop.typedbytes.TypedBytesWritable;
  */
 public class IdentifierResolver {
 
-  // note that the identifiers are case insensitive
-  public static final String TEXT_ID = "text";
-  public static final String RAW_BYTES_ID = "rawbytes";
-  public static final String TYPED_BYTES_ID = "typedbytes";
-  public static final String KEY_ONLY_TEXT_ID = "keyonlytext";
-  
-  private Class<? extends InputWriter> inputWriterClass = null;
-  private Class<? extends OutputReader> outputReaderClass = null;
-  private Class outputKeyClass = null;
-  private Class outputValueClass = null;
-  
-  /**
-   * Resolves a given identifier. This method has to be called before calling
-   * any of the getters.
-   */
-  public void resolve(String identifier) {
-    if (identifier.equalsIgnoreCase(RAW_BYTES_ID)) {
-      setInputWriterClass(RawBytesInputWriter.class);
-      setOutputReaderClass(RawBytesOutputReader.class);
-      setOutputKeyClass(BytesWritable.class);
-      setOutputValueClass(BytesWritable.class);
-    } else if (identifier.equalsIgnoreCase(TYPED_BYTES_ID)) {
-      setInputWriterClass(TypedBytesInputWriter.class);
-      setOutputReaderClass(TypedBytesOutputReader.class);
-      setOutputKeyClass(TypedBytesWritable.class);
-      setOutputValueClass(TypedBytesWritable.class);
-    } else if (identifier.equalsIgnoreCase(KEY_ONLY_TEXT_ID)) {
-      setInputWriterClass(KeyOnlyTextInputWriter.class);
-      setOutputReaderClass(KeyOnlyTextOutputReader.class);
-      setOutputKeyClass(Text.class);
-      setOutputValueClass(NullWritable.class);
-    } else { // assume TEXT_ID
-      setInputWriterClass(TextInputWriter.class);
-      setOutputReaderClass(TextOutputReader.class);
-      setOutputKeyClass(Text.class);
-      setOutputValueClass(Text.class);
+    // note that the identifiers are case insensitive
+    public static final String TEXT_ID = "text";
+    public static final String RAW_BYTES_ID = "rawbytes";
+    public static final String TYPED_BYTES_ID = "typedbytes";
+    public static final String KEY_ONLY_TEXT_ID = "keyonlytext";
+
+    private Class<? extends InputWriter> inputWriterClass = null;
+    private Class<? extends OutputReader> outputReaderClass = null;
+    private Class outputKeyClass = null;
+    private Class outputValueClass = null;
+
+    /**
+     * Resolves a given identifier. This method has to be called before calling
+     * any of the getters.
+     */
+    public void resolve(String identifier) {
+        if (identifier.equalsIgnoreCase(RAW_BYTES_ID)) {
+            setInputWriterClass(RawBytesInputWriter.class);
+            setOutputReaderClass(RawBytesOutputReader.class);
+            setOutputKeyClass(BytesWritable.class);
+            setOutputValueClass(BytesWritable.class);
+        } else if (identifier.equalsIgnoreCase(TYPED_BYTES_ID)) {
+            setInputWriterClass(TypedBytesInputWriter.class);
+            setOutputReaderClass(TypedBytesOutputReader.class);
+            setOutputKeyClass(TypedBytesWritable.class);
+            setOutputValueClass(TypedBytesWritable.class);
+        } else if (identifier.equalsIgnoreCase(KEY_ONLY_TEXT_ID)) {
+            setInputWriterClass(KeyOnlyTextInputWriter.class);
+            setOutputReaderClass(KeyOnlyTextOutputReader.class);
+            setOutputKeyClass(Text.class);
+            setOutputValueClass(NullWritable.class);
+        } else { // assume TEXT_ID
+            setInputWriterClass(TextInputWriter.class);
+            setOutputReaderClass(TextOutputReader.class);
+            setOutputKeyClass(Text.class);
+            setOutputValueClass(Text.class);
+        }
     }
-  }
-  
-  /**
-   * Returns the resolved {@link InputWriter} class.
-   */
-  public Class<? extends InputWriter> getInputWriterClass() {
-    return inputWriterClass;
-  }
 
-  /**
-   * Returns the resolved {@link OutputReader} class.
-   */
-  public Class<? extends OutputReader> getOutputReaderClass() {
-    return outputReaderClass;
-  }
-  
-  /**
-   * Returns the resolved output key class.
-   */
-  public Class getOutputKeyClass() {
-    return outputKeyClass;
-  }
+    /**
+     * Returns the resolved {@link InputWriter} class.
+     */
+    public Class<? extends InputWriter> getInputWriterClass() {
+        return inputWriterClass;
+    }
 
-  /**
-   * Returns the resolved output value class.
-   */
-  public Class getOutputValueClass() {
-    return outputValueClass;
-  }
-  
-  
-  /**
-   * Sets the {@link InputWriter} class.
-   */
-  protected void setInputWriterClass(Class<? extends InputWriter>
-    inputWriterClass) {
-    this.inputWriterClass = inputWriterClass;
-  }
-  
-  /**
-   * Sets the {@link OutputReader} class.
-   */
-  protected void setOutputReaderClass(Class<? extends OutputReader>
-    outputReaderClass) {
-    this.outputReaderClass = outputReaderClass;
-  }
-  
-  /**
-   * Sets the output key class class.
-   */
-  protected void setOutputKeyClass(Class outputKeyClass) {
-    this.outputKeyClass = outputKeyClass;
-  }
-  
-  /**
-   * Sets the output value class.
-   */
-  protected void setOutputValueClass(Class outputValueClass) {
-    this.outputValueClass = outputValueClass;
-  }
+    /**
+     * Returns the resolved {@link OutputReader} class.
+     */
+    public Class<? extends OutputReader> getOutputReaderClass() {
+        return outputReaderClass;
+    }
+
+    /**
+     * Returns the resolved output key class.
+     */
+    public Class getOutputKeyClass() {
+        return outputKeyClass;
+    }
+
+    /**
+     * Returns the resolved output value class.
+     */
+    public Class getOutputValueClass() {
+        return outputValueClass;
+    }
+
+
+    /**
+     * Sets the {@link InputWriter} class.
+     */
+    protected void setInputWriterClass(Class<? extends InputWriter>
+                                       inputWriterClass) {
+        this.inputWriterClass = inputWriterClass;
+    }
+
+    /**
+     * Sets the {@link OutputReader} class.
+     */
+    protected void setOutputReaderClass(Class<? extends OutputReader>
+                                        outputReaderClass) {
+        this.outputReaderClass = outputReaderClass;
+    }
+
+    /**
+     * Sets the output key class class.
+     */
+    protected void setOutputKeyClass(Class outputKeyClass) {
+        this.outputKeyClass = outputKeyClass;
+    }
+
+    /**
+     * Sets the output value class.
+     */
+    protected void setOutputValueClass(Class outputValueClass) {
+        this.outputValueClass = outputValueClass;
+    }
 
 }

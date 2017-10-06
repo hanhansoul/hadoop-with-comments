@@ -24,38 +24,38 @@ import static org.junit.Assert.*;
 
 /**
  * test SkipBadRecords
- * 
- * 
+ *
+ *
  */
 public class TestSkipBadRecords {
-  @Test (timeout=5000)
-  public void testSkipBadRecords() {
-    // test default values
-    Configuration conf = new Configuration();
-    assertEquals(2, SkipBadRecords.getAttemptsToStartSkipping(conf));
-    assertTrue(SkipBadRecords.getAutoIncrMapperProcCount(conf));
-    assertTrue(SkipBadRecords.getAutoIncrReducerProcCount(conf));
-    assertEquals(0, SkipBadRecords.getMapperMaxSkipRecords(conf));
-    assertEquals(0, SkipBadRecords.getReducerMaxSkipGroups(conf), 0);
-    assertNull(SkipBadRecords.getSkipOutputPath(conf));
+    @Test (timeout=5000)
+    public void testSkipBadRecords() {
+        // test default values
+        Configuration conf = new Configuration();
+        assertEquals(2, SkipBadRecords.getAttemptsToStartSkipping(conf));
+        assertTrue(SkipBadRecords.getAutoIncrMapperProcCount(conf));
+        assertTrue(SkipBadRecords.getAutoIncrReducerProcCount(conf));
+        assertEquals(0, SkipBadRecords.getMapperMaxSkipRecords(conf));
+        assertEquals(0, SkipBadRecords.getReducerMaxSkipGroups(conf), 0);
+        assertNull(SkipBadRecords.getSkipOutputPath(conf));
 
-    // test setters
-    SkipBadRecords.setAttemptsToStartSkipping(conf, 5);
-    SkipBadRecords.setAutoIncrMapperProcCount(conf, false);
-    SkipBadRecords.setAutoIncrReducerProcCount(conf, false);
-    SkipBadRecords.setMapperMaxSkipRecords(conf, 6L);
-    SkipBadRecords.setReducerMaxSkipGroups(conf, 7L);
-    JobConf jc= new JobConf();
-    SkipBadRecords.setSkipOutputPath(jc, new Path("test"));
-    
-    // test getters 
-    assertEquals(5, SkipBadRecords.getAttemptsToStartSkipping(conf));
-    assertFalse(SkipBadRecords.getAutoIncrMapperProcCount(conf));
-    assertFalse(SkipBadRecords.getAutoIncrReducerProcCount(conf));
-    assertEquals(6L, SkipBadRecords.getMapperMaxSkipRecords(conf));
-    assertEquals(7L, SkipBadRecords.getReducerMaxSkipGroups(conf), 0);
-    assertEquals("test",SkipBadRecords.getSkipOutputPath(jc).toString());
-    
-  }
+        // test setters
+        SkipBadRecords.setAttemptsToStartSkipping(conf, 5);
+        SkipBadRecords.setAutoIncrMapperProcCount(conf, false);
+        SkipBadRecords.setAutoIncrReducerProcCount(conf, false);
+        SkipBadRecords.setMapperMaxSkipRecords(conf, 6L);
+        SkipBadRecords.setReducerMaxSkipGroups(conf, 7L);
+        JobConf jc= new JobConf();
+        SkipBadRecords.setSkipOutputPath(jc, new Path("test"));
+
+        // test getters
+        assertEquals(5, SkipBadRecords.getAttemptsToStartSkipping(conf));
+        assertFalse(SkipBadRecords.getAutoIncrMapperProcCount(conf));
+        assertFalse(SkipBadRecords.getAutoIncrReducerProcCount(conf));
+        assertEquals(6L, SkipBadRecords.getMapperMaxSkipRecords(conf));
+        assertEquals(7L, SkipBadRecords.getReducerMaxSkipGroups(conf), 0);
+        assertEquals("test",SkipBadRecords.getSkipOutputPath(jc).toString());
+
+    }
 
 }

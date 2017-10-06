@@ -32,29 +32,31 @@ import org.junit.Test;
  * Test trash using HDFS
  */
 public class TestHDFSTrash {
-  private static MiniDFSCluster cluster = null;
+    private static MiniDFSCluster cluster = null;
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    Configuration conf = new HdfsConfiguration();
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
-  }
+    @BeforeClass
+    public static void setUp() throws Exception {
+        Configuration conf = new HdfsConfiguration();
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
+    }
 
-  @AfterClass
-  public static void tearDown() {
-    if (cluster != null) { cluster.shutdown(); }
-  }
+    @AfterClass
+    public static void tearDown() {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
 
-  @Test
-  public void testTrash() throws IOException {
-    TestTrash.trashShell(cluster.getFileSystem(), new Path("/"));
-  }
+    @Test
+    public void testTrash() throws IOException {
+        TestTrash.trashShell(cluster.getFileSystem(), new Path("/"));
+    }
 
-  @Test
-  public void testNonDefaultFS() throws IOException {
-    FileSystem fs = cluster.getFileSystem();
-    Configuration conf = fs.getConf();
-    conf.set(DFSConfigKeys.FS_DEFAULT_NAME_KEY, fs.getUri().toString());
-    TestTrash.trashNonDefaultFS(conf);
-  }
+    @Test
+    public void testNonDefaultFS() throws IOException {
+        FileSystem fs = cluster.getFileSystem();
+        Configuration conf = fs.getConf();
+        conf.set(DFSConfigKeys.FS_DEFAULT_NAME_KEY, fs.getUri().toString());
+        TestTrash.trashNonDefaultFS(conf);
+    }
 }

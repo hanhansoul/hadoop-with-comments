@@ -31,62 +31,64 @@ import org.apache.hadoop.hdfs.server.datanode.DataNodeTestUtils;
 import org.junit.Test;
 
 public class TestDFSRemove {
-  final Path dir = new Path("/test/remove/");
+    final Path dir = new Path("/test/remove/");
 
-  void list(FileSystem fs, String name) throws IOException {
-    FileSystem.LOG.info("\n\n" + name);
-    for(FileStatus s : fs.listStatus(dir)) {
-      FileSystem.LOG.info("" + s.getPath());
-    }
-  }
-
-  static void createFile(FileSystem fs, Path f) throws IOException {
-    DataOutputStream a_out = fs.create(f);
-    a_out.writeBytes("something");
-    a_out.close();
-  }
-  
-  static long getTotalDfsUsed(MiniDFSCluster cluster) throws IOException {
-    long total = 0;
-    for(DataNode node : cluster.getDataNodes()) {
-      total += DataNodeTestUtils.getFSDataset(node).getDfsUsed();
-    }
-    return total;
-  }
-  
-  @Test
-  public void testRemove() throws Exception {
-    Configuration conf = new HdfsConfiguration();
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
-    try {
-      FileSystem fs = cluster.getFileSystem();
-      assertTrue(fs.mkdirs(dir));
-      
-      long dfsUsedStart = getTotalDfsUsed(cluster);
-      {
-        // Create 100 files
-        final int fileCount = 100;
-        for (int i = 0; i < fileCount; i++) {
-          Path a = new Path(dir, "a" + i);
-          createFile(fs, a);
+    void list(FileSystem fs, String name) throws IOException {
+        FileSystem.LOG.info("\n\n" + name);
+        for(FileStatus s : fs.listStatus(dir)) {
+            FileSystem.LOG.info("" + s.getPath());
         }
-        long dfsUsedMax = getTotalDfsUsed(cluster);
-        // Remove 100 files
-        for (int i = 0; i < fileCount; i++) {
-          Path a = new Path(dir, "a" + i);
-          fs.delete(a, false);
-        }
-        // wait 3 heartbeat intervals, so that all blocks are deleted.
-        Thread.sleep(3 * DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_DEFAULT * 1000);
-        // all blocks should be gone now.
-        long dfsUsedFinal = getTotalDfsUsed(cluster);
-        assertEquals("All blocks should be gone. start=" + dfsUsedStart
-            + " max=" + dfsUsedMax + " final=" + dfsUsedFinal, dfsUsedStart, dfsUsedFinal);
-      }
-
-      fs.delete(dir, true);
-    } finally {
-      if (cluster != null) {cluster.shutdown();}
     }
-  }
+
+    static void createFile(FileSystem fs, Path f) throws IOException {
+        DataOutputStream a_out = fs.create(f);
+        a_out.writeBytes("something");
+        a_out.close();
+    }
+
+    static long getTotalDfsUsed(MiniDFSCluster cluster) throws IOException {
+        long total = 0;
+        for(DataNode node : cluster.getDataNodes()) {
+            total += DataNodeTestUtils.getFSDataset(node).getDfsUsed();
+        }
+        return total;
+    }
+
+    @Test
+    public void testRemove() throws Exception {
+        Configuration conf = new HdfsConfiguration();
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
+        try {
+            FileSystem fs = cluster.getFileSystem();
+            assertTrue(fs.mkdirs(dir));
+
+            long dfsUsedStart = getTotalDfsUsed(cluster);
+            {
+                // Create 100 files
+                final int fileCount = 100;
+                for (int i = 0; i < fileCount; i++) {
+                    Path a = new Path(dir, "a" + i);
+                    createFile(fs, a);
+                }
+                long dfsUsedMax = getTotalDfsUsed(cluster);
+                // Remove 100 files
+                for (int i = 0; i < fileCount; i++) {
+                    Path a = new Path(dir, "a" + i);
+                    fs.delete(a, false);
+                }
+                // wait 3 heartbeat intervals, so that all blocks are deleted.
+                Thread.sleep(3 * DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_DEFAULT * 1000);
+                // all blocks should be gone now.
+                long dfsUsedFinal = getTotalDfsUsed(cluster);
+                assertEquals("All blocks should be gone. start=" + dfsUsedStart
+                             + " max=" + dfsUsedMax + " final=" + dfsUsedFinal, dfsUsedStart, dfsUsedFinal);
+            }
+
+            fs.delete(dir, true);
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
+    }
 }

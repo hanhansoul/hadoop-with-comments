@@ -55,199 +55,199 @@ import static org.junit.Assert.*;
 /**
  * Test AggregatedLogsBlock. AggregatedLogsBlock should check user, aggregate a
  * logs into one file and show this logs or errors into html code
- * 
+ *
  */
 public class TestAggregatedLogsBlock {
-  /**
-   * Bad user. User 'owner' is trying to read logs without access
-   */
-  @Test
-  public void testAccessDenied() throws Exception {
+    /**
+     * Bad user. User 'owner' is trying to read logs without access
+     */
+    @Test
+    public void testAccessDenied() throws Exception {
 
-    FileUtil.fullyDelete(new File("target/logs"));
-    Configuration configuration = getConfiguration();
+        FileUtil.fullyDelete(new File("target/logs"));
+        Configuration configuration = getConfiguration();
 
-    writeLogs("target/logs/logs/application_0_0001/container_0_0001_01_000001");
+        writeLogs("target/logs/logs/application_0_0001/container_0_0001_01_000001");
 
-    writeLog(configuration, "owner");
+        writeLog(configuration, "owner");
 
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "owner", "container_0_0001_01_000001");
-    ByteArrayOutputStream data = new ByteArrayOutputStream();
-    PrintWriter printWriter = new PrintWriter(data);
-    HtmlBlock html = new HtmlBlockForTest();
-    HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
-    aggregatedBlock.render(block);
+        AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
+                    configuration, "owner", "container_0_0001_01_000001");
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        PrintWriter printWriter = new PrintWriter(data);
+        HtmlBlock html = new HtmlBlockForTest();
+        HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+        aggregatedBlock.render(block);
 
-    block.getWriter().flush();
-    String out = data.toString();
-    assertTrue(out
-        .contains("User [owner] is not authorized to view the logs for entity"));
+        block.getWriter().flush();
+        String out = data.toString();
+        assertTrue(out
+                   .contains("User [owner] is not authorized to view the logs for entity"));
 
-  }
-
-  /**
-   * try to read bad logs
-   * 
-   * @throws Exception
-   */
-  @Test
-  public void testBadLogs() throws Exception {
-
-    FileUtil.fullyDelete(new File("target/logs"));
-    Configuration configuration = getConfiguration();
-
-    writeLogs("target/logs/logs/application_0_0001/container_0_0001_01_000001");
-
-    writeLog(configuration, "owner");
-
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "admin", "container_0_0001_01_000001");
-    ByteArrayOutputStream data = new ByteArrayOutputStream();
-    PrintWriter printWriter = new PrintWriter(data);
-    HtmlBlock html = new HtmlBlockForTest();
-    HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
-    aggregatedBlock.render(block);
-
-    block.getWriter().flush();
-    String out = data.toString();
-    assertTrue(out
-        .contains("Logs not available for entity. Aggregation may not be complete, Check back later or try the nodemanager at localhost:1234"));
-
-  }
-
-  /**
-   * All ok and the AggregatedLogsBlockFor should aggregate logs and show it.
-   * 
-   * @throws Exception
-   */
-  @Test
-  public void testAggregatedLogsBlock() throws Exception {
-
-    FileUtil.fullyDelete(new File("target/logs"));
-    Configuration configuration = getConfiguration();
-
-    writeLogs("target/logs/logs/application_0_0001/container_0_0001_01_000001");
-
-    writeLog(configuration, "admin");
-
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "admin", "container_0_0001_01_000001");
-    ByteArrayOutputStream data = new ByteArrayOutputStream();
-    PrintWriter printWriter = new PrintWriter(data);
-    HtmlBlock html = new HtmlBlockForTest();
-    HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
-    aggregatedBlock.render(block);
-
-    block.getWriter().flush();
-    String out = data.toString();
-    assertTrue(out.contains("test log1"));
-    assertTrue(out.contains("test log2"));
-    assertTrue(out.contains("test log3"));
-
-  }
-  /**
-   * Log files was deleted.
-   * @throws Exception
-   */
-  @Test
-  public void testNoLogs() throws Exception {
-
-    FileUtil.fullyDelete(new File("target/logs"));
-    Configuration configuration = getConfiguration();
-
-    File f = new File("target/logs/logs/application_0_0001/container_0_0001_01_000001");
-    if (!f.exists()) {
-      assertTrue(f.mkdirs());
-    }
-    writeLog(configuration, "admin");
-
-    AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
-        configuration, "admin", "container_0_0001_01_000001");
-    ByteArrayOutputStream data = new ByteArrayOutputStream();
-    PrintWriter printWriter = new PrintWriter(data);
-    HtmlBlock html = new HtmlBlockForTest();
-    HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
-    aggregatedBlock.render(block);
-
-    block.getWriter().flush();
-    String out = data.toString();
-    assertTrue(out.contains("No logs available for container container_0_0001_01_000001"));
-
-  }
-  
-  
-  private Configuration getConfiguration() {
-    Configuration configuration = new Configuration();
-    configuration.setBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED, true);
-    configuration.set(YarnConfiguration.NM_REMOTE_APP_LOG_DIR, "target/logs");
-    configuration.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
-    configuration.set(YarnConfiguration.YARN_ADMIN_ACL, "admin");
-    return configuration;
-  }
-
-  private AggregatedLogsBlockForTest getAggregatedLogsBlockForTest(
-      Configuration configuration, String user, String containerId) {
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    when(request.getRemoteUser()).thenReturn(user);
-    AggregatedLogsBlockForTest aggregatedBlock = new AggregatedLogsBlockForTest(
-        configuration);
-    aggregatedBlock.setRequest(request);
-    aggregatedBlock.moreParams().put(YarnWebParams.CONTAINER_ID, containerId);
-    aggregatedBlock.moreParams().put(YarnWebParams.NM_NODENAME,
-        "localhost:1234");
-    aggregatedBlock.moreParams().put(YarnWebParams.APP_OWNER, user);
-    aggregatedBlock.moreParams().put("start", "");
-    aggregatedBlock.moreParams().put("end", "");
-    aggregatedBlock.moreParams().put(YarnWebParams.ENTITY_STRING, "entity");
-    return aggregatedBlock;
-  }
-
-  private void writeLog(Configuration configuration, String user)
-      throws Exception {
-    ApplicationId appId =  ApplicationIdPBImpl.newInstance(0, 1);
-    ApplicationAttemptId appAttemptId =  ApplicationAttemptIdPBImpl.newInstance(appId, 1);
-    ContainerId containerId = ContainerIdPBImpl.newContainerId(appAttemptId, 1);
-
-    String path = "target/logs/" + user
-        + "/logs/application_0_0001/localhost_1234";
-    File f = new File(path);
-    if (!f.getParentFile().exists()) {
-     assertTrue(f.getParentFile().mkdirs());
-    }
-    List<String> rootLogDirs = Arrays.asList("target/logs/logs");
-    UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
-
-    AggregatedLogFormat.LogWriter writer = new AggregatedLogFormat.LogWriter(
-        configuration, new Path(path), ugi);
-    writer.writeApplicationOwner(ugi.getUserName());
-
-    Map<ApplicationAccessType, String> appAcls = new HashMap<ApplicationAccessType, String>();
-    appAcls.put(ApplicationAccessType.VIEW_APP, ugi.getUserName());
-    writer.writeApplicationACLs(appAcls);
-
-    writer.append(new AggregatedLogFormat.LogKey("container_0_0001_01_000001"),
-        new AggregatedLogFormat.LogValue(rootLogDirs, containerId,UserGroupInformation.getCurrentUser().getShortUserName()));
-    writer.close();
-  }
-
-  private void writeLogs(String dirName) throws Exception {
-    File f = new File(dirName + File.separator + "log1");
-    if (!f.getParentFile().exists()) {
-      assertTrue(f.getParentFile().mkdirs());
     }
 
-    writeLog(dirName + File.separator + "log1", "test log1");
-    writeLog(dirName + File.separator + "log2", "test log2");
-    writeLog(dirName + File.separator + "log3", "test log3");
-  }
+    /**
+     * try to read bad logs
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testBadLogs() throws Exception {
 
-  private void writeLog(String fileName, String text) throws Exception {
-    File f = new File(fileName);
-    Writer writer = new FileWriter(f);
-    writer.write(text);
-    writer.flush();
-    writer.close();
-  }
+        FileUtil.fullyDelete(new File("target/logs"));
+        Configuration configuration = getConfiguration();
+
+        writeLogs("target/logs/logs/application_0_0001/container_0_0001_01_000001");
+
+        writeLog(configuration, "owner");
+
+        AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
+                    configuration, "admin", "container_0_0001_01_000001");
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        PrintWriter printWriter = new PrintWriter(data);
+        HtmlBlock html = new HtmlBlockForTest();
+        HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+        aggregatedBlock.render(block);
+
+        block.getWriter().flush();
+        String out = data.toString();
+        assertTrue(out
+                   .contains("Logs not available for entity. Aggregation may not be complete, Check back later or try the nodemanager at localhost:1234"));
+
+    }
+
+    /**
+     * All ok and the AggregatedLogsBlockFor should aggregate logs and show it.
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAggregatedLogsBlock() throws Exception {
+
+        FileUtil.fullyDelete(new File("target/logs"));
+        Configuration configuration = getConfiguration();
+
+        writeLogs("target/logs/logs/application_0_0001/container_0_0001_01_000001");
+
+        writeLog(configuration, "admin");
+
+        AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
+                    configuration, "admin", "container_0_0001_01_000001");
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        PrintWriter printWriter = new PrintWriter(data);
+        HtmlBlock html = new HtmlBlockForTest();
+        HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+        aggregatedBlock.render(block);
+
+        block.getWriter().flush();
+        String out = data.toString();
+        assertTrue(out.contains("test log1"));
+        assertTrue(out.contains("test log2"));
+        assertTrue(out.contains("test log3"));
+
+    }
+    /**
+     * Log files was deleted.
+     * @throws Exception
+     */
+    @Test
+    public void testNoLogs() throws Exception {
+
+        FileUtil.fullyDelete(new File("target/logs"));
+        Configuration configuration = getConfiguration();
+
+        File f = new File("target/logs/logs/application_0_0001/container_0_0001_01_000001");
+        if (!f.exists()) {
+            assertTrue(f.mkdirs());
+        }
+        writeLog(configuration, "admin");
+
+        AggregatedLogsBlockForTest aggregatedBlock = getAggregatedLogsBlockForTest(
+                    configuration, "admin", "container_0_0001_01_000001");
+        ByteArrayOutputStream data = new ByteArrayOutputStream();
+        PrintWriter printWriter = new PrintWriter(data);
+        HtmlBlock html = new HtmlBlockForTest();
+        HtmlBlock.Block block = new BlockForTest(html, printWriter, 10, false);
+        aggregatedBlock.render(block);
+
+        block.getWriter().flush();
+        String out = data.toString();
+        assertTrue(out.contains("No logs available for container container_0_0001_01_000001"));
+
+    }
+
+
+    private Configuration getConfiguration() {
+        Configuration configuration = new Configuration();
+        configuration.setBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED, true);
+        configuration.set(YarnConfiguration.NM_REMOTE_APP_LOG_DIR, "target/logs");
+        configuration.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
+        configuration.set(YarnConfiguration.YARN_ADMIN_ACL, "admin");
+        return configuration;
+    }
+
+    private AggregatedLogsBlockForTest getAggregatedLogsBlockForTest(
+        Configuration configuration, String user, String containerId) {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getRemoteUser()).thenReturn(user);
+        AggregatedLogsBlockForTest aggregatedBlock = new AggregatedLogsBlockForTest(
+            configuration);
+        aggregatedBlock.setRequest(request);
+        aggregatedBlock.moreParams().put(YarnWebParams.CONTAINER_ID, containerId);
+        aggregatedBlock.moreParams().put(YarnWebParams.NM_NODENAME,
+                                         "localhost:1234");
+        aggregatedBlock.moreParams().put(YarnWebParams.APP_OWNER, user);
+        aggregatedBlock.moreParams().put("start", "");
+        aggregatedBlock.moreParams().put("end", "");
+        aggregatedBlock.moreParams().put(YarnWebParams.ENTITY_STRING, "entity");
+        return aggregatedBlock;
+    }
+
+    private void writeLog(Configuration configuration, String user)
+    throws Exception {
+        ApplicationId appId =  ApplicationIdPBImpl.newInstance(0, 1);
+        ApplicationAttemptId appAttemptId =  ApplicationAttemptIdPBImpl.newInstance(appId, 1);
+        ContainerId containerId = ContainerIdPBImpl.newContainerId(appAttemptId, 1);
+
+        String path = "target/logs/" + user
+                      + "/logs/application_0_0001/localhost_1234";
+        File f = new File(path);
+        if (!f.getParentFile().exists()) {
+            assertTrue(f.getParentFile().mkdirs());
+        }
+        List<String> rootLogDirs = Arrays.asList("target/logs/logs");
+        UserGroupInformation ugi = UserGroupInformation.getCurrentUser();
+
+        AggregatedLogFormat.LogWriter writer = new AggregatedLogFormat.LogWriter(
+            configuration, new Path(path), ugi);
+        writer.writeApplicationOwner(ugi.getUserName());
+
+        Map<ApplicationAccessType, String> appAcls = new HashMap<ApplicationAccessType, String>();
+        appAcls.put(ApplicationAccessType.VIEW_APP, ugi.getUserName());
+        writer.writeApplicationACLs(appAcls);
+
+        writer.append(new AggregatedLogFormat.LogKey("container_0_0001_01_000001"),
+                      new AggregatedLogFormat.LogValue(rootLogDirs, containerId,UserGroupInformation.getCurrentUser().getShortUserName()));
+        writer.close();
+    }
+
+    private void writeLogs(String dirName) throws Exception {
+        File f = new File(dirName + File.separator + "log1");
+        if (!f.getParentFile().exists()) {
+            assertTrue(f.getParentFile().mkdirs());
+        }
+
+        writeLog(dirName + File.separator + "log1", "test log1");
+        writeLog(dirName + File.separator + "log2", "test log2");
+        writeLog(dirName + File.separator + "log3", "test log3");
+    }
+
+    private void writeLog(String fileName, String text) throws Exception {
+        File f = new File(fileName);
+        Writer writer = new FileWriter(f);
+        writer.write(text);
+        writer.flush();
+        writer.close();
+    }
 
 }

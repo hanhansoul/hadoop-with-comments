@@ -34,73 +34,73 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class TestRMProxyUsersConf {
 
-  private static final UserGroupInformation FOO_USER =
-      UserGroupInformation.createUserForTesting("foo", new String[] { "foo_group" });
-  private static final UserGroupInformation BAR_USER =
-      UserGroupInformation.createUserForTesting("bar", new String[] { "bar_group" });
-  private final String ipAddress = "127.0.0.1";
+    private static final UserGroupInformation FOO_USER =
+        UserGroupInformation.createUserForTesting("foo", new String[] { "foo_group" });
+    private static final UserGroupInformation BAR_USER =
+        UserGroupInformation.createUserForTesting("bar", new String[] { "bar_group" });
+    private final String ipAddress = "127.0.0.1";
 
-  @Parameterized.Parameters
-  public static Collection<Object[]> headers() {
-    return Arrays.asList(new Object[][] { { 0 }, { 1 }, { 2 } });
-  }
-
-  private Configuration conf;
-
-  public TestRMProxyUsersConf(int round) {
-    conf = new YarnConfiguration();
-    switch (round) {
-      case 0:
-        // hadoop.proxyuser prefix
-        conf.set("hadoop.proxyuser.foo.hosts", ipAddress);
-        conf.set("hadoop.proxyuser.foo.users", "bar");
-        conf.set("hadoop.proxyuser.foo.groups", "bar_group");
-        break;
-      case 1:
-        // yarn.resourcemanager.proxyuser prefix
-        conf.set("yarn.resourcemanager.proxyuser.foo.hosts", ipAddress);
-        conf.set("yarn.resourcemanager.proxyuser.foo.users", "bar");
-        conf.set("yarn.resourcemanager.proxyuser.foo.groups", "bar_group");
-        break;
-      case 2:
-        // hadoop.proxyuser prefix has been overwritten by
-        // yarn.resourcemanager.proxyuser prefix
-        conf.set("hadoop.proxyuser.foo.hosts", "xyz");
-        conf.set("hadoop.proxyuser.foo.users", "xyz");
-        conf.set("hadoop.proxyuser.foo.groups", "xyz");
-        conf.set("yarn.resourcemanager.proxyuser.foo.hosts", ipAddress);
-        conf.set("yarn.resourcemanager.proxyuser.foo.users", "bar");
-        conf.set("yarn.resourcemanager.proxyuser.foo.groups", "bar_group");
-        break;
-      default:
-        break;
+    @Parameterized.Parameters
+    public static Collection<Object[]> headers() {
+        return Arrays.asList(new Object[][] { { 0 }, { 1 }, { 2 } });
     }
-  }
 
-  @Test
-  public void testProxyUserConfiguration() throws Exception {
-    MockRM rm = null;
-    try {
-      rm = new MockRM(conf);
-      rm.start();
-      // wait for web server starting
-      Thread.sleep(10000);
-      UserGroupInformation proxyUser =
-          UserGroupInformation.createProxyUser(
-              BAR_USER.getShortUserName(), FOO_USER);
-      try {
-        ProxyUsers.getDefaultImpersonationProvider().authorize(proxyUser,
-            ipAddress);
-      } catch (AuthorizationException e) {
-        // Exception is not expected
-        Assert.fail();
-      }
-    } finally {
-      if (rm != null) {
-        rm.stop();
-        rm.close();
-      }
+    private Configuration conf;
+
+    public TestRMProxyUsersConf(int round) {
+        conf = new YarnConfiguration();
+        switch (round) {
+            case 0:
+                // hadoop.proxyuser prefix
+                conf.set("hadoop.proxyuser.foo.hosts", ipAddress);
+                conf.set("hadoop.proxyuser.foo.users", "bar");
+                conf.set("hadoop.proxyuser.foo.groups", "bar_group");
+                break;
+            case 1:
+                // yarn.resourcemanager.proxyuser prefix
+                conf.set("yarn.resourcemanager.proxyuser.foo.hosts", ipAddress);
+                conf.set("yarn.resourcemanager.proxyuser.foo.users", "bar");
+                conf.set("yarn.resourcemanager.proxyuser.foo.groups", "bar_group");
+                break;
+            case 2:
+                // hadoop.proxyuser prefix has been overwritten by
+                // yarn.resourcemanager.proxyuser prefix
+                conf.set("hadoop.proxyuser.foo.hosts", "xyz");
+                conf.set("hadoop.proxyuser.foo.users", "xyz");
+                conf.set("hadoop.proxyuser.foo.groups", "xyz");
+                conf.set("yarn.resourcemanager.proxyuser.foo.hosts", ipAddress);
+                conf.set("yarn.resourcemanager.proxyuser.foo.users", "bar");
+                conf.set("yarn.resourcemanager.proxyuser.foo.groups", "bar_group");
+                break;
+            default:
+                break;
+        }
     }
-  }
+
+    @Test
+    public void testProxyUserConfiguration() throws Exception {
+        MockRM rm = null;
+        try {
+            rm = new MockRM(conf);
+            rm.start();
+            // wait for web server starting
+            Thread.sleep(10000);
+            UserGroupInformation proxyUser =
+                UserGroupInformation.createProxyUser(
+                    BAR_USER.getShortUserName(), FOO_USER);
+            try {
+                ProxyUsers.getDefaultImpersonationProvider().authorize(proxyUser,
+                        ipAddress);
+            } catch (AuthorizationException e) {
+                // Exception is not expected
+                Assert.fail();
+            }
+        } finally {
+            if (rm != null) {
+                rm.stop();
+                rm.close();
+            }
+        }
+    }
 
 }

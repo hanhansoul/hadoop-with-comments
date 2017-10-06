@@ -25,36 +25,36 @@ import java.io.IOException;
 import org.junit.Test;
 
 public class TestOffsetRange {
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructor1() throws IOException {
-    new OffsetRange(0, 0);
-  }
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor1() throws IOException {
+        new OffsetRange(0, 0);
+    }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructor2() throws IOException {
-    new OffsetRange(-1, 0);
-  }
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor2() throws IOException {
+        new OffsetRange(-1, 0);
+    }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructor3() throws IOException {
-    new OffsetRange(-3, -1);
-  }
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor3() throws IOException {
+        new OffsetRange(-3, -1);
+    }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructor4() throws IOException {
-    new OffsetRange(-3, 100);
-  }
+    @Test(expected = IllegalArgumentException.class)
+    public void testConstructor4() throws IOException {
+        new OffsetRange(-3, 100);
+    }
 
-  @Test
-  public void testCompare() throws IOException {
-    OffsetRange r1 = new OffsetRange(0, 1);
-    OffsetRange r2 = new OffsetRange(1, 3);
-    OffsetRange r3 = new OffsetRange(1, 3);
-    OffsetRange r4 = new OffsetRange(3, 4);
+    @Test
+    public void testCompare() throws IOException {
+        OffsetRange r1 = new OffsetRange(0, 1);
+        OffsetRange r2 = new OffsetRange(1, 3);
+        OffsetRange r3 = new OffsetRange(1, 3);
+        OffsetRange r4 = new OffsetRange(3, 4);
 
-    assertEquals(0, OffsetRange.ReverseComparatorOnMin.compare(r2, r3));
-    assertEquals(0, OffsetRange.ReverseComparatorOnMin.compare(r2, r2));
-    assertTrue(OffsetRange.ReverseComparatorOnMin.compare(r2, r1) < 0);
-    assertTrue(OffsetRange.ReverseComparatorOnMin.compare(r2, r4) > 0);
-  }
+        assertEquals(0, OffsetRange.ReverseComparatorOnMin.compare(r2, r3));
+        assertEquals(0, OffsetRange.ReverseComparatorOnMin.compare(r2, r2));
+        assertTrue(OffsetRange.ReverseComparatorOnMin.compare(r2, r1) < 0);
+        assertTrue(OffsetRange.ReverseComparatorOnMin.compare(r2, r4) > 0);
+    }
 }

@@ -30,98 +30,98 @@ import com.google.protobuf.TextFormat;
 public class GetContainerReportResponsePBImpl extends
     GetContainerReportResponse {
 
-  GetContainerReportResponseProto proto = GetContainerReportResponseProto
-    .getDefaultInstance();
-  GetContainerReportResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetContainerReportResponseProto proto = GetContainerReportResponseProto
+                                            .getDefaultInstance();
+    GetContainerReportResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ContainerReport containerReport = null;
+    private ContainerReport containerReport = null;
 
-  public GetContainerReportResponsePBImpl() {
-    builder = GetContainerReportResponseProto.newBuilder();
-  }
-
-  public GetContainerReportResponsePBImpl(GetContainerReportResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public GetContainerReportResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public GetContainerReportResponsePBImpl() {
+        builder = GetContainerReportResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.containerReport != null) {
-      builder.setContainerReport(convertToProtoFormat(this.containerReport));
+    public GetContainerReportResponsePBImpl(GetContainerReportResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetContainerReportResponseProto.newBuilder(proto);
+    public GetContainerReportResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public ContainerReport getContainerReport() {
-    if (this.containerReport != null) {
-      return this.containerReport;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    GetContainerReportResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasContainerReport()) {
-      return null;
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    this.containerReport = convertFromProtoFormat(p.getContainerReport());
-    return this.containerReport;
-  }
 
-  @Override
-  public void setContainerReport(ContainerReport containerReport) {
-    maybeInitBuilder();
-    if (containerReport == null) {
-      builder.clearContainerReport();
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    this.containerReport = containerReport;
-  }
 
-  private ContainerReportPBImpl convertFromProtoFormat(ContainerReportProto p) {
-    return new ContainerReportPBImpl(p);
-  }
+    private void mergeLocalToBuilder() {
+        if (this.containerReport != null) {
+            builder.setContainerReport(convertToProtoFormat(this.containerReport));
+        }
+    }
 
-  private ContainerReportProto convertToProtoFormat(ContainerReport t) {
-    return ((ContainerReportPBImpl) t).getProto();
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetContainerReportResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public ContainerReport getContainerReport() {
+        if (this.containerReport != null) {
+            return this.containerReport;
+        }
+        GetContainerReportResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasContainerReport()) {
+            return null;
+        }
+        this.containerReport = convertFromProtoFormat(p.getContainerReport());
+        return this.containerReport;
+    }
+
+    @Override
+    public void setContainerReport(ContainerReport containerReport) {
+        maybeInitBuilder();
+        if (containerReport == null) {
+            builder.clearContainerReport();
+        }
+        this.containerReport = containerReport;
+    }
+
+    private ContainerReportPBImpl convertFromProtoFormat(ContainerReportProto p) {
+        return new ContainerReportPBImpl(p);
+    }
+
+    private ContainerReportProto convertToProtoFormat(ContainerReport t) {
+        return ((ContainerReportPBImpl) t).getProto();
+    }
 
 }

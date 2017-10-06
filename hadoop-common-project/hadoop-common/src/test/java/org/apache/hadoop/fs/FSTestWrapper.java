@@ -30,112 +30,112 @@ import org.apache.hadoop.fs.Options.CreateOpts;
  */
 public abstract class FSTestWrapper implements FSWrapper {
 
-  //
-  // Test helper methods taken from FileContextTestHelper
-  //
+    //
+    // Test helper methods taken from FileContextTestHelper
+    //
 
-  protected static final int DEFAULT_BLOCK_SIZE = 1024;
-  protected static final int DEFAULT_NUM_BLOCKS = 2;
+    protected static final int DEFAULT_BLOCK_SIZE = 1024;
+    protected static final int DEFAULT_NUM_BLOCKS = 2;
 
-  protected String testRootDir = null;
-  protected String absTestRootDir = null;
+    protected String testRootDir = null;
+    protected String absTestRootDir = null;
 
-  public FSTestWrapper(String testRootDir) {
-    // Use default test dir if not provided
-    if (testRootDir == null || testRootDir.isEmpty()) {
-      testRootDir = System.getProperty("test.build.data", "build/test/data");
+    public FSTestWrapper(String testRootDir) {
+        // Use default test dir if not provided
+        if (testRootDir == null || testRootDir.isEmpty()) {
+            testRootDir = System.getProperty("test.build.data", "build/test/data");
+        }
+        // salt test dir with some random digits for safe parallel runs
+        this.testRootDir = testRootDir + "/"
+                           + RandomStringUtils.randomAlphanumeric(10);
     }
-    // salt test dir with some random digits for safe parallel runs
-    this.testRootDir = testRootDir + "/"
-        + RandomStringUtils.randomAlphanumeric(10);
-  }
 
-  public static byte[] getFileData(int numOfBlocks, long blockSize) {
-    byte[] data = new byte[(int) (numOfBlocks * blockSize)];
-    for (int i = 0; i < data.length; i++) {
-      data[i] = (byte) (i % 10);
+    public static byte[] getFileData(int numOfBlocks, long blockSize) {
+        byte[] data = new byte[(int) (numOfBlocks * blockSize)];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = (byte) (i % 10);
+        }
+        return data;
     }
-    return data;
-  }
 
-  public Path getTestRootPath() {
-    return makeQualified(new Path(testRootDir));
-  }
-
-  public Path getTestRootPath(String pathString) {
-    return makeQualified(new Path(testRootDir, pathString));
-  }
-
-  // the getAbsolutexxx method is needed because the root test dir
-  // can be messed up by changing the working dir.
-
-  public String getAbsoluteTestRootDir() throws IOException {
-    if (absTestRootDir == null) {
-      Path testRootPath = new Path(testRootDir);
-      if (testRootPath.isAbsolute()) {
-        absTestRootDir = testRootDir;
-      } else {
-        absTestRootDir = getWorkingDirectory().toString() + "/"
-            + testRootDir;
-      }
+    public Path getTestRootPath() {
+        return makeQualified(new Path(testRootDir));
     }
-    return absTestRootDir;
-  }
 
-  public Path getAbsoluteTestRootPath() throws IOException {
-    return makeQualified(new Path(getAbsoluteTestRootDir()));
-  }
+    public Path getTestRootPath(String pathString) {
+        return makeQualified(new Path(testRootDir, pathString));
+    }
 
-  abstract public FSTestWrapper getLocalFSWrapper()
-      throws UnsupportedFileSystemException, IOException;
+    // the getAbsolutexxx method is needed because the root test dir
+    // can be messed up by changing the working dir.
 
-  abstract public Path getDefaultWorkingDirectory() throws IOException;
+    public String getAbsoluteTestRootDir() throws IOException {
+        if (absTestRootDir == null) {
+            Path testRootPath = new Path(testRootDir);
+            if (testRootPath.isAbsolute()) {
+                absTestRootDir = testRootDir;
+            } else {
+                absTestRootDir = getWorkingDirectory().toString() + "/"
+                                 + testRootDir;
+            }
+        }
+        return absTestRootDir;
+    }
 
-  /*
-   * Create files with numBlocks blocks each with block size blockSize.
-   */
-  abstract public long createFile(Path path, int numBlocks,
-      CreateOpts... options) throws IOException;
+    public Path getAbsoluteTestRootPath() throws IOException {
+        return makeQualified(new Path(getAbsoluteTestRootDir()));
+    }
 
-  abstract public long createFile(Path path, int numBlocks, int blockSize)
-      throws IOException;
+    abstract public FSTestWrapper getLocalFSWrapper()
+    throws UnsupportedFileSystemException, IOException;
 
-  abstract public long createFile(Path path) throws IOException;
+    abstract public Path getDefaultWorkingDirectory() throws IOException;
 
-  abstract public long createFile(String name) throws IOException;
+    /*
+     * Create files with numBlocks blocks each with block size blockSize.
+     */
+    abstract public long createFile(Path path, int numBlocks,
+                                    CreateOpts... options) throws IOException;
 
-  abstract public long createFileNonRecursive(String name) throws IOException;
+    abstract public long createFile(Path path, int numBlocks, int blockSize)
+    throws IOException;
 
-  abstract public long createFileNonRecursive(Path path) throws IOException;
+    abstract public long createFile(Path path) throws IOException;
 
-  abstract public void appendToFile(Path path, int numBlocks,
-      CreateOpts... options) throws IOException;
+    abstract public long createFile(String name) throws IOException;
 
-  abstract public boolean exists(Path p) throws IOException;
+    abstract public long createFileNonRecursive(String name) throws IOException;
 
-  abstract public boolean isFile(Path p) throws IOException;
+    abstract public long createFileNonRecursive(Path path) throws IOException;
 
-  abstract public boolean isDir(Path p) throws IOException;
+    abstract public void appendToFile(Path path, int numBlocks,
+                                      CreateOpts... options) throws IOException;
 
-  abstract public boolean isSymlink(Path p) throws IOException;
+    abstract public boolean exists(Path p) throws IOException;
 
-  abstract public void writeFile(Path path, byte b[]) throws IOException;
+    abstract public boolean isFile(Path p) throws IOException;
 
-  abstract public byte[] readFile(Path path, int len) throws IOException;
+    abstract public boolean isDir(Path p) throws IOException;
 
-  abstract public FileStatus containsPath(Path path, FileStatus[] dirList)
-      throws IOException;
+    abstract public boolean isSymlink(Path p) throws IOException;
 
-  abstract public FileStatus containsPath(String path, FileStatus[] dirList)
-      throws IOException;
+    abstract public void writeFile(Path path, byte b[]) throws IOException;
 
-  enum fileType {
-    isDir, isFile, isSymlink
-  };
+    abstract public byte[] readFile(Path path, int len) throws IOException;
 
-  abstract public void checkFileStatus(String path, fileType expectedType)
-      throws IOException;
+    abstract public FileStatus containsPath(Path path, FileStatus[] dirList)
+    throws IOException;
 
-  abstract public void checkFileLinkStatus(String path, fileType expectedType)
-      throws IOException;
+    abstract public FileStatus containsPath(String path, FileStatus[] dirList)
+    throws IOException;
+
+    enum fileType {
+        isDir, isFile, isSymlink
+    };
+
+    abstract public void checkFileStatus(String path, fileType expectedType)
+    throws IOException;
+
+    abstract public void checkFileLinkStatus(String path, fileType expectedType)
+    throws IOException;
 }

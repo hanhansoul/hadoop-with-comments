@@ -23,5 +23,5 @@ import org.apache.hadoop.tools.rumen.state.State;
  * The data anonymizer interface.
  */
 public interface DataAnonymizer<T> {
-  T anonymize(T data, State state);
+    T anonymize(T data, State state);
 }

@@ -23,20 +23,20 @@ import static org.junit.Assert.*;
 
 public class TestUniqNames {
 
-  @Test public void testCommonCases() {
-    UniqueNames u = new UniqueNames();
+    @Test public void testCommonCases() {
+        UniqueNames u = new UniqueNames();
 
-    assertEquals("foo", u.uniqueName("foo"));
-    assertEquals("foo-1", u.uniqueName("foo"));
-  }
+        assertEquals("foo", u.uniqueName("foo"));
+        assertEquals("foo-1", u.uniqueName("foo"));
+    }
 
-  @Test public void testCollisions() {
-    UniqueNames u = new UniqueNames();
-    u.uniqueName("foo");
+    @Test public void testCollisions() {
+        UniqueNames u = new UniqueNames();
+        u.uniqueName("foo");
 
-    assertEquals("foo-1", u.uniqueName("foo-1"));
-    assertEquals("foo-2", u.uniqueName("foo"));
-    assertEquals("foo-1-1", u.uniqueName("foo-1"));
-    assertEquals("foo-2-1", u.uniqueName("foo-2"));
-  }
+        assertEquals("foo-1", u.uniqueName("foo-1"));
+        assertEquals("foo-2", u.uniqueName("foo"));
+        assertEquals("foo-1-1", u.uniqueName("foo-1"));
+        assertEquals("foo-2-1", u.uniqueName("foo-2"));
+    }
 }

@@ -27,40 +27,40 @@ import org.apache.hadoop.util.DiskChecker.DiskErrorException;
 /** Helper methods and actions for hflush() fault injection tests */
 public class FiHFlushTestUtil extends DataTransferTestUtil {
 
-  /** {@inheritDoc} */
-  public static PipelineTest initTest() {
-    return thepipelinetest = new HFlushTest();
-  }
-  
-  /** Disk error action for fault injection tests */
-  public static class DerrAction extends DataTransferTestUtil.DataNodeAction {
-    /**
-     * @param currentTest The name of the test
-     * @param index       The index of the datanode
-     */
-    public DerrAction(String currentTest, int index) {
-      super(currentTest, index);
+    /** {@inheritDoc} */
+    public static PipelineTest initTest() {
+        return thepipelinetest = new HFlushTest();
     }
 
-    /** {@inheritDoc} */
-    public void run(DatanodeID id) throws IOException {
-      final Pipeline p = getPipelineTest().getPipelineForDatanode(id);
-      if (p == null) {
-        return;
-      }
-      if (p.contains(index, id)) {
-        final String s = super.toString(id);
-        FiTestUtil.LOG.info(s);
-        throw new DiskErrorException(s);
-      }
+    /** Disk error action for fault injection tests */
+    public static class DerrAction extends DataTransferTestUtil.DataNodeAction {
+        /**
+         * @param currentTest The name of the test
+         * @param index       The index of the datanode
+         */
+        public DerrAction(String currentTest, int index) {
+            super(currentTest, index);
+        }
+
+        /** {@inheritDoc} */
+        public void run(DatanodeID id) throws IOException {
+            final Pipeline p = getPipelineTest().getPipelineForDatanode(id);
+            if (p == null) {
+                return;
+            }
+            if (p.contains(index, id)) {
+                final String s = super.toString(id);
+                FiTestUtil.LOG.info(s);
+                throw new DiskErrorException(s);
+            }
+        }
     }
-  }
-  
-  /** Class adds new type of action */
-  public static class HFlushTest extends DataTransferTest {
-    public final ActionContainer<DatanodeID, IOException> fiCallHFlush = 
-      new ActionContainer<DatanodeID, IOException>();
-    public final ActionContainer<Integer, RuntimeException> fiErrorOnCallHFlush = 
-      new ActionContainer<Integer, RuntimeException>();
-  }
+
+    /** Class adds new type of action */
+    public static class HFlushTest extends DataTransferTest {
+        public final ActionContainer<DatanodeID, IOException> fiCallHFlush =
+            new ActionContainer<DatanodeID, IOException>();
+        public final ActionContainer<Integer, RuntimeException> fiErrorOnCallHFlush =
+            new ActionContainer<Integer, RuntimeException>();
+    }
 }

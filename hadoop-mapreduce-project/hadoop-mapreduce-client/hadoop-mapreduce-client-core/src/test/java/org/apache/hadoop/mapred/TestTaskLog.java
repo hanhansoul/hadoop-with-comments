@@ -37,106 +37,106 @@ import org.junit.Test;
  */
 public class TestTaskLog {
 
-  /**
-   * test TaskAttemptID
-   * 
-   * @throws IOException
-   */
-  @Test (timeout=50000)
-  public void testTaskLog() throws IOException {
-    // test TaskLog
-    System.setProperty(
-        YarnConfiguration.YARN_APP_CONTAINER_LOG_DIR, "testString");
-    assertEquals(TaskLog.getMRv2LogDir(), "testString");
-    TaskAttemptID taid = mock(TaskAttemptID.class);
-    JobID jid = new JobID("job", 1);
+    /**
+     * test TaskAttemptID
+     *
+     * @throws IOException
+     */
+    @Test (timeout=50000)
+    public void testTaskLog() throws IOException {
+        // test TaskLog
+        System.setProperty(
+            YarnConfiguration.YARN_APP_CONTAINER_LOG_DIR, "testString");
+        assertEquals(TaskLog.getMRv2LogDir(), "testString");
+        TaskAttemptID taid = mock(TaskAttemptID.class);
+        JobID jid = new JobID("job", 1);
 
-    when(taid.getJobID()).thenReturn(jid);
-    when(taid.toString()).thenReturn("JobId");
+        when(taid.getJobID()).thenReturn(jid);
+        when(taid.toString()).thenReturn("JobId");
 
-    File f = TaskLog.getTaskLogFile(taid, true, LogName.STDOUT);
-    assertTrue(f.getAbsolutePath().endsWith("testString"
-        + File.separatorChar + "stdout"));
+        File f = TaskLog.getTaskLogFile(taid, true, LogName.STDOUT);
+        assertTrue(f.getAbsolutePath().endsWith("testString"
+                                                + File.separatorChar + "stdout"));
 
-    // test getRealTaskLogFileLocation
+        // test getRealTaskLogFileLocation
 
-    File indexFile = TaskLog.getIndexFile(taid, true);
-    if (!indexFile.getParentFile().exists()) {
-      indexFile.getParentFile().mkdirs();
+        File indexFile = TaskLog.getIndexFile(taid, true);
+        if (!indexFile.getParentFile().exists()) {
+            indexFile.getParentFile().mkdirs();
+        }
+        indexFile.delete();
+        indexFile.createNewFile();
+
+        TaskLog.syncLogs("location", taid, true);
+
+        assertTrue(indexFile.getAbsolutePath().endsWith(
+                       "userlogs" + File.separatorChar + "job_job_0001"
+                       + File.separatorChar + "JobId.cleanup"
+                       + File.separatorChar + "log.index"));
+
+        f = TaskLog.getRealTaskLogFileLocation(taid, true, LogName.DEBUGOUT);
+        if (f != null) {
+            assertTrue(f.getAbsolutePath().endsWith("location"
+                                                    + File.separatorChar + "debugout"));
+            FileUtils.copyFile(indexFile, f);
+        }
+        // test obtainLogDirOwner
+        assertTrue(TaskLog.obtainLogDirOwner(taid).length() > 0);
+        // test TaskLog.Reader
+        assertTrue(readTaskLog(TaskLog.LogName.DEBUGOUT, taid, true).length() > 0);
+
     }
-    indexFile.delete();
-    indexFile.createNewFile();
 
-    TaskLog.syncLogs("location", taid, true);
+    public String readTaskLog(TaskLog.LogName filter,
+                              org.apache.hadoop.mapred.TaskAttemptID taskId, boolean isCleanup)
+    throws IOException {
+        // string buffer to store task log
+        StringBuffer result = new StringBuffer();
+        int res;
 
-    assertTrue(indexFile.getAbsolutePath().endsWith(
-        "userlogs" + File.separatorChar + "job_job_0001"
-        + File.separatorChar + "JobId.cleanup"
-        + File.separatorChar + "log.index"));
+        // reads the whole tasklog into inputstream
+        InputStream taskLogReader = new TaskLog.Reader(taskId, filter, 0, -1,
+                isCleanup);
+        // construct string log from inputstream.
+        byte[] b = new byte[65536];
+        while (true) {
+            res = taskLogReader.read(b);
+            if (res > 0) {
+                result.append(new String(b));
+            } else {
+                break;
+            }
+        }
+        taskLogReader.close();
 
-    f = TaskLog.getRealTaskLogFileLocation(taid, true, LogName.DEBUGOUT);
-    if (f != null) {
-      assertTrue(f.getAbsolutePath().endsWith("location"
-          + File.separatorChar + "debugout"));
-      FileUtils.copyFile(indexFile, f);
+        // trim the string and return it
+        String str = result.toString();
+        str = str.trim();
+        return str;
     }
-    // test obtainLogDirOwner
-    assertTrue(TaskLog.obtainLogDirOwner(taid).length() > 0);
-    // test TaskLog.Reader
-    assertTrue(readTaskLog(TaskLog.LogName.DEBUGOUT, taid, true).length() > 0);
 
-  }
+    /**
+     * test without TASK_LOG_DIR
+     *
+     * @throws IOException
+     */
+    @Test (timeout=50000)
+    public void testTaskLogWithoutTaskLogDir() throws IOException {
+        // TaskLog tasklog= new TaskLog();
+        System.clearProperty(YarnConfiguration.YARN_APP_CONTAINER_LOG_DIR);
 
-  public String readTaskLog(TaskLog.LogName filter,
-      org.apache.hadoop.mapred.TaskAttemptID taskId, boolean isCleanup)
-      throws IOException {
-    // string buffer to store task log
-    StringBuffer result = new StringBuffer();
-    int res;
+        // test TaskLog
 
-    // reads the whole tasklog into inputstream
-    InputStream taskLogReader = new TaskLog.Reader(taskId, filter, 0, -1,
-        isCleanup);
-    // construct string log from inputstream.
-    byte[] b = new byte[65536];
-    while (true) {
-      res = taskLogReader.read(b);
-      if (res > 0) {
-        result.append(new String(b));
-      } else {
-        break;
-      }
+        assertEquals(TaskLog.getMRv2LogDir(), null);
+        TaskAttemptID taid = mock(TaskAttemptID.class);
+        JobID jid = new JobID("job", 1);
+
+        when(taid.getJobID()).thenReturn(jid);
+        when(taid.toString()).thenReturn("JobId");
+
+        File f = TaskLog.getTaskLogFile(taid, true, LogName.STDOUT);
+        assertTrue(f.getAbsolutePath().endsWith("stdout"));
+
     }
-    taskLogReader.close();
-
-    // trim the string and return it
-    String str = result.toString();
-    str = str.trim();
-    return str;
-  }
-
-  /**
-   * test without TASK_LOG_DIR
-   * 
-   * @throws IOException
-   */
-  @Test (timeout=50000)
-  public void testTaskLogWithoutTaskLogDir() throws IOException {
-    // TaskLog tasklog= new TaskLog();
-    System.clearProperty(YarnConfiguration.YARN_APP_CONTAINER_LOG_DIR);
-
-    // test TaskLog
-
-    assertEquals(TaskLog.getMRv2LogDir(), null);
-    TaskAttemptID taid = mock(TaskAttemptID.class);
-    JobID jid = new JobID("job", 1);
-
-    when(taid.getJobID()).thenReturn(jid);
-    when(taid.toString()).thenReturn("JobId");
-
-    File f = TaskLog.getTaskLogFile(taid, true, LogName.STDOUT);
-    assertTrue(f.getAbsolutePath().endsWith("stdout"));
-
-  }
 
 }

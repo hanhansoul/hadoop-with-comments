@@ -31,62 +31,62 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class FinishApplicationMasterResponsePBImpl extends FinishApplicationMasterResponse {
-  FinishApplicationMasterResponseProto proto = FinishApplicationMasterResponseProto.getDefaultInstance();
-  FinishApplicationMasterResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public FinishApplicationMasterResponsePBImpl() {
-    builder = FinishApplicationMasterResponseProto.newBuilder();
-  }
+    FinishApplicationMasterResponseProto proto = FinishApplicationMasterResponseProto.getDefaultInstance();
+    FinishApplicationMasterResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public FinishApplicationMasterResponsePBImpl(FinishApplicationMasterResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public FinishApplicationMasterResponseProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public FinishApplicationMasterResponsePBImpl() {
+        builder = FinishApplicationMasterResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = FinishApplicationMasterResponseProto.newBuilder(proto);
+    public FinishApplicationMasterResponsePBImpl(FinishApplicationMasterResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public boolean getIsUnregistered() {
-    FinishApplicationMasterResponseProtoOrBuilder p =
-        viaProto ? proto : builder;
-    return p.getIsUnregistered();
-  }
+    public FinishApplicationMasterResponseProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
 
-  @Override
-  public void setIsUnregistered(boolean isUnregistered) {
-    maybeInitBuilder();
-    builder.setIsUnregistered(isUnregistered);
-  }
-}  
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = FinishApplicationMasterResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public boolean getIsUnregistered() {
+        FinishApplicationMasterResponseProtoOrBuilder p =
+            viaProto ? proto : builder;
+        return p.getIsUnregistered();
+    }
+
+    @Override
+    public void setIsUnregistered(boolean isUnregistered) {
+        maybeInitBuilder();
+        builder.setIsUnregistered(isUnregistered);
+    }
+}

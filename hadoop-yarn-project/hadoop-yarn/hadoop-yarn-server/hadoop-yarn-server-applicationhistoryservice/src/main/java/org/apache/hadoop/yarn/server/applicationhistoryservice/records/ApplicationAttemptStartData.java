@@ -32,51 +32,51 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class ApplicationAttemptStartData {
 
-  @Public
-  @Unstable
-  public static ApplicationAttemptStartData newInstance(
-      ApplicationAttemptId appAttemptId, String host, int rpcPort,
-      ContainerId masterContainerId) {
-    ApplicationAttemptStartData appAttemptSD =
-        Records.newRecord(ApplicationAttemptStartData.class);
-    appAttemptSD.setApplicationAttemptId(appAttemptId);
-    appAttemptSD.setHost(host);
-    appAttemptSD.setRPCPort(rpcPort);
-    appAttemptSD.setMasterContainerId(masterContainerId);
-    return appAttemptSD;
-  }
+    @Public
+    @Unstable
+    public static ApplicationAttemptStartData newInstance(
+        ApplicationAttemptId appAttemptId, String host, int rpcPort,
+        ContainerId masterContainerId) {
+        ApplicationAttemptStartData appAttemptSD =
+            Records.newRecord(ApplicationAttemptStartData.class);
+        appAttemptSD.setApplicationAttemptId(appAttemptId);
+        appAttemptSD.setHost(host);
+        appAttemptSD.setRPCPort(rpcPort);
+        appAttemptSD.setMasterContainerId(masterContainerId);
+        return appAttemptSD;
+    }
 
-  @Public
-  @Unstable
-  public abstract ApplicationAttemptId getApplicationAttemptId();
+    @Public
+    @Unstable
+    public abstract ApplicationAttemptId getApplicationAttemptId();
 
-  @Public
-  @Unstable
-  public abstract void setApplicationAttemptId(
-      ApplicationAttemptId applicationAttemptId);
+    @Public
+    @Unstable
+    public abstract void setApplicationAttemptId(
+        ApplicationAttemptId applicationAttemptId);
 
-  @Public
-  @Unstable
-  public abstract String getHost();
+    @Public
+    @Unstable
+    public abstract String getHost();
 
-  @Public
-  @Unstable
-  public abstract void setHost(String host);
+    @Public
+    @Unstable
+    public abstract void setHost(String host);
 
-  @Public
-  @Unstable
-  public abstract int getRPCPort();
+    @Public
+    @Unstable
+    public abstract int getRPCPort();
 
-  @Public
-  @Unstable
-  public abstract void setRPCPort(int rpcPort);
+    @Public
+    @Unstable
+    public abstract void setRPCPort(int rpcPort);
 
-  @Public
-  @Unstable
-  public abstract ContainerId getMasterContainerId();
+    @Public
+    @Unstable
+    public abstract ContainerId getMasterContainerId();
 
-  @Public
-  @Unstable
-  public abstract void setMasterContainerId(ContainerId masterContainerId);
+    @Public
+    @Unstable
+    public abstract void setMasterContainerId(ContainerId masterContainerId);
 
 }

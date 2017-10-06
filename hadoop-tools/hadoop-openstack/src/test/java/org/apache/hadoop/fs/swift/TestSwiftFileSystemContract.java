@@ -43,93 +43,93 @@ import java.net.URISyntaxException;
  * are being treated as equal.
  */
 public class TestSwiftFileSystemContract
-        extends FileSystemContractBaseTest {
-  private static final Log LOG =
-          LogFactory.getLog(TestSwiftFileSystemContract.class);
+    extends FileSystemContractBaseTest {
+    private static final Log LOG =
+        LogFactory.getLog(TestSwiftFileSystemContract.class);
 
-  /**
-   * Override this if the filesystem is not case sensitive
-   * @return true if the case detection/preservation tests should run
-   */
-  protected boolean filesystemIsCaseSensitive() {
-    return false;
-  }
-
-  @Override
-  protected void setUp() throws Exception {
-    final URI uri = getFilesystemURI();
-    final Configuration conf = new Configuration();
-    fs = createSwiftFS();
-    try {
-      fs.initialize(uri, conf);
-    } catch (IOException e) {
-      //FS init failed, set it to null so that teardown doesn't
-      //attempt to use it
-      fs = null;
-      throw e;
+    /**
+     * Override this if the filesystem is not case sensitive
+     * @return true if the case detection/preservation tests should run
+     */
+    protected boolean filesystemIsCaseSensitive() {
+        return false;
     }
-    super.setUp();
-  }
 
-  protected URI getFilesystemURI() throws URISyntaxException, IOException {
-    return SwiftTestUtils.getServiceURI(new Configuration());
-  }
+    @Override
+    protected void setUp() throws Exception {
+        final URI uri = getFilesystemURI();
+        final Configuration conf = new Configuration();
+        fs = createSwiftFS();
+        try {
+            fs.initialize(uri, conf);
+        } catch (IOException e) {
+            //FS init failed, set it to null so that teardown doesn't
+            //attempt to use it
+            fs = null;
+            throw e;
+        }
+        super.setUp();
+    }
 
-  protected SwiftNativeFileSystem createSwiftFS() throws IOException {
-    SwiftNativeFileSystem swiftNativeFileSystem =
+    protected URI getFilesystemURI() throws URISyntaxException, IOException {
+        return SwiftTestUtils.getServiceURI(new Configuration());
+    }
+
+    protected SwiftNativeFileSystem createSwiftFS() throws IOException {
+        SwiftNativeFileSystem swiftNativeFileSystem =
             new SwiftNativeFileSystem();
-    return swiftNativeFileSystem;
-  }
-
-  @Override
-  public void testMkdirsFailsForSubdirectoryOfExistingFile() throws Exception {
-    Path testDir = path("/test/hadoop");
-    assertFalse(fs.exists(testDir));
-    assertTrue(fs.mkdirs(testDir));
-    assertTrue(fs.exists(testDir));
-
-    Path filepath = path("/test/hadoop/file");
-    SwiftTestUtils.writeTextFile(fs, filepath, "hello, world", false);
-
-    Path testSubDir = new Path(filepath, "subdir");
-    SwiftTestUtils.assertPathDoesNotExist(fs, "subdir before mkdir", testSubDir);
-
-    try {
-      fs.mkdirs(testSubDir);
-      fail("Should throw IOException.");
-    } catch (ParentNotDirectoryException e) {
-      // expected
+        return swiftNativeFileSystem;
     }
-    //now verify that the subdir path does not exist
-    SwiftTestUtils.assertPathDoesNotExist(fs, "subdir after mkdir", testSubDir);
 
-    Path testDeepSubDir = path("/test/hadoop/file/deep/sub/dir");
-    try {
-      fs.mkdirs(testDeepSubDir);
-      fail("Should throw IOException.");
-    } catch (ParentNotDirectoryException e) {
-      // expected
+    @Override
+    public void testMkdirsFailsForSubdirectoryOfExistingFile() throws Exception {
+        Path testDir = path("/test/hadoop");
+        assertFalse(fs.exists(testDir));
+        assertTrue(fs.mkdirs(testDir));
+        assertTrue(fs.exists(testDir));
+
+        Path filepath = path("/test/hadoop/file");
+        SwiftTestUtils.writeTextFile(fs, filepath, "hello, world", false);
+
+        Path testSubDir = new Path(filepath, "subdir");
+        SwiftTestUtils.assertPathDoesNotExist(fs, "subdir before mkdir", testSubDir);
+
+        try {
+            fs.mkdirs(testSubDir);
+            fail("Should throw IOException.");
+        } catch (ParentNotDirectoryException e) {
+            // expected
+        }
+        //now verify that the subdir path does not exist
+        SwiftTestUtils.assertPathDoesNotExist(fs, "subdir after mkdir", testSubDir);
+
+        Path testDeepSubDir = path("/test/hadoop/file/deep/sub/dir");
+        try {
+            fs.mkdirs(testDeepSubDir);
+            fail("Should throw IOException.");
+        } catch (ParentNotDirectoryException e) {
+            // expected
+        }
+        SwiftTestUtils.assertPathDoesNotExist(fs, "testDeepSubDir  after mkdir",
+                                              testDeepSubDir);
+
     }
-    SwiftTestUtils.assertPathDoesNotExist(fs, "testDeepSubDir  after mkdir",
-                                          testDeepSubDir);
 
-  }
-
-  @Override
-  public void testWriteReadAndDeleteEmptyFile() throws Exception {
-    try {
-      super.testWriteReadAndDeleteEmptyFile();
-    } catch (AssertionFailedError e) {
-      SwiftTestUtils.downgrade("empty files get mistaken for directories", e);
+    @Override
+    public void testWriteReadAndDeleteEmptyFile() throws Exception {
+        try {
+            super.testWriteReadAndDeleteEmptyFile();
+        } catch (AssertionFailedError e) {
+            SwiftTestUtils.downgrade("empty files get mistaken for directories", e);
+        }
     }
-  }
 
-  @Override
-  public void testMkdirsWithUmask() throws Exception {
-    //unsupported
-  }
+    @Override
+    public void testMkdirsWithUmask() throws Exception {
+        //unsupported
+    }
 
-  public void testZeroByteFilesAreFiles() throws Exception {
+    public void testZeroByteFilesAreFiles() throws Exception {
 //    SwiftTestUtils.unsupported("testZeroByteFilesAreFiles");
-  }
+    }
 }

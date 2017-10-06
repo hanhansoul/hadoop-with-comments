@@ -55,155 +55,155 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 public class NonAggregatingLogHandler extends AbstractService implements
     LogHandler {
 
-  private static final Log LOG = LogFactory
-      .getLog(NonAggregatingLogHandler.class);
-  private final Dispatcher dispatcher;
-  private final DeletionService delService;
-  private final Map<ApplicationId, String> appOwners;
+    private static final Log LOG = LogFactory
+                                   .getLog(NonAggregatingLogHandler.class);
+    private final Dispatcher dispatcher;
+    private final DeletionService delService;
+    private final Map<ApplicationId, String> appOwners;
 
-  private final LocalDirsHandlerService dirsHandler;
-  private long deleteDelaySeconds;
-  private ScheduledThreadPoolExecutor sched;
+    private final LocalDirsHandlerService dirsHandler;
+    private long deleteDelaySeconds;
+    private ScheduledThreadPoolExecutor sched;
 
-  public NonAggregatingLogHandler(Dispatcher dispatcher,
-      DeletionService delService, LocalDirsHandlerService dirsHandler) {
-    super(NonAggregatingLogHandler.class.getName());
-    this.dispatcher = dispatcher;
-    this.delService = delService;
-    this.dirsHandler = dirsHandler;
-    this.appOwners = new ConcurrentHashMap<ApplicationId, String>();
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    // Default 3 hours.
-    this.deleteDelaySeconds =
-        conf.getLong(YarnConfiguration.NM_LOG_RETAIN_SECONDS,
-                YarnConfiguration.DEFAULT_NM_LOG_RETAIN_SECONDS);
-    sched = createScheduledThreadPoolExecutor(conf);
-    super.serviceInit(conf);
-  }
-
-  @Override
-  protected void serviceStop() throws Exception {
-    if (sched != null) {
-      sched.shutdown();
-      boolean isShutdown = false;
-      try {
-        isShutdown = sched.awaitTermination(10, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-        sched.shutdownNow();
-        isShutdown = true;
-      }
-      if (!isShutdown) {
-        sched.shutdownNow();
-      }
-    }
-    super.serviceStop();
-  }
-  
-  FileContext getLocalFileContext(Configuration conf) {
-    try {
-      return FileContext.getLocalFSFileContext(conf);
-    } catch (IOException e) {
-      throw new YarnRuntimeException("Failed to access local fs");
-    }
-  }
-
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public void handle(LogHandlerEvent event) {
-    switch (event.getType()) {
-      case APPLICATION_STARTED:
-        LogHandlerAppStartedEvent appStartedEvent =
-            (LogHandlerAppStartedEvent) event;
-        this.appOwners.put(appStartedEvent.getApplicationId(),
-            appStartedEvent.getUser());
-        this.dispatcher.getEventHandler().handle(
-            new ApplicationEvent(appStartedEvent.getApplicationId(),
-                ApplicationEventType.APPLICATION_LOG_HANDLING_INITED));
-        break;
-      case CONTAINER_FINISHED:
-        // Ignore
-        break;
-      case APPLICATION_FINISHED:
-        LogHandlerAppFinishedEvent appFinishedEvent =
-            (LogHandlerAppFinishedEvent) event;
-        // Schedule - so that logs are available on the UI till they're deleted.
-        LOG.info("Scheduling Log Deletion for application: "
-            + appFinishedEvent.getApplicationId() + ", with delay of "
-            + this.deleteDelaySeconds + " seconds");
-        LogDeleterRunnable logDeleter =
-            new LogDeleterRunnable(appOwners.remove(appFinishedEvent
-                  .getApplicationId()), appFinishedEvent.getApplicationId());
-        try {
-          sched.schedule(logDeleter, this.deleteDelaySeconds,
-              TimeUnit.SECONDS);
-        } catch (RejectedExecutionException e) {
-          // Handling this event in local thread before starting threads
-          // or after calling sched.shutdownNow().
-          logDeleter.run();
-        }
-        break;
-      default:
-        ; // Ignore
-    }
-  }
-
-  ScheduledThreadPoolExecutor createScheduledThreadPoolExecutor(
-      Configuration conf) {
-    ThreadFactory tf =
-        new ThreadFactoryBuilder().setNameFormat("LogDeleter #%d").build();
-    sched =
-        new ScheduledThreadPoolExecutor(conf.getInt(
-            YarnConfiguration.NM_LOG_DELETION_THREADS_COUNT,
-            YarnConfiguration.DEFAULT_NM_LOG_DELETE_THREAD_COUNT), tf);
-    return sched;
-  }
-
-  class LogDeleterRunnable implements Runnable {
-    private String user;
-    private ApplicationId applicationId;
-
-    public LogDeleterRunnable(String user, ApplicationId applicationId) {
-      this.user = user;
-      this.applicationId = applicationId;
+    public NonAggregatingLogHandler(Dispatcher dispatcher,
+                                    DeletionService delService, LocalDirsHandlerService dirsHandler) {
+        super(NonAggregatingLogHandler.class.getName());
+        this.dispatcher = dispatcher;
+        this.delService = delService;
+        this.dirsHandler = dirsHandler;
+        this.appOwners = new ConcurrentHashMap<ApplicationId, String>();
     }
 
     @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        // Default 3 hours.
+        this.deleteDelaySeconds =
+            conf.getLong(YarnConfiguration.NM_LOG_RETAIN_SECONDS,
+                         YarnConfiguration.DEFAULT_NM_LOG_RETAIN_SECONDS);
+        sched = createScheduledThreadPoolExecutor(conf);
+        super.serviceInit(conf);
+    }
+
+    @Override
+    protected void serviceStop() throws Exception {
+        if (sched != null) {
+            sched.shutdown();
+            boolean isShutdown = false;
+            try {
+                isShutdown = sched.awaitTermination(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                sched.shutdownNow();
+                isShutdown = true;
+            }
+            if (!isShutdown) {
+                sched.shutdownNow();
+            }
+        }
+        super.serviceStop();
+    }
+
+    FileContext getLocalFileContext(Configuration conf) {
+        try {
+            return FileContext.getLocalFSFileContext(conf);
+        } catch (IOException e) {
+            throw new YarnRuntimeException("Failed to access local fs");
+        }
+    }
+
+
     @SuppressWarnings("unchecked")
-    public void run() {
-      List<Path> localAppLogDirs = new ArrayList<Path>();
-      FileContext lfs = getLocalFileContext(getConfig());
-      for (String rootLogDir : dirsHandler.getLogDirsForCleanup()) {
-        Path logDir = new Path(rootLogDir, applicationId.toString());
-        try {
-          lfs.getFileStatus(logDir);
-          localAppLogDirs.add(logDir);
-        } catch (UnsupportedFileSystemException ue) {
-          LOG.warn("Unsupported file system used for log dir " + logDir, ue);
-          continue;
-        } catch (IOException ie) {
-          continue;
-        }
-      }
-
-      // Inform the application before the actual delete itself, so that links
-      // to logs will no longer be there on NM web-UI.
-      NonAggregatingLogHandler.this.dispatcher.getEventHandler().handle(
-        new ApplicationEvent(this.applicationId,
-          ApplicationEventType.APPLICATION_LOG_HANDLING_FINISHED));
-      if (localAppLogDirs.size() > 0) {
-        NonAggregatingLogHandler.this.delService.delete(user, null,
-          (Path[]) localAppLogDirs.toArray(new Path[localAppLogDirs.size()]));
-      }
-    }
-
     @Override
-    public String toString() {
-      return "LogDeleter for AppId " + this.applicationId.toString()
-          + ", owned by " + user;
+    public void handle(LogHandlerEvent event) {
+        switch (event.getType()) {
+            case APPLICATION_STARTED:
+                LogHandlerAppStartedEvent appStartedEvent =
+                    (LogHandlerAppStartedEvent) event;
+                this.appOwners.put(appStartedEvent.getApplicationId(),
+                                   appStartedEvent.getUser());
+                this.dispatcher.getEventHandler().handle(
+                    new ApplicationEvent(appStartedEvent.getApplicationId(),
+                                         ApplicationEventType.APPLICATION_LOG_HANDLING_INITED));
+                break;
+            case CONTAINER_FINISHED:
+                // Ignore
+                break;
+            case APPLICATION_FINISHED:
+                LogHandlerAppFinishedEvent appFinishedEvent =
+                    (LogHandlerAppFinishedEvent) event;
+                // Schedule - so that logs are available on the UI till they're deleted.
+                LOG.info("Scheduling Log Deletion for application: "
+                         + appFinishedEvent.getApplicationId() + ", with delay of "
+                         + this.deleteDelaySeconds + " seconds");
+                LogDeleterRunnable logDeleter =
+                    new LogDeleterRunnable(appOwners.remove(appFinishedEvent
+                                           .getApplicationId()), appFinishedEvent.getApplicationId());
+                try {
+                    sched.schedule(logDeleter, this.deleteDelaySeconds,
+                                   TimeUnit.SECONDS);
+                } catch (RejectedExecutionException e) {
+                    // Handling this event in local thread before starting threads
+                    // or after calling sched.shutdownNow().
+                    logDeleter.run();
+                }
+                break;
+            default:
+                ; // Ignore
+        }
     }
-  }
+
+    ScheduledThreadPoolExecutor createScheduledThreadPoolExecutor(
+        Configuration conf) {
+        ThreadFactory tf =
+            new ThreadFactoryBuilder().setNameFormat("LogDeleter #%d").build();
+        sched =
+            new ScheduledThreadPoolExecutor(conf.getInt(
+                                                YarnConfiguration.NM_LOG_DELETION_THREADS_COUNT,
+                                                YarnConfiguration.DEFAULT_NM_LOG_DELETE_THREAD_COUNT), tf);
+        return sched;
+    }
+
+    class LogDeleterRunnable implements Runnable {
+        private String user;
+        private ApplicationId applicationId;
+
+        public LogDeleterRunnable(String user, ApplicationId applicationId) {
+            this.user = user;
+            this.applicationId = applicationId;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void run() {
+            List<Path> localAppLogDirs = new ArrayList<Path>();
+            FileContext lfs = getLocalFileContext(getConfig());
+            for (String rootLogDir : dirsHandler.getLogDirsForCleanup()) {
+                Path logDir = new Path(rootLogDir, applicationId.toString());
+                try {
+                    lfs.getFileStatus(logDir);
+                    localAppLogDirs.add(logDir);
+                } catch (UnsupportedFileSystemException ue) {
+                    LOG.warn("Unsupported file system used for log dir " + logDir, ue);
+                    continue;
+                } catch (IOException ie) {
+                    continue;
+                }
+            }
+
+            // Inform the application before the actual delete itself, so that links
+            // to logs will no longer be there on NM web-UI.
+            NonAggregatingLogHandler.this.dispatcher.getEventHandler().handle(
+                new ApplicationEvent(this.applicationId,
+                                     ApplicationEventType.APPLICATION_LOG_HANDLING_FINISHED));
+            if (localAppLogDirs.size() > 0) {
+                NonAggregatingLogHandler.this.delService.delete(user, null,
+                        (Path[]) localAppLogDirs.toArray(new Path[localAppLogDirs.size()]));
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "LogDeleter for AppId " + this.applicationId.toString()
+                   + ", owned by " + user;
+        }
+    }
 }

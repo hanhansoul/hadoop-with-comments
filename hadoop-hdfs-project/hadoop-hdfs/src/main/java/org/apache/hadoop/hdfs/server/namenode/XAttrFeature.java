@@ -28,16 +28,16 @@ import com.google.common.collect.ImmutableList;
  */
 @InterfaceAudience.Private
 public class XAttrFeature implements INode.Feature {
-  public static final ImmutableList<XAttr> EMPTY_ENTRY_LIST =
-      ImmutableList.of();
+    public static final ImmutableList<XAttr> EMPTY_ENTRY_LIST =
+        ImmutableList.of();
 
-  private final ImmutableList<XAttr> xAttrs;
+    private final ImmutableList<XAttr> xAttrs;
 
-  public XAttrFeature(ImmutableList<XAttr> xAttrs) {
-    this.xAttrs = xAttrs;
-  }
+    public XAttrFeature(ImmutableList<XAttr> xAttrs) {
+        this.xAttrs = xAttrs;
+    }
 
-  public ImmutableList<XAttr> getXAttrs() {
-    return xAttrs;
-  }
+    public ImmutableList<XAttr> getXAttrs() {
+        return xAttrs;
+    }
 }

@@ -29,197 +29,197 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 import com.google.protobuf.TextFormat;
 
 public class ApplicationStateDataPBImpl extends ApplicationStateData {
-  ApplicationStateDataProto proto = 
-            ApplicationStateDataProto.getDefaultInstance();
-  ApplicationStateDataProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private ApplicationSubmissionContext applicationSubmissionContext = null;
-  
-  public ApplicationStateDataPBImpl() {
-    builder = ApplicationStateDataProto.newBuilder();
-  }
+    ApplicationStateDataProto proto =
+        ApplicationStateDataProto.getDefaultInstance();
+    ApplicationStateDataProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public ApplicationStateDataPBImpl(
-      ApplicationStateDataProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
+    private ApplicationSubmissionContext applicationSubmissionContext = null;
 
-  @Override
-  public ApplicationStateDataProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.applicationSubmissionContext != null) {
-      builder.setApplicationSubmissionContext(
-          ((ApplicationSubmissionContextPBImpl)applicationSubmissionContext)
-          .getProto());
+    public ApplicationStateDataPBImpl() {
+        builder = ApplicationStateDataProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ApplicationStateDataProto.newBuilder(proto);
+    public ApplicationStateDataPBImpl(
+        ApplicationStateDataProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public long getSubmitTime() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasSubmitTime()) {
-      return -1;
+    @Override
+    public ApplicationStateDataProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    return (p.getSubmitTime());
-  }
 
-  @Override
-  public void setSubmitTime(long submitTime) {
-    maybeInitBuilder();
-    builder.setSubmitTime(submitTime);
-  }
-
-  @Override
-  public long getStartTime() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getStartTime();
-  }
-
-  @Override
-  public void setStartTime(long startTime) {
-    maybeInitBuilder();
-    builder.setStartTime(startTime);
-  }
-
-  @Override
-  public String getUser() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasUser()) {
-      return null;
+    private void mergeLocalToBuilder() {
+        if (this.applicationSubmissionContext != null) {
+            builder.setApplicationSubmissionContext(
+                ((ApplicationSubmissionContextPBImpl)applicationSubmissionContext)
+                .getProto());
+        }
     }
-    return (p.getUser());
 
-  }
-  
-  @Override
-  public void setUser(String user) {
-    maybeInitBuilder();
-    builder.setUser(user);
-  }
-  
-  @Override
-  public ApplicationSubmissionContext getApplicationSubmissionContext() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    if(applicationSubmissionContext != null) {
-      return applicationSubmissionContext;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    if (!p.hasApplicationSubmissionContext()) {
-      return null;
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ApplicationStateDataProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    applicationSubmissionContext = 
-        new ApplicationSubmissionContextPBImpl(
+
+    @Override
+    public long getSubmitTime() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasSubmitTime()) {
+            return -1;
+        }
+        return (p.getSubmitTime());
+    }
+
+    @Override
+    public void setSubmitTime(long submitTime) {
+        maybeInitBuilder();
+        builder.setSubmitTime(submitTime);
+    }
+
+    @Override
+    public long getStartTime() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getStartTime();
+    }
+
+    @Override
+    public void setStartTime(long startTime) {
+        maybeInitBuilder();
+        builder.setStartTime(startTime);
+    }
+
+    @Override
+    public String getUser() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasUser()) {
+            return null;
+        }
+        return (p.getUser());
+
+    }
+
+    @Override
+    public void setUser(String user) {
+        maybeInitBuilder();
+        builder.setUser(user);
+    }
+
+    @Override
+    public ApplicationSubmissionContext getApplicationSubmissionContext() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        if(applicationSubmissionContext != null) {
+            return applicationSubmissionContext;
+        }
+        if (!p.hasApplicationSubmissionContext()) {
+            return null;
+        }
+        applicationSubmissionContext =
+            new ApplicationSubmissionContextPBImpl(
             p.getApplicationSubmissionContext());
-    return applicationSubmissionContext;
-  }
-
-  @Override
-  public void setApplicationSubmissionContext(
-      ApplicationSubmissionContext context) {
-    maybeInitBuilder();
-    if (context == null) {
-      builder.clearApplicationSubmissionContext();
+        return applicationSubmissionContext;
     }
-    this.applicationSubmissionContext = context;
-  }
 
-  @Override
-  public RMAppState getState() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasApplicationState()) {
-      return null;
+    @Override
+    public void setApplicationSubmissionContext(
+        ApplicationSubmissionContext context) {
+        maybeInitBuilder();
+        if (context == null) {
+            builder.clearApplicationSubmissionContext();
+        }
+        this.applicationSubmissionContext = context;
     }
-    return convertFromProtoFormat(p.getApplicationState());
-  }
 
-  @Override
-  public void setState(RMAppState finalState) {
-    maybeInitBuilder();
-    if (finalState == null) {
-      builder.clearApplicationState();
-      return;
+    @Override
+    public RMAppState getState() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasApplicationState()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getApplicationState());
     }
-    builder.setApplicationState(convertToProtoFormat(finalState));
-  }
 
-  @Override
-  public String getDiagnostics() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasDiagnostics()) {
-      return null;
+    @Override
+    public void setState(RMAppState finalState) {
+        maybeInitBuilder();
+        if (finalState == null) {
+            builder.clearApplicationState();
+            return;
+        }
+        builder.setApplicationState(convertToProtoFormat(finalState));
     }
-    return p.getDiagnostics();
-  }
 
-  @Override
-  public void setDiagnostics(String diagnostics) {
-    maybeInitBuilder();
-    if (diagnostics == null) {
-      builder.clearDiagnostics();
-      return;
+    @Override
+    public String getDiagnostics() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasDiagnostics()) {
+            return null;
+        }
+        return p.getDiagnostics();
     }
-    builder.setDiagnostics(diagnostics);
-  }
 
-  @Override
-  public long getFinishTime() {
-    ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getFinishTime();
-  }
-
-  @Override
-  public void setFinishTime(long finishTime) {
-    maybeInitBuilder();
-    builder.setFinishTime(finishTime);
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public void setDiagnostics(String diagnostics) {
+        maybeInitBuilder();
+        if (diagnostics == null) {
+            builder.clearDiagnostics();
+            return;
+        }
+        builder.setDiagnostics(diagnostics);
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    @Override
+    public long getFinishTime() {
+        ApplicationStateDataProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getFinishTime();
+    }
 
-  private static String RM_APP_PREFIX = "RMAPP_";
-  public static RMAppStateProto convertToProtoFormat(RMAppState e) {
-    return RMAppStateProto.valueOf(RM_APP_PREFIX + e.name());
-  }
-  public static RMAppState convertFromProtoFormat(RMAppStateProto e) {
-    return RMAppState.valueOf(e.name().replace(RM_APP_PREFIX, ""));
-  }
+    @Override
+    public void setFinishTime(long finishTime) {
+        maybeInitBuilder();
+        builder.setFinishTime(finishTime);
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
+
+    private static String RM_APP_PREFIX = "RMAPP_";
+    public static RMAppStateProto convertToProtoFormat(RMAppState e) {
+        return RMAppStateProto.valueOf(RM_APP_PREFIX + e.name());
+    }
+    public static RMAppState convertFromProtoFormat(RMAppStateProto e) {
+        return RMAppState.valueOf(e.name().replace(RM_APP_PREFIX, ""));
+    }
 }

@@ -27,18 +27,18 @@ import org.apache.hadoop.mapreduce.Counter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CounterInfo {
 
-  protected String name;
-  protected long totalCounterValue;
-  protected long mapCounterValue;
-  protected long reduceCounterValue;
+    protected String name;
+    protected long totalCounterValue;
+    protected long mapCounterValue;
+    protected long reduceCounterValue;
 
-  public CounterInfo() {
-  }
+    public CounterInfo() {
+    }
 
-  public CounterInfo(Counter c, Counter mc, Counter rc) {
-    this.name = c.getName();
-    this.totalCounterValue = c.getValue();
-    this.mapCounterValue = mc == null ? 0 : mc.getValue();
-    this.reduceCounterValue = rc == null ? 0 : rc.getValue();
-  }
+    public CounterInfo(Counter c, Counter mc, Counter rc) {
+        this.name = c.getName();
+        this.totalCounterValue = c.getValue();
+        this.mapCounterValue = mc == null ? 0 : mc.getValue();
+        this.reduceCounterValue = rc == null ? 0 : rc.getValue();
+    }
 }

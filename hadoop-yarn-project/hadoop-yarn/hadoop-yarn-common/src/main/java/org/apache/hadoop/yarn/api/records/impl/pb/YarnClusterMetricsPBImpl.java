@@ -30,65 +30,65 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class YarnClusterMetricsPBImpl extends YarnClusterMetrics {
-  YarnClusterMetricsProto proto = YarnClusterMetricsProto.getDefaultInstance();
-  YarnClusterMetricsProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public YarnClusterMetricsPBImpl() {
-    builder = YarnClusterMetricsProto.newBuilder();
-  }
+    YarnClusterMetricsProto proto = YarnClusterMetricsProto.getDefaultInstance();
+    YarnClusterMetricsProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public YarnClusterMetricsPBImpl(YarnClusterMetricsProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public YarnClusterMetricsProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public YarnClusterMetricsPBImpl() {
+        builder = YarnClusterMetricsProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = YarnClusterMetricsProto.newBuilder(proto);
+    public YarnClusterMetricsPBImpl(YarnClusterMetricsProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public int getNumNodeManagers() {
-    YarnClusterMetricsProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getNumNodeManagers());
-  }
 
-  @Override
-  public void setNumNodeManagers(int numNodeManagers) {
-    maybeInitBuilder();
-    builder.setNumNodeManagers((numNodeManagers));
-  }
+    public YarnClusterMetricsProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = YarnClusterMetricsProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+
+    @Override
+    public int getNumNodeManagers() {
+        YarnClusterMetricsProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getNumNodeManagers());
+    }
+
+    @Override
+    public void setNumNodeManagers(int numNodeManagers) {
+        maybeInitBuilder();
+        builder.setNumNodeManagers((numNodeManagers));
+    }
 
 
 
-}  
+}

@@ -21,18 +21,18 @@ package org.apache.hadoop.mapreduce.v2.app.rm;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
-public class ContainerAllocatorEvent extends 
+public class ContainerAllocatorEvent extends
     AbstractEvent<ContainerAllocator.EventType> {
-  
-  private TaskAttemptId attemptID;
 
-  public ContainerAllocatorEvent(TaskAttemptId attemptID,
-      ContainerAllocator.EventType type) {
-    super(type);
-    this.attemptID = attemptID;
-  }
+    private TaskAttemptId attemptID;
 
-  public TaskAttemptId getAttemptID() {
-    return attemptID;
-  }
+    public ContainerAllocatorEvent(TaskAttemptId attemptID,
+                                   ContainerAllocator.EventType type) {
+        super(type);
+        this.attemptID = attemptID;
+    }
+
+    public TaskAttemptId getAttemptID() {
+        return attemptID;
+    }
 }

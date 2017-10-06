@@ -27,13 +27,13 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Private
 @Unstable
 public class AllocationConfigurationException extends Exception {
-  private static final long serialVersionUID = 4046517047810854249L;
+    private static final long serialVersionUID = 4046517047810854249L;
 
-  public AllocationConfigurationException(String message) {
-    super(message);
-  }
-  
-  public AllocationConfigurationException(String message, Throwable t) {
-    super(message, t);
-  }
+    public AllocationConfigurationException(String message) {
+        super(message);
+    }
+
+    public AllocationConfigurationException(String message, Throwable t) {
+        super(message, t);
+    }
 }

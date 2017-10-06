@@ -28,34 +28,34 @@ import org.apache.hadoop.yarn.server.api.records.NodeHealthStatus;
 
 public class RMNodeStatusEvent extends RMNodeEvent {
 
-  private final NodeHealthStatus nodeHealthStatus;
-  private final List<ContainerStatus> containersCollection;
-  private final NodeHeartbeatResponse latestResponse;
-  private final List<ApplicationId> keepAliveAppIds;
+    private final NodeHealthStatus nodeHealthStatus;
+    private final List<ContainerStatus> containersCollection;
+    private final NodeHeartbeatResponse latestResponse;
+    private final List<ApplicationId> keepAliveAppIds;
 
-  public RMNodeStatusEvent(NodeId nodeId, NodeHealthStatus nodeHealthStatus,
-      List<ContainerStatus> collection, List<ApplicationId> keepAliveAppIds,
-      NodeHeartbeatResponse latestResponse) {
-    super(nodeId, RMNodeEventType.STATUS_UPDATE);
-    this.nodeHealthStatus = nodeHealthStatus;
-    this.containersCollection = collection;
-    this.keepAliveAppIds = keepAliveAppIds;
-    this.latestResponse = latestResponse;
-  }
+    public RMNodeStatusEvent(NodeId nodeId, NodeHealthStatus nodeHealthStatus,
+                             List<ContainerStatus> collection, List<ApplicationId> keepAliveAppIds,
+                             NodeHeartbeatResponse latestResponse) {
+        super(nodeId, RMNodeEventType.STATUS_UPDATE);
+        this.nodeHealthStatus = nodeHealthStatus;
+        this.containersCollection = collection;
+        this.keepAliveAppIds = keepAliveAppIds;
+        this.latestResponse = latestResponse;
+    }
 
-  public NodeHealthStatus getNodeHealthStatus() {
-    return this.nodeHealthStatus;
-  }
+    public NodeHealthStatus getNodeHealthStatus() {
+        return this.nodeHealthStatus;
+    }
 
-  public List<ContainerStatus> getContainers() {
-    return this.containersCollection;
-  }
+    public List<ContainerStatus> getContainers() {
+        return this.containersCollection;
+    }
 
-  public NodeHeartbeatResponse getLatestResponse() {
-    return this.latestResponse;
-  }
-  
-  public List<ApplicationId> getKeepAliveAppIds() {
-    return this.keepAliveAppIds;
-  }
+    public NodeHeartbeatResponse getLatestResponse() {
+        return this.latestResponse;
+    }
+
+    public List<ApplicationId> getKeepAliveAppIds() {
+        return this.keepAliveAppIds;
+    }
 }

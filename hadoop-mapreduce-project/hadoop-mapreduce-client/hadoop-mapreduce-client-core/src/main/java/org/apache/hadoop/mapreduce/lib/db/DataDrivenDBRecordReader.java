@@ -56,82 +56,82 @@ import org.apache.hadoop.conf.Configuration;
 @InterfaceStability.Evolving
 public class DataDrivenDBRecordReader<T extends DBWritable> extends DBRecordReader<T> {
 
-  private static final Log LOG = LogFactory.getLog(DataDrivenDBRecordReader.class);
+    private static final Log LOG = LogFactory.getLog(DataDrivenDBRecordReader.class);
 
-  private String dbProductName; // database manufacturer string.
+    private String dbProductName; // database manufacturer string.
 
-  /**
-   * @param split The InputSplit to read data for
-   * @throws SQLException 
-   */
-  public DataDrivenDBRecordReader(DBInputFormat.DBInputSplit split,
-      Class<T> inputClass, Configuration conf, Connection conn, DBConfiguration dbConfig,
-      String cond, String [] fields, String table, String dbProduct)
-      throws SQLException {
-    super(split, inputClass, conf, conn, dbConfig, cond, fields, table);
-    this.dbProductName = dbProduct;
-  }
-
-  /** Returns the query for selecting the records,
-   * subclasses can override this for custom behaviour.*/
-  @SuppressWarnings("unchecked")
-  protected String getSelectQuery() {
-    StringBuilder query = new StringBuilder();
-    DataDrivenDBInputFormat.DataDrivenDBInputSplit dataSplit =
-        (DataDrivenDBInputFormat.DataDrivenDBInputSplit) getSplit();
-    DBConfiguration dbConf = getDBConf();
-    String [] fieldNames = getFieldNames();
-    String tableName = getTableName();
-    String conditions = getConditions();
-
-    // Build the WHERE clauses associated with the data split first.
-    // We need them in both branches of this function.
-    StringBuilder conditionClauses = new StringBuilder();
-    conditionClauses.append("( ").append(dataSplit.getLowerClause());
-    conditionClauses.append(" ) AND ( ").append(dataSplit.getUpperClause());
-    conditionClauses.append(" )");
-
-    if(dbConf.getInputQuery() == null) {
-      // We need to generate the entire query.
-      query.append("SELECT ");
-
-      for (int i = 0; i < fieldNames.length; i++) {
-        query.append(fieldNames[i]);
-        if (i != fieldNames.length -1) {
-          query.append(", ");
-        }
-      }
-
-      query.append(" FROM ").append(tableName);
-      if (!dbProductName.startsWith("ORACLE")) {
-        // Seems to be necessary for hsqldb? Oracle explicitly does *not*
-        // use this clause.
-        query.append(" AS ").append(tableName);
-      }
-      query.append(" WHERE ");
-      if (conditions != null && conditions.length() > 0) {
-        // Put the user's conditions first.
-        query.append("( ").append(conditions).append(" ) AND ");
-      }
-
-      // Now append the conditions associated with our split.
-      query.append(conditionClauses.toString());
-
-    } else {
-      // User provided the query. We replace the special token with our WHERE clause.
-      String inputQuery = dbConf.getInputQuery();
-      if (inputQuery.indexOf(DataDrivenDBInputFormat.SUBSTITUTE_TOKEN) == -1) {
-        LOG.error("Could not find the clause substitution token "
-            + DataDrivenDBInputFormat.SUBSTITUTE_TOKEN + " in the query: ["
-            + inputQuery + "]. Parallel splits may not work correctly.");
-      }
-
-      query.append(inputQuery.replace(DataDrivenDBInputFormat.SUBSTITUTE_TOKEN,
-          conditionClauses.toString()));
+    /**
+     * @param split The InputSplit to read data for
+     * @throws SQLException
+     */
+    public DataDrivenDBRecordReader(DBInputFormat.DBInputSplit split,
+                                    Class<T> inputClass, Configuration conf, Connection conn, DBConfiguration dbConfig,
+                                    String cond, String [] fields, String table, String dbProduct)
+    throws SQLException {
+        super(split, inputClass, conf, conn, dbConfig, cond, fields, table);
+        this.dbProductName = dbProduct;
     }
 
-    LOG.debug("Using query: " + query.toString());
+    /** Returns the query for selecting the records,
+     * subclasses can override this for custom behaviour.*/
+    @SuppressWarnings("unchecked")
+    protected String getSelectQuery() {
+        StringBuilder query = new StringBuilder();
+        DataDrivenDBInputFormat.DataDrivenDBInputSplit dataSplit =
+            (DataDrivenDBInputFormat.DataDrivenDBInputSplit) getSplit();
+        DBConfiguration dbConf = getDBConf();
+        String [] fieldNames = getFieldNames();
+        String tableName = getTableName();
+        String conditions = getConditions();
 
-    return query.toString();
-  }
+        // Build the WHERE clauses associated with the data split first.
+        // We need them in both branches of this function.
+        StringBuilder conditionClauses = new StringBuilder();
+        conditionClauses.append("( ").append(dataSplit.getLowerClause());
+        conditionClauses.append(" ) AND ( ").append(dataSplit.getUpperClause());
+        conditionClauses.append(" )");
+
+        if(dbConf.getInputQuery() == null) {
+            // We need to generate the entire query.
+            query.append("SELECT ");
+
+            for (int i = 0; i < fieldNames.length; i++) {
+                query.append(fieldNames[i]);
+                if (i != fieldNames.length -1) {
+                    query.append(", ");
+                }
+            }
+
+            query.append(" FROM ").append(tableName);
+            if (!dbProductName.startsWith("ORACLE")) {
+                // Seems to be necessary for hsqldb? Oracle explicitly does *not*
+                // use this clause.
+                query.append(" AS ").append(tableName);
+            }
+            query.append(" WHERE ");
+            if (conditions != null && conditions.length() > 0) {
+                // Put the user's conditions first.
+                query.append("( ").append(conditions).append(" ) AND ");
+            }
+
+            // Now append the conditions associated with our split.
+            query.append(conditionClauses.toString());
+
+        } else {
+            // User provided the query. We replace the special token with our WHERE clause.
+            String inputQuery = dbConf.getInputQuery();
+            if (inputQuery.indexOf(DataDrivenDBInputFormat.SUBSTITUTE_TOKEN) == -1) {
+                LOG.error("Could not find the clause substitution token "
+                          + DataDrivenDBInputFormat.SUBSTITUTE_TOKEN + " in the query: ["
+                          + inputQuery + "]. Parallel splits may not work correctly.");
+            }
+
+            query.append(inputQuery.replace(DataDrivenDBInputFormat.SUBSTITUTE_TOKEN,
+                                            conditionClauses.toString()));
+        }
+
+        LOG.debug("Using query: " + query.toString());
+
+        return query.toString();
+    }
 }

@@ -24,32 +24,32 @@ import org.apache.hadoop.mapreduce.v2.proto.MRServiceProtos.FailTaskAttemptRespo
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class FailTaskAttemptResponsePBImpl extends ProtoBase<FailTaskAttemptResponseProto> implements FailTaskAttemptResponse {
-  FailTaskAttemptResponseProto proto = FailTaskAttemptResponseProto.getDefaultInstance();
-  FailTaskAttemptResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public FailTaskAttemptResponsePBImpl() {
-    builder = FailTaskAttemptResponseProto.newBuilder();
-  }
+    FailTaskAttemptResponseProto proto = FailTaskAttemptResponseProto.getDefaultInstance();
+    FailTaskAttemptResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public FailTaskAttemptResponsePBImpl(FailTaskAttemptResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public FailTaskAttemptResponseProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = FailTaskAttemptResponseProto.newBuilder(proto);
+    public FailTaskAttemptResponsePBImpl() {
+        builder = FailTaskAttemptResponseProto.newBuilder();
     }
-    viaProto = false;
-  }
 
-}  
+    public FailTaskAttemptResponsePBImpl(FailTaskAttemptResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public FailTaskAttemptResponseProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = FailTaskAttemptResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+}

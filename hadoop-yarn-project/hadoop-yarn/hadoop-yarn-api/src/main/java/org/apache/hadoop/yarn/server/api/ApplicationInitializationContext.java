@@ -37,45 +37,45 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 @Evolving
 public class ApplicationInitializationContext {
 
-  private final String user;
-  private final ApplicationId applicationId;
-  private ByteBuffer appDataForService;
+    private final String user;
+    private final ApplicationId applicationId;
+    private ByteBuffer appDataForService;
 
-  @Private
-  @Unstable
-  public ApplicationInitializationContext(String user, ApplicationId applicationId,
-      ByteBuffer appDataForService) {
-    this.user = user;
-    this.applicationId = applicationId;
-    this.appDataForService = appDataForService;
-  }
+    @Private
+    @Unstable
+    public ApplicationInitializationContext(String user, ApplicationId applicationId,
+                                            ByteBuffer appDataForService) {
+        this.user = user;
+        this.applicationId = applicationId;
+        this.appDataForService = appDataForService;
+    }
 
-  /**
-   * Get the user-name of the application-submitter
-   * 
-   * @return user-name
-   */
-  public String getUser() {
-    return this.user;
-  }
+    /**
+     * Get the user-name of the application-submitter
+     *
+     * @return user-name
+     */
+    public String getUser() {
+        return this.user;
+    }
 
-  /**
-   * Get {@link ApplicationId} of the application
-   * 
-   * @return applications ID
-   */
-  public ApplicationId getApplicationId() {
-    return this.applicationId;
-  }
+    /**
+     * Get {@link ApplicationId} of the application
+     *
+     * @return applications ID
+     */
+    public ApplicationId getApplicationId() {
+        return this.applicationId;
+    }
 
-  /**
-   * Get the data sent to the NodeManager via
-   * {@link ContainerManagementProtocol#startContainers(StartContainersRequest)}
-   * as part of {@link ContainerLaunchContext#getServiceData()}
-   * 
-   * @return the servicesData for this application.
-   */
-  public ByteBuffer getApplicationDataForService() {
-    return this.appDataForService;
-  }
+    /**
+     * Get the data sent to the NodeManager via
+     * {@link ContainerManagementProtocol#startContainers(StartContainersRequest)}
+     * as part of {@link ContainerLaunchContext#getServiceData()}
+     *
+     * @return the servicesData for this application.
+     */
+    public ByteBuffer getApplicationDataForService() {
+        return this.appDataForService;
+    }
 }

@@ -32,7 +32,7 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p><code>ContainerLaunchContext</code> represents all of the information
  * needed by the <code>NodeManager</code> to launch a container.</p>
- * 
+ *
  * <p>It includes details such as:
  *   <ul>
  *     <li>{@link ContainerId} of the container.</li>
@@ -41,159 +41,159 @@ import org.apache.hadoop.yarn.util.Records;
  *     <li>Security tokens (if security is enabled).</li>
  *     <li>
  *       {@link LocalResource} necessary for running the container such
- *       as binaries, jar, shared-objects, side-files etc. 
+ *       as binaries, jar, shared-objects, side-files etc.
  *     </li>
  *     <li>Optional, application-specific binary service data.</li>
  *     <li>Environment variables for the launched process.</li>
  *     <li>Command to launch the container.</li>
  *   </ul>
  * </p>
- * 
+ *
  * @see ContainerManagementProtocol#startContainers(org.apache.hadoop.yarn.api.protocolrecords.StartContainersRequest)
  */
 @Public
 @Stable
 public abstract class ContainerLaunchContext {
 
-  @Public
-  @Stable
-  public static ContainerLaunchContext newInstance(
-      Map<String, LocalResource> localResources,
-      Map<String, String> environment, List<String> commands,
-      Map<String, ByteBuffer> serviceData,  ByteBuffer tokens,
-      Map<ApplicationAccessType, String> acls) {
-    ContainerLaunchContext container =
-        Records.newRecord(ContainerLaunchContext.class);
-    container.setLocalResources(localResources);
-    container.setEnvironment(environment);
-    container.setCommands(commands);
-    container.setServiceData(serviceData);
-    container.setTokens(tokens);
-    container.setApplicationACLs(acls);
-    return container;
-  }
+    @Public
+    @Stable
+    public static ContainerLaunchContext newInstance(
+        Map<String, LocalResource> localResources,
+        Map<String, String> environment, List<String> commands,
+        Map<String, ByteBuffer> serviceData,  ByteBuffer tokens,
+        Map<ApplicationAccessType, String> acls) {
+        ContainerLaunchContext container =
+            Records.newRecord(ContainerLaunchContext.class);
+        container.setLocalResources(localResources);
+        container.setEnvironment(environment);
+        container.setCommands(commands);
+        container.setServiceData(serviceData);
+        container.setTokens(tokens);
+        container.setApplicationACLs(acls);
+        return container;
+    }
 
-  /**
-   * Get all the tokens needed by this container. It may include file-system
-   * tokens, ApplicationMaster related tokens if this container is an
-   * ApplicationMaster or framework level tokens needed by this container to
-   * communicate to various services in a secure manner.
-   * 
-   * @return tokens needed by this container.
-   */
-  @Public
-  @Stable
-  public abstract ByteBuffer getTokens();
+    /**
+     * Get all the tokens needed by this container. It may include file-system
+     * tokens, ApplicationMaster related tokens if this container is an
+     * ApplicationMaster or framework level tokens needed by this container to
+     * communicate to various services in a secure manner.
+     *
+     * @return tokens needed by this container.
+     */
+    @Public
+    @Stable
+    public abstract ByteBuffer getTokens();
 
-  /**
-   * Set security tokens needed by this container.
-   * @param tokens security tokens 
-   */
-  @Public
-  @Stable
-  public abstract void setTokens(ByteBuffer tokens);
+    /**
+     * Set security tokens needed by this container.
+     * @param tokens security tokens
+     */
+    @Public
+    @Stable
+    public abstract void setTokens(ByteBuffer tokens);
 
-  /**
-   * Get <code>LocalResource</code> required by the container.
-   * @return all <code>LocalResource</code> required by the container
-   */
-  @Public
-  @Stable
-  public abstract Map<String, LocalResource> getLocalResources();
-  
-  /**
-   * Set <code>LocalResource</code> required by the container. All pre-existing
-   * Map entries are cleared before adding the new Map
-   * @param localResources <code>LocalResource</code> required by the container
-   */
-  @Public
-  @Stable
-  public abstract void setLocalResources(Map<String, LocalResource> localResources);
+    /**
+     * Get <code>LocalResource</code> required by the container.
+     * @return all <code>LocalResource</code> required by the container
+     */
+    @Public
+    @Stable
+    public abstract Map<String, LocalResource> getLocalResources();
 
-  /**
-   * <p>
-   * Get application-specific binary <em>service data</em>. This is a map keyed
-   * by the name of each {@link AuxiliaryService} that is configured on a
-   * NodeManager and value correspond to the application specific data targeted
-   * for the keyed {@link AuxiliaryService}.
-   * </p>
-   * 
-   * <p>
-   * This will be used to initialize this application on the specific
-   * {@link AuxiliaryService} running on the NodeManager by calling
-   * {@link AuxiliaryService#initializeApplication(ApplicationInitializationContext)}
-   * </p>
-   * 
-   * @return application-specific binary <em>service data</em>
-   */
-  @Public
-  @Stable
-  public abstract Map<String, ByteBuffer> getServiceData();
-  
-  /**
-   * <p>
-   * Set application-specific binary <em>service data</em>. This is a map keyed
-   * by the name of each {@link AuxiliaryService} that is configured on a
-   * NodeManager and value correspond to the application specific data targeted
-   * for the keyed {@link AuxiliaryService}. All pre-existing Map entries are
-   * preserved.
-   * </p>
-   * 
-   * @param serviceData
-   *          application-specific binary <em>service data</em>
-   */
-  @Public
-  @Stable
-  public abstract void setServiceData(Map<String, ByteBuffer> serviceData);
+    /**
+     * Set <code>LocalResource</code> required by the container. All pre-existing
+     * Map entries are cleared before adding the new Map
+     * @param localResources <code>LocalResource</code> required by the container
+     */
+    @Public
+    @Stable
+    public abstract void setLocalResources(Map<String, LocalResource> localResources);
 
-  /**
-   * Get <em>environment variables</em> for the container.
-   * @return <em>environment variables</em> for the container
-   */
-  @Public
-  @Stable
-  public abstract Map<String, String> getEnvironment();
-    
-  /**
-   * Add <em>environment variables</em> for the container. All pre-existing Map
-   * entries are cleared before adding the new Map
-   * @param environment <em>environment variables</em> for the container
-   */
-  @Public
-  @Stable
-  public abstract void setEnvironment(Map<String, String> environment);
+    /**
+     * <p>
+     * Get application-specific binary <em>service data</em>. This is a map keyed
+     * by the name of each {@link AuxiliaryService} that is configured on a
+     * NodeManager and value correspond to the application specific data targeted
+     * for the keyed {@link AuxiliaryService}.
+     * </p>
+     *
+     * <p>
+     * This will be used to initialize this application on the specific
+     * {@link AuxiliaryService} running on the NodeManager by calling
+     * {@link AuxiliaryService#initializeApplication(ApplicationInitializationContext)}
+     * </p>
+     *
+     * @return application-specific binary <em>service data</em>
+     */
+    @Public
+    @Stable
+    public abstract Map<String, ByteBuffer> getServiceData();
 
-  /**
-   * Get the list of <em>commands</em> for launching the container.
-   * @return the list of <em>commands</em> for launching the container
-   */
-  @Public
-  @Stable
-  public abstract List<String> getCommands();
-  
-  /**
-   * Add the list of <em>commands</em> for launching the container. All
-   * pre-existing List entries are cleared before adding the new List
-   * @param commands the list of <em>commands</em> for launching the container
-   */
-  @Public
-  @Stable
-  public abstract void setCommands(List<String> commands);
+    /**
+     * <p>
+     * Set application-specific binary <em>service data</em>. This is a map keyed
+     * by the name of each {@link AuxiliaryService} that is configured on a
+     * NodeManager and value correspond to the application specific data targeted
+     * for the keyed {@link AuxiliaryService}. All pre-existing Map entries are
+     * preserved.
+     * </p>
+     *
+     * @param serviceData
+     *          application-specific binary <em>service data</em>
+     */
+    @Public
+    @Stable
+    public abstract void setServiceData(Map<String, ByteBuffer> serviceData);
 
-  /**
-   * Get the <code>ApplicationACL</code>s for the application. 
-   * @return all the <code>ApplicationACL</code>s
-   */
-  @Public
-  @Stable
-  public abstract  Map<ApplicationAccessType, String> getApplicationACLs();
+    /**
+     * Get <em>environment variables</em> for the container.
+     * @return <em>environment variables</em> for the container
+     */
+    @Public
+    @Stable
+    public abstract Map<String, String> getEnvironment();
 
-  /**
-   * Set the <code>ApplicationACL</code>s for the application. All pre-existing
-   * Map entries are cleared before adding the new Map
-   * @param acls <code>ApplicationACL</code>s for the application
-   */
-  @Public
-  @Stable
-  public abstract  void setApplicationACLs(Map<ApplicationAccessType, String> acls);
+    /**
+     * Add <em>environment variables</em> for the container. All pre-existing Map
+     * entries are cleared before adding the new Map
+     * @param environment <em>environment variables</em> for the container
+     */
+    @Public
+    @Stable
+    public abstract void setEnvironment(Map<String, String> environment);
+
+    /**
+     * Get the list of <em>commands</em> for launching the container.
+     * @return the list of <em>commands</em> for launching the container
+     */
+    @Public
+    @Stable
+    public abstract List<String> getCommands();
+
+    /**
+     * Add the list of <em>commands</em> for launching the container. All
+     * pre-existing List entries are cleared before adding the new List
+     * @param commands the list of <em>commands</em> for launching the container
+     */
+    @Public
+    @Stable
+    public abstract void setCommands(List<String> commands);
+
+    /**
+     * Get the <code>ApplicationACL</code>s for the application.
+     * @return all the <code>ApplicationACL</code>s
+     */
+    @Public
+    @Stable
+    public abstract  Map<ApplicationAccessType, String> getApplicationACLs();
+
+    /**
+     * Set the <code>ApplicationACL</code>s for the application. All pre-existing
+     * Map entries are cleared before adding the new Map
+     * @param acls <code>ApplicationACL</code>s for the application
+     */
+    @Public
+    @Stable
+    public abstract  void setApplicationACLs(Map<ApplicationAccessType, String> acls);
 }

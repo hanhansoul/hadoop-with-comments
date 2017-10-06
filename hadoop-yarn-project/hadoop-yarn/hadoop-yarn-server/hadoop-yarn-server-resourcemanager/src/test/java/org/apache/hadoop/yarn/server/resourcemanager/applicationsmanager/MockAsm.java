@@ -51,256 +51,256 @@ import com.google.common.collect.Lists;
 @InterfaceAudience.Private
 public abstract class MockAsm extends MockApps {
 
-  public static class ApplicationBase implements RMApp {
-    ResourceRequest amReq;
-    @Override
-    public String getUser() {
-      throw new UnsupportedOperationException("Not supported yet.");
+    public static class ApplicationBase implements RMApp {
+        ResourceRequest amReq;
+        @Override
+        public String getUser() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public ApplicationSubmissionContext getApplicationSubmissionContext() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public String getName() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public String getQueue() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public long getStartTime() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public long getSubmitTime() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public long getFinishTime() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public StringBuilder getDiagnostics() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public ApplicationId getApplicationId() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public RMAppAttempt getCurrentAppAttempt() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public Map<ApplicationAttemptId, RMAppAttempt> getAppAttempts() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public float getProgress() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public RMAppAttempt getRMAppAttempt(ApplicationAttemptId appAttemptId) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public RMAppState getState() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public String getTrackingUrl() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public String getOriginalTrackingUrl() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public int getMaxAppAttempts() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public ApplicationReport createAndGetApplicationReport(
+            String clientUserName,boolean allowAccess) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public void handle(RMAppEvent event) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public FinalApplicationStatus getFinalApplicationStatus() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+        @Override
+        public int pullRMNodeUpdates(Collection<RMNode> updatedNodes) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public String getApplicationType() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Set<String> getApplicationTags() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public void setQueue(String name) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean isAppFinalStateStored() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public YarnApplicationState createApplicationState() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public Set<NodeId> getRanNodes() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public RMAppMetrics getRMAppMetrics() {
+            return new RMAppMetrics(Resource.newInstance(0, 0), 0, 0, 0, 0);
+        }
+
+        @Override
+        public ReservationId getReservationId() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public ResourceRequest getAMResourceRequest() {
+            return this.amReq;
+        }
     }
 
-    @Override
-    public ApplicationSubmissionContext getApplicationSubmissionContext() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public String getName() {
-      throw new UnsupportedOperationException("Not supported yet.");
+    public static RMApp newApplication(int i) {
+        final ApplicationAttemptId appAttemptId =
+            ApplicationAttemptId.newInstance(newAppID(i), 0);
+        final Container masterContainer = Records.newRecord(Container.class);
+        ContainerId containerId = ContainerId.newContainerId(appAttemptId, 0);
+        masterContainer.setId(containerId);
+        masterContainer.setNodeHttpAddress("node:port");
+        final String user = newUserName();
+        final String name = newAppName();
+        final String queue = newQueue();
+        final long start = 123456 + i * 1000;
+        final long finish = 234567 + i * 1000;
+        final String type = YarnConfiguration.DEFAULT_APPLICATION_TYPE;
+        YarnApplicationState[] allStates = YarnApplicationState.values();
+        final YarnApplicationState state = allStates[i % allStates.length];
+        final int maxAppAttempts = i % 1000;
+        return new ApplicationBase() {
+            @Override
+            public ApplicationId getApplicationId() {
+                return appAttemptId.getApplicationId();
+            }
+            @Override
+            public String getUser() {
+                return user;
+            }
+
+            @Override
+            public String getName() {
+                return name;
+            }
+
+            @Override
+            public String getApplicationType() {
+                return type;
+            }
+
+            @Override
+            public String getQueue() {
+                return queue;
+            }
+
+            @Override
+            public long getStartTime() {
+                return start;
+            }
+
+            @Override
+            public long getFinishTime() {
+                return finish;
+            }
+            @Override
+            public String getTrackingUrl() {
+                return null;
+            }
+            @Override
+            public YarnApplicationState createApplicationState() {
+                return state;
+            }
+            @Override
+            public StringBuilder getDiagnostics() {
+                return new StringBuilder();
+            }
+            @Override
+            public float getProgress() {
+                return (float)Math.random();
+            }
+            @Override
+            public FinalApplicationStatus getFinalApplicationStatus() {
+                return FinalApplicationStatus.UNDEFINED;
+            }
+
+            @Override
+            public RMAppAttempt getCurrentAppAttempt() {
+                return null;
+            }
+
+            @Override
+            public int getMaxAppAttempts() {
+                return maxAppAttempts;
+            }
+
+            @Override
+            public Set<String> getApplicationTags() {
+                return null;
+            }
+
+            @Override
+            public ApplicationReport createAndGetApplicationReport(
+                String clientUserName, boolean allowAccess) {
+                ApplicationResourceUsageReport usageReport =
+                    ApplicationResourceUsageReport.newInstance(0, 0, null, null, null,
+                            0, 0);
+                ApplicationReport report = ApplicationReport.newInstance(
+                                               getApplicationId(), appAttemptId, getUser(), getQueue(),
+                                               getName(), null, 0, null, null, getDiagnostics().toString(),
+                                               getTrackingUrl(), getStartTime(), getFinishTime(),
+                                               getFinalApplicationStatus(), usageReport, null, getProgress(),
+                                               type, null);
+                return report;
+            }
+
+        };
     }
 
-    @Override
-    public String getQueue() {
-      throw new UnsupportedOperationException("Not supported yet.");
+    public static List<RMApp> newApplications(int n) {
+        List<RMApp> list = Lists.newArrayList();
+        for (int i = 0; i < n; ++i) {
+            list.add(newApplication(i));
+        }
+        return list;
     }
-
-    @Override
-    public long getStartTime() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public long getSubmitTime() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public long getFinishTime() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public StringBuilder getDiagnostics() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public ApplicationId getApplicationId() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public RMAppAttempt getCurrentAppAttempt() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public Map<ApplicationAttemptId, RMAppAttempt> getAppAttempts() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public float getProgress() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public RMAppAttempt getRMAppAttempt(ApplicationAttemptId appAttemptId) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public RMAppState getState() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public String getTrackingUrl() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public String getOriginalTrackingUrl() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public int getMaxAppAttempts() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public ApplicationReport createAndGetApplicationReport(
-        String clientUserName,boolean allowAccess) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public void handle(RMAppEvent event) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public FinalApplicationStatus getFinalApplicationStatus() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    @Override
-    public int pullRMNodeUpdates(Collection<RMNode> updatedNodes) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public String getApplicationType() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Set<String> getApplicationTags() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void setQueue(String name) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public boolean isAppFinalStateStored() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public YarnApplicationState createApplicationState() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Set<NodeId> getRanNodes() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public RMAppMetrics getRMAppMetrics() {
-      return new RMAppMetrics(Resource.newInstance(0, 0), 0, 0, 0, 0);
-    }
-
-    @Override
-    public ReservationId getReservationId() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public ResourceRequest getAMResourceRequest() {
-      return this.amReq; 
-    }
-  }
-
-  public static RMApp newApplication(int i) {
-    final ApplicationAttemptId appAttemptId =
-        ApplicationAttemptId.newInstance(newAppID(i), 0);
-    final Container masterContainer = Records.newRecord(Container.class);
-    ContainerId containerId = ContainerId.newContainerId(appAttemptId, 0);
-    masterContainer.setId(containerId);
-    masterContainer.setNodeHttpAddress("node:port");
-    final String user = newUserName();
-    final String name = newAppName();
-    final String queue = newQueue();
-    final long start = 123456 + i * 1000;
-    final long finish = 234567 + i * 1000;
-    final String type = YarnConfiguration.DEFAULT_APPLICATION_TYPE;
-    YarnApplicationState[] allStates = YarnApplicationState.values();
-    final YarnApplicationState state = allStates[i % allStates.length];
-    final int maxAppAttempts = i % 1000;
-    return new ApplicationBase() {
-      @Override
-      public ApplicationId getApplicationId() {
-        return appAttemptId.getApplicationId();
-      }
-      @Override
-      public String getUser() {
-        return user;
-      }
-
-      @Override
-      public String getName() {
-        return name;
-      }
-
-      @Override
-      public String getApplicationType() {
-        return type;
-      }
-
-      @Override
-      public String getQueue() {
-        return queue;
-      }
-
-      @Override
-      public long getStartTime() {
-        return start;
-      }
-
-      @Override
-      public long getFinishTime() {
-        return finish;
-      }
-      @Override
-      public String getTrackingUrl() {
-        return null;
-      }
-      @Override
-      public YarnApplicationState createApplicationState() {
-        return state;
-      }
-      @Override
-      public StringBuilder getDiagnostics() {
-        return new StringBuilder();
-      }
-      @Override
-      public float getProgress() {
-        return (float)Math.random();
-      }
-      @Override
-      public FinalApplicationStatus getFinalApplicationStatus() {
-        return FinalApplicationStatus.UNDEFINED;
-      }
-
-      @Override
-      public RMAppAttempt getCurrentAppAttempt() {
-        return null;
-      }
-
-      @Override
-      public int getMaxAppAttempts() {
-        return maxAppAttempts;
-      }
-
-      @Override
-      public Set<String> getApplicationTags() {
-        return null;
-      }
-
-      @Override
-      public ApplicationReport createAndGetApplicationReport(
-          String clientUserName, boolean allowAccess) {
-        ApplicationResourceUsageReport usageReport =
-            ApplicationResourceUsageReport.newInstance(0, 0, null, null, null, 
-            0, 0);
-        ApplicationReport report = ApplicationReport.newInstance(
-            getApplicationId(), appAttemptId, getUser(), getQueue(), 
-            getName(), null, 0, null, null, getDiagnostics().toString(), 
-            getTrackingUrl(), getStartTime(), getFinishTime(), 
-            getFinalApplicationStatus(), usageReport , null, getProgress(),
-            type, null);
-        return report;
-      }
-
-    };
-  }
-
-  public static List<RMApp> newApplications(int n) {
-    List<RMApp> list = Lists.newArrayList();
-    for (int i = 0; i < n; ++i) {
-      list.add(newApplication(i));
-    }
-    return list;
-  }
 }

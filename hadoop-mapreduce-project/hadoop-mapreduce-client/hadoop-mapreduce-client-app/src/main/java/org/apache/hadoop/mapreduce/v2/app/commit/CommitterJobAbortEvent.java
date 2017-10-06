@@ -24,27 +24,27 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class CommitterJobAbortEvent extends CommitterEvent {
 
-  private JobId jobID;
-  private JobContext jobContext;
-  private JobStatus.State finalState;
+    private JobId jobID;
+    private JobContext jobContext;
+    private JobStatus.State finalState;
 
-  public CommitterJobAbortEvent(JobId jobID, JobContext jobContext,
-      JobStatus.State finalState) {
-    super(CommitterEventType.JOB_ABORT);
-    this.jobID = jobID;
-    this.jobContext = jobContext;
-    this.finalState = finalState;
-  }
+    public CommitterJobAbortEvent(JobId jobID, JobContext jobContext,
+                                  JobStatus.State finalState) {
+        super(CommitterEventType.JOB_ABORT);
+        this.jobID = jobID;
+        this.jobContext = jobContext;
+        this.finalState = finalState;
+    }
 
-  public JobId getJobID() {
-    return jobID;
-  }
+    public JobId getJobID() {
+        return jobID;
+    }
 
-  public JobContext getJobContext() {
-    return jobContext;
-  }
+    public JobContext getJobContext() {
+        return jobContext;
+    }
 
-  public JobStatus.State getFinalState() {
-    return finalState;
-  }
+    public JobStatus.State getFinalState() {
+        return finalState;
+    }
 }

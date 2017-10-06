@@ -25,32 +25,32 @@ import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Used for injecting faults in DFSClient and DFSOutputStream tests.
- * Calls into this are a no-op in production code. 
+ * Calls into this are a no-op in production code.
  */
 @VisibleForTesting
 @InterfaceAudience.Private
 public class DataNodeFaultInjector {
-  public static DataNodeFaultInjector instance = new DataNodeFaultInjector();
+    public static DataNodeFaultInjector instance = new DataNodeFaultInjector();
 
-  public static DataNodeFaultInjector get() {
-    return instance;
-  }
+    public static DataNodeFaultInjector get() {
+        return instance;
+    }
 
-  public void getHdfsBlocksMetadata() {}
+    public void getHdfsBlocksMetadata() {}
 
-  public static void set(DataNodeFaultInjector injector) {
-    instance = injector;
-  }
+    public static void set(DataNodeFaultInjector injector) {
+        instance = injector;
+    }
 
-  public boolean dropHeartbeatPacket() {
-    return false;
-  }
+    public boolean dropHeartbeatPacket() {
+        return false;
+    }
 
-  public void sendShortCircuitShmResponse() throws IOException {}
+    public void sendShortCircuitShmResponse() throws IOException {}
 
-  public void stopSendingPacketDownstream() throws IOException {}
+    public void stopSendingPacketDownstream() throws IOException {}
 
-  public void noRegistration() throws IOException { }
+    public void noRegistration() throws IOException { }
 
-  public void failMirrorConnection() throws IOException { }
+    public void failMirrorConnection() throws IOException { }
 }

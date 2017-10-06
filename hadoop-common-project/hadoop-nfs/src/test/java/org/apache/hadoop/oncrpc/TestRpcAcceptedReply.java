@@ -29,31 +29,31 @@ import org.junit.Test;
  * Test for {@link RpcAcceptedReply}
  */
 public class TestRpcAcceptedReply {
-  @Test
-  public void testAcceptState() {
-    assertEquals(AcceptState.SUCCESS, AcceptState.fromValue(0));
-    assertEquals(AcceptState.PROG_UNAVAIL, AcceptState.fromValue(1));
-    assertEquals(AcceptState.PROG_MISMATCH, AcceptState.fromValue(2));
-    assertEquals(AcceptState.PROC_UNAVAIL, AcceptState.fromValue(3));
-    assertEquals(AcceptState.GARBAGE_ARGS, AcceptState.fromValue(4));
-    assertEquals(AcceptState.SYSTEM_ERR, AcceptState.fromValue(5));
-  }
-  
-  @Test(expected = IndexOutOfBoundsException.class)
-  public void testAcceptStateFromInvalidValue() {
-    AcceptState.fromValue(6);
-  }
-  
-  @Test
-  public void testConstructor() {
-    Verifier verifier = new VerifierNone();
-    RpcAcceptedReply reply = new RpcAcceptedReply(0, 
-        ReplyState.MSG_ACCEPTED, verifier, AcceptState.SUCCESS);
-    assertEquals(0, reply.getXid());
-    assertEquals(RpcMessage.Type.RPC_REPLY, reply.getMessageType());
-    assertEquals(ReplyState.MSG_ACCEPTED, reply.getState());
-    assertEquals(verifier, reply.getVerifier());
-    assertEquals(AcceptState.SUCCESS, reply.getAcceptState());
-  }
+    @Test
+    public void testAcceptState() {
+        assertEquals(AcceptState.SUCCESS, AcceptState.fromValue(0));
+        assertEquals(AcceptState.PROG_UNAVAIL, AcceptState.fromValue(1));
+        assertEquals(AcceptState.PROG_MISMATCH, AcceptState.fromValue(2));
+        assertEquals(AcceptState.PROC_UNAVAIL, AcceptState.fromValue(3));
+        assertEquals(AcceptState.GARBAGE_ARGS, AcceptState.fromValue(4));
+        assertEquals(AcceptState.SYSTEM_ERR, AcceptState.fromValue(5));
+    }
+
+    @Test(expected = IndexOutOfBoundsException.class)
+    public void testAcceptStateFromInvalidValue() {
+        AcceptState.fromValue(6);
+    }
+
+    @Test
+    public void testConstructor() {
+        Verifier verifier = new VerifierNone();
+        RpcAcceptedReply reply = new RpcAcceptedReply(0,
+                ReplyState.MSG_ACCEPTED, verifier, AcceptState.SUCCESS);
+        assertEquals(0, reply.getXid());
+        assertEquals(RpcMessage.Type.RPC_REPLY, reply.getMessageType());
+        assertEquals(ReplyState.MSG_ACCEPTED, reply.getState());
+        assertEquals(verifier, reply.getVerifier());
+        assertEquals(AcceptState.SUCCESS, reply.getAcceptState());
+    }
 }
 

@@ -38,29 +38,29 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class CombineSequenceFileInputFormat<K,V>
-  extends CombineFileInputFormat<K,V> {
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public RecordReader<K,V> getRecordReader(InputSplit split, JobConf conf,
-    Reporter reporter) throws IOException {
-    return new CombineFileRecordReader(conf, (CombineFileSplit)split, reporter,
-      SequenceFileRecordReaderWrapper.class);
-  }
-
-  /**
-   * A record reader that may be passed to <code>CombineFileRecordReader</code>
-   * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
-   * for <code>SequenceFileInputFormat</code>.
-   *
-   * @see CombineFileRecordReader
-   * @see CombineFileInputFormat
-   * @see SequenceFileInputFormat
-   */
-  private static class SequenceFileRecordReaderWrapper<K,V>
-    extends CombineFileRecordReaderWrapper<K,V> {
-    // this constructor signature is required by CombineFileRecordReader
-    public SequenceFileRecordReaderWrapper(CombineFileSplit split,
-      Configuration conf, Reporter reporter, Integer idx) throws IOException {
-      super(new SequenceFileInputFormat<K,V>(), split, conf, reporter, idx);
+    extends CombineFileInputFormat<K,V> {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public RecordReader<K,V> getRecordReader(InputSplit split, JobConf conf,
+            Reporter reporter) throws IOException {
+        return new CombineFileRecordReader(conf, (CombineFileSplit)split, reporter,
+                                           SequenceFileRecordReaderWrapper.class);
     }
-  }
+
+    /**
+     * A record reader that may be passed to <code>CombineFileRecordReader</code>
+     * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
+     * for <code>SequenceFileInputFormat</code>.
+     *
+     * @see CombineFileRecordReader
+     * @see CombineFileInputFormat
+     * @see SequenceFileInputFormat
+     */
+    private static class SequenceFileRecordReaderWrapper<K,V>
+        extends CombineFileRecordReaderWrapper<K,V> {
+        // this constructor signature is required by CombineFileRecordReader
+        public SequenceFileRecordReaderWrapper(CombineFileSplit split,
+                                               Configuration conf, Reporter reporter, Integer idx) throws IOException {
+            super(new SequenceFileInputFormat<K,V>(), split, conf, reporter, idx);
+        }
+    }
 }

@@ -26,50 +26,50 @@ import org.junit.Test;
 
 /**
  * Tests NameNode interaction for all XAttr APIs.
- * This test suite covers restarting NN, saving new checkpoint, 
- * and also includes test of xattrs for symlinks. 
+ * This test suite covers restarting NN, saving new checkpoint,
+ * and also includes test of xattrs for symlinks.
  */
 public class TestNameNodeXAttr extends FSXAttrBaseTest {
-  
-  private static final Path linkParent = new Path("/symdir1");
-  private static final Path targetParent = new Path("/symdir2");
-  private static final Path link = new Path(linkParent, "link");
-  private static final Path target = new Path(targetParent, "target");
 
-  @Test(timeout = 120000)
-  public void testXAttrSymlinks() throws Exception {
-    fs.mkdirs(linkParent);
-    fs.mkdirs(targetParent);
-    DFSTestUtil.createFile(fs, target, 1024, (short)3, 0xBEEFl);
-    fs.createSymlink(target, link, false);
-    
-    fs.setXAttr(target, name1, value1);
-    fs.setXAttr(target, name2, value2);
-    
-    Map<String, byte[]> xattrs = fs.getXAttrs(link);
-    Assert.assertEquals(xattrs.size(), 2);
-    Assert.assertArrayEquals(value1, xattrs.get(name1));
-    Assert.assertArrayEquals(value2, xattrs.get(name2));
-    
-    fs.setXAttr(link, name3, null);
-    xattrs = fs.getXAttrs(target);
-    Assert.assertEquals(xattrs.size(), 3);
-    Assert.assertArrayEquals(value1, xattrs.get(name1));
-    Assert.assertArrayEquals(value2, xattrs.get(name2));
-    Assert.assertArrayEquals(new byte[0], xattrs.get(name3));
-    
-    fs.removeXAttr(link, name1);
-    xattrs = fs.getXAttrs(target);
-    Assert.assertEquals(xattrs.size(), 2);
-    Assert.assertArrayEquals(value2, xattrs.get(name2));
-    Assert.assertArrayEquals(new byte[0], xattrs.get(name3));
-    
-    fs.removeXAttr(target, name3);
-    xattrs = fs.getXAttrs(link);
-    Assert.assertEquals(xattrs.size(), 1);
-    Assert.assertArrayEquals(value2, xattrs.get(name2));
-    
-    fs.delete(linkParent, true);
-    fs.delete(targetParent, true);
-  }
+    private static final Path linkParent = new Path("/symdir1");
+    private static final Path targetParent = new Path("/symdir2");
+    private static final Path link = new Path(linkParent, "link");
+    private static final Path target = new Path(targetParent, "target");
+
+    @Test(timeout = 120000)
+    public void testXAttrSymlinks() throws Exception {
+        fs.mkdirs(linkParent);
+        fs.mkdirs(targetParent);
+        DFSTestUtil.createFile(fs, target, 1024, (short)3, 0xBEEFl);
+        fs.createSymlink(target, link, false);
+
+        fs.setXAttr(target, name1, value1);
+        fs.setXAttr(target, name2, value2);
+
+        Map<String, byte[]> xattrs = fs.getXAttrs(link);
+        Assert.assertEquals(xattrs.size(), 2);
+        Assert.assertArrayEquals(value1, xattrs.get(name1));
+        Assert.assertArrayEquals(value2, xattrs.get(name2));
+
+        fs.setXAttr(link, name3, null);
+        xattrs = fs.getXAttrs(target);
+        Assert.assertEquals(xattrs.size(), 3);
+        Assert.assertArrayEquals(value1, xattrs.get(name1));
+        Assert.assertArrayEquals(value2, xattrs.get(name2));
+        Assert.assertArrayEquals(new byte[0], xattrs.get(name3));
+
+        fs.removeXAttr(link, name1);
+        xattrs = fs.getXAttrs(target);
+        Assert.assertEquals(xattrs.size(), 2);
+        Assert.assertArrayEquals(value2, xattrs.get(name2));
+        Assert.assertArrayEquals(new byte[0], xattrs.get(name3));
+
+        fs.removeXAttr(target, name3);
+        xattrs = fs.getXAttrs(link);
+        Assert.assertEquals(xattrs.size(), 1);
+        Assert.assertArrayEquals(value2, xattrs.get(name2));
+
+        fs.delete(linkParent, true);
+        fs.delete(targetParent, true);
+    }
 }

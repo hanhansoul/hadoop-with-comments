@@ -51,63 +51,63 @@ import com.google.protobuf.ServiceException;
 @Private
 public class ApplicationMasterProtocolPBClientImpl implements ApplicationMasterProtocol, Closeable {
 
-  private ApplicationMasterProtocolPB proxy;
+    private ApplicationMasterProtocolPB proxy;
 
-  public ApplicationMasterProtocolPBClientImpl(long clientVersion, InetSocketAddress addr,
-      Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, ApplicationMasterProtocolPB.class, ProtobufRpcEngine.class);
-    proxy =
-        (ApplicationMasterProtocolPB) RPC.getProxy(ApplicationMasterProtocolPB.class, clientVersion,
-          addr, conf);
-  }
-
-  @Override
-  public void close() {
-    if (this.proxy != null) {
-      RPC.stopProxy(this.proxy);
+    public ApplicationMasterProtocolPBClientImpl(long clientVersion, InetSocketAddress addr,
+            Configuration conf) throws IOException {
+        RPC.setProtocolEngine(conf, ApplicationMasterProtocolPB.class, ProtobufRpcEngine.class);
+        proxy =
+            (ApplicationMasterProtocolPB) RPC.getProxy(ApplicationMasterProtocolPB.class, clientVersion,
+                    addr, conf);
     }
-  }
 
-  @Override
-  public AllocateResponse allocate(AllocateRequest request)
-      throws YarnException, IOException {
-    AllocateRequestProto requestProto =
-        ((AllocateRequestPBImpl) request).getProto();
-    try {
-      return new AllocateResponsePBImpl(proxy.allocate(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public void close() {
+        if (this.proxy != null) {
+            RPC.stopProxy(this.proxy);
+        }
     }
-  }
 
-  @Override
-  public FinishApplicationMasterResponse finishApplicationMaster(
-      FinishApplicationMasterRequest request) throws YarnException,
-      IOException {
-    FinishApplicationMasterRequestProto requestProto =
-        ((FinishApplicationMasterRequestPBImpl) request).getProto();
-    try {
-      return new FinishApplicationMasterResponsePBImpl(
-        proxy.finishApplicationMaster(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public AllocateResponse allocate(AllocateRequest request)
+    throws YarnException, IOException {
+        AllocateRequestProto requestProto =
+            ((AllocateRequestPBImpl) request).getProto();
+        try {
+            return new AllocateResponsePBImpl(proxy.allocate(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public RegisterApplicationMasterResponse registerApplicationMaster(
-      RegisterApplicationMasterRequest request) throws YarnException,
-      IOException {
-    RegisterApplicationMasterRequestProto requestProto =
-        ((RegisterApplicationMasterRequestPBImpl) request).getProto();
-    try {
-      return new RegisterApplicationMasterResponsePBImpl(
-        proxy.registerApplicationMaster(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public FinishApplicationMasterResponse finishApplicationMaster(
+        FinishApplicationMasterRequest request) throws YarnException,
+        IOException {
+        FinishApplicationMasterRequestProto requestProto =
+            ((FinishApplicationMasterRequestPBImpl) request).getProto();
+        try {
+            return new FinishApplicationMasterResponsePBImpl(
+                       proxy.finishApplicationMaster(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
+
+    @Override
+    public RegisterApplicationMasterResponse registerApplicationMaster(
+        RegisterApplicationMasterRequest request) throws YarnException,
+        IOException {
+        RegisterApplicationMasterRequestProto requestProto =
+            ((RegisterApplicationMasterRequestPBImpl) request).getProto();
+        try {
+            return new RegisterApplicationMasterResponsePBImpl(
+                       proxy.registerApplicationMaster(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
+    }
 }

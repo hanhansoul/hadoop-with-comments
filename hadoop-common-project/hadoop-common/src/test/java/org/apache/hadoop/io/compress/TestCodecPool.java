@@ -36,122 +36,122 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestCodecPool {
-  private final String LEASE_COUNT_ERR =
-      "Incorrect number of leased (de)compressors";
-  DefaultCodec codec;
+    private final String LEASE_COUNT_ERR =
+        "Incorrect number of leased (de)compressors";
+    DefaultCodec codec;
 
-  @Before
-  public void setup() {
-    this.codec = new DefaultCodec();
-    this.codec.setConf(new Configuration());
-  }
-
-  @Test(timeout = 1000)
-  public void testCompressorPoolCounts() {
-    // Get two compressors and return them
-    Compressor comp1 = CodecPool.getCompressor(codec);
-    Compressor comp2 = CodecPool.getCompressor(codec);
-    assertEquals(LEASE_COUNT_ERR, 2,
-        CodecPool.getLeasedCompressorsCount(codec));
-
-    CodecPool.returnCompressor(comp2);
-    assertEquals(LEASE_COUNT_ERR, 1,
-        CodecPool.getLeasedCompressorsCount(codec));
-
-    CodecPool.returnCompressor(comp1);
-    assertEquals(LEASE_COUNT_ERR, 0,
-        CodecPool.getLeasedCompressorsCount(codec));
-  }
-
-  @Test(timeout = 1000)
-  public void testDecompressorPoolCounts() {
-    // Get two decompressors and return them
-    Decompressor decomp1 = CodecPool.getDecompressor(codec);
-    Decompressor decomp2 = CodecPool.getDecompressor(codec);
-    assertEquals(LEASE_COUNT_ERR, 2,
-        CodecPool.getLeasedDecompressorsCount(codec));
-
-    CodecPool.returnDecompressor(decomp2);
-    assertEquals(LEASE_COUNT_ERR, 1,
-        CodecPool.getLeasedDecompressorsCount(codec));
-
-    CodecPool.returnDecompressor(decomp1);
-    assertEquals(LEASE_COUNT_ERR, 0,
-        CodecPool.getLeasedDecompressorsCount(codec));
-  }
-
-  @Test(timeout = 1000)
-  public void testMultiThreadedCompressorPool() throws InterruptedException {
-    final int iterations = 4;
-    ExecutorService threadpool = Executors.newFixedThreadPool(3);
-    final LinkedBlockingDeque<Compressor> queue = new LinkedBlockingDeque<Compressor>(
-        2 * iterations);
-
-    Callable<Boolean> consumer = new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        Compressor c = queue.take();
-        CodecPool.returnCompressor(c);
-        return c != null;
-      }
-    };
-
-    Callable<Boolean> producer = new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        Compressor c = CodecPool.getCompressor(codec);
-        queue.put(c);
-        return c != null;
-      }
-    };
-
-    for (int i = 0; i < iterations; i++) {
-      threadpool.submit(consumer);
-      threadpool.submit(producer);
+    @Before
+    public void setup() {
+        this.codec = new DefaultCodec();
+        this.codec.setConf(new Configuration());
     }
 
-    // wait for completion
-    threadpool.shutdown();
-    threadpool.awaitTermination(1000, TimeUnit.SECONDS);
+    @Test(timeout = 1000)
+    public void testCompressorPoolCounts() {
+        // Get two compressors and return them
+        Compressor comp1 = CodecPool.getCompressor(codec);
+        Compressor comp2 = CodecPool.getCompressor(codec);
+        assertEquals(LEASE_COUNT_ERR, 2,
+                     CodecPool.getLeasedCompressorsCount(codec));
 
-    assertEquals(LEASE_COUNT_ERR, 0, CodecPool.getLeasedCompressorsCount(codec));
-  }
+        CodecPool.returnCompressor(comp2);
+        assertEquals(LEASE_COUNT_ERR, 1,
+                     CodecPool.getLeasedCompressorsCount(codec));
 
-  @Test(timeout = 1000)
-  public void testMultiThreadedDecompressorPool() throws InterruptedException {
-    final int iterations = 4;
-    ExecutorService threadpool = Executors.newFixedThreadPool(3);
-    final LinkedBlockingDeque<Decompressor> queue = new LinkedBlockingDeque<Decompressor>(
-        2 * iterations);
-
-    Callable<Boolean> consumer = new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        Decompressor dc = queue.take();
-        CodecPool.returnDecompressor(dc);
-        return dc != null;
-      }
-    };
-
-    Callable<Boolean> producer = new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        Decompressor c = CodecPool.getDecompressor(codec);
-        queue.put(c);
-        return c != null;
-      }
-    };
-
-    for (int i = 0; i < iterations; i++) {
-      threadpool.submit(consumer);
-      threadpool.submit(producer);
+        CodecPool.returnCompressor(comp1);
+        assertEquals(LEASE_COUNT_ERR, 0,
+                     CodecPool.getLeasedCompressorsCount(codec));
     }
 
-    // wait for completion
-    threadpool.shutdown();
-    threadpool.awaitTermination(1000, TimeUnit.SECONDS);
+    @Test(timeout = 1000)
+    public void testDecompressorPoolCounts() {
+        // Get two decompressors and return them
+        Decompressor decomp1 = CodecPool.getDecompressor(codec);
+        Decompressor decomp2 = CodecPool.getDecompressor(codec);
+        assertEquals(LEASE_COUNT_ERR, 2,
+                     CodecPool.getLeasedDecompressorsCount(codec));
 
-    assertEquals(LEASE_COUNT_ERR, 0,
-        CodecPool.getLeasedDecompressorsCount(codec));
-  }
+        CodecPool.returnDecompressor(decomp2);
+        assertEquals(LEASE_COUNT_ERR, 1,
+                     CodecPool.getLeasedDecompressorsCount(codec));
+
+        CodecPool.returnDecompressor(decomp1);
+        assertEquals(LEASE_COUNT_ERR, 0,
+                     CodecPool.getLeasedDecompressorsCount(codec));
+    }
+
+    @Test(timeout = 1000)
+    public void testMultiThreadedCompressorPool() throws InterruptedException {
+        final int iterations = 4;
+        ExecutorService threadpool = Executors.newFixedThreadPool(3);
+        final LinkedBlockingDeque<Compressor> queue = new LinkedBlockingDeque<Compressor>(
+            2 * iterations);
+
+        Callable<Boolean> consumer = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Compressor c = queue.take();
+                CodecPool.returnCompressor(c);
+                return c != null;
+            }
+        };
+
+        Callable<Boolean> producer = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Compressor c = CodecPool.getCompressor(codec);
+                queue.put(c);
+                return c != null;
+            }
+        };
+
+        for (int i = 0; i < iterations; i++) {
+            threadpool.submit(consumer);
+            threadpool.submit(producer);
+        }
+
+        // wait for completion
+        threadpool.shutdown();
+        threadpool.awaitTermination(1000, TimeUnit.SECONDS);
+
+        assertEquals(LEASE_COUNT_ERR, 0, CodecPool.getLeasedCompressorsCount(codec));
+    }
+
+    @Test(timeout = 1000)
+    public void testMultiThreadedDecompressorPool() throws InterruptedException {
+        final int iterations = 4;
+        ExecutorService threadpool = Executors.newFixedThreadPool(3);
+        final LinkedBlockingDeque<Decompressor> queue = new LinkedBlockingDeque<Decompressor>(
+            2 * iterations);
+
+        Callable<Boolean> consumer = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Decompressor dc = queue.take();
+                CodecPool.returnDecompressor(dc);
+                return dc != null;
+            }
+        };
+
+        Callable<Boolean> producer = new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                Decompressor c = CodecPool.getDecompressor(codec);
+                queue.put(c);
+                return c != null;
+            }
+        };
+
+        for (int i = 0; i < iterations; i++) {
+            threadpool.submit(consumer);
+            threadpool.submit(producer);
+        }
+
+        // wait for completion
+        threadpool.shutdown();
+        threadpool.awaitTermination(1000, TimeUnit.SECONDS);
+
+        assertEquals(LEASE_COUNT_ERR, 0,
+                     CodecPool.getLeasedDecompressorsCount(codec));
+    }
 }

@@ -30,46 +30,48 @@ import com.google.inject.Inject;
  * The navigation block for the history server
  */
 public class HsNavBlock extends HtmlBlock {
-  final App app;
+    final App app;
 
-  @Inject HsNavBlock(App app) { this.app = app; }
-
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.yarn.webapp.view.HtmlBlock#render(org.apache.hadoop.yarn.webapp.view.HtmlBlock.Block)
-   */
-  @Override protected void render(Block html) {
-    DIV<Hamlet> nav = html.
-      div("#nav").
-      h3("Application").
-        ul().
-          li().a(url("about"), "About")._().
-          li().a(url("app"), "Jobs")._()._();
-    if (app.getJob() != null) {
-      String jobid = MRApps.toString(app.getJob().getID());
-      nav.
-        h3("Job").
-        ul().
-          li().a(url("job", jobid), "Overview")._().
-          li().a(url("jobcounters", jobid), "Counters")._().
-          li().a(url("conf", jobid), "Configuration")._().
-          li().a(url("tasks", jobid, "m"), "Map tasks")._().
-          li().a(url("tasks", jobid, "r"), "Reduce tasks")._()._();
-      if (app.getTask() != null) {
-        String taskid = MRApps.toString(app.getTask().getID());
-        nav.
-          h3("Task").
-          ul().
-            li().a(url("task", taskid), "Task Overview")._().
-            li().a(url("taskcounters", taskid), "Counters")._()._();
-      }
+    @Inject HsNavBlock(App app) {
+        this.app = app;
     }
-    nav.
-      h3("Tools").
+
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.yarn.webapp.view.HtmlBlock#render(org.apache.hadoop.yarn.webapp.view.HtmlBlock.Block)
+     */
+    @Override protected void render(Block html) {
+        DIV<Hamlet> nav = html.
+                          div("#nav").
+                          h3("Application").
+                          ul().
+                          li().a(url("about"), "About")._().
+                          li().a(url("app"), "Jobs")._()._();
+        if (app.getJob() != null) {
+            String jobid = MRApps.toString(app.getJob().getID());
+            nav.
+            h3("Job").
+            ul().
+            li().a(url("job", jobid), "Overview")._().
+            li().a(url("jobcounters", jobid), "Counters")._().
+            li().a(url("conf", jobid), "Configuration")._().
+            li().a(url("tasks", jobid, "m"), "Map tasks")._().
+            li().a(url("tasks", jobid, "r"), "Reduce tasks")._()._();
+            if (app.getTask() != null) {
+                String taskid = MRApps.toString(app.getTask().getID());
+                nav.
+                h3("Task").
+                ul().
+                li().a(url("task", taskid), "Task Overview")._().
+                li().a(url("taskcounters", taskid), "Counters")._()._();
+            }
+        }
+        nav.
+        h3("Tools").
         ul().
-          li().a("/conf", "Configuration")._().
-          li().a("/logs", "Local logs")._().
-          li().a("/stacks", "Server stacks")._().
-          li().a("/metrics", "Server metrics")._()._()._();
-  }
+        li().a("/conf", "Configuration")._().
+        li().a("/logs", "Local logs")._().
+        li().a("/stacks", "Server stacks")._().
+        li().a("/metrics", "Server metrics")._()._()._();
+    }
 }

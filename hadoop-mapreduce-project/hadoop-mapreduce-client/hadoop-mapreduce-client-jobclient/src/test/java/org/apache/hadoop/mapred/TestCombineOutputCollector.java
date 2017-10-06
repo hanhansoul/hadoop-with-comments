@@ -35,112 +35,112 @@ import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.junit.Test;
 
 public class TestCombineOutputCollector {
-  private CombineOutputCollector<String, Integer> coc;
+    private CombineOutputCollector<String, Integer> coc;
 
-  Counters.Counter outCounter = new Counters.Counter() {
-    private long value;
-    @Override
-    public void setValue(long value) {
-      this.value = value;
-    }
-    
-    @Override
-    public void setDisplayName(String displayName) {
-      // TODO Auto-generated method stub
-      
-    }
-    
-    @Override
-    public void increment(long incr) {
-      this.value += incr;
-    }
-    
-    @Override
-    public long getValue() {
-      return value;
-    }
-    
-    @Override
-    public String getName() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-    
-    @Override
-    public String getDisplayName() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-    
-    @Override
-    public String makeEscapedCompactString() {
-      // TODO Auto-generated method stub
-      return null;
-    }
-    
-    @Override
-    public long getCounter() {
-      return value;
-    }
-    
-    @Override
-    public boolean contentEquals(Counter counter) {
-      // TODO Auto-generated method stub
-      return false;
-    }
-    
-    @Override
-    public void write(DataOutput out) throws IOException {
+    Counters.Counter outCounter = new Counters.Counter() {
+        private long value;
+        @Override
+        public void setValue(long value) {
+            this.value = value;
+        }
+
+        @Override
+        public void setDisplayName(String displayName) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void increment(long incr) {
+            this.value += incr;
+        }
+
+        @Override
+        public long getValue() {
+            return value;
+        }
+
+        @Override
+        public String getName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String getDisplayName() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public String makeEscapedCompactString() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public long getCounter() {
+            return value;
+        }
+
+        @Override
+        public boolean contentEquals(Counter counter) {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public void write(DataOutput out) throws IOException {
+        }
+
+        @Override
+        public void readFields(DataInput in) throws IOException {
+        }
+    };
+
+    @Test
+    public void testCustomCollect() throws Throwable {
+        //mock creation
+        TaskReporter mockTaskReporter = mock(TaskReporter.class);
+
+        @SuppressWarnings("unchecked")
+        Writer<String, Integer> mockWriter = mock(Writer.class);
+
+        Configuration conf = new Configuration();
+        conf.set(MRJobConfig.COMBINE_RECORDS_BEFORE_PROGRESS, "2");
+
+        coc = new CombineOutputCollector<String, Integer>(outCounter, mockTaskReporter, conf);
+        coc.setWriter(mockWriter);
+        verify(mockTaskReporter, never()).progress();
+
+        coc.collect("dummy", 1);
+        verify(mockTaskReporter, never()).progress();
+
+        coc.collect("dummy", 2);
+        verify(mockTaskReporter, times(1)).progress();
     }
 
-    @Override
-    public void readFields(DataInput in) throws IOException {
+    @Test
+    public void testDefaultCollect() throws Throwable {
+        //mock creation
+        TaskReporter mockTaskReporter = mock(TaskReporter.class);
+
+        @SuppressWarnings("unchecked")
+        Writer<String, Integer> mockWriter = mock(Writer.class);
+
+        Configuration conf = new Configuration();
+
+        coc = new CombineOutputCollector<String, Integer>(outCounter, mockTaskReporter, conf);
+        coc.setWriter(mockWriter);
+        verify(mockTaskReporter, never()).progress();
+
+        for(int i = 0; i < Task.DEFAULT_COMBINE_RECORDS_BEFORE_PROGRESS; i++) {
+            coc.collect("dummy", i);
+        }
+        verify(mockTaskReporter, times(1)).progress();
+        for(int i = 0; i < Task.DEFAULT_COMBINE_RECORDS_BEFORE_PROGRESS; i++) {
+            coc.collect("dummy", i);
+        }
+        verify(mockTaskReporter, times(2)).progress();
     }
-  };
-
-  @Test
-  public void testCustomCollect() throws Throwable {
-    //mock creation
-    TaskReporter mockTaskReporter = mock(TaskReporter.class);
-
-    @SuppressWarnings("unchecked")
-    Writer<String, Integer> mockWriter = mock(Writer.class);
-
-    Configuration conf = new Configuration();
-    conf.set(MRJobConfig.COMBINE_RECORDS_BEFORE_PROGRESS, "2");
-    
-    coc = new CombineOutputCollector<String, Integer>(outCounter, mockTaskReporter, conf);
-    coc.setWriter(mockWriter);
-    verify(mockTaskReporter, never()).progress();
-
-    coc.collect("dummy", 1);
-    verify(mockTaskReporter, never()).progress();
-    
-    coc.collect("dummy", 2);
-    verify(mockTaskReporter, times(1)).progress();
-  }
-  
-  @Test
-  public void testDefaultCollect() throws Throwable {
-    //mock creation
-    TaskReporter mockTaskReporter = mock(TaskReporter.class);
-
-    @SuppressWarnings("unchecked")
-    Writer<String, Integer> mockWriter = mock(Writer.class);
-
-    Configuration conf = new Configuration();
-    
-    coc = new CombineOutputCollector<String, Integer>(outCounter, mockTaskReporter, conf);
-    coc.setWriter(mockWriter);
-    verify(mockTaskReporter, never()).progress();
-
-    for(int i = 0; i < Task.DEFAULT_COMBINE_RECORDS_BEFORE_PROGRESS; i++) {
-    	coc.collect("dummy", i);
-    }
-    verify(mockTaskReporter, times(1)).progress();
-    for(int i = 0; i < Task.DEFAULT_COMBINE_RECORDS_BEFORE_PROGRESS; i++) {
-    	coc.collect("dummy", i);
-    }
-    verify(mockTaskReporter, times(2)).progress();
-  }
 }

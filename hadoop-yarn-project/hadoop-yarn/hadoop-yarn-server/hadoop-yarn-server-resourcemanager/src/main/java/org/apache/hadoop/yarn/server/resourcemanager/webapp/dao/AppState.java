@@ -26,21 +26,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppState {
 
-  String state;
+    String state;
 
-  public AppState() {
-  }
+    public AppState() {
+    }
 
-  public AppState(String state) {
-    this.state = state;
-  }
+    public AppState(String state) {
+        this.state = state;
+    }
 
-  public void setState(String state) {
-    this.state = state;
-  }
+    public void setState(String state) {
+        this.state = state;
+    }
 
-  public String getState() {
-    return this.state;
-  }
+    public String getState() {
+        return this.state;
+    }
 
 }

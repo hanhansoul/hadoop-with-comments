@@ -26,17 +26,17 @@ import org.apache.hadoop.oncrpc.XDR;
  * PATHCONF3 Request
  */
 public class PATHCONF3Request extends RequestWithHandle {
-  public static PATHCONF3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    return new PATHCONF3Request(handle);
-  }
-  
-  public PATHCONF3Request(FileHandle handle) {
-    super(handle);
-  }
-  
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-  }
+    public static PATHCONF3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        return new PATHCONF3Request(handle);
+    }
+
+    public PATHCONF3Request(FileHandle handle) {
+        super(handle);
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+    }
 }

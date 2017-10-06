@@ -22,7 +22,7 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class NodeLabelsStoreEvent extends
     AbstractEvent<NodeLabelsStoreEventType> {
-  public NodeLabelsStoreEvent(NodeLabelsStoreEventType type) {
-    super(type);
-  }
+    public NodeLabelsStoreEvent(NodeLabelsStoreEventType type) {
+        super(type);
+    }
 }

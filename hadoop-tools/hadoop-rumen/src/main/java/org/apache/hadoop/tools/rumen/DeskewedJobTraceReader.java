@@ -31,171 +31,171 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class DeskewedJobTraceReader implements Closeable {
-  // underlying engine
-  private final JobTraceReader reader;
+    // underlying engine
+    private final JobTraceReader reader;
 
-  // configuration variables
-  private final int skewBufferLength;
+    // configuration variables
+    private final int skewBufferLength;
 
-  private final boolean abortOnUnfixableSkew;
+    private final boolean abortOnUnfixableSkew;
 
-  // state variables
-  private long skewMeasurementLatestSubmitTime = Long.MIN_VALUE;
+    // state variables
+    private long skewMeasurementLatestSubmitTime = Long.MIN_VALUE;
 
-  private long returnedLatestSubmitTime = Long.MIN_VALUE;
+    private long returnedLatestSubmitTime = Long.MIN_VALUE;
 
-  private int maxSkewBufferNeeded = 0;
+    private int maxSkewBufferNeeded = 0;
 
-  // a submit time will NOT be in countedRepeatedSubmitTimesSoFar if
-  // it only occurs once. This situation is represented by having the
-  // time in submitTimesSoFar only. A submit time that occurs twice or more
-  // appears in countedRepeatedSubmitTimesSoFar [with the appropriate range
-  // value] AND submitTimesSoFar
-  private TreeMap<Long, Integer> countedRepeatedSubmitTimesSoFar =
-      new TreeMap<Long, Integer>();
-  private TreeSet<Long> submitTimesSoFar = new TreeSet<Long>();
+    // a submit time will NOT be in countedRepeatedSubmitTimesSoFar if
+    // it only occurs once. This situation is represented by having the
+    // time in submitTimesSoFar only. A submit time that occurs twice or more
+    // appears in countedRepeatedSubmitTimesSoFar [with the appropriate range
+    // value] AND submitTimesSoFar
+    private TreeMap<Long, Integer> countedRepeatedSubmitTimesSoFar =
+        new TreeMap<Long, Integer>();
+    private TreeSet<Long> submitTimesSoFar = new TreeSet<Long>();
 
-  private final PriorityQueue<LoggedJob> skewBuffer;
+    private final PriorityQueue<LoggedJob> skewBuffer;
 
-  static final private Log LOG =
-      LogFactory.getLog(DeskewedJobTraceReader.class);
+    static final private Log LOG =
+        LogFactory.getLog(DeskewedJobTraceReader.class);
 
-  static private class JobComparator implements Comparator<LoggedJob>, 
-  Serializable {
-    @Override
-    public int compare(LoggedJob j1, LoggedJob j2) {
-      return (j1.getSubmitTime() < j2.getSubmitTime()) ? -1 : (j1
-          .getSubmitTime() == j2.getSubmitTime()) ? 0 : 1;
+    static private class JobComparator implements Comparator<LoggedJob>,
+        Serializable {
+        @Override
+        public int compare(LoggedJob j1, LoggedJob j2) {
+            return (j1.getSubmitTime() < j2.getSubmitTime()) ? -1 : (j1
+                    .getSubmitTime() == j2.getSubmitTime()) ? 0 : 1;
+        }
     }
-  }
 
-  /**
-   * Constructor.
-   * 
-   * @param reader
-   *          the {@link JobTraceReader} that's being protected
-   * @param skewBufferLength
-   *          [the number of late jobs that can preced a later out-of-order
-   *          earlier job
-   * @throws IOException
-   */
-  public DeskewedJobTraceReader(JobTraceReader reader, int skewBufferLength,
-      boolean abortOnUnfixableSkew) throws IOException {
-    this.reader = reader;
+    /**
+     * Constructor.
+     *
+     * @param reader
+     *          the {@link JobTraceReader} that's being protected
+     * @param skewBufferLength
+     *          [the number of late jobs that can preced a later out-of-order
+     *          earlier job
+     * @throws IOException
+     */
+    public DeskewedJobTraceReader(JobTraceReader reader, int skewBufferLength,
+                                  boolean abortOnUnfixableSkew) throws IOException {
+        this.reader = reader;
 
-    this.skewBufferLength = skewBufferLength;
+        this.skewBufferLength = skewBufferLength;
 
-    this.abortOnUnfixableSkew = abortOnUnfixableSkew;
+        this.abortOnUnfixableSkew = abortOnUnfixableSkew;
 
-    skewBuffer =
-        new PriorityQueue<LoggedJob>(skewBufferLength + 1, new JobComparator());
+        skewBuffer =
+            new PriorityQueue<LoggedJob>(skewBufferLength + 1, new JobComparator());
 
-    fillSkewBuffer();
-  }
+        fillSkewBuffer();
+    }
 
-  public DeskewedJobTraceReader(JobTraceReader reader) throws IOException {
-    this(reader, 0, true);
-  }
+    public DeskewedJobTraceReader(JobTraceReader reader) throws IOException {
+        this(reader, 0, true);
+    }
 
-  private LoggedJob rawNextJob() throws IOException {
-    LoggedJob result = reader.getNext();
+    private LoggedJob rawNextJob() throws IOException {
+        LoggedJob result = reader.getNext();
 
-    if ((!abortOnUnfixableSkew || skewBufferLength > 0) && result != null) {
-      long thisTime = result.getSubmitTime();
+        if ((!abortOnUnfixableSkew || skewBufferLength > 0) && result != null) {
+            long thisTime = result.getSubmitTime();
 
-      if (submitTimesSoFar.contains(thisTime)) {
-        Integer myCount = countedRepeatedSubmitTimesSoFar.get(thisTime);
+            if (submitTimesSoFar.contains(thisTime)) {
+                Integer myCount = countedRepeatedSubmitTimesSoFar.get(thisTime);
 
-        countedRepeatedSubmitTimesSoFar.put(thisTime, myCount == null ? 2
-            : myCount + 1);
-      } else {
-        submitTimesSoFar.add(thisTime);
-      }
+                countedRepeatedSubmitTimesSoFar.put(thisTime, myCount == null ? 2
+                                                    : myCount + 1);
+            } else {
+                submitTimesSoFar.add(thisTime);
+            }
 
-      if (thisTime < skewMeasurementLatestSubmitTime) {
-        Iterator<Long> endCursor = submitTimesSoFar.descendingIterator();
+            if (thisTime < skewMeasurementLatestSubmitTime) {
+                Iterator<Long> endCursor = submitTimesSoFar.descendingIterator();
 
-        int thisJobNeedsSkew = 0;
+                int thisJobNeedsSkew = 0;
 
-        Long keyNeedingSkew;
+                Long keyNeedingSkew;
 
-        while (endCursor.hasNext()
-            && (keyNeedingSkew = endCursor.next()) > thisTime) {
-          Integer keyNeedsSkewAmount =
-              countedRepeatedSubmitTimesSoFar.get(keyNeedingSkew);
+                while (endCursor.hasNext()
+                       && (keyNeedingSkew = endCursor.next()) > thisTime) {
+                    Integer keyNeedsSkewAmount =
+                        countedRepeatedSubmitTimesSoFar.get(keyNeedingSkew);
 
-          thisJobNeedsSkew +=
-              keyNeedsSkewAmount == null ? 1 : keyNeedsSkewAmount;
+                    thisJobNeedsSkew +=
+                        keyNeedsSkewAmount == null ? 1 : keyNeedsSkewAmount;
+                }
+
+                maxSkewBufferNeeded = Math.max(maxSkewBufferNeeded, thisJobNeedsSkew);
+            }
+
+            skewMeasurementLatestSubmitTime =
+                Math.max(thisTime, skewMeasurementLatestSubmitTime);
         }
 
-        maxSkewBufferNeeded = Math.max(maxSkewBufferNeeded, thisJobNeedsSkew);
-      }
-
-      skewMeasurementLatestSubmitTime =
-          Math.max(thisTime, skewMeasurementLatestSubmitTime);
+        return result;
     }
 
-    return result;
-  }
+    static class OutOfOrderException extends RuntimeException {
+        static final long serialVersionUID = 1L;
 
-  static class OutOfOrderException extends RuntimeException {
-    static final long serialVersionUID = 1L;
-
-    public OutOfOrderException(String text) {
-      super(text);
-    }
-  }
-
-  LoggedJob nextJob() throws IOException, OutOfOrderException {
-    LoggedJob newJob = rawNextJob();
-
-    if (newJob != null) {
-      skewBuffer.add(newJob);
+        public OutOfOrderException(String text) {
+            super(text);
+        }
     }
 
-    LoggedJob result = skewBuffer.poll();
+    LoggedJob nextJob() throws IOException, OutOfOrderException {
+        LoggedJob newJob = rawNextJob();
 
-    while (result != null && result.getSubmitTime() < returnedLatestSubmitTime) {
-      LOG.error("The current job was submitted earlier than the previous one");
-      LOG.error("Its jobID is " + result.getJobID());
-      LOG.error("Its submit time is " + result.getSubmitTime()
-          + ",but the previous one was " + returnedLatestSubmitTime);
+        if (newJob != null) {
+            skewBuffer.add(newJob);
+        }
 
-      if (abortOnUnfixableSkew) {
-        throw new OutOfOrderException("Job submit time is "
-            + result.getSubmitTime() + ",but the previous one was "
-            + returnedLatestSubmitTime);
-      }
+        LoggedJob result = skewBuffer.poll();
 
-      result = rawNextJob();
+        while (result != null && result.getSubmitTime() < returnedLatestSubmitTime) {
+            LOG.error("The current job was submitted earlier than the previous one");
+            LOG.error("Its jobID is " + result.getJobID());
+            LOG.error("Its submit time is " + result.getSubmitTime()
+                      + ",but the previous one was " + returnedLatestSubmitTime);
+
+            if (abortOnUnfixableSkew) {
+                throw new OutOfOrderException("Job submit time is "
+                                              + result.getSubmitTime() + ",but the previous one was "
+                                              + returnedLatestSubmitTime);
+            }
+
+            result = rawNextJob();
+        }
+
+        if (result != null) {
+            returnedLatestSubmitTime = result.getSubmitTime();
+        }
+
+        return result;
     }
 
-    if (result != null) {
-      returnedLatestSubmitTime = result.getSubmitTime();
+    private void fillSkewBuffer() throws IOException {
+        for (int i = 0; i < skewBufferLength; ++i) {
+            LoggedJob newJob = rawNextJob();
+
+            if (newJob == null) {
+                return;
+            }
+
+            skewBuffer.add(newJob);
+        }
     }
 
-    return result;
-  }
-
-  private void fillSkewBuffer() throws IOException {
-    for (int i = 0; i < skewBufferLength; ++i) {
-      LoggedJob newJob = rawNextJob();
-
-      if (newJob == null) {
-        return;
-      }
-
-      skewBuffer.add(newJob);
+    int neededSkewBufferSize() {
+        return maxSkewBufferNeeded;
     }
-  }
 
-  int neededSkewBufferSize() {
-    return maxSkewBufferNeeded;
-  }
-
-  @Override
-  public void close() throws IOException {
-    reader.close();
-  }
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
 
 }

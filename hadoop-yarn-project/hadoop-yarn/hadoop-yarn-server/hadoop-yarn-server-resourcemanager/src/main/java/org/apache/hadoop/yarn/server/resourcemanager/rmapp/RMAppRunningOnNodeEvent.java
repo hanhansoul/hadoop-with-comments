@@ -22,14 +22,14 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.NodeId;
 
 public class RMAppRunningOnNodeEvent extends RMAppEvent {
-  private final NodeId node;
+    private final NodeId node;
 
-  public RMAppRunningOnNodeEvent(ApplicationId appId, NodeId node) {
-    super(appId, RMAppEventType.APP_RUNNING_ON_NODE);
-    this.node = node;
-  }
-  
-  public NodeId getNodeId() {
-    return node;
-  }
+    public RMAppRunningOnNodeEvent(ApplicationId appId, NodeId node) {
+        super(appId, RMAppEventType.APP_RUNNING_ON_NODE);
+        this.node = node;
+    }
+
+    public NodeId getNodeId() {
+        return node;
+    }
 }

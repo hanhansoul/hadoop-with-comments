@@ -33,184 +33,184 @@ import org.apache.hadoop.util.LineReader;
  * {@link JobHistoryParser} to parse job histories for hadoop 0.20 (META=1).
  */
 public class Hadoop20JHParser implements JobHistoryParser {
-  final LineReader reader;
+    final LineReader reader;
 
-  static final String endLineString = " .";
-  static final int internalVersion = 1;
+    static final String endLineString = " .";
+    static final int internalVersion = 1;
 
-  /**
-   * Can this parser parse the input?
-   * 
-   * @param input
-   * @return Whether this parser can parse the input.
-   * @throws IOException
-   * 
-   *           We will deem a stream to be a good 0.20 job history stream if the
-   *           first line is exactly "Meta VERSION=\"1\" ."
-   */
-  public static boolean canParse(InputStream input) throws IOException {
-    try {
-      LineReader reader = new LineReader(input);
+    /**
+     * Can this parser parse the input?
+     *
+     * @param input
+     * @return Whether this parser can parse the input.
+     * @throws IOException
+     *
+     *           We will deem a stream to be a good 0.20 job history stream if the
+     *           first line is exactly "Meta VERSION=\"1\" ."
+     */
+    public static boolean canParse(InputStream input) throws IOException {
+        try {
+            LineReader reader = new LineReader(input);
 
-      Text buffer = new Text();
+            Text buffer = new Text();
 
-      return reader.readLine(buffer) != 0
-          && buffer.toString().equals("Meta VERSION=\"1\" .");
-    } catch (EOFException e) {
-      return false;
-    }
-  }
-
-  public Hadoop20JHParser(InputStream input) throws IOException {
-    super();
-
-    reader = new LineReader(input);
-  }
-
-  public Hadoop20JHParser(LineReader reader) throws IOException {
-    super();
-    this.reader = reader;
-  }
-
-  Map<String, HistoryEventEmitter> liveEmitters =
-      new HashMap<String, HistoryEventEmitter>();
-  Queue<HistoryEvent> remainingEvents = new LinkedList<HistoryEvent>();
-
-  enum LineType {
-    JOB("Job", "JOBID") {
-      HistoryEventEmitter createEmitter() {
-        return new Job20LineHistoryEventEmitter();
-      }
-    },
-
-    TASK("Task", "TASKID") {
-      HistoryEventEmitter createEmitter() {
-        return new Task20LineHistoryEventEmitter();
-      }
-    },
-
-    MAP_ATTEMPT("MapAttempt", "TASK_ATTEMPT_ID") {
-      HistoryEventEmitter createEmitter() {
-        return new MapAttempt20LineHistoryEventEmitter();
-      }
-    },
-
-    REDUCE_ATTEMPT("ReduceAttempt", "TASK_ATTEMPT_ID") {
-      HistoryEventEmitter createEmitter() {
-        return new ReduceAttempt20LineHistoryEventEmitter();
-      }
-    };
-
-    private LogRecordType type;
-    private String name;
-
-    LineType(String s, String name) {
-      type = LogRecordType.intern(s);
-      this.name = name;
-    }
-
-    LogRecordType recordType() {
-      return type;
-    }
-
-    String getName(ParsedLine line) {
-      return line.get(name);
-    }
-
-    abstract HistoryEventEmitter createEmitter();
-
-    static LineType findLineType(LogRecordType lrt) {
-      for (LineType lt : LineType.values()) {
-        if (lt.type == lrt) {
-          return lt;
+            return reader.readLine(buffer) != 0
+                   && buffer.toString().equals("Meta VERSION=\"1\" .");
+        } catch (EOFException e) {
+            return false;
         }
-      }
-
-      return null;
     }
-  }
 
-  @Override
-  public HistoryEvent nextEvent() {
-    try {
-      while (remainingEvents.isEmpty()) {
-        ParsedLine line = new ParsedLine(getFullLine(), internalVersion);
-        LineType type = LineType.findLineType(line.getType());
-        if (type == null) {
-          continue;
+    public Hadoop20JHParser(InputStream input) throws IOException {
+        super();
+
+        reader = new LineReader(input);
+    }
+
+    public Hadoop20JHParser(LineReader reader) throws IOException {
+        super();
+        this.reader = reader;
+    }
+
+    Map<String, HistoryEventEmitter> liveEmitters =
+        new HashMap<String, HistoryEventEmitter>();
+    Queue<HistoryEvent> remainingEvents = new LinkedList<HistoryEvent>();
+
+    enum LineType {
+        JOB("Job", "JOBID") {
+            HistoryEventEmitter createEmitter() {
+                return new Job20LineHistoryEventEmitter();
+            }
+        },
+
+        TASK("Task", "TASKID") {
+            HistoryEventEmitter createEmitter() {
+                return new Task20LineHistoryEventEmitter();
+            }
+        },
+
+        MAP_ATTEMPT("MapAttempt", "TASK_ATTEMPT_ID") {
+            HistoryEventEmitter createEmitter() {
+                return new MapAttempt20LineHistoryEventEmitter();
+            }
+        },
+
+        REDUCE_ATTEMPT("ReduceAttempt", "TASK_ATTEMPT_ID") {
+            HistoryEventEmitter createEmitter() {
+                return new ReduceAttempt20LineHistoryEventEmitter();
+            }
+        };
+
+        private LogRecordType type;
+        private String name;
+
+        LineType(String s, String name) {
+            type = LogRecordType.intern(s);
+            this.name = name;
         }
-        String name = type.getName(line);
-        HistoryEventEmitter emitter = findOrMakeEmitter(name, type);
-        Pair<Queue<HistoryEvent>, HistoryEventEmitter.PostEmitAction> pair =
-            emitter.emitterCore(line, name);
-        if (pair.second() == HistoryEventEmitter.PostEmitAction.REMOVE_HEE) {
-          liveEmitters.remove(name);
+
+        LogRecordType recordType() {
+            return type;
         }
-        remainingEvents = pair.first();
-      }
-      return remainingEvents.poll();
-    } catch (EOFException e) {
-      return null;
-    } catch (IOException e) {
-      return null;
-    }
-  }
 
-  HistoryEventEmitter findOrMakeEmitter(String name, LineType type) {
-    HistoryEventEmitter result = liveEmitters.get(name);
-    if (result == null) {
-      result = type.createEmitter();
-      liveEmitters.put(name, result);
-    }
-    return result;
-  }
+        String getName(ParsedLine line) {
+            return line.get(name);
+        }
 
-  private String getOneLine() throws IOException {
-    Text resultText = new Text();
+        abstract HistoryEventEmitter createEmitter();
 
-    if (reader.readLine(resultText) == 0) {
-      throw new EOFException("apparent bad line");
+        static LineType findLineType(LogRecordType lrt) {
+            for (LineType lt : LineType.values()) {
+                if (lt.type == lrt) {
+                    return lt;
+                }
+            }
+
+            return null;
+        }
     }
 
-    return resultText.toString();
-  }
-
-  private String getFullLine() throws IOException {
-    String line = getOneLine();
-
-    while (line.length() < endLineString.length()) {
-      line = getOneLine();
+    @Override
+    public HistoryEvent nextEvent() {
+        try {
+            while (remainingEvents.isEmpty()) {
+                ParsedLine line = new ParsedLine(getFullLine(), internalVersion);
+                LineType type = LineType.findLineType(line.getType());
+                if (type == null) {
+                    continue;
+                }
+                String name = type.getName(line);
+                HistoryEventEmitter emitter = findOrMakeEmitter(name, type);
+                Pair<Queue<HistoryEvent>, HistoryEventEmitter.PostEmitAction> pair =
+                    emitter.emitterCore(line, name);
+                if (pair.second() == HistoryEventEmitter.PostEmitAction.REMOVE_HEE) {
+                    liveEmitters.remove(name);
+                }
+                remainingEvents = pair.first();
+            }
+            return remainingEvents.poll();
+        } catch (EOFException e) {
+            return null;
+        } catch (IOException e) {
+            return null;
+        }
     }
 
-    if (line.endsWith(endLineString)) {
-      return line;
+    HistoryEventEmitter findOrMakeEmitter(String name, LineType type) {
+        HistoryEventEmitter result = liveEmitters.get(name);
+        if (result == null) {
+            result = type.createEmitter();
+            liveEmitters.put(name, result);
+        }
+        return result;
     }
 
-    StringBuilder sb = new StringBuilder(line);
+    private String getOneLine() throws IOException {
+        Text resultText = new Text();
 
-    String addedLine;
+        if (reader.readLine(resultText) == 0) {
+            throw new EOFException("apparent bad line");
+        }
 
-    do {
-      addedLine = getOneLine();
+        return resultText.toString();
+    }
 
-      if (addedLine == null) {
+    private String getFullLine() throws IOException {
+        String line = getOneLine();
+
+        while (line.length() < endLineString.length()) {
+            line = getOneLine();
+        }
+
+        if (line.endsWith(endLineString)) {
+            return line;
+        }
+
+        StringBuilder sb = new StringBuilder(line);
+
+        String addedLine;
+
+        do {
+            addedLine = getOneLine();
+
+            if (addedLine == null) {
+                return sb.toString();
+            }
+
+            sb.append("\n");
+            sb.append(addedLine);
+        } while (addedLine.length() < endLineString.length()
+                 || !endLineString.equals(addedLine.substring(addedLine.length()
+                                          - endLineString.length())));
+
         return sb.toString();
-      }
-
-      sb.append("\n");
-      sb.append(addedLine);
-    } while (addedLine.length() < endLineString.length()
-        || !endLineString.equals(addedLine.substring(addedLine.length()
-            - endLineString.length())));
-
-    return sb.toString();
-  }
-
-  @Override
-  public void close() throws IOException {
-    if (reader != null) {
-      reader.close();
     }
-  }
+
+    @Override
+    public void close() throws IOException {
+        if (reader != null) {
+            reader.close();
+        }
+    }
 
 }

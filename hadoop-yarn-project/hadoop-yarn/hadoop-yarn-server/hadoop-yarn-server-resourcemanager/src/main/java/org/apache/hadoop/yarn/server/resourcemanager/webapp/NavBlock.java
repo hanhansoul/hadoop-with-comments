@@ -27,29 +27,29 @@ import org.apache.hadoop.yarn.webapp.view.HtmlBlock;
 
 public class NavBlock extends HtmlBlock {
 
-  @Override public void render(Block html) {
-    UL<DIV<Hamlet>> mainList = html.
-      div("#nav").
-        h3("Cluster").
-        ul().
-          li().a(url("cluster"), "About")._().
-          li().a(url("nodes"), "Nodes")._();
-    UL<LI<UL<DIV<Hamlet>>>> subAppsList = mainList.
-          li().a(url("apps"), "Applications").
-            ul();
-    subAppsList.li()._();
-    for (YarnApplicationState state : YarnApplicationState.values()) {
-      subAppsList.
-              li().a(url("apps", state.toString()), state.toString())._();
-    }
-    subAppsList._()._();
-    mainList.
-          li().a(url("scheduler"), "Scheduler")._()._().
+    @Override public void render(Block html) {
+        UL<DIV<Hamlet>> mainList = html.
+                                   div("#nav").
+                                   h3("Cluster").
+                                   ul().
+                                   li().a(url("cluster"), "About")._().
+                                   li().a(url("nodes"), "Nodes")._();
+        UL<LI<UL<DIV<Hamlet>>>> subAppsList = mainList.
+                                              li().a(url("apps"), "Applications").
+                                              ul();
+        subAppsList.li()._();
+        for (YarnApplicationState state : YarnApplicationState.values()) {
+            subAppsList.
+            li().a(url("apps", state.toString()), state.toString())._();
+        }
+        subAppsList._()._();
+        mainList.
+        li().a(url("scheduler"), "Scheduler")._()._().
         h3("Tools").
         ul().
-          li().a("/conf", "Configuration")._().
-          li().a("/logs", "Local logs")._().
-          li().a("/stacks", "Server stacks")._().
-          li().a("/metrics", "Server metrics")._()._()._();
-  }
+        li().a("/conf", "Configuration")._().
+        li().a("/logs", "Local logs")._().
+        li().a("/stacks", "Server stacks")._().
+        li().a("/metrics", "Server metrics")._()._()._();
+    }
 }

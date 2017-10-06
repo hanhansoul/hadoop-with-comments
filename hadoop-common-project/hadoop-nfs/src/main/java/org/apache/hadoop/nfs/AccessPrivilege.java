@@ -18,7 +18,7 @@
 package org.apache.hadoop.nfs;
 
 public enum AccessPrivilege {
-  READ_ONLY,
-  READ_WRITE,
-  NONE;
+    READ_ONLY,
+    READ_WRITE,
+    NONE;
 }

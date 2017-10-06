@@ -31,52 +31,52 @@ import static org.junit.Assert.*;
 
 public class TestJobListCache {
 
-  @Test (timeout = 1000)
-  public void testAddExisting() {
-    JobListCache cache = new JobListCache(2, 1000);
+    @Test (timeout = 1000)
+    public void testAddExisting() {
+        JobListCache cache = new JobListCache(2, 1000);
 
-    JobId jobId = MRBuilderUtils.newJobId(1, 1, 1);
-    HistoryFileInfo fileInfo = Mockito.mock(HistoryFileInfo.class);
-    Mockito.when(fileInfo.getJobId()).thenReturn(jobId);
+        JobId jobId = MRBuilderUtils.newJobId(1, 1, 1);
+        HistoryFileInfo fileInfo = Mockito.mock(HistoryFileInfo.class);
+        Mockito.when(fileInfo.getJobId()).thenReturn(jobId);
 
-    cache.addIfAbsent(fileInfo);
-    cache.addIfAbsent(fileInfo);
-    assertEquals("Incorrect number of cache entries", 1,
-        cache.values().size());
-  }
-
-  @Test (timeout = 1000)
-  public void testEviction() throws InterruptedException {
-    int maxSize = 2;
-    JobListCache cache = new JobListCache(maxSize, 1000);
-
-    JobId jobId1 = MRBuilderUtils.newJobId(1, 1, 1);
-    HistoryFileInfo fileInfo1 = Mockito.mock(HistoryFileInfo.class);
-    Mockito.when(fileInfo1.getJobId()).thenReturn(jobId1);
-
-    JobId jobId2 = MRBuilderUtils.newJobId(2, 2, 2);
-    HistoryFileInfo fileInfo2 = Mockito.mock(HistoryFileInfo.class);
-    Mockito.when(fileInfo2.getJobId()).thenReturn(jobId2);
-
-    JobId jobId3 = MRBuilderUtils.newJobId(3, 3, 3);
-    HistoryFileInfo fileInfo3 = Mockito.mock(HistoryFileInfo.class);
-    Mockito.when(fileInfo3.getJobId()).thenReturn(jobId3);
-
-    cache.addIfAbsent(fileInfo1);
-    cache.addIfAbsent(fileInfo2);
-    cache.addIfAbsent(fileInfo3);
-
-    Collection <HistoryFileInfo> values;
-    for (int i = 0; i < 9; i++) {
-      values = cache.values();
-      if (values.size() > maxSize) {
-        Thread.sleep(100);
-      } else {
-        assertFalse("fileInfo1 should have been evicted",
-          values.contains(fileInfo1));
-        return;
-      }
+        cache.addIfAbsent(fileInfo);
+        cache.addIfAbsent(fileInfo);
+        assertEquals("Incorrect number of cache entries", 1,
+                     cache.values().size());
     }
-    fail("JobListCache didn't delete the extra entry");
-  }
+
+    @Test (timeout = 1000)
+    public void testEviction() throws InterruptedException {
+        int maxSize = 2;
+        JobListCache cache = new JobListCache(maxSize, 1000);
+
+        JobId jobId1 = MRBuilderUtils.newJobId(1, 1, 1);
+        HistoryFileInfo fileInfo1 = Mockito.mock(HistoryFileInfo.class);
+        Mockito.when(fileInfo1.getJobId()).thenReturn(jobId1);
+
+        JobId jobId2 = MRBuilderUtils.newJobId(2, 2, 2);
+        HistoryFileInfo fileInfo2 = Mockito.mock(HistoryFileInfo.class);
+        Mockito.when(fileInfo2.getJobId()).thenReturn(jobId2);
+
+        JobId jobId3 = MRBuilderUtils.newJobId(3, 3, 3);
+        HistoryFileInfo fileInfo3 = Mockito.mock(HistoryFileInfo.class);
+        Mockito.when(fileInfo3.getJobId()).thenReturn(jobId3);
+
+        cache.addIfAbsent(fileInfo1);
+        cache.addIfAbsent(fileInfo2);
+        cache.addIfAbsent(fileInfo3);
+
+        Collection <HistoryFileInfo> values;
+        for (int i = 0; i < 9; i++) {
+            values = cache.values();
+            if (values.size() > maxSize) {
+                Thread.sleep(100);
+            } else {
+                assertFalse("fileInfo1 should have been evicted",
+                            values.contains(fileInfo1));
+                return;
+            }
+        }
+        fail("JobListCache didn't delete the extra entry");
+    }
 }

@@ -30,39 +30,39 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 @Unstable
 public abstract class YarnCLI extends Configured implements Tool {
 
-  public static final String STATUS_CMD = "status";
-  public static final String LIST_CMD = "list";
-  public static final String KILL_CMD = "kill";
-  public static final String MOVE_TO_QUEUE_CMD = "movetoqueue";
-  public static final String HELP_CMD = "help";
-  protected PrintStream sysout;
-  protected PrintStream syserr;
-  protected YarnClient client;
+    public static final String STATUS_CMD = "status";
+    public static final String LIST_CMD = "list";
+    public static final String KILL_CMD = "kill";
+    public static final String MOVE_TO_QUEUE_CMD = "movetoqueue";
+    public static final String HELP_CMD = "help";
+    protected PrintStream sysout;
+    protected PrintStream syserr;
+    protected YarnClient client;
 
-  public YarnCLI() {
-    super(new YarnConfiguration());
-    client = YarnClient.createYarnClient();
-    client.init(getConf());
-    client.start();
-  }
+    public YarnCLI() {
+        super(new YarnConfiguration());
+        client = YarnClient.createYarnClient();
+        client.init(getConf());
+        client.start();
+    }
 
-  public void setSysOutPrintStream(PrintStream sysout) {
-    this.sysout = sysout;
-  }
+    public void setSysOutPrintStream(PrintStream sysout) {
+        this.sysout = sysout;
+    }
 
-  public void setSysErrPrintStream(PrintStream syserr) {
-    this.syserr = syserr;
-  }
+    public void setSysErrPrintStream(PrintStream syserr) {
+        this.syserr = syserr;
+    }
 
-  public YarnClient getClient() {
-    return client;
-  }
+    public YarnClient getClient() {
+        return client;
+    }
 
-  public void setClient(YarnClient client) {
-    this.client = client;
-  }
+    public void setClient(YarnClient client) {
+        this.client = client;
+    }
 
-  public void stop() {
-    this.client.stop();
-  }
+    public void stop() {
+        this.client.stop();
+    }
 }

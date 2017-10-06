@@ -29,11 +29,11 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The request sent by the <code>ApplicationMaster</code> to the
  * <code>NodeManager</code> to <em>start</em> a container.</p>
- * 
+ *
  * <p>The <code>ApplicationMaster</code> has to provide details such as
  * allocated resource capability, security tokens (if enabled), command
- * to be executed to start the container, environment for the process, 
- * necessary binaries/jar/shared-objects etc. via the 
+ * to be executed to start the container, environment for the process,
+ * necessary binaries/jar/shared-objects etc. via the
  * {@link ContainerLaunchContext}.</p>
  *
  * @see ContainerManagementProtocol#startContainers(StartContainersRequest)
@@ -41,53 +41,53 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Stable
 public abstract class StartContainerRequest {
-  @Public
-  @Stable
-  public static StartContainerRequest newInstance(
-      ContainerLaunchContext context, Token container) {
-    StartContainerRequest request =
-        Records.newRecord(StartContainerRequest.class);
-    request.setContainerLaunchContext(context);
-    request.setContainerToken(container);
-    return request;
-  }
+    @Public
+    @Stable
+    public static StartContainerRequest newInstance(
+        ContainerLaunchContext context, Token container) {
+        StartContainerRequest request =
+            Records.newRecord(StartContainerRequest.class);
+        request.setContainerLaunchContext(context);
+        request.setContainerToken(container);
+        return request;
+    }
 
-  /**
-   * Get the <code>ContainerLaunchContext</code> for the container to be started
-   * by the <code>NodeManager</code>.
-   * 
-   * @return <code>ContainerLaunchContext</code> for the container to be started
-   *         by the <code>NodeManager</code>
-   */
-  @Public
-  @Stable
-  public abstract ContainerLaunchContext getContainerLaunchContext();
-  
-  /**
-   * Set the <code>ContainerLaunchContext</code> for the container to be started
-   * by the <code>NodeManager</code>
-   * @param context <code>ContainerLaunchContext</code> for the container to be 
-   *                started by the <code>NodeManager</code>
-   */
-  @Public
-  @Stable
-  public abstract void setContainerLaunchContext(ContainerLaunchContext context);
+    /**
+     * Get the <code>ContainerLaunchContext</code> for the container to be started
+     * by the <code>NodeManager</code>.
+     *
+     * @return <code>ContainerLaunchContext</code> for the container to be started
+     *         by the <code>NodeManager</code>
+     */
+    @Public
+    @Stable
+    public abstract ContainerLaunchContext getContainerLaunchContext();
 
-  /**
-   * <p>Get the container token to be used for authorization during starting
-   * container.</p>
-   * <p>Note: {@link NMToken} will be used for authenticating communication with </code>
-   * NodeManager</code>.</p>
-   * @return the container token to be used for authorization during starting
-   * container.
-   * @see NMToken
-   * @see ContainerManagementProtocol#startContainers(StartContainersRequest)
-   */
-  @Public
-  @Stable
-  public abstract Token getContainerToken();
+    /**
+     * Set the <code>ContainerLaunchContext</code> for the container to be started
+     * by the <code>NodeManager</code>
+     * @param context <code>ContainerLaunchContext</code> for the container to be
+     *                started by the <code>NodeManager</code>
+     */
+    @Public
+    @Stable
+    public abstract void setContainerLaunchContext(ContainerLaunchContext context);
 
-  @Public
-  @Stable
-  public abstract void setContainerToken(Token container);
+    /**
+     * <p>Get the container token to be used for authorization during starting
+     * container.</p>
+     * <p>Note: {@link NMToken} will be used for authenticating communication with </code>
+     * NodeManager</code>.</p>
+     * @return the container token to be used for authorization during starting
+     * container.
+     * @see NMToken
+     * @see ContainerManagementProtocol#startContainers(StartContainersRequest)
+     */
+    @Public
+    @Stable
+    public abstract Token getContainerToken();
+
+    @Public
+    @Stable
+    public abstract void setContainerToken(Token container);
 }

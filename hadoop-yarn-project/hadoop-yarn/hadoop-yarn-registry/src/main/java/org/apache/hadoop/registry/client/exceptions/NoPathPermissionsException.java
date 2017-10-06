@@ -26,20 +26,20 @@ import org.apache.hadoop.fs.PathIOException;
  * This is similar to PathIOException, except that exception doesn't let
  */
 public class NoPathPermissionsException extends RegistryIOException {
-  public NoPathPermissionsException(String path, Throwable cause) {
-    super(path, cause);
-  }
+    public NoPathPermissionsException(String path, Throwable cause) {
+        super(path, cause);
+    }
 
-  public NoPathPermissionsException(String path, String error) {
-    super(path, error);
-  }
+    public NoPathPermissionsException(String path, String error) {
+        super(path, error);
+    }
 
-  public NoPathPermissionsException(String path, String error, Throwable cause) {
-    super(path, error, cause);
-  }
+    public NoPathPermissionsException(String path, String error, Throwable cause) {
+        super(path, error, cause);
+    }
 
-  public NoPathPermissionsException(String message,
-      PathIOException cause) {
-    super(message, cause);
-  }
+    public NoPathPermissionsException(String message,
+                                      PathIOException cause) {
+        super(message, cause);
+    }
 }

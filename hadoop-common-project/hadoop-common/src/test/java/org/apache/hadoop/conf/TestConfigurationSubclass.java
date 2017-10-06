@@ -26,77 +26,77 @@ import java.util.Properties;
  */
 
 public class TestConfigurationSubclass extends TestCase {
-  private static final String EMPTY_CONFIGURATION_XML
-          = "/org/apache/hadoop/conf/empty-configuration.xml";
+    private static final String EMPTY_CONFIGURATION_XML
+        = "/org/apache/hadoop/conf/empty-configuration.xml";
 
 
-  public void testGetProps() {
-    SubConf conf = new SubConf(true);
-    Properties properties = conf.getProperties();
-    assertNotNull("hadoop.tmp.dir is not set",
-            properties.getProperty("hadoop.tmp.dir"));
-  }
-
-  public void testReload() throws Throwable {
-    SubConf conf = new SubConf(true);
-    assertFalse(conf.isReloaded());
-    Configuration.addDefaultResource(EMPTY_CONFIGURATION_XML);
-    assertTrue(conf.isReloaded());
-    Properties properties = conf.getProperties();
-  }
-
-  public void testReloadNotQuiet() throws Throwable {
-    SubConf conf = new SubConf(true);
-    conf.setQuietMode(false);
-    assertFalse(conf.isReloaded());
-    conf.addResource("not-a-valid-resource");
-    assertTrue(conf.isReloaded());
-    try {
-      Properties properties = conf.getProperties();
-      fail("Should not have got here");
-    } catch (RuntimeException e) {
-      assertTrue(e.toString(),e.getMessage().contains("not found"));
-    }
-  }
-
-  private static class SubConf extends Configuration {
-
-    private boolean reloaded;
-
-    /**
-     * A new configuration where the behavior of reading from the default resources
-     * can be turned off.
-     *
-     * If the parameter {@code loadDefaults} is false, the new instance will not
-     * load resources from the default files.
-     *
-     * @param loadDefaults specifies whether to load from the default files
-     */
-    private SubConf(boolean loadDefaults) {
-      super(loadDefaults);
+    public void testGetProps() {
+        SubConf conf = new SubConf(true);
+        Properties properties = conf.getProperties();
+        assertNotNull("hadoop.tmp.dir is not set",
+                      properties.getProperty("hadoop.tmp.dir"));
     }
 
-    public Properties getProperties() {
-      return super.getProps();
+    public void testReload() throws Throwable {
+        SubConf conf = new SubConf(true);
+        assertFalse(conf.isReloaded());
+        Configuration.addDefaultResource(EMPTY_CONFIGURATION_XML);
+        assertTrue(conf.isReloaded());
+        Properties properties = conf.getProperties();
     }
 
-    /**
-     * {@inheritDoc}.
-     * Sets the reloaded flag.
-     */
-    @Override
-    public void reloadConfiguration() {
-      super.reloadConfiguration();
-      reloaded = true;
+    public void testReloadNotQuiet() throws Throwable {
+        SubConf conf = new SubConf(true);
+        conf.setQuietMode(false);
+        assertFalse(conf.isReloaded());
+        conf.addResource("not-a-valid-resource");
+        assertTrue(conf.isReloaded());
+        try {
+            Properties properties = conf.getProperties();
+            fail("Should not have got here");
+        } catch (RuntimeException e) {
+            assertTrue(e.toString(),e.getMessage().contains("not found"));
+        }
     }
 
-    public boolean isReloaded() {
-      return reloaded;
-    }
+    private static class SubConf extends Configuration {
 
-    public void setReloaded(boolean reloaded) {
-      this.reloaded = reloaded;
+        private boolean reloaded;
+
+        /**
+         * A new configuration where the behavior of reading from the default resources
+         * can be turned off.
+         *
+         * If the parameter {@code loadDefaults} is false, the new instance will not
+         * load resources from the default files.
+         *
+         * @param loadDefaults specifies whether to load from the default files
+         */
+        private SubConf(boolean loadDefaults) {
+            super(loadDefaults);
+        }
+
+        public Properties getProperties() {
+            return super.getProps();
+        }
+
+        /**
+         * {@inheritDoc}.
+         * Sets the reloaded flag.
+         */
+        @Override
+        public void reloadConfiguration() {
+            super.reloadConfiguration();
+            reloaded = true;
+        }
+
+        public boolean isReloaded() {
+            return reloaded;
+        }
+
+        public void setReloaded(boolean reloaded) {
+            this.reloaded = reloaded;
+        }
     }
-  }
 
 }

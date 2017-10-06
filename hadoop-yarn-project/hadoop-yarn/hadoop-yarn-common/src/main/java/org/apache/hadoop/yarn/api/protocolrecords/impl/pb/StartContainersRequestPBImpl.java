@@ -28,112 +28,112 @@ import org.apache.hadoop.yarn.proto.YarnServiceProtos.StartContainersRequestProt
 import org.apache.hadoop.yarn.proto.YarnServiceProtos.StartContainersRequestProtoOrBuilder;
 
 public class StartContainersRequestPBImpl extends StartContainersRequest {
-  StartContainersRequestProto proto = StartContainersRequestProto
-    .getDefaultInstance();
-  StartContainersRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    StartContainersRequestProto proto = StartContainersRequestProto
+                                        .getDefaultInstance();
+    StartContainersRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private List<StartContainerRequest> requests = null;
+    private List<StartContainerRequest> requests = null;
 
-  public StartContainersRequestPBImpl() {
-    builder = StartContainersRequestProto.newBuilder();
-  }
-
-  public StartContainersRequestPBImpl(StartContainersRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public StartContainersRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public StartContainersRequestPBImpl() {
+        builder = StartContainersRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (requests != null) {
-      addLocalRequestsToProto();
+    public StartContainersRequestPBImpl(StartContainersRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = StartContainersRequestProto.newBuilder(proto);
+    public StartContainersRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  private void addLocalRequestsToProto() {
-    maybeInitBuilder();
-    builder.clearStartContainerRequest();
-    List<StartContainerRequestProto> protoList =
-        new ArrayList<StartContainerRequestProto>();
-    for (StartContainerRequest r : this.requests) {
-      protoList.add(convertToProtoFormat(r));
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    builder.addAllStartContainerRequest(protoList);
-  }
 
-  private void initLocalRequests() {
-    StartContainersRequestProtoOrBuilder p = viaProto ? proto : builder;
-    List<StartContainerRequestProto> requestList =
-        p.getStartContainerRequestList();
-    this.requests = new ArrayList<StartContainerRequest>();
-    for (StartContainerRequestProto r : requestList) {
-      this.requests.add(convertFromProtoFormat(r));
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-  }
 
-  @Override
-  public void setStartContainerRequests(List<StartContainerRequest> requests) {
-    maybeInitBuilder();
-    if (requests == null) {
-      builder.clearStartContainerRequest();
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.requests = requests;
-  }
 
-  @Override
-  public List<StartContainerRequest> getStartContainerRequests() {
-    if (this.requests != null) {
-      return this.requests;
+    private void mergeLocalToBuilder() {
+        if (requests != null) {
+            addLocalRequestsToProto();
+        }
     }
-    initLocalRequests();
-    return this.requests;
-  }
 
-  private StartContainerRequestPBImpl convertFromProtoFormat(
-      StartContainerRequestProto p) {
-    return new StartContainerRequestPBImpl(p);
-  }
 
-  private StartContainerRequestProto convertToProtoFormat(
-      StartContainerRequest t) {
-    return ((StartContainerRequestPBImpl) t).getProto();
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = StartContainersRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private void addLocalRequestsToProto() {
+        maybeInitBuilder();
+        builder.clearStartContainerRequest();
+        List<StartContainerRequestProto> protoList =
+            new ArrayList<StartContainerRequestProto>();
+        for (StartContainerRequest r : this.requests) {
+            protoList.add(convertToProtoFormat(r));
+        }
+        builder.addAllStartContainerRequest(protoList);
+    }
+
+    private void initLocalRequests() {
+        StartContainersRequestProtoOrBuilder p = viaProto ? proto : builder;
+        List<StartContainerRequestProto> requestList =
+            p.getStartContainerRequestList();
+        this.requests = new ArrayList<StartContainerRequest>();
+        for (StartContainerRequestProto r : requestList) {
+            this.requests.add(convertFromProtoFormat(r));
+        }
+    }
+
+    @Override
+    public void setStartContainerRequests(List<StartContainerRequest> requests) {
+        maybeInitBuilder();
+        if (requests == null) {
+            builder.clearStartContainerRequest();
+        }
+        this.requests = requests;
+    }
+
+    @Override
+    public List<StartContainerRequest> getStartContainerRequests() {
+        if (this.requests != null) {
+            return this.requests;
+        }
+        initLocalRequests();
+        return this.requests;
+    }
+
+    private StartContainerRequestPBImpl convertFromProtoFormat(
+        StartContainerRequestProto p) {
+        return new StartContainerRequestPBImpl(p);
+    }
+
+    private StartContainerRequestProto convertToProtoFormat(
+        StartContainerRequest t) {
+        return ((StartContainerRequestPBImpl) t).getProto();
+    }
 }

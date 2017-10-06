@@ -27,8 +27,8 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
  */
 public class TestRawlocalContractMkdir extends AbstractContractMkdirTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new RawlocalFSContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new RawlocalFSContract(conf);
+    }
 }

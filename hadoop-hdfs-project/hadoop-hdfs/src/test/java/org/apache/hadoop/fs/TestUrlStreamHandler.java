@@ -39,121 +39,121 @@ import org.junit.Test;
  */
 public class TestUrlStreamHandler {
 
-  private static final File TEST_ROOT_DIR = PathUtils.getTestDir(TestUrlStreamHandler.class);
-    
-  /**
-   * Test opening and reading from an InputStream through a hdfs:// URL.
-   * <p>
-   * First generate a file with some content through the FileSystem API, then
-   * try to open and read the file through the URL stream API.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testDfsUrls() throws IOException {
+    private static final File TEST_ROOT_DIR = PathUtils.getTestDir(TestUrlStreamHandler.class);
 
-    Configuration conf = new HdfsConfiguration();
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
-    FileSystem fs = cluster.getFileSystem();
+    /**
+     * Test opening and reading from an InputStream through a hdfs:// URL.
+     * <p>
+     * First generate a file with some content through the FileSystem API, then
+     * try to open and read the file through the URL stream API.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testDfsUrls() throws IOException {
 
-    // Setup our own factory
-    // setURLSteramHandlerFactor is can be set at most once in the JVM
-    // the new URLStreamHandler is valid for all tests cases 
-    // in TestStreamHandler
-    FsUrlStreamHandlerFactory factory =
-        new org.apache.hadoop.fs.FsUrlStreamHandlerFactory();
-    java.net.URL.setURLStreamHandlerFactory(factory);
+        Configuration conf = new HdfsConfiguration();
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
+        FileSystem fs = cluster.getFileSystem();
 
-    Path filePath = new Path("/thefile");
+        // Setup our own factory
+        // setURLSteramHandlerFactor is can be set at most once in the JVM
+        // the new URLStreamHandler is valid for all tests cases
+        // in TestStreamHandler
+        FsUrlStreamHandlerFactory factory =
+            new org.apache.hadoop.fs.FsUrlStreamHandlerFactory();
+        java.net.URL.setURLStreamHandlerFactory(factory);
 
-    try {
-      byte[] fileContent = new byte[1024];
-      for (int i = 0; i < fileContent.length; ++i)
-        fileContent[i] = (byte) i;
+        Path filePath = new Path("/thefile");
 
-      // First create the file through the FileSystem API
-      OutputStream os = fs.create(filePath);
-      os.write(fileContent);
-      os.close();
+        try {
+            byte[] fileContent = new byte[1024];
+            for (int i = 0; i < fileContent.length; ++i)
+                fileContent[i] = (byte) i;
 
-      // Second, open and read the file content through the URL API
-      URI uri = fs.getUri();
-      URL fileURL =
-          new URL(uri.getScheme(), uri.getHost(), uri.getPort(), filePath
-              .toString());
+            // First create the file through the FileSystem API
+            OutputStream os = fs.create(filePath);
+            os.write(fileContent);
+            os.close();
 
-      InputStream is = fileURL.openStream();
-      assertNotNull(is);
+            // Second, open and read the file content through the URL API
+            URI uri = fs.getUri();
+            URL fileURL =
+                new URL(uri.getScheme(), uri.getHost(), uri.getPort(), filePath
+                        .toString());
 
-      byte[] bytes = new byte[4096];
-      assertEquals(1024, is.read(bytes));
-      is.close();
+            InputStream is = fileURL.openStream();
+            assertNotNull(is);
 
-      for (int i = 0; i < fileContent.length; ++i)
-        assertEquals(fileContent[i], bytes[i]);
+            byte[] bytes = new byte[4096];
+            assertEquals(1024, is.read(bytes));
+            is.close();
 
-      // Cleanup: delete the file
-      fs.delete(filePath, false);
+            for (int i = 0; i < fileContent.length; ++i)
+                assertEquals(fileContent[i], bytes[i]);
 
-    } finally {
-      fs.close();
-      cluster.shutdown();
+            // Cleanup: delete the file
+            fs.delete(filePath, false);
+
+        } finally {
+            fs.close();
+            cluster.shutdown();
+        }
+
     }
 
-  }
+    /**
+     * Test opening and reading from an InputStream through a file:// URL.
+     *
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    @Test
+    public void testFileUrls() throws IOException, URISyntaxException {
+        // URLStreamHandler is already set in JVM by testDfsUrls()
+        Configuration conf = new HdfsConfiguration();
 
-  /**
-   * Test opening and reading from an InputStream through a file:// URL.
-   * 
-   * @throws IOException
-   * @throws URISyntaxException
-   */
-  @Test
-  public void testFileUrls() throws IOException, URISyntaxException {
-    // URLStreamHandler is already set in JVM by testDfsUrls() 
-    Configuration conf = new HdfsConfiguration();
+        // Locate the test temporary directory.
+        if (!TEST_ROOT_DIR.exists()) {
+            if (!TEST_ROOT_DIR.mkdirs())
+                throw new IOException("Cannot create temporary directory: " + TEST_ROOT_DIR);
+        }
 
-    // Locate the test temporary directory.
-    if (!TEST_ROOT_DIR.exists()) {
-      if (!TEST_ROOT_DIR.mkdirs())
-        throw new IOException("Cannot create temporary directory: " + TEST_ROOT_DIR);
+        File tmpFile = new File(TEST_ROOT_DIR, "thefile");
+        URI uri = tmpFile.toURI();
+
+        FileSystem fs = FileSystem.get(uri, conf);
+
+        try {
+            byte[] fileContent = new byte[1024];
+            for (int i = 0; i < fileContent.length; ++i)
+                fileContent[i] = (byte) i;
+
+            // First create the file through the FileSystem API
+            OutputStream os = fs.create(new Path(uri.getPath()));
+            os.write(fileContent);
+            os.close();
+
+            // Second, open and read the file content through the URL API.
+            URL fileURL = uri.toURL();
+
+            InputStream is = fileURL.openStream();
+            assertNotNull(is);
+
+            byte[] bytes = new byte[4096];
+            assertEquals(1024, is.read(bytes));
+            is.close();
+
+            for (int i = 0; i < fileContent.length; ++i)
+                assertEquals(fileContent[i], bytes[i]);
+
+            // Cleanup: delete the file
+            fs.delete(new Path(uri.getPath()), false);
+
+        } finally {
+            fs.close();
+        }
+
     }
-
-    File tmpFile = new File(TEST_ROOT_DIR, "thefile");
-    URI uri = tmpFile.toURI();
-
-    FileSystem fs = FileSystem.get(uri, conf);
-
-    try {
-      byte[] fileContent = new byte[1024];
-      for (int i = 0; i < fileContent.length; ++i)
-        fileContent[i] = (byte) i;
-
-      // First create the file through the FileSystem API
-      OutputStream os = fs.create(new Path(uri.getPath()));
-      os.write(fileContent);
-      os.close();
-
-      // Second, open and read the file content through the URL API.
-      URL fileURL = uri.toURL();
-
-      InputStream is = fileURL.openStream();
-      assertNotNull(is);
-
-      byte[] bytes = new byte[4096];
-      assertEquals(1024, is.read(bytes));
-      is.close();
-
-      for (int i = 0; i < fileContent.length; ++i)
-        assertEquals(fileContent[i], bytes[i]);
-
-      // Cleanup: delete the file
-      fs.delete(new Path(uri.getPath()), false);
-
-    } finally {
-      fs.close();
-    }
-
-  }
 
 }

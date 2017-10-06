@@ -30,39 +30,39 @@ import static org.mockito.Mockito.when;
 
 public class TestJobSummary {
 
-  private static final Log LOG = LogFactory.getLog(TestJobSummary.class);
-  private JobSummary summary = new JobSummary();
+    private static final Log LOG = LogFactory.getLog(TestJobSummary.class);
+    private JobSummary summary = new JobSummary();
 
-  @Before
-  public void before() {
-    JobId mockJobId = mock(JobId.class);
-    when(mockJobId.toString()).thenReturn("testJobId");
-    summary.setJobId(mockJobId);
-    summary.setJobSubmitTime(2);
-    summary.setJobLaunchTime(3);
-    summary.setFirstMapTaskLaunchTime(4);
-    summary.setFirstReduceTaskLaunchTime(5);
-    summary.setJobFinishTime(6);
-    summary.setNumFinishedMaps(1);
-    summary.setNumFailedMaps(0);
-    summary.setNumFinishedReduces(1);
-    summary.setNumFailedReduces(0);
-    summary.setUser("testUser");
-    summary.setQueue("testQueue");
-    summary.setJobStatus("testJobStatus");
-    summary.setMapSlotSeconds(7);
-    summary.setReduceSlotSeconds(8);
-    summary.setJobName("testName");
-  }
+    @Before
+    public void before() {
+        JobId mockJobId = mock(JobId.class);
+        when(mockJobId.toString()).thenReturn("testJobId");
+        summary.setJobId(mockJobId);
+        summary.setJobSubmitTime(2);
+        summary.setJobLaunchTime(3);
+        summary.setFirstMapTaskLaunchTime(4);
+        summary.setFirstReduceTaskLaunchTime(5);
+        summary.setJobFinishTime(6);
+        summary.setNumFinishedMaps(1);
+        summary.setNumFailedMaps(0);
+        summary.setNumFinishedReduces(1);
+        summary.setNumFailedReduces(0);
+        summary.setUser("testUser");
+        summary.setQueue("testQueue");
+        summary.setJobStatus("testJobStatus");
+        summary.setMapSlotSeconds(7);
+        summary.setReduceSlotSeconds(8);
+        summary.setJobName("testName");
+    }
 
-  @Test
-  public void testEscapeJobSummary() {
-    // verify newlines are escaped
-    summary.setJobName("aa\rbb\ncc\r\ndd");
-    String out = summary.getJobSummaryString();
-    LOG.info("summary: " + out);
-    Assert.assertFalse(out.contains("\r"));
-    Assert.assertFalse(out.contains("\n"));
-    Assert.assertTrue(out.contains("aa\\rbb\\ncc\\r\\ndd"));
-  }
+    @Test
+    public void testEscapeJobSummary() {
+        // verify newlines are escaped
+        summary.setJobName("aa\rbb\ncc\r\ndd");
+        String out = summary.getJobSummaryString();
+        LOG.info("summary: " + out);
+        Assert.assertFalse(out.contains("\r"));
+        Assert.assertFalse(out.contains("\n"));
+        Assert.assertTrue(out.contains("aa\\rbb\\ncc\\r\\ndd"));
+    }
 }

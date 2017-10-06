@@ -23,8 +23,8 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 public class WritingApplicationHistoryEvent extends
     AbstractEvent<WritingHistoryEventType> {
 
-  public WritingApplicationHistoryEvent(WritingHistoryEventType type) {
-    super(type);
-  }
+    public WritingApplicationHistoryEvent(WritingHistoryEventType type) {
+        super(type);
+    }
 
 }

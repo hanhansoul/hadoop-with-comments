@@ -21,32 +21,32 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestXDR {
-  static final int WRITE_VALUE=23;
-  private void serializeInt(int times) {
-    XDR w = new XDR();
-    for (int i = 0; i < times; ++i)
-      w.writeInt(WRITE_VALUE);
+    static final int WRITE_VALUE=23;
+    private void serializeInt(int times) {
+        XDR w = new XDR();
+        for (int i = 0; i < times; ++i)
+            w.writeInt(WRITE_VALUE);
 
-    XDR r = w.asReadOnlyWrap();
-    for (int i = 0; i < times; ++i)
-      Assert.assertEquals(
-              WRITE_VALUE,r.readInt());
-  }
+        XDR r = w.asReadOnlyWrap();
+        for (int i = 0; i < times; ++i)
+            Assert.assertEquals(
+                WRITE_VALUE,r.readInt());
+    }
 
-  private void serializeLong(int times) {
-    XDR w = new XDR();
-    for (int i = 0; i < times; ++i)
-      w.writeLongAsHyper(WRITE_VALUE);
+    private void serializeLong(int times) {
+        XDR w = new XDR();
+        for (int i = 0; i < times; ++i)
+            w.writeLongAsHyper(WRITE_VALUE);
 
-    XDR r = w.asReadOnlyWrap();
-    for (int i = 0; i < times; ++i)
-      Assert.assertEquals(WRITE_VALUE, r.readHyper());
-  }
+        XDR r = w.asReadOnlyWrap();
+        for (int i = 0; i < times; ++i)
+            Assert.assertEquals(WRITE_VALUE, r.readHyper());
+    }
 
-  @Test
-  public void testPerformance() {
-    final int TEST_TIMES = 8 << 20;
-    serializeInt(TEST_TIMES);
-    serializeLong(TEST_TIMES);
-  }
+    @Test
+    public void testPerformance() {
+        final int TEST_TIMES = 8 << 20;
+        serializeInt(TEST_TIMES);
+        serializeLong(TEST_TIMES);
+    }
 }

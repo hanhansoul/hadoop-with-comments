@@ -24,31 +24,31 @@ import org.apache.hadoop.oncrpc.security.Verifier;
  * SETATTR3 Response
  */
 public class SETATTR3Response extends NFS3Response {
-  private final WccData wccData;
+    private final WccData wccData;
 
-  public SETATTR3Response(int status) {
-    this(status, new WccData(null, null));
-  }
-  
-  public SETATTR3Response(int status, WccData wccData) {
-    super(status);
-    this.wccData = wccData;
-  }
+    public SETATTR3Response(int status) {
+        this(status, new WccData(null, null));
+    }
 
-  public WccData getWccData() {
-    return wccData;
-  }
+    public SETATTR3Response(int status, WccData wccData) {
+        super(status);
+        this.wccData = wccData;
+    }
 
-  public static SETATTR3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    WccData wccData = WccData.deserialize(xdr);
-    return new SETATTR3Response(status, wccData);
-  }
+    public WccData getWccData() {
+        return wccData;
+    }
 
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    wccData.serialize(out);
-    return out;
-  }
+    public static SETATTR3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        WccData wccData = WccData.deserialize(xdr);
+        return new SETATTR3Response(status, wccData);
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        wccData.serialize(out);
+        return out;
+    }
 }

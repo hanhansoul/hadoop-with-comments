@@ -27,40 +27,40 @@ import org.codehaus.jackson.annotate.JsonProperty;
  * DO NOT RENAME OR MODIFY FIELDS AND THEIR ACCESSORS
  */
 public class ApiKeyAuthenticationRequest extends AuthenticationRequest {
-  /**
-   * Credentials for login
-   */
-  private ApiKeyCredentials apiKeyCredentials;
+    /**
+     * Credentials for login
+     */
+    private ApiKeyCredentials apiKeyCredentials;
 
-  /**
-   * API key auth
-   * @param tenantName tenant
-   * @param apiKeyCredentials credentials
-   */
-  public ApiKeyAuthenticationRequest(String tenantName, ApiKeyCredentials apiKeyCredentials) {
-    this.tenantName = tenantName;
-    this.apiKeyCredentials = apiKeyCredentials;
-  }
+    /**
+     * API key auth
+     * @param tenantName tenant
+     * @param apiKeyCredentials credentials
+     */
+    public ApiKeyAuthenticationRequest(String tenantName, ApiKeyCredentials apiKeyCredentials) {
+        this.tenantName = tenantName;
+        this.apiKeyCredentials = apiKeyCredentials;
+    }
 
-  /**
-   * @return credentials for login into Keystone
-   */
-  @JsonProperty("RAX-KSKEY:apiKeyCredentials")
-  public ApiKeyCredentials getApiKeyCredentials() {
-    return apiKeyCredentials;
-  }
+    /**
+     * @return credentials for login into Keystone
+     */
+    @JsonProperty("RAX-KSKEY:apiKeyCredentials")
+    public ApiKeyCredentials getApiKeyCredentials() {
+        return apiKeyCredentials;
+    }
 
-  /**
-   * @param apiKeyCredentials credentials for login into Keystone
-   */
-  public void setApiKeyCredentials(ApiKeyCredentials apiKeyCredentials) {
-    this.apiKeyCredentials = apiKeyCredentials;
-  }
+    /**
+     * @param apiKeyCredentials credentials for login into Keystone
+     */
+    public void setApiKeyCredentials(ApiKeyCredentials apiKeyCredentials) {
+        this.apiKeyCredentials = apiKeyCredentials;
+    }
 
-  @Override
-  public String toString() {
-    return "Auth as " +
-           "tenant '" + tenantName + "' "
-           + apiKeyCredentials;
-  }
+    @Override
+    public String toString() {
+        return "Auth as " +
+               "tenant '" + tenantName + "' "
+               + apiKeyCredentials;
+    }
 }

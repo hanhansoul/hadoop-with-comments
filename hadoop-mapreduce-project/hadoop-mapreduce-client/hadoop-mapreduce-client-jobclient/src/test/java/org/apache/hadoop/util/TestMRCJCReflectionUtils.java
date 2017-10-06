@@ -31,30 +31,30 @@ import org.junit.Test;
  * class.
  */
 public class TestMRCJCReflectionUtils {
-  @Before
-  public void setUp() {
-    ReflectionUtils.clearCache();
-  }
-
-  /**
-   * This is to test backward compatibility of ReflectionUtils for 
-   * JobConfigurable objects. 
-   * This should be made deprecated along with the mapred package HADOOP-1230. 
-   * Should be removed when mapred package is removed.
-   */
-  @Test
-  public void testSetConf() {
-    JobConfigurableOb ob = new JobConfigurableOb();
-    ReflectionUtils.setConf(ob, new Configuration());
-    assertFalse(ob.configured);
-    ReflectionUtils.setConf(ob, new JobConf());
-    assertTrue(ob.configured);
-  }
-  
-  private static class JobConfigurableOb implements JobConfigurable {
-    boolean configured;
-    public void configure(JobConf job) {
-      configured = true;
+    @Before
+    public void setUp() {
+        ReflectionUtils.clearCache();
     }
-  }
+
+    /**
+     * This is to test backward compatibility of ReflectionUtils for
+     * JobConfigurable objects.
+     * This should be made deprecated along with the mapred package HADOOP-1230.
+     * Should be removed when mapred package is removed.
+     */
+    @Test
+    public void testSetConf() {
+        JobConfigurableOb ob = new JobConfigurableOb();
+        ReflectionUtils.setConf(ob, new Configuration());
+        assertFalse(ob.configured);
+        ReflectionUtils.setConf(ob, new JobConf());
+        assertTrue(ob.configured);
+    }
+
+    private static class JobConfigurableOb implements JobConfigurable {
+        boolean configured;
+        public void configure(JobConf job) {
+            configured = true;
+        }
+    }
 }

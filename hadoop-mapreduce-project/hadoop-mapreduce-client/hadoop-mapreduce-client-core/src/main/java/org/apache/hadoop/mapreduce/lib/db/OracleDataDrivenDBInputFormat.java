@@ -57,37 +57,37 @@ import org.apache.hadoop.conf.Configuration;
 public class OracleDataDrivenDBInputFormat<T extends DBWritable>
     extends DataDrivenDBInputFormat<T> implements Configurable {
 
-  /**
-   * @return the DBSplitter implementation to use to divide the table/query into InputSplits.
-   */
-  @Override
-  protected DBSplitter getSplitter(int sqlDataType) {
-    switch (sqlDataType) {
-    case Types.DATE:
-    case Types.TIME:
-    case Types.TIMESTAMP:
-      return new OracleDateSplitter();
+    /**
+     * @return the DBSplitter implementation to use to divide the table/query into InputSplits.
+     */
+    @Override
+    protected DBSplitter getSplitter(int sqlDataType) {
+        switch (sqlDataType) {
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+                return new OracleDateSplitter();
 
-    default:
-      return super.getSplitter(sqlDataType);
+            default:
+                return super.getSplitter(sqlDataType);
+        }
     }
-  }
 
-  @Override
-  protected RecordReader<LongWritable, T> createDBRecordReader(DBInputSplit split,
-      Configuration conf) throws IOException {
+    @Override
+    protected RecordReader<LongWritable, T> createDBRecordReader(DBInputSplit split,
+            Configuration conf) throws IOException {
 
-    DBConfiguration dbConf = getDBConf();
-    @SuppressWarnings("unchecked")
-    Class<T> inputClass = (Class<T>) (dbConf.getInputClass());
+        DBConfiguration dbConf = getDBConf();
+        @SuppressWarnings("unchecked")
+        Class<T> inputClass = (Class<T>) (dbConf.getInputClass());
 
-    try {
-      // Use Oracle-specific db reader
-      return new OracleDataDrivenDBRecordReader<T>(split, inputClass,
-          conf, createConnection(), dbConf, dbConf.getInputConditions(),
-          dbConf.getInputFieldNames(), dbConf.getInputTableName());
-    } catch (SQLException ex) {
-      throw new IOException(ex.getMessage());
+        try {
+            // Use Oracle-specific db reader
+            return new OracleDataDrivenDBRecordReader<T>(split, inputClass,
+                    conf, createConnection(), dbConf, dbConf.getInputConditions(),
+                    dbConf.getInputFieldNames(), dbConf.getInputTableName());
+        } catch (SQLException ex) {
+            throw new IOException(ex.getMessage());
+        }
     }
-  }
 }

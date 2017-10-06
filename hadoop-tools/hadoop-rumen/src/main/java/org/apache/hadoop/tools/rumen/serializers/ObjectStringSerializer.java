@@ -28,8 +28,8 @@ import org.codehaus.jackson.map.SerializerProvider;
  * Rumen JSON serializer for serializing object using toSring() API.
  */
 public class ObjectStringSerializer<T> extends JsonSerializer<T> {
-  public void serialize(T object, JsonGenerator jGen, SerializerProvider sProvider) 
-  throws IOException, JsonProcessingException {
-    jGen.writeString(object.toString());
-  };
+    public void serialize(T object, JsonGenerator jGen, SerializerProvider sProvider)
+    throws IOException, JsonProcessingException {
+        jGen.writeString(object.toString());
+    };
 }

@@ -29,75 +29,75 @@ import java.text.NumberFormat;
 
 public class TestFieldSelection extends TestCase {
 
-private static NumberFormat idFormat = NumberFormat.getInstance();
-  static {
-    idFormat.setMinimumIntegerDigits(4);
-    idFormat.setGroupingUsed(false);
-  }
+    private static NumberFormat idFormat = NumberFormat.getInstance();
+    static {
+        idFormat.setMinimumIntegerDigits(4);
+        idFormat.setGroupingUsed(false);
+    }
 
-  public void testFieldSelection() throws Exception {
-    launch();
-  }
+    public void testFieldSelection() throws Exception {
+        launch();
+    }
 
-  public static void launch() throws Exception {
-    JobConf conf = new JobConf(TestFieldSelection.class);
-    FileSystem fs = FileSystem.get(conf);
-    int numOfInputLines = 10;
+    public static void launch() throws Exception {
+        JobConf conf = new JobConf(TestFieldSelection.class);
+        FileSystem fs = FileSystem.get(conf);
+        int numOfInputLines = 10;
 
-    Path OUTPUT_DIR = new Path("build/test/output_for_field_selection_test");
-    Path INPUT_DIR = new Path("build/test/input_for_field_selection_test");
-    String inputFile = "input.txt";
-    fs.delete(INPUT_DIR, true);
-    fs.mkdirs(INPUT_DIR);
-    fs.delete(OUTPUT_DIR, true);
+        Path OUTPUT_DIR = new Path("build/test/output_for_field_selection_test");
+        Path INPUT_DIR = new Path("build/test/input_for_field_selection_test");
+        String inputFile = "input.txt";
+        fs.delete(INPUT_DIR, true);
+        fs.mkdirs(INPUT_DIR);
+        fs.delete(OUTPUT_DIR, true);
 
-    StringBuffer inputData = new StringBuffer();
-    StringBuffer expectedOutput = new StringBuffer();
+        StringBuffer inputData = new StringBuffer();
+        StringBuffer expectedOutput = new StringBuffer();
 
-    TestMRFieldSelection.constructInputOutputData(inputData,
-      expectedOutput, numOfInputLines);
-    FSDataOutputStream fileOut = fs.create(new Path(INPUT_DIR, inputFile));
-    fileOut.write(inputData.toString().getBytes("utf-8"));
-    fileOut.close();
+        TestMRFieldSelection.constructInputOutputData(inputData,
+                expectedOutput, numOfInputLines);
+        FSDataOutputStream fileOut = fs.create(new Path(INPUT_DIR, inputFile));
+        fileOut.write(inputData.toString().getBytes("utf-8"));
+        fileOut.close();
 
-    System.out.println("inputData:");
-    System.out.println(inputData.toString());
-    JobConf job = new JobConf(conf, TestFieldSelection.class);
-    FileInputFormat.setInputPaths(job, INPUT_DIR);
-    job.setInputFormat(TextInputFormat.class);
-    job.setMapperClass(FieldSelectionMapReduce.class);
-    job.setReducerClass(FieldSelectionMapReduce.class);
+        System.out.println("inputData:");
+        System.out.println(inputData.toString());
+        JobConf job = new JobConf(conf, TestFieldSelection.class);
+        FileInputFormat.setInputPaths(job, INPUT_DIR);
+        job.setInputFormat(TextInputFormat.class);
+        job.setMapperClass(FieldSelectionMapReduce.class);
+        job.setReducerClass(FieldSelectionMapReduce.class);
 
-    FileOutputFormat.setOutputPath(job, OUTPUT_DIR);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(Text.class);
-    job.setOutputFormat(TextOutputFormat.class);
-    job.setNumReduceTasks(1);
+        FileOutputFormat.setOutputPath(job, OUTPUT_DIR);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        job.setOutputFormat(TextOutputFormat.class);
+        job.setNumReduceTasks(1);
 
-    job.set(FieldSelectionHelper.DATA_FIELD_SEPERATOR, "-");
-    job.set(FieldSelectionHelper.MAP_OUTPUT_KEY_VALUE_SPEC, "6,5,1-3:0-");
-    job.set(FieldSelectionHelper.REDUCE_OUTPUT_KEY_VALUE_SPEC, ":4,3,2,1,0,0-");
+        job.set(FieldSelectionHelper.DATA_FIELD_SEPERATOR, "-");
+        job.set(FieldSelectionHelper.MAP_OUTPUT_KEY_VALUE_SPEC, "6,5,1-3:0-");
+        job.set(FieldSelectionHelper.REDUCE_OUTPUT_KEY_VALUE_SPEC, ":4,3,2,1,0,0-");
 
-    JobClient.runJob(job);
+        JobClient.runJob(job);
 
-    //
-    // Finally, we compare the reconstructed answer key with the
-    // original one.  Remember, we need to ignore zero-count items
-    // in the original key.
-    //
-    boolean success = true;
-    Path outPath = new Path(OUTPUT_DIR, "part-00000");
-    String outdata = MapReduceTestUtil.readOutput(outPath,job);
+        //
+        // Finally, we compare the reconstructed answer key with the
+        // original one.  Remember, we need to ignore zero-count items
+        // in the original key.
+        //
+        boolean success = true;
+        Path outPath = new Path(OUTPUT_DIR, "part-00000");
+        String outdata = MapReduceTestUtil.readOutput(outPath,job);
 
-    assertEquals(expectedOutput.toString(),outdata);
-    fs.delete(OUTPUT_DIR, true);
-    fs.delete(INPUT_DIR, true);
-  }
+        assertEquals(expectedOutput.toString(),outdata);
+        fs.delete(OUTPUT_DIR, true);
+        fs.delete(INPUT_DIR, true);
+    }
 
-  /**
-   * Launches all the tasks in order.
-   */
-  public static void main(String[] argv) throws Exception {
-    launch();
-  }
+    /**
+     * Launches all the tasks in order.
+     */
+    public static void main(String[] argv) throws Exception {
+        launch();
+    }
 }

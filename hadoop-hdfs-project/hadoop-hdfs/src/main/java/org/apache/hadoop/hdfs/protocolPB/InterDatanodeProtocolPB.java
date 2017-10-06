@@ -26,9 +26,9 @@ import org.apache.hadoop.security.KerberosInfo;
 @KerberosInfo(
     serverPrincipal = DFSConfigKeys.DFS_DATANODE_KERBEROS_PRINCIPAL_KEY,
     clientPrincipal = DFSConfigKeys.DFS_DATANODE_KERBEROS_PRINCIPAL_KEY)
-@ProtocolInfo(protocolName = 
-    "org.apache.hadoop.hdfs.server.protocol.InterDatanodeProtocol",
-    protocolVersion = 1)
+@ProtocolInfo(protocolName =
+                  "org.apache.hadoop.hdfs.server.protocol.InterDatanodeProtocol",
+              protocolVersion = 1)
 @InterfaceAudience.Private
 public interface InterDatanodeProtocolPB extends
     InterDatanodeProtocolService.BlockingInterface {

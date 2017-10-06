@@ -30,69 +30,69 @@ import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public abstract class HtmlBlock extends TextView implements SubView {
 
-  protected static final String UNAVAILABLE = "N/A";
+    protected static final String UNAVAILABLE = "N/A";
 
-  public class Block extends Hamlet {
-    Block(PrintWriter out, int level, boolean wasInline) {
-      super(out, level, wasInline);
+    public class Block extends Hamlet {
+        Block(PrintWriter out, int level, boolean wasInline) {
+            super(out, level, wasInline);
+        }
+
+        @Override
+        protected void subView(Class<? extends SubView> cls) {
+            context().set(nestLevel(), wasInline());
+            render(cls);
+            setWasInline(context().wasInline());
+        }
+    }
+
+    private Block block;
+
+    private Block block() {
+        if (block == null) {
+            block = new Block(writer(), context().nestLevel(), context().wasInline());
+        }
+        return block;
+    }
+
+    protected HtmlBlock() {
+        this(null);
+    }
+
+    protected HtmlBlock(ViewContext ctx) {
+        super(ctx, MimeType.HTML);
     }
 
     @Override
-    protected void subView(Class<? extends SubView> cls) {
-      context().set(nestLevel(), wasInline());
-      render(cls);
-      setWasInline(context().wasInline());
+    public void render() {
+        int nestLevel = context().nestLevel();
+        LOG.debug("Rendering {} @{}", getClass(), nestLevel);
+        render(block());
+        if (block.nestLevel() != nestLevel) {
+            throw new WebAppException("Error rendering block: nestLevel="+
+                                      block.nestLevel() +" expected "+ nestLevel);
+        }
+        context().set(nestLevel, block.wasInline());
     }
-  }
 
-  private Block block;
-
-  private Block block() {
-    if (block == null) {
-      block = new Block(writer(), context().nestLevel(), context().wasInline());
+    @Override
+    public void renderPartial() {
+        render();
     }
-    return block;
-  }
 
-  protected HtmlBlock() {
-    this(null);
-  }
+    /**
+     * Render a block of html. To be overridden by implementation.
+     * @param html the block to render
+     */
+    protected abstract void render(Block html);
 
-  protected HtmlBlock(ViewContext ctx) {
-    super(ctx, MimeType.HTML);
-  }
-
-  @Override
-  public void render() {
-    int nestLevel = context().nestLevel();
-    LOG.debug("Rendering {} @{}", getClass(), nestLevel);
-    render(block());
-    if (block.nestLevel() != nestLevel) {
-      throw new WebAppException("Error rendering block: nestLevel="+
-                                block.nestLevel() +" expected "+ nestLevel);
+    protected UserGroupInformation getCallerUGI() {
+        // Check for the authorization.
+        String remoteUser = request().getRemoteUser();
+        UserGroupInformation callerUGI = null;
+        if (remoteUser != null) {
+            callerUGI = UserGroupInformation.createRemoteUser(remoteUser);
+        }
+        return callerUGI;
     }
-    context().set(nestLevel, block.wasInline());
-  }
-
-  @Override
-  public void renderPartial() {
-    render();
-  }
-
-  /**
-   * Render a block of html. To be overridden by implementation.
-   * @param html the block to render
-   */
-  protected abstract void render(Block html);
-
-  protected UserGroupInformation getCallerUGI() {
-    // Check for the authorization.
-    String remoteUser = request().getRemoteUser();
-    UserGroupInformation callerUGI = null;
-    if (remoteUser != null) {
-      callerUGI = UserGroupInformation.createRemoteUser(remoteUser);
-    }
-    return callerUGI;
-  }
 
 }

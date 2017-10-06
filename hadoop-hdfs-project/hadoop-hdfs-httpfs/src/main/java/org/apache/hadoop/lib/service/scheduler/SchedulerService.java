@@ -38,96 +38,96 @@ import java.util.concurrent.TimeUnit;
 
 @InterfaceAudience.Private
 public class SchedulerService extends BaseService implements Scheduler {
-  private static final Logger LOG = LoggerFactory.getLogger(SchedulerService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SchedulerService.class);
 
-  private static final String INST_GROUP = "scheduler";
+    private static final String INST_GROUP = "scheduler";
 
-  public static final String PREFIX = "scheduler";
+    public static final String PREFIX = "scheduler";
 
-  public static final String CONF_THREADS = "threads";
+    public static final String CONF_THREADS = "threads";
 
-  private ScheduledExecutorService scheduler;
+    private ScheduledExecutorService scheduler;
 
-  public SchedulerService() {
-    super(PREFIX);
-  }
-
-  @Override
-  public void init() throws ServiceException {
-    int threads = getServiceConfig().getInt(CONF_THREADS, 5);
-    scheduler = new ScheduledThreadPoolExecutor(threads);
-    LOG.debug("Scheduler started");
-  }
-
-  @Override
-  public void destroy() {
-    try {
-      long limit = Time.now() + 30 * 1000;
-      scheduler.shutdownNow();
-      while (!scheduler.awaitTermination(1000, TimeUnit.MILLISECONDS)) {
-        LOG.debug("Waiting for scheduler to shutdown");
-        if (Time.now() > limit) {
-          LOG.warn("Gave up waiting for scheduler to shutdown");
-          break;
-        }
-      }
-      if (scheduler.isTerminated()) {
-        LOG.debug("Scheduler shutdown");
-      }
-    } catch (InterruptedException ex) {
-      LOG.warn(ex.getMessage(), ex);
+    public SchedulerService() {
+        super(PREFIX);
     }
-  }
 
-  @Override
-  public Class[] getServiceDependencies() {
-    return new Class[]{Instrumentation.class};
-  }
+    @Override
+    public void init() throws ServiceException {
+        int threads = getServiceConfig().getInt(CONF_THREADS, 5);
+        scheduler = new ScheduledThreadPoolExecutor(threads);
+        LOG.debug("Scheduler started");
+    }
 
-  @Override
-  public Class getInterface() {
-    return Scheduler.class;
-  }
-
-  @Override
-  public void schedule(final Callable<?> callable, long delay, long interval, TimeUnit unit) {
-    Check.notNull(callable, "callable");
-    if (!scheduler.isShutdown()) {
-      LOG.debug("Scheduling callable [{}], interval [{}] seconds, delay [{}] in [{}]",
-                new Object[]{callable, delay, interval, unit});
-      Runnable r = new Runnable() {
-        @Override
-        public void run() {
-          String instrName = callable.getClass().getSimpleName();
-          Instrumentation instr = getServer().get(Instrumentation.class);
-          if (getServer().getStatus() == Server.Status.HALTED) {
-            LOG.debug("Skipping [{}], server status [{}]", callable, getServer().getStatus());
-            instr.incr(INST_GROUP, instrName + ".skips", 1);
-          } else {
-            LOG.debug("Executing [{}]", callable);
-            instr.incr(INST_GROUP, instrName + ".execs", 1);
-            Instrumentation.Cron cron = instr.createCron().start();
-            try {
-              callable.call();
-            } catch (Exception ex) {
-              instr.incr(INST_GROUP, instrName + ".fails", 1);
-              LOG.error("Error executing [{}], {}", new Object[]{callable, ex.getMessage(), ex});
-            } finally {
-              instr.addCron(INST_GROUP, instrName, cron.stop());
+    @Override
+    public void destroy() {
+        try {
+            long limit = Time.now() + 30 * 1000;
+            scheduler.shutdownNow();
+            while (!scheduler.awaitTermination(1000, TimeUnit.MILLISECONDS)) {
+                LOG.debug("Waiting for scheduler to shutdown");
+                if (Time.now() > limit) {
+                    LOG.warn("Gave up waiting for scheduler to shutdown");
+                    break;
+                }
             }
-          }
+            if (scheduler.isTerminated()) {
+                LOG.debug("Scheduler shutdown");
+            }
+        } catch (InterruptedException ex) {
+            LOG.warn(ex.getMessage(), ex);
         }
-      };
-      scheduler.scheduleWithFixedDelay(r, delay, interval, unit);
-    } else {
-      throw new IllegalStateException(
-        MessageFormat.format("Scheduler shutting down, ignoring scheduling of [{}]", callable));
     }
-  }
 
-  @Override
-  public void schedule(Runnable runnable, long delay, long interval, TimeUnit unit) {
-    schedule((Callable<?>) new RunnableCallable(runnable), delay, interval, unit);
-  }
+    @Override
+    public Class[] getServiceDependencies() {
+        return new Class[] {Instrumentation.class};
+    }
+
+    @Override
+    public Class getInterface() {
+        return Scheduler.class;
+    }
+
+    @Override
+    public void schedule(final Callable<?> callable, long delay, long interval, TimeUnit unit) {
+        Check.notNull(callable, "callable");
+        if (!scheduler.isShutdown()) {
+            LOG.debug("Scheduling callable [{}], interval [{}] seconds, delay [{}] in [{}]",
+                      new Object[] {callable, delay, interval, unit});
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    String instrName = callable.getClass().getSimpleName();
+                    Instrumentation instr = getServer().get(Instrumentation.class);
+                    if (getServer().getStatus() == Server.Status.HALTED) {
+                        LOG.debug("Skipping [{}], server status [{}]", callable, getServer().getStatus());
+                        instr.incr(INST_GROUP, instrName + ".skips", 1);
+                    } else {
+                        LOG.debug("Executing [{}]", callable);
+                        instr.incr(INST_GROUP, instrName + ".execs", 1);
+                        Instrumentation.Cron cron = instr.createCron().start();
+                        try {
+                            callable.call();
+                        } catch (Exception ex) {
+                            instr.incr(INST_GROUP, instrName + ".fails", 1);
+                            LOG.error("Error executing [{}], {}", new Object[] {callable, ex.getMessage(), ex});
+                        } finally {
+                            instr.addCron(INST_GROUP, instrName, cron.stop());
+                        }
+                    }
+                }
+            };
+            scheduler.scheduleWithFixedDelay(r, delay, interval, unit);
+        } else {
+            throw new IllegalStateException(
+                MessageFormat.format("Scheduler shutting down, ignoring scheduling of [{}]", callable));
+        }
+    }
+
+    @Override
+    public void schedule(Runnable runnable, long delay, long interval, TimeUnit unit) {
+        schedule((Callable<?>) new RunnableCallable(runnable), delay, interval, unit);
+    }
 
 }

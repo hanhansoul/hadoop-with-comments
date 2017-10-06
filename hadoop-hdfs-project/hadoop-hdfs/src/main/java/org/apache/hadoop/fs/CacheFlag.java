@@ -28,17 +28,17 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public enum CacheFlag {
 
-  /**
-   * Ignore cache pool resource limits when performing this operation.
-   */
-  FORCE((short) 0x01);
-  private final short mode;
+    /**
+     * Ignore cache pool resource limits when performing this operation.
+     */
+    FORCE((short) 0x01);
+    private final short mode;
 
-  private CacheFlag(short mode) {
-    this.mode = mode;
-  }
+    private CacheFlag(short mode) {
+        this.mode = mode;
+    }
 
-  short getMode() {
-    return mode;
-  }
+    short getMode() {
+        return mode;
+    }
 }

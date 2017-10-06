@@ -24,23 +24,23 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
  * Finish/abort event
  */
 public class ApplicationFinishEvent extends ApplicationEvent {
-  private final String diagnostic;
+    private final String diagnostic;
 
-  /**
-   * Application event to abort all containers associated with the app
-   * @param appId to abort containers
-   * @param diagnostic reason for the abort
-   */
-  public ApplicationFinishEvent(ApplicationId appId, String diagnostic) {
-    super(appId, ApplicationEventType.FINISH_APPLICATION);
-    this.diagnostic = diagnostic;
-  }
+    /**
+     * Application event to abort all containers associated with the app
+     * @param appId to abort containers
+     * @param diagnostic reason for the abort
+     */
+    public ApplicationFinishEvent(ApplicationId appId, String diagnostic) {
+        super(appId, ApplicationEventType.FINISH_APPLICATION);
+        this.diagnostic = diagnostic;
+    }
 
-  /**
-   * Why the app was aborted
-   * @return diagnostic message
-   */
-  public String getDiagnostic() {
-    return diagnostic;
-  }
+    /**
+     * Why the app was aborted
+     * @return diagnostic message
+     */
+    public String getDiagnostic() {
+        return diagnostic;
+    }
 }

@@ -21,17 +21,17 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.util.ToolRunner;
 
 public class FSCmdExecutor extends CommandExecutor {
-  protected String namenode = null;
-  protected FsShell shell = null;
+    protected String namenode = null;
+    protected FsShell shell = null;
 
-  public FSCmdExecutor(String namenode, FsShell shell) {
-    this.namenode = namenode;
-    this.shell = shell;
-  }
+    public FSCmdExecutor(String namenode, FsShell shell) {
+        this.namenode = namenode;
+        this.shell = shell;
+    }
 
-  @Override
-  protected void execute(final String cmd) throws Exception{
-    String[] args = getCommandAsArgs(cmd, "NAMENODE", this.namenode);
-    ToolRunner.run(shell, args);
-  }
+    @Override
+    protected void execute(final String cmd) throws Exception {
+        String[] args = getCommandAsArgs(cmd, "NAMENODE", this.namenode);
+        ToolRunner.run(shell, args);
+    }
 }

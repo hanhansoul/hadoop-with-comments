@@ -23,52 +23,52 @@ import org.apache.hadoop.mapreduce.TaskType;
 
 /**
  * Event to record the normalized map/reduce requirements.
- * 
+ *
  */
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class NormalizedResourceEvent implements HistoryEvent {
-  private int memory;
-  private TaskType taskType;
-  
-  /**
-   * Normalized request when sent to the Resource Manager.
-   * @param taskType the tasktype of the request.
-   * @param memory the normalized memory requirements.
-   */
-  public NormalizedResourceEvent(TaskType taskType, int memory) {
-    this.memory = memory;
-    this.taskType = taskType;
-  }
-  
-  /**
-   * the tasktype for the event.
-   * @return the tasktype for the event.
-   */
-  public TaskType getTaskType() {
-    return this.taskType;
-  }
-  
-  /**
-   * the normalized memory
-   * @return the normalized memory
-   */
-  public int getMemory() {
-    return this.memory;
-  }
-  
-  @Override
-  public EventType getEventType() {
-    return EventType.NORMALIZED_RESOURCE;
-  }
+    private int memory;
+    private TaskType taskType;
 
-  @Override
-  public Object getDatum() {
-    throw new UnsupportedOperationException("Not a seriable object");
-  }
+    /**
+     * Normalized request when sent to the Resource Manager.
+     * @param taskType the tasktype of the request.
+     * @param memory the normalized memory requirements.
+     */
+    public NormalizedResourceEvent(TaskType taskType, int memory) {
+        this.memory = memory;
+        this.taskType = taskType;
+    }
 
-  @Override
-  public void setDatum(Object datum) {
-    throw new UnsupportedOperationException("Not a seriable object");
-  }
+    /**
+     * the tasktype for the event.
+     * @return the tasktype for the event.
+     */
+    public TaskType getTaskType() {
+        return this.taskType;
+    }
+
+    /**
+     * the normalized memory
+     * @return the normalized memory
+     */
+    public int getMemory() {
+        return this.memory;
+    }
+
+    @Override
+    public EventType getEventType() {
+        return EventType.NORMALIZED_RESOURCE;
+    }
+
+    @Override
+    public Object getDatum() {
+        throw new UnsupportedOperationException("Not a seriable object");
+    }
+
+    @Override
+    public void setDatum(Object datum) {
+        throw new UnsupportedOperationException("Not a seriable object");
+    }
 }

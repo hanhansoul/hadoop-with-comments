@@ -42,208 +42,208 @@ import java.util.List;
  * Test the curator service
  */
 public class TestCuratorService extends AbstractZKRegistryTest {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(TestCuratorService.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(TestCuratorService.class);
 
 
-  protected CuratorService curatorService;
+    protected CuratorService curatorService;
 
-  public static final String MISSING = "/missing";
-  private List<ACL> rootACL;
+    public static final String MISSING = "/missing";
+    private List<ACL> rootACL;
 
-  @Before
-  public void startCurator() throws IOException {
-    createCuratorService();
-  }
-
-  @After
-  public void stopCurator() {
-    ServiceOperations.stop(curatorService);
-  }
-
-  /**
-   * Create an instance
-   */
-  protected void createCuratorService() throws IOException {
-    curatorService = new CuratorService("curatorService");
-    curatorService.init(createRegistryConfiguration());
-    curatorService.start();
-    rootACL = RegistrySecurity.WorldReadWriteACL;
-    curatorService.maybeCreate("", CreateMode.PERSISTENT, rootACL, true);
-  }
-
-  @Test
-  public void testLs() throws Throwable {
-    curatorService.zkList("/");
-  }
-
-  @Test(expected = PathNotFoundException.class)
-  public void testLsNotFound() throws Throwable {
-    List<String> ls = curatorService.zkList(MISSING);
-  }
-
-  @Test
-  public void testExists() throws Throwable {
-    assertTrue(curatorService.zkPathExists("/"));
-  }
-
-  @Test
-  public void testExistsMissing() throws Throwable {
-    assertFalse(curatorService.zkPathExists(MISSING));
-  }
-
-  @Test
-  public void testVerifyExists() throws Throwable {
-    pathMustExist("/");
-  }
-
-  @Test(expected = PathNotFoundException.class)
-  public void testVerifyExistsMissing() throws Throwable {
-    pathMustExist("/file-not-found");
-  }
-
-  @Test
-  public void testMkdirs() throws Throwable {
-    mkPath("/p1", CreateMode.PERSISTENT);
-    pathMustExist("/p1");
-    mkPath("/p1/p2", CreateMode.EPHEMERAL);
-    pathMustExist("/p1/p2");
-  }
-
-  private void mkPath(String path, CreateMode mode) throws IOException {
-    curatorService.zkMkPath(path, mode, false,
-        RegistrySecurity.WorldReadWriteACL);
-  }
-
-  public void pathMustExist(String path) throws IOException {
-    curatorService.zkPathMustExist(path);
-  }
-
-  @Test(expected = PathNotFoundException.class)
-  public void testMkdirChild() throws Throwable {
-    mkPath("/testMkdirChild/child", CreateMode.PERSISTENT);
-  }
-
-  @Test
-  public void testMaybeCreate() throws Throwable {
-    assertTrue(curatorService.maybeCreate("/p3", CreateMode.PERSISTENT,
-        RegistrySecurity.WorldReadWriteACL, false));
-    assertFalse(curatorService.maybeCreate("/p3", CreateMode.PERSISTENT,
-        RegistrySecurity.WorldReadWriteACL, false));
-  }
-
-  @Test
-  public void testRM() throws Throwable {
-    mkPath("/rm", CreateMode.PERSISTENT);
-    curatorService.zkDelete("/rm", false, null);
-    verifyNotExists("/rm");
-    curatorService.zkDelete("/rm", false, null);
-  }
-
-  @Test
-  public void testRMNonRf() throws Throwable {
-    mkPath("/rm", CreateMode.PERSISTENT);
-    mkPath("/rm/child", CreateMode.PERSISTENT);
-    try {
-      curatorService.zkDelete("/rm", false, null);
-      fail("expected a failure");
-    } catch (PathIsNotEmptyDirectoryException expected) {
-
+    @Before
+    public void startCurator() throws IOException {
+        createCuratorService();
     }
-  }
 
-  @Test
-  public void testRMRf() throws Throwable {
-    mkPath("/rm", CreateMode.PERSISTENT);
-    mkPath("/rm/child", CreateMode.PERSISTENT);
-    curatorService.zkDelete("/rm", true, null);
-    verifyNotExists("/rm");
-    curatorService.zkDelete("/rm", true, null);
-  }
-
-
-  @Test
-  public void testBackgroundDelete() throws Throwable {
-    mkPath("/rm", CreateMode.PERSISTENT);
-    mkPath("/rm/child", CreateMode.PERSISTENT);
-    CuratorEventCatcher events = new CuratorEventCatcher();
-    curatorService.zkDelete("/rm", true, events);
-    CuratorEvent taken = events.take();
-    LOG.info("took {}", taken);
-    assertEquals(1, events.getCount());
-  }
-
-  @Test
-  public void testCreate() throws Throwable {
-
-    curatorService.zkCreate("/testcreate",
-        CreateMode.PERSISTENT, getTestBuffer(),
-        rootACL
-    );
-    pathMustExist("/testcreate");
-  }
-
-  @Test
-  public void testCreateTwice() throws Throwable {
-    byte[] buffer = getTestBuffer();
-    curatorService.zkCreate("/testcreatetwice",
-        CreateMode.PERSISTENT, buffer,
-        rootACL);
-    try {
-      curatorService.zkCreate("/testcreatetwice",
-          CreateMode.PERSISTENT, buffer,
-          rootACL);
-      fail();
-    } catch (FileAlreadyExistsException e) {
-
+    @After
+    public void stopCurator() {
+        ServiceOperations.stop(curatorService);
     }
-  }
 
-  @Test
-  public void testCreateUpdate() throws Throwable {
-    byte[] buffer = getTestBuffer();
-    curatorService.zkCreate("/testcreateupdate",
-        CreateMode.PERSISTENT, buffer,
-        rootACL
-    );
-    curatorService.zkUpdate("/testcreateupdate", buffer);
-  }
-
-  @Test(expected = PathNotFoundException.class)
-  public void testUpdateMissing() throws Throwable {
-    curatorService.zkUpdate("/testupdatemissing", getTestBuffer());
-  }
-
-  @Test
-  public void testUpdateDirectory() throws Throwable {
-    mkPath("/testupdatedirectory", CreateMode.PERSISTENT);
-    curatorService.zkUpdate("/testupdatedirectory", getTestBuffer());
-  }
-
-  @Test
-  public void testUpdateDirectorywithChild() throws Throwable {
-    mkPath("/testupdatedirectorywithchild", CreateMode.PERSISTENT);
-    mkPath("/testupdatedirectorywithchild/child", CreateMode.PERSISTENT);
-    curatorService.zkUpdate("/testupdatedirectorywithchild", getTestBuffer());
-  }
-
-  @Test
-  public void testUseZKServiceForBinding() throws Throwable {
-    CuratorService cs2 = new CuratorService("curator", zookeeper);
-    cs2.init(new Configuration());
-    cs2.start();
-  }
-
-  protected byte[] getTestBuffer() {
-    byte[] buffer = new byte[1];
-    buffer[0] = '0';
-    return buffer;
-  }
-
-
-  public void verifyNotExists(String path) throws IOException {
-    if (curatorService.zkPathExists(path)) {
-      fail("Path should not exist: " + path);
+    /**
+     * Create an instance
+     */
+    protected void createCuratorService() throws IOException {
+        curatorService = new CuratorService("curatorService");
+        curatorService.init(createRegistryConfiguration());
+        curatorService.start();
+        rootACL = RegistrySecurity.WorldReadWriteACL;
+        curatorService.maybeCreate("", CreateMode.PERSISTENT, rootACL, true);
     }
-  }
+
+    @Test
+    public void testLs() throws Throwable {
+        curatorService.zkList("/");
+    }
+
+    @Test(expected = PathNotFoundException.class)
+    public void testLsNotFound() throws Throwable {
+        List<String> ls = curatorService.zkList(MISSING);
+    }
+
+    @Test
+    public void testExists() throws Throwable {
+        assertTrue(curatorService.zkPathExists("/"));
+    }
+
+    @Test
+    public void testExistsMissing() throws Throwable {
+        assertFalse(curatorService.zkPathExists(MISSING));
+    }
+
+    @Test
+    public void testVerifyExists() throws Throwable {
+        pathMustExist("/");
+    }
+
+    @Test(expected = PathNotFoundException.class)
+    public void testVerifyExistsMissing() throws Throwable {
+        pathMustExist("/file-not-found");
+    }
+
+    @Test
+    public void testMkdirs() throws Throwable {
+        mkPath("/p1", CreateMode.PERSISTENT);
+        pathMustExist("/p1");
+        mkPath("/p1/p2", CreateMode.EPHEMERAL);
+        pathMustExist("/p1/p2");
+    }
+
+    private void mkPath(String path, CreateMode mode) throws IOException {
+        curatorService.zkMkPath(path, mode, false,
+                                RegistrySecurity.WorldReadWriteACL);
+    }
+
+    public void pathMustExist(String path) throws IOException {
+        curatorService.zkPathMustExist(path);
+    }
+
+    @Test(expected = PathNotFoundException.class)
+    public void testMkdirChild() throws Throwable {
+        mkPath("/testMkdirChild/child", CreateMode.PERSISTENT);
+    }
+
+    @Test
+    public void testMaybeCreate() throws Throwable {
+        assertTrue(curatorService.maybeCreate("/p3", CreateMode.PERSISTENT,
+                                              RegistrySecurity.WorldReadWriteACL, false));
+        assertFalse(curatorService.maybeCreate("/p3", CreateMode.PERSISTENT,
+                                               RegistrySecurity.WorldReadWriteACL, false));
+    }
+
+    @Test
+    public void testRM() throws Throwable {
+        mkPath("/rm", CreateMode.PERSISTENT);
+        curatorService.zkDelete("/rm", false, null);
+        verifyNotExists("/rm");
+        curatorService.zkDelete("/rm", false, null);
+    }
+
+    @Test
+    public void testRMNonRf() throws Throwable {
+        mkPath("/rm", CreateMode.PERSISTENT);
+        mkPath("/rm/child", CreateMode.PERSISTENT);
+        try {
+            curatorService.zkDelete("/rm", false, null);
+            fail("expected a failure");
+        } catch (PathIsNotEmptyDirectoryException expected) {
+
+        }
+    }
+
+    @Test
+    public void testRMRf() throws Throwable {
+        mkPath("/rm", CreateMode.PERSISTENT);
+        mkPath("/rm/child", CreateMode.PERSISTENT);
+        curatorService.zkDelete("/rm", true, null);
+        verifyNotExists("/rm");
+        curatorService.zkDelete("/rm", true, null);
+    }
+
+
+    @Test
+    public void testBackgroundDelete() throws Throwable {
+        mkPath("/rm", CreateMode.PERSISTENT);
+        mkPath("/rm/child", CreateMode.PERSISTENT);
+        CuratorEventCatcher events = new CuratorEventCatcher();
+        curatorService.zkDelete("/rm", true, events);
+        CuratorEvent taken = events.take();
+        LOG.info("took {}", taken);
+        assertEquals(1, events.getCount());
+    }
+
+    @Test
+    public void testCreate() throws Throwable {
+
+        curatorService.zkCreate("/testcreate",
+                                CreateMode.PERSISTENT, getTestBuffer(),
+                                rootACL
+                               );
+        pathMustExist("/testcreate");
+    }
+
+    @Test
+    public void testCreateTwice() throws Throwable {
+        byte[] buffer = getTestBuffer();
+        curatorService.zkCreate("/testcreatetwice",
+                                CreateMode.PERSISTENT, buffer,
+                                rootACL);
+        try {
+            curatorService.zkCreate("/testcreatetwice",
+                                    CreateMode.PERSISTENT, buffer,
+                                    rootACL);
+            fail();
+        } catch (FileAlreadyExistsException e) {
+
+        }
+    }
+
+    @Test
+    public void testCreateUpdate() throws Throwable {
+        byte[] buffer = getTestBuffer();
+        curatorService.zkCreate("/testcreateupdate",
+                                CreateMode.PERSISTENT, buffer,
+                                rootACL
+                               );
+        curatorService.zkUpdate("/testcreateupdate", buffer);
+    }
+
+    @Test(expected = PathNotFoundException.class)
+    public void testUpdateMissing() throws Throwable {
+        curatorService.zkUpdate("/testupdatemissing", getTestBuffer());
+    }
+
+    @Test
+    public void testUpdateDirectory() throws Throwable {
+        mkPath("/testupdatedirectory", CreateMode.PERSISTENT);
+        curatorService.zkUpdate("/testupdatedirectory", getTestBuffer());
+    }
+
+    @Test
+    public void testUpdateDirectorywithChild() throws Throwable {
+        mkPath("/testupdatedirectorywithchild", CreateMode.PERSISTENT);
+        mkPath("/testupdatedirectorywithchild/child", CreateMode.PERSISTENT);
+        curatorService.zkUpdate("/testupdatedirectorywithchild", getTestBuffer());
+    }
+
+    @Test
+    public void testUseZKServiceForBinding() throws Throwable {
+        CuratorService cs2 = new CuratorService("curator", zookeeper);
+        cs2.init(new Configuration());
+        cs2.start();
+    }
+
+    protected byte[] getTestBuffer() {
+        byte[] buffer = new byte[1];
+        buffer[0] = '0';
+        return buffer;
+    }
+
+
+    public void verifyNotExists(String path) throws IOException {
+        if (curatorService.zkPathExists(path)) {
+            fail("Path should not exist: " + path);
+        }
+    }
 }

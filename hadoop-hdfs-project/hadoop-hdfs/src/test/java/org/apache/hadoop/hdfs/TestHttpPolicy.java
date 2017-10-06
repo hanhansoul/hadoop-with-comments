@@ -27,28 +27,28 @@ import org.junit.Test;
 
 public final class TestHttpPolicy {
 
-  @Test(expected = HadoopIllegalArgumentException.class)
-  public void testInvalidPolicyValue() {
-    Configuration conf = new Configuration();
-    conf.set(DFSConfigKeys.DFS_HTTP_POLICY_KEY, "invalid");
-    DFSUtil.getHttpPolicy(conf);
-  }
+    @Test(expected = HadoopIllegalArgumentException.class)
+    public void testInvalidPolicyValue() {
+        Configuration conf = new Configuration();
+        conf.set(DFSConfigKeys.DFS_HTTP_POLICY_KEY, "invalid");
+        DFSUtil.getHttpPolicy(conf);
+    }
 
-  @Test
-  public void testDeprecatedConfiguration() {
-    Configuration conf = new Configuration(false);
-    Assert.assertSame(HTTP_ONLY, DFSUtil.getHttpPolicy(conf));
+    @Test
+    public void testDeprecatedConfiguration() {
+        Configuration conf = new Configuration(false);
+        Assert.assertSame(HTTP_ONLY, DFSUtil.getHttpPolicy(conf));
 
-    conf.setBoolean(DFSConfigKeys.DFS_HTTPS_ENABLE_KEY, true);
-    Assert.assertSame(HTTP_AND_HTTPS, DFSUtil.getHttpPolicy(conf));
+        conf.setBoolean(DFSConfigKeys.DFS_HTTPS_ENABLE_KEY, true);
+        Assert.assertSame(HTTP_AND_HTTPS, DFSUtil.getHttpPolicy(conf));
 
-    conf = new Configuration(false);
-    conf.setBoolean(DFSConfigKeys.HADOOP_SSL_ENABLED_KEY, true);
-    Assert.assertSame(HTTP_AND_HTTPS, DFSUtil.getHttpPolicy(conf));
+        conf = new Configuration(false);
+        conf.setBoolean(DFSConfigKeys.HADOOP_SSL_ENABLED_KEY, true);
+        Assert.assertSame(HTTP_AND_HTTPS, DFSUtil.getHttpPolicy(conf));
 
-    conf = new Configuration(false);
-    conf.set(DFSConfigKeys.DFS_HTTP_POLICY_KEY, HTTP_ONLY.name());
-    conf.setBoolean(DFSConfigKeys.DFS_HTTPS_ENABLE_KEY, true);
-    Assert.assertSame(HTTP_ONLY, DFSUtil.getHttpPolicy(conf));
-  }
+        conf = new Configuration(false);
+        conf.set(DFSConfigKeys.DFS_HTTP_POLICY_KEY, HTTP_ONLY.name());
+        conf.setBoolean(DFSConfigKeys.DFS_HTTPS_ENABLE_KEY, true);
+        Assert.assertSame(HTTP_ONLY, DFSUtil.getHttpPolicy(conf));
+    }
 }

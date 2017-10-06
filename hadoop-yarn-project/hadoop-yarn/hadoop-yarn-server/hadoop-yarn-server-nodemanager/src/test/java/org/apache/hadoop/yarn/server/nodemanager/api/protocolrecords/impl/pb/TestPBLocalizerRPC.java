@@ -36,66 +36,66 @@ import org.junit.Test;
 
 public class TestPBLocalizerRPC {
 
-  static final RecordFactory recordFactory = createPBRecordFactory();
+    static final RecordFactory recordFactory = createPBRecordFactory();
 
-  static RecordFactory createPBRecordFactory() {
-    Configuration conf = new Configuration();
-    return RecordFactoryProvider.getRecordFactory(conf);
-  }
-
-  static class LocalizerService implements LocalizationProtocol {
-    private final InetSocketAddress locAddr;
-    private Server server;
-    LocalizerService(InetSocketAddress locAddr) {
-      this.locAddr = locAddr;
+    static RecordFactory createPBRecordFactory() {
+        Configuration conf = new Configuration();
+        return RecordFactoryProvider.getRecordFactory(conf);
     }
 
-    public void start() {
-      Configuration conf = new Configuration();
-      YarnRPC rpc = YarnRPC.create(conf);
-      server = rpc.getServer(
-          LocalizationProtocol.class, this, locAddr, conf, null, 1);
-      server.start();
+    static class LocalizerService implements LocalizationProtocol {
+        private final InetSocketAddress locAddr;
+        private Server server;
+        LocalizerService(InetSocketAddress locAddr) {
+            this.locAddr = locAddr;
+        }
+
+        public void start() {
+            Configuration conf = new Configuration();
+            YarnRPC rpc = YarnRPC.create(conf);
+            server = rpc.getServer(
+                         LocalizationProtocol.class, this, locAddr, conf, null, 1);
+            server.start();
+        }
+
+        public void stop() {
+            if (server != null) {
+                server.stop();
+            }
+        }
+
+        @Override
+        public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status) {
+            return dieHBResponse();
+        }
     }
 
-    public void stop() {
-      if (server != null) {
-        server.stop();
-      }
+    static LocalizerHeartbeatResponse dieHBResponse() {
+        LocalizerHeartbeatResponse response =
+            recordFactory.newRecordInstance(LocalizerHeartbeatResponse.class);
+        response.setLocalizerAction(LocalizerAction.DIE);
+        return response;
     }
 
-    @Override
-    public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status) {
-      return dieHBResponse();
+    @Test
+    public void testLocalizerRPC() throws Exception {
+        InetSocketAddress locAddr = new InetSocketAddress("0.0.0.0", 8040);
+        LocalizerService server = new LocalizerService(locAddr);
+        try {
+            server.start();
+            Configuration conf = new Configuration();
+            YarnRPC rpc = YarnRPC.create(conf);
+            LocalizationProtocol client = (LocalizationProtocol)
+                                          rpc.getProxy(LocalizationProtocol.class, locAddr, conf);
+            LocalizerStatus status =
+                recordFactory.newRecordInstance(LocalizerStatus.class);
+            status.setLocalizerId("localizer0");
+            LocalizerHeartbeatResponse response = client.heartbeat(status);
+            assertEquals(dieHBResponse(), response);
+        } finally {
+            server.stop();
+        }
+        assertTrue(true);
     }
-  }
-
-  static LocalizerHeartbeatResponse dieHBResponse() {
-    LocalizerHeartbeatResponse response =
-      recordFactory.newRecordInstance(LocalizerHeartbeatResponse.class);
-    response.setLocalizerAction(LocalizerAction.DIE);
-    return response;
-  }
-
-  @Test
-  public void testLocalizerRPC() throws Exception {
-    InetSocketAddress locAddr = new InetSocketAddress("0.0.0.0", 8040);
-    LocalizerService server = new LocalizerService(locAddr);
-    try {
-      server.start();
-      Configuration conf = new Configuration();
-      YarnRPC rpc = YarnRPC.create(conf);
-      LocalizationProtocol client = (LocalizationProtocol)
-        rpc.getProxy(LocalizationProtocol.class, locAddr, conf);
-      LocalizerStatus status =
-        recordFactory.newRecordInstance(LocalizerStatus.class);
-      status.setLocalizerId("localizer0");
-      LocalizerHeartbeatResponse response = client.heartbeat(status);
-      assertEquals(dieHBResponse(), response);
-    } finally {
-      server.stop();
-    }
-    assertTrue(true);
-  }
 
 }

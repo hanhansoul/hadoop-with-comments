@@ -33,129 +33,129 @@ import org.apache.hadoop.yarn.util.Times;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppInfo {
 
-  protected String appId;
-  protected String currentAppAttemptId;
-  protected String user;
-  protected String name;
-  protected String queue;
-  protected String type;
-  protected String host;
-  protected int rpcPort;
-  protected YarnApplicationState appState;
-  protected float progress;
-  protected String diagnosticsInfo;
-  protected String originalTrackingUrl;
-  protected String trackingUrl;
-  protected FinalApplicationStatus finalAppStatus;
-  protected long submittedTime;
-  protected long startedTime;
-  protected long finishedTime;
-  protected long elapsedTime;
-  protected String applicationTags;
+    protected String appId;
+    protected String currentAppAttemptId;
+    protected String user;
+    protected String name;
+    protected String queue;
+    protected String type;
+    protected String host;
+    protected int rpcPort;
+    protected YarnApplicationState appState;
+    protected float progress;
+    protected String diagnosticsInfo;
+    protected String originalTrackingUrl;
+    protected String trackingUrl;
+    protected FinalApplicationStatus finalAppStatus;
+    protected long submittedTime;
+    protected long startedTime;
+    protected long finishedTime;
+    protected long elapsedTime;
+    protected String applicationTags;
 
-  public AppInfo() {
-    // JAXB needs this
-  }
-
-  public AppInfo(ApplicationReport app) {
-    appId = app.getApplicationId().toString();
-    if (app.getCurrentApplicationAttemptId() != null) {
-      currentAppAttemptId = app.getCurrentApplicationAttemptId().toString();
+    public AppInfo() {
+        // JAXB needs this
     }
-    user = app.getUser();
-    queue = app.getQueue();
-    name = app.getName();
-    type = app.getApplicationType();
-    host = app.getHost();
-    rpcPort = app.getRpcPort();
-    appState = app.getYarnApplicationState();
-    diagnosticsInfo = app.getDiagnostics();
-    trackingUrl = app.getTrackingUrl();
-    originalTrackingUrl = app.getOriginalTrackingUrl();
-    submittedTime = app.getStartTime();
-    startedTime = app.getStartTime();
-    finishedTime = app.getFinishTime();
-    elapsedTime = Times.elapsed(startedTime, finishedTime);
-    finalAppStatus = app.getFinalApplicationStatus();
-    progress = app.getProgress() * 100; // in percent
-    if (app.getApplicationTags() != null && !app.getApplicationTags().isEmpty()) {
-      this.applicationTags = CSV_JOINER.join(app.getApplicationTags());
+
+    public AppInfo(ApplicationReport app) {
+        appId = app.getApplicationId().toString();
+        if (app.getCurrentApplicationAttemptId() != null) {
+            currentAppAttemptId = app.getCurrentApplicationAttemptId().toString();
+        }
+        user = app.getUser();
+        queue = app.getQueue();
+        name = app.getName();
+        type = app.getApplicationType();
+        host = app.getHost();
+        rpcPort = app.getRpcPort();
+        appState = app.getYarnApplicationState();
+        diagnosticsInfo = app.getDiagnostics();
+        trackingUrl = app.getTrackingUrl();
+        originalTrackingUrl = app.getOriginalTrackingUrl();
+        submittedTime = app.getStartTime();
+        startedTime = app.getStartTime();
+        finishedTime = app.getFinishTime();
+        elapsedTime = Times.elapsed(startedTime, finishedTime);
+        finalAppStatus = app.getFinalApplicationStatus();
+        progress = app.getProgress() * 100; // in percent
+        if (app.getApplicationTags() != null && !app.getApplicationTags().isEmpty()) {
+            this.applicationTags = CSV_JOINER.join(app.getApplicationTags());
+        }
     }
-  }
 
-  public String getAppId() {
-    return appId;
-  }
+    public String getAppId() {
+        return appId;
+    }
 
-  public String getCurrentAppAttemptId() {
-    return currentAppAttemptId;
-  }
+    public String getCurrentAppAttemptId() {
+        return currentAppAttemptId;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    public String getUser() {
+        return user;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public String getQueue() {
-    return queue;
-  }
+    public String getQueue() {
+        return queue;
+    }
 
-  public String getType() {
-    return type;
-  }
+    public String getType() {
+        return type;
+    }
 
-  public String getHost() {
-    return host;
-  }
+    public String getHost() {
+        return host;
+    }
 
-  public int getRpcPort() {
-    return rpcPort;
-  }
+    public int getRpcPort() {
+        return rpcPort;
+    }
 
-  public YarnApplicationState getAppState() {
-    return appState;
-  }
+    public YarnApplicationState getAppState() {
+        return appState;
+    }
 
-  public float getProgress() {
-    return progress;
-  }
+    public float getProgress() {
+        return progress;
+    }
 
-  public String getDiagnosticsInfo() {
-    return diagnosticsInfo;
-  }
+    public String getDiagnosticsInfo() {
+        return diagnosticsInfo;
+    }
 
-  public String getOriginalTrackingUrl() {
-    return originalTrackingUrl;
-  }
+    public String getOriginalTrackingUrl() {
+        return originalTrackingUrl;
+    }
 
-  public String getTrackingUrl() {
-    return trackingUrl;
-  }
+    public String getTrackingUrl() {
+        return trackingUrl;
+    }
 
-  public FinalApplicationStatus getFinalAppStatus() {
-    return finalAppStatus;
-  }
+    public FinalApplicationStatus getFinalAppStatus() {
+        return finalAppStatus;
+    }
 
-  public long getSubmittedTime() {
-    return submittedTime;
-  }
+    public long getSubmittedTime() {
+        return submittedTime;
+    }
 
-  public long getStartedTime() {
-    return startedTime;
-  }
+    public long getStartedTime() {
+        return startedTime;
+    }
 
-  public long getFinishedTime() {
-    return finishedTime;
-  }
+    public long getFinishedTime() {
+        return finishedTime;
+    }
 
-  public long getElapsedTime() {
-    return elapsedTime;
-  }
+    public long getElapsedTime() {
+        return elapsedTime;
+    }
 
-  public String getApplicationTags() {
-    return applicationTags;
-  }
+    public String getApplicationTags() {
+        return applicationTags;
+    }
 }

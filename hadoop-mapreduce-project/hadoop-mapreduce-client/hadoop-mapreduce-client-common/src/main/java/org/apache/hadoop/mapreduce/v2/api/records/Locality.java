@@ -19,7 +19,7 @@
 package org.apache.hadoop.mapreduce.v2.api.records;
 
 public enum Locality {
-  NODE_LOCAL,
-  RACK_LOCAL,
-  OFF_SWITCH
+    NODE_LOCAL,
+    RACK_LOCAL,
+    OFF_SWITCH
 }

@@ -35,57 +35,57 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestResourceTrackerOnHA extends ProtocolHATestBase{
+public class TestResourceTrackerOnHA extends ProtocolHATestBase {
 
-  private ResourceTracker resourceTracker = null;
+    private ResourceTracker resourceTracker = null;
 
-  @Before
-  public void initiate() throws Exception {
-    startHACluster(0, false, true, false);
-    this.resourceTracker = getRMClient();
-  }
-
-  @After
-  public void shutDown() {
-    if(this.resourceTracker != null) {
-      RPC.stopProxy(this.resourceTracker);
+    @Before
+    public void initiate() throws Exception {
+        startHACluster(0, false, true, false);
+        this.resourceTracker = getRMClient();
     }
-  }
 
-  @Test(timeout = 15000)
-  public void testResourceTrackerOnHA() throws Exception {
-    NodeId nodeId = NodeId.newInstance("localhost", 0);
-    Resource resource = Resource.newInstance(2048, 4);
-
-    // make sure registerNodeManager works when failover happens
-    RegisterNodeManagerRequest request =
-        RegisterNodeManagerRequest.newInstance(nodeId, 0, resource,
-            YarnVersionInfo.getVersion(), null, null);
-    resourceTracker.registerNodeManager(request);
-    Assert.assertTrue(waitForNodeManagerToConnect(10000, nodeId));
-
-    // restart the failover thread, and make sure nodeHeartbeat works
-    failoverThread = createAndStartFailoverThread();
-    NodeStatus status =
-        NodeStatus.newInstance(NodeId.newInstance("localhost", 0), 0, null,
-            null, null);
-    NodeHeartbeatRequest request2 =
-        NodeHeartbeatRequest.newInstance(status, null, null);
-    resourceTracker.nodeHeartbeat(request2);
-  }
-
-  private ResourceTracker getRMClient() throws IOException {
-    return ServerRMProxy.createRMProxy(this.conf, ResourceTracker.class);
-  }
-
-  private boolean waitForNodeManagerToConnect(int timeout, NodeId nodeId)
-      throws Exception {
-    for (int i = 0; i < timeout / 100; i++) {
-      if (getActiveRM().getRMContext().getRMNodes().containsKey(nodeId)) {
-        return true;
-      }
-      Thread.sleep(100);
+    @After
+    public void shutDown() {
+        if(this.resourceTracker != null) {
+            RPC.stopProxy(this.resourceTracker);
+        }
     }
-    return false;
-  }
+
+    @Test(timeout = 15000)
+    public void testResourceTrackerOnHA() throws Exception {
+        NodeId nodeId = NodeId.newInstance("localhost", 0);
+        Resource resource = Resource.newInstance(2048, 4);
+
+        // make sure registerNodeManager works when failover happens
+        RegisterNodeManagerRequest request =
+            RegisterNodeManagerRequest.newInstance(nodeId, 0, resource,
+                    YarnVersionInfo.getVersion(), null, null);
+        resourceTracker.registerNodeManager(request);
+        Assert.assertTrue(waitForNodeManagerToConnect(10000, nodeId));
+
+        // restart the failover thread, and make sure nodeHeartbeat works
+        failoverThread = createAndStartFailoverThread();
+        NodeStatus status =
+            NodeStatus.newInstance(NodeId.newInstance("localhost", 0), 0, null,
+                                   null, null);
+        NodeHeartbeatRequest request2 =
+            NodeHeartbeatRequest.newInstance(status, null, null);
+        resourceTracker.nodeHeartbeat(request2);
+    }
+
+    private ResourceTracker getRMClient() throws IOException {
+        return ServerRMProxy.createRMProxy(this.conf, ResourceTracker.class);
+    }
+
+    private boolean waitForNodeManagerToConnect(int timeout, NodeId nodeId)
+    throws Exception {
+        for (int i = 0; i < timeout / 100; i++) {
+            if (getActiveRM().getRMContext().getRMNodes().containsKey(nodeId)) {
+                return true;
+            }
+            Thread.sleep(100);
+        }
+        return false;
+    }
 }

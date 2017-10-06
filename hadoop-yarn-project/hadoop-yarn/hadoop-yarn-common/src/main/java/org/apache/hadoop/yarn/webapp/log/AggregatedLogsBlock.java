@@ -54,296 +54,296 @@ import com.google.inject.Inject;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class AggregatedLogsBlock extends HtmlBlock {
 
-  private final Configuration conf;
+    private final Configuration conf;
 
-  @Inject
-  AggregatedLogsBlock(Configuration conf) {
-    this.conf = conf;
-  }
-
-  @Override
-  protected void render(Block html) {
-    ContainerId containerId = verifyAndGetContainerId(html);
-    NodeId nodeId = verifyAndGetNodeId(html);
-    String appOwner = verifyAndGetAppOwner(html);
-    LogLimits logLimits = verifyAndGetLogLimits(html);
-    if (containerId == null || nodeId == null || appOwner == null
-        || appOwner.isEmpty() || logLimits == null) {
-      return;
+    @Inject
+    AggregatedLogsBlock(Configuration conf) {
+        this.conf = conf;
     }
 
-    ApplicationId applicationId = containerId.getApplicationAttemptId()
-        .getApplicationId();
-    String logEntity = $(ENTITY_STRING);
-    if (logEntity == null || logEntity.isEmpty()) {
-      logEntity = containerId.toString();
-    }
+    @Override
+    protected void render(Block html) {
+        ContainerId containerId = verifyAndGetContainerId(html);
+        NodeId nodeId = verifyAndGetNodeId(html);
+        String appOwner = verifyAndGetAppOwner(html);
+        LogLimits logLimits = verifyAndGetLogLimits(html);
+        if (containerId == null || nodeId == null || appOwner == null
+            || appOwner.isEmpty() || logLimits == null) {
+            return;
+        }
 
-    if (!conf.getBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED,
-        YarnConfiguration.DEFAULT_LOG_AGGREGATION_ENABLED)) {
-      html.h1()
-          ._("Aggregation is not enabled. Try the nodemanager at " + nodeId)
-          ._();
-      return;
-    }
+        ApplicationId applicationId = containerId.getApplicationAttemptId()
+                                      .getApplicationId();
+        String logEntity = $(ENTITY_STRING);
+        if (logEntity == null || logEntity.isEmpty()) {
+            logEntity = containerId.toString();
+        }
 
-    Path remoteRootLogDir = new Path(conf.get(
-        YarnConfiguration.NM_REMOTE_APP_LOG_DIR,
-        YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR));
-    Path remoteAppDir = LogAggregationUtils.getRemoteAppLogDir(
-        remoteRootLogDir, applicationId, appOwner,
-        LogAggregationUtils.getRemoteNodeLogDirSuffix(conf));
-    RemoteIterator<FileStatus> nodeFiles;
-    try {
-      Path qualifiedLogDir =
-          FileContext.getFileContext(conf).makeQualified(
-            remoteAppDir);
-      nodeFiles =
-          FileContext.getFileContext(qualifiedLogDir.toUri(), conf)
-            .listStatus(remoteAppDir);
-    } catch (FileNotFoundException fnf) {
-      html.h1()
-          ._("Logs not available for " + logEntity
-              + ". Aggregation may not be complete, "
-              + "Check back later or try the nodemanager at " + nodeId)._();
-      return;
-    } catch (Exception ex) {
-      html.h1()
-          ._("Error getting logs at " + nodeId)._();
-      return;
-    }
-
-    boolean foundLog = false;
-    String desiredLogType = $(CONTAINER_LOG_TYPE);
-    try {
-      while (nodeFiles.hasNext()) {
-        AggregatedLogFormat.LogReader reader = null;
-        try {
-          FileStatus thisNodeFile = nodeFiles.next();
-          if (!thisNodeFile.getPath().getName()
-            .contains(LogAggregationUtils.getNodeString(nodeId))
-              || thisNodeFile.getPath().getName()
-                .endsWith(LogAggregationUtils.TMP_FILE_SUFFIX)) {
-            continue;
-          }
-          long logUploadedTime = thisNodeFile.getModificationTime();
-          reader =
-              new AggregatedLogFormat.LogReader(conf, thisNodeFile.getPath());
-
-          String owner = null;
-          Map<ApplicationAccessType, String> appAcls = null;
-          try {
-            owner = reader.getApplicationOwner();
-            appAcls = reader.getApplicationAcls();
-          } catch (IOException e) {
-            LOG.error("Error getting logs for " + logEntity, e);
-            continue;
-          }
-          ApplicationACLsManager aclsManager = new ApplicationACLsManager(conf);
-          aclsManager.addApplication(applicationId, appAcls);
-
-          String remoteUser = request().getRemoteUser();
-          UserGroupInformation callerUGI = null;
-          if (remoteUser != null) {
-            callerUGI = UserGroupInformation.createRemoteUser(remoteUser);
-          }
-          if (callerUGI != null && !aclsManager.checkAccess(callerUGI,
-              ApplicationAccessType.VIEW_APP, owner, applicationId)) {
+        if (!conf.getBoolean(YarnConfiguration.LOG_AGGREGATION_ENABLED,
+                             YarnConfiguration.DEFAULT_LOG_AGGREGATION_ENABLED)) {
             html.h1()
-                ._("User [" + remoteUser
-                    + "] is not authorized to view the logs for " + logEntity
-                    + " in log file [" + thisNodeFile.getPath().getName() + "]")._();
-            LOG.error("User [" + remoteUser
-              + "] is not authorized to view the logs for " + logEntity);
-            continue;
-          }
-
-          AggregatedLogFormat.ContainerLogsReader logReader = reader
-            .getContainerLogsReader(containerId);
-          if (logReader == null) {
-            continue;
-          }
-
-          foundLog = readContainerLogs(html, logReader, logLimits,
-              desiredLogType, logUploadedTime);
-        } catch (IOException ex) {
-          LOG.error("Error getting logs for " + logEntity, ex);
-          continue;
-        } finally {
-          if (reader != null)
-            reader.close();
-        }
-      }
-      if (!foundLog) {
-        if (desiredLogType.isEmpty()) {
-          html.h1("No logs available for container " + containerId.toString());
-        } else {
-          html.h1("Unable to locate '" + desiredLogType
-              + "' log for container " + containerId.toString());
-        }
-      }
-    } catch (IOException e) {
-      html.h1()._("Error getting logs for " + logEntity)._();
-      LOG.error("Error getting logs for " + logEntity, e);
-    }
-  }
-
-  private boolean readContainerLogs(Block html,
-      AggregatedLogFormat.ContainerLogsReader logReader, LogLimits logLimits,
-      String desiredLogType, long logUpLoadTime) throws IOException {
-    int bufferSize = 65536;
-    char[] cbuf = new char[bufferSize];
-
-    boolean foundLog = false;
-    String logType = logReader.nextLog();
-    while (logType != null) {
-      if (desiredLogType == null || desiredLogType.isEmpty()
-          || desiredLogType.equals(logType)) {
-        long logLength = logReader.getCurrentLogLength();
-        if (foundLog) {
-          html.pre()._("\n\n")._();
+            ._("Aggregation is not enabled. Try the nodemanager at " + nodeId)
+            ._();
+            return;
         }
 
-        html.p()._("Log Type: " + logType)._();
-        html.p()._("Log Upload Time: " + Times.format(logUpLoadTime))._();
-        html.p()._("Log Length: " + Long.toString(logLength))._();
-
-        long start = logLimits.start < 0
-            ? logLength + logLimits.start : logLimits.start;
-        start = start < 0 ? 0 : start;
-        start = start > logLength ? logLength : start;
-        long end = logLimits.end < 0
-            ? logLength + logLimits.end : logLimits.end;
-        end = end < 0 ? 0 : end;
-        end = end > logLength ? logLength : end;
-        end = end < start ? start : end;
-
-        long toRead = end - start;
-        if (toRead < logLength) {
-            html.p()._("Showing " + toRead + " bytes of " + logLength
-                + " total. Click ")
-                .a(url("logs", $(NM_NODENAME), $(CONTAINER_ID),
-                    $(ENTITY_STRING), $(APP_OWNER),
-                    logType, "?start=0"), "here").
-                    _(" for the full log.")._();
+        Path remoteRootLogDir = new Path(conf.get(
+                                             YarnConfiguration.NM_REMOTE_APP_LOG_DIR,
+                                             YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR));
+        Path remoteAppDir = LogAggregationUtils.getRemoteAppLogDir(
+                                remoteRootLogDir, applicationId, appOwner,
+                                LogAggregationUtils.getRemoteNodeLogDirSuffix(conf));
+        RemoteIterator<FileStatus> nodeFiles;
+        try {
+            Path qualifiedLogDir =
+                FileContext.getFileContext(conf).makeQualified(
+                    remoteAppDir);
+            nodeFiles =
+                FileContext.getFileContext(qualifiedLogDir.toUri(), conf)
+                .listStatus(remoteAppDir);
+        } catch (FileNotFoundException fnf) {
+            html.h1()
+            ._("Logs not available for " + logEntity
+               + ". Aggregation may not be complete, "
+               + "Check back later or try the nodemanager at " + nodeId)._();
+            return;
+        } catch (Exception ex) {
+            html.h1()
+            ._("Error getting logs at " + nodeId)._();
+            return;
         }
 
-        long totalSkipped = 0;
-        while (totalSkipped < start) {
-          long ret = logReader.skip(start - totalSkipped);
-          if (ret == 0) {
-            //Read one byte
-            int nextByte = logReader.read();
-            // Check if we have reached EOF
-            if (nextByte == -1) {
-              throw new IOException( "Premature EOF from container log");
+        boolean foundLog = false;
+        String desiredLogType = $(CONTAINER_LOG_TYPE);
+        try {
+            while (nodeFiles.hasNext()) {
+                AggregatedLogFormat.LogReader reader = null;
+                try {
+                    FileStatus thisNodeFile = nodeFiles.next();
+                    if (!thisNodeFile.getPath().getName()
+                        .contains(LogAggregationUtils.getNodeString(nodeId))
+                        || thisNodeFile.getPath().getName()
+                        .endsWith(LogAggregationUtils.TMP_FILE_SUFFIX)) {
+                        continue;
+                    }
+                    long logUploadedTime = thisNodeFile.getModificationTime();
+                    reader =
+                        new AggregatedLogFormat.LogReader(conf, thisNodeFile.getPath());
+
+                    String owner = null;
+                    Map<ApplicationAccessType, String> appAcls = null;
+                    try {
+                        owner = reader.getApplicationOwner();
+                        appAcls = reader.getApplicationAcls();
+                    } catch (IOException e) {
+                        LOG.error("Error getting logs for " + logEntity, e);
+                        continue;
+                    }
+                    ApplicationACLsManager aclsManager = new ApplicationACLsManager(conf);
+                    aclsManager.addApplication(applicationId, appAcls);
+
+                    String remoteUser = request().getRemoteUser();
+                    UserGroupInformation callerUGI = null;
+                    if (remoteUser != null) {
+                        callerUGI = UserGroupInformation.createRemoteUser(remoteUser);
+                    }
+                    if (callerUGI != null && !aclsManager.checkAccess(callerUGI,
+                            ApplicationAccessType.VIEW_APP, owner, applicationId)) {
+                        html.h1()
+                        ._("User [" + remoteUser
+                           + "] is not authorized to view the logs for " + logEntity
+                           + " in log file [" + thisNodeFile.getPath().getName() + "]")._();
+                        LOG.error("User [" + remoteUser
+                                  + "] is not authorized to view the logs for " + logEntity);
+                        continue;
+                    }
+
+                    AggregatedLogFormat.ContainerLogsReader logReader = reader
+                            .getContainerLogsReader(containerId);
+                    if (logReader == null) {
+                        continue;
+                    }
+
+                    foundLog = readContainerLogs(html, logReader, logLimits,
+                                                 desiredLogType, logUploadedTime);
+                } catch (IOException ex) {
+                    LOG.error("Error getting logs for " + logEntity, ex);
+                    continue;
+                } finally {
+                    if (reader != null)
+                        reader.close();
+                }
             }
-            ret = 1;
-          }
-          totalSkipped += ret;
+            if (!foundLog) {
+                if (desiredLogType.isEmpty()) {
+                    html.h1("No logs available for container " + containerId.toString());
+                } else {
+                    html.h1("Unable to locate '" + desiredLogType
+                            + "' log for container " + containerId.toString());
+                }
+            }
+        } catch (IOException e) {
+            html.h1()._("Error getting logs for " + logEntity)._();
+            LOG.error("Error getting logs for " + logEntity, e);
+        }
+    }
+
+    private boolean readContainerLogs(Block html,
+                                      AggregatedLogFormat.ContainerLogsReader logReader, LogLimits logLimits,
+                                      String desiredLogType, long logUpLoadTime) throws IOException {
+        int bufferSize = 65536;
+        char[] cbuf = new char[bufferSize];
+
+        boolean foundLog = false;
+        String logType = logReader.nextLog();
+        while (logType != null) {
+            if (desiredLogType == null || desiredLogType.isEmpty()
+                || desiredLogType.equals(logType)) {
+                long logLength = logReader.getCurrentLogLength();
+                if (foundLog) {
+                    html.pre()._("\n\n")._();
+                }
+
+                html.p()._("Log Type: " + logType)._();
+                html.p()._("Log Upload Time: " + Times.format(logUpLoadTime))._();
+                html.p()._("Log Length: " + Long.toString(logLength))._();
+
+                long start = logLimits.start < 0
+                             ? logLength + logLimits.start : logLimits.start;
+                start = start < 0 ? 0 : start;
+                start = start > logLength ? logLength : start;
+                long end = logLimits.end < 0
+                           ? logLength + logLimits.end : logLimits.end;
+                end = end < 0 ? 0 : end;
+                end = end > logLength ? logLength : end;
+                end = end < start ? start : end;
+
+                long toRead = end - start;
+                if (toRead < logLength) {
+                    html.p()._("Showing " + toRead + " bytes of " + logLength
+                               + " total. Click ")
+                    .a(url("logs", $(NM_NODENAME), $(CONTAINER_ID),
+                           $(ENTITY_STRING), $(APP_OWNER),
+                           logType, "?start=0"), "here").
+                    _(" for the full log.")._();
+                }
+
+                long totalSkipped = 0;
+                while (totalSkipped < start) {
+                    long ret = logReader.skip(start - totalSkipped);
+                    if (ret == 0) {
+                        //Read one byte
+                        int nextByte = logReader.read();
+                        // Check if we have reached EOF
+                        if (nextByte == -1) {
+                            throw new IOException( "Premature EOF from container log");
+                        }
+                        ret = 1;
+                    }
+                    totalSkipped += ret;
+                }
+
+                int len = 0;
+                int currentToRead = toRead > bufferSize ? bufferSize : (int) toRead;
+                PRE<Hamlet> pre = html.pre();
+
+                while (toRead > 0
+                       && (len = logReader.read(cbuf, 0, currentToRead)) > 0) {
+                    pre._(new String(cbuf, 0, len));
+                    toRead = toRead - len;
+                    currentToRead = toRead > bufferSize ? bufferSize : (int) toRead;
+                }
+
+                pre._();
+                foundLog = true;
+            }
+
+            logType = logReader.nextLog();
         }
 
-        int len = 0;
-        int currentToRead = toRead > bufferSize ? bufferSize : (int) toRead;
-        PRE<Hamlet> pre = html.pre();
+        return foundLog;
+    }
 
-        while (toRead > 0
-            && (len = logReader.read(cbuf, 0, currentToRead)) > 0) {
-          pre._(new String(cbuf, 0, len));
-          toRead = toRead - len;
-          currentToRead = toRead > bufferSize ? bufferSize : (int) toRead;
+    private ContainerId verifyAndGetContainerId(Block html) {
+        String containerIdStr = $(CONTAINER_ID);
+        if (containerIdStr == null || containerIdStr.isEmpty()) {
+            html.h1()._("Cannot get container logs without a ContainerId")._();
+            return null;
+        }
+        ContainerId containerId = null;
+        try {
+            containerId = ConverterUtils.toContainerId(containerIdStr);
+        } catch (IllegalArgumentException e) {
+            html.h1()
+            ._("Cannot get container logs for invalid containerId: "
+               + containerIdStr)._();
+            return null;
+        }
+        return containerId;
+    }
+
+    private NodeId verifyAndGetNodeId(Block html) {
+        String nodeIdStr = $(NM_NODENAME);
+        if (nodeIdStr == null || nodeIdStr.isEmpty()) {
+            html.h1()._("Cannot get container logs without a NodeId")._();
+            return null;
+        }
+        NodeId nodeId = null;
+        try {
+            nodeId = ConverterUtils.toNodeId(nodeIdStr);
+        } catch (IllegalArgumentException e) {
+            html.h1()._("Cannot get container logs. Invalid nodeId: " + nodeIdStr)
+            ._();
+            return null;
+        }
+        return nodeId;
+    }
+
+    private String verifyAndGetAppOwner(Block html) {
+        String appOwner = $(APP_OWNER);
+        if (appOwner == null || appOwner.isEmpty()) {
+            html.h1()._("Cannot get container logs without an app owner")._();
+        }
+        return appOwner;
+    }
+
+    private static class LogLimits {
+        long start;
+        long end;
+    }
+
+    private LogLimits verifyAndGetLogLimits(Block html) {
+        long start = -4096;
+        long end = Long.MAX_VALUE;
+        boolean isValid = true;
+
+        String startStr = $("start");
+        if (startStr != null && !startStr.isEmpty()) {
+            try {
+                start = Long.parseLong(startStr);
+            } catch (NumberFormatException e) {
+                isValid = false;
+                html.h1()._("Invalid log start value: " + startStr)._();
+            }
         }
 
-        pre._();
-        foundLog = true;
-      }
+        String endStr = $("end");
+        if (endStr != null && !endStr.isEmpty()) {
+            try {
+                end = Long.parseLong(endStr);
+            } catch (NumberFormatException e) {
+                isValid = false;
+                html.h1()._("Invalid log end value: " + endStr)._();
+            }
+        }
 
-      logType = logReader.nextLog();
+        if (!isValid) {
+            return null;
+        }
+
+        LogLimits limits = new LogLimits();
+        limits.start = start;
+        limits.end = end;
+        return limits;
     }
-
-    return foundLog;
-  }
-
-  private ContainerId verifyAndGetContainerId(Block html) {
-    String containerIdStr = $(CONTAINER_ID);
-    if (containerIdStr == null || containerIdStr.isEmpty()) {
-      html.h1()._("Cannot get container logs without a ContainerId")._();
-      return null;
-    }
-    ContainerId containerId = null;
-    try {
-      containerId = ConverterUtils.toContainerId(containerIdStr);
-    } catch (IllegalArgumentException e) {
-      html.h1()
-          ._("Cannot get container logs for invalid containerId: "
-              + containerIdStr)._();
-      return null;
-    }
-    return containerId;
-  }
-
-  private NodeId verifyAndGetNodeId(Block html) {
-    String nodeIdStr = $(NM_NODENAME);
-    if (nodeIdStr == null || nodeIdStr.isEmpty()) {
-      html.h1()._("Cannot get container logs without a NodeId")._();
-      return null;
-    }
-    NodeId nodeId = null;
-    try {
-      nodeId = ConverterUtils.toNodeId(nodeIdStr);
-    } catch (IllegalArgumentException e) {
-      html.h1()._("Cannot get container logs. Invalid nodeId: " + nodeIdStr)
-          ._();
-      return null;
-    }
-    return nodeId;
-  }
-  
-  private String verifyAndGetAppOwner(Block html) {
-    String appOwner = $(APP_OWNER);
-    if (appOwner == null || appOwner.isEmpty()) {
-      html.h1()._("Cannot get container logs without an app owner")._();
-    }
-    return appOwner;
-  }
-
-  private static class LogLimits {
-    long start;
-    long end;
-  }
-
-  private LogLimits verifyAndGetLogLimits(Block html) {
-    long start = -4096;
-    long end = Long.MAX_VALUE;
-    boolean isValid = true;
-
-    String startStr = $("start");
-    if (startStr != null && !startStr.isEmpty()) {
-      try {
-        start = Long.parseLong(startStr);
-      } catch (NumberFormatException e) {
-        isValid = false;
-        html.h1()._("Invalid log start value: " + startStr)._();
-      }
-    }
-
-    String endStr = $("end");
-    if (endStr != null && !endStr.isEmpty()) {
-      try {
-        end = Long.parseLong(endStr);
-      } catch (NumberFormatException e) {
-        isValid = false;
-        html.h1()._("Invalid log end value: " + endStr)._();
-      }
-    }
-
-    if (!isValid) {
-      return null;
-    }
-
-    LogLimits limits = new LogLimits();
-    limits.start = start;
-    limits.end = end;
-    return limits;
-  }
 }

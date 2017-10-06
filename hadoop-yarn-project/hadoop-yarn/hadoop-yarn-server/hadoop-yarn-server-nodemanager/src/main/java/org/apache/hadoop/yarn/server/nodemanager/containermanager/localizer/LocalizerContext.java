@@ -29,38 +29,38 @@ import com.google.common.cache.LoadingCache;
 
 public class LocalizerContext {
 
-  private final String user;
-  private final ContainerId containerId;
-  private final Credentials credentials;
-  private final LoadingCache<Path,Future<FileStatus>> statCache;
+    private final String user;
+    private final ContainerId containerId;
+    private final Credentials credentials;
+    private final LoadingCache<Path,Future<FileStatus>> statCache;
 
-  public LocalizerContext(String user, ContainerId containerId,
-      Credentials credentials) {
-    this(user, containerId, credentials, null);
-  }
+    public LocalizerContext(String user, ContainerId containerId,
+                            Credentials credentials) {
+        this(user, containerId, credentials, null);
+    }
 
-  public LocalizerContext(String user, ContainerId containerId,
-      Credentials credentials,
-      LoadingCache<Path,Future<FileStatus>> statCache) {
-    this.user = user;
-    this.containerId = containerId;
-    this.credentials = credentials;
-    this.statCache = statCache;
-  }
+    public LocalizerContext(String user, ContainerId containerId,
+                            Credentials credentials,
+                            LoadingCache<Path,Future<FileStatus>> statCache) {
+        this.user = user;
+        this.containerId = containerId;
+        this.credentials = credentials;
+        this.statCache = statCache;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    public String getUser() {
+        return user;
+    }
 
-  public ContainerId getContainerId() {
-    return containerId;
-  }
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
-  public Credentials getCredentials() {
-    return credentials;
-  }
+    public Credentials getCredentials() {
+        return credentials;
+    }
 
-  public LoadingCache<Path,Future<FileStatus>> getStatCache() {
-    return statCache;
-  }
+    public LoadingCache<Path,Future<FileStatus>> getStatCache() {
+        return statCache;
+    }
 }

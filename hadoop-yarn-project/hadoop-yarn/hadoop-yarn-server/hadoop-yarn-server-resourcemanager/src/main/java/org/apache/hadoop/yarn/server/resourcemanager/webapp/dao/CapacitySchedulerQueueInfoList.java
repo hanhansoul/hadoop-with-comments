@@ -26,21 +26,21 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CapacitySchedulerQueueInfoList {
-  protected ArrayList<CapacitySchedulerQueueInfo> queue;
-  
-  public CapacitySchedulerQueueInfoList() {
-    queue = new ArrayList<CapacitySchedulerQueueInfo>();
-  }
+    protected ArrayList<CapacitySchedulerQueueInfo> queue;
 
-  public ArrayList<CapacitySchedulerQueueInfo> getQueueInfoList() {
-    return this.queue;
-  }
-  
-  public boolean addToQueueInfoList(CapacitySchedulerQueueInfo e) {
-    return this.queue.add(e);
-  }
-  
-  public CapacitySchedulerQueueInfo getQueueInfo(int i) {
-    return this.queue.get(i);
-  }
+    public CapacitySchedulerQueueInfoList() {
+        queue = new ArrayList<CapacitySchedulerQueueInfo>();
+    }
+
+    public ArrayList<CapacitySchedulerQueueInfo> getQueueInfoList() {
+        return this.queue;
+    }
+
+    public boolean addToQueueInfoList(CapacitySchedulerQueueInfo e) {
+        return this.queue.add(e);
+    }
+
+    public CapacitySchedulerQueueInfo getQueueInfo(int i) {
+        return this.queue.get(i);
+    }
 }

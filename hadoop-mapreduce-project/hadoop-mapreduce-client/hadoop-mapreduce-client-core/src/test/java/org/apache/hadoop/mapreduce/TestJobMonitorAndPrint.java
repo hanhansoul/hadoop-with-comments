@@ -49,86 +49,86 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 /**
- * Test to make sure that command line output for 
- * job monitoring is correct and prints 100% for map and reduce before 
+ * Test to make sure that command line output for
+ * job monitoring is correct and prints 100% for map and reduce before
  * successful completion.
  */
 public class TestJobMonitorAndPrint extends TestCase {
-  private Job job;
-  private Configuration conf;
-  private ClientProtocol clientProtocol;
+    private Job job;
+    private Configuration conf;
+    private ClientProtocol clientProtocol;
 
-  @Before
-  public void setUp() throws IOException {
-    conf = new Configuration();
-    clientProtocol = mock(ClientProtocol.class);
-    Cluster cluster = mock(Cluster.class);
-    when(cluster.getConf()).thenReturn(conf);
-    when(cluster.getClient()).thenReturn(clientProtocol);
-    JobStatus jobStatus = new JobStatus(new JobID("job_000", 1), 0f, 0f, 0f, 0f, 
-        State.RUNNING, JobPriority.HIGH, "tmp-user", "tmp-jobname", 
-        "tmp-jobfile", "tmp-url");
-    job = Job.getInstance(cluster, jobStatus, conf);
-    job = spy(job);
-  }
+    @Before
+    public void setUp() throws IOException {
+        conf = new Configuration();
+        clientProtocol = mock(ClientProtocol.class);
+        Cluster cluster = mock(Cluster.class);
+        when(cluster.getConf()).thenReturn(conf);
+        when(cluster.getClient()).thenReturn(clientProtocol);
+        JobStatus jobStatus = new JobStatus(new JobID("job_000", 1), 0f, 0f, 0f, 0f,
+                                            State.RUNNING, JobPriority.HIGH, "tmp-user", "tmp-jobname",
+                                            "tmp-jobfile", "tmp-url");
+        job = Job.getInstance(cluster, jobStatus, conf);
+        job = spy(job);
+    }
 
-  @Test
-  public void testJobMonitorAndPrint() throws Exception {
-    JobStatus jobStatus_1 = new JobStatus(new JobID("job_000", 1), 1f, 0.1f,
-        0.1f, 0f, State.RUNNING, JobPriority.HIGH, "tmp-user", "tmp-jobname",
-        "tmp-queue", "tmp-jobfile", "tmp-url", true);
-    JobStatus jobStatus_2 = new JobStatus(new JobID("job_000", 1), 1f, 1f,
-        1f, 1f, State.SUCCEEDED, JobPriority.HIGH, "tmp-user", "tmp-jobname",
-        "tmp-queue", "tmp-jobfile", "tmp-url", true);
+    @Test
+    public void testJobMonitorAndPrint() throws Exception {
+        JobStatus jobStatus_1 = new JobStatus(new JobID("job_000", 1), 1f, 0.1f,
+                                              0.1f, 0f, State.RUNNING, JobPriority.HIGH, "tmp-user", "tmp-jobname",
+                                              "tmp-queue", "tmp-jobfile", "tmp-url", true);
+        JobStatus jobStatus_2 = new JobStatus(new JobID("job_000", 1), 1f, 1f,
+                                              1f, 1f, State.SUCCEEDED, JobPriority.HIGH, "tmp-user", "tmp-jobname",
+                                              "tmp-queue", "tmp-jobfile", "tmp-url", true);
 
-    doAnswer(
+        doAnswer(
         new Answer<TaskCompletionEvent[]>() {
-          @Override
-          public TaskCompletionEvent[] answer(InvocationOnMock invocation)
-              throws Throwable {
-            return new TaskCompletionEvent[0];
-          }
+            @Override
+            public TaskCompletionEvent[] answer(InvocationOnMock invocation)
+            throws Throwable {
+                return new TaskCompletionEvent[0];
+            }
         }
         ).when(job).getTaskCompletionEvents(anyInt(), anyInt());
 
-    doReturn(new TaskReport[5]).when(job).getTaskReports(isA(TaskType.class));
-    when(clientProtocol.getJobStatus(any(JobID.class))).thenReturn(jobStatus_1, jobStatus_2);
-    // setup the logger to capture all logs
-    Layout layout =
-        Logger.getRootLogger().getAppender("stdout").getLayout();
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    WriterAppender appender = new WriterAppender(layout, os);
-    appender.setThreshold(Level.ALL);
-    Logger qlogger = Logger.getLogger(Job.class);
-    qlogger.addAppender(appender);
+        doReturn(new TaskReport[5]).when(job).getTaskReports(isA(TaskType.class));
+        when(clientProtocol.getJobStatus(any(JobID.class))).thenReturn(jobStatus_1, jobStatus_2);
+        // setup the logger to capture all logs
+        Layout layout =
+            Logger.getRootLogger().getAppender("stdout").getLayout();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        WriterAppender appender = new WriterAppender(layout, os);
+        appender.setThreshold(Level.ALL);
+        Logger qlogger = Logger.getLogger(Job.class);
+        qlogger.addAppender(appender);
 
-    job.monitorAndPrintJob();
+        job.monitorAndPrintJob();
 
-    qlogger.removeAppender(appender);
-    LineNumberReader r = new LineNumberReader(new StringReader(os.toString()));
-    String line;
-    boolean foundHundred = false;
-    boolean foundComplete = false;
-    boolean foundUber = false;
-    String uberModeMatch = "uber mode : true";
-    String progressMatch = "map 100% reduce 100%";
-    String completionMatch = "completed successfully";
-    while ((line = r.readLine()) != null) {
-      if (line.contains(uberModeMatch)) {
-        foundUber = true;
-      }
-      foundHundred = line.contains(progressMatch);      
-      if (foundHundred)
-        break;
+        qlogger.removeAppender(appender);
+        LineNumberReader r = new LineNumberReader(new StringReader(os.toString()));
+        String line;
+        boolean foundHundred = false;
+        boolean foundComplete = false;
+        boolean foundUber = false;
+        String uberModeMatch = "uber mode : true";
+        String progressMatch = "map 100% reduce 100%";
+        String completionMatch = "completed successfully";
+        while ((line = r.readLine()) != null) {
+            if (line.contains(uberModeMatch)) {
+                foundUber = true;
+            }
+            foundHundred = line.contains(progressMatch);
+            if (foundHundred)
+                break;
+        }
+        line = r.readLine();
+        foundComplete = line.contains(completionMatch);
+        assertTrue(foundUber);
+        assertTrue(foundHundred);
+        assertTrue(foundComplete);
+
+        System.out.println("The output of job.toString() is : \n" + job.toString());
+        assertTrue(job.toString().contains("Number of maps: 5\n"));
+        assertTrue(job.toString().contains("Number of reduces: 5\n"));
     }
-    line = r.readLine();
-    foundComplete = line.contains(completionMatch);
-    assertTrue(foundUber);
-    assertTrue(foundHundred);
-    assertTrue(foundComplete);
-
-    System.out.println("The output of job.toString() is : \n" + job.toString());
-    assertTrue(job.toString().contains("Number of maps: 5\n"));
-    assertTrue(job.toString().contains("Number of reduces: 5\n"));
-  }
 }

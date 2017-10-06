@@ -23,9 +23,9 @@ package org.apache.hadoop.registry.client.types.yarn;
  */
 public class YarnRegistryAttributes {
 
-  /**
-   * ID. For containers: container ID. For application instances, application ID.
-   */
-  public static final String YARN_ID = "yarn:id";
-  public static final String YARN_PERSISTENCE = "yarn:persistence";
+    /**
+     * ID. For containers: container ID. For application instances, application ID.
+     */
+    public static final String YARN_ID = "yarn:id";
+    public static final String YARN_PERSISTENCE = "yarn:persistence";
 }

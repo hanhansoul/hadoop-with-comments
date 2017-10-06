@@ -24,19 +24,19 @@ import java.net.URLDecoder;
 import org.apache.hadoop.mapred.JobConf;
 
 public class PipeCombiner extends PipeReducer {
-  String getPipeCommand(JobConf job) {
-    String str = job.get("stream.combine.streamprocessor");
-    try {
-      if (str != null) {
-        return URLDecoder.decode(str, "UTF-8");
-      }
-    } catch (UnsupportedEncodingException e) {
-      System.err.println("stream.combine.streamprocessor" + 
-                         " in jobconf not found");
+    String getPipeCommand(JobConf job) {
+        String str = job.get("stream.combine.streamprocessor");
+        try {
+            if (str != null) {
+                return URLDecoder.decode(str, "UTF-8");
+            }
+        } catch (UnsupportedEncodingException e) {
+            System.err.println("stream.combine.streamprocessor" +
+                               " in jobconf not found");
+        }
+        return null;
     }
-    return null;
-  }
-  boolean getDoPipe() {
-    return (getPipeCommand(job_) != null);
-  }
+    boolean getDoPipe() {
+        return (getPipeCommand(job_) != null);
+    }
 }

@@ -23,15 +23,15 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NMContainerStatus;
 
 public class RMContainerRecoverEvent extends RMContainerEvent {
 
-  private final NMContainerStatus containerReport;
+    private final NMContainerStatus containerReport;
 
-  public RMContainerRecoverEvent(ContainerId containerId,
-      NMContainerStatus containerReport) {
-    super(containerId, RMContainerEventType.RECOVER);
-    this.containerReport = containerReport;
-  }
+    public RMContainerRecoverEvent(ContainerId containerId,
+                                   NMContainerStatus containerReport) {
+        super(containerId, RMContainerEventType.RECOVER);
+        this.containerReport = containerReport;
+    }
 
-  public NMContainerStatus getContainerReport() {
-    return containerReport;
-  }
+    public NMContainerStatus getContainerReport() {
+        return containerReport;
+    }
 }

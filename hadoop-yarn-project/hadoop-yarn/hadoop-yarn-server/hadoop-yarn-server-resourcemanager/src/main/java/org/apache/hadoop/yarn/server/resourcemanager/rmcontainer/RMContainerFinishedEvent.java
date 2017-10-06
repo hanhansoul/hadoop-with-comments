@@ -23,15 +23,15 @@ import org.apache.hadoop.yarn.api.records.ContainerStatus;
 
 public class RMContainerFinishedEvent extends RMContainerEvent {
 
-  private final ContainerStatus remoteContainerStatus;
+    private final ContainerStatus remoteContainerStatus;
 
-  public RMContainerFinishedEvent(ContainerId containerId,
-      ContainerStatus containerStatus, RMContainerEventType event) {
-    super(containerId, event);
-    this.remoteContainerStatus = containerStatus;
-  }
+    public RMContainerFinishedEvent(ContainerId containerId,
+                                    ContainerStatus containerStatus, RMContainerEventType event) {
+        super(containerId, event);
+        this.remoteContainerStatus = containerStatus;
+    }
 
-  public ContainerStatus getRemoteContainerStatus() {
-    return this.remoteContainerStatus;
-  }
+    public ContainerStatus getRemoteContainerStatus() {
+        return this.remoteContainerStatus;
+    }
 }

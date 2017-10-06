@@ -28,8 +28,8 @@ import org.apache.hadoop.yarn.util.Records;
 
 
 /**
- * Response to a {@link GetDelegationTokenRequest} request 
- * from the client. The response contains the token that 
+ * Response to a {@link GetDelegationTokenRequest} request
+ * from the client. The response contains the token that
  * can be used by the containers to talk to  ClientRMService.
  *
  */
@@ -37,25 +37,25 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class GetDelegationTokenResponse {
 
-  @Private
-  @Unstable
-  public static GetDelegationTokenResponse newInstance(Token rmDTToken) {
-    GetDelegationTokenResponse response =
-        Records.newRecord(GetDelegationTokenResponse.class);
-    response.setRMDelegationToken(rmDTToken);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetDelegationTokenResponse newInstance(Token rmDTToken) {
+        GetDelegationTokenResponse response =
+            Records.newRecord(GetDelegationTokenResponse.class);
+        response.setRMDelegationToken(rmDTToken);
+        return response;
+    }
 
-  /**
-   * The Delegation tokens have a identifier which maps to
-   * {@link AbstractDelegationTokenIdentifier}.
-   *
-   */
-  @Public
-  @Stable
-  public abstract Token getRMDelegationToken();
+    /**
+     * The Delegation tokens have a identifier which maps to
+     * {@link AbstractDelegationTokenIdentifier}.
+     *
+     */
+    @Public
+    @Stable
+    public abstract Token getRMDelegationToken();
 
-  @Private
-  @Unstable
-  public abstract void setRMDelegationToken(Token rmDTToken);
+    @Private
+    @Unstable
+    public abstract void setRMDelegationToken(Token rmDTToken);
 }

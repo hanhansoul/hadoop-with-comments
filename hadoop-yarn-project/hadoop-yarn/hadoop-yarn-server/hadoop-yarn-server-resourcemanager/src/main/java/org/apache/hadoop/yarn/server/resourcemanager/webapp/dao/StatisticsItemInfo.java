@@ -27,30 +27,30 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class StatisticsItemInfo {
 
-  protected YarnApplicationState state;
-  protected String type;
-  protected long count;
+    protected YarnApplicationState state;
+    protected String type;
+    protected long count;
 
-  public StatisticsItemInfo() {
-  } // JAXB needs this
+    public StatisticsItemInfo() {
+    } // JAXB needs this
 
-  public StatisticsItemInfo(
-      YarnApplicationState state, String type, long count) {
-    this.state = state;
-    this.type = type;
-    this.count = count;
-  }
+    public StatisticsItemInfo(
+        YarnApplicationState state, String type, long count) {
+        this.state = state;
+        this.type = type;
+        this.count = count;
+    }
 
-  public YarnApplicationState getState() {
-    return state;
-  }
+    public YarnApplicationState getState() {
+        return state;
+    }
 
-  public String getType() {
-    return type;
-  }
+    public String getType() {
+        return type;
+    }
 
-  public long getCount() {
-    return count;
-  }
+    public long getCount() {
+        return count;
+    }
 
 }

@@ -29,87 +29,95 @@ import org.apache.hadoop.fs.Path;
 
 /** A section of an input file.  Returned by {@link
  * InputFormat#getSplits(JobConf, int)} and passed to
- * {@link InputFormat#getRecordReader(InputSplit,JobConf,Reporter)}. 
+ * {@link InputFormat#getRecordReader(InputSplit,JobConf,Reporter)}.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class FileSplit extends org.apache.hadoop.mapreduce.InputSplit 
-                       implements InputSplitWithLocationInfo {
-  org.apache.hadoop.mapreduce.lib.input.FileSplit fs; 
-  protected FileSplit() {
-    fs = new org.apache.hadoop.mapreduce.lib.input.FileSplit();
-  }
+public class FileSplit extends org.apache.hadoop.mapreduce.InputSplit
+    implements InputSplitWithLocationInfo {
+    org.apache.hadoop.mapreduce.lib.input.FileSplit fs;
+    protected FileSplit() {
+        fs = new org.apache.hadoop.mapreduce.lib.input.FileSplit();
+    }
 
-  /** Constructs a split.
-   * @deprecated
-   * @param file the file name
-   * @param start the position of the first byte in the file to process
-   * @param length the number of bytes in the file to process
-   */
-  @Deprecated
-  public FileSplit(Path file, long start, long length, JobConf conf) {
-    this(file, start, length, (String[])null);
-  }
+    /** Constructs a split.
+     * @deprecated
+     * @param file the file name
+     * @param start the position of the first byte in the file to process
+     * @param length the number of bytes in the file to process
+     */
+    @Deprecated
+    public FileSplit(Path file, long start, long length, JobConf conf) {
+        this(file, start, length, (String[])null);
+    }
 
-  /** Constructs a split with host information
-   *
-   * @param file the file name
-   * @param start the position of the first byte in the file to process
-   * @param length the number of bytes in the file to process
-   * @param hosts the list of hosts containing the block, possibly null
-   */
-  public FileSplit(Path file, long start, long length, String[] hosts) {
-    fs = new org.apache.hadoop.mapreduce.lib.input.FileSplit(file, start,
-           length, hosts);
-  }
-  
-  /** Constructs a split with host information
-  *
-  * @param file the file name
-  * @param start the position of the first byte in the file to process
-  * @param length the number of bytes in the file to process
-  * @param hosts the list of hosts containing the block, possibly null
-  * @param inMemoryHosts the list of hosts containing the block in memory
-  */
- public FileSplit(Path file, long start, long length, String[] hosts,
-     String[] inMemoryHosts) {
-   fs = new org.apache.hadoop.mapreduce.lib.input.FileSplit(file, start,
-          length, hosts, inMemoryHosts);
- }
-  
-  public FileSplit(org.apache.hadoop.mapreduce.lib.input.FileSplit fs) {
-    this.fs = fs;
-  }
+    /** Constructs a split with host information
+     *
+     * @param file the file name
+     * @param start the position of the first byte in the file to process
+     * @param length the number of bytes in the file to process
+     * @param hosts the list of hosts containing the block, possibly null
+     */
+    public FileSplit(Path file, long start, long length, String[] hosts) {
+        fs = new org.apache.hadoop.mapreduce.lib.input.FileSplit(file, start,
+                length, hosts);
+    }
 
-  /** The file containing this split's data. */
-  public Path getPath() { return fs.getPath(); }
-  
-  /** The position of the first byte in the file to process. */
-  public long getStart() { return fs.getStart(); }
-  
-  /** The number of bytes in the file to process. */
-  public long getLength() { return fs.getLength(); }
+    /** Constructs a split with host information
+    *
+    * @param file the file name
+    * @param start the position of the first byte in the file to process
+    * @param length the number of bytes in the file to process
+    * @param hosts the list of hosts containing the block, possibly null
+    * @param inMemoryHosts the list of hosts containing the block in memory
+    */
+    public FileSplit(Path file, long start, long length, String[] hosts,
+                     String[] inMemoryHosts) {
+        fs = new org.apache.hadoop.mapreduce.lib.input.FileSplit(file, start,
+                length, hosts, inMemoryHosts);
+    }
 
-  public String toString() { return fs.toString(); }
+    public FileSplit(org.apache.hadoop.mapreduce.lib.input.FileSplit fs) {
+        this.fs = fs;
+    }
 
-  ////////////////////////////////////////////
-  // Writable methods
-  ////////////////////////////////////////////
+    /** The file containing this split's data. */
+    public Path getPath() {
+        return fs.getPath();
+    }
 
-  public void write(DataOutput out) throws IOException {
-    fs.write(out);
-  }
-  public void readFields(DataInput in) throws IOException {
-    fs.readFields(in);
-  }
+    /** The position of the first byte in the file to process. */
+    public long getStart() {
+        return fs.getStart();
+    }
 
-  public String[] getLocations() throws IOException {
-    return fs.getLocations();
-  }
-  
-  @Override
-  @Evolving
-  public SplitLocationInfo[] getLocationInfo() throws IOException {
-    return fs.getLocationInfo();
-  }
+    /** The number of bytes in the file to process. */
+    public long getLength() {
+        return fs.getLength();
+    }
+
+    public String toString() {
+        return fs.toString();
+    }
+
+    ////////////////////////////////////////////
+    // Writable methods
+    ////////////////////////////////////////////
+
+    public void write(DataOutput out) throws IOException {
+        fs.write(out);
+    }
+    public void readFields(DataInput in) throws IOException {
+        fs.readFields(in);
+    }
+
+    public String[] getLocations() throws IOException {
+        return fs.getLocations();
+    }
+
+    @Override
+    @Evolving
+    public SplitLocationInfo[] getLocationInfo() throws IOException {
+        return fs.getLocationInfo();
+    }
 }

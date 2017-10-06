@@ -24,27 +24,27 @@ import org.apache.hadoop.yarn.server.applicationhistoryservice.records.Applicati
 public class WritingApplicationFinishEvent extends
     WritingApplicationHistoryEvent {
 
-  private ApplicationId appId;
-  private ApplicationFinishData appFinish;
+    private ApplicationId appId;
+    private ApplicationFinishData appFinish;
 
-  public WritingApplicationFinishEvent(ApplicationId appId,
-      ApplicationFinishData appFinish) {
-    super(WritingHistoryEventType.APP_FINISH);
-    this.appId = appId;
-    this.appFinish = appFinish;
-  }
+    public WritingApplicationFinishEvent(ApplicationId appId,
+                                         ApplicationFinishData appFinish) {
+        super(WritingHistoryEventType.APP_FINISH);
+        this.appId = appId;
+        this.appFinish = appFinish;
+    }
 
-  @Override
-  public int hashCode() {
-    return appId.hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return appId.hashCode();
+    }
 
-  public ApplicationId getApplicationId() {
-    return appId;
-  }
+    public ApplicationId getApplicationId() {
+        return appId;
+    }
 
-  public ApplicationFinishData getApplicationFinishData() {
-    return appFinish;
-  }
+    public ApplicationFinishData getApplicationFinishData() {
+        return appFinish;
+    }
 
 }

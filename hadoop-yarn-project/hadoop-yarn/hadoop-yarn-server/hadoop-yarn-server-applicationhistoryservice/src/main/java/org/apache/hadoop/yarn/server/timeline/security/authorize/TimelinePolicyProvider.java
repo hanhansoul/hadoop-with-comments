@@ -32,13 +32,13 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 @InterfaceStability.Unstable
 public class TimelinePolicyProvider extends PolicyProvider {
 
-  @Override
-  public Service[] getServices() {
-    return new Service[] {
-        new Service(
-            YarnConfiguration.YARN_SECURITY_SERVICE_AUTHORIZATION_APPLICATIONHISTORY_PROTOCOL,
-            ApplicationHistoryProtocolPB.class)
-    };
-  }
+    @Override
+    public Service[] getServices() {
+        return new Service[] {
+                   new Service(
+                       YarnConfiguration.YARN_SECURITY_SERVICE_AUTHORIZATION_APPLICATIONHISTORY_PROTOCOL,
+                       ApplicationHistoryProtocolPB.class)
+               };
+    }
 
 }

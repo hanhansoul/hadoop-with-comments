@@ -31,29 +31,29 @@ import org.apache.hadoop.fs.FileUtil;
  * must be fairly short (around 110 bytes on most platforms).
  */
 public class TemporarySocketDirectory implements Closeable {
-  private File dir;
+    private File dir;
 
-  public TemporarySocketDirectory() {
-    String tmp = System.getProperty("java.io.tmpdir", "/tmp");
-    dir = new File(tmp, "socks." + (System.currentTimeMillis() +
-        "." + (new Random().nextInt())));
-    dir.mkdirs();
-    FileUtil.setWritable(dir, true);
-  }
-
-  public File getDir() {
-    return dir;
-  }
-
-  @Override
-  public void close() throws IOException {
-    if (dir != null) {
-      FileUtils.deleteDirectory(dir);
-      dir = null;
+    public TemporarySocketDirectory() {
+        String tmp = System.getProperty("java.io.tmpdir", "/tmp");
+        dir = new File(tmp, "socks." + (System.currentTimeMillis() +
+                                        "." + (new Random().nextInt())));
+        dir.mkdirs();
+        FileUtil.setWritable(dir, true);
     }
-  }
 
-  protected void finalize() throws IOException {
-    close();
-  }
+    public File getDir() {
+        return dir;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (dir != null) {
+            FileUtils.deleteDirectory(dir);
+            dir = null;
+        }
+    }
+
+    protected void finalize() throws IOException {
+        close();
+    }
 }

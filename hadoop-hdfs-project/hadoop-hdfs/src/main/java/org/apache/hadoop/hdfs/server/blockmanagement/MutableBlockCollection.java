@@ -19,20 +19,20 @@ package org.apache.hadoop.hdfs.server.blockmanagement;
 
 import java.io.IOException;
 
-/** 
+/**
  * This interface is used by the block manager to expose a
  * few characteristics of a collection of Block/BlockUnderConstruction.
  */
 public interface MutableBlockCollection extends BlockCollection {
-  /**
-   * Set the block at the given index.
-   */
-  public void setBlock(int index, BlockInfo blk);
+    /**
+     * Set the block at the given index.
+     */
+    public void setBlock(int index, BlockInfo blk);
 
-  /**
-   * Convert the last block of the collection to an under-construction block
-   * and set the locations.
-   */
-  public BlockInfoUnderConstruction setLastBlock(BlockInfo lastBlock,
-      DatanodeStorageInfo[] storages) throws IOException;
+    /**
+     * Convert the last block of the collection to an under-construction block
+     * and set the locations.
+     */
+    public BlockInfoUnderConstruction setLastBlock(BlockInfo lastBlock,
+            DatanodeStorageInfo[] storages) throws IOException;
 }

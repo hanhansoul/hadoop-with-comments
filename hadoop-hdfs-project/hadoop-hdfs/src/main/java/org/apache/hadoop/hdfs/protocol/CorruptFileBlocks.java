@@ -25,51 +25,51 @@ import java.util.Arrays;
  *
  */
 public class CorruptFileBlocks {
-  // used for hashCode
-  private static final int PRIME = 16777619;
+    // used for hashCode
+    private static final int PRIME = 16777619;
 
-  private final String[] files;
-  private final String cookie;
+    private final String[] files;
+    private final String cookie;
 
-  public CorruptFileBlocks() {
-    this(new String[0], "");
-  }
-
-  public CorruptFileBlocks(String[] files, String cookie) {
-    this.files = files;
-    this.cookie = cookie;
-  }
-
-  public String[] getFiles() {
-    return files;
-  }
-
-  public String getCookie() {
-    return cookie;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof CorruptFileBlocks)) {
-      return false;
-    }
-    CorruptFileBlocks other = (CorruptFileBlocks) obj;
-    return cookie.equals(other.cookie) &&
-      Arrays.equals(files, other.files);
-  }
-
-  
-  @Override
-  public int hashCode() {
-    int result = cookie.hashCode();
-
-    for (String file : files) {
-      result = PRIME * result + file.hashCode();
+    public CorruptFileBlocks() {
+        this(new String[0], "");
     }
 
-    return result;
-  }
+    public CorruptFileBlocks(String[] files, String cookie) {
+        this.files = files;
+        this.cookie = cookie;
+    }
+
+    public String[] getFiles() {
+        return files;
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof CorruptFileBlocks)) {
+            return false;
+        }
+        CorruptFileBlocks other = (CorruptFileBlocks) obj;
+        return cookie.equals(other.cookie) &&
+               Arrays.equals(files, other.files);
+    }
+
+
+    @Override
+    public int hashCode() {
+        int result = cookie.hashCode();
+
+        for (String file : files) {
+            result = PRIME * result + file.hashCode();
+        }
+
+        return result;
+    }
 }

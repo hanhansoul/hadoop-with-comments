@@ -30,12 +30,12 @@ import org.apache.hadoop.yarn.util.Records;
  * The request sent by a client to the <code>ResourceManager</code> to get an
  * {@link ApplicationAttemptReport} for an application attempt.
  * </p>
- * 
+ *
  * <p>
  * The request should include the {@link ApplicationAttemptId} of the
  * application attempt.
  * </p>
- * 
+ *
  * @see ApplicationAttemptReport
  * @see ApplicationHistoryProtocol#getApplicationAttemptReport(GetApplicationAttemptReportRequest)
  */
@@ -43,33 +43,33 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class GetApplicationAttemptReportRequest {
 
-  @Public
-  @Unstable
-  public static GetApplicationAttemptReportRequest newInstance(
-      ApplicationAttemptId applicationAttemptId) {
-    GetApplicationAttemptReportRequest request =
-        Records.newRecord(GetApplicationAttemptReportRequest.class);
-    request.setApplicationAttemptId(applicationAttemptId);
-    return request;
-  }
+    @Public
+    @Unstable
+    public static GetApplicationAttemptReportRequest newInstance(
+        ApplicationAttemptId applicationAttemptId) {
+        GetApplicationAttemptReportRequest request =
+            Records.newRecord(GetApplicationAttemptReportRequest.class);
+        request.setApplicationAttemptId(applicationAttemptId);
+        return request;
+    }
 
-  /**
-   * Get the <code>ApplicationAttemptId</code> of an application attempt.
-   * 
-   * @return <code>ApplicationAttemptId</code> of an application attempt
-   */
-  @Public
-  @Unstable
-  public abstract ApplicationAttemptId getApplicationAttemptId();
+    /**
+     * Get the <code>ApplicationAttemptId</code> of an application attempt.
+     *
+     * @return <code>ApplicationAttemptId</code> of an application attempt
+     */
+    @Public
+    @Unstable
+    public abstract ApplicationAttemptId getApplicationAttemptId();
 
-  /**
-   * Set the <code>ApplicationAttemptId</code> of an application attempt
-   * 
-   * @param applicationAttemptId
-   *          <code>ApplicationAttemptId</code> of an application attempt
-   */
-  @Public
-  @Unstable
-  public abstract void setApplicationAttemptId(
-      ApplicationAttemptId applicationAttemptId);
+    /**
+     * Set the <code>ApplicationAttemptId</code> of an application attempt
+     *
+     * @param applicationAttemptId
+     *          <code>ApplicationAttemptId</code> of an application attempt
+     */
+    @Public
+    @Unstable
+    public abstract void setApplicationAttemptId(
+        ApplicationAttemptId applicationAttemptId);
 }

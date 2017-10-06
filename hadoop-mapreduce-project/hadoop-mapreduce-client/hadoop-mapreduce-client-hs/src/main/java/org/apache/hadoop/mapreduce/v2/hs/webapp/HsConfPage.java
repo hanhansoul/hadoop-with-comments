@@ -35,65 +35,65 @@ import org.apache.hadoop.yarn.webapp.SubView;
  */
 public class HsConfPage extends HsView {
 
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
-   */
-  @Override protected void preHead(Page.HTML<_> html) {
-    String jobID = $(JOB_ID);
-    set(TITLE, jobID.isEmpty() ? "Bad request: missing job ID"
-        : join("Configuration for MapReduce Job ", $(JOB_ID)));
-    commonPreHead(html);
-    set(DATATABLES_ID, "conf");
-    set(initID(DATATABLES, "conf"), confTableInit());
-    set(postInitID(DATATABLES, "conf"), confPostTableInit());
-    setTableStyles(html, "conf");
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
+     */
+    @Override protected void preHead(Page.HTML<_> html) {
+        String jobID = $(JOB_ID);
+        set(TITLE, jobID.isEmpty() ? "Bad request: missing job ID"
+            : join("Configuration for MapReduce Job ", $(JOB_ID)));
+        commonPreHead(html);
+        set(DATATABLES_ID, "conf");
+        set(initID(DATATABLES, "conf"), confTableInit());
+        set(postInitID(DATATABLES, "conf"), confPostTableInit());
+        setTableStyles(html, "conf");
 
-    //Override the default nav config
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:1}");
-  }
+        //Override the default nav config
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:1}");
+    }
 
-  /**
-   * The body of this block is the configuration block.
-   * @return HsConfBlock.class
-   */
-  @Override protected Class<? extends SubView> content() {
-    return ConfBlock.class;
-  }
+    /**
+     * The body of this block is the configuration block.
+     * @return HsConfBlock.class
+     */
+    @Override protected Class<? extends SubView> content() {
+        return ConfBlock.class;
+    }
 
-  /**
-   * @return the end of the JS map that is the jquery datatable config for the
-   * conf table.
-   */
-  private String confTableInit() {
-    return tableInit().append("}").toString();
-  }
+    /**
+     * @return the end of the JS map that is the jquery datatable config for the
+     * conf table.
+     */
+    private String confTableInit() {
+        return tableInit().append("}").toString();
+    }
 
-  /**
-   * @return the java script code to allow the jquery conf datatable to filter
-   * by column.
-   */
-  private String confPostTableInit() {
-    return "var confInitVals = new Array();\n" +
-    "$('tfoot input').keyup( function () \n{"+
-    "  confDataTable.fnFilter( this.value, $('tfoot input').index(this) );\n"+
-    "} );\n"+
-    "$('tfoot input').each( function (i) {\n"+
-    "  confInitVals[i] = this.value;\n"+
-    "} );\n"+
-    "$('tfoot input').focus( function () {\n"+
-    "  if ( this.className == 'search_init' )\n"+
-    "  {\n"+
-    "    this.className = '';\n"+
-    "    this.value = '';\n"+
-    "  }\n"+
-    "} );\n"+
-    "$('tfoot input').blur( function (i) {\n"+
-    "  if ( this.value == '' )\n"+
-    "  {\n"+
-    "    this.className = 'search_init';\n"+
-    "    this.value = confInitVals[$('tfoot input').index(this)];\n"+
-    "  }\n"+
-    "} );\n";
-  }
+    /**
+     * @return the java script code to allow the jquery conf datatable to filter
+     * by column.
+     */
+    private String confPostTableInit() {
+        return "var confInitVals = new Array();\n" +
+               "$('tfoot input').keyup( function () \n{"+
+               "  confDataTable.fnFilter( this.value, $('tfoot input').index(this) );\n"+
+               "} );\n"+
+               "$('tfoot input').each( function (i) {\n"+
+               "  confInitVals[i] = this.value;\n"+
+               "} );\n"+
+               "$('tfoot input').focus( function () {\n"+
+               "  if ( this.className == 'search_init' )\n"+
+               "  {\n"+
+               "    this.className = '';\n"+
+               "    this.value = '';\n"+
+               "  }\n"+
+               "} );\n"+
+               "$('tfoot input').blur( function (i) {\n"+
+               "  if ( this.value == '' )\n"+
+               "  {\n"+
+               "    this.className = 'search_init';\n"+
+               "    this.value = confInitVals[$('tfoot input').index(this)];\n"+
+               "  }\n"+
+               "} );\n";
+    }
 }

@@ -25,23 +25,23 @@ import org.apache.hadoop.mapreduce.JobCounter;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class JobInProgress {
-  
-  /**
-   * @deprecated Provided for compatibility. Use {@link JobCounter} instead.
-   */
-  @Deprecated
-  public static enum Counter { 
-    NUM_FAILED_MAPS, 
-    NUM_FAILED_REDUCES,
-    TOTAL_LAUNCHED_MAPS,
-    TOTAL_LAUNCHED_REDUCES,
-    OTHER_LOCAL_MAPS,
-    DATA_LOCAL_MAPS,
-    RACK_LOCAL_MAPS,
-    SLOTS_MILLIS_MAPS,
-    SLOTS_MILLIS_REDUCES,
-    FALLOW_SLOTS_MILLIS_MAPS,
-    FALLOW_SLOTS_MILLIS_REDUCES
-  }
+
+    /**
+     * @deprecated Provided for compatibility. Use {@link JobCounter} instead.
+     */
+    @Deprecated
+    public static enum Counter {
+        NUM_FAILED_MAPS,
+        NUM_FAILED_REDUCES,
+        TOTAL_LAUNCHED_MAPS,
+        TOTAL_LAUNCHED_REDUCES,
+        OTHER_LOCAL_MAPS,
+        DATA_LOCAL_MAPS,
+        RACK_LOCAL_MAPS,
+        SLOTS_MILLIS_MAPS,
+        SLOTS_MILLIS_REDUCES,
+        FALLOW_SLOTS_MILLIS_MAPS,
+        FALLOW_SLOTS_MILLIS_REDUCES
+    }
 
 }

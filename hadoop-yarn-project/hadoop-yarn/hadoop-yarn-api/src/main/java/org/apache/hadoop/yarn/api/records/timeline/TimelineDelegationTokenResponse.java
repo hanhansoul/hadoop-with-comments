@@ -35,29 +35,29 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class TimelineDelegationTokenResponse {
 
-  private String type;
-  private Object content;
+    private String type;
+    private Object content;
 
-  public TimelineDelegationTokenResponse() {
+    public TimelineDelegationTokenResponse() {
 
-  }
+    }
 
-  @XmlElement(name = "type")
-  public String getType() {
-    return type;
-  }
+    @XmlElement(name = "type")
+    public String getType() {
+        return type;
+    }
 
-  public void setType(String type) {
-    this.type = type;
-  }
+    public void setType(String type) {
+        this.type = type;
+    }
 
-  @XmlElement(name = "content")
-  public Object getContent() {
-    return content;
-  }
+    @XmlElement(name = "content")
+    public Object getContent() {
+        return content;
+    }
 
-  public void setContent(Object content) {
-    this.content = content;
-  }
+    public void setContent(Object content) {
+        this.content = content;
+    }
 
 }

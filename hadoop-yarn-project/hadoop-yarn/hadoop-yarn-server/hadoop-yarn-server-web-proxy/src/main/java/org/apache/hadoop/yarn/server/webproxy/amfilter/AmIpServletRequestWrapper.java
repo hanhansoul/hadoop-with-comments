@@ -24,28 +24,28 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 public class AmIpServletRequestWrapper extends HttpServletRequestWrapper {
-  private final AmIpPrincipal principal;
+    private final AmIpPrincipal principal;
 
-  public AmIpServletRequestWrapper(HttpServletRequest request, 
-      AmIpPrincipal principal) {
-    super(request);
-    this.principal = principal;
-  }
+    public AmIpServletRequestWrapper(HttpServletRequest request,
+                                     AmIpPrincipal principal) {
+        super(request);
+        this.principal = principal;
+    }
 
-  @Override
-  public Principal getUserPrincipal() {
-    return principal;
-  }
+    @Override
+    public Principal getUserPrincipal() {
+        return principal;
+    }
 
-  @Override
-  public String getRemoteUser() {
-    return principal.getName();
-  }
+    @Override
+    public String getRemoteUser() {
+        return principal.getName();
+    }
 
-  @Override
-  public boolean isUserInRole(String role) {
-    //No role info so far
-    return false;
-  }
+    @Override
+    public boolean isUserInRole(String role) {
+        //No role info so far
+        return false;
+    }
 
 }

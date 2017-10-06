@@ -24,15 +24,15 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptE
 
 public class RMAppAttemptLaunchFailedEvent extends RMAppAttemptEvent {
 
-  private final String message;
+    private final String message;
 
-  public RMAppAttemptLaunchFailedEvent(ApplicationAttemptId appAttemptId,
-      String message) {
-    super(appAttemptId, RMAppAttemptEventType.LAUNCH_FAILED);
-    this.message = message;
-  }
+    public RMAppAttemptLaunchFailedEvent(ApplicationAttemptId appAttemptId,
+                                         String message) {
+        super(appAttemptId, RMAppAttemptEventType.LAUNCH_FAILED);
+        this.message = message;
+    }
 
-  public String getMessage() {
-    return this.message;
-  }
+    public String getMessage() {
+        return this.message;
+    }
 }

@@ -25,37 +25,37 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.RMAppState;
 @Unstable
 public class SchedulerApplication<T extends SchedulerApplicationAttempt> {
 
-  private Queue queue;
-  private final String user;
-  private T currentAttempt;
+    private Queue queue;
+    private final String user;
+    private T currentAttempt;
 
-  public SchedulerApplication(Queue queue, String user) {
-    this.queue = queue;
-    this.user = user;
-  }
+    public SchedulerApplication(Queue queue, String user) {
+        this.queue = queue;
+        this.user = user;
+    }
 
-  public Queue getQueue() {
-    return queue;
-  }
-  
-  public void setQueue(Queue queue) {
-    this.queue = queue;
-  }
+    public Queue getQueue() {
+        return queue;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    public void setQueue(Queue queue) {
+        this.queue = queue;
+    }
 
-  public T getCurrentAppAttempt() {
-    return currentAttempt;
-  }
+    public String getUser() {
+        return user;
+    }
 
-  public void setCurrentAppAttempt(T currentAttempt) {
-    this.currentAttempt = currentAttempt;
-  }
+    public T getCurrentAppAttempt() {
+        return currentAttempt;
+    }
 
-  public void stop(RMAppState rmAppFinalState) {
-    queue.getMetrics().finishApp(user, rmAppFinalState);
-  }
+    public void setCurrentAppAttempt(T currentAttempt) {
+        this.currentAttempt = currentAttempt;
+    }
+
+    public void stop(RMAppState rmAppFinalState) {
+        queue.getMetrics().finishApp(user, rmAppFinalState);
+    }
 
 }

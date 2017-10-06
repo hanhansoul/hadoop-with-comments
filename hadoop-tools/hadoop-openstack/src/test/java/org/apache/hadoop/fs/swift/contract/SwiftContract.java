@@ -27,18 +27,18 @@ import org.apache.hadoop.fs.swift.snative.SwiftNativeFileSystem;
  */
 public class SwiftContract extends AbstractBondedFSContract {
 
-  public static final String CONTRACT_XML = "contract/swift.xml";
+    public static final String CONTRACT_XML = "contract/swift.xml";
 
-  public SwiftContract(Configuration conf) {
-    super(conf);
-    //insert the base features
-    addConfResource(CONTRACT_XML);
-  }
+    public SwiftContract(Configuration conf) {
+        super(conf);
+        //insert the base features
+        addConfResource(CONTRACT_XML);
+    }
 
 
-  @Override
-  public String getScheme() {
-    return SwiftNativeFileSystem.SWIFT;
-  }
+    @Override
+    public String getScheme() {
+        return SwiftNativeFileSystem.SWIFT;
+    }
 
 }

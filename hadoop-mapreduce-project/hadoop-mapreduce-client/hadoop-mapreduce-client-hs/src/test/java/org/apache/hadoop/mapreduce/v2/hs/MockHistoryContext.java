@@ -33,80 +33,80 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 
 public class MockHistoryContext extends MockAppContext implements HistoryContext {
 
-  private final Map<JobId, Job> partialJobs;
-  private final Map<JobId, Job> fullJobs;
-  
-  public MockHistoryContext(int numJobs, int numTasks, int numAttempts) {
-    super(0);
-    JobsPair jobs;
-    try {
-      jobs = MockHistoryJobs.newHistoryJobs(numJobs, numTasks, numAttempts);
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
+    private final Map<JobId, Job> partialJobs;
+    private final Map<JobId, Job> fullJobs;
+
+    public MockHistoryContext(int numJobs, int numTasks, int numAttempts) {
+        super(0);
+        JobsPair jobs;
+        try {
+            jobs = MockHistoryJobs.newHistoryJobs(numJobs, numTasks, numAttempts);
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
+        }
+        partialJobs = jobs.partial;
+        fullJobs = jobs.full;
     }
-    partialJobs = jobs.partial;
-    fullJobs = jobs.full;
-  }
 
-  public MockHistoryContext(int appid, int numJobs, int numTasks,
-      int numAttempts) {
-    super(appid);
-    JobsPair jobs;
-    try {
-      jobs = MockHistoryJobs.newHistoryJobs(getApplicationID(), numJobs, numTasks,
-          numAttempts);
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
+    public MockHistoryContext(int appid, int numJobs, int numTasks,
+                              int numAttempts) {
+        super(appid);
+        JobsPair jobs;
+        try {
+            jobs = MockHistoryJobs.newHistoryJobs(getApplicationID(), numJobs, numTasks,
+                                                  numAttempts);
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
+        }
+        partialJobs = jobs.partial;
+        fullJobs = jobs.full;
     }
-    partialJobs = jobs.partial;
-    fullJobs = jobs.full;
-  }
-  
-  public MockHistoryContext(int appid, int numTasks, int numAttempts, Path confPath) {
-    super(appid, numTasks, numAttempts, confPath);
-    fullJobs = super.getAllJobs();
-    partialJobs = null;
-  }
-  
-  public MockHistoryContext(int appid, int numJobs, int numTasks, int numAttempts,
-      boolean hasFailedTasks) {
-    super(appid);
-    JobsPair jobs;
-    try {
-      jobs = MockHistoryJobs.newHistoryJobs(getApplicationID(), numJobs, numTasks,
-          numAttempts, hasFailedTasks);
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
+
+    public MockHistoryContext(int appid, int numTasks, int numAttempts, Path confPath) {
+        super(appid, numTasks, numAttempts, confPath);
+        fullJobs = super.getAllJobs();
+        partialJobs = null;
     }
-    partialJobs = jobs.partial;
-    fullJobs = jobs.full;
-  }
-  
-  @Override
-  public Job getJob(JobId jobID) {
-    return fullJobs.get(jobID);
-  }
 
-  public Job getPartialJob(JobId jobID) {
-    return partialJobs.get(jobID);
-  }
-  
-  @Override
-  public Map<JobId, Job> getAllJobs() {
-    return fullJobs;
-  }
+    public MockHistoryContext(int appid, int numJobs, int numTasks, int numAttempts,
+                              boolean hasFailedTasks) {
+        super(appid);
+        JobsPair jobs;
+        try {
+            jobs = MockHistoryJobs.newHistoryJobs(getApplicationID(), numJobs, numTasks,
+                                                  numAttempts, hasFailedTasks);
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
+        }
+        partialJobs = jobs.partial;
+        fullJobs = jobs.full;
+    }
 
-  @Override
-  public Map<JobId, Job> getAllJobs(ApplicationId appID) {
-    return null;
-  }
+    @Override
+    public Job getJob(JobId jobID) {
+        return fullJobs.get(jobID);
+    }
 
-  @Override
-  public JobsInfo getPartialJobs(Long offset, Long count, String user,
-      String queue, Long sBegin, Long sEnd, Long fBegin, Long fEnd,
-      JobState jobState) {
-    return CachedHistoryStorage.getPartialJobs(this.partialJobs.values(), 
-        offset, count, user, queue, sBegin, sEnd, fBegin, fEnd, jobState);
-  }
+    public Job getPartialJob(JobId jobID) {
+        return partialJobs.get(jobID);
+    }
+
+    @Override
+    public Map<JobId, Job> getAllJobs() {
+        return fullJobs;
+    }
+
+    @Override
+    public Map<JobId, Job> getAllJobs(ApplicationId appID) {
+        return null;
+    }
+
+    @Override
+    public JobsInfo getPartialJobs(Long offset, Long count, String user,
+                                   String queue, Long sBegin, Long sEnd, Long fBegin, Long fEnd,
+                                   JobState jobState) {
+        return CachedHistoryStorage.getPartialJobs(this.partialJobs.values(),
+                offset, count, user, queue, sBegin, sEnd, fBegin, fEnd, jobState);
+    }
 
 }

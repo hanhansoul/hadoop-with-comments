@@ -29,48 +29,48 @@ import com.google.common.base.Preconditions;
 @Private
 @Unstable
 public class NodeIdPBImpl extends NodeId {
-  NodeIdProto proto = null;
-  NodeIdProto.Builder builder = null;
-  
-  public NodeIdPBImpl() {
-    builder = NodeIdProto.newBuilder();
-  }
+    NodeIdProto proto = null;
+    NodeIdProto.Builder builder = null;
 
-  public NodeIdPBImpl(NodeIdProto proto) {
-    this.proto = proto;
-  }
+    public NodeIdPBImpl() {
+        builder = NodeIdProto.newBuilder();
+    }
 
-  public NodeIdProto getProto() {
-    return proto;
-  }
+    public NodeIdPBImpl(NodeIdProto proto) {
+        this.proto = proto;
+    }
 
-  @Override
-  public String getHost() {
-    Preconditions.checkNotNull(proto);
-    return proto.getHost();
-  }
+    public NodeIdProto getProto() {
+        return proto;
+    }
 
-  @Override
-  protected void setHost(String host) {
-    Preconditions.checkNotNull(builder);
-    builder.setHost(host);
-  }
+    @Override
+    public String getHost() {
+        Preconditions.checkNotNull(proto);
+        return proto.getHost();
+    }
 
-  @Override
-  public int getPort() {
-    Preconditions.checkNotNull(proto);
-    return proto.getPort();
-  }
+    @Override
+    protected void setHost(String host) {
+        Preconditions.checkNotNull(builder);
+        builder.setHost(host);
+    }
 
-  @Override
-  protected void setPort(int port) {
-    Preconditions.checkNotNull(builder);
-    builder.setPort(port);
-  }
+    @Override
+    public int getPort() {
+        Preconditions.checkNotNull(proto);
+        return proto.getPort();
+    }
 
-  @Override
-  protected void build() {
-    proto = builder.build();
-    builder = null;
-  }
-}  
+    @Override
+    protected void setPort(int port) {
+        Preconditions.checkNotNull(builder);
+        builder.setPort(port);
+    }
+
+    @Override
+    protected void build() {
+        proto = builder.build();
+        builder = null;
+    }
+}

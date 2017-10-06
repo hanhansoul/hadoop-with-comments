@@ -38,72 +38,72 @@ import com.google.inject.Module;
  * data for all the columns in the table as specified in the header.
  */
 public class TestNodesPage {
-  
-  final int numberOfRacks = 2;
-  final int numberOfNodesPerRack = 6;
-  // The following is because of the way TestRMWebApp.mockRMContext creates
-  // nodes.
-  final int numberOfLostNodesPerRack = numberOfNodesPerRack
-      / NodeState.values().length;
 
-  // Number of Actual Table Headers for NodesPage.NodesBlock might change in
-  // future. In that case this value should be adjusted to the new value.
-  final int numberOfThInMetricsTable = 16;
-  final int numberOfActualTableHeaders = 13;
+    final int numberOfRacks = 2;
+    final int numberOfNodesPerRack = 6;
+    // The following is because of the way TestRMWebApp.mockRMContext creates
+    // nodes.
+    final int numberOfLostNodesPerRack = numberOfNodesPerRack
+                                         / NodeState.values().length;
 
-  private Injector injector;
-  
-  @Before
-  public void setUp() throws Exception {
-    final RMContext mockRMContext =
-        TestRMWebApp.mockRMContext(3, numberOfRacks, numberOfNodesPerRack,
-          8 * TestRMWebApp.GiB);
-    injector =
-        WebAppTests.createMockInjector(RMContext.class, mockRMContext,
-          new Module() {
+    // Number of Actual Table Headers for NodesPage.NodesBlock might change in
+    // future. In that case this value should be adjusted to the new value.
+    final int numberOfThInMetricsTable = 16;
+    final int numberOfActualTableHeaders = 13;
+
+    private Injector injector;
+
+    @Before
+    public void setUp() throws Exception {
+        final RMContext mockRMContext =
+            TestRMWebApp.mockRMContext(3, numberOfRacks, numberOfNodesPerRack,
+                                       8 * TestRMWebApp.GiB);
+        injector =
+            WebAppTests.createMockInjector(RMContext.class, mockRMContext,
+        new Module() {
             @Override
             public void configure(Binder binder) {
-              try {
-                binder.bind(ResourceManager.class).toInstance(
-                  TestRMWebApp.mockRm(mockRMContext));
-              } catch (IOException e) {
-                throw new IllegalStateException(e);
-              }
+                try {
+                    binder.bind(ResourceManager.class).toInstance(
+                        TestRMWebApp.mockRm(mockRMContext));
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                }
             }
-          });
-  }
+        });
+    }
 
-  @Test
-  public void testNodesBlockRender() throws Exception {
-    injector.getInstance(NodesBlock.class).render();
-    PrintWriter writer = injector.getInstance(PrintWriter.class);
-    WebAppTests.flushOutput(injector);
+    @Test
+    public void testNodesBlockRender() throws Exception {
+        injector.getInstance(NodesBlock.class).render();
+        PrintWriter writer = injector.getInstance(PrintWriter.class);
+        WebAppTests.flushOutput(injector);
 
-    Mockito.verify(writer,
-        Mockito.times(numberOfActualTableHeaders + numberOfThInMetricsTable))
+        Mockito.verify(writer,
+                       Mockito.times(numberOfActualTableHeaders + numberOfThInMetricsTable))
         .print("<th");
-    Mockito.verify(
-        writer,
-        Mockito.times(numberOfRacks * numberOfNodesPerRack
-            * numberOfActualTableHeaders + numberOfThInMetricsTable)).print(
-        "<td");
-  }
-  
-  @Test
-  public void testNodesBlockRenderForLostNodes() {
-    NodesBlock nodesBlock = injector.getInstance(NodesBlock.class);
-    nodesBlock.set("node.state", "lost");
-    nodesBlock.render();
-    PrintWriter writer = injector.getInstance(PrintWriter.class);
-    WebAppTests.flushOutput(injector);
+        Mockito.verify(
+            writer,
+            Mockito.times(numberOfRacks * numberOfNodesPerRack
+                          * numberOfActualTableHeaders + numberOfThInMetricsTable)).print(
+                              "<td");
+    }
 
-    Mockito.verify(writer,
-        Mockito.times(numberOfActualTableHeaders + numberOfThInMetricsTable))
+    @Test
+    public void testNodesBlockRenderForLostNodes() {
+        NodesBlock nodesBlock = injector.getInstance(NodesBlock.class);
+        nodesBlock.set("node.state", "lost");
+        nodesBlock.render();
+        PrintWriter writer = injector.getInstance(PrintWriter.class);
+        WebAppTests.flushOutput(injector);
+
+        Mockito.verify(writer,
+                       Mockito.times(numberOfActualTableHeaders + numberOfThInMetricsTable))
         .print("<th");
-    Mockito.verify(
-        writer,
-        Mockito.times(numberOfRacks * numberOfLostNodesPerRack
-            * numberOfActualTableHeaders + numberOfThInMetricsTable)).print(
-        "<td");
-  }
+        Mockito.verify(
+            writer,
+            Mockito.times(numberOfRacks * numberOfLostNodesPerRack
+                          * numberOfActualTableHeaders + numberOfThInMetricsTable)).print(
+                              "<td");
+    }
 }

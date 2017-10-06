@@ -35,98 +35,98 @@ import java.text.NumberFormat;
 
 public class TestMapReduceAggregates extends TestCase {
 
-  private static NumberFormat idFormat = NumberFormat.getInstance();
+    private static NumberFormat idFormat = NumberFormat.getInstance();
     static {
-      idFormat.setMinimumIntegerDigits(4);
-      idFormat.setGroupingUsed(false);
-  }
-
-
-  public void testAggregates() throws Exception {
-    launch();
-  }
-
-  public static void launch() throws Exception {
-    Configuration conf = new Configuration();
-    FileSystem fs = FileSystem.get(conf);
-    int numOfInputLines = 20;
-
-    Path OUTPUT_DIR = new Path("build/test/output_for_aggregates_test");
-    Path INPUT_DIR = new Path("build/test/input_for_aggregates_test");
-    String inputFile = "input.txt";
-    fs.delete(INPUT_DIR, true);
-    fs.mkdirs(INPUT_DIR);
-    fs.delete(OUTPUT_DIR, true);
-
-    StringBuffer inputData = new StringBuffer();
-    StringBuffer expectedOutput = new StringBuffer();
-    expectedOutput.append("max\t19\n");
-    expectedOutput.append("min\t1\n"); 
-
-    FSDataOutputStream fileOut = fs.create(new Path(INPUT_DIR, inputFile));
-    for (int i = 1; i < numOfInputLines; i++) {
-      expectedOutput.append("count_").append(idFormat.format(i));
-      expectedOutput.append("\t").append(i).append("\n");
-
-      inputData.append(idFormat.format(i));
-      for (int j = 1; j < i; j++) {
-        inputData.append(" ").append(idFormat.format(i));
-      }
-      inputData.append("\n");
+        idFormat.setMinimumIntegerDigits(4);
+        idFormat.setGroupingUsed(false);
     }
-    expectedOutput.append("value_as_string_max\t9\n");
-    expectedOutput.append("value_as_string_min\t1\n");
-    expectedOutput.append("uniq_count\t15\n");
 
 
-    fileOut.write(inputData.toString().getBytes("utf-8"));
-    fileOut.close();
+    public void testAggregates() throws Exception {
+        launch();
+    }
 
-    System.out.println("inputData:");
-    System.out.println(inputData.toString());
+    public static void launch() throws Exception {
+        Configuration conf = new Configuration();
+        FileSystem fs = FileSystem.get(conf);
+        int numOfInputLines = 20;
 
-    conf.setInt(ValueAggregatorJobBase.DESCRIPTOR_NUM, 1);
-    conf.set(ValueAggregatorJobBase.DESCRIPTOR + ".0", 
-      "UserDefined,org.apache.hadoop.mapreduce.lib.aggregate.AggregatorTests");
-    conf.setLong(UniqValueCount.MAX_NUM_UNIQUE_VALUES, 14);
-    
-    Job job = Job.getInstance(conf);
-    FileInputFormat.setInputPaths(job, INPUT_DIR);
-    job.setInputFormatClass(TextInputFormat.class);
-    FileOutputFormat.setOutputPath(job, OUTPUT_DIR);
-    job.setOutputFormatClass(TextOutputFormat.class);
-    job.setMapOutputKeyClass(Text.class);
-    job.setMapOutputValueClass(Text.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(Text.class);
-    job.setNumReduceTasks(1);
-    job.setMapperClass(ValueAggregatorMapper.class);
-    job.setReducerClass(ValueAggregatorReducer.class);
-    job.setCombinerClass(ValueAggregatorCombiner.class);
+        Path OUTPUT_DIR = new Path("build/test/output_for_aggregates_test");
+        Path INPUT_DIR = new Path("build/test/input_for_aggregates_test");
+        String inputFile = "input.txt";
+        fs.delete(INPUT_DIR, true);
+        fs.mkdirs(INPUT_DIR);
+        fs.delete(OUTPUT_DIR, true);
+
+        StringBuffer inputData = new StringBuffer();
+        StringBuffer expectedOutput = new StringBuffer();
+        expectedOutput.append("max\t19\n");
+        expectedOutput.append("min\t1\n");
+
+        FSDataOutputStream fileOut = fs.create(new Path(INPUT_DIR, inputFile));
+        for (int i = 1; i < numOfInputLines; i++) {
+            expectedOutput.append("count_").append(idFormat.format(i));
+            expectedOutput.append("\t").append(i).append("\n");
+
+            inputData.append(idFormat.format(i));
+            for (int j = 1; j < i; j++) {
+                inputData.append(" ").append(idFormat.format(i));
+            }
+            inputData.append("\n");
+        }
+        expectedOutput.append("value_as_string_max\t9\n");
+        expectedOutput.append("value_as_string_min\t1\n");
+        expectedOutput.append("uniq_count\t15\n");
 
 
-    job.waitForCompletion(true);
+        fileOut.write(inputData.toString().getBytes("utf-8"));
+        fileOut.close();
 
-    assertTrue(job.isSuccessful());
-    //
-    // Finally, we compare the reconstructed answer key with the
-    // original one.  Remember, we need to ignore zero-count items
-    // in the original key.
-    //
-    String outdata = MapReduceTestUtil.readOutput(OUTPUT_DIR, conf);
-    System.out.println("full out data:");
-    System.out.println(outdata.toString());
-    outdata = outdata.substring(0, expectedOutput.toString().length());
+        System.out.println("inputData:");
+        System.out.println(inputData.toString());
 
-    assertEquals(expectedOutput.toString(),outdata);
-    fs.delete(OUTPUT_DIR, true);
-    fs.delete(INPUT_DIR, true);
-  }
-  
-  /**
-   * Launches all the tasks in order.
-   */
-  public static void main(String[] argv) throws Exception {
-    launch();
-  }
+        conf.setInt(ValueAggregatorJobBase.DESCRIPTOR_NUM, 1);
+        conf.set(ValueAggregatorJobBase.DESCRIPTOR + ".0",
+                 "UserDefined,org.apache.hadoop.mapreduce.lib.aggregate.AggregatorTests");
+        conf.setLong(UniqValueCount.MAX_NUM_UNIQUE_VALUES, 14);
+
+        Job job = Job.getInstance(conf);
+        FileInputFormat.setInputPaths(job, INPUT_DIR);
+        job.setInputFormatClass(TextInputFormat.class);
+        FileOutputFormat.setOutputPath(job, OUTPUT_DIR);
+        job.setOutputFormatClass(TextOutputFormat.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Text.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Text.class);
+        job.setNumReduceTasks(1);
+        job.setMapperClass(ValueAggregatorMapper.class);
+        job.setReducerClass(ValueAggregatorReducer.class);
+        job.setCombinerClass(ValueAggregatorCombiner.class);
+
+
+        job.waitForCompletion(true);
+
+        assertTrue(job.isSuccessful());
+        //
+        // Finally, we compare the reconstructed answer key with the
+        // original one.  Remember, we need to ignore zero-count items
+        // in the original key.
+        //
+        String outdata = MapReduceTestUtil.readOutput(OUTPUT_DIR, conf);
+        System.out.println("full out data:");
+        System.out.println(outdata.toString());
+        outdata = outdata.substring(0, expectedOutput.toString().length());
+
+        assertEquals(expectedOutput.toString(),outdata);
+        fs.delete(OUTPUT_DIR, true);
+        fs.delete(INPUT_DIR, true);
+    }
+
+    /**
+     * Launches all the tasks in order.
+     */
+    public static void main(String[] argv) throws Exception {
+        launch();
+    }
 }

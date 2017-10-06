@@ -23,17 +23,17 @@ import java.io.IOException;
 
 /**
  * A simple Hello class that is called from TestRunJar
- * 
+ *
  */
 public class Hello {
-  public static void main(String[] args) {
-    try {
-      System.out.println("Creating file" + args[0]);
-      FileOutputStream fstream = new FileOutputStream(args[0]);
-      fstream.write("Hello Hadoopers".getBytes());
-      fstream.close();
-    } catch (IOException e) {
-      // do nothing
+    public static void main(String[] args) {
+        try {
+            System.out.println("Creating file" + args[0]);
+            FileOutputStream fstream = new FileOutputStream(args[0]);
+            fstream.write("Hello Hadoopers".getBytes());
+            fstream.close();
+        } catch (IOException e) {
+            // do nothing
+        }
     }
-  }
 }

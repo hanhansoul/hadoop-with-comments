@@ -38,84 +38,84 @@ import java.io.IOException;
  * Tests interaction of encryption zones with HA failover.
  */
 public class TestEncryptionZonesWithHA {
-  private Configuration conf;
-  private MiniDFSCluster cluster;
-  private NameNode nn0;
-  private NameNode nn1;
-  private DistributedFileSystem fs;
-  private HdfsAdmin dfsAdmin0;
-  private HdfsAdmin dfsAdmin1;
-  private FileSystemTestHelper fsHelper;
-  private File testRootDir;
+    private Configuration conf;
+    private MiniDFSCluster cluster;
+    private NameNode nn0;
+    private NameNode nn1;
+    private DistributedFileSystem fs;
+    private HdfsAdmin dfsAdmin0;
+    private HdfsAdmin dfsAdmin1;
+    private FileSystemTestHelper fsHelper;
+    private File testRootDir;
 
-  private final String TEST_KEY = "testKey";
+    private final String TEST_KEY = "testKey";
 
 
-  @Before
-  public void setupCluster() throws Exception {
-    conf = new Configuration();
-    conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
-    HAUtil.setAllowStandbyReads(conf, true);
-    fsHelper = new FileSystemTestHelper();
-    String testRoot = fsHelper.getTestRootDir();
-    testRootDir = new File(testRoot).getAbsoluteFile();
-    conf.set(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI,
-        JavaKeyStoreProvider.SCHEME_NAME + "://file" +
-        new Path(testRootDir.toString(), "test.jks").toUri()
-    );
+    @Before
+    public void setupCluster() throws Exception {
+        conf = new Configuration();
+        conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
+        HAUtil.setAllowStandbyReads(conf, true);
+        fsHelper = new FileSystemTestHelper();
+        String testRoot = fsHelper.getTestRootDir();
+        testRootDir = new File(testRoot).getAbsoluteFile();
+        conf.set(DFSConfigKeys.DFS_ENCRYPTION_KEY_PROVIDER_URI,
+                 JavaKeyStoreProvider.SCHEME_NAME + "://file" +
+                 new Path(testRootDir.toString(), "test.jks").toUri()
+                );
 
-    cluster = new MiniDFSCluster.Builder(conf)
-      .nnTopology(MiniDFSNNTopology.simpleHATopology())
-      .numDataNodes(1)
-      .build();
-    cluster.waitActive();
-    cluster.transitionToActive(0);
+        cluster = new MiniDFSCluster.Builder(conf)
+        .nnTopology(MiniDFSNNTopology.simpleHATopology())
+        .numDataNodes(1)
+        .build();
+        cluster.waitActive();
+        cluster.transitionToActive(0);
 
-    fs = (DistributedFileSystem)HATestUtil.configureFailoverFs(cluster, conf);
-    DFSTestUtil.createKey(TEST_KEY, cluster, 0, conf);
-    DFSTestUtil.createKey(TEST_KEY, cluster, 1, conf);
-    nn0 = cluster.getNameNode(0);
-    nn1 = cluster.getNameNode(1);
-    dfsAdmin0 = new HdfsAdmin(cluster.getURI(0), conf);
-    dfsAdmin1 = new HdfsAdmin(cluster.getURI(1), conf);
-    KeyProviderCryptoExtension nn0Provider =
-        cluster.getNameNode(0).getNamesystem().getProvider();
-    fs.getClient().provider = nn0Provider;
-  }
-
-  @After
-  public void shutdownCluster() throws IOException {
-    if (cluster != null) {
-      cluster.shutdown();
+        fs = (DistributedFileSystem)HATestUtil.configureFailoverFs(cluster, conf);
+        DFSTestUtil.createKey(TEST_KEY, cluster, 0, conf);
+        DFSTestUtil.createKey(TEST_KEY, cluster, 1, conf);
+        nn0 = cluster.getNameNode(0);
+        nn1 = cluster.getNameNode(1);
+        dfsAdmin0 = new HdfsAdmin(cluster.getURI(0), conf);
+        dfsAdmin1 = new HdfsAdmin(cluster.getURI(1), conf);
+        KeyProviderCryptoExtension nn0Provider =
+            cluster.getNameNode(0).getNamesystem().getProvider();
+        fs.getClient().provider = nn0Provider;
     }
-  }
 
-  /**
-   * Test that encryption zones are properly tracked by the standby.
-   */
-  @Test(timeout = 60000)
-  public void testEncryptionZonesTrackedOnStandby() throws Exception {
-    final int len = 8196;
-    final Path dir = new Path("/enc");
-    final Path dirChild = new Path(dir, "child");
-    final Path dirFile = new Path(dir, "file");
-    fs.mkdir(dir, FsPermission.getDirDefault());
-    dfsAdmin0.createEncryptionZone(dir, TEST_KEY);
-    fs.mkdir(dirChild, FsPermission.getDirDefault());
-    DFSTestUtil.createFile(fs, dirFile, len, (short) 1, 0xFEED);
-    String contents = DFSTestUtil.readFile(fs, dirFile);
+    @After
+    public void shutdownCluster() throws IOException {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
 
-    // Failover the current standby to active.
-    HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
-    cluster.shutdownNameNode(0);
-    cluster.transitionToActive(1);
+    /**
+     * Test that encryption zones are properly tracked by the standby.
+     */
+    @Test(timeout = 60000)
+    public void testEncryptionZonesTrackedOnStandby() throws Exception {
+        final int len = 8196;
+        final Path dir = new Path("/enc");
+        final Path dirChild = new Path(dir, "child");
+        final Path dirFile = new Path(dir, "file");
+        fs.mkdir(dir, FsPermission.getDirDefault());
+        dfsAdmin0.createEncryptionZone(dir, TEST_KEY);
+        fs.mkdir(dirChild, FsPermission.getDirDefault());
+        DFSTestUtil.createFile(fs, dirFile, len, (short) 1, 0xFEED);
+        String contents = DFSTestUtil.readFile(fs, dirFile);
 
-    Assert.assertEquals("Got unexpected ez path", dir.toString(),
-        dfsAdmin1.getEncryptionZoneForPath(dir).getPath().toString());
-    Assert.assertEquals("Got unexpected ez path", dir.toString(),
-        dfsAdmin1.getEncryptionZoneForPath(dirChild).getPath().toString());
-    Assert.assertEquals("File contents after failover were changed",
-        contents, DFSTestUtil.readFile(fs, dirFile));
-  }
+        // Failover the current standby to active.
+        HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
+        cluster.shutdownNameNode(0);
+        cluster.transitionToActive(1);
+
+        Assert.assertEquals("Got unexpected ez path", dir.toString(),
+                            dfsAdmin1.getEncryptionZoneForPath(dir).getPath().toString());
+        Assert.assertEquals("Got unexpected ez path", dir.toString(),
+                            dfsAdmin1.getEncryptionZoneForPath(dirChild).getPath().toString());
+        Assert.assertEquals("File contents after failover were changed",
+                            contents, DFSTestUtil.readFile(fs, dirFile));
+    }
 
 }

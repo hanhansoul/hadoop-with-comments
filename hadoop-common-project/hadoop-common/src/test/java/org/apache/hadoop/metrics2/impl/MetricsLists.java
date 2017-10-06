@@ -23,7 +23,7 @@ package org.apache.hadoop.metrics2.impl;
  */
 class MetricsLists {
 
-  static MetricsRecordBuilderImpl builder(String name) {
-    return new MetricsCollectorImpl().addRecord(name);
-  }
+    static MetricsRecordBuilderImpl builder(String name) {
+        return new MetricsCollectorImpl().addRecord(name);
+    }
 }

@@ -35,30 +35,30 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class CombineSequenceFileInputFormat<K,V>
-  extends CombineFileInputFormat<K,V> {
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public RecordReader<K,V> createRecordReader(InputSplit split,
-    TaskAttemptContext context) throws IOException {
-    return new CombineFileRecordReader((CombineFileSplit)split, context,
-      SequenceFileRecordReaderWrapper.class);
-  }
-
-  /**
-   * A record reader that may be passed to <code>CombineFileRecordReader</code>
-   * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
-   * for <code>SequenceFileInputFormat</code>.
-   *
-   * @see CombineFileRecordReader
-   * @see CombineFileInputFormat
-   * @see SequenceFileInputFormat
-   */
-  private static class SequenceFileRecordReaderWrapper<K,V>
-    extends CombineFileRecordReaderWrapper<K,V> {
-    // this constructor signature is required by CombineFileRecordReader
-    public SequenceFileRecordReaderWrapper(CombineFileSplit split,
-      TaskAttemptContext context, Integer idx)
-      throws IOException, InterruptedException {
-      super(new SequenceFileInputFormat<K,V>(), split, context, idx);
+    extends CombineFileInputFormat<K,V> {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public RecordReader<K,V> createRecordReader(InputSplit split,
+            TaskAttemptContext context) throws IOException {
+        return new CombineFileRecordReader((CombineFileSplit)split, context,
+                                           SequenceFileRecordReaderWrapper.class);
     }
-  }
+
+    /**
+     * A record reader that may be passed to <code>CombineFileRecordReader</code>
+     * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
+     * for <code>SequenceFileInputFormat</code>.
+     *
+     * @see CombineFileRecordReader
+     * @see CombineFileInputFormat
+     * @see SequenceFileInputFormat
+     */
+    private static class SequenceFileRecordReaderWrapper<K,V>
+        extends CombineFileRecordReaderWrapper<K,V> {
+        // this constructor signature is required by CombineFileRecordReader
+        public SequenceFileRecordReaderWrapper(CombineFileSplit split,
+                                               TaskAttemptContext context, Integer idx)
+        throws IOException, InterruptedException {
+            super(new SequenceFileInputFormat<K,V>(), split, context, idx);
+        }
+    }
 }

@@ -24,15 +24,15 @@ import org.junit.Before;
 
 public class TestS3_LocalFileContextURI extends FileContextURIBase {
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
+    @Override
+    @Before
+    public void setUp() throws Exception {
 
-    Configuration localConf = new Configuration();
-    fc2 = FileContext.getFileContext(localConf);
+        Configuration localConf = new Configuration();
+        fc2 = FileContext.getFileContext(localConf);
 
-    Configuration s3conf = new Configuration();
-    s3conf.set(FS_DEFAULT_NAME_DEFAULT, s3conf.get("test.fs.s3.name"));
-    fc1 = FileContext.getFileContext(s3conf);
-  }
+        Configuration s3conf = new Configuration();
+        s3conf.set(FS_DEFAULT_NAME_DEFAULT, s3conf.get("test.fs.s3.name"));
+        fc1 = FileContext.getFileContext(s3conf);
+    }
 }

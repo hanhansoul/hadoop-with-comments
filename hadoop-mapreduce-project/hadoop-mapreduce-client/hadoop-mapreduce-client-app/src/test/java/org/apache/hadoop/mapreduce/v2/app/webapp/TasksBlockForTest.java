@@ -23,27 +23,27 @@ import java.util.Map;
 /**
  *    Class TasksBlockForTest overrides some methods for test
  */
-public class TasksBlockForTest extends TasksBlock{
-  private final Map<String, String> params = new HashMap<String, String>();
+public class TasksBlockForTest extends TasksBlock {
+    private final Map<String, String> params = new HashMap<String, String>();
 
 
-  public TasksBlockForTest(App app) {
-     super(app);
-   }
+    public TasksBlockForTest(App app) {
+        super(app);
+    }
 
-  public void addParameter(String name, String value) {
-    params.put(name, value);
-  }
-  @Override
-  public String $(String key, String defaultValue) {
-    String value = params.get(key);
-    return value == null ? defaultValue : value;
-  }
-  public String url(String... parts) {
-    String result = "url://";
-    for (String string : parts) {
-      result += string +":";
-   }
-    return result;
-  }
+    public void addParameter(String name, String value) {
+        params.put(name, value);
+    }
+    @Override
+    public String $(String key, String defaultValue) {
+        String value = params.get(key);
+        return value == null ? defaultValue : value;
+    }
+    public String url(String... parts) {
+        String result = "url://";
+        for (String string : parts) {
+            result += string +":";
+        }
+        return result;
+    }
 }

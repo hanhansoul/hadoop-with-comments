@@ -28,18 +28,18 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.impl.pb.NodeHeartbeatRe
 import org.junit.Test;
 
 public class TestYSCRecordFactory {
-  
-  @Test
-  public void testPbRecordFactory() {
-    RecordFactory pbRecordFactory = RecordFactoryPBImpl.get();
-    try {
-      NodeHeartbeatRequest request = pbRecordFactory.newRecordInstance(NodeHeartbeatRequest.class);
-      Assert.assertEquals(NodeHeartbeatRequestPBImpl.class, request.getClass());
-    } catch (YarnRuntimeException e) {
-      e.printStackTrace();
-      Assert.fail("Failed to crete record");
+
+    @Test
+    public void testPbRecordFactory() {
+        RecordFactory pbRecordFactory = RecordFactoryPBImpl.get();
+        try {
+            NodeHeartbeatRequest request = pbRecordFactory.newRecordInstance(NodeHeartbeatRequest.class);
+            Assert.assertEquals(NodeHeartbeatRequestPBImpl.class, request.getClass());
+        } catch (YarnRuntimeException e) {
+            e.printStackTrace();
+            Assert.fail("Failed to crete record");
+        }
+
     }
-    
-  }
 
 }

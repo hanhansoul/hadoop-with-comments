@@ -38,29 +38,29 @@ import org.apache.hadoop.io.compress.SplittableCompressionCodec;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class KeyValueTextInputFormat extends FileInputFormat<Text, Text>
-  implements JobConfigurable {
+    implements JobConfigurable {
 
-  private CompressionCodecFactory compressionCodecs = null;
-  
-  public void configure(JobConf conf) {
-    compressionCodecs = new CompressionCodecFactory(conf);
-  }
-  
-  protected boolean isSplitable(FileSystem fs, Path file) {
-    final CompressionCodec codec = compressionCodecs.getCodec(file);
-    if (null == codec) {
-      return true;
+    private CompressionCodecFactory compressionCodecs = null;
+
+    public void configure(JobConf conf) {
+        compressionCodecs = new CompressionCodecFactory(conf);
     }
-    return codec instanceof SplittableCompressionCodec;
-  }
-  
-  public RecordReader<Text, Text> getRecordReader(InputSplit genericSplit,
-                                                  JobConf job,
-                                                  Reporter reporter)
+
+    protected boolean isSplitable(FileSystem fs, Path file) {
+        final CompressionCodec codec = compressionCodecs.getCodec(file);
+        if (null == codec) {
+            return true;
+        }
+        return codec instanceof SplittableCompressionCodec;
+    }
+
+    public RecordReader<Text, Text> getRecordReader(InputSplit genericSplit,
+            JobConf job,
+            Reporter reporter)
     throws IOException {
-    
-    reporter.setStatus(genericSplit.toString());
-    return new KeyValueLineRecordReader(job, (FileSplit) genericSplit);
-  }
+
+        reporter.setStatus(genericSplit.toString());
+        return new KeyValueLineRecordReader(job, (FileSplit) genericSplit);
+    }
 
 }

@@ -34,7 +34,7 @@ import com.google.common.collect.Lists;
  * using an ArrayList in that creating a large list will never require
  * a large amount of contiguous heap space -- thus reducing the likelihood
  * of triggering a CMS compaction pause due to heap fragmentation.
- * 
+ *
  * The first chunks allocated are small, but each additional chunk is
  * 50% larger than the previous, ramping up to a configurable maximum
  * chunk size. Reasonable defaults are provided which should be a good
@@ -47,125 +47,125 @@ import com.google.common.collect.Lists;
 @InterfaceAudience.Private
 public class ChunkedArrayList<T> extends AbstractList<T> {
 
-  /**
-   * The chunks which make up the full list.
-   */
-  private final List<List<T>> chunks = Lists.newArrayList();
-  
-  /**
-   * Cache of the last element in the 'chunks' array above.
-   * This speeds up the add operation measurably.
-   */
-  private List<T> lastChunk = null;
+    /**
+     * The chunks which make up the full list.
+     */
+    private final List<List<T>> chunks = Lists.newArrayList();
 
-  /**
-   * The capacity with which the last chunk was allocated.
-   */
-  private int lastChunkCapacity;
-  
-  /**
-   * The capacity of the first chunk to allocate in a cleared list.
-   */
-  private final int initialChunkCapacity;
-  
-  /**
-   * The maximum number of elements for any chunk.
-   */
-  private final int maxChunkSize;
+    /**
+     * Cache of the last element in the 'chunks' array above.
+     * This speeds up the add operation measurably.
+     */
+    private List<T> lastChunk = null;
 
-  /**
-   * Total number of elements in the list.
-   */
-  private int size;
-  
-  /**
-   * Default initial size is 6 elements, since typical minimum object
-   * size is 64 bytes, and this leaves enough space for the object
-   * header.
-   */
-  private static final int DEFAULT_INITIAL_CHUNK_CAPACITY = 6;
-  
-  /**
-   * Default max size is 8K elements - which, at 8 bytes per element
-   * should be about 64KB -- small enough to easily fit in contiguous
-   * free heap space even with a fair amount of fragmentation.
-   */
-  private static final int DEFAULT_MAX_CHUNK_SIZE = 8*1024;
-  
+    /**
+     * The capacity with which the last chunk was allocated.
+     */
+    private int lastChunkCapacity;
 
-  public ChunkedArrayList() {
-    this(DEFAULT_INITIAL_CHUNK_CAPACITY, DEFAULT_MAX_CHUNK_SIZE);
-  }
+    /**
+     * The capacity of the first chunk to allocate in a cleared list.
+     */
+    private final int initialChunkCapacity;
 
-  /**
-   * @param initialChunkCapacity the capacity of the first chunk to be
-   * allocated
-   * @param maxChunkSize the maximum size of any chunk allocated
-   */
-  public ChunkedArrayList(int initialChunkCapacity, int maxChunkSize) {
-    Preconditions.checkArgument(maxChunkSize >= initialChunkCapacity);
-    this.initialChunkCapacity = initialChunkCapacity;
-    this.maxChunkSize = maxChunkSize;
-  }
+    /**
+     * The maximum number of elements for any chunk.
+     */
+    private final int maxChunkSize;
 
-  @Override
-  public Iterator<T> iterator() {
-    return Iterables.concat(chunks).iterator();
-  }
+    /**
+     * Total number of elements in the list.
+     */
+    private int size;
 
-  @Override
-  public boolean add(T e) {
-    if (lastChunk == null) {
-      addChunk(initialChunkCapacity);
-    } else if (lastChunk.size() >= lastChunkCapacity) {
-      int newCapacity = lastChunkCapacity + (lastChunkCapacity >> 1);
-      addChunk(Math.min(newCapacity, maxChunkSize));
+    /**
+     * Default initial size is 6 elements, since typical minimum object
+     * size is 64 bytes, and this leaves enough space for the object
+     * header.
+     */
+    private static final int DEFAULT_INITIAL_CHUNK_CAPACITY = 6;
+
+    /**
+     * Default max size is 8K elements - which, at 8 bytes per element
+     * should be about 64KB -- small enough to easily fit in contiguous
+     * free heap space even with a fair amount of fragmentation.
+     */
+    private static final int DEFAULT_MAX_CHUNK_SIZE = 8*1024;
+
+
+    public ChunkedArrayList() {
+        this(DEFAULT_INITIAL_CHUNK_CAPACITY, DEFAULT_MAX_CHUNK_SIZE);
     }
-    size++;
-    return lastChunk.add(e);
-  }
 
-  @Override
-  public void clear() {
-    chunks.clear();
-    lastChunk = null;
-    lastChunkCapacity = 0;
-    size = 0;
-  }
-  
-  private void addChunk(int capacity) {
-    lastChunk = Lists.newArrayListWithCapacity(capacity);
-    chunks.add(lastChunk);
-    lastChunkCapacity = capacity;
-  }
-
-  @Override
-  public boolean isEmpty() {
-    return size == 0;
-  }
-
-  @Override
-  public int size() {
-    return size;
-  }
-  
-  @VisibleForTesting
-  int getNumChunks() {
-    return chunks.size();
-  }
-  
-  @VisibleForTesting
-  int getMaxChunkSize() {
-    int size = 0;
-    for (List<T> chunk : chunks) {
-      size = Math.max(size, chunk.size());
+    /**
+     * @param initialChunkCapacity the capacity of the first chunk to be
+     * allocated
+     * @param maxChunkSize the maximum size of any chunk allocated
+     */
+    public ChunkedArrayList(int initialChunkCapacity, int maxChunkSize) {
+        Preconditions.checkArgument(maxChunkSize >= initialChunkCapacity);
+        this.initialChunkCapacity = initialChunkCapacity;
+        this.maxChunkSize = maxChunkSize;
     }
-    return size;
-  }
 
-  @Override
-  public T get(int arg0) {
-    throw new UnsupportedOperationException(
-        this.getClass().getName() + " does not support random access");
-  }
+    @Override
+    public Iterator<T> iterator() {
+        return Iterables.concat(chunks).iterator();
+    }
+
+    @Override
+    public boolean add(T e) {
+        if (lastChunk == null) {
+            addChunk(initialChunkCapacity);
+        } else if (lastChunk.size() >= lastChunkCapacity) {
+            int newCapacity = lastChunkCapacity + (lastChunkCapacity >> 1);
+            addChunk(Math.min(newCapacity, maxChunkSize));
+        }
+        size++;
+        return lastChunk.add(e);
+    }
+
+    @Override
+    public void clear() {
+        chunks.clear();
+        lastChunk = null;
+        lastChunkCapacity = 0;
+        size = 0;
+    }
+
+    private void addChunk(int capacity) {
+        lastChunk = Lists.newArrayListWithCapacity(capacity);
+        chunks.add(lastChunk);
+        lastChunkCapacity = capacity;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    @Override
+    public int size() {
+        return size;
+    }
+
+    @VisibleForTesting
+    int getNumChunks() {
+        return chunks.size();
+    }
+
+    @VisibleForTesting
+    int getMaxChunkSize() {
+        int size = 0;
+        for (List<T> chunk : chunks) {
+            size = Math.max(size, chunk.size());
+        }
+        return size;
+    }
+
+    @Override
+    public T get(int arg0) {
+        throw new UnsupportedOperationException(
+            this.getClass().getName() + " does not support random access");
+    }
 }

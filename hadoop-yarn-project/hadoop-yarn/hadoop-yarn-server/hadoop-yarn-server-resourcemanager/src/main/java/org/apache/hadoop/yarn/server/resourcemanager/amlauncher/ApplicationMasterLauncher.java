@@ -32,93 +32,94 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttempt;
 
 public class ApplicationMasterLauncher extends AbstractService implements
     EventHandler<AMLauncherEvent> {
-  private static final Log LOG = LogFactory.getLog(
-      ApplicationMasterLauncher.class);
-  private final ThreadPoolExecutor launcherPool;
-  private LauncherThread launcherHandlingThread;
-  
-  private final BlockingQueue<Runnable> masterEvents
-    = new LinkedBlockingQueue<Runnable>();
-  
-  protected final RMContext context;
-  
-  public ApplicationMasterLauncher(RMContext context) {
-    super(ApplicationMasterLauncher.class.getName());
-    this.context = context;
-    this.launcherPool = new ThreadPoolExecutor(10, 10, 1, 
-        TimeUnit.HOURS, new LinkedBlockingQueue<Runnable>());
-    this.launcherHandlingThread = new LauncherThread();
-  }
-  
-  @Override
-  protected void serviceStart() throws Exception {
-    launcherHandlingThread.start();
-    super.serviceStart();
-  }
-  
-  protected Runnable createRunnableLauncher(RMAppAttempt application, 
-      AMLauncherEventType event) {
-    Runnable launcher =
-        new AMLauncher(context, application, event, getConfig());
-    return launcher;
-  }
-  
-  private void launch(RMAppAttempt application) {
-    Runnable launcher = createRunnableLauncher(application, 
-        AMLauncherEventType.LAUNCH);
-    masterEvents.add(launcher);
-  }
-  
+    private static final Log LOG = LogFactory.getLog(
+                                       ApplicationMasterLauncher.class);
+    private final ThreadPoolExecutor launcherPool;
+    private LauncherThread launcherHandlingThread;
 
-  @Override
-  protected void serviceStop() throws Exception {
-    launcherHandlingThread.interrupt();
-    try {
-      launcherHandlingThread.join();
-    } catch (InterruptedException ie) {
-      LOG.info(launcherHandlingThread.getName() + " interrupted during join ", 
-          ie);    }
-    launcherPool.shutdown();
-  }
+    private final BlockingQueue<Runnable> masterEvents
+        = new LinkedBlockingQueue<Runnable>();
 
-  private class LauncherThread extends Thread {
-    
-    public LauncherThread() {
-      super("ApplicationMaster Launcher");
+    protected final RMContext context;
+
+    public ApplicationMasterLauncher(RMContext context) {
+        super(ApplicationMasterLauncher.class.getName());
+        this.context = context;
+        this.launcherPool = new ThreadPoolExecutor(10, 10, 1,
+                TimeUnit.HOURS, new LinkedBlockingQueue<Runnable>());
+        this.launcherHandlingThread = new LauncherThread();
     }
 
     @Override
-    public void run() {
-      while (!this.isInterrupted()) {
-        Runnable toLaunch;
-        try {
-          toLaunch = masterEvents.take();
-          launcherPool.execute(toLaunch);
-        } catch (InterruptedException e) {
-          LOG.warn(this.getClass().getName() + " interrupted. Returning.");
-          return;
-        }
-      }
+    protected void serviceStart() throws Exception {
+        launcherHandlingThread.start();
+        super.serviceStart();
     }
-  }    
 
-  private void cleanup(RMAppAttempt application) {
-    Runnable launcher = createRunnableLauncher(application, AMLauncherEventType.CLEANUP);
-    masterEvents.add(launcher);
-  } 
-  
-  @Override
-  public synchronized void  handle(AMLauncherEvent appEvent) {
-    AMLauncherEventType event = appEvent.getType();
-    RMAppAttempt application = appEvent.getAppAttempt();
-    switch (event) {
-    case LAUNCH:
-      launch(application);
-      break;
-    case CLEANUP:
-      cleanup(application);
-    default:
-      break;
+    protected Runnable createRunnableLauncher(RMAppAttempt application,
+            AMLauncherEventType event) {
+        Runnable launcher =
+            new AMLauncher(context, application, event, getConfig());
+        return launcher;
     }
-  }
+
+    private void launch(RMAppAttempt application) {
+        Runnable launcher = createRunnableLauncher(application,
+                            AMLauncherEventType.LAUNCH);
+        masterEvents.add(launcher);
+    }
+
+
+    @Override
+    protected void serviceStop() throws Exception {
+        launcherHandlingThread.interrupt();
+        try {
+            launcherHandlingThread.join();
+        } catch (InterruptedException ie) {
+            LOG.info(launcherHandlingThread.getName() + " interrupted during join ",
+                     ie);
+        }
+        launcherPool.shutdown();
+    }
+
+    private class LauncherThread extends Thread {
+
+        public LauncherThread() {
+            super("ApplicationMaster Launcher");
+        }
+
+        @Override
+        public void run() {
+            while (!this.isInterrupted()) {
+                Runnable toLaunch;
+                try {
+                    toLaunch = masterEvents.take();
+                    launcherPool.execute(toLaunch);
+                } catch (InterruptedException e) {
+                    LOG.warn(this.getClass().getName() + " interrupted. Returning.");
+                    return;
+                }
+            }
+        }
+    }
+
+    private void cleanup(RMAppAttempt application) {
+        Runnable launcher = createRunnableLauncher(application, AMLauncherEventType.CLEANUP);
+        masterEvents.add(launcher);
+    }
+
+    @Override
+    public synchronized void  handle(AMLauncherEvent appEvent) {
+        AMLauncherEventType event = appEvent.getType();
+        RMAppAttempt application = appEvent.getAppAttempt();
+        switch (event) {
+            case LAUNCH:
+                launch(application);
+                break;
+            case CLEANUP:
+                cleanup(application);
+            default:
+                break;
+        }
+    }
 }

@@ -31,20 +31,20 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class GetDelegationTokenRequest {
 
-  @Public
-  @Stable
-  public static GetDelegationTokenRequest newInstance(String renewer) {
-    GetDelegationTokenRequest request =
-        Records.newRecord(GetDelegationTokenRequest.class);
-    request.setRenewer(renewer);
-    return request;
-  }
+    @Public
+    @Stable
+    public static GetDelegationTokenRequest newInstance(String renewer) {
+        GetDelegationTokenRequest request =
+            Records.newRecord(GetDelegationTokenRequest.class);
+        request.setRenewer(renewer);
+        return request;
+    }
 
-  @Public
-  @Stable
-  public abstract String getRenewer();
+    @Public
+    @Stable
+    public abstract String getRenewer();
 
-  @Public
-  @Stable
-  public abstract void setRenewer(String renewer);
+    @Public
+    @Stable
+    public abstract void setRenewer(String renewer);
 }

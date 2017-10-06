@@ -33,69 +33,69 @@ import org.junit.Test;
 
 public class TestHAAppend {
 
-  /**
-   * Test to verify the processing of PendingDataNodeMessageQueue in case of
-   * append. One block will marked as corrupt if the OP_ADD, OP_UPDATE_BLOCKS
-   * comes in one edit log segment and OP_CLOSE edit comes in next log segment
-   * which is loaded during failover. Regression test for HDFS-3605.
-   */
-  @Test
-  public void testMultipleAppendsDuringCatchupTailing() throws Exception {
-    Configuration conf = new Configuration();
-    
-    // Set a length edits tailing period, and explicit rolling, so we can
-    // control the ingest of edits by the standby for this test.
-    conf.set(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, "5000");
-    conf.setInt(DFSConfigKeys.DFS_HA_LOGROLL_PERIOD_KEY, -1);
+    /**
+     * Test to verify the processing of PendingDataNodeMessageQueue in case of
+     * append. One block will marked as corrupt if the OP_ADD, OP_UPDATE_BLOCKS
+     * comes in one edit log segment and OP_CLOSE edit comes in next log segment
+     * which is loaded during failover. Regression test for HDFS-3605.
+     */
+    @Test
+    public void testMultipleAppendsDuringCatchupTailing() throws Exception {
+        Configuration conf = new Configuration();
 
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+        // Set a length edits tailing period, and explicit rolling, so we can
+        // control the ingest of edits by the standby for this test.
+        conf.set(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, "5000");
+        conf.setInt(DFSConfigKeys.DFS_HA_LOGROLL_PERIOD_KEY, -1);
+
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
         .nnTopology(MiniDFSNNTopology.simpleHATopology())
         .numDataNodes(3).build();
-    FileSystem fs = null;
-    try {
-      cluster.transitionToActive(0);
-      fs = HATestUtil.configureFailoverFs(cluster, conf);
+        FileSystem fs = null;
+        try {
+            cluster.transitionToActive(0);
+            fs = HATestUtil.configureFailoverFs(cluster, conf);
 
-      Path fileToAppend = new Path("/FileToAppend");
+            Path fileToAppend = new Path("/FileToAppend");
 
-      // Create file, write some data, and hflush so that the first
-      // block is in the edit log prior to roll.
-      FSDataOutputStream out = fs.create(fileToAppend);
-      out.writeBytes("/data");
-      out.hflush();
-      
-      // Let the StandbyNode catch the creation of the file. 
-      cluster.getNameNode(0).getRpcServer().rollEditLog();
-      cluster.getNameNode(1).getNamesystem().getEditLogTailer().doTailEdits();
-      out.close();
+            // Create file, write some data, and hflush so that the first
+            // block is in the edit log prior to roll.
+            FSDataOutputStream out = fs.create(fileToAppend);
+            out.writeBytes("/data");
+            out.hflush();
 
-      // Append and re-close a few time, so that many block entries are queued.
-      for (int i = 0; i < 5; i++) {
-        DFSTestUtil.appendFile(fs, fileToAppend, "data");
-      }
+            // Let the StandbyNode catch the creation of the file.
+            cluster.getNameNode(0).getRpcServer().rollEditLog();
+            cluster.getNameNode(1).getNamesystem().getEditLogTailer().doTailEdits();
+            out.close();
 
-      // Ensure that blocks have been reported to the SBN ahead of the edits
-      // arriving.
-      cluster.triggerBlockReports();
+            // Append and re-close a few time, so that many block entries are queued.
+            for (int i = 0; i < 5; i++) {
+                DFSTestUtil.appendFile(fs, fileToAppend, "data");
+            }
 
-      // Failover the current standby to active.
-      cluster.shutdownNameNode(0);
-      cluster.transitionToActive(1);
-      
-      // Check the FSCK doesn't detect any bad blocks on the SBN.
-      int rc = ToolRunner.run(new DFSck(cluster.getConfiguration(1)),
-          new String[] { "/", "-files", "-blocks" });
-      assertEquals(0, rc);
-      
-      assertEquals("CorruptBlocks should be empty.", 0, cluster.getNameNode(1)
-          .getNamesystem().getCorruptReplicaBlocks());
-    } finally {
-      if (null != cluster) {
-        cluster.shutdown();
-      }
-      if (null != fs) {
-        fs.close();
-      }
+            // Ensure that blocks have been reported to the SBN ahead of the edits
+            // arriving.
+            cluster.triggerBlockReports();
+
+            // Failover the current standby to active.
+            cluster.shutdownNameNode(0);
+            cluster.transitionToActive(1);
+
+            // Check the FSCK doesn't detect any bad blocks on the SBN.
+            int rc = ToolRunner.run(new DFSck(cluster.getConfiguration(1)),
+                                    new String[] { "/", "-files", "-blocks" });
+            assertEquals(0, rc);
+
+            assertEquals("CorruptBlocks should be empty.", 0, cluster.getNameNode(1)
+                         .getNamesystem().getCorruptReplicaBlocks());
+        } finally {
+            if (null != cluster) {
+                cluster.shutdown();
+            }
+            if (null != fs) {
+                fs.close();
+            }
+        }
     }
-  }
 }

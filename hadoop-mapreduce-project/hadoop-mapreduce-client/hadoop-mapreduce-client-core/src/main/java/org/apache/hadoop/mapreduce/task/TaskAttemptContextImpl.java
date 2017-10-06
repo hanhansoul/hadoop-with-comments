@@ -33,89 +33,89 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
  */
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
-public class TaskAttemptContextImpl extends JobContextImpl 
+public class TaskAttemptContextImpl extends JobContextImpl
     implements TaskAttemptContext {
-  private final TaskAttemptID taskId;
-  private String status = "";
-  private StatusReporter reporter;
+    private final TaskAttemptID taskId;
+    private String status = "";
+    private StatusReporter reporter;
 
-  public TaskAttemptContextImpl(Configuration conf, 
-                                TaskAttemptID taskId) {
-    this(conf, taskId, new DummyReporter());
-  }
-
-  public TaskAttemptContextImpl(Configuration conf, 
-      TaskAttemptID taskId, StatusReporter reporter) {
-    super(conf, taskId.getJobID());
-    this.taskId = taskId;
-    this.reporter = reporter;
-  }
-
-  /**
-   * Get the unique name for this task attempt.
-   */
-  public TaskAttemptID getTaskAttemptID() {
-    return taskId;
-  }
-
-  /**
-   * Get the last set status message.
-   * @return the current status message
-   */
-  public String getStatus() {
-    return status;
-  }
-
-  @Override
-  public Counter getCounter(Enum<?> counterName) {
-    return reporter.getCounter(counterName);
-  }
-
-  @Override
-  public Counter getCounter(String groupName, String counterName) {
-    return reporter.getCounter(groupName, counterName);
-  }
-
-  /**
-   * Report progress.
-   */
-  @Override
-  public void progress() {
-    reporter.progress();
-  }
-
-  protected void setStatusString(String status) {
-    this.status = status;
-  }
-
-  /**
-   * Set the current status of the task to the given string.
-   */
-  @Override
-  public void setStatus(String status) {
-    String normalizedStatus = Task.normalizeStatus(status, conf);
-    setStatusString(normalizedStatus);
-    reporter.setStatus(normalizedStatus);
-  }
-
-  public static class DummyReporter extends StatusReporter {
-    public void setStatus(String s) {
+    public TaskAttemptContextImpl(Configuration conf,
+                                  TaskAttemptID taskId) {
+        this(conf, taskId, new DummyReporter());
     }
+
+    public TaskAttemptContextImpl(Configuration conf,
+                                  TaskAttemptID taskId, StatusReporter reporter) {
+        super(conf, taskId.getJobID());
+        this.taskId = taskId;
+        this.reporter = reporter;
+    }
+
+    /**
+     * Get the unique name for this task attempt.
+     */
+    public TaskAttemptID getTaskAttemptID() {
+        return taskId;
+    }
+
+    /**
+     * Get the last set status message.
+     * @return the current status message
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    @Override
+    public Counter getCounter(Enum<?> counterName) {
+        return reporter.getCounter(counterName);
+    }
+
+    @Override
+    public Counter getCounter(String groupName, String counterName) {
+        return reporter.getCounter(groupName, counterName);
+    }
+
+    /**
+     * Report progress.
+     */
+    @Override
     public void progress() {
+        reporter.progress();
     }
-    public Counter getCounter(Enum<?> name) {
-      return new Counters().findCounter(name);
+
+    protected void setStatusString(String status) {
+        this.status = status;
     }
-    public Counter getCounter(String group, String name) {
-      return new Counters().findCounter(group, name);
+
+    /**
+     * Set the current status of the task to the given string.
+     */
+    @Override
+    public void setStatus(String status) {
+        String normalizedStatus = Task.normalizeStatus(status, conf);
+        setStatusString(normalizedStatus);
+        reporter.setStatus(normalizedStatus);
     }
+
+    public static class DummyReporter extends StatusReporter {
+        public void setStatus(String s) {
+        }
+        public void progress() {
+        }
+        public Counter getCounter(Enum<?> name) {
+            return new Counters().findCounter(name);
+        }
+        public Counter getCounter(String group, String name) {
+            return new Counters().findCounter(group, name);
+        }
+        public float getProgress() {
+            return 0f;
+        }
+    }
+
+    @Override
     public float getProgress() {
-      return 0f;
+        return reporter.getProgress();
     }
-  }
-  
-  @Override
-  public float getProgress() {
-    return reporter.getProgress();
-  }
 }

@@ -110,64 +110,64 @@ import org.apache.hadoop.io.compress.SplitCompressionInputStream;
 @InterfaceStability.Unstable
 public class CompressedSplitLineReader extends SplitLineReader {
 
-  SplitCompressionInputStream scin;
-  private boolean usingCRLF;
-  private boolean needAdditionalRecord = false;
-  private boolean finished = false;
+    SplitCompressionInputStream scin;
+    private boolean usingCRLF;
+    private boolean needAdditionalRecord = false;
+    private boolean finished = false;
 
-  public CompressedSplitLineReader(SplitCompressionInputStream in,
-                                   Configuration conf,
-                                   byte[] recordDelimiterBytes)
-                                       throws IOException {
-    super(in, conf, recordDelimiterBytes);
-    scin = in;
-    usingCRLF = (recordDelimiterBytes == null);
-  }
-
-  @Override
-  protected int fillBuffer(InputStream in, byte[] buffer, boolean inDelimiter)
-      throws IOException {
-    int bytesRead = in.read(buffer);
-
-    // If the split ended in the middle of a record delimiter then we need
-    // to read one additional record, as the consumer of the next split will
-    // not recognize the partial delimiter as a record.
-    // However if using the default delimiter and the next character is a
-    // linefeed then next split will treat it as a delimiter all by itself
-    // and the additional record read should not be performed.
-    if (inDelimiter && bytesRead > 0) {
-      if (usingCRLF) {
-        needAdditionalRecord = (buffer[0] != '\n');
-      } else {
-        needAdditionalRecord = true;
-      }
+    public CompressedSplitLineReader(SplitCompressionInputStream in,
+                                     Configuration conf,
+                                     byte[] recordDelimiterBytes)
+    throws IOException {
+        super(in, conf, recordDelimiterBytes);
+        scin = in;
+        usingCRLF = (recordDelimiterBytes == null);
     }
-    return bytesRead;
-  }
 
-  @Override
-  public int readLine(Text str, int maxLineLength, int maxBytesToConsume)
-      throws IOException {
-    int bytesRead = 0;
-    if (!finished) {
-      // only allow at most one more record to be read after the stream
-      // reports the split ended
-      if (scin.getPos() > scin.getAdjustedEnd()) {
-        finished = true;
-      }
+    @Override
+    protected int fillBuffer(InputStream in, byte[] buffer, boolean inDelimiter)
+    throws IOException {
+        int bytesRead = in.read(buffer);
 
-      bytesRead = super.readLine(str, maxLineLength, maxBytesToConsume);
+        // If the split ended in the middle of a record delimiter then we need
+        // to read one additional record, as the consumer of the next split will
+        // not recognize the partial delimiter as a record.
+        // However if using the default delimiter and the next character is a
+        // linefeed then next split will treat it as a delimiter all by itself
+        // and the additional record read should not be performed.
+        if (inDelimiter && bytesRead > 0) {
+            if (usingCRLF) {
+                needAdditionalRecord = (buffer[0] != '\n');
+            } else {
+                needAdditionalRecord = true;
+            }
+        }
+        return bytesRead;
     }
-    return bytesRead;
-  }
 
-  @Override
-  public boolean needAdditionalRecordAfterSplit() {
-    return !finished && needAdditionalRecord;
-  }
+    @Override
+    public int readLine(Text str, int maxLineLength, int maxBytesToConsume)
+    throws IOException {
+        int bytesRead = 0;
+        if (!finished) {
+            // only allow at most one more record to be read after the stream
+            // reports the split ended
+            if (scin.getPos() > scin.getAdjustedEnd()) {
+                finished = true;
+            }
 
-  @Override
-  protected void unsetNeedAdditionalRecordAfterSplit() {
-    needAdditionalRecord = false;
-  }
+            bytesRead = super.readLine(str, maxLineLength, maxBytesToConsume);
+        }
+        return bytesRead;
+    }
+
+    @Override
+    public boolean needAdditionalRecordAfterSplit() {
+        return !finished && needAdditionalRecord;
+    }
+
+    @Override
+    protected void unsetNeedAdditionalRecordAfterSplit() {
+        needAdditionalRecord = false;
+    }
 }

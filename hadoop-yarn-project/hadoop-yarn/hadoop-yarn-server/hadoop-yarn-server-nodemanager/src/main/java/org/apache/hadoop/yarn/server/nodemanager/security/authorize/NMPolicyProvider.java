@@ -31,19 +31,19 @@ import org.apache.hadoop.yarn.server.nodemanager.api.LocalizationProtocolPB;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class NMPolicyProvider extends PolicyProvider {
-  
-  private static final Service[] nodeManagerServices = 
-      new Service[] {
-    new Service(
-        YarnConfiguration.YARN_SECURITY_SERVICE_AUTHORIZATION_CONTAINER_MANAGEMENT_PROTOCOL, 
-        ContainerManagementProtocolPB.class),
-    new Service(YarnConfiguration.YARN_SECURITY_SERVICE_AUTHORIZATION_RESOURCE_LOCALIZER, 
-        LocalizationProtocolPB.class)
-  };
 
-  @Override
-  public Service[] getServices() {
-    return nodeManagerServices;
-  }
+    private static final Service[] nodeManagerServices =
+        new Service[] {
+        new Service(
+            YarnConfiguration.YARN_SECURITY_SERVICE_AUTHORIZATION_CONTAINER_MANAGEMENT_PROTOCOL,
+            ContainerManagementProtocolPB.class),
+        new Service(YarnConfiguration.YARN_SECURITY_SERVICE_AUTHORIZATION_RESOURCE_LOCALIZER,
+                    LocalizationProtocolPB.class)
+    };
+
+    @Override
+    public Service[] getServices() {
+        return nodeManagerServices;
+    }
 
 }

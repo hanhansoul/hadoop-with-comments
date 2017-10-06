@@ -29,27 +29,27 @@ import org.apache.http.client.methods.HttpPut;
 @Unstable
 @Private
 public enum TimelineDelegationTokenOperation {
-  // TODO: need think about which ops can be done without kerberos
-  // credentials, for safety, we enforces all need kerberos credentials now.
-  GETDELEGATIONTOKEN(HttpGet.METHOD_NAME, true),
-  RENEWDELEGATIONTOKEN(HttpPut.METHOD_NAME, true),
-  CANCELDELEGATIONTOKEN(HttpPut.METHOD_NAME, true);
+    // TODO: need think about which ops can be done without kerberos
+    // credentials, for safety, we enforces all need kerberos credentials now.
+    GETDELEGATIONTOKEN(HttpGet.METHOD_NAME, true),
+    RENEWDELEGATIONTOKEN(HttpPut.METHOD_NAME, true),
+    CANCELDELEGATIONTOKEN(HttpPut.METHOD_NAME, true);
 
-  private String httpMethod;
-  private boolean requiresKerberosCredentials;
+    private String httpMethod;
+    private boolean requiresKerberosCredentials;
 
-  private TimelineDelegationTokenOperation(String httpMethod,
-      boolean requiresKerberosCredentials) {
-    this.httpMethod = httpMethod;
-    this.requiresKerberosCredentials = requiresKerberosCredentials;
-  }
+    private TimelineDelegationTokenOperation(String httpMethod,
+            boolean requiresKerberosCredentials) {
+        this.httpMethod = httpMethod;
+        this.requiresKerberosCredentials = requiresKerberosCredentials;
+    }
 
-  public String getHttpMethod() {
-    return httpMethod;
-  }
+    public String getHttpMethod() {
+        return httpMethod;
+    }
 
-  public boolean requiresKerberosCredentials() {
-    return requiresKerberosCredentials;
-  }
+    public boolean requiresKerberosCredentials() {
+        return requiresKerberosCredentials;
+    }
 
 }

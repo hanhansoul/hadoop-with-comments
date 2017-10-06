@@ -27,10 +27,16 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class DepthCounter {
-  private int depth = 0;
+    private int depth = 0;
 
-  public void incLevel() { depth++; }
-  public void decLevel() { if(depth >= 1) depth--; }
-  public int  getLevel() { return depth; }
+    public void incLevel() {
+        depth++;
+    }
+    public void decLevel() {
+        if(depth >= 1) depth--;
+    }
+    public int  getLevel() {
+        return depth;
+    }
 }
 

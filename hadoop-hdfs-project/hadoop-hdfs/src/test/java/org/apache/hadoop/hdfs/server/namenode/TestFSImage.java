@@ -49,186 +49,186 @@ import org.junit.Test;
 
 public class TestFSImage {
 
-  private static final String HADOOP_2_6_ZER0_BLOCK_SIZE_TGZ =
-      "image-with-zero-block-size.tar.gz";
-  @Test
-  public void testPersist() throws IOException {
-    Configuration conf = new Configuration();
-    testPersistHelper(conf);
-  }
-
-  @Test
-  public void testCompression() throws IOException {
-    Configuration conf = new Configuration();
-    conf.setBoolean(DFSConfigKeys.DFS_IMAGE_COMPRESS_KEY, true);
-    conf.set(DFSConfigKeys.DFS_IMAGE_COMPRESSION_CODEC_KEY,
-        "org.apache.hadoop.io.compress.GzipCodec");
-    testPersistHelper(conf);
-  }
-
-  private void testPersistHelper(Configuration conf) throws IOException {
-    MiniDFSCluster cluster = null;
-    try {
-      cluster = new MiniDFSCluster.Builder(conf).build();
-      cluster.waitActive();
-      FSNamesystem fsn = cluster.getNamesystem();
-      DistributedFileSystem fs = cluster.getFileSystem();
-
-      final Path dir = new Path("/abc/def");
-      final Path file1 = new Path(dir, "f1");
-      final Path file2 = new Path(dir, "f2");
-
-      // create an empty file f1
-      fs.create(file1).close();
-
-      // create an under-construction file f2
-      FSDataOutputStream out = fs.create(file2);
-      out.writeBytes("hello");
-      ((DFSOutputStream) out.getWrappedStream()).hsync(EnumSet
-          .of(SyncFlag.UPDATE_LENGTH));
-
-      // checkpoint
-      fs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
-      fs.saveNamespace();
-      fs.setSafeMode(SafeModeAction.SAFEMODE_LEAVE);
-
-      cluster.restartNameNode();
-      cluster.waitActive();
-      fs = cluster.getFileSystem();
-
-      assertTrue(fs.isDirectory(dir));
-      assertTrue(fs.exists(file1));
-      assertTrue(fs.exists(file2));
-
-      // check internals of file2
-      INodeFile file2Node = fsn.dir.getINode4Write(file2.toString()).asFile();
-      assertEquals("hello".length(), file2Node.computeFileSize());
-      assertTrue(file2Node.isUnderConstruction());
-      BlockInfo[] blks = file2Node.getBlocks();
-      assertEquals(1, blks.length);
-      assertEquals(BlockUCState.UNDER_CONSTRUCTION, blks[0].getBlockUCState());
-      // check lease manager
-      Lease lease = fsn.leaseManager.getLeaseByPath(file2.toString());
-      Assert.assertNotNull(lease);
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+    private static final String HADOOP_2_6_ZER0_BLOCK_SIZE_TGZ =
+        "image-with-zero-block-size.tar.gz";
+    @Test
+    public void testPersist() throws IOException {
+        Configuration conf = new Configuration();
+        testPersistHelper(conf);
     }
-  }
 
-  /**
-   * Ensure that the digest written by the saver equals to the digest of the
-   * file.
-   */
-  @Test
-  public void testDigest() throws IOException {
-    Configuration conf = new Configuration();
-    MiniDFSCluster cluster = null;
-    try {
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
-      DistributedFileSystem fs = cluster.getFileSystem();
-      fs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
-      fs.saveNamespace();
-      fs.setSafeMode(SafeModeAction.SAFEMODE_LEAVE);
-      File currentDir = FSImageTestUtil.getNameNodeCurrentDirs(cluster, 0).get(
-          0);
-      File fsimage = FSImageTestUtil.findNewestImageFile(currentDir
-          .getAbsolutePath());
-      assertEquals(MD5FileUtils.readStoredMd5ForFile(fsimage),
-          MD5FileUtils.computeMd5ForFile(fsimage));
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+    @Test
+    public void testCompression() throws IOException {
+        Configuration conf = new Configuration();
+        conf.setBoolean(DFSConfigKeys.DFS_IMAGE_COMPRESS_KEY, true);
+        conf.set(DFSConfigKeys.DFS_IMAGE_COMPRESSION_CODEC_KEY,
+                 "org.apache.hadoop.io.compress.GzipCodec");
+        testPersistHelper(conf);
     }
-  }
 
-  /**
-   * Ensure mtime and atime can be loaded from fsimage.
-   */
-  @Test(timeout=60000)
-  public void testLoadMtimeAtime() throws Exception {
-    Configuration conf = new Configuration();
-    MiniDFSCluster cluster = null;
-    try {
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-      cluster.waitActive();
-      DistributedFileSystem hdfs = cluster.getFileSystem();
-      String userDir = hdfs.getHomeDirectory().toUri().getPath().toString();
-      Path file = new Path(userDir, "file");
-      Path dir = new Path(userDir, "/dir");
-      Path link = new Path(userDir, "/link");
-      hdfs.createNewFile(file);
-      hdfs.mkdirs(dir);
-      hdfs.createSymlink(file, link, false);
+    private void testPersistHelper(Configuration conf) throws IOException {
+        MiniDFSCluster cluster = null;
+        try {
+            cluster = new MiniDFSCluster.Builder(conf).build();
+            cluster.waitActive();
+            FSNamesystem fsn = cluster.getNamesystem();
+            DistributedFileSystem fs = cluster.getFileSystem();
 
-      long mtimeFile = hdfs.getFileStatus(file).getModificationTime();
-      long atimeFile = hdfs.getFileStatus(file).getAccessTime();
-      long mtimeDir = hdfs.getFileStatus(dir).getModificationTime();
-      long mtimeLink = hdfs.getFileLinkStatus(link).getModificationTime();
-      long atimeLink = hdfs.getFileLinkStatus(link).getAccessTime();
+            final Path dir = new Path("/abc/def");
+            final Path file1 = new Path(dir, "f1");
+            final Path file2 = new Path(dir, "f2");
 
-      // save namespace and restart cluster
-      hdfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
-      hdfs.saveNamespace();
-      hdfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
-      cluster.shutdown();
-      cluster = new MiniDFSCluster.Builder(conf).format(false)
-          .numDataNodes(1).build();
-      cluster.waitActive();
-      hdfs = cluster.getFileSystem();
-      
-      assertEquals(mtimeFile, hdfs.getFileStatus(file).getModificationTime());
-      assertEquals(atimeFile, hdfs.getFileStatus(file).getAccessTime());
-      assertEquals(mtimeDir, hdfs.getFileStatus(dir).getModificationTime());
-      assertEquals(mtimeLink, hdfs.getFileLinkStatus(link).getModificationTime());
-      assertEquals(atimeLink, hdfs.getFileLinkStatus(link).getAccessTime());
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+            // create an empty file f1
+            fs.create(file1).close();
+
+            // create an under-construction file f2
+            FSDataOutputStream out = fs.create(file2);
+            out.writeBytes("hello");
+            ((DFSOutputStream) out.getWrappedStream()).hsync(EnumSet
+                    .of(SyncFlag.UPDATE_LENGTH));
+
+            // checkpoint
+            fs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
+            fs.saveNamespace();
+            fs.setSafeMode(SafeModeAction.SAFEMODE_LEAVE);
+
+            cluster.restartNameNode();
+            cluster.waitActive();
+            fs = cluster.getFileSystem();
+
+            assertTrue(fs.isDirectory(dir));
+            assertTrue(fs.exists(file1));
+            assertTrue(fs.exists(file2));
+
+            // check internals of file2
+            INodeFile file2Node = fsn.dir.getINode4Write(file2.toString()).asFile();
+            assertEquals("hello".length(), file2Node.computeFileSize());
+            assertTrue(file2Node.isUnderConstruction());
+            BlockInfo[] blks = file2Node.getBlocks();
+            assertEquals(1, blks.length);
+            assertEquals(BlockUCState.UNDER_CONSTRUCTION, blks[0].getBlockUCState());
+            // check lease manager
+            Lease lease = fsn.leaseManager.getLeaseByPath(file2.toString());
+            Assert.assertNotNull(lease);
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
     }
-  }
-  
-  /**
-   * In this test case, I have created an image with a file having
-   * preferredblockSize = 0. We are trying to read this image (since file with
-   * preferredblockSize = 0 was allowed pre 2.1.0-beta version. The namenode 
-   * after 2.6 version will not be able to read this particular file.
-   * See HDFS-7788 for more information.
-   * @throws Exception
-   */
-  @Test
-  public void testZeroBlockSize() throws Exception {
-    final Configuration conf = new HdfsConfiguration();
-    String tarFile = System.getProperty("test.cache.data", "build/test/cache")
-      + "/" + HADOOP_2_6_ZER0_BLOCK_SIZE_TGZ;
-    String testDir = PathUtils.getTestDirName(getClass());
-    File dfsDir = new File(testDir, "image-with-zero-block-size");
-    if (dfsDir.exists() && !FileUtil.fullyDelete(dfsDir)) {
-      throw new IOException("Could not delete dfs directory '" + dfsDir + "'");
+
+    /**
+     * Ensure that the digest written by the saver equals to the digest of the
+     * file.
+     */
+    @Test
+    public void testDigest() throws IOException {
+        Configuration conf = new Configuration();
+        MiniDFSCluster cluster = null;
+        try {
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
+            DistributedFileSystem fs = cluster.getFileSystem();
+            fs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
+            fs.saveNamespace();
+            fs.setSafeMode(SafeModeAction.SAFEMODE_LEAVE);
+            File currentDir = FSImageTestUtil.getNameNodeCurrentDirs(cluster, 0).get(
+                                  0);
+            File fsimage = FSImageTestUtil.findNewestImageFile(currentDir
+                           .getAbsolutePath());
+            assertEquals(MD5FileUtils.readStoredMd5ForFile(fsimage),
+                         MD5FileUtils.computeMd5ForFile(fsimage));
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
     }
-    FileUtil.unTar(new File(tarFile), new File(testDir));
-    File nameDir = new File(dfsDir, "name");
-    GenericTestUtils.assertExists(nameDir);
-    conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY, 
-        nameDir.getAbsolutePath());
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1)
+
+    /**
+     * Ensure mtime and atime can be loaded from fsimage.
+     */
+    @Test(timeout=60000)
+    public void testLoadMtimeAtime() throws Exception {
+        Configuration conf = new Configuration();
+        MiniDFSCluster cluster = null;
+        try {
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+            cluster.waitActive();
+            DistributedFileSystem hdfs = cluster.getFileSystem();
+            String userDir = hdfs.getHomeDirectory().toUri().getPath().toString();
+            Path file = new Path(userDir, "file");
+            Path dir = new Path(userDir, "/dir");
+            Path link = new Path(userDir, "/link");
+            hdfs.createNewFile(file);
+            hdfs.mkdirs(dir);
+            hdfs.createSymlink(file, link, false);
+
+            long mtimeFile = hdfs.getFileStatus(file).getModificationTime();
+            long atimeFile = hdfs.getFileStatus(file).getAccessTime();
+            long mtimeDir = hdfs.getFileStatus(dir).getModificationTime();
+            long mtimeLink = hdfs.getFileLinkStatus(link).getModificationTime();
+            long atimeLink = hdfs.getFileLinkStatus(link).getAccessTime();
+
+            // save namespace and restart cluster
+            hdfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
+            hdfs.saveNamespace();
+            hdfs.setSafeMode(HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
+            cluster.shutdown();
+            cluster = new MiniDFSCluster.Builder(conf).format(false)
+            .numDataNodes(1).build();
+            cluster.waitActive();
+            hdfs = cluster.getFileSystem();
+
+            assertEquals(mtimeFile, hdfs.getFileStatus(file).getModificationTime());
+            assertEquals(atimeFile, hdfs.getFileStatus(file).getAccessTime());
+            assertEquals(mtimeDir, hdfs.getFileStatus(dir).getModificationTime());
+            assertEquals(mtimeLink, hdfs.getFileLinkStatus(link).getModificationTime());
+            assertEquals(atimeLink, hdfs.getFileLinkStatus(link).getAccessTime());
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
+    }
+
+    /**
+     * In this test case, I have created an image with a file having
+     * preferredblockSize = 0. We are trying to read this image (since file with
+     * preferredblockSize = 0 was allowed pre 2.1.0-beta version. The namenode
+     * after 2.6 version will not be able to read this particular file.
+     * See HDFS-7788 for more information.
+     * @throws Exception
+     */
+    @Test
+    public void testZeroBlockSize() throws Exception {
+        final Configuration conf = new HdfsConfiguration();
+        String tarFile = System.getProperty("test.cache.data", "build/test/cache")
+                         + "/" + HADOOP_2_6_ZER0_BLOCK_SIZE_TGZ;
+        String testDir = PathUtils.getTestDirName(getClass());
+        File dfsDir = new File(testDir, "image-with-zero-block-size");
+        if (dfsDir.exists() && !FileUtil.fullyDelete(dfsDir)) {
+            throw new IOException("Could not delete dfs directory '" + dfsDir + "'");
+        }
+        FileUtil.unTar(new File(tarFile), new File(testDir));
+        File nameDir = new File(dfsDir, "name");
+        GenericTestUtils.assertExists(nameDir);
+        conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
+                 nameDir.getAbsolutePath());
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1)
         .format(false)
         .manageDataDfsDirs(false)
         .manageNameDfsDirs(false)
         .waitSafeMode(false)
         .build();
-    try {
-      FileSystem fs = cluster.getFileSystem();
-      Path testPath = new Path("/tmp/zeroBlockFile");
-      assertTrue("File /tmp/zeroBlockFile doesn't exist ", fs.exists(testPath));
-      assertTrue("Name node didn't come up", cluster.isNameNodeUp(0));
-    } finally {
-      cluster.shutdown();
-      //Clean up
-      FileUtil.fullyDelete(dfsDir);
+        try {
+            FileSystem fs = cluster.getFileSystem();
+            Path testPath = new Path("/tmp/zeroBlockFile");
+            assertTrue("File /tmp/zeroBlockFile doesn't exist ", fs.exists(testPath));
+            assertTrue("Name node didn't come up", cluster.isNameNodeUp(0));
+        } finally {
+            cluster.shutdown();
+            //Clean up
+            FileUtil.fullyDelete(dfsDir);
+        }
     }
-  }
 }

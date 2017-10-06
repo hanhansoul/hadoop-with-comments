@@ -48,400 +48,400 @@ import org.apache.hadoop.yarn.util.SystemClock;
 
 public class CgroupsLCEResourcesHandler implements LCEResourcesHandler {
 
-  final static Log LOG = LogFactory
-      .getLog(CgroupsLCEResourcesHandler.class);
+    final static Log LOG = LogFactory
+                           .getLog(CgroupsLCEResourcesHandler.class);
 
-  private Configuration conf;
-  private String cgroupPrefix;
-  private boolean cgroupMount;
-  private String cgroupMountPath;
+    private Configuration conf;
+    private String cgroupPrefix;
+    private boolean cgroupMount;
+    private String cgroupMountPath;
 
-  private boolean cpuWeightEnabled = true;
-  private boolean strictResourceUsageMode = false;
+    private boolean cpuWeightEnabled = true;
+    private boolean strictResourceUsageMode = false;
 
-  private final String MTAB_FILE = "/proc/mounts";
-  private final String CGROUPS_FSTYPE = "cgroup";
-  private final String CONTROLLER_CPU = "cpu";
-  private final String CPU_PERIOD_US = "cfs_period_us";
-  private final String CPU_QUOTA_US = "cfs_quota_us";
-  private final int CPU_DEFAULT_WEIGHT = 1024; // set by kernel
-  private final int MAX_QUOTA_US = 1000 * 1000;
-  private final int MIN_PERIOD_US = 1000;
-  private final Map<String, String> controllerPaths; // Controller -> path
+    private final String MTAB_FILE = "/proc/mounts";
+    private final String CGROUPS_FSTYPE = "cgroup";
+    private final String CONTROLLER_CPU = "cpu";
+    private final String CPU_PERIOD_US = "cfs_period_us";
+    private final String CPU_QUOTA_US = "cfs_quota_us";
+    private final int CPU_DEFAULT_WEIGHT = 1024; // set by kernel
+    private final int MAX_QUOTA_US = 1000 * 1000;
+    private final int MIN_PERIOD_US = 1000;
+    private final Map<String, String> controllerPaths; // Controller -> path
 
-  private long deleteCgroupTimeout;
-  // package private for testing purposes
-  Clock clock;
+    private long deleteCgroupTimeout;
+    // package private for testing purposes
+    Clock clock;
 
-  private float yarnProcessors;
-  
-  public CgroupsLCEResourcesHandler() {
-    this.controllerPaths = new HashMap<String, String>();
-    clock = new SystemClock();
-  }
+    private float yarnProcessors;
 
-  @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
-
-  @VisibleForTesting
-  void initConfig() throws IOException {
-
-    this.cgroupPrefix = conf.get(YarnConfiguration.
-            NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
-    this.cgroupMount = conf.getBoolean(YarnConfiguration.
-            NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
-    this.cgroupMountPath = conf.get(YarnConfiguration.
-            NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
-
-    this.deleteCgroupTimeout = conf.getLong(
-        YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_DELETE_TIMEOUT,
-        YarnConfiguration.DEFAULT_NM_LINUX_CONTAINER_CGROUPS_DELETE_TIMEOUT);
-    // remove extra /'s at end or start of cgroupPrefix
-    if (cgroupPrefix.charAt(0) == '/') {
-      cgroupPrefix = cgroupPrefix.substring(1);
+    public CgroupsLCEResourcesHandler() {
+        this.controllerPaths = new HashMap<String, String>();
+        clock = new SystemClock();
     }
 
-    this.strictResourceUsageMode =
-        conf
-          .getBoolean(
-            YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_STRICT_RESOURCE_USAGE,
-            YarnConfiguration.DEFAULT_NM_LINUX_CONTAINER_CGROUPS_STRICT_RESOURCE_USAGE);
-
-    int len = cgroupPrefix.length();
-    if (cgroupPrefix.charAt(len - 1) == '/') {
-      cgroupPrefix = cgroupPrefix.substring(0, len - 1);
-    }
-  }
-  
-  public void init(LinuxContainerExecutor lce) throws IOException {
-    this.init(lce,
-        ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, conf));
-  }
-
-  @VisibleForTesting
-  void init(LinuxContainerExecutor lce, ResourceCalculatorPlugin plugin)
-      throws IOException {
-    initConfig();
-
-    // mount cgroups if requested
-    if (cgroupMount && cgroupMountPath != null) {
-      ArrayList<String> cgroupKVs = new ArrayList<String>();
-      cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" +
-                    CONTROLLER_CPU);
-      lce.mountCgroups(cgroupKVs, cgroupPrefix);
+    @Override
+    public void setConf(Configuration conf) {
+        this.conf = conf;
     }
 
-    initializeControllerPaths();
-
-    // cap overall usage to the number of cores allocated to YARN
-    yarnProcessors = NodeManagerHardwareUtils.getContainersCores(plugin, conf);
-    int systemProcessors = plugin.getNumProcessors();
-    if (systemProcessors != (int) yarnProcessors) {
-      LOG.info("YARN containers restricted to " + yarnProcessors + " cores");
-      int[] limits = getOverallLimits(yarnProcessors);
-      updateCgroup(CONTROLLER_CPU, "", CPU_PERIOD_US, String.valueOf(limits[0]));
-      updateCgroup(CONTROLLER_CPU, "", CPU_QUOTA_US, String.valueOf(limits[1]));
-    } else if (cpuLimitsExist()) {
-      LOG.info("Removing CPU constraints for YARN containers.");
-      updateCgroup(CONTROLLER_CPU, "", CPU_QUOTA_US, String.valueOf(-1));
-    }
-  }
-
-  boolean cpuLimitsExist() throws IOException {
-    String path = pathForCgroup(CONTROLLER_CPU, "");
-    File quotaFile = new File(path, CONTROLLER_CPU + "." + CPU_QUOTA_US);
-    if (quotaFile.exists()) {
-      String contents = FileUtils.readFileToString(quotaFile, "UTF-8");
-      int quotaUS = Integer.parseInt(contents.trim());
-      if (quotaUS != -1) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @VisibleForTesting
-  int[] getOverallLimits(float yarnProcessors) {
-
-    int[] ret = new int[2];
-
-    if (yarnProcessors < 0.01f) {
-      throw new IllegalArgumentException("Number of processors can't be <= 0.");
+    @Override
+    public Configuration getConf() {
+        return conf;
     }
 
-    int quotaUS = MAX_QUOTA_US;
-    int periodUS = (int) (MAX_QUOTA_US / yarnProcessors);
-    if (yarnProcessors < 1.0f) {
-      periodUS = MAX_QUOTA_US;
-      quotaUS = (int) (periodUS * yarnProcessors);
-      if (quotaUS < MIN_PERIOD_US) {
-        LOG
-          .warn("The quota calculated for the cgroup was too low. The minimum value is "
-              + MIN_PERIOD_US + ", calculated value is " + quotaUS
-              + ". Setting quota to minimum value.");
-        quotaUS = MIN_PERIOD_US;
-      }
+    @VisibleForTesting
+    void initConfig() throws IOException {
+
+        this.cgroupPrefix = conf.get(YarnConfiguration.
+                                     NM_LINUX_CONTAINER_CGROUPS_HIERARCHY, "/hadoop-yarn");
+        this.cgroupMount = conf.getBoolean(YarnConfiguration.
+                                           NM_LINUX_CONTAINER_CGROUPS_MOUNT, false);
+        this.cgroupMountPath = conf.get(YarnConfiguration.
+                                        NM_LINUX_CONTAINER_CGROUPS_MOUNT_PATH, null);
+
+        this.deleteCgroupTimeout = conf.getLong(
+                                       YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_DELETE_TIMEOUT,
+                                       YarnConfiguration.DEFAULT_NM_LINUX_CONTAINER_CGROUPS_DELETE_TIMEOUT);
+        // remove extra /'s at end or start of cgroupPrefix
+        if (cgroupPrefix.charAt(0) == '/') {
+            cgroupPrefix = cgroupPrefix.substring(1);
+        }
+
+        this.strictResourceUsageMode =
+            conf
+            .getBoolean(
+                YarnConfiguration.NM_LINUX_CONTAINER_CGROUPS_STRICT_RESOURCE_USAGE,
+                YarnConfiguration.DEFAULT_NM_LINUX_CONTAINER_CGROUPS_STRICT_RESOURCE_USAGE);
+
+        int len = cgroupPrefix.length();
+        if (cgroupPrefix.charAt(len - 1) == '/') {
+            cgroupPrefix = cgroupPrefix.substring(0, len - 1);
+        }
     }
 
-    // cfs_period_us can't be less than 1000 microseconds
-    // if the value of periodUS is less than 1000, we can't really use cgroups
-    // to limit cpu
-    if (periodUS < MIN_PERIOD_US) {
-      LOG
-        .warn("The period calculated for the cgroup was too low. The minimum value is "
-            + MIN_PERIOD_US + ", calculated value is " + periodUS
-            + ". Using all available CPU.");
-      periodUS = MAX_QUOTA_US;
-      quotaUS = -1;
+    public void init(LinuxContainerExecutor lce) throws IOException {
+        this.init(lce,
+                  ResourceCalculatorPlugin.getResourceCalculatorPlugin(null, conf));
     }
 
-    ret[0] = periodUS;
-    ret[1] = quotaUS;
-    return ret;
-  }
+    @VisibleForTesting
+    void init(LinuxContainerExecutor lce, ResourceCalculatorPlugin plugin)
+    throws IOException {
+        initConfig();
 
-  boolean isCpuWeightEnabled() {
-    return this.cpuWeightEnabled;
-  }
+        // mount cgroups if requested
+        if (cgroupMount && cgroupMountPath != null) {
+            ArrayList<String> cgroupKVs = new ArrayList<String>();
+            cgroupKVs.add(CONTROLLER_CPU + "=" + cgroupMountPath + "/" +
+                          CONTROLLER_CPU);
+            lce.mountCgroups(cgroupKVs, cgroupPrefix);
+        }
 
-  /*
-   * Next four functions are for an individual cgroup.
-   */
+        initializeControllerPaths();
 
-  private String pathForCgroup(String controller, String groupName) {
-    String controllerPath = controllerPaths.get(controller);
-    return controllerPath + "/" + cgroupPrefix + "/" + groupName;
-  }
-
-  private void createCgroup(String controller, String groupName)
-        throws IOException {
-    String path = pathForCgroup(controller, groupName);
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("createCgroup: " + path);
+        // cap overall usage to the number of cores allocated to YARN
+        yarnProcessors = NodeManagerHardwareUtils.getContainersCores(plugin, conf);
+        int systemProcessors = plugin.getNumProcessors();
+        if (systemProcessors != (int) yarnProcessors) {
+            LOG.info("YARN containers restricted to " + yarnProcessors + " cores");
+            int[] limits = getOverallLimits(yarnProcessors);
+            updateCgroup(CONTROLLER_CPU, "", CPU_PERIOD_US, String.valueOf(limits[0]));
+            updateCgroup(CONTROLLER_CPU, "", CPU_QUOTA_US, String.valueOf(limits[1]));
+        } else if (cpuLimitsExist()) {
+            LOG.info("Removing CPU constraints for YARN containers.");
+            updateCgroup(CONTROLLER_CPU, "", CPU_QUOTA_US, String.valueOf(-1));
+        }
     }
 
-    if (! new File(path).mkdir()) {
-      throw new IOException("Failed to create cgroup at " + path);
-    }
-  }
-
-  private void updateCgroup(String controller, String groupName, String param,
-                            String value) throws IOException {
-    FileWriter f = null;
-    String path = pathForCgroup(controller, groupName);
-    param = controller + "." + param;
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("updateCgroup: " + path + ": " + param + "=" + value);
+    boolean cpuLimitsExist() throws IOException {
+        String path = pathForCgroup(CONTROLLER_CPU, "");
+        File quotaFile = new File(path, CONTROLLER_CPU + "." + CPU_QUOTA_US);
+        if (quotaFile.exists()) {
+            String contents = FileUtils.readFileToString(quotaFile, "UTF-8");
+            int quotaUS = Integer.parseInt(contents.trim());
+            if (quotaUS != -1) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    try {
-      f = new FileWriter(path + "/" + param, false);
-      f.write(value);
-    } catch (IOException e) {
-      throw new IOException("Unable to set " + param + "=" + value +
-          " for cgroup at: " + path, e);
-    } finally {
-      if (f != null) {
+    @VisibleForTesting
+    int[] getOverallLimits(float yarnProcessors) {
+
+        int[] ret = new int[2];
+
+        if (yarnProcessors < 0.01f) {
+            throw new IllegalArgumentException("Number of processors can't be <= 0.");
+        }
+
+        int quotaUS = MAX_QUOTA_US;
+        int periodUS = (int) (MAX_QUOTA_US / yarnProcessors);
+        if (yarnProcessors < 1.0f) {
+            periodUS = MAX_QUOTA_US;
+            quotaUS = (int) (periodUS * yarnProcessors);
+            if (quotaUS < MIN_PERIOD_US) {
+                LOG
+                .warn("The quota calculated for the cgroup was too low. The minimum value is "
+                      + MIN_PERIOD_US + ", calculated value is " + quotaUS
+                      + ". Setting quota to minimum value.");
+                quotaUS = MIN_PERIOD_US;
+            }
+        }
+
+        // cfs_period_us can't be less than 1000 microseconds
+        // if the value of periodUS is less than 1000, we can't really use cgroups
+        // to limit cpu
+        if (periodUS < MIN_PERIOD_US) {
+            LOG
+            .warn("The period calculated for the cgroup was too low. The minimum value is "
+                  + MIN_PERIOD_US + ", calculated value is " + periodUS
+                  + ". Using all available CPU.");
+            periodUS = MAX_QUOTA_US;
+            quotaUS = -1;
+        }
+
+        ret[0] = periodUS;
+        ret[1] = quotaUS;
+        return ret;
+    }
+
+    boolean isCpuWeightEnabled() {
+        return this.cpuWeightEnabled;
+    }
+
+    /*
+     * Next four functions are for an individual cgroup.
+     */
+
+    private String pathForCgroup(String controller, String groupName) {
+        String controllerPath = controllerPaths.get(controller);
+        return controllerPath + "/" + cgroupPrefix + "/" + groupName;
+    }
+
+    private void createCgroup(String controller, String groupName)
+    throws IOException {
+        String path = pathForCgroup(controller, groupName);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("createCgroup: " + path);
+        }
+
+        if (! new File(path).mkdir()) {
+            throw new IOException("Failed to create cgroup at " + path);
+        }
+    }
+
+    private void updateCgroup(String controller, String groupName, String param,
+                              String value) throws IOException {
+        FileWriter f = null;
+        String path = pathForCgroup(controller, groupName);
+        param = controller + "." + param;
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("updateCgroup: " + path + ": " + param + "=" + value);
+        }
+
         try {
-          f.close();
+            f = new FileWriter(path + "/" + param, false);
+            f.write(value);
         } catch (IOException e) {
-          LOG.warn("Unable to close cgroup file: " +
-              path, e);
+            throw new IOException("Unable to set " + param + "=" + value +
+                                  " for cgroup at: " + path, e);
+        } finally {
+            if (f != null) {
+                try {
+                    f.close();
+                } catch (IOException e) {
+                    LOG.warn("Unable to close cgroup file: " +
+                             path, e);
+                }
+            }
         }
-      }
-    }
-  }
-
-  @VisibleForTesting
-  boolean deleteCgroup(String cgroupPath) {
-    boolean deleted;
-    
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("deleteCgroup: " + cgroupPath);
     }
 
-    long start = clock.getTime();
-    do {
-      deleted = new File(cgroupPath).delete();
-      if (!deleted) {
+    @VisibleForTesting
+    boolean deleteCgroup(String cgroupPath) {
+        boolean deleted;
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("deleteCgroup: " + cgroupPath);
+        }
+
+        long start = clock.getTime();
+        do {
+            deleted = new File(cgroupPath).delete();
+            if (!deleted) {
+                try {
+                    Thread.sleep(20);
+                } catch (InterruptedException ex) {
+                    // NOP
+                }
+            }
+        } while (!deleted && (clock.getTime() - start) < deleteCgroupTimeout);
+
+        if (!deleted) {
+            LOG.warn("Unable to delete cgroup at: " + cgroupPath +
+                     ", tried to delete for " + deleteCgroupTimeout + "ms");
+        }
+
+        return deleted;
+    }
+
+    /*
+     * Next three functions operate on all the resources we are enforcing.
+     */
+
+    private void setupLimits(ContainerId containerId,
+                             Resource containerResource) throws IOException {
+        String containerName = containerId.toString();
+
+        if (isCpuWeightEnabled()) {
+            int containerVCores = containerResource.getVirtualCores();
+            createCgroup(CONTROLLER_CPU, containerName);
+            int cpuShares = CPU_DEFAULT_WEIGHT * containerVCores;
+            updateCgroup(CONTROLLER_CPU, containerName, "shares",
+                         String.valueOf(cpuShares));
+            if (strictResourceUsageMode) {
+                int nodeVCores =
+                    conf.getInt(YarnConfiguration.NM_VCORES,
+                                YarnConfiguration.DEFAULT_NM_VCORES);
+                if (nodeVCores != containerVCores) {
+                    float containerCPU =
+                        (containerVCores * yarnProcessors) / (float) nodeVCores;
+                    int[] limits = getOverallLimits(containerCPU);
+                    updateCgroup(CONTROLLER_CPU, containerName, CPU_PERIOD_US,
+                                 String.valueOf(limits[0]));
+                    updateCgroup(CONTROLLER_CPU, containerName, CPU_QUOTA_US,
+                                 String.valueOf(limits[1]));
+                }
+            }
+        }
+    }
+
+    private void clearLimits(ContainerId containerId) {
+        if (isCpuWeightEnabled()) {
+            deleteCgroup(pathForCgroup(CONTROLLER_CPU, containerId.toString()));
+        }
+    }
+
+    /*
+     * LCE Resources Handler interface
+     */
+
+    public void preExecute(ContainerId containerId, Resource containerResource)
+    throws IOException {
+        setupLimits(containerId, containerResource);
+    }
+
+    public void postExecute(ContainerId containerId) {
+        clearLimits(containerId);
+    }
+
+    public String getResourcesOption(ContainerId containerId) {
+        String containerName = containerId.toString();
+
+        StringBuilder sb = new StringBuilder("cgroups=");
+
+        if (isCpuWeightEnabled()) {
+            sb.append(pathForCgroup(CONTROLLER_CPU, containerName) + "/tasks");
+            sb.append(",");
+        }
+
+        if (sb.charAt(sb.length() - 1) == ',') {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+
+        return sb.toString();
+    }
+
+    /* We are looking for entries of the form:
+     * none /cgroup/path/mem cgroup rw,memory 0 0
+     *
+     * Use a simple pattern that splits on the five spaces, and
+     * grabs the 2, 3, and 4th fields.
+     */
+
+    private static final Pattern MTAB_FILE_FORMAT = Pattern.compile(
+                "^[^\\s]+\\s([^\\s]+)\\s([^\\s]+)\\s([^\\s]+)\\s[^\\s]+\\s[^\\s]+$");
+
+    /*
+     * Returns a map: path -> mount options
+     * for mounts with type "cgroup". Cgroup controllers will
+     * appear in the list of options for a path.
+     */
+    private Map<String, List<String>> parseMtab() throws IOException {
+        Map<String, List<String>> ret = new HashMap<String, List<String>>();
+        BufferedReader in = null;
+
         try {
-          Thread.sleep(20);
-        } catch (InterruptedException ex) {
-          // NOP        
+            in = new BufferedReader(new FileReader(new File(getMtabFileName())));
+
+            for (String str = in.readLine(); str != null;
+                 str = in.readLine()) {
+                Matcher m = MTAB_FILE_FORMAT.matcher(str);
+                boolean mat = m.find();
+                if (mat) {
+                    String path = m.group(1);
+                    String type = m.group(2);
+                    String options = m.group(3);
+
+                    if (type.equals(CGROUPS_FSTYPE)) {
+                        List<String> value = Arrays.asList(options.split(","));
+                        ret.put(path, value);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("Error while reading " + getMtabFileName(), e);
+        } finally {
+            // Close the streams
+            try {
+                in.close();
+            } catch (IOException e2) {
+                LOG.warn("Error closing the stream: " + getMtabFileName(), e2);
+            }
         }
-      }
-    } while (!deleted && (clock.getTime() - start) < deleteCgroupTimeout);
 
-    if (!deleted) {
-      LOG.warn("Unable to delete cgroup at: " + cgroupPath +
-          ", tried to delete for " + deleteCgroupTimeout + "ms");
+        return ret;
     }
 
-    return deleted;
-  }
-
-  /*
-   * Next three functions operate on all the resources we are enforcing.
-   */
-
-  private void setupLimits(ContainerId containerId,
-                           Resource containerResource) throws IOException {
-    String containerName = containerId.toString();
-
-    if (isCpuWeightEnabled()) {
-      int containerVCores = containerResource.getVirtualCores();
-      createCgroup(CONTROLLER_CPU, containerName);
-      int cpuShares = CPU_DEFAULT_WEIGHT * containerVCores;
-      updateCgroup(CONTROLLER_CPU, containerName, "shares",
-          String.valueOf(cpuShares));
-      if (strictResourceUsageMode) {
-        int nodeVCores =
-            conf.getInt(YarnConfiguration.NM_VCORES,
-              YarnConfiguration.DEFAULT_NM_VCORES);
-        if (nodeVCores != containerVCores) {
-          float containerCPU =
-              (containerVCores * yarnProcessors) / (float) nodeVCores;
-          int[] limits = getOverallLimits(containerCPU);
-          updateCgroup(CONTROLLER_CPU, containerName, CPU_PERIOD_US,
-            String.valueOf(limits[0]));
-          updateCgroup(CONTROLLER_CPU, containerName, CPU_QUOTA_US,
-            String.valueOf(limits[1]));
+    private String findControllerInMtab(String controller,
+                                        Map<String, List<String>> entries) {
+        for (Entry<String, List<String>> e : entries.entrySet()) {
+            if (e.getValue().contains(controller))
+                return e.getKey();
         }
-      }
-    }
-  }
 
-  private void clearLimits(ContainerId containerId) {
-    if (isCpuWeightEnabled()) {
-      deleteCgroup(pathForCgroup(CONTROLLER_CPU, containerId.toString()));
-    }
-  }
-
-  /*
-   * LCE Resources Handler interface
-   */
-
-  public void preExecute(ContainerId containerId, Resource containerResource)
-              throws IOException {
-    setupLimits(containerId, containerResource);
-  }
-
-  public void postExecute(ContainerId containerId) {
-    clearLimits(containerId);
-  }
-
-  public String getResourcesOption(ContainerId containerId) {
-    String containerName = containerId.toString();
-
-    StringBuilder sb = new StringBuilder("cgroups=");
-
-    if (isCpuWeightEnabled()) {
-      sb.append(pathForCgroup(CONTROLLER_CPU, containerName) + "/tasks");
-      sb.append(",");
+        return null;
     }
 
-    if (sb.charAt(sb.length() - 1) == ',') {
-      sb.deleteCharAt(sb.length() - 1);
-    }
+    private void initializeControllerPaths() throws IOException {
+        String controllerPath;
+        Map<String, List<String>> parsedMtab = parseMtab();
 
-    return sb.toString();
-  }
+        // CPU
 
-  /* We are looking for entries of the form:
-   * none /cgroup/path/mem cgroup rw,memory 0 0
-   *
-   * Use a simple pattern that splits on the five spaces, and
-   * grabs the 2, 3, and 4th fields.
-   */
+        controllerPath = findControllerInMtab(CONTROLLER_CPU, parsedMtab);
 
-  private static final Pattern MTAB_FILE_FORMAT = Pattern.compile(
-      "^[^\\s]+\\s([^\\s]+)\\s([^\\s]+)\\s([^\\s]+)\\s[^\\s]+\\s[^\\s]+$");
+        if (controllerPath != null) {
+            File f = new File(controllerPath + "/" + this.cgroupPrefix);
 
-  /*
-   * Returns a map: path -> mount options
-   * for mounts with type "cgroup". Cgroup controllers will
-   * appear in the list of options for a path.
-   */
-  private Map<String, List<String>> parseMtab() throws IOException {
-    Map<String, List<String>> ret = new HashMap<String, List<String>>();
-    BufferedReader in = null;
-
-    try {
-      in = new BufferedReader(new FileReader(new File(getMtabFileName())));
-
-      for (String str = in.readLine(); str != null;
-          str = in.readLine()) {
-        Matcher m = MTAB_FILE_FORMAT.matcher(str);
-        boolean mat = m.find();
-        if (mat) {
-          String path = m.group(1);
-          String type = m.group(2);
-          String options = m.group(3);
-
-          if (type.equals(CGROUPS_FSTYPE)) {
-            List<String> value = Arrays.asList(options.split(","));
-            ret.put(path, value);
-          }
+            if (FileUtil.canWrite(f)) {
+                controllerPaths.put(CONTROLLER_CPU, controllerPath);
+            } else {
+                throw new IOException("Not able to enforce cpu weights; cannot write "
+                                      + "to cgroup at: " + controllerPath);
+            }
+        } else {
+            throw new IOException("Not able to enforce cpu weights; cannot find "
+                                  + "cgroup for cpu controller in " + getMtabFileName());
         }
-      }
-    } catch (IOException e) {
-      throw new IOException("Error while reading " + getMtabFileName(), e);
-    } finally {
-      // Close the streams
-      try {
-        in.close();
-      } catch (IOException e2) {
-        LOG.warn("Error closing the stream: " + getMtabFileName(), e2);
-      }
     }
 
-    return ret;
-  }
-
-  private String findControllerInMtab(String controller,
-                                      Map<String, List<String>> entries) {
-    for (Entry<String, List<String>> e : entries.entrySet()) {
-      if (e.getValue().contains(controller))
-        return e.getKey();
+    @VisibleForTesting
+    String getMtabFileName() {
+        return MTAB_FILE;
     }
-
-    return null;
-  }
-
-  private void initializeControllerPaths() throws IOException {
-    String controllerPath;
-    Map<String, List<String>> parsedMtab = parseMtab();
-
-    // CPU
-
-    controllerPath = findControllerInMtab(CONTROLLER_CPU, parsedMtab);
-
-    if (controllerPath != null) {
-      File f = new File(controllerPath + "/" + this.cgroupPrefix);
-
-      if (FileUtil.canWrite(f)) {
-        controllerPaths.put(CONTROLLER_CPU, controllerPath);
-      } else {
-        throw new IOException("Not able to enforce cpu weights; cannot write "
-            + "to cgroup at: " + controllerPath);
-      }
-    } else {
-      throw new IOException("Not able to enforce cpu weights; cannot find "
-          + "cgroup for cpu controller in " + getMtabFileName());
-    }
-  }
-
-  @VisibleForTesting
-  String getMtabFileName() {
-    return MTAB_FILE;
-  }
 }

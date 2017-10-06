@@ -47,151 +47,151 @@ import com.google.common.annotations.VisibleForTesting;
 @Evolving
 public class LogsCLI extends Configured implements Tool {
 
-  private static final String CONTAINER_ID_OPTION = "containerId";
-  private static final String APPLICATION_ID_OPTION = "applicationId";
-  private static final String NODE_ADDRESS_OPTION = "nodeAddress";
-  private static final String APP_OWNER_OPTION = "appOwner";
+    private static final String CONTAINER_ID_OPTION = "containerId";
+    private static final String APPLICATION_ID_OPTION = "applicationId";
+    private static final String NODE_ADDRESS_OPTION = "nodeAddress";
+    private static final String APP_OWNER_OPTION = "appOwner";
 
-  @Override
-  public int run(String[] args) throws Exception {
+    @Override
+    public int run(String[] args) throws Exception {
 
-    Options opts = new Options();
-    Option appIdOpt = new Option(APPLICATION_ID_OPTION, true, "ApplicationId (required)");
-    appIdOpt.setRequired(true);
-    opts.addOption(appIdOpt);
-    opts.addOption(CONTAINER_ID_OPTION, true,
-      "ContainerId (must be specified if node address is specified)");
-    opts.addOption(NODE_ADDRESS_OPTION, true, "NodeAddress in the format "
-      + "nodename:port (must be specified if container id is specified)");
-    opts.addOption(APP_OWNER_OPTION, true,
-      "AppOwner (assumed to be current user if not specified)");
-    opts.getOption(APPLICATION_ID_OPTION).setArgName("Application ID");
-    opts.getOption(CONTAINER_ID_OPTION).setArgName("Container ID");
-    opts.getOption(NODE_ADDRESS_OPTION).setArgName("Node Address");
-    opts.getOption(APP_OWNER_OPTION).setArgName("Application Owner");
+        Options opts = new Options();
+        Option appIdOpt = new Option(APPLICATION_ID_OPTION, true, "ApplicationId (required)");
+        appIdOpt.setRequired(true);
+        opts.addOption(appIdOpt);
+        opts.addOption(CONTAINER_ID_OPTION, true,
+                       "ContainerId (must be specified if node address is specified)");
+        opts.addOption(NODE_ADDRESS_OPTION, true, "NodeAddress in the format "
+                       + "nodename:port (must be specified if container id is specified)");
+        opts.addOption(APP_OWNER_OPTION, true,
+                       "AppOwner (assumed to be current user if not specified)");
+        opts.getOption(APPLICATION_ID_OPTION).setArgName("Application ID");
+        opts.getOption(CONTAINER_ID_OPTION).setArgName("Container ID");
+        opts.getOption(NODE_ADDRESS_OPTION).setArgName("Node Address");
+        opts.getOption(APP_OWNER_OPTION).setArgName("Application Owner");
 
-    Options printOpts = new Options();
-    printOpts.addOption(opts.getOption(CONTAINER_ID_OPTION));
-    printOpts.addOption(opts.getOption(NODE_ADDRESS_OPTION));
-    printOpts.addOption(opts.getOption(APP_OWNER_OPTION));
+        Options printOpts = new Options();
+        printOpts.addOption(opts.getOption(CONTAINER_ID_OPTION));
+        printOpts.addOption(opts.getOption(NODE_ADDRESS_OPTION));
+        printOpts.addOption(opts.getOption(APP_OWNER_OPTION));
 
-    if (args.length < 1) {
-      printHelpMessage(printOpts);
-      return -1;
-    }
+        if (args.length < 1) {
+            printHelpMessage(printOpts);
+            return -1;
+        }
 
-    CommandLineParser parser = new GnuParser();
-    String appIdStr = null;
-    String containerIdStr = null;
-    String nodeAddress = null;
-    String appOwner = null;
-    try {
-      CommandLine commandLine = parser.parse(opts, args, true);
-      appIdStr = commandLine.getOptionValue(APPLICATION_ID_OPTION);
-      containerIdStr = commandLine.getOptionValue(CONTAINER_ID_OPTION);
-      nodeAddress = commandLine.getOptionValue(NODE_ADDRESS_OPTION);
-      appOwner = commandLine.getOptionValue(APP_OWNER_OPTION);
-    } catch (ParseException e) {
-      System.err.println("options parsing failed: " + e.getMessage());
-      printHelpMessage(printOpts);
-      return -1;
-    }
+        CommandLineParser parser = new GnuParser();
+        String appIdStr = null;
+        String containerIdStr = null;
+        String nodeAddress = null;
+        String appOwner = null;
+        try {
+            CommandLine commandLine = parser.parse(opts, args, true);
+            appIdStr = commandLine.getOptionValue(APPLICATION_ID_OPTION);
+            containerIdStr = commandLine.getOptionValue(CONTAINER_ID_OPTION);
+            nodeAddress = commandLine.getOptionValue(NODE_ADDRESS_OPTION);
+            appOwner = commandLine.getOptionValue(APP_OWNER_OPTION);
+        } catch (ParseException e) {
+            System.err.println("options parsing failed: " + e.getMessage());
+            printHelpMessage(printOpts);
+            return -1;
+        }
 
-    if (appIdStr == null) {
-      System.err.println("ApplicationId cannot be null!");
-      printHelpMessage(printOpts);
-      return -1;
-    }
+        if (appIdStr == null) {
+            System.err.println("ApplicationId cannot be null!");
+            printHelpMessage(printOpts);
+            return -1;
+        }
 
-    ApplicationId appId = null;
-    try {
-      appId = ConverterUtils.toApplicationId(appIdStr);
-    } catch (Exception e) {
-      System.err.println("Invalid ApplicationId specified");
-      return -1;
-    }
+        ApplicationId appId = null;
+        try {
+            appId = ConverterUtils.toApplicationId(appIdStr);
+        } catch (Exception e) {
+            System.err.println("Invalid ApplicationId specified");
+            return -1;
+        }
 
-    try {
-      int resultCode = verifyApplicationState(appId);
-      if (resultCode != 0) {
-        System.out.println("Logs are not avaiable right now.");
+        try {
+            int resultCode = verifyApplicationState(appId);
+            if (resultCode != 0) {
+                System.out.println("Logs are not avaiable right now.");
+                return resultCode;
+            }
+        } catch (Exception e) {
+            System.err.println("Unable to get ApplicationState."
+                               + " Attempting to fetch logs directly from the filesystem.");
+        }
+
+        LogCLIHelpers logCliHelper = new LogCLIHelpers();
+        logCliHelper.setConf(getConf());
+
+        if (appOwner == null || appOwner.isEmpty()) {
+            appOwner = UserGroupInformation.getCurrentUser().getShortUserName();
+        }
+        int resultCode = 0;
+        if (containerIdStr == null && nodeAddress == null) {
+            resultCode = logCliHelper.dumpAllContainersLogs(appId, appOwner, System.out);
+        } else if ((containerIdStr == null && nodeAddress != null)
+                   || (containerIdStr != null && nodeAddress == null)) {
+            System.out.println("ContainerId or NodeAddress cannot be null!");
+            printHelpMessage(printOpts);
+            resultCode = -1;
+        } else {
+            resultCode =
+                logCliHelper.dumpAContainersLogs(appIdStr, containerIdStr,
+                                                 nodeAddress, appOwner);
+        }
+
         return resultCode;
-      }
-    } catch (Exception e) {
-      System.err.println("Unable to get ApplicationState."
-          + " Attempting to fetch logs directly from the filesystem.");
     }
 
-    LogCLIHelpers logCliHelper = new LogCLIHelpers();
-    logCliHelper.setConf(getConf());
-    
-    if (appOwner == null || appOwner.isEmpty()) {
-      appOwner = UserGroupInformation.getCurrentUser().getShortUserName();
+    private int verifyApplicationState(ApplicationId appId) throws IOException,
+        YarnException {
+        YarnClient yarnClient = createYarnClient();
+
+        try {
+            ApplicationReport appReport = yarnClient.getApplicationReport(appId);
+            switch (appReport.getYarnApplicationState()) {
+                case NEW:
+                case NEW_SAVING:
+                case SUBMITTED:
+                    return -1;
+                case ACCEPTED:
+                case RUNNING:
+                case FAILED:
+                case FINISHED:
+                case KILLED:
+                default:
+                    break;
+
+            }
+        } finally {
+            yarnClient.close();
+        }
+        return 0;
     }
-    int resultCode = 0;
-    if (containerIdStr == null && nodeAddress == null) {
-      resultCode = logCliHelper.dumpAllContainersLogs(appId, appOwner, System.out);
-    } else if ((containerIdStr == null && nodeAddress != null)
-        || (containerIdStr != null && nodeAddress == null)) {
-      System.out.println("ContainerId or NodeAddress cannot be null!");
-      printHelpMessage(printOpts);
-      resultCode = -1;
-    } else {
-      resultCode =
-          logCliHelper.dumpAContainersLogs(appIdStr, containerIdStr,
-            nodeAddress, appOwner);
+
+    @VisibleForTesting
+    protected YarnClient createYarnClient() {
+        YarnClient yarnClient = YarnClient.createYarnClient();
+        yarnClient.init(getConf());
+        yarnClient.start();
+        return yarnClient;
     }
 
-    return resultCode;
-  }
-
-  private int verifyApplicationState(ApplicationId appId) throws IOException,
-      YarnException {
-    YarnClient yarnClient = createYarnClient();
-
-    try {
-      ApplicationReport appReport = yarnClient.getApplicationReport(appId);
-      switch (appReport.getYarnApplicationState()) {
-      case NEW:
-      case NEW_SAVING:
-      case SUBMITTED:
-        return -1;
-      case ACCEPTED:
-      case RUNNING:
-      case FAILED:
-      case FINISHED:
-      case KILLED:
-      default:
-        break;
-
-      }
-    } finally {
-      yarnClient.close();
+    public static void main(String[] args) throws Exception {
+        Configuration conf = new YarnConfiguration();
+        LogsCLI logDumper = new LogsCLI();
+        logDumper.setConf(conf);
+        int exitCode = logDumper.run(args);
+        System.exit(exitCode);
     }
-    return 0;
-  }
-  
-  @VisibleForTesting
-  protected YarnClient createYarnClient() {
-    YarnClient yarnClient = YarnClient.createYarnClient();
-    yarnClient.init(getConf());
-    yarnClient.start();
-    return yarnClient;
-  }
 
-  public static void main(String[] args) throws Exception {
-    Configuration conf = new YarnConfiguration();
-    LogsCLI logDumper = new LogsCLI();
-    logDumper.setConf(conf);
-    int exitCode = logDumper.run(args);
-    System.exit(exitCode);
-  }
-
-  private void printHelpMessage(Options options) {
-    System.out.println("Retrieve logs for completed YARN applications.");
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp("yarn logs -applicationId <application ID> [OPTIONS]", new Options());
-    formatter.setSyntaxPrefix("");
-    formatter.printHelp("general options are:", options);
-  }
+    private void printHelpMessage(Options options) {
+        System.out.println("Retrieve logs for completed YARN applications.");
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("yarn logs -applicationId <application ID> [OPTIONS]", new Options());
+        formatter.setSyntaxPrefix("");
+        formatter.printHelp("general options are:", options);
+    }
 }

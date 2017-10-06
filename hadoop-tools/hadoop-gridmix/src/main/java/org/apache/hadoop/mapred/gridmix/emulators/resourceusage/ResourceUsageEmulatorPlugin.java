@@ -25,39 +25,39 @@ import org.apache.hadoop.tools.rumen.ResourceUsageMetrics;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * <p>Each resource to be emulated should have a corresponding implementation 
+ * <p>Each resource to be emulated should have a corresponding implementation
  * class that implements {@link ResourceUsageEmulatorPlugin}.</p>
  * <br><br>
- * {@link ResourceUsageEmulatorPlugin} will be configured using the 
- * {@link #initialize(Configuration, ResourceUsageMetrics, 
+ * {@link ResourceUsageEmulatorPlugin} will be configured using the
+ * {@link #initialize(Configuration, ResourceUsageMetrics,
  *                    ResourceCalculatorPlugin, Progressive)} call.
- * Every 
+ * Every
  * {@link ResourceUsageEmulatorPlugin} is also configured with a feedback module
- * i.e a {@link ResourceCalculatorPlugin}, to monitor the current resource 
+ * i.e a {@link ResourceCalculatorPlugin}, to monitor the current resource
  * usage. {@link ResourceUsageMetrics} decides the final resource usage value to
  * emulate. {@link Progressive} keeps track of the task's progress.</p>
- * 
+ *
  * <br><br>
- * 
- * For configuring GridMix to load and and use a resource usage emulator, 
- * see {@link ResourceUsageMatcher}. 
+ *
+ * For configuring GridMix to load and and use a resource usage emulator,
+ * see {@link ResourceUsageMatcher}.
  */
 public interface ResourceUsageEmulatorPlugin extends Progressive {
-  /**
-   * Initialize the plugin. This might involve
-   *   - initializing the variables
-   *   - calibrating the plugin
-   */
-  void initialize(Configuration conf, ResourceUsageMetrics metrics, 
-                  ResourceCalculatorPlugin monitor,
-                  Progressive progress);
+    /**
+     * Initialize the plugin. This might involve
+     *   - initializing the variables
+     *   - calibrating the plugin
+     */
+    void initialize(Configuration conf, ResourceUsageMetrics metrics,
+                    ResourceCalculatorPlugin monitor,
+                    Progressive progress);
 
-  /**
-   * Emulate the resource usage to match the usage target. The plugin can use
-   * the given {@link ResourceCalculatorPlugin} to query for the current 
-   * resource usage.
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  void emulate() throws IOException, InterruptedException;
+    /**
+     * Emulate the resource usage to match the usage target. The plugin can use
+     * the given {@link ResourceCalculatorPlugin} to query for the current
+     * resource usage.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    void emulate() throws IOException, InterruptedException;
 }

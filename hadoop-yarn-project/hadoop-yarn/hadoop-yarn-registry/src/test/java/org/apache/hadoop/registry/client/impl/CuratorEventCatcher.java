@@ -34,35 +34,35 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CuratorEventCatcher implements BackgroundCallback {
 
-  private static final Logger LOG =
-      LoggerFactory.getLogger(CuratorEventCatcher.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(CuratorEventCatcher.class);
 
-  public final BlockingQueue<CuratorEvent>
-      events = new LinkedBlockingQueue<CuratorEvent>(1);
+    public final BlockingQueue<CuratorEvent>
+    events = new LinkedBlockingQueue<CuratorEvent>(1);
 
-  private final AtomicInteger eventCounter = new AtomicInteger(0);
-
-
-  @Override
-  public void processResult(CuratorFramework client,
-      CuratorEvent event) throws
-      Exception {
-    LOG.info("received {}", event);
-    eventCounter.incrementAndGet();
-    events.put(event);
-  }
+    private final AtomicInteger eventCounter = new AtomicInteger(0);
 
 
-  public int getCount() {
-    return eventCounter.get();
-  }
+    @Override
+    public void processResult(CuratorFramework client,
+                              CuratorEvent event) throws
+        Exception {
+        LOG.info("received {}", event);
+        eventCounter.incrementAndGet();
+        events.put(event);
+    }
 
-  /**
-   * Blocking operation to take the first event off the queue
-   * @return the first event on the queue, when it arrives
-   * @throws InterruptedException if interrupted
-   */
-  public CuratorEvent take() throws InterruptedException {
-    return events.take();
-  }
+
+    public int getCount() {
+        return eventCounter.get();
+    }
+
+    /**
+     * Blocking operation to take the first event off the queue
+     * @return the first event on the queue, when it arrives
+     * @throws InterruptedException if interrupted
+     */
+    public CuratorEvent take() throws InterruptedException {
+        return events.take();
+    }
 }

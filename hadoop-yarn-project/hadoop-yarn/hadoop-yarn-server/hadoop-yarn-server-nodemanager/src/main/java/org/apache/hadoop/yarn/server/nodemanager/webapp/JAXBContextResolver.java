@@ -41,24 +41,25 @@ import org.apache.hadoop.yarn.webapp.RemoteExceptionData;
 @Provider
 public class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
-  private JAXBContext context;
-  private final Set<Class> types;
+    private JAXBContext context;
+    private final Set<Class> types;
 
-  // you have to specify all the dao classes here
-  private final Class[] cTypes = {AppInfo.class, AppsInfo.class,
-      ContainerInfo.class, ContainersInfo.class, NodeInfo.class,
-      RemoteExceptionData.class};
+    // you have to specify all the dao classes here
+    private final Class[] cTypes = {AppInfo.class, AppsInfo.class,
+                                    ContainerInfo.class, ContainersInfo.class, NodeInfo.class,
+                                    RemoteExceptionData.class
+                                   };
 
-  public JAXBContextResolver() throws Exception {
-    this.types = new HashSet<Class>(Arrays.asList(cTypes));
-    // sets the json configuration so that the json output looks like
-    // the xml output
-    this.context = new JSONJAXBContext(JSONConfiguration.natural().
-        rootUnwrapping(false).build(), cTypes);
-  }
+    public JAXBContextResolver() throws Exception {
+        this.types = new HashSet<Class>(Arrays.asList(cTypes));
+        // sets the json configuration so that the json output looks like
+        // the xml output
+        this.context = new JSONJAXBContext(JSONConfiguration.natural().
+                                           rootUnwrapping(false).build(), cTypes);
+    }
 
-  @Override
-  public JAXBContext getContext(Class<?> objectType) {
-    return (types.contains(objectType)) ? context : null;
-  }
+    @Override
+    public JAXBContext getContext(Class<?> objectType) {
+        return (types.contains(objectType)) ? context : null;
+    }
 }

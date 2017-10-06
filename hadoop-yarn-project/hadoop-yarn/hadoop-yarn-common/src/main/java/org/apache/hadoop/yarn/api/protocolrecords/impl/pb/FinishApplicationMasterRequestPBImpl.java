@@ -33,122 +33,122 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class FinishApplicationMasterRequestPBImpl extends FinishApplicationMasterRequest {
-  FinishApplicationMasterRequestProto proto = FinishApplicationMasterRequestProto.getDefaultInstance();
-  FinishApplicationMasterRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    FinishApplicationMasterRequestProto proto = FinishApplicationMasterRequestProto.getDefaultInstance();
+    FinishApplicationMasterRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public FinishApplicationMasterRequestPBImpl() {
-    builder = FinishApplicationMasterRequestProto.newBuilder();
-  }
-
-  public FinishApplicationMasterRequestPBImpl(FinishApplicationMasterRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public FinishApplicationMasterRequestProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public FinishApplicationMasterRequestPBImpl() {
+        builder = FinishApplicationMasterRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-  }
-
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = FinishApplicationMasterRequestProto.newBuilder(proto);
+    public FinishApplicationMasterRequestPBImpl(FinishApplicationMasterRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public String getDiagnostics() {
-    FinishApplicationMasterRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getDiagnostics();
-  }
-
-  @Override
-  public void setDiagnostics(String diagnostics) {
-    maybeInitBuilder();
-    if (diagnostics == null) {
-      builder.clearDiagnostics();
-      return;
+    public FinishApplicationMasterRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    builder.setDiagnostics(diagnostics);
-  }
 
-  @Override
-  public String getTrackingUrl() {
-    FinishApplicationMasterRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getTrackingUrl();
-  }
-
-  @Override
-  public void setTrackingUrl(String url) {
-    maybeInitBuilder();
-    if (url == null) {
-      builder.clearTrackingUrl();
-      return;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    builder.setTrackingUrl(url);
-  }
 
-  @Override
-  public FinalApplicationStatus getFinalApplicationStatus() {
-    FinishApplicationMasterRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasFinalApplicationStatus()) {
-      return null;
-    }	
-    return convertFromProtoFormat(p.getFinalApplicationStatus());
-  }
-
-  @Override
-  public void setFinalApplicationStatus(FinalApplicationStatus finalState) {
-    maybeInitBuilder();
-    if (finalState == null) {
-      builder.clearFinalApplicationStatus();
-      return;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    builder.setFinalApplicationStatus(convertToProtoFormat(finalState));
-  }
 
-  private FinalApplicationStatus convertFromProtoFormat(FinalApplicationStatusProto s) {
-    return ProtoUtils.convertFromProtoFormat(s);
-  }
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-  private FinalApplicationStatusProto convertToProtoFormat(FinalApplicationStatus s) {
-    return ProtoUtils.convertToProtoFormat(s);
-  }
+    private void mergeLocalToBuilder() {
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = FinishApplicationMasterRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public String getDiagnostics() {
+        FinishApplicationMasterRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getDiagnostics();
+    }
+
+    @Override
+    public void setDiagnostics(String diagnostics) {
+        maybeInitBuilder();
+        if (diagnostics == null) {
+            builder.clearDiagnostics();
+            return;
+        }
+        builder.setDiagnostics(diagnostics);
+    }
+
+    @Override
+    public String getTrackingUrl() {
+        FinishApplicationMasterRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getTrackingUrl();
+    }
+
+    @Override
+    public void setTrackingUrl(String url) {
+        maybeInitBuilder();
+        if (url == null) {
+            builder.clearTrackingUrl();
+            return;
+        }
+        builder.setTrackingUrl(url);
+    }
+
+    @Override
+    public FinalApplicationStatus getFinalApplicationStatus() {
+        FinishApplicationMasterRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasFinalApplicationStatus()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getFinalApplicationStatus());
+    }
+
+    @Override
+    public void setFinalApplicationStatus(FinalApplicationStatus finalState) {
+        maybeInitBuilder();
+        if (finalState == null) {
+            builder.clearFinalApplicationStatus();
+            return;
+        }
+        builder.setFinalApplicationStatus(convertToProtoFormat(finalState));
+    }
+
+    private FinalApplicationStatus convertFromProtoFormat(FinalApplicationStatusProto s) {
+        return ProtoUtils.convertFromProtoFormat(s);
+    }
+
+    private FinalApplicationStatusProto convertToProtoFormat(FinalApplicationStatus s) {
+        return ProtoUtils.convertToProtoFormat(s);
+    }
 
 
 }

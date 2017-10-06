@@ -38,115 +38,115 @@ import com.google.common.annotations.VisibleForTesting;
 @Private
 @Unstable
 public class QueueCLI extends YarnCLI {
-  public static final String QUEUE = "queue";
+    public static final String QUEUE = "queue";
 
-  public static void main(String[] args) throws Exception {
-    QueueCLI cli = new QueueCLI();
-    cli.setSysOutPrintStream(System.out);
-    cli.setSysErrPrintStream(System.err);
-    int res = ToolRunner.run(cli, args);
-    cli.stop();
-    System.exit(res);
-  }
-
-  @Override
-  public int run(String[] args) throws Exception {
-    Options opts = new Options();
-
-    opts.addOption(STATUS_CMD, true,
-        "List queue information about given queue.");
-    opts.addOption(HELP_CMD, false, "Displays help for all commands.");
-    opts.getOption(STATUS_CMD).setArgName("Queue Name");
-
-    CommandLine cliParser = null;
-    try {
-      cliParser = new GnuParser().parse(opts, args);
-    } catch (MissingArgumentException ex) {
-      sysout.println("Missing argument for options");
-      printUsage(opts);
-      return -1;
+    public static void main(String[] args) throws Exception {
+        QueueCLI cli = new QueueCLI();
+        cli.setSysOutPrintStream(System.out);
+        cli.setSysErrPrintStream(System.err);
+        int res = ToolRunner.run(cli, args);
+        cli.stop();
+        System.exit(res);
     }
 
-    if (cliParser.hasOption(STATUS_CMD)) {
-      if (args.length != 2) {
-        printUsage(opts);
-        return -1;
-      }
-      return listQueue(cliParser.getOptionValue(STATUS_CMD));
-    } else if (cliParser.hasOption(HELP_CMD)) {
-      printUsage(opts);
-      return 0;
-    } else {
-      syserr.println("Invalid Command Usage : ");
-      printUsage(opts);
-      return -1;
-    }
-  }
+    @Override
+    public int run(String[] args) throws Exception {
+        Options opts = new Options();
 
-  /**
-   * It prints the usage of the command
-   * 
-   * @param opts
-   */
-  @VisibleForTesting
-  void printUsage(Options opts) {
-    new HelpFormatter().printHelp(QUEUE, opts);
-  }
-  
-  /**
-   * Lists the Queue Information matching the given queue name
-   * 
-   * @param queueName
-   * @throws YarnException
-   * @throws IOException
-   */
-  private int listQueue(String queueName) throws YarnException, IOException {
-    int rc;
-    PrintWriter writer = new PrintWriter(sysout);
+        opts.addOption(STATUS_CMD, true,
+                       "List queue information about given queue.");
+        opts.addOption(HELP_CMD, false, "Displays help for all commands.");
+        opts.getOption(STATUS_CMD).setArgName("Queue Name");
 
-    QueueInfo queueInfo = client.getQueueInfo(queueName);
-    if (queueInfo != null) {
-      writer.println("Queue Information : ");
-      printQueueInfo(writer, queueInfo);
-      rc = 0;
-    } else {
-      writer.println("Cannot get queue from RM by queueName = " + queueName
-          + ", please check.");
-      rc = -1;
-    }
-    writer.flush();
-    return rc;
-  }
+        CommandLine cliParser = null;
+        try {
+            cliParser = new GnuParser().parse(opts, args);
+        } catch (MissingArgumentException ex) {
+            sysout.println("Missing argument for options");
+            printUsage(opts);
+            return -1;
+        }
 
-  private void printQueueInfo(PrintWriter writer, QueueInfo queueInfo) {
-    writer.print("Queue Name : ");
-    writer.println(queueInfo.getQueueName());
-
-    writer.print("\tState : ");
-    writer.println(queueInfo.getQueueState());
-    DecimalFormat df = new DecimalFormat("#.0");
-    writer.print("\tCapacity : ");
-    writer.println(df.format(queueInfo.getCapacity() * 100) + "%");
-    writer.print("\tCurrent Capacity : ");
-    writer.println(df.format(queueInfo.getCurrentCapacity() * 100) + "%");
-    writer.print("\tMaximum Capacity : ");
-    writer.println(df.format(queueInfo.getMaximumCapacity() * 100) + "%");
-    writer.print("\tDefault Node Label expression : ");
-    if (null != queueInfo.getDefaultNodeLabelExpression()) {
-      writer.println(queueInfo.getDefaultNodeLabelExpression());
-    } else {
-      writer.println();
+        if (cliParser.hasOption(STATUS_CMD)) {
+            if (args.length != 2) {
+                printUsage(opts);
+                return -1;
+            }
+            return listQueue(cliParser.getOptionValue(STATUS_CMD));
+        } else if (cliParser.hasOption(HELP_CMD)) {
+            printUsage(opts);
+            return 0;
+        } else {
+            syserr.println("Invalid Command Usage : ");
+            printUsage(opts);
+            return -1;
+        }
     }
 
-    Set<String> nodeLabels = queueInfo.getAccessibleNodeLabels();
-    StringBuilder labelList = new StringBuilder();
-    writer.print("\tAccessible Node Labels : ");
-    for (String nodeLabel : nodeLabels) {
-      if (labelList.length() > 0) {
-        labelList.append(',');
-      }
-      labelList.append(nodeLabel);
+    /**
+     * It prints the usage of the command
+     *
+     * @param opts
+     */
+    @VisibleForTesting
+    void printUsage(Options opts) {
+        new HelpFormatter().printHelp(QUEUE, opts);
     }
-    writer.println(labelList.toString());
-  }
+
+    /**
+     * Lists the Queue Information matching the given queue name
+     *
+     * @param queueName
+     * @throws YarnException
+     * @throws IOException
+     */
+    private int listQueue(String queueName) throws YarnException, IOException {
+        int rc;
+        PrintWriter writer = new PrintWriter(sysout);
+
+        QueueInfo queueInfo = client.getQueueInfo(queueName);
+        if (queueInfo != null) {
+            writer.println("Queue Information : ");
+            printQueueInfo(writer, queueInfo);
+            rc = 0;
+        } else {
+            writer.println("Cannot get queue from RM by queueName = " + queueName
+                           + ", please check.");
+            rc = -1;
+        }
+        writer.flush();
+        return rc;
+    }
+
+    private void printQueueInfo(PrintWriter writer, QueueInfo queueInfo) {
+        writer.print("Queue Name : ");
+        writer.println(queueInfo.getQueueName());
+
+        writer.print("\tState : ");
+        writer.println(queueInfo.getQueueState());
+        DecimalFormat df = new DecimalFormat("#.0");
+        writer.print("\tCapacity : ");
+        writer.println(df.format(queueInfo.getCapacity() * 100) + "%");
+        writer.print("\tCurrent Capacity : ");
+        writer.println(df.format(queueInfo.getCurrentCapacity() * 100) + "%");
+        writer.print("\tMaximum Capacity : ");
+        writer.println(df.format(queueInfo.getMaximumCapacity() * 100) + "%");
+        writer.print("\tDefault Node Label expression : ");
+        if (null != queueInfo.getDefaultNodeLabelExpression()) {
+            writer.println(queueInfo.getDefaultNodeLabelExpression());
+        } else {
+            writer.println();
+        }
+
+        Set<String> nodeLabels = queueInfo.getAccessibleNodeLabels();
+        StringBuilder labelList = new StringBuilder();
+        writer.print("\tAccessible Node Labels : ");
+        for (String nodeLabel : nodeLabels) {
+            if (labelList.length() > 0) {
+                labelList.append(',');
+            }
+            labelList.append(nodeLabel);
+        }
+        writer.println(labelList.toString());
+    }
 }

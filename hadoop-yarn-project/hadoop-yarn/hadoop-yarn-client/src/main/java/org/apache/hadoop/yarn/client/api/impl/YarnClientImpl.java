@@ -112,597 +112,597 @@ import com.google.common.annotations.VisibleForTesting;
 @Unstable
 public class YarnClientImpl extends YarnClient {
 
-  private static final Log LOG = LogFactory.getLog(YarnClientImpl.class);
+    private static final Log LOG = LogFactory.getLog(YarnClientImpl.class);
 
-  protected ApplicationClientProtocol rmClient;
-  protected long submitPollIntervalMillis;
-  private long asyncApiPollIntervalMillis;
-  private long asyncApiPollTimeoutMillis;
-  private AHSClient historyClient;
-  private boolean historyServiceEnabled;
-  protected TimelineClient timelineClient;
-  @VisibleForTesting
-  Text timelineService;
-  @VisibleForTesting
-  String timelineDTRenewer;
-  protected boolean timelineServiceEnabled;
+    protected ApplicationClientProtocol rmClient;
+    protected long submitPollIntervalMillis;
+    private long asyncApiPollIntervalMillis;
+    private long asyncApiPollTimeoutMillis;
+    private AHSClient historyClient;
+    private boolean historyServiceEnabled;
+    protected TimelineClient timelineClient;
+    @VisibleForTesting
+    Text timelineService;
+    @VisibleForTesting
+    String timelineDTRenewer;
+    protected boolean timelineServiceEnabled;
 
-  private static final String ROOT = "root";
+    private static final String ROOT = "root";
 
-  public YarnClientImpl() {
-    super(YarnClientImpl.class.getName());
-  }
-
-  @SuppressWarnings("deprecation")
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    asyncApiPollIntervalMillis =
-        conf.getLong(YarnConfiguration.YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_INTERVAL_MS,
-          YarnConfiguration.DEFAULT_YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_INTERVAL_MS);
-    asyncApiPollTimeoutMillis =
-        conf.getLong(YarnConfiguration.YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_TIMEOUT_MS,
-            YarnConfiguration.DEFAULT_YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_TIMEOUT_MS);
-    submitPollIntervalMillis = asyncApiPollIntervalMillis;
-    if (conf.get(YarnConfiguration.YARN_CLIENT_APP_SUBMISSION_POLL_INTERVAL_MS)
-        != null) {
-      submitPollIntervalMillis = conf.getLong(
-        YarnConfiguration.YARN_CLIENT_APP_SUBMISSION_POLL_INTERVAL_MS,
-        YarnConfiguration.DEFAULT_YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_INTERVAL_MS);
+    public YarnClientImpl() {
+        super(YarnClientImpl.class.getName());
     }
 
-    if (conf.getBoolean(YarnConfiguration.APPLICATION_HISTORY_ENABLED,
-      YarnConfiguration.DEFAULT_APPLICATION_HISTORY_ENABLED)) {
-      historyServiceEnabled = true;
-      historyClient = AHSClient.createAHSClient();
-      historyClient.init(conf);
-    }
-
-    if (conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED,
-        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ENABLED)) {
-      timelineServiceEnabled = true;
-      timelineClient = TimelineClient.createTimelineClient();
-      timelineClient.init(conf);
-      timelineDTRenewer = getTimelineDelegationTokenRenewer(conf);
-      timelineService = TimelineUtils.buildTimelineTokenService(conf);
-    }
-    super.serviceInit(conf);
-  }
-
-  @Override
-  protected void serviceStart() throws Exception {
-    try {
-      rmClient = ClientRMProxy.createRMProxy(getConfig(),
-          ApplicationClientProtocol.class);
-      if (historyServiceEnabled) {
-        historyClient.start();
-      }
-      if (timelineServiceEnabled) {
-        timelineClient.start();
-      }
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
-    }
-    super.serviceStart();
-  }
-
-  @Override
-  protected void serviceStop() throws Exception {
-    if (this.rmClient != null) {
-      RPC.stopProxy(this.rmClient);
-    }
-    if (historyServiceEnabled) {
-      historyClient.stop();
-    }
-    if (timelineServiceEnabled) {
-      timelineClient.stop();
-    }
-    super.serviceStop();
-  }
-
-  private GetNewApplicationResponse getNewApplication()
-      throws YarnException, IOException {
-    GetNewApplicationRequest request =
-        Records.newRecord(GetNewApplicationRequest.class);
-    return rmClient.getNewApplication(request);
-  }
-
-  @Override
-  public YarnClientApplication createApplication()
-      throws YarnException, IOException {
-    ApplicationSubmissionContext context = Records.newRecord
-        (ApplicationSubmissionContext.class);
-    GetNewApplicationResponse newApp = getNewApplication();
-    ApplicationId appId = newApp.getApplicationId();
-    context.setApplicationId(appId);
-    return new YarnClientApplication(newApp, context);
-  }
-
-  @Override
-  public ApplicationId
-      submitApplication(ApplicationSubmissionContext appContext)
-          throws YarnException, IOException {
-    ApplicationId applicationId = appContext.getApplicationId();
-    if (applicationId == null) {
-      throw new ApplicationIdNotProvidedException(
-          "ApplicationId is not provided in ApplicationSubmissionContext");
-    }
-    SubmitApplicationRequest request =
-        Records.newRecord(SubmitApplicationRequest.class);
-    request.setApplicationSubmissionContext(appContext);
-
-    // Automatically add the timeline DT into the CLC
-    // Only when the security and the timeline service are both enabled
-    if (isSecurityEnabled() && timelineServiceEnabled) {
-      addTimelineDelegationToken(appContext.getAMContainerSpec());
-    }
-
-    //TODO: YARN-1763:Handle RM failovers during the submitApplication call.
-    rmClient.submitApplication(request);
-
-    int pollCount = 0;
-    long startTime = System.currentTimeMillis();
-
-    while (true) {
-      try {
-        YarnApplicationState state =
-            getApplicationReport(applicationId).getYarnApplicationState();
-        if (!state.equals(YarnApplicationState.NEW) &&
-            !state.equals(YarnApplicationState.NEW_SAVING)) {
-          LOG.info("Submitted application " + applicationId);
-          break;
+    @SuppressWarnings("deprecation")
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        asyncApiPollIntervalMillis =
+            conf.getLong(YarnConfiguration.YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_INTERVAL_MS,
+                         YarnConfiguration.DEFAULT_YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_INTERVAL_MS);
+        asyncApiPollTimeoutMillis =
+            conf.getLong(YarnConfiguration.YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_TIMEOUT_MS,
+                         YarnConfiguration.DEFAULT_YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_TIMEOUT_MS);
+        submitPollIntervalMillis = asyncApiPollIntervalMillis;
+        if (conf.get(YarnConfiguration.YARN_CLIENT_APP_SUBMISSION_POLL_INTERVAL_MS)
+            != null) {
+            submitPollIntervalMillis = conf.getLong(
+                                           YarnConfiguration.YARN_CLIENT_APP_SUBMISSION_POLL_INTERVAL_MS,
+                                           YarnConfiguration.DEFAULT_YARN_CLIENT_APPLICATION_CLIENT_PROTOCOL_POLL_INTERVAL_MS);
         }
 
-        long elapsedMillis = System.currentTimeMillis() - startTime;
-        if (enforceAsyncAPITimeout() &&
-            elapsedMillis >= asyncApiPollTimeoutMillis) {
-          throw new YarnException("Timed out while waiting for application " +
-              applicationId + " to be submitted successfully");
+        if (conf.getBoolean(YarnConfiguration.APPLICATION_HISTORY_ENABLED,
+                            YarnConfiguration.DEFAULT_APPLICATION_HISTORY_ENABLED)) {
+            historyServiceEnabled = true;
+            historyClient = AHSClient.createAHSClient();
+            historyClient.init(conf);
         }
 
-        // Notify the client through the log every 10 poll, in case the client
-        // is blocked here too long.
-        if (++pollCount % 10 == 0) {
-          LOG.info("Application submission is not finished, " +
-              "submitted application " + applicationId +
-              " is still in " + state);
+        if (conf.getBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED,
+                            YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ENABLED)) {
+            timelineServiceEnabled = true;
+            timelineClient = TimelineClient.createTimelineClient();
+            timelineClient.init(conf);
+            timelineDTRenewer = getTimelineDelegationTokenRenewer(conf);
+            timelineService = TimelineUtils.buildTimelineTokenService(conf);
         }
+        super.serviceInit(conf);
+    }
+
+    @Override
+    protected void serviceStart() throws Exception {
         try {
-          Thread.sleep(submitPollIntervalMillis);
-        } catch (InterruptedException ie) {
-          LOG.error("Interrupted while waiting for application "
-              + applicationId
-              + " to be successfully submitted.");
+            rmClient = ClientRMProxy.createRMProxy(getConfig(),
+                                                   ApplicationClientProtocol.class);
+            if (historyServiceEnabled) {
+                historyClient.start();
+            }
+            if (timelineServiceEnabled) {
+                timelineClient.start();
+            }
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
         }
-      } catch (ApplicationNotFoundException ex) {
-        // FailOver or RM restart happens before RMStateStore saves
-        // ApplicationState
-        LOG.info("Re-submit application " + applicationId + "with the " +
-            "same ApplicationSubmissionContext");
+        super.serviceStart();
+    }
+
+    @Override
+    protected void serviceStop() throws Exception {
+        if (this.rmClient != null) {
+            RPC.stopProxy(this.rmClient);
+        }
+        if (historyServiceEnabled) {
+            historyClient.stop();
+        }
+        if (timelineServiceEnabled) {
+            timelineClient.stop();
+        }
+        super.serviceStop();
+    }
+
+    private GetNewApplicationResponse getNewApplication()
+    throws YarnException, IOException {
+        GetNewApplicationRequest request =
+            Records.newRecord(GetNewApplicationRequest.class);
+        return rmClient.getNewApplication(request);
+    }
+
+    @Override
+    public YarnClientApplication createApplication()
+    throws YarnException, IOException {
+        ApplicationSubmissionContext context = Records.newRecord
+                                               (ApplicationSubmissionContext.class);
+        GetNewApplicationResponse newApp = getNewApplication();
+        ApplicationId appId = newApp.getApplicationId();
+        context.setApplicationId(appId);
+        return new YarnClientApplication(newApp, context);
+    }
+
+    @Override
+    public ApplicationId
+    submitApplication(ApplicationSubmissionContext appContext)
+    throws YarnException, IOException {
+        ApplicationId applicationId = appContext.getApplicationId();
+        if (applicationId == null) {
+            throw new ApplicationIdNotProvidedException(
+                "ApplicationId is not provided in ApplicationSubmissionContext");
+        }
+        SubmitApplicationRequest request =
+            Records.newRecord(SubmitApplicationRequest.class);
+        request.setApplicationSubmissionContext(appContext);
+
+        // Automatically add the timeline DT into the CLC
+        // Only when the security and the timeline service are both enabled
+        if (isSecurityEnabled() && timelineServiceEnabled) {
+            addTimelineDelegationToken(appContext.getAMContainerSpec());
+        }
+
+        //TODO: YARN-1763:Handle RM failovers during the submitApplication call.
         rmClient.submitApplication(request);
-      }
+
+        int pollCount = 0;
+        long startTime = System.currentTimeMillis();
+
+        while (true) {
+            try {
+                YarnApplicationState state =
+                    getApplicationReport(applicationId).getYarnApplicationState();
+                if (!state.equals(YarnApplicationState.NEW) &&
+                    !state.equals(YarnApplicationState.NEW_SAVING)) {
+                    LOG.info("Submitted application " + applicationId);
+                    break;
+                }
+
+                long elapsedMillis = System.currentTimeMillis() - startTime;
+                if (enforceAsyncAPITimeout() &&
+                    elapsedMillis >= asyncApiPollTimeoutMillis) {
+                    throw new YarnException("Timed out while waiting for application " +
+                                            applicationId + " to be submitted successfully");
+                }
+
+                // Notify the client through the log every 10 poll, in case the client
+                // is blocked here too long.
+                if (++pollCount % 10 == 0) {
+                    LOG.info("Application submission is not finished, " +
+                             "submitted application " + applicationId +
+                             " is still in " + state);
+                }
+                try {
+                    Thread.sleep(submitPollIntervalMillis);
+                } catch (InterruptedException ie) {
+                    LOG.error("Interrupted while waiting for application "
+                              + applicationId
+                              + " to be successfully submitted.");
+                }
+            } catch (ApplicationNotFoundException ex) {
+                // FailOver or RM restart happens before RMStateStore saves
+                // ApplicationState
+                LOG.info("Re-submit application " + applicationId + "with the " +
+                         "same ApplicationSubmissionContext");
+                rmClient.submitApplication(request);
+            }
+        }
+
+        return applicationId;
     }
 
-    return applicationId;
-  }
-
-  private void addTimelineDelegationToken(
-      ContainerLaunchContext clc) throws YarnException, IOException {
-    Credentials credentials = new Credentials();
-    DataInputByteBuffer dibb = new DataInputByteBuffer();
-    ByteBuffer tokens = clc.getTokens();
-    if (tokens != null) {
-      dibb.reset(tokens);
-      credentials.readTokenStorageStream(dibb);
-      tokens.rewind();
-    }
-    // If the timeline delegation token is already in the CLC, no need to add
-    // one more
-    for (org.apache.hadoop.security.token.Token<? extends TokenIdentifier> token : credentials
-        .getAllTokens()) {
-      if (token.getKind().equals(TimelineDelegationTokenIdentifier.KIND_NAME)) {
-        return;
-      }
-    }
-    org.apache.hadoop.security.token.Token<TimelineDelegationTokenIdentifier>
+    private void addTimelineDelegationToken(
+        ContainerLaunchContext clc) throws YarnException, IOException {
+        Credentials credentials = new Credentials();
+        DataInputByteBuffer dibb = new DataInputByteBuffer();
+        ByteBuffer tokens = clc.getTokens();
+        if (tokens != null) {
+            dibb.reset(tokens);
+            credentials.readTokenStorageStream(dibb);
+            tokens.rewind();
+        }
+        // If the timeline delegation token is already in the CLC, no need to add
+        // one more
+        for (org.apache.hadoop.security.token.Token<? extends TokenIdentifier> token : credentials
+             .getAllTokens()) {
+            if (token.getKind().equals(TimelineDelegationTokenIdentifier.KIND_NAME)) {
+                return;
+            }
+        }
+        org.apache.hadoop.security.token.Token<TimelineDelegationTokenIdentifier>
         timelineDelegationToken = getTimelineDelegationToken();
-    if (timelineDelegationToken == null) {
-      return;
-    }
-    credentials.addToken(timelineService, timelineDelegationToken);
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Add timline delegation token into credentials: "
-          + timelineDelegationToken);
-    }
-    DataOutputBuffer dob = new DataOutputBuffer();
-    credentials.writeTokenStorageToStream(dob);
-    tokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
-    clc.setTokens(tokens);
-  }
-
-  @VisibleForTesting
-  org.apache.hadoop.security.token.Token<TimelineDelegationTokenIdentifier>
-      getTimelineDelegationToken() throws IOException, YarnException {
-    return timelineClient.getDelegationToken(timelineDTRenewer);
-  }
-
-  private static String getTimelineDelegationTokenRenewer(Configuration conf)
-      throws IOException, YarnException  {
-    // Parse the RM daemon user if it exists in the config
-    String rmPrincipal = conf.get(YarnConfiguration.RM_PRINCIPAL);
-    String renewer = null;
-    if (rmPrincipal != null && rmPrincipal.length() > 0) {
-      String rmHost = conf.getSocketAddr(
-          YarnConfiguration.RM_ADDRESS,
-          YarnConfiguration.DEFAULT_RM_ADDRESS,
-          YarnConfiguration.DEFAULT_RM_PORT).getHostName();
-      renewer = SecurityUtil.getServerPrincipal(rmPrincipal, rmHost);
-    }
-    return renewer;
-  }
-
-  @Private
-  @VisibleForTesting
-  protected boolean isSecurityEnabled() {
-    return UserGroupInformation.isSecurityEnabled();
-  }
-
-  @Override
-  public void killApplication(ApplicationId applicationId)
-      throws YarnException, IOException {
-    KillApplicationRequest request =
-        Records.newRecord(KillApplicationRequest.class);
-    request.setApplicationId(applicationId);
-
-    try {
-      int pollCount = 0;
-      long startTime = System.currentTimeMillis();
-
-      while (true) {
-        KillApplicationResponse response =
-            rmClient.forceKillApplication(request);
-        if (response.getIsKillCompleted()) {
-          LOG.info("Killed application " + applicationId);
-          break;
+        if (timelineDelegationToken == null) {
+            return;
         }
-
-        long elapsedMillis = System.currentTimeMillis() - startTime;
-        if (enforceAsyncAPITimeout() &&
-            elapsedMillis >= this.asyncApiPollTimeoutMillis) {
-          throw new YarnException("Timed out while waiting for application " +
-            applicationId + " to be killed.");
+        credentials.addToken(timelineService, timelineDelegationToken);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Add timline delegation token into credentials: "
+                      + timelineDelegationToken);
         }
+        DataOutputBuffer dob = new DataOutputBuffer();
+        credentials.writeTokenStorageToStream(dob);
+        tokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+        clc.setTokens(tokens);
+    }
 
-        if (++pollCount % 10 == 0) {
-          LOG.info("Waiting for application " + applicationId + " to be killed.");
+    @VisibleForTesting
+    org.apache.hadoop.security.token.Token<TimelineDelegationTokenIdentifier>
+    getTimelineDelegationToken() throws IOException, YarnException {
+        return timelineClient.getDelegationToken(timelineDTRenewer);
+    }
+
+    private static String getTimelineDelegationTokenRenewer(Configuration conf)
+    throws IOException, YarnException  {
+        // Parse the RM daemon user if it exists in the config
+        String rmPrincipal = conf.get(YarnConfiguration.RM_PRINCIPAL);
+        String renewer = null;
+        if (rmPrincipal != null && rmPrincipal.length() > 0) {
+            String rmHost = conf.getSocketAddr(
+                                YarnConfiguration.RM_ADDRESS,
+                                YarnConfiguration.DEFAULT_RM_ADDRESS,
+                                YarnConfiguration.DEFAULT_RM_PORT).getHostName();
+            renewer = SecurityUtil.getServerPrincipal(rmPrincipal, rmHost);
         }
-        Thread.sleep(asyncApiPollIntervalMillis);
-      }
-    } catch (InterruptedException e) {
-      LOG.error("Interrupted while waiting for application " + applicationId
-          + " to be killed.");
+        return renewer;
     }
-  }
 
-  @VisibleForTesting
-  boolean enforceAsyncAPITimeout() {
-    return asyncApiPollTimeoutMillis >= 0;
-  }
-
-  @Override
-  public ApplicationReport getApplicationReport(ApplicationId appId)
-      throws YarnException, IOException {
-    GetApplicationReportResponse response = null;
-    try {
-      GetApplicationReportRequest request = Records
-          .newRecord(GetApplicationReportRequest.class);
-      request.setApplicationId(appId);
-      response = rmClient.getApplicationReport(request);
-    } catch (YarnException e) {
-      if (!historyServiceEnabled) {
-        // Just throw it as usual if historyService is not enabled.
-        throw e;
-      }
-      // Even if history-service is enabled, treat all exceptions still the same
-      // except the following
-      if (!(e.getClass() == ApplicationNotFoundException.class)) {
-        throw e;
-      }
-      return historyClient.getApplicationReport(appId);
+    @Private
+    @VisibleForTesting
+    protected boolean isSecurityEnabled() {
+        return UserGroupInformation.isSecurityEnabled();
     }
-    return response.getApplicationReport();
-  }
 
-  public org.apache.hadoop.security.token.Token<AMRMTokenIdentifier>
-      getAMRMToken(ApplicationId appId) throws YarnException, IOException {
-    Token token = getApplicationReport(appId).getAMRMToken();
-    org.apache.hadoop.security.token.Token<AMRMTokenIdentifier> amrmToken =
-        null;
-    if (token != null) {
-      amrmToken = ConverterUtils.convertFromYarn(token, (Text) null);
+    @Override
+    public void killApplication(ApplicationId applicationId)
+    throws YarnException, IOException {
+        KillApplicationRequest request =
+            Records.newRecord(KillApplicationRequest.class);
+        request.setApplicationId(applicationId);
+
+        try {
+            int pollCount = 0;
+            long startTime = System.currentTimeMillis();
+
+            while (true) {
+                KillApplicationResponse response =
+                    rmClient.forceKillApplication(request);
+                if (response.getIsKillCompleted()) {
+                    LOG.info("Killed application " + applicationId);
+                    break;
+                }
+
+                long elapsedMillis = System.currentTimeMillis() - startTime;
+                if (enforceAsyncAPITimeout() &&
+                    elapsedMillis >= this.asyncApiPollTimeoutMillis) {
+                    throw new YarnException("Timed out while waiting for application " +
+                                            applicationId + " to be killed.");
+                }
+
+                if (++pollCount % 10 == 0) {
+                    LOG.info("Waiting for application " + applicationId + " to be killed.");
+                }
+                Thread.sleep(asyncApiPollIntervalMillis);
+            }
+        } catch (InterruptedException e) {
+            LOG.error("Interrupted while waiting for application " + applicationId
+                      + " to be killed.");
+        }
     }
-    return amrmToken;
-  }
 
-  @Override
-  public List<ApplicationReport> getApplications() throws YarnException,
-      IOException {
-    return getApplications(null, null);
-  }
-
-  @Override
-  public List<ApplicationReport> getApplications(Set<String> applicationTypes)
-      throws YarnException,
-      IOException {
-    return getApplications(applicationTypes, null);
-  }
-
-  @Override
-  public List<ApplicationReport> getApplications(
-      EnumSet<YarnApplicationState> applicationStates)
-      throws YarnException, IOException {
-    return getApplications(null, applicationStates);
-  }
-
-  @Override
-  public List<ApplicationReport> getApplications(Set<String> applicationTypes,
-      EnumSet<YarnApplicationState> applicationStates) throws YarnException,
-      IOException {
-    GetApplicationsRequest request =
-        GetApplicationsRequest.newInstance(applicationTypes, applicationStates);
-    GetApplicationsResponse response = rmClient.getApplications(request);
-    return response.getApplicationList();
-  }
-
-  @Override
-  public YarnClusterMetrics getYarnClusterMetrics() throws YarnException,
-      IOException {
-    GetClusterMetricsRequest request =
-        Records.newRecord(GetClusterMetricsRequest.class);
-    GetClusterMetricsResponse response = rmClient.getClusterMetrics(request);
-    return response.getClusterMetrics();
-  }
-
-  @Override
-  public List<NodeReport> getNodeReports(NodeState... states) throws YarnException,
-      IOException {
-    EnumSet<NodeState> statesSet = (states.length == 0) ?
-        EnumSet.allOf(NodeState.class) : EnumSet.noneOf(NodeState.class);
-    for (NodeState state : states) {
-      statesSet.add(state);
+    @VisibleForTesting
+    boolean enforceAsyncAPITimeout() {
+        return asyncApiPollTimeoutMillis >= 0;
     }
-    GetClusterNodesRequest request = GetClusterNodesRequest
-        .newInstance(statesSet);
-    GetClusterNodesResponse response = rmClient.getClusterNodes(request);
-    return response.getNodeReports();
-  }
 
-  @Override
-  public Token getRMDelegationToken(Text renewer)
-      throws YarnException, IOException {
-    /* get the token from RM */
-    GetDelegationTokenRequest rmDTRequest =
-        Records.newRecord(GetDelegationTokenRequest.class);
-    rmDTRequest.setRenewer(renewer.toString());
-    GetDelegationTokenResponse response =
-        rmClient.getDelegationToken(rmDTRequest);
-    return response.getRMDelegationToken();
-  }
-
-
-  private GetQueueInfoRequest
-      getQueueInfoRequest(String queueName, boolean includeApplications,
-          boolean includeChildQueues, boolean recursive) {
-    GetQueueInfoRequest request = Records.newRecord(GetQueueInfoRequest.class);
-    request.setQueueName(queueName);
-    request.setIncludeApplications(includeApplications);
-    request.setIncludeChildQueues(includeChildQueues);
-    request.setRecursive(recursive);
-    return request;
-  }
-
-  @Override
-  public QueueInfo getQueueInfo(String queueName) throws YarnException,
-      IOException {
-    GetQueueInfoRequest request =
-        getQueueInfoRequest(queueName, true, false, false);
-    Records.newRecord(GetQueueInfoRequest.class);
-    return rmClient.getQueueInfo(request).getQueueInfo();
-  }
-
-  @Override
-  public List<QueueUserACLInfo> getQueueAclsInfo() throws YarnException,
-      IOException {
-    GetQueueUserAclsInfoRequest request =
-        Records.newRecord(GetQueueUserAclsInfoRequest.class);
-    return rmClient.getQueueUserAcls(request).getUserAclsInfoList();
-  }
-
-  @Override
-  public List<QueueInfo> getAllQueues() throws YarnException,
-      IOException {
-    List<QueueInfo> queues = new ArrayList<QueueInfo>();
-
-    QueueInfo rootQueue =
-        rmClient.getQueueInfo(getQueueInfoRequest(ROOT, false, true, true))
-          .getQueueInfo();
-    getChildQueues(rootQueue, queues, true);
-    return queues;
-  }
-
-  @Override
-  public List<QueueInfo> getRootQueueInfos() throws YarnException,
-      IOException {
-    List<QueueInfo> queues = new ArrayList<QueueInfo>();
-
-    QueueInfo rootQueue =
-        rmClient.getQueueInfo(getQueueInfoRequest(ROOT, false, true, true))
-          .getQueueInfo();
-    getChildQueues(rootQueue, queues, false);
-    return queues;
-  }
-
-  @Override
-  public List<QueueInfo> getChildQueueInfos(String parent)
-      throws YarnException, IOException {
-    List<QueueInfo> queues = new ArrayList<QueueInfo>();
-
-    QueueInfo parentQueue =
-        rmClient.getQueueInfo(getQueueInfoRequest(parent, false, true, false))
-          .getQueueInfo();
-    getChildQueues(parentQueue, queues, true);
-    return queues;
-  }
-
-  private void getChildQueues(QueueInfo parent, List<QueueInfo> queues,
-      boolean recursive) {
-    List<QueueInfo> childQueues = parent.getChildQueues();
-
-    for (QueueInfo child : childQueues) {
-      queues.add(child);
-      if (recursive) {
-        getChildQueues(child, queues, recursive);
-      }
+    @Override
+    public ApplicationReport getApplicationReport(ApplicationId appId)
+    throws YarnException, IOException {
+        GetApplicationReportResponse response = null;
+        try {
+            GetApplicationReportRequest request = Records
+                                                  .newRecord(GetApplicationReportRequest.class);
+            request.setApplicationId(appId);
+            response = rmClient.getApplicationReport(request);
+        } catch (YarnException e) {
+            if (!historyServiceEnabled) {
+                // Just throw it as usual if historyService is not enabled.
+                throw e;
+            }
+            // Even if history-service is enabled, treat all exceptions still the same
+            // except the following
+            if (!(e.getClass() == ApplicationNotFoundException.class)) {
+                throw e;
+            }
+            return historyClient.getApplicationReport(appId);
+        }
+        return response.getApplicationReport();
     }
-  }
 
-  @Private
-  @VisibleForTesting
-  public void setRMClient(ApplicationClientProtocol rmClient) {
-    this.rmClient = rmClient;
-  }
-
-  @Override
-  public ApplicationAttemptReport getApplicationAttemptReport(
-      ApplicationAttemptId appAttemptId) throws YarnException, IOException {
-    try {
-      GetApplicationAttemptReportRequest request = Records
-          .newRecord(GetApplicationAttemptReportRequest.class);
-      request.setApplicationAttemptId(appAttemptId);
-      GetApplicationAttemptReportResponse response = rmClient
-          .getApplicationAttemptReport(request);
-      return response.getApplicationAttemptReport();
-    } catch (YarnException e) {
-      if (!historyServiceEnabled) {
-        // Just throw it as usual if historyService is not enabled.
-        throw e;
-      }
-      // Even if history-service is enabled, treat all exceptions still the same
-      // except the following
-      if (e.getClass() != ApplicationNotFoundException.class) {
-        throw e;
-      }
-      return historyClient.getApplicationAttemptReport(appAttemptId);
+    public org.apache.hadoop.security.token.Token<AMRMTokenIdentifier>
+    getAMRMToken(ApplicationId appId) throws YarnException, IOException {
+        Token token = getApplicationReport(appId).getAMRMToken();
+        org.apache.hadoop.security.token.Token<AMRMTokenIdentifier> amrmToken =
+            null;
+        if (token != null) {
+            amrmToken = ConverterUtils.convertFromYarn(token, (Text) null);
+        }
+        return amrmToken;
     }
-  }
 
-  @Override
-  public List<ApplicationAttemptReport> getApplicationAttempts(
-      ApplicationId appId) throws YarnException, IOException {
-    try {
-      GetApplicationAttemptsRequest request = Records
-          .newRecord(GetApplicationAttemptsRequest.class);
-      request.setApplicationId(appId);
-      GetApplicationAttemptsResponse response = rmClient
-          .getApplicationAttempts(request);
-      return response.getApplicationAttemptList();
-    } catch (YarnException e) {
-      if (!historyServiceEnabled) {
-        // Just throw it as usual if historyService is not enabled.
-        throw e;
-      }
-      // Even if history-service is enabled, treat all exceptions still the same
-      // except the following
-      if (e.getClass() != ApplicationNotFoundException.class) {
-        throw e;
-      }
-      return historyClient.getApplicationAttempts(appId);
+    @Override
+    public List<ApplicationReport> getApplications() throws YarnException,
+        IOException {
+        return getApplications(null, null);
     }
-  }
 
-  @Override
-  public ContainerReport getContainerReport(ContainerId containerId)
-      throws YarnException, IOException {
-    try {
-      GetContainerReportRequest request = Records
-          .newRecord(GetContainerReportRequest.class);
-      request.setContainerId(containerId);
-      GetContainerReportResponse response = rmClient
-          .getContainerReport(request);
-      return response.getContainerReport();
-    } catch (YarnException e) {
-      if (!historyServiceEnabled) {
-        // Just throw it as usual if historyService is not enabled.
-        throw e;
-      }
-      // Even if history-service is enabled, treat all exceptions still the same
-      // except the following
-      if (e.getClass() != ApplicationNotFoundException.class) {
-        throw e;
-      }
-      return historyClient.getContainerReport(containerId);
+    @Override
+    public List<ApplicationReport> getApplications(Set<String> applicationTypes)
+    throws YarnException,
+        IOException {
+        return getApplications(applicationTypes, null);
     }
-  }
 
-  @Override
-  public List<ContainerReport> getContainers(
-      ApplicationAttemptId applicationAttemptId) throws YarnException,
-      IOException {
-    try {
-      GetContainersRequest request = Records
-          .newRecord(GetContainersRequest.class);
-      request.setApplicationAttemptId(applicationAttemptId);
-      GetContainersResponse response = rmClient.getContainers(request);
-      return response.getContainerList();
-    } catch (YarnException e) {
-      if (!historyServiceEnabled) {
-        // Just throw it as usual if historyService is not enabled.
-        throw e;
-      }
-      // Even if history-service is enabled, treat all exceptions still the same
-      // except the following
-      if (e.getClass() != ApplicationNotFoundException.class) {
-        throw e;
-      }
-      return historyClient.getContainers(applicationAttemptId);
+    @Override
+    public List<ApplicationReport> getApplications(
+        EnumSet<YarnApplicationState> applicationStates)
+    throws YarnException, IOException {
+        return getApplications(null, applicationStates);
     }
-  }
 
-  @Override
-  public void moveApplicationAcrossQueues(ApplicationId appId,
-      String queue) throws YarnException, IOException {
-    MoveApplicationAcrossQueuesRequest request =
-        MoveApplicationAcrossQueuesRequest.newInstance(appId, queue);
-    rmClient.moveApplicationAcrossQueues(request);
-  }
+    @Override
+    public List<ApplicationReport> getApplications(Set<String> applicationTypes,
+            EnumSet<YarnApplicationState> applicationStates) throws YarnException,
+        IOException {
+        GetApplicationsRequest request =
+            GetApplicationsRequest.newInstance(applicationTypes, applicationStates);
+        GetApplicationsResponse response = rmClient.getApplications(request);
+        return response.getApplicationList();
+    }
 
-  @Override
-  public ReservationSubmissionResponse submitReservation(
-      ReservationSubmissionRequest request) throws YarnException, IOException {
-    return rmClient.submitReservation(request);
-  }
+    @Override
+    public YarnClusterMetrics getYarnClusterMetrics() throws YarnException,
+        IOException {
+        GetClusterMetricsRequest request =
+            Records.newRecord(GetClusterMetricsRequest.class);
+        GetClusterMetricsResponse response = rmClient.getClusterMetrics(request);
+        return response.getClusterMetrics();
+    }
 
-  @Override
-  public ReservationUpdateResponse updateReservation(
-      ReservationUpdateRequest request) throws YarnException, IOException {
-    return rmClient.updateReservation(request);
-  }
+    @Override
+    public List<NodeReport> getNodeReports(NodeState... states) throws YarnException,
+        IOException {
+        EnumSet<NodeState> statesSet = (states.length == 0) ?
+                                       EnumSet.allOf(NodeState.class) : EnumSet.noneOf(NodeState.class);
+        for (NodeState state : states) {
+            statesSet.add(state);
+        }
+        GetClusterNodesRequest request = GetClusterNodesRequest
+                                         .newInstance(statesSet);
+        GetClusterNodesResponse response = rmClient.getClusterNodes(request);
+        return response.getNodeReports();
+    }
 
-  @Override
-  public ReservationDeleteResponse deleteReservation(
-      ReservationDeleteRequest request) throws YarnException, IOException {
-    return rmClient.deleteReservation(request);
-  }
-  
-  @Override
-  public Map<NodeId, Set<String>> getNodeToLabels() throws YarnException,
-      IOException {
-    return rmClient.getNodeToLabels(GetNodesToLabelsRequest.newInstance())
-        .getNodeToLabels();
-  }
+    @Override
+    public Token getRMDelegationToken(Text renewer)
+    throws YarnException, IOException {
+        /* get the token from RM */
+        GetDelegationTokenRequest rmDTRequest =
+            Records.newRecord(GetDelegationTokenRequest.class);
+        rmDTRequest.setRenewer(renewer.toString());
+        GetDelegationTokenResponse response =
+            rmClient.getDelegationToken(rmDTRequest);
+        return response.getRMDelegationToken();
+    }
 
-  @Override
-  public Set<String> getClusterNodeLabels() throws YarnException, IOException {
-    return rmClient.getClusterNodeLabels(
-        GetClusterNodeLabelsRequest.newInstance()).getNodeLabels();
-  }
+
+    private GetQueueInfoRequest
+    getQueueInfoRequest(String queueName, boolean includeApplications,
+                        boolean includeChildQueues, boolean recursive) {
+        GetQueueInfoRequest request = Records.newRecord(GetQueueInfoRequest.class);
+        request.setQueueName(queueName);
+        request.setIncludeApplications(includeApplications);
+        request.setIncludeChildQueues(includeChildQueues);
+        request.setRecursive(recursive);
+        return request;
+    }
+
+    @Override
+    public QueueInfo getQueueInfo(String queueName) throws YarnException,
+        IOException {
+        GetQueueInfoRequest request =
+            getQueueInfoRequest(queueName, true, false, false);
+        Records.newRecord(GetQueueInfoRequest.class);
+        return rmClient.getQueueInfo(request).getQueueInfo();
+    }
+
+    @Override
+    public List<QueueUserACLInfo> getQueueAclsInfo() throws YarnException,
+        IOException {
+        GetQueueUserAclsInfoRequest request =
+            Records.newRecord(GetQueueUserAclsInfoRequest.class);
+        return rmClient.getQueueUserAcls(request).getUserAclsInfoList();
+    }
+
+    @Override
+    public List<QueueInfo> getAllQueues() throws YarnException,
+        IOException {
+        List<QueueInfo> queues = new ArrayList<QueueInfo>();
+
+        QueueInfo rootQueue =
+            rmClient.getQueueInfo(getQueueInfoRequest(ROOT, false, true, true))
+            .getQueueInfo();
+        getChildQueues(rootQueue, queues, true);
+        return queues;
+    }
+
+    @Override
+    public List<QueueInfo> getRootQueueInfos() throws YarnException,
+        IOException {
+        List<QueueInfo> queues = new ArrayList<QueueInfo>();
+
+        QueueInfo rootQueue =
+            rmClient.getQueueInfo(getQueueInfoRequest(ROOT, false, true, true))
+            .getQueueInfo();
+        getChildQueues(rootQueue, queues, false);
+        return queues;
+    }
+
+    @Override
+    public List<QueueInfo> getChildQueueInfos(String parent)
+    throws YarnException, IOException {
+        List<QueueInfo> queues = new ArrayList<QueueInfo>();
+
+        QueueInfo parentQueue =
+            rmClient.getQueueInfo(getQueueInfoRequest(parent, false, true, false))
+            .getQueueInfo();
+        getChildQueues(parentQueue, queues, true);
+        return queues;
+    }
+
+    private void getChildQueues(QueueInfo parent, List<QueueInfo> queues,
+                                boolean recursive) {
+        List<QueueInfo> childQueues = parent.getChildQueues();
+
+        for (QueueInfo child : childQueues) {
+            queues.add(child);
+            if (recursive) {
+                getChildQueues(child, queues, recursive);
+            }
+        }
+    }
+
+    @Private
+    @VisibleForTesting
+    public void setRMClient(ApplicationClientProtocol rmClient) {
+        this.rmClient = rmClient;
+    }
+
+    @Override
+    public ApplicationAttemptReport getApplicationAttemptReport(
+        ApplicationAttemptId appAttemptId) throws YarnException, IOException {
+        try {
+            GetApplicationAttemptReportRequest request = Records
+                    .newRecord(GetApplicationAttemptReportRequest.class);
+            request.setApplicationAttemptId(appAttemptId);
+            GetApplicationAttemptReportResponse response = rmClient
+                    .getApplicationAttemptReport(request);
+            return response.getApplicationAttemptReport();
+        } catch (YarnException e) {
+            if (!historyServiceEnabled) {
+                // Just throw it as usual if historyService is not enabled.
+                throw e;
+            }
+            // Even if history-service is enabled, treat all exceptions still the same
+            // except the following
+            if (e.getClass() != ApplicationNotFoundException.class) {
+                throw e;
+            }
+            return historyClient.getApplicationAttemptReport(appAttemptId);
+        }
+    }
+
+    @Override
+    public List<ApplicationAttemptReport> getApplicationAttempts(
+        ApplicationId appId) throws YarnException, IOException {
+        try {
+            GetApplicationAttemptsRequest request = Records
+                                                    .newRecord(GetApplicationAttemptsRequest.class);
+            request.setApplicationId(appId);
+            GetApplicationAttemptsResponse response = rmClient
+                    .getApplicationAttempts(request);
+            return response.getApplicationAttemptList();
+        } catch (YarnException e) {
+            if (!historyServiceEnabled) {
+                // Just throw it as usual if historyService is not enabled.
+                throw e;
+            }
+            // Even if history-service is enabled, treat all exceptions still the same
+            // except the following
+            if (e.getClass() != ApplicationNotFoundException.class) {
+                throw e;
+            }
+            return historyClient.getApplicationAttempts(appId);
+        }
+    }
+
+    @Override
+    public ContainerReport getContainerReport(ContainerId containerId)
+    throws YarnException, IOException {
+        try {
+            GetContainerReportRequest request = Records
+                                                .newRecord(GetContainerReportRequest.class);
+            request.setContainerId(containerId);
+            GetContainerReportResponse response = rmClient
+                                                  .getContainerReport(request);
+            return response.getContainerReport();
+        } catch (YarnException e) {
+            if (!historyServiceEnabled) {
+                // Just throw it as usual if historyService is not enabled.
+                throw e;
+            }
+            // Even if history-service is enabled, treat all exceptions still the same
+            // except the following
+            if (e.getClass() != ApplicationNotFoundException.class) {
+                throw e;
+            }
+            return historyClient.getContainerReport(containerId);
+        }
+    }
+
+    @Override
+    public List<ContainerReport> getContainers(
+        ApplicationAttemptId applicationAttemptId) throws YarnException,
+        IOException {
+        try {
+            GetContainersRequest request = Records
+                                           .newRecord(GetContainersRequest.class);
+            request.setApplicationAttemptId(applicationAttemptId);
+            GetContainersResponse response = rmClient.getContainers(request);
+            return response.getContainerList();
+        } catch (YarnException e) {
+            if (!historyServiceEnabled) {
+                // Just throw it as usual if historyService is not enabled.
+                throw e;
+            }
+            // Even if history-service is enabled, treat all exceptions still the same
+            // except the following
+            if (e.getClass() != ApplicationNotFoundException.class) {
+                throw e;
+            }
+            return historyClient.getContainers(applicationAttemptId);
+        }
+    }
+
+    @Override
+    public void moveApplicationAcrossQueues(ApplicationId appId,
+                                            String queue) throws YarnException, IOException {
+        MoveApplicationAcrossQueuesRequest request =
+            MoveApplicationAcrossQueuesRequest.newInstance(appId, queue);
+        rmClient.moveApplicationAcrossQueues(request);
+    }
+
+    @Override
+    public ReservationSubmissionResponse submitReservation(
+        ReservationSubmissionRequest request) throws YarnException, IOException {
+        return rmClient.submitReservation(request);
+    }
+
+    @Override
+    public ReservationUpdateResponse updateReservation(
+        ReservationUpdateRequest request) throws YarnException, IOException {
+        return rmClient.updateReservation(request);
+    }
+
+    @Override
+    public ReservationDeleteResponse deleteReservation(
+        ReservationDeleteRequest request) throws YarnException, IOException {
+        return rmClient.deleteReservation(request);
+    }
+
+    @Override
+    public Map<NodeId, Set<String>> getNodeToLabels() throws YarnException,
+        IOException {
+        return rmClient.getNodeToLabels(GetNodesToLabelsRequest.newInstance())
+               .getNodeToLabels();
+    }
+
+    @Override
+    public Set<String> getClusterNodeLabels() throws YarnException, IOException {
+        return rmClient.getClusterNodeLabels(
+                   GetClusterNodeLabelsRequest.newInstance()).getNodeLabels();
+    }
 }

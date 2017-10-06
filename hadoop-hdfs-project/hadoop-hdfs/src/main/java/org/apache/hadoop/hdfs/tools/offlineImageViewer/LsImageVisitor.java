@@ -29,150 +29,150 @@ import java.util.LinkedList;
  *
  * Note: A significant difference between the output of the lsr command
  * and this image visitor is that this class cannot sort the file entries;
- * they are listed in the order they are stored within the fsimage file. 
+ * they are listed in the order they are stored within the fsimage file.
  * Therefore, the output of this class cannot be directly compared to the
  * output of the lsr command.
  */
 class LsImageVisitor extends TextWriterImageVisitor {
-  final private LinkedList<ImageElement> elemQ = new LinkedList<ImageElement>();
+    final private LinkedList<ImageElement> elemQ = new LinkedList<ImageElement>();
 
-  private int numBlocks;
-  private String perms;
-  private int replication;
-  private String username;
-  private String group;
-  private long filesize;
-  private String modTime;
-  private String path;
-  private String linkTarget;
+    private int numBlocks;
+    private String perms;
+    private int replication;
+    private String username;
+    private String group;
+    private long filesize;
+    private String modTime;
+    private String path;
+    private String linkTarget;
 
-  private boolean inInode = false;
-  final private StringBuilder sb = new StringBuilder();
-  final private Formatter formatter = new Formatter(sb);
+    private boolean inInode = false;
+    final private StringBuilder sb = new StringBuilder();
+    final private Formatter formatter = new Formatter(sb);
 
-  public LsImageVisitor(String filename) throws IOException {
-    super(filename);
-  }
-
-  public LsImageVisitor(String filename, boolean printToScreen) throws IOException {
-    super(filename, printToScreen);
-  }
-
-  /**
-   * Start a new line of output, reset values.
-   */
-  private void newLine() {
-    numBlocks = 0;
-    perms = username = group = path = linkTarget = "";
-    filesize = 0l;
-    replication = 0;
-
-    inInode = true;
-  }
-
-  /**
-   * All the values have been gathered.  Print them to the console in an
-   * ls-style format.
-   */
-  private final static int widthRepl = 2;  
-  private final static int widthUser = 8; 
-  private final static int widthGroup = 10; 
-  private final static int widthSize = 10;
-  private final static int widthMod = 10;
-  private final static String lsStr = " %" + widthRepl + "s %" + widthUser + 
-                                       "s %" + widthGroup + "s %" + widthSize +
-                                       "d %" + widthMod + "s %s";
-  private void printLine() throws IOException {
-    sb.append(numBlocks < 0 ? "d" : "-");
-    sb.append(perms);
-
-    if (0 != linkTarget.length()) {
-      path = path + " -> " + linkTarget; 
+    public LsImageVisitor(String filename) throws IOException {
+        super(filename);
     }
-    formatter.format(lsStr, replication > 0 ? replication : "-",
-                           username, group, filesize, modTime, path);
-    sb.append("\n");
 
-    write(sb.toString());
-    sb.setLength(0); // clear string builder
-
-    inInode = false;
-  }
-
-  @Override
-  void start() throws IOException {}
-
-  @Override
-  void finish() throws IOException {
-    super.finish();
-  }
-
-  @Override
-  void finishAbnormally() throws IOException {
-    System.out.println("Input ended unexpectedly.");
-    super.finishAbnormally();
-  }
-
-  @Override
-  void leaveEnclosingElement() throws IOException {
-    ImageElement elem = elemQ.pop();
-
-    if(elem == ImageElement.INODE)
-      printLine();
-  }
-
-  // Maintain state of location within the image tree and record
-  // values needed to display the inode in ls-style format.
-  @Override
-  void visit(ImageElement element, String value) throws IOException {
-    if(inInode) {
-      switch(element) {
-      case INODE_PATH:
-        if(value.equals("")) path = "/";
-        else path = value;
-        break;
-      case PERMISSION_STRING:
-        perms = value;
-        break;
-      case REPLICATION:
-        replication = Integer.valueOf(value);
-        break;
-      case USER_NAME:
-        username = value;
-        break;
-      case GROUP_NAME:
-        group = value;
-        break;
-      case NUM_BYTES:
-        filesize += Long.valueOf(value);
-        break;
-      case MODIFICATION_TIME:
-        modTime = value;
-        break;
-      case SYMLINK:
-        linkTarget = value;
-        break;
-      default:
-        // This is OK.  We're not looking for all the values.
-        break;
-      }
+    public LsImageVisitor(String filename, boolean printToScreen) throws IOException {
+        super(filename, printToScreen);
     }
-  }
 
-  @Override
-  void visitEnclosingElement(ImageElement element) throws IOException {
-    elemQ.push(element);
-    if(element == ImageElement.INODE)
-      newLine();
-  }
+    /**
+     * Start a new line of output, reset values.
+     */
+    private void newLine() {
+        numBlocks = 0;
+        perms = username = group = path = linkTarget = "";
+        filesize = 0l;
+        replication = 0;
 
-  @Override
-  void visitEnclosingElement(ImageElement element,
-      ImageElement key, String value) throws IOException {
-    elemQ.push(element);
-    if(element == ImageElement.INODE)
-      newLine();
-    else if (element == ImageElement.BLOCKS)
-      numBlocks = Integer.valueOf(value);
-  }
+        inInode = true;
+    }
+
+    /**
+     * All the values have been gathered.  Print them to the console in an
+     * ls-style format.
+     */
+    private final static int widthRepl = 2;
+    private final static int widthUser = 8;
+    private final static int widthGroup = 10;
+    private final static int widthSize = 10;
+    private final static int widthMod = 10;
+    private final static String lsStr = " %" + widthRepl + "s %" + widthUser +
+                                        "s %" + widthGroup + "s %" + widthSize +
+                                        "d %" + widthMod + "s %s";
+    private void printLine() throws IOException {
+        sb.append(numBlocks < 0 ? "d" : "-");
+        sb.append(perms);
+
+        if (0 != linkTarget.length()) {
+            path = path + " -> " + linkTarget;
+        }
+        formatter.format(lsStr, replication > 0 ? replication : "-",
+                         username, group, filesize, modTime, path);
+        sb.append("\n");
+
+        write(sb.toString());
+        sb.setLength(0); // clear string builder
+
+        inInode = false;
+    }
+
+    @Override
+    void start() throws IOException {}
+
+    @Override
+    void finish() throws IOException {
+        super.finish();
+    }
+
+    @Override
+    void finishAbnormally() throws IOException {
+        System.out.println("Input ended unexpectedly.");
+        super.finishAbnormally();
+    }
+
+    @Override
+    void leaveEnclosingElement() throws IOException {
+        ImageElement elem = elemQ.pop();
+
+        if(elem == ImageElement.INODE)
+            printLine();
+    }
+
+    // Maintain state of location within the image tree and record
+    // values needed to display the inode in ls-style format.
+    @Override
+    void visit(ImageElement element, String value) throws IOException {
+        if(inInode) {
+            switch(element) {
+                case INODE_PATH:
+                    if(value.equals("")) path = "/";
+                    else path = value;
+                    break;
+                case PERMISSION_STRING:
+                    perms = value;
+                    break;
+                case REPLICATION:
+                    replication = Integer.valueOf(value);
+                    break;
+                case USER_NAME:
+                    username = value;
+                    break;
+                case GROUP_NAME:
+                    group = value;
+                    break;
+                case NUM_BYTES:
+                    filesize += Long.valueOf(value);
+                    break;
+                case MODIFICATION_TIME:
+                    modTime = value;
+                    break;
+                case SYMLINK:
+                    linkTarget = value;
+                    break;
+                default:
+                    // This is OK.  We're not looking for all the values.
+                    break;
+            }
+        }
+    }
+
+    @Override
+    void visitEnclosingElement(ImageElement element) throws IOException {
+        elemQ.push(element);
+        if(element == ImageElement.INODE)
+            newLine();
+    }
+
+    @Override
+    void visitEnclosingElement(ImageElement element,
+                               ImageElement key, String value) throws IOException {
+        elemQ.push(element);
+        if(element == ImageElement.INODE)
+            newLine();
+        else if (element == ImageElement.BLOCKS)
+            numBlocks = Integer.valueOf(value);
+    }
 }

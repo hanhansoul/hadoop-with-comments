@@ -18,7 +18,7 @@
 package org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords;
 
 public enum ResourceStatusType {
-  FETCH_PENDING,
-  FETCH_SUCCESS,
-  FETCH_FAILURE,
+    FETCH_PENDING,
+    FETCH_SUCCESS,
+    FETCH_FAILURE,
 }

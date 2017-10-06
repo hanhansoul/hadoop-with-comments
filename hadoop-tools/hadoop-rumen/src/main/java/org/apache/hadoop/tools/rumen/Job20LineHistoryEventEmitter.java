@@ -38,240 +38,240 @@ import org.apache.hadoop.security.authorize.AccessControlList;
 
 public class Job20LineHistoryEventEmitter extends HistoryEventEmitter {
 
-  static List<SingleEventEmitter> nonFinals =
-      new LinkedList<SingleEventEmitter>();
-  static List<SingleEventEmitter> finals = new LinkedList<SingleEventEmitter>();
+    static List<SingleEventEmitter> nonFinals =
+        new LinkedList<SingleEventEmitter>();
+    static List<SingleEventEmitter> finals = new LinkedList<SingleEventEmitter>();
 
-  Long originalSubmitTime = null;
+    Long originalSubmitTime = null;
 
-  static {
-    nonFinals.add(new JobSubmittedEventEmitter());
-    nonFinals.add(new JobPriorityChangeEventEmitter());
-    nonFinals.add(new JobStatusChangedEventEmitter());
-    nonFinals.add(new JobInitedEventEmitter());
-    nonFinals.add(new JobInfoChangeEventEmitter());
+    static {
+        nonFinals.add(new JobSubmittedEventEmitter());
+        nonFinals.add(new JobPriorityChangeEventEmitter());
+        nonFinals.add(new JobStatusChangedEventEmitter());
+        nonFinals.add(new JobInitedEventEmitter());
+        nonFinals.add(new JobInfoChangeEventEmitter());
 
-    finals.add(new JobUnsuccessfulCompletionEventEmitter());
-    finals.add(new JobFinishedEventEmitter());
-  }
-
-  Job20LineHistoryEventEmitter() {
-    super();
-  }
-
-  static private class JobSubmittedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      JobID jobID = JobID.forName(jobIDName);
-
-      if (jobIDName == null) {
-        return null;
-      }
-
-      String submitTime = line.get("SUBMIT_TIME");
-      String jobConf = line.get("JOBCONF");
-      String user = line.get("USER");
-      if (user == null) {
-        user = "nulluser";
-      }
-      String jobName = line.get("JOBNAME");
-      String jobQueueName = line.get("JOB_QUEUE");// could be null
-      String workflowId = line.get("WORKFLOW_ID");
-      if (workflowId == null) {
-        workflowId = "";
-      }
-      String workflowName = line.get("WORKFLOW_NAME");
-      if (workflowName == null) {
-        workflowName = "";
-      }
-      String workflowNodeName = line.get("WORKFLOW_NODE_NAME");
-      if (workflowNodeName == null) {
-        workflowNodeName = "";
-      }
-      String workflowAdjacencies = line.get("WORKFLOW_ADJACENCIES");
-      if (workflowAdjacencies == null) {
-        workflowAdjacencies = "";
-      }
-      String workflowTags = line.get("WORKFLOW_TAGS");
-      if (workflowTags == null) {
-        workflowTags = "";
-      }
-      
-
-      if (submitTime != null) {
-        Job20LineHistoryEventEmitter that =
-            (Job20LineHistoryEventEmitter) thatg;
-
-        that.originalSubmitTime = Long.parseLong(submitTime);
-
-        Map<JobACL, AccessControlList> jobACLs =
-          new HashMap<JobACL, AccessControlList>();
-        return new JobSubmittedEvent(jobID, jobName, user,
-            that.originalSubmitTime, jobConf, jobACLs, jobQueueName,
-            workflowId, workflowName, workflowNodeName, workflowAdjacencies,
-            workflowTags);
-      }
-
-      return null;
+        finals.add(new JobUnsuccessfulCompletionEventEmitter());
+        finals.add(new JobFinishedEventEmitter());
     }
-  }
 
-  static private class JobPriorityChangeEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      JobID jobID = JobID.forName(jobIDName);
-
-      if (jobIDName == null) {
-        return null;
-      }
-
-      String priority = line.get("JOB_PRIORITY");
-
-      if (priority != null) {
-        return new JobPriorityChangeEvent(jobID, JobPriority.valueOf(priority));
-      }
-
-      return null;
+    Job20LineHistoryEventEmitter() {
+        super();
     }
-  }
 
-  static private class JobInitedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      if (jobIDName == null) {
-        return null;
-      }
+    static private class JobSubmittedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            JobID jobID = JobID.forName(jobIDName);
 
-      JobID jobID = JobID.forName(jobIDName);
+            if (jobIDName == null) {
+                return null;
+            }
 
-      String launchTime = line.get("LAUNCH_TIME");
-      String status = line.get("JOB_STATUS");
-      String totalMaps = line.get("TOTAL_MAPS");
-      String totalReduces = line.get("TOTAL_REDUCES");
-      String uberized = line.get("UBERIZED");
+            String submitTime = line.get("SUBMIT_TIME");
+            String jobConf = line.get("JOBCONF");
+            String user = line.get("USER");
+            if (user == null) {
+                user = "nulluser";
+            }
+            String jobName = line.get("JOBNAME");
+            String jobQueueName = line.get("JOB_QUEUE");// could be null
+            String workflowId = line.get("WORKFLOW_ID");
+            if (workflowId == null) {
+                workflowId = "";
+            }
+            String workflowName = line.get("WORKFLOW_NAME");
+            if (workflowName == null) {
+                workflowName = "";
+            }
+            String workflowNodeName = line.get("WORKFLOW_NODE_NAME");
+            if (workflowNodeName == null) {
+                workflowNodeName = "";
+            }
+            String workflowAdjacencies = line.get("WORKFLOW_ADJACENCIES");
+            if (workflowAdjacencies == null) {
+                workflowAdjacencies = "";
+            }
+            String workflowTags = line.get("WORKFLOW_TAGS");
+            if (workflowTags == null) {
+                workflowTags = "";
+            }
 
-      if (launchTime != null && totalMaps != null && totalReduces != null) {
-        return new JobInitedEvent(jobID, Long.parseLong(launchTime), Integer
-            .parseInt(totalMaps), Integer.parseInt(totalReduces), status,
-            Boolean.parseBoolean(uberized));
-      }
 
-      return null;
+            if (submitTime != null) {
+                Job20LineHistoryEventEmitter that =
+                    (Job20LineHistoryEventEmitter) thatg;
+
+                that.originalSubmitTime = Long.parseLong(submitTime);
+
+                Map<JobACL, AccessControlList> jobACLs =
+                    new HashMap<JobACL, AccessControlList>();
+                return new JobSubmittedEvent(jobID, jobName, user,
+                                             that.originalSubmitTime, jobConf, jobACLs, jobQueueName,
+                                             workflowId, workflowName, workflowNodeName, workflowAdjacencies,
+                                             workflowTags);
+            }
+
+            return null;
+        }
     }
-  }
 
-  static private class JobStatusChangedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      if (jobIDName == null) {
-        return null;
-      }
+    static private class JobPriorityChangeEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            JobID jobID = JobID.forName(jobIDName);
 
-      JobID jobID = JobID.forName(jobIDName);
+            if (jobIDName == null) {
+                return null;
+            }
 
-      String status = line.get("JOB_STATUS");
+            String priority = line.get("JOB_PRIORITY");
 
-      if (status != null) {
-        return new JobStatusChangedEvent(jobID, status);
-      }
+            if (priority != null) {
+                return new JobPriorityChangeEvent(jobID, JobPriority.valueOf(priority));
+            }
 
-      return null;
+            return null;
+        }
     }
-  }
 
-  static private class JobInfoChangeEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      if (jobIDName == null) {
-        return null;
-      }
+    static private class JobInitedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            if (jobIDName == null) {
+                return null;
+            }
 
-      JobID jobID = JobID.forName(jobIDName);
+            JobID jobID = JobID.forName(jobIDName);
 
-      String launchTime = line.get("LAUNCH_TIME");
+            String launchTime = line.get("LAUNCH_TIME");
+            String status = line.get("JOB_STATUS");
+            String totalMaps = line.get("TOTAL_MAPS");
+            String totalReduces = line.get("TOTAL_REDUCES");
+            String uberized = line.get("UBERIZED");
 
-      if (launchTime != null) {
-        Job20LineHistoryEventEmitter that =
-            (Job20LineHistoryEventEmitter) thatg;
-        return new JobInfoChangeEvent(jobID, that.originalSubmitTime, Long
-            .parseLong(launchTime));
-      }
+            if (launchTime != null && totalMaps != null && totalReduces != null) {
+                return new JobInitedEvent(jobID, Long.parseLong(launchTime), Integer
+                                          .parseInt(totalMaps), Integer.parseInt(totalReduces), status,
+                                          Boolean.parseBoolean(uberized));
+            }
 
-      return null;
+            return null;
+        }
     }
-  }
 
-  static private class JobUnsuccessfulCompletionEventEmitter extends
-      SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      if (jobIDName == null) {
-        return null;
-      }
+    static private class JobStatusChangedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            if (jobIDName == null) {
+                return null;
+            }
 
-      JobID jobID = JobID.forName(jobIDName);
+            JobID jobID = JobID.forName(jobIDName);
 
-      String finishTime = line.get("FINISH_TIME");
+            String status = line.get("JOB_STATUS");
 
-      String status = line.get("JOB_STATUS");
+            if (status != null) {
+                return new JobStatusChangedEvent(jobID, status);
+            }
 
-      String finishedMaps = line.get("FINISHED_MAPS");
-      String finishedReduces = line.get("FINISHED_REDUCES");
-
-      if (status != null && !status.equalsIgnoreCase("success")
-          && finishTime != null && finishedMaps != null
-          && finishedReduces != null) {
-        return new JobUnsuccessfulCompletionEvent(jobID, Long
-            .parseLong(finishTime), Integer.parseInt(finishedMaps), Integer
-            .parseInt(finishedReduces), status);
-      }
-
-      return null;
+            return null;
+        }
     }
-  }
 
-  static private class JobFinishedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
-        HistoryEventEmitter thatg) {
-      if (jobIDName == null) {
-        return null;
-      }
+    static private class JobInfoChangeEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            if (jobIDName == null) {
+                return null;
+            }
 
-      JobID jobID = JobID.forName(jobIDName);
+            JobID jobID = JobID.forName(jobIDName);
 
-      String finishTime = line.get("FINISH_TIME");
+            String launchTime = line.get("LAUNCH_TIME");
 
-      String status = line.get("JOB_STATUS");
+            if (launchTime != null) {
+                Job20LineHistoryEventEmitter that =
+                    (Job20LineHistoryEventEmitter) thatg;
+                return new JobInfoChangeEvent(jobID, that.originalSubmitTime, Long
+                                              .parseLong(launchTime));
+            }
 
-      String finishedMaps = line.get("FINISHED_MAPS");
-      String finishedReduces = line.get("FINISHED_REDUCES");
-
-      String failedMaps = line.get("FAILED_MAPS");
-      String failedReduces = line.get("FAILED_REDUCES");
-
-      String counters = line.get("COUNTERS");
-
-      if (status != null && status.equalsIgnoreCase("success")
-          && finishTime != null && finishedMaps != null
-          && finishedReduces != null) {
-        return new JobFinishedEvent(jobID, Long.parseLong(finishTime), Integer
-            .parseInt(finishedMaps), Integer.parseInt(finishedReduces), Integer
-            .parseInt(failedMaps), Integer.parseInt(failedReduces), null, null,
-            maybeParseCounters(counters));
-      }
-
-      return null;
+            return null;
+        }
     }
-  }
 
-  @Override
-  List<SingleEventEmitter> finalSEEs() {
-    return finals;
-  }
+    static private class JobUnsuccessfulCompletionEventEmitter extends
+        SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            if (jobIDName == null) {
+                return null;
+            }
 
-  @Override
-  List<SingleEventEmitter> nonFinalSEEs() {
-    return nonFinals;
-  }
+            JobID jobID = JobID.forName(jobIDName);
+
+            String finishTime = line.get("FINISH_TIME");
+
+            String status = line.get("JOB_STATUS");
+
+            String finishedMaps = line.get("FINISHED_MAPS");
+            String finishedReduces = line.get("FINISHED_REDUCES");
+
+            if (status != null && !status.equalsIgnoreCase("success")
+                && finishTime != null && finishedMaps != null
+                && finishedReduces != null) {
+                return new JobUnsuccessfulCompletionEvent(jobID, Long
+                        .parseLong(finishTime), Integer.parseInt(finishedMaps), Integer
+                        .parseInt(finishedReduces), status);
+            }
+
+            return null;
+        }
+    }
+
+    static private class JobFinishedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String jobIDName,
+                                    HistoryEventEmitter thatg) {
+            if (jobIDName == null) {
+                return null;
+            }
+
+            JobID jobID = JobID.forName(jobIDName);
+
+            String finishTime = line.get("FINISH_TIME");
+
+            String status = line.get("JOB_STATUS");
+
+            String finishedMaps = line.get("FINISHED_MAPS");
+            String finishedReduces = line.get("FINISHED_REDUCES");
+
+            String failedMaps = line.get("FAILED_MAPS");
+            String failedReduces = line.get("FAILED_REDUCES");
+
+            String counters = line.get("COUNTERS");
+
+            if (status != null && status.equalsIgnoreCase("success")
+                && finishTime != null && finishedMaps != null
+                && finishedReduces != null) {
+                return new JobFinishedEvent(jobID, Long.parseLong(finishTime), Integer
+                                            .parseInt(finishedMaps), Integer.parseInt(finishedReduces), Integer
+                                            .parseInt(failedMaps), Integer.parseInt(failedReduces), null, null,
+                                            maybeParseCounters(counters));
+            }
+
+            return null;
+        }
+    }
+
+    @Override
+    List<SingleEventEmitter> finalSEEs() {
+        return finals;
+    }
+
+    @Override
+    List<SingleEventEmitter> nonFinalSEEs() {
+        return nonFinals;
+    }
 
 }

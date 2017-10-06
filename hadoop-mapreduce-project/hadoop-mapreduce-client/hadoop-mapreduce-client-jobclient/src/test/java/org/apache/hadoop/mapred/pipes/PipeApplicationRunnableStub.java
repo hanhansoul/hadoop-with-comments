@@ -30,58 +30,58 @@ import org.apache.hadoop.io.WritableUtils;
 
 public class PipeApplicationRunnableStub extends CommonStub {
 
-  public static void main(String[] args) {
-    PipeApplicationRunnableStub client = new PipeApplicationRunnableStub();
-    client.binaryProtocolStub();
-  }
-
-  public void binaryProtocolStub() {
-    try {
-
-      initSoket();
-      System.out.println("start OK");
-
-      // RUN_MAP.code
-      // should be 3
-
-      int answer = WritableUtils.readVInt(dataInput);
-      System.out.println("RunMap:" + answer);
-      TestPipeApplication.FakeSplit split = new TestPipeApplication.FakeSplit();
-      readObject(split, dataInput);
-
-      WritableUtils.readVInt(dataInput);
-      WritableUtils.readVInt(dataInput);
-      // end runMap
-      // get InputTypes
-      WritableUtils.readVInt(dataInput);
-      String inText = Text.readString(dataInput);
-      System.out.println("Key class:" + inText);
-      inText = Text.readString(dataInput);
-      System.out.println("Value class:" + inText);
-
-      @SuppressWarnings("unused")
-      int inCode = 0;
-
-      // read all data from sender and write to output
-      while ((inCode = WritableUtils.readVInt(dataInput)) == 4) {
-        FloatWritable key = new FloatWritable();
-        NullWritable value = NullWritable.get();
-        readObject(key, dataInput);
-        System.out.println("value:" + key.get());
-        readObject(value, dataInput);
-      }
-
-      WritableUtils.writeVInt(dataOut, 54);
-
-      dataOut.flush();
-      dataOut.close();
-
-    } catch (Exception x) {
-      x.printStackTrace();
-    } finally {
-      closeSoket();
+    public static void main(String[] args) {
+        PipeApplicationRunnableStub client = new PipeApplicationRunnableStub();
+        client.binaryProtocolStub();
     }
 
-  }
+    public void binaryProtocolStub() {
+        try {
+
+            initSoket();
+            System.out.println("start OK");
+
+            // RUN_MAP.code
+            // should be 3
+
+            int answer = WritableUtils.readVInt(dataInput);
+            System.out.println("RunMap:" + answer);
+            TestPipeApplication.FakeSplit split = new TestPipeApplication.FakeSplit();
+            readObject(split, dataInput);
+
+            WritableUtils.readVInt(dataInput);
+            WritableUtils.readVInt(dataInput);
+            // end runMap
+            // get InputTypes
+            WritableUtils.readVInt(dataInput);
+            String inText = Text.readString(dataInput);
+            System.out.println("Key class:" + inText);
+            inText = Text.readString(dataInput);
+            System.out.println("Value class:" + inText);
+
+            @SuppressWarnings("unused")
+            int inCode = 0;
+
+            // read all data from sender and write to output
+            while ((inCode = WritableUtils.readVInt(dataInput)) == 4) {
+                FloatWritable key = new FloatWritable();
+                NullWritable value = NullWritable.get();
+                readObject(key, dataInput);
+                System.out.println("value:" + key.get());
+                readObject(value, dataInput);
+            }
+
+            WritableUtils.writeVInt(dataOut, 54);
+
+            dataOut.flush();
+            dataOut.close();
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        } finally {
+            closeSoket();
+        }
+
+    }
 
 }

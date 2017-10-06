@@ -27,43 +27,43 @@ import org.junit.Test;
 
 public class TestApplicationAttemptId {
 
-  @Test
-  public void testApplicationAttemptId() {
-    ApplicationAttemptId a1 = createAppAttemptId(10l, 1, 1);
-    ApplicationAttemptId a2 = createAppAttemptId(10l, 1, 2);
-    ApplicationAttemptId a3 = createAppAttemptId(10l, 2, 1);
-    ApplicationAttemptId a4 = createAppAttemptId(8l, 1, 4);
-    ApplicationAttemptId a5 = createAppAttemptId(10l, 1, 1);
-    
-    Assert.assertTrue(a1.equals(a5));
-    Assert.assertFalse(a1.equals(a2));
-    Assert.assertFalse(a1.equals(a3));
-    Assert.assertFalse(a1.equals(a4));
-    
-    Assert.assertTrue(a1.compareTo(a5) == 0);
-    Assert.assertTrue(a1.compareTo(a2) < 0);
-    Assert.assertTrue(a1.compareTo(a3) < 0);
-    Assert.assertTrue(a1.compareTo(a4) > 0);
-    
-    Assert.assertTrue(a1.hashCode() == a5.hashCode());
-    Assert.assertFalse(a1.hashCode() == a2.hashCode());
-    Assert.assertFalse(a1.hashCode() == a3.hashCode());
-    Assert.assertFalse(a1.hashCode() == a4.hashCode());
-    
-    long ts = System.currentTimeMillis();
-    ApplicationAttemptId a6 = createAppAttemptId(ts, 543627, 33492611);
-    Assert.assertEquals("appattempt_10_0001_000001", a1.toString());
-    Assert.assertEquals("appattempt_" + ts + "_543627_33492611", a6.toString());
-  }
+    @Test
+    public void testApplicationAttemptId() {
+        ApplicationAttemptId a1 = createAppAttemptId(10l, 1, 1);
+        ApplicationAttemptId a2 = createAppAttemptId(10l, 1, 2);
+        ApplicationAttemptId a3 = createAppAttemptId(10l, 2, 1);
+        ApplicationAttemptId a4 = createAppAttemptId(8l, 1, 4);
+        ApplicationAttemptId a5 = createAppAttemptId(10l, 1, 1);
 
-  private ApplicationAttemptId createAppAttemptId(
-      long clusterTimeStamp, int id, int attemptId) {
-    ApplicationId appId = ApplicationId.newInstance(clusterTimeStamp, id);
-    return ApplicationAttemptId.newInstance(appId, attemptId);
-  }
+        Assert.assertTrue(a1.equals(a5));
+        Assert.assertFalse(a1.equals(a2));
+        Assert.assertFalse(a1.equals(a3));
+        Assert.assertFalse(a1.equals(a4));
 
-  public static void main(String[] args) throws Exception {
-    TestApplicationAttemptId t = new TestApplicationAttemptId();
-    t.testApplicationAttemptId();
-  }
+        Assert.assertTrue(a1.compareTo(a5) == 0);
+        Assert.assertTrue(a1.compareTo(a2) < 0);
+        Assert.assertTrue(a1.compareTo(a3) < 0);
+        Assert.assertTrue(a1.compareTo(a4) > 0);
+
+        Assert.assertTrue(a1.hashCode() == a5.hashCode());
+        Assert.assertFalse(a1.hashCode() == a2.hashCode());
+        Assert.assertFalse(a1.hashCode() == a3.hashCode());
+        Assert.assertFalse(a1.hashCode() == a4.hashCode());
+
+        long ts = System.currentTimeMillis();
+        ApplicationAttemptId a6 = createAppAttemptId(ts, 543627, 33492611);
+        Assert.assertEquals("appattempt_10_0001_000001", a1.toString());
+        Assert.assertEquals("appattempt_" + ts + "_543627_33492611", a6.toString());
+    }
+
+    private ApplicationAttemptId createAppAttemptId(
+        long clusterTimeStamp, int id, int attemptId) {
+        ApplicationId appId = ApplicationId.newInstance(clusterTimeStamp, id);
+        return ApplicationAttemptId.newInstance(appId, attemptId);
+    }
+
+    public static void main(String[] args) throws Exception {
+        TestApplicationAttemptId t = new TestApplicationAttemptId();
+        t.testApplicationAttemptId();
+    }
 }

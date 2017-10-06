@@ -32,40 +32,40 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class Epoch {
 
-  public static Epoch newInstance(long sequenceNumber) {
-    Epoch epoch = Records.newRecord(Epoch.class);
-    epoch.setEpoch(sequenceNumber);
-    return epoch;
-  }
-
-  public abstract long getEpoch();
-
-  public abstract void setEpoch(long sequenceNumber);
-
-  public abstract EpochProto getProto();
-
-  public String toString() {
-    return String.valueOf(getEpoch());
-  }
-
-  @Override
-  public int hashCode() {
-    return (int) (getEpoch() ^ (getEpoch() >>> 32));
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Epoch other = (Epoch) obj;
-    if (this.getEpoch() == other.getEpoch()) {
-      return true;
-    } else {
-      return false;
+    public static Epoch newInstance(long sequenceNumber) {
+        Epoch epoch = Records.newRecord(Epoch.class);
+        epoch.setEpoch(sequenceNumber);
+        return epoch;
     }
-  }
+
+    public abstract long getEpoch();
+
+    public abstract void setEpoch(long sequenceNumber);
+
+    public abstract EpochProto getProto();
+
+    public String toString() {
+        return String.valueOf(getEpoch());
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (getEpoch() ^ (getEpoch() >>> 32));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Epoch other = (Epoch) obj;
+        if (this.getEpoch() == other.getEpoch()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

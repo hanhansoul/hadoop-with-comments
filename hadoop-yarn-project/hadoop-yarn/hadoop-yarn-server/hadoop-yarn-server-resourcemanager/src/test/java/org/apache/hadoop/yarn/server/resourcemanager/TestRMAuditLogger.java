@@ -42,199 +42,199 @@ import org.junit.Test;
  * Tests {@link RMAuditLogger}.
  */
 public class TestRMAuditLogger {
-  private static final String USER = "test";
-  private static final String OPERATION = "oper";
-  private static final String TARGET = "tgt";
-  private static final String PERM = "admin group";
-  private static final String DESC = "description of an audit log";
-  private static final ApplicationId APPID = mock(ApplicationId.class);
-  private static final ApplicationAttemptId ATTEMPTID = mock(ApplicationAttemptId.class);
-  private static final ContainerId CONTAINERID = mock(ContainerId.class);
+    private static final String USER = "test";
+    private static final String OPERATION = "oper";
+    private static final String TARGET = "tgt";
+    private static final String PERM = "admin group";
+    private static final String DESC = "description of an audit log";
+    private static final ApplicationId APPID = mock(ApplicationId.class);
+    private static final ApplicationAttemptId ATTEMPTID = mock(ApplicationAttemptId.class);
+    private static final ContainerId CONTAINERID = mock(ContainerId.class);
 
-  @Before
-  public void setUp() throws Exception {
-    when(APPID.toString()).thenReturn("app_1");
-    when(ATTEMPTID.toString()).thenReturn("app_attempt_1");
-    when(CONTAINERID.toString()).thenReturn("container_1");
-  }
-
-
-  /**
-   * Test the AuditLog format with key-val pair.
-   */
-  @Test  
-  public void testKeyValLogFormat() throws Exception {
-    StringBuilder actLog = new StringBuilder();
-    StringBuilder expLog = new StringBuilder();
-    // add the first k=v pair and check
-    RMAuditLogger.start(Keys.USER, USER, actLog);
-    expLog.append("USER=test");
-    assertEquals(expLog.toString(), actLog.toString());
-
-    // append another k1=v1 pair to already added k=v and test
-    RMAuditLogger.add(Keys.OPERATION, OPERATION, actLog);
-    expLog.append("\tOPERATION=oper");
-    assertEquals(expLog.toString(), actLog.toString());
-
-    // append another k1=null pair and test
-    RMAuditLogger.add(Keys.APPID, (String)null, actLog);
-    expLog.append("\tAPPID=null");
-    assertEquals(expLog.toString(), actLog.toString());
-
-    // now add the target and check of the final string
-    RMAuditLogger.add(Keys.TARGET, TARGET, actLog);
-    expLog.append("\tTARGET=tgt");
-    assertEquals(expLog.toString(), actLog.toString());
-  }
-
-
-  /**
-   * Test the AuditLog format for successful events.
-   */
-  private void testSuccessLogFormatHelper(boolean checkIP, ApplicationId appId,
-      ApplicationAttemptId attemptId, ContainerId containerId) {
-    String sLog = RMAuditLogger.createSuccessLog(USER, OPERATION, TARGET,
-        appId, attemptId, containerId);
-    StringBuilder expLog = new StringBuilder();
-    expLog.append("USER=test\t");
-    if (checkIP) {
-      InetAddress ip = Server.getRemoteIp();
-      expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
+    @Before
+    public void setUp() throws Exception {
+        when(APPID.toString()).thenReturn("app_1");
+        when(ATTEMPTID.toString()).thenReturn("app_attempt_1");
+        when(CONTAINERID.toString()).thenReturn("container_1");
     }
-    expLog.append("OPERATION=oper\tTARGET=tgt\tRESULT=SUCCESS");
-
-    if (appId != null) {
-      expLog.append("\tAPPID=app_1");
-    }
-    if (attemptId != null) {
-      expLog.append("\tAPPATTEMPTID=app_attempt_1");
-    }
-    if (containerId != null) {
-      expLog.append("\tCONTAINERID=container_1");
-    }
-    assertEquals(expLog.toString(), sLog);
-  }
-
-  /**
-   * Test the AuditLog format for successful events passing nulls.
-   */
-  private void testSuccessLogNulls(boolean checkIP) {
-    String sLog = RMAuditLogger.createSuccessLog(null, null, null, null, 
-        null, null);
-    StringBuilder expLog = new StringBuilder();
-    expLog.append("USER=null\t");
-    if (checkIP) {
-      InetAddress ip = Server.getRemoteIp();
-      expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
-    }
-    expLog.append("OPERATION=null\tTARGET=null\tRESULT=SUCCESS");
-    assertEquals(expLog.toString(), sLog);
-  }
-
-  /**
-   * Test the AuditLog format for successful events with the various
-   * parameters.
-   */
-  private void testSuccessLogFormat(boolean checkIP) {
-    testSuccessLogFormatHelper(checkIP, null, null, null);
-    testSuccessLogFormatHelper(checkIP, APPID, null, null);
-    testSuccessLogFormatHelper(checkIP, null, null, CONTAINERID);
-    testSuccessLogFormatHelper(checkIP, null, ATTEMPTID, null);
-    testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, null);
-    testSuccessLogFormatHelper(checkIP, APPID, null, CONTAINERID);
-    testSuccessLogFormatHelper(checkIP, null, ATTEMPTID, CONTAINERID);
-    testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
-    testSuccessLogNulls(checkIP);
-  }
 
 
-  /**
-   * Test the AuditLog format for failure events.
-   */
-  private void testFailureLogFormatHelper(boolean checkIP, ApplicationId appId,
-      ApplicationAttemptId attemptId, ContainerId containerId) {
-    String fLog =
-      RMAuditLogger.createFailureLog(USER, OPERATION, PERM, TARGET, DESC,
-      appId, attemptId, containerId);
-    StringBuilder expLog = new StringBuilder();
-    expLog.append("USER=test\t");
-    if (checkIP) {
-      InetAddress ip = Server.getRemoteIp();
-      expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
-    }
-    expLog.append("OPERATION=oper\tTARGET=tgt\tRESULT=FAILURE\t");
-    expLog.append("DESCRIPTION=description of an audit log");
-    expLog.append("\tPERMISSIONS=admin group");
-    if (appId != null) {
-      expLog.append("\tAPPID=app_1");
-    }
-    if (attemptId != null) {
-      expLog.append("\tAPPATTEMPTID=app_attempt_1");
-    }
-    if (containerId != null) {
-      expLog.append("\tCONTAINERID=container_1");
-    }
-    assertEquals(expLog.toString(), fLog);
-  }
+    /**
+     * Test the AuditLog format with key-val pair.
+     */
+    @Test
+    public void testKeyValLogFormat() throws Exception {
+        StringBuilder actLog = new StringBuilder();
+        StringBuilder expLog = new StringBuilder();
+        // add the first k=v pair and check
+        RMAuditLogger.start(Keys.USER, USER, actLog);
+        expLog.append("USER=test");
+        assertEquals(expLog.toString(), actLog.toString());
 
-  /**
-   * Test the AuditLog format for failure events with the various
-   * parameters.
-   */
-  private void testFailureLogFormat(boolean checkIP) {
-    testFailureLogFormatHelper(checkIP, null, null, null);
-    testFailureLogFormatHelper(checkIP, APPID, null, null);
-    testFailureLogFormatHelper(checkIP, null, null, CONTAINERID);
-    testFailureLogFormatHelper(checkIP, null, ATTEMPTID, null);
-    testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, null);
-    testFailureLogFormatHelper(checkIP, APPID, null, CONTAINERID);
-    testFailureLogFormatHelper(checkIP, null, ATTEMPTID, CONTAINERID);
-    testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
-  }
+        // append another k1=v1 pair to already added k=v and test
+        RMAuditLogger.add(Keys.OPERATION, OPERATION, actLog);
+        expLog.append("\tOPERATION=oper");
+        assertEquals(expLog.toString(), actLog.toString());
 
-  /**
-   * Test {@link RMAuditLogger} without IP set.
-   */
-  @Test  
-  public void testRMAuditLoggerWithoutIP() throws Exception {
-    // test without ip
-    testSuccessLogFormat(false);
-    testFailureLogFormat(false);
-  }
+        // append another k1=null pair and test
+        RMAuditLogger.add(Keys.APPID, (String)null, actLog);
+        expLog.append("\tAPPID=null");
+        assertEquals(expLog.toString(), actLog.toString());
 
-  /**
-   * A special extension of {@link TestImpl} RPC server with 
-   * {@link TestImpl#ping()} testing the audit logs.
-   */
-  private class MyTestRPCServer extends TestImpl {
-    @Override
-    public void ping() {
-      // test with ip set
-      testSuccessLogFormat(true);
-      testFailureLogFormat(true);
+        // now add the target and check of the final string
+        RMAuditLogger.add(Keys.TARGET, TARGET, actLog);
+        expLog.append("\tTARGET=tgt");
+        assertEquals(expLog.toString(), actLog.toString());
     }
-  }
 
-  /**
-   * Test {@link RMAuditLogger} with IP set.
-   */
-  @Test  
-  public void testRMAuditLoggerWithIP() throws Exception {
-    Configuration conf = new Configuration();
-    // start the IPC server
-    Server server = new RPC.Builder(conf).setProtocol(TestProtocol.class)
+
+    /**
+     * Test the AuditLog format for successful events.
+     */
+    private void testSuccessLogFormatHelper(boolean checkIP, ApplicationId appId,
+                                            ApplicationAttemptId attemptId, ContainerId containerId) {
+        String sLog = RMAuditLogger.createSuccessLog(USER, OPERATION, TARGET,
+                      appId, attemptId, containerId);
+        StringBuilder expLog = new StringBuilder();
+        expLog.append("USER=test\t");
+        if (checkIP) {
+            InetAddress ip = Server.getRemoteIp();
+            expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
+        }
+        expLog.append("OPERATION=oper\tTARGET=tgt\tRESULT=SUCCESS");
+
+        if (appId != null) {
+            expLog.append("\tAPPID=app_1");
+        }
+        if (attemptId != null) {
+            expLog.append("\tAPPATTEMPTID=app_attempt_1");
+        }
+        if (containerId != null) {
+            expLog.append("\tCONTAINERID=container_1");
+        }
+        assertEquals(expLog.toString(), sLog);
+    }
+
+    /**
+     * Test the AuditLog format for successful events passing nulls.
+     */
+    private void testSuccessLogNulls(boolean checkIP) {
+        String sLog = RMAuditLogger.createSuccessLog(null, null, null, null,
+                      null, null);
+        StringBuilder expLog = new StringBuilder();
+        expLog.append("USER=null\t");
+        if (checkIP) {
+            InetAddress ip = Server.getRemoteIp();
+            expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
+        }
+        expLog.append("OPERATION=null\tTARGET=null\tRESULT=SUCCESS");
+        assertEquals(expLog.toString(), sLog);
+    }
+
+    /**
+     * Test the AuditLog format for successful events with the various
+     * parameters.
+     */
+    private void testSuccessLogFormat(boolean checkIP) {
+        testSuccessLogFormatHelper(checkIP, null, null, null);
+        testSuccessLogFormatHelper(checkIP, APPID, null, null);
+        testSuccessLogFormatHelper(checkIP, null, null, CONTAINERID);
+        testSuccessLogFormatHelper(checkIP, null, ATTEMPTID, null);
+        testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, null);
+        testSuccessLogFormatHelper(checkIP, APPID, null, CONTAINERID);
+        testSuccessLogFormatHelper(checkIP, null, ATTEMPTID, CONTAINERID);
+        testSuccessLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
+        testSuccessLogNulls(checkIP);
+    }
+
+
+    /**
+     * Test the AuditLog format for failure events.
+     */
+    private void testFailureLogFormatHelper(boolean checkIP, ApplicationId appId,
+                                            ApplicationAttemptId attemptId, ContainerId containerId) {
+        String fLog =
+            RMAuditLogger.createFailureLog(USER, OPERATION, PERM, TARGET, DESC,
+                                           appId, attemptId, containerId);
+        StringBuilder expLog = new StringBuilder();
+        expLog.append("USER=test\t");
+        if (checkIP) {
+            InetAddress ip = Server.getRemoteIp();
+            expLog.append(Keys.IP.name() + "=" + ip.getHostAddress() + "\t");
+        }
+        expLog.append("OPERATION=oper\tTARGET=tgt\tRESULT=FAILURE\t");
+        expLog.append("DESCRIPTION=description of an audit log");
+        expLog.append("\tPERMISSIONS=admin group");
+        if (appId != null) {
+            expLog.append("\tAPPID=app_1");
+        }
+        if (attemptId != null) {
+            expLog.append("\tAPPATTEMPTID=app_attempt_1");
+        }
+        if (containerId != null) {
+            expLog.append("\tCONTAINERID=container_1");
+        }
+        assertEquals(expLog.toString(), fLog);
+    }
+
+    /**
+     * Test the AuditLog format for failure events with the various
+     * parameters.
+     */
+    private void testFailureLogFormat(boolean checkIP) {
+        testFailureLogFormatHelper(checkIP, null, null, null);
+        testFailureLogFormatHelper(checkIP, APPID, null, null);
+        testFailureLogFormatHelper(checkIP, null, null, CONTAINERID);
+        testFailureLogFormatHelper(checkIP, null, ATTEMPTID, null);
+        testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, null);
+        testFailureLogFormatHelper(checkIP, APPID, null, CONTAINERID);
+        testFailureLogFormatHelper(checkIP, null, ATTEMPTID, CONTAINERID);
+        testFailureLogFormatHelper(checkIP, APPID, ATTEMPTID, CONTAINERID);
+    }
+
+    /**
+     * Test {@link RMAuditLogger} without IP set.
+     */
+    @Test
+    public void testRMAuditLoggerWithoutIP() throws Exception {
+        // test without ip
+        testSuccessLogFormat(false);
+        testFailureLogFormat(false);
+    }
+
+    /**
+     * A special extension of {@link TestImpl} RPC server with
+     * {@link TestImpl#ping()} testing the audit logs.
+     */
+    private class MyTestRPCServer extends TestImpl {
+        @Override
+        public void ping() {
+            // test with ip set
+            testSuccessLogFormat(true);
+            testFailureLogFormat(true);
+        }
+    }
+
+    /**
+     * Test {@link RMAuditLogger} with IP set.
+     */
+    @Test
+    public void testRMAuditLoggerWithIP() throws Exception {
+        Configuration conf = new Configuration();
+        // start the IPC server
+        Server server = new RPC.Builder(conf).setProtocol(TestProtocol.class)
         .setInstance(new MyTestRPCServer()).setBindAddress("0.0.0.0")
         .setPort(0).setNumHandlers(5).setVerbose(true).build();
-    server.start();
+        server.start();
 
-    InetSocketAddress addr = NetUtils.getConnectAddress(server);
+        InetSocketAddress addr = NetUtils.getConnectAddress(server);
 
-    // Make a client connection and test the audit log
-    TestProtocol proxy = (TestProtocol)RPC.getProxy(TestProtocol.class,
-                           TestProtocol.versionID, addr, conf);
-    // Start the testcase
-    proxy.ping();
+        // Make a client connection and test the audit log
+        TestProtocol proxy = (TestProtocol)RPC.getProxy(TestProtocol.class,
+                             TestProtocol.versionID, addr, conf);
+        // Start the testcase
+        proxy.ping();
 
-    server.stop();
-  }
+        server.stop();
+    }
 }

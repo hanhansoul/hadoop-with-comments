@@ -33,64 +33,64 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestHdfsAdmin {
-  
-  private static final Path TEST_PATH = new Path("/test");
-  private final Configuration conf = new Configuration();
-  private MiniDFSCluster cluster;
-  
-  @Before
-  public void setUpCluster() throws IOException {
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
-  }
-  
-  @After
-  public void shutDownCluster() {
-    if (cluster != null) {
-      cluster.shutdown();
-    }
-  }
 
-  /**
-   * Test that we can set and clear quotas via {@link HdfsAdmin}.
-   */
-  @Test
-  public void testHdfsAdminSetQuota() throws Exception {
-    HdfsAdmin dfsAdmin = new HdfsAdmin(
-        FileSystem.getDefaultUri(conf), conf);
-    FileSystem fs = null;
-    try {
-      fs = FileSystem.get(conf);
-      assertTrue(fs.mkdirs(TEST_PATH));
-      assertEquals(-1, fs.getContentSummary(TEST_PATH).getQuota());
-      assertEquals(-1, fs.getContentSummary(TEST_PATH).getSpaceQuota());
-      
-      dfsAdmin.setSpaceQuota(TEST_PATH, 10);
-      assertEquals(-1, fs.getContentSummary(TEST_PATH).getQuota());
-      assertEquals(10, fs.getContentSummary(TEST_PATH).getSpaceQuota());
-      
-      dfsAdmin.setQuota(TEST_PATH, 10);
-      assertEquals(10, fs.getContentSummary(TEST_PATH).getQuota());
-      assertEquals(10, fs.getContentSummary(TEST_PATH).getSpaceQuota());
-      
-      dfsAdmin.clearSpaceQuota(TEST_PATH);
-      assertEquals(10, fs.getContentSummary(TEST_PATH).getQuota());
-      assertEquals(-1, fs.getContentSummary(TEST_PATH).getSpaceQuota());
-      
-      dfsAdmin.clearQuota(TEST_PATH);
-      assertEquals(-1, fs.getContentSummary(TEST_PATH).getQuota());
-      assertEquals(-1, fs.getContentSummary(TEST_PATH).getSpaceQuota());
-    } finally {
-      if (fs != null) {
-        fs.close();
-      }
+    private static final Path TEST_PATH = new Path("/test");
+    private final Configuration conf = new Configuration();
+    private MiniDFSCluster cluster;
+
+    @Before
+    public void setUpCluster() throws IOException {
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
     }
-  }
-  
-  /**
-   * Make sure that a non-HDFS URI throws a helpful error.
-   */
-  @Test(expected = IllegalArgumentException.class)
-  public void testHdfsAdminWithBadUri() throws IOException, URISyntaxException {
-    new HdfsAdmin(new URI("file:///bad-scheme"), conf);
-  }
+
+    @After
+    public void shutDownCluster() {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
+
+    /**
+     * Test that we can set and clear quotas via {@link HdfsAdmin}.
+     */
+    @Test
+    public void testHdfsAdminSetQuota() throws Exception {
+        HdfsAdmin dfsAdmin = new HdfsAdmin(
+            FileSystem.getDefaultUri(conf), conf);
+        FileSystem fs = null;
+        try {
+            fs = FileSystem.get(conf);
+            assertTrue(fs.mkdirs(TEST_PATH));
+            assertEquals(-1, fs.getContentSummary(TEST_PATH).getQuota());
+            assertEquals(-1, fs.getContentSummary(TEST_PATH).getSpaceQuota());
+
+            dfsAdmin.setSpaceQuota(TEST_PATH, 10);
+            assertEquals(-1, fs.getContentSummary(TEST_PATH).getQuota());
+            assertEquals(10, fs.getContentSummary(TEST_PATH).getSpaceQuota());
+
+            dfsAdmin.setQuota(TEST_PATH, 10);
+            assertEquals(10, fs.getContentSummary(TEST_PATH).getQuota());
+            assertEquals(10, fs.getContentSummary(TEST_PATH).getSpaceQuota());
+
+            dfsAdmin.clearSpaceQuota(TEST_PATH);
+            assertEquals(10, fs.getContentSummary(TEST_PATH).getQuota());
+            assertEquals(-1, fs.getContentSummary(TEST_PATH).getSpaceQuota());
+
+            dfsAdmin.clearQuota(TEST_PATH);
+            assertEquals(-1, fs.getContentSummary(TEST_PATH).getQuota());
+            assertEquals(-1, fs.getContentSummary(TEST_PATH).getSpaceQuota());
+        } finally {
+            if (fs != null) {
+                fs.close();
+            }
+        }
+    }
+
+    /**
+     * Make sure that a non-HDFS URI throws a helpful error.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testHdfsAdminWithBadUri() throws IOException, URISyntaxException {
+        new HdfsAdmin(new URI("file:///bad-scheme"), conf);
+    }
 }

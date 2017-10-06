@@ -47,92 +47,92 @@ import static org.junit.Assert.assertThat;
  * the same DataNode. Excess replicas on the same DN should be ignored by the NN.
  */
 public class TestBlockHasMultipleReplicasOnSameDN {
-  public static final Log LOG = LogFactory.getLog(TestBlockHasMultipleReplicasOnSameDN.class);
+    public static final Log LOG = LogFactory.getLog(TestBlockHasMultipleReplicasOnSameDN.class);
 
-  private static final short NUM_DATANODES = 2;
-  private static final int BLOCK_SIZE = 1024;
-  private static final long NUM_BLOCKS = 5;
-  private static final long seed = 0x1BADF00DL;
+    private static final short NUM_DATANODES = 2;
+    private static final int BLOCK_SIZE = 1024;
+    private static final long NUM_BLOCKS = 5;
+    private static final long seed = 0x1BADF00DL;
 
-  private Configuration conf;
-  private MiniDFSCluster cluster;
-  private DistributedFileSystem fs;
-  private DFSClient client;
-  private String bpid;
+    private Configuration conf;
+    private MiniDFSCluster cluster;
+    private DistributedFileSystem fs;
+    private DFSClient client;
+    private String bpid;
 
-  @Before
-  public void startUpCluster() throws IOException {
-    conf = new HdfsConfiguration();
-    cluster = new MiniDFSCluster.Builder(conf)
+    @Before
+    public void startUpCluster() throws IOException {
+        conf = new HdfsConfiguration();
+        cluster = new MiniDFSCluster.Builder(conf)
         .numDataNodes(NUM_DATANODES)
         .build();
-    fs = cluster.getFileSystem();
-    client = fs.getClient();
-    bpid = cluster.getNamesystem().getBlockPoolId();
-  }
-
-  @After
-  public void shutDownCluster() throws IOException {
-    if (cluster != null) {
-      fs.close();
-      cluster.shutdown();
-      cluster = null;
-    }
-  }
-
-  private String makeFileName(String prefix) {
-    return "/" + prefix + ".dat";
-  }
-
-  /**
-   * Verify NameNode behavior when a given DN reports multiple replicas
-   * of a given block.
-   */
-  @Test
-  public void testBlockHasMultipleReplicasOnSameDN() throws IOException {
-    String filename = makeFileName(GenericTestUtils.getMethodName());
-    Path filePath = new Path(filename);
-
-    // Write out a file with a few blocks.
-    DFSTestUtil.createFile(fs, filePath, BLOCK_SIZE, BLOCK_SIZE * NUM_BLOCKS,
-                           BLOCK_SIZE, NUM_DATANODES, seed);
-
-    // Get the block list for the file with the block locations.
-    LocatedBlocks locatedBlocks = client.getLocatedBlocks(
-        filePath.toString(), 0, BLOCK_SIZE * NUM_BLOCKS);
-
-    // Generate a fake block report from one of the DataNodes, such
-    // that it reports one copy of each block on either storage.
-    DataNode dn = cluster.getDataNodes().get(0);
-    DatanodeRegistration dnReg = dn.getDNRegistrationForBP(bpid);
-    StorageBlockReport reports[] =
-        new StorageBlockReport[cluster.getStoragesPerDatanode()];
-
-    ArrayList<Block> blocks = new ArrayList<Block>();
-
-    for (LocatedBlock locatedBlock : locatedBlocks.getLocatedBlocks()) {
-      blocks.add(locatedBlock.getBlock().getLocalBlock());
+        fs = cluster.getFileSystem();
+        client = fs.getClient();
+        bpid = cluster.getNamesystem().getBlockPoolId();
     }
 
-    for (int i = 0; i < cluster.getStoragesPerDatanode(); ++i) {
-      BlockListAsLongs bll = new BlockListAsLongs(blocks, null);
-      FsVolumeSpi v = dn.getFSDataset().getVolumes().get(i);
-      DatanodeStorage dns = new DatanodeStorage(v.getStorageID());
-      reports[i] = new StorageBlockReport(dns, bll.getBlockListAsLongs());
+    @After
+    public void shutDownCluster() throws IOException {
+        if (cluster != null) {
+            fs.close();
+            cluster.shutdown();
+            cluster = null;
+        }
     }
 
-    // Should not assert!
-    cluster.getNameNodeRpc().blockReport(dnReg, bpid, reports,
-        new BlockReportContext(1, 0, System.nanoTime()));
-
-    // Get the block locations once again.
-    locatedBlocks = client.getLocatedBlocks(filename, 0, BLOCK_SIZE * NUM_BLOCKS);
-
-    // Make sure that each block has two replicas, one on each DataNode.
-    for (LocatedBlock locatedBlock : locatedBlocks.getLocatedBlocks()) {
-      DatanodeInfo[] locations = locatedBlock.getLocations();
-      assertThat(locations.length, is((int) NUM_DATANODES));
-      assertThat(locations[0].getDatanodeUuid(), not(locations[1].getDatanodeUuid()));
+    private String makeFileName(String prefix) {
+        return "/" + prefix + ".dat";
     }
-  }
+
+    /**
+     * Verify NameNode behavior when a given DN reports multiple replicas
+     * of a given block.
+     */
+    @Test
+    public void testBlockHasMultipleReplicasOnSameDN() throws IOException {
+        String filename = makeFileName(GenericTestUtils.getMethodName());
+        Path filePath = new Path(filename);
+
+        // Write out a file with a few blocks.
+        DFSTestUtil.createFile(fs, filePath, BLOCK_SIZE, BLOCK_SIZE * NUM_BLOCKS,
+                               BLOCK_SIZE, NUM_DATANODES, seed);
+
+        // Get the block list for the file with the block locations.
+        LocatedBlocks locatedBlocks = client.getLocatedBlocks(
+                                          filePath.toString(), 0, BLOCK_SIZE * NUM_BLOCKS);
+
+        // Generate a fake block report from one of the DataNodes, such
+        // that it reports one copy of each block on either storage.
+        DataNode dn = cluster.getDataNodes().get(0);
+        DatanodeRegistration dnReg = dn.getDNRegistrationForBP(bpid);
+        StorageBlockReport reports[] =
+            new StorageBlockReport[cluster.getStoragesPerDatanode()];
+
+        ArrayList<Block> blocks = new ArrayList<Block>();
+
+        for (LocatedBlock locatedBlock : locatedBlocks.getLocatedBlocks()) {
+            blocks.add(locatedBlock.getBlock().getLocalBlock());
+        }
+
+        for (int i = 0; i < cluster.getStoragesPerDatanode(); ++i) {
+            BlockListAsLongs bll = new BlockListAsLongs(blocks, null);
+            FsVolumeSpi v = dn.getFSDataset().getVolumes().get(i);
+            DatanodeStorage dns = new DatanodeStorage(v.getStorageID());
+            reports[i] = new StorageBlockReport(dns, bll.getBlockListAsLongs());
+        }
+
+        // Should not assert!
+        cluster.getNameNodeRpc().blockReport(dnReg, bpid, reports,
+                                             new BlockReportContext(1, 0, System.nanoTime()));
+
+        // Get the block locations once again.
+        locatedBlocks = client.getLocatedBlocks(filename, 0, BLOCK_SIZE * NUM_BLOCKS);
+
+        // Make sure that each block has two replicas, one on each DataNode.
+        for (LocatedBlock locatedBlock : locatedBlocks.getLocatedBlocks()) {
+            DatanodeInfo[] locations = locatedBlock.getLocations();
+            assertThat(locations.length, is((int) NUM_DATANODES));
+            assertThat(locations[0].getDatanodeUuid(), not(locations[1].getDatanodeUuid()));
+        }
+    }
 }

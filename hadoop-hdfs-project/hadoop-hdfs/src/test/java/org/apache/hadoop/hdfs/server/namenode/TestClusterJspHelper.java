@@ -28,32 +28,32 @@ import org.junit.Test;
 
 public class TestClusterJspHelper {
 
-  private MiniDFSCluster cluster;
-  private Configuration conf;
-    
-  @Before
-  public void setUp() throws Exception {
-    conf = new Configuration();  
-    cluster = new MiniDFSCluster.Builder(conf).build();
-    cluster.waitClusterUp();
-  }
+    private MiniDFSCluster cluster;
+    private Configuration conf;
 
-  @After
-  public void tearDown() throws Exception {
-    if (cluster != null)
-      cluster.shutdown();    
-  }
-  
-  @Test(timeout = 15000)
-  public void testClusterJspHelperReports() {
-    ClusterJspHelper clusterJspHelper = new ClusterJspHelper();
-    ClusterStatus clusterStatus = clusterJspHelper
-     .generateClusterHealthReport();
-    assertNotNull("testClusterJspHelperReports ClusterStatus is null",
-        clusterStatus);       
-    DecommissionStatus decommissionStatus = clusterJspHelper
-        .generateDecommissioningReport();
-    assertNotNull("testClusterJspHelperReports DecommissionStatus is null",
-        decommissionStatus);    
-  }
+    @Before
+    public void setUp() throws Exception {
+        conf = new Configuration();
+        cluster = new MiniDFSCluster.Builder(conf).build();
+        cluster.waitClusterUp();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (cluster != null)
+            cluster.shutdown();
+    }
+
+    @Test(timeout = 15000)
+    public void testClusterJspHelperReports() {
+        ClusterJspHelper clusterJspHelper = new ClusterJspHelper();
+        ClusterStatus clusterStatus = clusterJspHelper
+                                      .generateClusterHealthReport();
+        assertNotNull("testClusterJspHelperReports ClusterStatus is null",
+                      clusterStatus);
+        DecommissionStatus decommissionStatus = clusterJspHelper
+                                                .generateDecommissioningReport();
+        assertNotNull("testClusterJspHelperReports DecommissionStatus is null",
+                      decommissionStatus);
+    }
 }

@@ -36,142 +36,142 @@ import org.codehaus.jackson.annotate.JsonAnySetter;
  * A {@link LoggedNetworkTopology} represents a tree that in turn represents a
  * hierarchy of hosts. The current version requires the tree to have all leaves
  * at the same level.
- * 
+ *
  * All of the public methods are simply accessors for the instance variables we
  * want to write out in the JSON files.
- * 
+ *
  */
 public class LoggedNetworkTopology implements DeepCompare {
-  NodeName name;
-  List<LoggedNetworkTopology> children = new ArrayList<LoggedNetworkTopology>();
+    NodeName name;
+    List<LoggedNetworkTopology> children = new ArrayList<LoggedNetworkTopology>();
 
-  static private Set<String> alreadySeenAnySetterAttributes =
-      new TreeSet<String>();
+    static private Set<String> alreadySeenAnySetterAttributes =
+        new TreeSet<String>();
 
-  public LoggedNetworkTopology() {
-    super();
-  }
-
-  // for input parameter ignored.
-  @JsonAnySetter
-  public void setUnknownAttribute(String attributeName, Object ignored) {
-    if (!alreadySeenAnySetterAttributes.contains(attributeName)) {
-      alreadySeenAnySetterAttributes.add(attributeName);
-      System.err.println("In LoggedJob, we saw the unknown attribute "
-          + attributeName + ".");
+    public LoggedNetworkTopology() {
+        super();
     }
-  }
 
-  /**
-   * We need this because we have to sort the {@code children} field. That field
-   * is set-valued, but if we sort these fields we ensure that comparisons won't
-   * bogusly fail because the hash table happened to enumerate in a different
-   * order.
-   * 
-   */
-  static class TopoSort implements Comparator<LoggedNetworkTopology>, 
-  Serializable {
-    public int compare(LoggedNetworkTopology t1, LoggedNetworkTopology t2) {
-      return t1.name.getValue().compareTo(t2.name.getValue());
+    // for input parameter ignored.
+    @JsonAnySetter
+    public void setUnknownAttribute(String attributeName, Object ignored) {
+        if (!alreadySeenAnySetterAttributes.contains(attributeName)) {
+            alreadySeenAnySetterAttributes.add(attributeName);
+            System.err.println("In LoggedJob, we saw the unknown attribute "
+                               + attributeName + ".");
+        }
     }
-  }
 
-  /**
-   * @param hosts
-   *          a HashSet of the {@link ParsedHost}
-   * @param name
-   *          the name of this level's host [for recursive descent]
-   * @param level
-   *          the level number
-   */
-  LoggedNetworkTopology(Set<ParsedHost> hosts, String name, int level) {
-    if (name == null) {
-      this.name = NodeName.ROOT;
-    } else {
-      this.name = new NodeName(name);
+    /**
+     * We need this because we have to sort the {@code children} field. That field
+     * is set-valued, but if we sort these fields we ensure that comparisons won't
+     * bogusly fail because the hash table happened to enumerate in a different
+     * order.
+     *
+     */
+    static class TopoSort implements Comparator<LoggedNetworkTopology>,
+        Serializable {
+        public int compare(LoggedNetworkTopology t1, LoggedNetworkTopology t2) {
+            return t1.name.getValue().compareTo(t2.name.getValue());
+        }
     }
-    this.children = null;
 
-    if (level < ParsedHost.numberOfDistances() - 1) {
-      HashMap<String, HashSet<ParsedHost>> topologies =
-          new HashMap<String, HashSet<ParsedHost>>();
+    /**
+     * @param hosts
+     *          a HashSet of the {@link ParsedHost}
+     * @param name
+     *          the name of this level's host [for recursive descent]
+     * @param level
+     *          the level number
+     */
+    LoggedNetworkTopology(Set<ParsedHost> hosts, String name, int level) {
+        if (name == null) {
+            this.name = NodeName.ROOT;
+        } else {
+            this.name = new NodeName(name);
+        }
+        this.children = null;
 
-      Iterator<ParsedHost> iter = hosts.iterator();
+        if (level < ParsedHost.numberOfDistances() - 1) {
+            HashMap<String, HashSet<ParsedHost>> topologies =
+                new HashMap<String, HashSet<ParsedHost>>();
 
-      while (iter.hasNext()) {
-        ParsedHost host = iter.next();
+            Iterator<ParsedHost> iter = hosts.iterator();
 
-        String thisComponent = host.nameComponent(level);
+            while (iter.hasNext()) {
+                ParsedHost host = iter.next();
 
-        HashSet<ParsedHost> thisSet = topologies.get(thisComponent);
+                String thisComponent = host.nameComponent(level);
 
-        if (thisSet == null) {
-          thisSet = new HashSet<ParsedHost>();
-          topologies.put(thisComponent, thisSet);
+                HashSet<ParsedHost> thisSet = topologies.get(thisComponent);
+
+                if (thisSet == null) {
+                    thisSet = new HashSet<ParsedHost>();
+                    topologies.put(thisComponent, thisSet);
+                }
+
+                thisSet.add(host);
+            }
+
+            children = new ArrayList<LoggedNetworkTopology>();
+
+            for (Map.Entry<String, HashSet<ParsedHost>> ent : topologies.entrySet()) {
+                children.add(new LoggedNetworkTopology(ent.getValue(), ent.getKey(),
+                                                       level + 1));
+            }
+        } else {
+            // nothing to do here
+        }
+    }
+
+    LoggedNetworkTopology(Set<ParsedHost> hosts) {
+        this(hosts, null, 0);
+    }
+
+    public NodeName getName() {
+        return name;
+    }
+
+    void setName(String name) {
+        this.name = new NodeName(name);
+    }
+
+    public List<LoggedNetworkTopology> getChildren() {
+        return children;
+    }
+
+    void setChildren(List<LoggedNetworkTopology> children) {
+        this.children = children;
+    }
+
+    private void compare1(List<LoggedNetworkTopology> c1,
+                          List<LoggedNetworkTopology> c2, TreePath loc, String eltname)
+    throws DeepInequalityException {
+        if (c1 == null && c2 == null) {
+            return;
         }
 
-        thisSet.add(host);
-      }
+        if (c1 == null || c2 == null || c1.size() != c2.size()) {
+            throw new DeepInequalityException(eltname + " miscompared", new TreePath(
+                                                  loc, eltname));
+        }
 
-      children = new ArrayList<LoggedNetworkTopology>();
+        Collections.sort(c1, new TopoSort());
+        Collections.sort(c2, new TopoSort());
 
-      for (Map.Entry<String, HashSet<ParsedHost>> ent : topologies.entrySet()) {
-        children.add(new LoggedNetworkTopology(ent.getValue(), ent.getKey(),
-            level + 1));
-      }
-    } else {
-      // nothing to do here
-    }
-  }
-
-  LoggedNetworkTopology(Set<ParsedHost> hosts) {
-    this(hosts, null, 0);
-  }
-
-  public NodeName getName() {
-    return name;
-  }
-
-  void setName(String name) {
-    this.name = new NodeName(name);
-  }
-
-  public List<LoggedNetworkTopology> getChildren() {
-    return children;
-  }
-
-  void setChildren(List<LoggedNetworkTopology> children) {
-    this.children = children;
-  }
-
-  private void compare1(List<LoggedNetworkTopology> c1,
-      List<LoggedNetworkTopology> c2, TreePath loc, String eltname)
-      throws DeepInequalityException {
-    if (c1 == null && c2 == null) {
-      return;
+        for (int i = 0; i < c1.size(); ++i) {
+            c1.get(i).deepCompare(c2.get(i), new TreePath(loc, eltname, i));
+        }
     }
 
-    if (c1 == null || c2 == null || c1.size() != c2.size()) {
-      throw new DeepInequalityException(eltname + " miscompared", new TreePath(
-          loc, eltname));
+    public void deepCompare(DeepCompare comparand, TreePath loc)
+    throws DeepInequalityException {
+        if (!(comparand instanceof LoggedNetworkTopology)) {
+            throw new DeepInequalityException("comparand has wrong type", loc);
+        }
+
+        LoggedNetworkTopology other = (LoggedNetworkTopology) comparand;
+
+        compare1(children, other.children, loc, "children");
     }
-
-    Collections.sort(c1, new TopoSort());
-    Collections.sort(c2, new TopoSort());
-
-    for (int i = 0; i < c1.size(); ++i) {
-      c1.get(i).deepCompare(c2.get(i), new TreePath(loc, eltname, i));
-    }
-  }
-
-  public void deepCompare(DeepCompare comparand, TreePath loc)
-      throws DeepInequalityException {
-    if (!(comparand instanceof LoggedNetworkTopology)) {
-      throw new DeepInequalityException("comparand has wrong type", loc);
-    }
-
-    LoggedNetworkTopology other = (LoggedNetworkTopology) comparand;
-
-    compare1(children, other.children, loc, "children");
-  }
 }

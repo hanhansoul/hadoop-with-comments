@@ -22,19 +22,19 @@ import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.classification.InterfaceStability.Evolving;
 
 /**
- * Hook for Transition. This lead to state machine to move to 
+ * Hook for Transition. This lead to state machine to move to
  * the post state as registered in the state machine.
  */
 @Public
 @Evolving
 public interface SingleArcTransition<OPERAND, EVENT> {
-  /**
-   * Transition hook.
-   * 
-   * @param operand the entity attached to the FSM, whose internal 
-   *                state may change.
-   * @param event causal event
-   */
-  public void transition(OPERAND operand, EVENT event);
+    /**
+     * Transition hook.
+     *
+     * @param operand the entity attached to the FSM, whose internal
+     *                state may change.
+     * @param event causal event
+     */
+    public void transition(OPERAND operand, EVENT event);
 
 }

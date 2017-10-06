@@ -34,26 +34,26 @@ import org.apache.hadoop.mapreduce.v2.util.MRApps;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class JobTaskCounterInfo {
 
-  @XmlTransient
-  protected Counters total = null;
+    @XmlTransient
+    protected Counters total = null;
 
-  protected String id;
-  protected ArrayList<TaskCounterGroupInfo> taskCounterGroup;
+    protected String id;
+    protected ArrayList<TaskCounterGroupInfo> taskCounterGroup;
 
-  public JobTaskCounterInfo() {
-  }
-
-  public JobTaskCounterInfo(Task task) {
-    total = task.getCounters();
-    this.id = MRApps.toString(task.getID());
-    taskCounterGroup = new ArrayList<TaskCounterGroupInfo>();
-    if (total != null) {
-      for (CounterGroup g : total) {
-        if (g != null) {
-          TaskCounterGroupInfo cginfo = new TaskCounterGroupInfo(g.getName(), g);
-          taskCounterGroup.add(cginfo);
-        }
-      }
+    public JobTaskCounterInfo() {
     }
-  }
+
+    public JobTaskCounterInfo(Task task) {
+        total = task.getCounters();
+        this.id = MRApps.toString(task.getID());
+        taskCounterGroup = new ArrayList<TaskCounterGroupInfo>();
+        if (total != null) {
+            for (CounterGroup g : total) {
+                if (g != null) {
+                    TaskCounterGroupInfo cginfo = new TaskCounterGroupInfo(g.getName(), g);
+                    taskCounterGroup.add(cginfo);
+                }
+            }
+        }
+    }
 }

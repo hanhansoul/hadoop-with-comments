@@ -30,45 +30,45 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 
 public class NodeLabelTestBase {
-  public static void assertMapEquals(Map<NodeId, Set<String>> m1,
-      ImmutableMap<NodeId, Set<String>> m2) {
-    Assert.assertEquals(m1.size(), m2.size());
-    for (NodeId k : m1.keySet()) {
-      Assert.assertTrue(m2.containsKey(k));
-      assertCollectionEquals(m1.get(k), m2.get(k));
+    public static void assertMapEquals(Map<NodeId, Set<String>> m1,
+                                       ImmutableMap<NodeId, Set<String>> m2) {
+        Assert.assertEquals(m1.size(), m2.size());
+        for (NodeId k : m1.keySet()) {
+            Assert.assertTrue(m2.containsKey(k));
+            assertCollectionEquals(m1.get(k), m2.get(k));
+        }
     }
-  }
 
-  public static void assertMapContains(Map<NodeId, Set<String>> m1,
-      ImmutableMap<NodeId, Set<String>> m2) {
-    for (NodeId k : m2.keySet()) {
-      Assert.assertTrue(m1.containsKey(k));
-      assertCollectionEquals(m1.get(k), m2.get(k));
+    public static void assertMapContains(Map<NodeId, Set<String>> m1,
+                                         ImmutableMap<NodeId, Set<String>> m2) {
+        for (NodeId k : m2.keySet()) {
+            Assert.assertTrue(m1.containsKey(k));
+            assertCollectionEquals(m1.get(k), m2.get(k));
+        }
     }
-  }
 
-  public static void assertCollectionEquals(Collection<String> c1,
-      Collection<String> c2) {
-    Set<String> s1 = new HashSet<String>(c1);
-    Set<String> s2 = new HashSet<String>(c2);
-    Assert.assertEquals(s1, s2);
-    Assert.assertTrue(s1.containsAll(s2));
-  }
-
-  public static <E> Set<E> toSet(E... elements) {
-    Set<E> set = Sets.newHashSet(elements);
-    return set;
-  }
-  
-  public NodeId toNodeId(String str) {
-    if (str.contains(":")) {
-      int idx = str.indexOf(':');
-      NodeId id =
-          NodeId.newInstance(str.substring(0, idx),
-              Integer.valueOf(str.substring(idx + 1)));
-      return id;
-    } else {
-      return NodeId.newInstance(str, CommonNodeLabelsManager.WILDCARD_PORT);
+    public static void assertCollectionEquals(Collection<String> c1,
+            Collection<String> c2) {
+        Set<String> s1 = new HashSet<String>(c1);
+        Set<String> s2 = new HashSet<String>(c2);
+        Assert.assertEquals(s1, s2);
+        Assert.assertTrue(s1.containsAll(s2));
     }
-  }
+
+    public static <E> Set<E> toSet(E... elements) {
+        Set<E> set = Sets.newHashSet(elements);
+        return set;
+    }
+
+    public NodeId toNodeId(String str) {
+        if (str.contains(":")) {
+            int idx = str.indexOf(':');
+            NodeId id =
+                NodeId.newInstance(str.substring(0, idx),
+                                   Integer.valueOf(str.substring(idx + 1)));
+            return id;
+        } else {
+            return NodeId.newInstance(str, CommonNodeLabelsManager.WILDCARD_PORT);
+        }
+    }
 }

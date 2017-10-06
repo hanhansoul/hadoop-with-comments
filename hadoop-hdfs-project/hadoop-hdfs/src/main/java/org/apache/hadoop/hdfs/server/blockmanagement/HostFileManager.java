@@ -60,158 +60,158 @@ import java.util.Map;
  * resolutions are only done during the loading time to minimize the latency.
  */
 class HostFileManager {
-  private static final Log LOG = LogFactory.getLog(HostFileManager.class);
-  private HostSet includes = new HostSet();
-  private HostSet excludes = new HostSet();
+    private static final Log LOG = LogFactory.getLog(HostFileManager.class);
+    private HostSet includes = new HostSet();
+    private HostSet excludes = new HostSet();
 
-  private static HostSet readFile(String type, String filename)
-          throws IOException {
-    HostSet res = new HostSet();
-    if (!filename.isEmpty()) {
-      HashSet<String> entrySet = new HashSet<String>();
-      HostsFileReader.readFileToSet(type, filename, entrySet);
-      for (String str : entrySet) {
-        InetSocketAddress addr = parseEntry(type, filename, str);
-        if (addr != null) {
-          res.add(addr);
+    private static HostSet readFile(String type, String filename)
+    throws IOException {
+        HostSet res = new HostSet();
+        if (!filename.isEmpty()) {
+            HashSet<String> entrySet = new HashSet<String>();
+            HostsFileReader.readFileToSet(type, filename, entrySet);
+            for (String str : entrySet) {
+                InetSocketAddress addr = parseEntry(type, filename, str);
+                if (addr != null) {
+                    res.add(addr);
+                }
+            }
         }
-      }
+        return res;
     }
-    return res;
-  }
 
-  @VisibleForTesting
-  static InetSocketAddress parseEntry(String type, String fn, String line) {
-    try {
-      URI uri = new URI("dummy", line, null, null, null);
-      int port = uri.getPort() == -1 ? 0 : uri.getPort();
-      InetSocketAddress addr = new InetSocketAddress(uri.getHost(), port);
-      if (addr.isUnresolved()) {
-        LOG.warn(String.format("Failed to resolve address `%s` in `%s`. " +
-                "Ignoring in the %s list.", line, fn, type));
+    @VisibleForTesting
+    static InetSocketAddress parseEntry(String type, String fn, String line) {
+        try {
+            URI uri = new URI("dummy", line, null, null, null);
+            int port = uri.getPort() == -1 ? 0 : uri.getPort();
+            InetSocketAddress addr = new InetSocketAddress(uri.getHost(), port);
+            if (addr.isUnresolved()) {
+                LOG.warn(String.format("Failed to resolve address `%s` in `%s`. " +
+                                       "Ignoring in the %s list.", line, fn, type));
+                return null;
+            }
+            return addr;
+        } catch (URISyntaxException e) {
+            LOG.warn(String.format("Failed to parse `%s` in `%s`. " + "Ignoring in " +
+                                   "the %s list.", line, fn, type));
+        }
         return null;
-      }
-      return addr;
-    } catch (URISyntaxException e) {
-      LOG.warn(String.format("Failed to parse `%s` in `%s`. " + "Ignoring in " +
-              "the %s list.", line, fn, type));
     }
-    return null;
-  }
 
-  static InetSocketAddress resolvedAddressFromDatanodeID(DatanodeID id) {
-    return new InetSocketAddress(id.getIpAddr(), id.getXferPort());
-  }
-
-  synchronized HostSet getIncludes() {
-    return includes;
-  }
-
-  synchronized HostSet getExcludes() {
-    return excludes;
-  }
-
-  // If the includes list is empty, act as if everything is in the
-  // includes list.
-  synchronized boolean isIncluded(DatanodeID dn) {
-    return includes.isEmpty() || includes.match
-            (resolvedAddressFromDatanodeID(dn));
-  }
-
-  synchronized boolean isExcluded(DatanodeID dn) {
-    return excludes.match(resolvedAddressFromDatanodeID(dn));
-  }
-
-  synchronized boolean hasIncludes() {
-    return !includes.isEmpty();
-  }
-
-  void refresh(String includeFile, String excludeFile) throws IOException {
-    HostSet newIncludes = readFile("included", includeFile);
-    HostSet newExcludes = readFile("excluded", excludeFile);
-    synchronized (this) {
-      includes = newIncludes;
-      excludes = newExcludes;
+    static InetSocketAddress resolvedAddressFromDatanodeID(DatanodeID id) {
+        return new InetSocketAddress(id.getIpAddr(), id.getXferPort());
     }
-  }
 
-  /**
-   * The HostSet allows efficient queries on matching wildcard addresses.
-   * <p/>
-   * For InetSocketAddress A and B with the same host address,
-   * we define a partial order between A and B, A <= B iff A.getPort() == B
-   * .getPort() || B.getPort() == 0.
-   */
-  static class HostSet implements Iterable<InetSocketAddress> {
-    // Host -> lists of ports
-    private final Multimap<InetAddress, Integer> addrs = HashMultimap.create();
+    synchronized HostSet getIncludes() {
+        return includes;
+    }
 
-    /**
-     * The function that checks whether there exists an entry foo in the set
-     * so that foo <= addr.
-     */
-    boolean matchedBy(InetSocketAddress addr) {
-      Collection<Integer> ports = addrs.get(addr.getAddress());
-      return addr.getPort() == 0 ? !ports.isEmpty() : ports.contains(addr
-              .getPort());
+    synchronized HostSet getExcludes() {
+        return excludes;
+    }
+
+    // If the includes list is empty, act as if everything is in the
+    // includes list.
+    synchronized boolean isIncluded(DatanodeID dn) {
+        return includes.isEmpty() || includes.match
+               (resolvedAddressFromDatanodeID(dn));
+    }
+
+    synchronized boolean isExcluded(DatanodeID dn) {
+        return excludes.match(resolvedAddressFromDatanodeID(dn));
+    }
+
+    synchronized boolean hasIncludes() {
+        return !includes.isEmpty();
+    }
+
+    void refresh(String includeFile, String excludeFile) throws IOException {
+        HostSet newIncludes = readFile("included", includeFile);
+        HostSet newExcludes = readFile("excluded", excludeFile);
+        synchronized (this) {
+            includes = newIncludes;
+            excludes = newExcludes;
+        }
     }
 
     /**
-     * The function that checks whether there exists an entry foo in the set
-     * so that addr <= foo.
+     * The HostSet allows efficient queries on matching wildcard addresses.
+     * <p/>
+     * For InetSocketAddress A and B with the same host address,
+     * we define a partial order between A and B, A <= B iff A.getPort() == B
+     * .getPort() || B.getPort() == 0.
      */
-    boolean match(InetSocketAddress addr) {
-      int port = addr.getPort();
-      Collection<Integer> ports = addrs.get(addr.getAddress());
-      boolean exactMatch = ports.contains(port);
-      boolean genericMatch = ports.contains(0);
-      return exactMatch || genericMatch;
-    }
+    static class HostSet implements Iterable<InetSocketAddress> {
+        // Host -> lists of ports
+        private final Multimap<InetAddress, Integer> addrs = HashMultimap.create();
 
-    boolean isEmpty() {
-      return addrs.isEmpty();
-    }
+        /**
+         * The function that checks whether there exists an entry foo in the set
+         * so that foo <= addr.
+         */
+        boolean matchedBy(InetSocketAddress addr) {
+            Collection<Integer> ports = addrs.get(addr.getAddress());
+            return addr.getPort() == 0 ? !ports.isEmpty() : ports.contains(addr
+                    .getPort());
+        }
 
-    int size() {
-      return addrs.size();
-    }
+        /**
+         * The function that checks whether there exists an entry foo in the set
+         * so that addr <= foo.
+         */
+        boolean match(InetSocketAddress addr) {
+            int port = addr.getPort();
+            Collection<Integer> ports = addrs.get(addr.getAddress());
+            boolean exactMatch = ports.contains(port);
+            boolean genericMatch = ports.contains(0);
+            return exactMatch || genericMatch;
+        }
 
-    void add(InetSocketAddress addr) {
-      Preconditions.checkArgument(!addr.isUnresolved());
-      addrs.put(addr.getAddress(), addr.getPort());
-    }
+        boolean isEmpty() {
+            return addrs.isEmpty();
+        }
 
-    @Override
-    public Iterator<InetSocketAddress> iterator() {
-      return new UnmodifiableIterator<InetSocketAddress>() {
-        private final Iterator<Map.Entry<InetAddress,
-                Integer>> it = addrs.entries().iterator();
+        int size() {
+            return addrs.size();
+        }
 
-        @Override
-        public boolean hasNext() {
-          return it.hasNext();
+        void add(InetSocketAddress addr) {
+            Preconditions.checkArgument(!addr.isUnresolved());
+            addrs.put(addr.getAddress(), addr.getPort());
         }
 
         @Override
-        public InetSocketAddress next() {
-          Map.Entry<InetAddress, Integer> e = it.next();
-          return new InetSocketAddress(e.getKey(), e.getValue());
-        }
-      };
-    }
+        public Iterator<InetSocketAddress> iterator() {
+            return new UnmodifiableIterator<InetSocketAddress>() {
+                private final Iterator<Map.Entry<InetAddress,
+                        Integer>> it = addrs.entries().iterator();
 
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder("HostSet(");
-      Joiner.on(",").appendTo(sb, Iterators.transform(iterator(),
-              new Function<InetSocketAddress, String>() {
-        @Override
-        public String apply(@Nullable InetSocketAddress addr) {
-          assert addr != null;
-          return addr.getAddress().getHostAddress() + ":" + addr.getPort();
+                @Override
+                public boolean hasNext() {
+                    return it.hasNext();
+                }
+
+                @Override
+                public InetSocketAddress next() {
+                    Map.Entry<InetAddress, Integer> e = it.next();
+                    return new InetSocketAddress(e.getKey(), e.getValue());
+                }
+            };
         }
-      }));
-      return sb.append(")").toString();
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder("HostSet(");
+            Joiner.on(",").appendTo(sb, Iterators.transform(iterator(),
+            new Function<InetSocketAddress, String>() {
+                @Override
+                public String apply(@Nullable InetSocketAddress addr) {
+                    assert addr != null;
+                    return addr.getAddress().getHostAddress() + ":" + addr.getPort();
+                }
+            }));
+            return sb.append(")").toString();
+        }
     }
-  }
 }

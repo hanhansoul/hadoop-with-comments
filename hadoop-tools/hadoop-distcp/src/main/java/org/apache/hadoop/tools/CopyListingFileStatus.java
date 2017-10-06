@@ -48,171 +48,171 @@ import com.google.common.collect.Maps;
 @InterfaceAudience.Private
 public final class CopyListingFileStatus extends FileStatus {
 
-  private static final byte NO_ACL_ENTRIES = -1;
-  private static final int NO_XATTRS = -1;
+    private static final byte NO_ACL_ENTRIES = -1;
+    private static final int NO_XATTRS = -1;
 
-  // Retain static arrays of enum values to prevent repeated allocation of new
-  // arrays during deserialization.
-  private static final AclEntryType[] ACL_ENTRY_TYPES = AclEntryType.values();
-  private static final AclEntryScope[] ACL_ENTRY_SCOPES = AclEntryScope.values();
-  private static final FsAction[] FS_ACTIONS = FsAction.values();
+    // Retain static arrays of enum values to prevent repeated allocation of new
+    // arrays during deserialization.
+    private static final AclEntryType[] ACL_ENTRY_TYPES = AclEntryType.values();
+    private static final AclEntryScope[] ACL_ENTRY_SCOPES = AclEntryScope.values();
+    private static final FsAction[] FS_ACTIONS = FsAction.values();
 
-  private List<AclEntry> aclEntries;
-  private Map<String, byte[]> xAttrs;
+    private List<AclEntry> aclEntries;
+    private Map<String, byte[]> xAttrs;
 
-  /**
-   * Default constructor.
-   */
-  public CopyListingFileStatus() {
-  }
-
-  /**
-   * Creates a new CopyListingFileStatus by copying the members of the given
-   * FileStatus.
-   *
-   * @param fileStatus FileStatus to copy
-   */
-  public CopyListingFileStatus(FileStatus fileStatus) throws IOException {
-    super(fileStatus);
-  }
-
-  /**
-   * Returns the full logical ACL.
-   *
-   * @return List<AclEntry> containing full logical ACL
-   */
-  public List<AclEntry> getAclEntries() {
-    return AclUtil.getAclFromPermAndEntries(getPermission(),
-      aclEntries != null ? aclEntries : Collections.<AclEntry>emptyList());
-  }
-
-  /**
-   * Sets optional ACL entries.
-   *
-   * @param aclEntries List<AclEntry> containing all ACL entries
-   */
-  public void setAclEntries(List<AclEntry> aclEntries) {
-    this.aclEntries = aclEntries;
-  }
-  
-  /**
-   * Returns all xAttrs.
-   * 
-   * @return Map<String, byte[]> containing all xAttrs
-   */
-  public Map<String, byte[]> getXAttrs() {
-    return xAttrs != null ? xAttrs : Collections.<String, byte[]>emptyMap();
-  }
-  
-  /**
-   * Sets optional xAttrs.
-   * 
-   * @param xAttrs Map<String, byte[]> containing all xAttrs
-   */
-  public void setXAttrs(Map<String, byte[]> xAttrs) {
-    this.xAttrs = xAttrs;
-  }
-
-  @Override
-  public void write(DataOutput out) throws IOException {
-    super.write(out);
-    if (aclEntries != null) {
-      // byte is sufficient, because 32 ACL entries is the max enforced by HDFS.
-      out.writeByte(aclEntries.size());
-      for (AclEntry entry: aclEntries) {
-        out.writeByte(entry.getScope().ordinal());
-        out.writeByte(entry.getType().ordinal());
-        WritableUtils.writeString(out, entry.getName());
-        out.writeByte(entry.getPermission().ordinal());
-      }
-    } else {
-      out.writeByte(NO_ACL_ENTRIES);
+    /**
+     * Default constructor.
+     */
+    public CopyListingFileStatus() {
     }
-    
-    if (xAttrs != null) {
-      out.writeInt(xAttrs.size());
-      Iterator<Entry<String, byte[]>> iter = xAttrs.entrySet().iterator();
-      while (iter.hasNext()) {
-        Entry<String, byte[]> entry = iter.next();
-        WritableUtils.writeString(out, entry.getKey());
-        final byte[] value = entry.getValue();
-        if (value != null) {
-          out.writeInt(value.length);
-          if (value.length > 0) {
-            out.write(value);
-          }
+
+    /**
+     * Creates a new CopyListingFileStatus by copying the members of the given
+     * FileStatus.
+     *
+     * @param fileStatus FileStatus to copy
+     */
+    public CopyListingFileStatus(FileStatus fileStatus) throws IOException {
+        super(fileStatus);
+    }
+
+    /**
+     * Returns the full logical ACL.
+     *
+     * @return List<AclEntry> containing full logical ACL
+     */
+    public List<AclEntry> getAclEntries() {
+        return AclUtil.getAclFromPermAndEntries(getPermission(),
+                                                aclEntries != null ? aclEntries : Collections.<AclEntry>emptyList());
+    }
+
+    /**
+     * Sets optional ACL entries.
+     *
+     * @param aclEntries List<AclEntry> containing all ACL entries
+     */
+    public void setAclEntries(List<AclEntry> aclEntries) {
+        this.aclEntries = aclEntries;
+    }
+
+    /**
+     * Returns all xAttrs.
+     *
+     * @return Map<String, byte[]> containing all xAttrs
+     */
+    public Map<String, byte[]> getXAttrs() {
+        return xAttrs != null ? xAttrs : Collections.<String, byte[]>emptyMap();
+    }
+
+    /**
+     * Sets optional xAttrs.
+     *
+     * @param xAttrs Map<String, byte[]> containing all xAttrs
+     */
+    public void setXAttrs(Map<String, byte[]> xAttrs) {
+        this.xAttrs = xAttrs;
+    }
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+        super.write(out);
+        if (aclEntries != null) {
+            // byte is sufficient, because 32 ACL entries is the max enforced by HDFS.
+            out.writeByte(aclEntries.size());
+            for (AclEntry entry: aclEntries) {
+                out.writeByte(entry.getScope().ordinal());
+                out.writeByte(entry.getType().ordinal());
+                WritableUtils.writeString(out, entry.getName());
+                out.writeByte(entry.getPermission().ordinal());
+            }
         } else {
-          out.writeInt(-1);
+            out.writeByte(NO_ACL_ENTRIES);
         }
-      }
-    } else {
-      out.writeInt(NO_XATTRS);
-    }
-  }
 
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    super.readFields(in);
-    byte aclEntriesSize = in.readByte();
-    if (aclEntriesSize != NO_ACL_ENTRIES) {
-      aclEntries = Lists.newArrayListWithCapacity(aclEntriesSize);
-      for (int i = 0; i < aclEntriesSize; ++i) {
-        aclEntries.add(new AclEntry.Builder()
-          .setScope(ACL_ENTRY_SCOPES[in.readByte()])
-          .setType(ACL_ENTRY_TYPES[in.readByte()])
-          .setName(WritableUtils.readString(in))
-          .setPermission(FS_ACTIONS[in.readByte()])
-          .build());
-      }
-    } else {
-      aclEntries = null;
-    }
-    
-    int xAttrsSize = in.readInt();
-    if (xAttrsSize != NO_XATTRS) {
-      xAttrs = Maps.newHashMap();
-      for (int i = 0; i < xAttrsSize; ++i) {
-        final String name = WritableUtils.readString(in);
-        final int valueLen = in.readInt();
-        byte[] value = null;
-        if (valueLen > -1) {
-          value = new byte[valueLen];
-          if (valueLen > 0) {
-            in.readFully(value);
-          }
+        if (xAttrs != null) {
+            out.writeInt(xAttrs.size());
+            Iterator<Entry<String, byte[]>> iter = xAttrs.entrySet().iterator();
+            while (iter.hasNext()) {
+                Entry<String, byte[]> entry = iter.next();
+                WritableUtils.writeString(out, entry.getKey());
+                final byte[] value = entry.getValue();
+                if (value != null) {
+                    out.writeInt(value.length);
+                    if (value.length > 0) {
+                        out.write(value);
+                    }
+                } else {
+                    out.writeInt(-1);
+                }
+            }
+        } else {
+            out.writeInt(NO_XATTRS);
         }
-        xAttrs.put(name, value);
-      }
-    } else {
-      xAttrs = null;
     }
-  }
 
-  @Override
-  public boolean equals(Object o) {
-    if (!super.equals(o)) {
-      return false;
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        super.readFields(in);
+        byte aclEntriesSize = in.readByte();
+        if (aclEntriesSize != NO_ACL_ENTRIES) {
+            aclEntries = Lists.newArrayListWithCapacity(aclEntriesSize);
+            for (int i = 0; i < aclEntriesSize; ++i) {
+                aclEntries.add(new AclEntry.Builder()
+                               .setScope(ACL_ENTRY_SCOPES[in.readByte()])
+                               .setType(ACL_ENTRY_TYPES[in.readByte()])
+                               .setName(WritableUtils.readString(in))
+                               .setPermission(FS_ACTIONS[in.readByte()])
+                               .build());
+            }
+        } else {
+            aclEntries = null;
+        }
+
+        int xAttrsSize = in.readInt();
+        if (xAttrsSize != NO_XATTRS) {
+            xAttrs = Maps.newHashMap();
+            for (int i = 0; i < xAttrsSize; ++i) {
+                final String name = WritableUtils.readString(in);
+                final int valueLen = in.readInt();
+                byte[] value = null;
+                if (valueLen > -1) {
+                    value = new byte[valueLen];
+                    if (valueLen > 0) {
+                        in.readFully(value);
+                    }
+                }
+                xAttrs.put(name, value);
+            }
+        } else {
+            xAttrs = null;
+        }
     }
-    if (getClass() != o.getClass()) {
-      return false;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!super.equals(o)) {
+            return false;
+        }
+        if (getClass() != o.getClass()) {
+            return false;
+        }
+        CopyListingFileStatus other = (CopyListingFileStatus)o;
+        return Objects.equal(aclEntries, other.aclEntries) &&
+               Objects.equal(xAttrs, other.xAttrs);
     }
-    CopyListingFileStatus other = (CopyListingFileStatus)o;
-    return Objects.equal(aclEntries, other.aclEntries) &&
-        Objects.equal(xAttrs, other.xAttrs);
-  }
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(super.hashCode(), aclEntries, xAttrs);
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(super.hashCode(), aclEntries, xAttrs);
+    }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder(super.toString());
-    sb.append('{');
-    sb.append("aclEntries = " + aclEntries);
-    sb.append(", xAttrs = " + xAttrs);
-    sb.append('}');
-    return sb.toString();
-  }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(super.toString());
+        sb.append('{');
+        sb.append("aclEntries = " + aclEntries);
+        sb.append(", xAttrs = " + xAttrs);
+        sb.append('}');
+        return sb.toString();
+    }
 }

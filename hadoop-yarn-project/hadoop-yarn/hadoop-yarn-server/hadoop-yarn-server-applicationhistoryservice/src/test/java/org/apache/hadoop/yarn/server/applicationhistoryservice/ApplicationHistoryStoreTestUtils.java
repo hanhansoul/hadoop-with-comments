@@ -39,47 +39,47 @@ import org.apache.hadoop.yarn.server.applicationhistoryservice.records.Container
 
 public class ApplicationHistoryStoreTestUtils {
 
-  protected ApplicationHistoryStore store;
+    protected ApplicationHistoryStore store;
 
-  protected void writeApplicationStartData(ApplicationId appId)
-      throws IOException {
-    store.applicationStarted(ApplicationStartData.newInstance(appId,
-      appId.toString(), "test type", "test queue", "test user", 0, 0));
-  }
+    protected void writeApplicationStartData(ApplicationId appId)
+    throws IOException {
+        store.applicationStarted(ApplicationStartData.newInstance(appId,
+                                 appId.toString(), "test type", "test queue", "test user", 0, 0));
+    }
 
-  protected void writeApplicationFinishData(ApplicationId appId)
-      throws IOException {
-    store.applicationFinished(ApplicationFinishData.newInstance(appId, 0,
-      appId.toString(), FinalApplicationStatus.UNDEFINED,
-      YarnApplicationState.FINISHED));
-  }
+    protected void writeApplicationFinishData(ApplicationId appId)
+    throws IOException {
+        store.applicationFinished(ApplicationFinishData.newInstance(appId, 0,
+                                  appId.toString(), FinalApplicationStatus.UNDEFINED,
+                                  YarnApplicationState.FINISHED));
+    }
 
-  protected void writeApplicationAttemptStartData(
-      ApplicationAttemptId appAttemptId) throws IOException {
-    store.applicationAttemptStarted(ApplicationAttemptStartData.newInstance(
-      appAttemptId, appAttemptId.toString(), 0,
-      ContainerId.newContainerId(appAttemptId, 1)));
-  }
+    protected void writeApplicationAttemptStartData(
+        ApplicationAttemptId appAttemptId) throws IOException {
+        store.applicationAttemptStarted(ApplicationAttemptStartData.newInstance(
+                                            appAttemptId, appAttemptId.toString(), 0,
+                                            ContainerId.newContainerId(appAttemptId, 1)));
+    }
 
-  protected void writeApplicationAttemptFinishData(
-      ApplicationAttemptId appAttemptId) throws IOException {
-    store.applicationAttemptFinished(ApplicationAttemptFinishData.newInstance(
-      appAttemptId, appAttemptId.toString(), "test tracking url",
-      FinalApplicationStatus.UNDEFINED, YarnApplicationAttemptState.FINISHED));
-  }
+    protected void writeApplicationAttemptFinishData(
+        ApplicationAttemptId appAttemptId) throws IOException {
+        store.applicationAttemptFinished(ApplicationAttemptFinishData.newInstance(
+                                             appAttemptId, appAttemptId.toString(), "test tracking url",
+                                             FinalApplicationStatus.UNDEFINED, YarnApplicationAttemptState.FINISHED));
+    }
 
-  @SuppressWarnings("deprecation")
-  protected void writeContainerStartData(ContainerId containerId)
-      throws IOException {
-    store.containerStarted(ContainerStartData.newInstance(containerId,
-      Resource.newInstance(0, 0), NodeId.newInstance("localhost", 0),
-      Priority.newInstance(containerId.getId()), 0));
-  }
+    @SuppressWarnings("deprecation")
+    protected void writeContainerStartData(ContainerId containerId)
+    throws IOException {
+        store.containerStarted(ContainerStartData.newInstance(containerId,
+                               Resource.newInstance(0, 0), NodeId.newInstance("localhost", 0),
+                               Priority.newInstance(containerId.getId()), 0));
+    }
 
-  protected void writeContainerFinishData(ContainerId containerId)
-      throws IOException {
-    store.containerFinished(ContainerFinishData.newInstance(containerId, 0,
-      containerId.toString(), 0, ContainerState.COMPLETE));
-  }
+    protected void writeContainerFinishData(ContainerId containerId)
+    throws IOException {
+        store.containerFinished(ContainerFinishData.newInstance(containerId, 0,
+                                containerId.toString(), 0, ContainerState.COMPLETE));
+    }
 
 }

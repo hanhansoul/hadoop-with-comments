@@ -19,13 +19,13 @@
 package org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair;
 
 public enum FSQueueType {
-  /*
-   * Represents a leaf queue 
-   */
-  LEAF, 
-  
-  /*
-   * Represents a parent queue
-   */
-  PARENT
+    /*
+     * Represents a leaf queue
+     */
+    LEAF,
+
+    /*
+     * Represents a parent queue
+     */
+    PARENT
 }

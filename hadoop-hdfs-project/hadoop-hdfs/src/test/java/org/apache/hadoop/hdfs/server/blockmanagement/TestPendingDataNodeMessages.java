@@ -33,38 +33,38 @@ import com.google.common.base.Joiner;
 
 
 public class TestPendingDataNodeMessages {
-  final PendingDataNodeMessages msgs = new PendingDataNodeMessages();
-  
-  private final Block block1Gs1 = new Block(1, 0, 1);
-  private final Block block1Gs2 = new Block(1, 0, 2);
-  private final Block block1Gs2DifferentInstance =
-    new Block(1, 0, 2);
-  private final Block block2Gs1 = new Block(2, 0, 1);
+    final PendingDataNodeMessages msgs = new PendingDataNodeMessages();
 
-  @Test
-  public void testQueues() {
-    DatanodeDescriptor fakeDN = DFSTestUtil.getLocalDatanodeDescriptor();
-    DatanodeStorage storage = new DatanodeStorage("STORAGE_ID");
-    DatanodeStorageInfo storageInfo = new DatanodeStorageInfo(fakeDN, storage);
-    msgs.enqueueReportedBlock(storageInfo, block1Gs1, ReplicaState.FINALIZED);
-    msgs.enqueueReportedBlock(storageInfo, block1Gs2, ReplicaState.FINALIZED);
+    private final Block block1Gs1 = new Block(1, 0, 1);
+    private final Block block1Gs2 = new Block(1, 0, 2);
+    private final Block block1Gs2DifferentInstance =
+        new Block(1, 0, 2);
+    private final Block block2Gs1 = new Block(2, 0, 1);
 
-    assertEquals(2, msgs.count());
-    
-    // Nothing queued yet for block 2
-    assertNull(msgs.takeBlockQueue(block2Gs1));
-    assertEquals(2, msgs.count());
-    
-    Queue<ReportedBlockInfo> q =
-      msgs.takeBlockQueue(block1Gs2DifferentInstance);
-    assertEquals(
-        "ReportedBlockInfo [block=blk_1_1, dn=127.0.0.1:50010, reportedState=FINALIZED]," +
-        "ReportedBlockInfo [block=blk_1_2, dn=127.0.0.1:50010, reportedState=FINALIZED]",
-        Joiner.on(",").join(q));
-    assertEquals(0, msgs.count());
-    
-    // Should be null if we pull again
-    assertNull(msgs.takeBlockQueue(block1Gs1));
-    assertEquals(0, msgs.count());
-  }
+    @Test
+    public void testQueues() {
+        DatanodeDescriptor fakeDN = DFSTestUtil.getLocalDatanodeDescriptor();
+        DatanodeStorage storage = new DatanodeStorage("STORAGE_ID");
+        DatanodeStorageInfo storageInfo = new DatanodeStorageInfo(fakeDN, storage);
+        msgs.enqueueReportedBlock(storageInfo, block1Gs1, ReplicaState.FINALIZED);
+        msgs.enqueueReportedBlock(storageInfo, block1Gs2, ReplicaState.FINALIZED);
+
+        assertEquals(2, msgs.count());
+
+        // Nothing queued yet for block 2
+        assertNull(msgs.takeBlockQueue(block2Gs1));
+        assertEquals(2, msgs.count());
+
+        Queue<ReportedBlockInfo> q =
+            msgs.takeBlockQueue(block1Gs2DifferentInstance);
+        assertEquals(
+            "ReportedBlockInfo [block=blk_1_1, dn=127.0.0.1:50010, reportedState=FINALIZED]," +
+            "ReportedBlockInfo [block=blk_1_2, dn=127.0.0.1:50010, reportedState=FINALIZED]",
+            Joiner.on(",").join(q));
+        assertEquals(0, msgs.count());
+
+        // Should be null if we pull again
+        assertNull(msgs.takeBlockQueue(block1Gs1));
+        assertEquals(0, msgs.count());
+    }
 }

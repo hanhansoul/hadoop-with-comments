@@ -23,20 +23,20 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class CommitterJobSetupEvent extends CommitterEvent {
 
-  private JobId jobID;
-  private JobContext jobContext;
+    private JobId jobID;
+    private JobContext jobContext;
 
-  public CommitterJobSetupEvent(JobId jobID, JobContext jobContext) {
-    super(CommitterEventType.JOB_SETUP);
-    this.jobID = jobID;
-    this.jobContext = jobContext;
-  }
+    public CommitterJobSetupEvent(JobId jobID, JobContext jobContext) {
+        super(CommitterEventType.JOB_SETUP);
+        this.jobID = jobID;
+        this.jobContext = jobContext;
+    }
 
-  public JobId getJobID() {
-    return jobID;
-  }
+    public JobId getJobID() {
+        return jobID;
+    }
 
-  public JobContext getJobContext() {
-    return jobContext;
-  }
+    public JobContext getJobContext() {
+        return jobContext;
+    }
 }

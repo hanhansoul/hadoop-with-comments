@@ -34,39 +34,39 @@ import org.junit.Test;
 
 public class TestSocketFactory {
 
-  @Test
-  public void testSocketFactoryAsKeyInMap() {
-    Map<SocketFactory, Integer> dummyCache = new HashMap<SocketFactory, Integer>();
-    int toBeCached1 = 1;
-    int toBeCached2 = 2;
-    Configuration conf = new Configuration();
-    conf.set(CommonConfigurationKeys.HADOOP_RPC_SOCKET_FACTORY_CLASS_DEFAULT_KEY,
-        "org.apache.hadoop.ipc.TestSocketFactory$DummySocketFactory");
-    final SocketFactory dummySocketFactory = NetUtils
-        .getDefaultSocketFactory(conf);
-    dummyCache.put(dummySocketFactory, toBeCached1);
+    @Test
+    public void testSocketFactoryAsKeyInMap() {
+        Map<SocketFactory, Integer> dummyCache = new HashMap<SocketFactory, Integer>();
+        int toBeCached1 = 1;
+        int toBeCached2 = 2;
+        Configuration conf = new Configuration();
+        conf.set(CommonConfigurationKeys.HADOOP_RPC_SOCKET_FACTORY_CLASS_DEFAULT_KEY,
+                 "org.apache.hadoop.ipc.TestSocketFactory$DummySocketFactory");
+        final SocketFactory dummySocketFactory = NetUtils
+                .getDefaultSocketFactory(conf);
+        dummyCache.put(dummySocketFactory, toBeCached1);
 
-    conf.set(CommonConfigurationKeys.HADOOP_RPC_SOCKET_FACTORY_CLASS_DEFAULT_KEY,
-        "org.apache.hadoop.net.StandardSocketFactory");
-    final SocketFactory defaultSocketFactory = NetUtils
-        .getDefaultSocketFactory(conf);
-    dummyCache.put(defaultSocketFactory, toBeCached2);
+        conf.set(CommonConfigurationKeys.HADOOP_RPC_SOCKET_FACTORY_CLASS_DEFAULT_KEY,
+                 "org.apache.hadoop.net.StandardSocketFactory");
+        final SocketFactory defaultSocketFactory = NetUtils
+                .getDefaultSocketFactory(conf);
+        dummyCache.put(defaultSocketFactory, toBeCached2);
 
-    Assert
+        Assert
         .assertEquals("The cache contains two elements", 2, dummyCache.size());
-    Assert.assertEquals("Equals of both socket factory shouldn't be same",
-        defaultSocketFactory.equals(dummySocketFactory), false);
+        Assert.assertEquals("Equals of both socket factory shouldn't be same",
+                            defaultSocketFactory.equals(dummySocketFactory), false);
 
-    assertSame(toBeCached2, dummyCache.remove(defaultSocketFactory));
-    dummyCache.put(defaultSocketFactory, toBeCached2);
-    assertSame(toBeCached1, dummyCache.remove(dummySocketFactory));
+        assertSame(toBeCached2, dummyCache.remove(defaultSocketFactory));
+        dummyCache.put(defaultSocketFactory, toBeCached2);
+        assertSame(toBeCached1, dummyCache.remove(dummySocketFactory));
 
-  }
+    }
 
-  /**
-   * A dummy socket factory class that extends the StandardSocketFactory. 
-   */
-  static class DummySocketFactory extends StandardSocketFactory {
-    
-  }
+    /**
+     * A dummy socket factory class that extends the StandardSocketFactory.
+     */
+    static class DummySocketFactory extends StandardSocketFactory {
+
+    }
 }

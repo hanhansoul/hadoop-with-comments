@@ -19,45 +19,45 @@ import org.junit.Test;
 
 public class TestRandomSignerSecretProvider {
 
-  @Test
-  public void testGetAndRollSecrets() throws Exception {
-    long rolloverFrequency = 15 * 1000; // rollover every 15 sec
-    // use the same seed so we can predict the RNG
-    long seed = System.currentTimeMillis();
-    Random rand = new Random(seed);
-    byte[] secret1 = Long.toString(rand.nextLong()).getBytes();
-    byte[] secret2 = Long.toString(rand.nextLong()).getBytes();
-    byte[] secret3 = Long.toString(rand.nextLong()).getBytes();
-    RandomSignerSecretProvider secretProvider =
-        new RandomSignerSecretProvider(seed);
-    try {
-      secretProvider.init(null, null, rolloverFrequency);
+    @Test
+    public void testGetAndRollSecrets() throws Exception {
+        long rolloverFrequency = 15 * 1000; // rollover every 15 sec
+        // use the same seed so we can predict the RNG
+        long seed = System.currentTimeMillis();
+        Random rand = new Random(seed);
+        byte[] secret1 = Long.toString(rand.nextLong()).getBytes();
+        byte[] secret2 = Long.toString(rand.nextLong()).getBytes();
+        byte[] secret3 = Long.toString(rand.nextLong()).getBytes();
+        RandomSignerSecretProvider secretProvider =
+            new RandomSignerSecretProvider(seed);
+        try {
+            secretProvider.init(null, null, rolloverFrequency);
 
-      byte[] currentSecret = secretProvider.getCurrentSecret();
-      byte[][] allSecrets = secretProvider.getAllSecrets();
-      Assert.assertArrayEquals(secret1, currentSecret);
-      Assert.assertEquals(2, allSecrets.length);
-      Assert.assertArrayEquals(secret1, allSecrets[0]);
-      Assert.assertNull(allSecrets[1]);
-      Thread.sleep(rolloverFrequency + 2000);
+            byte[] currentSecret = secretProvider.getCurrentSecret();
+            byte[][] allSecrets = secretProvider.getAllSecrets();
+            Assert.assertArrayEquals(secret1, currentSecret);
+            Assert.assertEquals(2, allSecrets.length);
+            Assert.assertArrayEquals(secret1, allSecrets[0]);
+            Assert.assertNull(allSecrets[1]);
+            Thread.sleep(rolloverFrequency + 2000);
 
-      currentSecret = secretProvider.getCurrentSecret();
-      allSecrets = secretProvider.getAllSecrets();
-      Assert.assertArrayEquals(secret2, currentSecret);
-      Assert.assertEquals(2, allSecrets.length);
-      Assert.assertArrayEquals(secret2, allSecrets[0]);
-      Assert.assertArrayEquals(secret1, allSecrets[1]);
-      Thread.sleep(rolloverFrequency + 2000);
+            currentSecret = secretProvider.getCurrentSecret();
+            allSecrets = secretProvider.getAllSecrets();
+            Assert.assertArrayEquals(secret2, currentSecret);
+            Assert.assertEquals(2, allSecrets.length);
+            Assert.assertArrayEquals(secret2, allSecrets[0]);
+            Assert.assertArrayEquals(secret1, allSecrets[1]);
+            Thread.sleep(rolloverFrequency + 2000);
 
-      currentSecret = secretProvider.getCurrentSecret();
-      allSecrets = secretProvider.getAllSecrets();
-      Assert.assertArrayEquals(secret3, currentSecret);
-      Assert.assertEquals(2, allSecrets.length);
-      Assert.assertArrayEquals(secret3, allSecrets[0]);
-      Assert.assertArrayEquals(secret2, allSecrets[1]);
-      Thread.sleep(rolloverFrequency + 2000);
-    } finally {
-      secretProvider.destroy();
+            currentSecret = secretProvider.getCurrentSecret();
+            allSecrets = secretProvider.getAllSecrets();
+            Assert.assertArrayEquals(secret3, currentSecret);
+            Assert.assertEquals(2, allSecrets.length);
+            Assert.assertArrayEquals(secret3, allSecrets[0]);
+            Assert.assertArrayEquals(secret2, allSecrets[1]);
+            Thread.sleep(rolloverFrequency + 2000);
+        } finally {
+            secretProvider.destroy();
+        }
     }
-  }
 }

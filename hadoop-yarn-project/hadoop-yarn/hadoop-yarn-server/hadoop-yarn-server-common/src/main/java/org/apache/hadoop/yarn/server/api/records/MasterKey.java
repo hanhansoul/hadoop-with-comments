@@ -22,12 +22,12 @@ import java.nio.ByteBuffer;
 
 public interface MasterKey {
 
-  int getKeyId();
+    int getKeyId();
 
-  void setKeyId(int keyId);
+    void setKeyId(int keyId);
 
-  ByteBuffer getBytes();
+    ByteBuffer getBytes();
 
-  void setBytes(ByteBuffer bytes);
+    void setBytes(ByteBuffer bytes);
 
 }

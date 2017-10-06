@@ -25,8 +25,8 @@ import org.apache.hadoop.classification.InterfaceAudience;
  */
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public interface SubView {
-  /**
-   * render the sub-view
-   */
-  void renderPartial();
+    /**
+     * render the sub-view
+     */
+    void renderPartial();
 }

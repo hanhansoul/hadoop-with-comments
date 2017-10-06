@@ -59,37 +59,37 @@ import org.apache.hadoop.yarn.util.Records;
 @Evolving
 public abstract class PreemptionMessage {
 
-  @Private
-  @Unstable
-  public static PreemptionMessage newInstance(StrictPreemptionContract set,
-      PreemptionContract contract) {
-    PreemptionMessage message = Records.newRecord(PreemptionMessage.class);
-    message.setStrictContract(set);
-    message.setContract(contract);
-    return message;
-  }
+    @Private
+    @Unstable
+    public static PreemptionMessage newInstance(StrictPreemptionContract set,
+            PreemptionContract contract) {
+        PreemptionMessage message = Records.newRecord(PreemptionMessage.class);
+        message.setStrictContract(set);
+        message.setContract(contract);
+        return message;
+    }
 
-  /**
-   * @return Specific resources that may be killed by the
-   * <code>ResourceManager</code>
-   */
-  @Public
-  @Evolving
-  public abstract StrictPreemptionContract getStrictContract();
+    /**
+     * @return Specific resources that may be killed by the
+     * <code>ResourceManager</code>
+     */
+    @Public
+    @Evolving
+    public abstract StrictPreemptionContract getStrictContract();
 
-  @Private
-  @Unstable
-  public abstract void setStrictContract(StrictPreemptionContract set);
+    @Private
+    @Unstable
+    public abstract void setStrictContract(StrictPreemptionContract set);
 
-  /**
-   * @return Contract describing resources to return to the cluster.
-   */
-  @Public
-  @Evolving
-  public abstract PreemptionContract getContract();
+    /**
+     * @return Contract describing resources to return to the cluster.
+     */
+    @Public
+    @Evolving
+    public abstract PreemptionContract getContract();
 
-  @Private
-  @Unstable
-  public abstract void setContract(PreemptionContract contract);
+    @Private
+    @Unstable
+    public abstract void setContract(PreemptionContract contract);
 
 }

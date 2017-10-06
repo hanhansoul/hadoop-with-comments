@@ -36,75 +36,75 @@ import com.google.protobuf.TextFormat;
 
 public class ClientToAMTokenIdentifierForTest extends ClientToAMTokenIdentifier {
 
-  private ClientToAMTokenIdentifierForTestProto proto;
+    private ClientToAMTokenIdentifierForTestProto proto;
 
-  public ClientToAMTokenIdentifierForTest() {
-  }
-  
-  public ClientToAMTokenIdentifierForTest(
-      ClientToAMTokenIdentifier tokenIdentifier, String message) {
-    ClientToAMTokenIdentifierForTestProto.Builder builder = 
-        ClientToAMTokenIdentifierForTestProto.newBuilder();
-    builder.setAppAttemptId(tokenIdentifier.getProto().getAppAttemptId());
-    builder.setClientName(tokenIdentifier.getProto().getClientName());
-    builder.setMessage(message);
-    proto = builder.build();
-  }
-
-  public ApplicationAttemptId getApplicationAttemptID() {
-    if (!proto.hasAppAttemptId()) {
-      return null;
+    public ClientToAMTokenIdentifierForTest() {
     }
-    return new ApplicationAttemptIdPBImpl(proto.getAppAttemptId());
-  }
 
-  public String getClientName() {
-    return proto.getClientName();
-  }
-
-  @Override
-  public void write(DataOutput out) throws IOException {
-    out.write(proto.toByteArray());
-  }
-
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    DataInputStream dis = (DataInputStream)in;
-    byte[] buffer = IOUtils.toByteArray(dis);
-    proto = ClientToAMTokenIdentifierForTestProto.parseFrom(buffer);
-  }
-
-  @Override
-  public UserGroupInformation getUser() {
-    String clientName = getClientName();
-    if (clientName == null) {
-      return null;
+    public ClientToAMTokenIdentifierForTest(
+        ClientToAMTokenIdentifier tokenIdentifier, String message) {
+        ClientToAMTokenIdentifierForTestProto.Builder builder =
+            ClientToAMTokenIdentifierForTestProto.newBuilder();
+        builder.setAppAttemptId(tokenIdentifier.getProto().getAppAttemptId());
+        builder.setClientName(tokenIdentifier.getProto().getClientName());
+        builder.setMessage(message);
+        proto = builder.build();
     }
-    return UserGroupInformation.createRemoteUser(clientName);
-  }
-  
-  @Override
-  public int hashCode() {
-    return getNewProto().hashCode();
-  }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getNewProto().equals(this.getClass().cast(other).getNewProto());
+    public ApplicationAttemptId getApplicationAttemptID() {
+        if (!proto.hasAppAttemptId()) {
+            return null;
+        }
+        return new ApplicationAttemptIdPBImpl(proto.getAppAttemptId());
     }
-    return false;
-  }
-  
-  public ClientToAMTokenIdentifierForTestProto getNewProto() {
-    return proto;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getNewProto());
-  }
+    public String getClientName() {
+        return proto.getClientName();
+    }
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+        out.write(proto.toByteArray());
+    }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        DataInputStream dis = (DataInputStream)in;
+        byte[] buffer = IOUtils.toByteArray(dis);
+        proto = ClientToAMTokenIdentifierForTestProto.parseFrom(buffer);
+    }
+
+    @Override
+    public UserGroupInformation getUser() {
+        String clientName = getClientName();
+        if (clientName == null) {
+            return null;
+        }
+        return UserGroupInformation.createRemoteUser(clientName);
+    }
+
+    @Override
+    public int hashCode() {
+        return getNewProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getNewProto().equals(this.getClass().cast(other).getNewProto());
+        }
+        return false;
+    }
+
+    public ClientToAMTokenIdentifierForTestProto getNewProto() {
+        return proto;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getNewProto());
+    }
 
 }

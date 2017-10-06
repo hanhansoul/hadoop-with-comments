@@ -27,31 +27,33 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerHe
 public class MockLocalizerHeartbeatResponse
     implements LocalizerHeartbeatResponse {
 
-  LocalizerAction action;
-  List<ResourceLocalizationSpec> resourceSpecs;
+    LocalizerAction action;
+    List<ResourceLocalizationSpec> resourceSpecs;
 
-  MockLocalizerHeartbeatResponse() {
-    resourceSpecs = new ArrayList<ResourceLocalizationSpec>();
-  }
+    MockLocalizerHeartbeatResponse() {
+        resourceSpecs = new ArrayList<ResourceLocalizationSpec>();
+    }
 
-  MockLocalizerHeartbeatResponse(
-      LocalizerAction action, List<ResourceLocalizationSpec> resources) {
-    this.action = action;
-    this.resourceSpecs = resources;
-  }
+    MockLocalizerHeartbeatResponse(
+        LocalizerAction action, List<ResourceLocalizationSpec> resources) {
+        this.action = action;
+        this.resourceSpecs = resources;
+    }
 
-  public LocalizerAction getLocalizerAction() { return action; }
-  public void setLocalizerAction(LocalizerAction action) {
-    this.action = action;
-  }
+    public LocalizerAction getLocalizerAction() {
+        return action;
+    }
+    public void setLocalizerAction(LocalizerAction action) {
+        this.action = action;
+    }
 
-  @Override
-  public List<ResourceLocalizationSpec> getResourceSpecs() {
-    return resourceSpecs;
-}
+    @Override
+    public List<ResourceLocalizationSpec> getResourceSpecs() {
+        return resourceSpecs;
+    }
 
-  @Override
-  public void setResourceSpecs(List<ResourceLocalizationSpec> resourceSpecs) {
-    this.resourceSpecs = resourceSpecs;
-  }
+    @Override
+    public void setResourceSpecs(List<ResourceLocalizationSpec> resourceSpecs) {
+        this.resourceSpecs = resourceSpecs;
+    }
 }

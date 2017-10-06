@@ -29,33 +29,32 @@ import java.io.IOException;
  */
 public class TestStreamXmlRecordReader extends TestStreaming {
 
-  public TestStreamXmlRecordReader() throws IOException {
-    INPUT_FILE = new File("target/input.xml");
-    input = "<xmltag>\t\nroses.are.red\t\nviolets.are.blue\t\n" +
-        "bunnies.are.pink\t\n</xmltag>\t\n";
-    map = CAT;
-    reduce = "NONE";
-    outputExpect = input;
-  }
+    public TestStreamXmlRecordReader() throws IOException {
+        INPUT_FILE = new File("target/input.xml");
+        input = "<xmltag>\t\nroses.are.red\t\nviolets.are.blue\t\n" +
+                "bunnies.are.pink\t\n</xmltag>\t\n";
+        map = CAT;
+        reduce = "NONE";
+        outputExpect = input;
+    }
 
-  @Override
-  protected void createInput() throws IOException
-  {
-    FileOutputStream out = new FileOutputStream(INPUT_FILE.getAbsoluteFile());
-    String dummyXmlStartTag = "<PATTERN>\n";
-    String dummyXmlEndTag = "</PATTERN>\n";
-    out.write(dummyXmlStartTag.getBytes("UTF-8"));
-    out.write(input.getBytes("UTF-8"));
-    out.write(dummyXmlEndTag.getBytes("UTF-8"));
-    out.close();
-  }
+    @Override
+    protected void createInput() throws IOException {
+        FileOutputStream out = new FileOutputStream(INPUT_FILE.getAbsoluteFile());
+        String dummyXmlStartTag = "<PATTERN>\n";
+        String dummyXmlEndTag = "</PATTERN>\n";
+        out.write(dummyXmlStartTag.getBytes("UTF-8"));
+        out.write(input.getBytes("UTF-8"));
+        out.write(dummyXmlEndTag.getBytes("UTF-8"));
+        out.close();
+    }
 
-  @Override
-  protected String[] genArgs() {
-    args.add("-inputreader");
-    args.add("StreamXmlRecordReader,begin=<xmltag>,end=</xmltag>");
-    args.add("-jobconf");
-    args.add("mapreduce.job.maps=1");
-    return super.genArgs();
-  }
+    @Override
+    protected String[] genArgs() {
+        args.add("-inputreader");
+        args.add("StreamXmlRecordReader,begin=<xmltag>,end=</xmltag>");
+        args.add("-jobconf");
+        args.add("mapreduce.job.maps=1");
+        return super.genArgs();
+    }
 }

@@ -23,34 +23,34 @@ package org.apache.hadoop.mapreduce.v2.app.job.event;
  */
 public enum TaskAttemptEventType {
 
-  //Producer:Task
-  TA_SCHEDULE,
-  TA_RESCHEDULE,
-  TA_RECOVER,
+    //Producer:Task
+    TA_SCHEDULE,
+    TA_RESCHEDULE,
+    TA_RECOVER,
 
-  //Producer:Client, Task
-  TA_KILL,
+    //Producer:Client, Task
+    TA_KILL,
 
-  //Producer:ContainerAllocator
-  TA_ASSIGNED,
-  TA_CONTAINER_COMPLETED,
+    //Producer:ContainerAllocator
+    TA_ASSIGNED,
+    TA_CONTAINER_COMPLETED,
 
-  //Producer:ContainerLauncher
-  TA_CONTAINER_LAUNCHED,
-  TA_CONTAINER_LAUNCH_FAILED,
-  TA_CONTAINER_CLEANED,
+    //Producer:ContainerLauncher
+    TA_CONTAINER_LAUNCHED,
+    TA_CONTAINER_LAUNCH_FAILED,
+    TA_CONTAINER_CLEANED,
 
-  //Producer:TaskAttemptListener
-  TA_DIAGNOSTICS_UPDATE,
-  TA_COMMIT_PENDING, 
-  TA_DONE,
-  TA_FAILMSG,
-  TA_UPDATE,
-  TA_TIMED_OUT,
+    //Producer:TaskAttemptListener
+    TA_DIAGNOSTICS_UPDATE,
+    TA_COMMIT_PENDING,
+    TA_DONE,
+    TA_FAILMSG,
+    TA_UPDATE,
+    TA_TIMED_OUT,
 
-  //Producer:TaskCleaner
-  TA_CLEANUP_DONE,
+    //Producer:TaskCleaner
+    TA_CLEANUP_DONE,
 
-  //Producer:Job
-  TA_TOO_MANY_FETCH_FAILURE,
+    //Producer:Job
+    TA_TOO_MANY_FETCH_FAILURE,
 }

@@ -24,9 +24,9 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
 
 public class TestLocalFSContractDelete extends AbstractContractDeleteTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new LocalFSContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new LocalFSContract(conf);
+    }
 
 }

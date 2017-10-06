@@ -35,95 +35,95 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 import org.apache.hadoop.yarn.util.resource.Resources;
 
 public class RMAppAttemptMetrics {
-  private static final Log LOG = LogFactory.getLog(RMAppAttemptMetrics.class);
+    private static final Log LOG = LogFactory.getLog(RMAppAttemptMetrics.class);
 
-  private ApplicationAttemptId attemptId = null;
-  // preemption info
-  private Resource resourcePreempted = Resource.newInstance(0, 0);
-  private AtomicInteger numNonAMContainersPreempted = new AtomicInteger(0);
-  private AtomicBoolean isPreempted = new AtomicBoolean(false);
-  
-  private ReadLock readLock;
-  private WriteLock writeLock;
-  private AtomicLong finishedMemorySeconds = new AtomicLong(0);
-  private AtomicLong finishedVcoreSeconds = new AtomicLong(0);
-  private RMContext rmContext;
+    private ApplicationAttemptId attemptId = null;
+    // preemption info
+    private Resource resourcePreempted = Resource.newInstance(0, 0);
+    private AtomicInteger numNonAMContainersPreempted = new AtomicInteger(0);
+    private AtomicBoolean isPreempted = new AtomicBoolean(false);
 
-  public RMAppAttemptMetrics(ApplicationAttemptId attemptId,
-      RMContext rmContext) {
-    this.attemptId = attemptId;
-    ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    this.readLock = lock.readLock();
-    this.writeLock = lock.writeLock();
-    this.rmContext = rmContext;
-  }
-  
-  public void updatePreemptionInfo(Resource resource, RMContainer container) {
-    try {
-      writeLock.lock();
-      resourcePreempted = Resources.addTo(resourcePreempted, resource);
-    } finally {
-      writeLock.unlock();
+    private ReadLock readLock;
+    private WriteLock writeLock;
+    private AtomicLong finishedMemorySeconds = new AtomicLong(0);
+    private AtomicLong finishedVcoreSeconds = new AtomicLong(0);
+    private RMContext rmContext;
+
+    public RMAppAttemptMetrics(ApplicationAttemptId attemptId,
+                               RMContext rmContext) {
+        this.attemptId = attemptId;
+        ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+        this.readLock = lock.readLock();
+        this.writeLock = lock.writeLock();
+        this.rmContext = rmContext;
     }
 
-    if (!container.isAMContainer()) {
-      // container got preempted is not a master container
-      LOG.info(String.format(
-        "Non-AM container preempted, current appAttemptId=%s, "
-            + "containerId=%s, resource=%s", attemptId,
-        container.getContainerId(), resource));
-      numNonAMContainersPreempted.incrementAndGet();
-    } else {
-      // container got preempted is a master container
-      LOG.info(String.format("AM container preempted, "
-          + "current appAttemptId=%s, containerId=%s, resource=%s", attemptId,
-        container.getContainerId(), resource));
-      isPreempted.set(true);
+    public void updatePreemptionInfo(Resource resource, RMContainer container) {
+        try {
+            writeLock.lock();
+            resourcePreempted = Resources.addTo(resourcePreempted, resource);
+        } finally {
+            writeLock.unlock();
+        }
+
+        if (!container.isAMContainer()) {
+            // container got preempted is not a master container
+            LOG.info(String.format(
+                         "Non-AM container preempted, current appAttemptId=%s, "
+                         + "containerId=%s, resource=%s", attemptId,
+                         container.getContainerId(), resource));
+            numNonAMContainersPreempted.incrementAndGet();
+        } else {
+            // container got preempted is a master container
+            LOG.info(String.format("AM container preempted, "
+                                   + "current appAttemptId=%s, containerId=%s, resource=%s", attemptId,
+                                   container.getContainerId(), resource));
+            isPreempted.set(true);
+        }
     }
-  }
-  
-  public Resource getResourcePreempted() {
-    try {
-      readLock.lock();
-      return resourcePreempted;
-    } finally {
-      readLock.unlock();
+
+    public Resource getResourcePreempted() {
+        try {
+            readLock.lock();
+            return resourcePreempted;
+        } finally {
+            readLock.unlock();
+        }
     }
-  }
 
-  public int getNumNonAMContainersPreempted() {
-    return numNonAMContainersPreempted.get();
-  }
-  
-  public void setIsPreempted() {
-    this.isPreempted.set(true);
-  }
-  
-  public boolean getIsPreempted() {
-    return this.isPreempted.get();
-  }
-
-  public AggregateAppResourceUsage getAggregateAppResourceUsage() {
-    long memorySeconds = finishedMemorySeconds.get();
-    long vcoreSeconds = finishedVcoreSeconds.get();
-
-    // Only add in the running containers if this is the active attempt.
-    RMAppAttempt currentAttempt = rmContext.getRMApps()
-                   .get(attemptId.getApplicationId()).getCurrentAppAttempt();
-    if (currentAttempt.getAppAttemptId().equals(attemptId)) {
-      ApplicationResourceUsageReport appResUsageReport = rmContext
-            .getScheduler().getAppResourceUsageReport(attemptId);
-      if (appResUsageReport != null) {
-        memorySeconds += appResUsageReport.getMemorySeconds();
-        vcoreSeconds += appResUsageReport.getVcoreSeconds();
-      }
+    public int getNumNonAMContainersPreempted() {
+        return numNonAMContainersPreempted.get();
     }
-    return new AggregateAppResourceUsage(memorySeconds, vcoreSeconds);
-  }
 
-  public void updateAggregateAppResourceUsage(long finishedMemorySeconds,
-                                        long finishedVcoreSeconds) {
-    this.finishedMemorySeconds.addAndGet(finishedMemorySeconds);
-    this.finishedVcoreSeconds.addAndGet(finishedVcoreSeconds);
-  }
+    public void setIsPreempted() {
+        this.isPreempted.set(true);
+    }
+
+    public boolean getIsPreempted() {
+        return this.isPreempted.get();
+    }
+
+    public AggregateAppResourceUsage getAggregateAppResourceUsage() {
+        long memorySeconds = finishedMemorySeconds.get();
+        long vcoreSeconds = finishedVcoreSeconds.get();
+
+        // Only add in the running containers if this is the active attempt.
+        RMAppAttempt currentAttempt = rmContext.getRMApps()
+                                      .get(attemptId.getApplicationId()).getCurrentAppAttempt();
+        if (currentAttempt.getAppAttemptId().equals(attemptId)) {
+            ApplicationResourceUsageReport appResUsageReport = rmContext
+                    .getScheduler().getAppResourceUsageReport(attemptId);
+            if (appResUsageReport != null) {
+                memorySeconds += appResUsageReport.getMemorySeconds();
+                vcoreSeconds += appResUsageReport.getVcoreSeconds();
+            }
+        }
+        return new AggregateAppResourceUsage(memorySeconds, vcoreSeconds);
+    }
+
+    public void updateAggregateAppResourceUsage(long finishedMemorySeconds,
+            long finishedVcoreSeconds) {
+        this.finishedMemorySeconds.addAndGet(finishedMemorySeconds);
+        this.finishedVcoreSeconds.addAndGet(finishedVcoreSeconds);
+    }
 }

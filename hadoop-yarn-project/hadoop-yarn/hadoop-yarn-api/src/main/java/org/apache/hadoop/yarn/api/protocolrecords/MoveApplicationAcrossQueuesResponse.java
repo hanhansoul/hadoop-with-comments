@@ -31,17 +31,17 @@ import org.apache.hadoop.yarn.util.Records;
  * <p>
  * A response without exception means that the move has completed successfully.
  * </p>
- * 
+ *
  * @see ApplicationClientProtocol#moveApplicationAcrossQueues(MoveApplicationAcrossQueuesRequest)
  */
 @Public
 @Unstable
 public class MoveApplicationAcrossQueuesResponse {
-  @Private
-  @Unstable
-  public MoveApplicationAcrossQueuesResponse newInstance() {
-    MoveApplicationAcrossQueuesResponse response =
-        Records.newRecord(MoveApplicationAcrossQueuesResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public MoveApplicationAcrossQueuesResponse newInstance() {
+        MoveApplicationAcrossQueuesResponse response =
+            Records.newRecord(MoveApplicationAcrossQueuesResponse.class);
+        return response;
+    }
 }

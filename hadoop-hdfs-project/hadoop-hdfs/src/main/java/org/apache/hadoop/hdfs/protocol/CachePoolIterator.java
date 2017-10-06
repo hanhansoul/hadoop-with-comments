@@ -33,21 +33,21 @@ import org.apache.hadoop.fs.BatchedRemoteIterator;
 public class CachePoolIterator
     extends BatchedRemoteIterator<String, CachePoolEntry> {
 
-  private final ClientProtocol namenode;
+    private final ClientProtocol namenode;
 
-  public CachePoolIterator(ClientProtocol namenode) {
-    super("");
-    this.namenode = namenode;
-  }
+    public CachePoolIterator(ClientProtocol namenode) {
+        super("");
+        this.namenode = namenode;
+    }
 
-  @Override
-  public BatchedEntries<CachePoolEntry> makeRequest(String prevKey)
-      throws IOException {
-    return namenode.listCachePools(prevKey);
-  }
+    @Override
+    public BatchedEntries<CachePoolEntry> makeRequest(String prevKey)
+    throws IOException {
+        return namenode.listCachePools(prevKey);
+    }
 
-  @Override
-  public String elementToPrevKey(CachePoolEntry entry) {
-    return entry.getInfo().getPoolName();
-  }
+    @Override
+    public String elementToPrevKey(CachePoolEntry entry) {
+        return entry.getInfo().getPoolName();
+    }
 }

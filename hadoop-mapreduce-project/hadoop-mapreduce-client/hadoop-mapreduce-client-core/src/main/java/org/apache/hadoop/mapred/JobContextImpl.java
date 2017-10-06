@@ -23,38 +23,38 @@ import org.apache.hadoop.util.Progressable;
 
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
-public class JobContextImpl 
-    extends org.apache.hadoop.mapreduce.task.JobContextImpl 
+public class JobContextImpl
+    extends org.apache.hadoop.mapreduce.task.JobContextImpl
     implements JobContext {
-  private JobConf job;
-  private Progressable progress;
+    private JobConf job;
+    private Progressable progress;
 
-  public JobContextImpl(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId, 
-                 Progressable progress) {
-    super(conf, jobId);
-    this.job = conf;
-    this.progress = progress;
-  }
+    public JobContextImpl(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId,
+                          Progressable progress) {
+        super(conf, jobId);
+        this.job = conf;
+        this.progress = progress;
+    }
 
-  public JobContextImpl(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId) {
-    this(conf, jobId, Reporter.NULL);
-  }
-  
-  /**
-   * Get the job Configuration
-   * 
-   * @return JobConf
-   */
-  public JobConf getJobConf() {
-    return job;
-  }
-  
-  /**
-   * Get the progress mechanism for reporting progress.
-   * 
-   * @return progress mechanism 
-   */
-  public Progressable getProgressible() {
-    return progress;
-  }
+    public JobContextImpl(JobConf conf, org.apache.hadoop.mapreduce.JobID jobId) {
+        this(conf, jobId, Reporter.NULL);
+    }
+
+    /**
+     * Get the job Configuration
+     *
+     * @return JobConf
+     */
+    public JobConf getJobConf() {
+        return job;
+    }
+
+    /**
+     * Get the progress mechanism for reporting progress.
+     *
+     * @return progress mechanism
+     */
+    public Progressable getProgressible() {
+        return progress;
+    }
 }

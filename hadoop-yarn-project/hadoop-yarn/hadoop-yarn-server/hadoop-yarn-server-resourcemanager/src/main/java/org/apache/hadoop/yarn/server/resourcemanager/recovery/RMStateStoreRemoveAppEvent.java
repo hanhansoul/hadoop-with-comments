@@ -21,14 +21,14 @@ package org.apache.hadoop.yarn.server.resourcemanager.recovery;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore.ApplicationState;
 
 public class RMStateStoreRemoveAppEvent extends RMStateStoreEvent {
-  ApplicationState appState;
-  
-  RMStateStoreRemoveAppEvent(ApplicationState appState) {
-    super(RMStateStoreEventType.REMOVE_APP);
-    this.appState = appState;
-  }
-  
-  public ApplicationState getAppState() {
-    return appState;
-  }
+    ApplicationState appState;
+
+    RMStateStoreRemoveAppEvent(ApplicationState appState) {
+        super(RMStateStoreEventType.REMOVE_APP);
+        this.appState = appState;
+    }
+
+    public ApplicationState getAppState() {
+        return appState;
+    }
 }

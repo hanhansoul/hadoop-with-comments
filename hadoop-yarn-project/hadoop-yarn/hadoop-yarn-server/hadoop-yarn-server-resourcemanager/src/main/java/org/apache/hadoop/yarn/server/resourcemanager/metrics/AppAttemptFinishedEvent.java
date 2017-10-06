@@ -25,58 +25,58 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationAttemptState;
 public class AppAttemptFinishedEvent extends
     SystemMetricsEvent {
 
-  private ApplicationAttemptId appAttemptId;
-  private String trackingUrl;
-  private String originalTrackingUrl;
-  private String diagnosticsInfo;
-  private FinalApplicationStatus appStatus;
-  private YarnApplicationAttemptState state;
+    private ApplicationAttemptId appAttemptId;
+    private String trackingUrl;
+    private String originalTrackingUrl;
+    private String diagnosticsInfo;
+    private FinalApplicationStatus appStatus;
+    private YarnApplicationAttemptState state;
 
-  public AppAttemptFinishedEvent(
-      ApplicationAttemptId appAttemptId,
-      String trackingUrl,
-      String originalTrackingUrl,
-      String diagnosticsInfo,
-      FinalApplicationStatus appStatus,
-      YarnApplicationAttemptState state,
-      long finishedTime) {
-    super(SystemMetricsEventType.APP_ATTEMPT_FINISHED, finishedTime);
-    this.appAttemptId = appAttemptId;
-    // This is the tracking URL after the application attempt is finished
-    this.trackingUrl = trackingUrl;
-    this.originalTrackingUrl = originalTrackingUrl;
-    this.diagnosticsInfo = diagnosticsInfo;
-    this.appStatus = appStatus;
-    this.state = state;
-  }
+    public AppAttemptFinishedEvent(
+        ApplicationAttemptId appAttemptId,
+        String trackingUrl,
+        String originalTrackingUrl,
+        String diagnosticsInfo,
+        FinalApplicationStatus appStatus,
+        YarnApplicationAttemptState state,
+        long finishedTime) {
+        super(SystemMetricsEventType.APP_ATTEMPT_FINISHED, finishedTime);
+        this.appAttemptId = appAttemptId;
+        // This is the tracking URL after the application attempt is finished
+        this.trackingUrl = trackingUrl;
+        this.originalTrackingUrl = originalTrackingUrl;
+        this.diagnosticsInfo = diagnosticsInfo;
+        this.appStatus = appStatus;
+        this.state = state;
+    }
 
-  @Override
-  public int hashCode() {
-    return appAttemptId.getApplicationId().hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return appAttemptId.getApplicationId().hashCode();
+    }
 
-  public ApplicationAttemptId getApplicationAttemptId() {
-    return appAttemptId;
-  }
+    public ApplicationAttemptId getApplicationAttemptId() {
+        return appAttemptId;
+    }
 
-  public String getTrackingUrl() {
-    return trackingUrl;
-  }
+    public String getTrackingUrl() {
+        return trackingUrl;
+    }
 
-  public String getOriginalTrackingURL() {
-    return originalTrackingUrl;
-  }
+    public String getOriginalTrackingURL() {
+        return originalTrackingUrl;
+    }
 
-  public String getDiagnosticsInfo() {
-    return diagnosticsInfo;
-  }
+    public String getDiagnosticsInfo() {
+        return diagnosticsInfo;
+    }
 
-  public FinalApplicationStatus getFinalApplicationStatus() {
-    return appStatus;
-  }
+    public FinalApplicationStatus getFinalApplicationStatus() {
+        return appStatus;
+    }
 
-  public YarnApplicationAttemptState getYarnApplicationAttemptState() {
-    return state;
-  }
+    public YarnApplicationAttemptState getYarnApplicationAttemptState() {
+        return state;
+    }
 
 }

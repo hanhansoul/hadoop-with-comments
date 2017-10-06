@@ -47,111 +47,111 @@ import org.junit.Test;
 
 public class TestLocalModeWithNewApis {
 
-  public static final Log LOG = 
-      LogFactory.getLog(TestLocalModeWithNewApis.class);
-  
-  Configuration conf;
-  
-  @Before
-  public void setUp() throws Exception {
-    conf = new Configuration();
-    conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.LOCAL_FRAMEWORK_NAME);
-  }
+    public static final Log LOG =
+        LogFactory.getLog(TestLocalModeWithNewApis.class);
 
-  @After
-  public void tearDown() throws Exception {
-  }
+    Configuration conf;
 
-  @Test
-  public void testNewApis() throws Exception {
-    Random r = new Random(System.currentTimeMillis());
-    Path tmpBaseDir = new Path("/tmp/wc-" + r.nextInt());
-    final Path inDir = new Path(tmpBaseDir, "input");
-    final Path outDir = new Path(tmpBaseDir, "output");
-    String input = "The quick brown fox\nhas many silly\nred fox sox\n";
-    FileSystem inFs = inDir.getFileSystem(conf);
-    FileSystem outFs = outDir.getFileSystem(conf);
-    outFs.delete(outDir, true);
-    if (!inFs.mkdirs(inDir)) {
-      throw new IOException("Mkdirs failed to create " + inDir.toString());
-    }
-    {
-      DataOutputStream file = inFs.create(new Path(inDir, "part-0"));
-      file.writeBytes(input);
-      file.close();
+    @Before
+    public void setUp() throws Exception {
+        conf = new Configuration();
+        conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.LOCAL_FRAMEWORK_NAME);
     }
 
-    Job job = Job.getInstance(conf, "word count");
-    job.setJarByClass(TestLocalModeWithNewApis.class);
-    job.setMapperClass(TokenizerMapper.class);
-    job.setCombinerClass(IntSumReducer.class);
-    job.setReducerClass(IntSumReducer.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(IntWritable.class);
-    FileInputFormat.addInputPath(job, inDir);
-    FileOutputFormat.setOutputPath(job, outDir);
-    assertEquals(job.waitForCompletion(true), true);
-
-    String output = readOutput(outDir, conf);
-    assertEquals("The\t1\nbrown\t1\nfox\t2\nhas\t1\nmany\t1\n" +
-                 "quick\t1\nred\t1\nsilly\t1\nsox\t1\n", output);
-    
-    outFs.delete(tmpBaseDir, true);
-  }
-
-  static String readOutput(Path outDir, Configuration conf) 
-      throws IOException {
-    FileSystem fs = outDir.getFileSystem(conf);
-    StringBuffer result = new StringBuffer();
-
-    Path[] fileList = FileUtil.stat2Paths(fs.listStatus(outDir,
-           new Utils.OutputFileUtils.OutputFilesFilter()));
-    for (Path outputFile : fileList) {
-      LOG.info("Path" + ": "+ outputFile);
-      BufferedReader file = 
-        new BufferedReader(new InputStreamReader(fs.open(outputFile)));
-      String line = file.readLine();
-      while (line != null) {
-        result.append(line);
-        result.append("\n");
-        line = file.readLine();
-      }
-      file.close();
+    @After
+    public void tearDown() throws Exception {
     }
-    return result.toString();
-  }
 
-  public static class TokenizerMapper 
-  extends Mapper<Object, Text, Text, IntWritable>{
+    @Test
+    public void testNewApis() throws Exception {
+        Random r = new Random(System.currentTimeMillis());
+        Path tmpBaseDir = new Path("/tmp/wc-" + r.nextInt());
+        final Path inDir = new Path(tmpBaseDir, "input");
+        final Path outDir = new Path(tmpBaseDir, "output");
+        String input = "The quick brown fox\nhas many silly\nred fox sox\n";
+        FileSystem inFs = inDir.getFileSystem(conf);
+        FileSystem outFs = outDir.getFileSystem(conf);
+        outFs.delete(outDir, true);
+        if (!inFs.mkdirs(inDir)) {
+            throw new IOException("Mkdirs failed to create " + inDir.toString());
+        }
+        {
+            DataOutputStream file = inFs.create(new Path(inDir, "part-0"));
+            file.writeBytes(input);
+            file.close();
+        }
 
-    private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
+        Job job = Job.getInstance(conf, "word count");
+        job.setJarByClass(TestLocalModeWithNewApis.class);
+        job.setMapperClass(TokenizerMapper.class);
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(IntWritable.class);
+        FileInputFormat.addInputPath(job, inDir);
+        FileOutputFormat.setOutputPath(job, outDir);
+        assertEquals(job.waitForCompletion(true), true);
 
-    public void map(Object key, Text value, Context context
-        ) throws IOException, InterruptedException {
-      StringTokenizer itr = new StringTokenizer(value.toString());
-      while (itr.hasMoreTokens()) {
-        word.set(itr.nextToken());
-        context.write(word, one);
-      }
+        String output = readOutput(outDir, conf);
+        assertEquals("The\t1\nbrown\t1\nfox\t2\nhas\t1\nmany\t1\n" +
+                     "quick\t1\nred\t1\nsilly\t1\nsox\t1\n", output);
+
+        outFs.delete(tmpBaseDir, true);
     }
-  }
 
+    static String readOutput(Path outDir, Configuration conf)
+    throws IOException {
+        FileSystem fs = outDir.getFileSystem(conf);
+        StringBuffer result = new StringBuffer();
 
-  public static class IntSumReducer 
-  extends Reducer<Text,IntWritable,Text,IntWritable> {
-    private IntWritable result = new IntWritable();
-
-    public void reduce(Text key, Iterable<IntWritable> values, 
-        Context context
-        ) throws IOException, InterruptedException {
-      int sum = 0;
-      for (IntWritable val : values) {
-        sum += val.get();
-      }
-      result.set(sum);
-      context.write(key, result);
+        Path[] fileList = FileUtil.stat2Paths(fs.listStatus(outDir,
+                                              new Utils.OutputFileUtils.OutputFilesFilter()));
+        for (Path outputFile : fileList) {
+            LOG.info("Path" + ": "+ outputFile);
+            BufferedReader file =
+                new BufferedReader(new InputStreamReader(fs.open(outputFile)));
+            String line = file.readLine();
+            while (line != null) {
+                result.append(line);
+                result.append("\n");
+                line = file.readLine();
+            }
+            file.close();
+        }
+        return result.toString();
     }
-  }
+
+    public static class TokenizerMapper
+        extends Mapper<Object, Text, Text, IntWritable> {
+
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
+
+        public void map(Object key, Text value, Context context
+                       ) throws IOException, InterruptedException {
+            StringTokenizer itr = new StringTokenizer(value.toString());
+            while (itr.hasMoreTokens()) {
+                word.set(itr.nextToken());
+                context.write(word, one);
+            }
+        }
+    }
+
+
+    public static class IntSumReducer
+        extends Reducer<Text,IntWritable,Text,IntWritable> {
+        private IntWritable result = new IntWritable();
+
+        public void reduce(Text key, Iterable<IntWritable> values,
+                           Context context
+                          ) throws IOException, InterruptedException {
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
+            context.write(key, result);
+        }
+    }
 
 }

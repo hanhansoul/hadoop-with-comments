@@ -61,352 +61,356 @@ import org.apache.hadoop.util.StringUtils;
 // TODO can replace with form of GridmixJob
 class GenerateData extends GridmixJob {
 
-  /**
-   * Total bytes to write.
-   */
-  public static final String GRIDMIX_GEN_BYTES = "gridmix.gen.bytes";
+    /**
+     * Total bytes to write.
+     */
+    public static final String GRIDMIX_GEN_BYTES = "gridmix.gen.bytes";
 
-  /**
-   * Maximum size per file written.
-   */
-  public static final String GRIDMIX_GEN_CHUNK = "gridmix.gen.bytes.per.file";
+    /**
+     * Maximum size per file written.
+     */
+    public static final String GRIDMIX_GEN_CHUNK = "gridmix.gen.bytes.per.file";
 
-  /**
-   * Size of writes to output file.
-   */
-  public static final String GRIDMIX_VAL_BYTES = "gendata.val.bytes";
+    /**
+     * Size of writes to output file.
+     */
+    public static final String GRIDMIX_VAL_BYTES = "gendata.val.bytes";
 
-  /**
-   * Status reporting interval, in megabytes.
-   */
-  public static final String GRIDMIX_GEN_INTERVAL = "gendata.interval.mb";
+    /**
+     * Status reporting interval, in megabytes.
+     */
+    public static final String GRIDMIX_GEN_INTERVAL = "gendata.interval.mb";
 
-  /**
-   * Blocksize of generated data.
-   */
-  public static final String GRIDMIX_GEN_BLOCKSIZE = "gridmix.gen.blocksize";
+    /**
+     * Blocksize of generated data.
+     */
+    public static final String GRIDMIX_GEN_BLOCKSIZE = "gridmix.gen.blocksize";
 
-  /**
-   * Replication of generated data.
-   */
-  public static final String GRIDMIX_GEN_REPLICATION = "gridmix.gen.replicas";
-  static final String JOB_NAME = "GRIDMIX_GENERATE_INPUT_DATA";
+    /**
+     * Replication of generated data.
+     */
+    public static final String GRIDMIX_GEN_REPLICATION = "gridmix.gen.replicas";
+    static final String JOB_NAME = "GRIDMIX_GENERATE_INPUT_DATA";
 
-  public GenerateData(Configuration conf, Path outdir, long genbytes)
-      throws IOException {
-    super(conf, 0L, JOB_NAME);
-    job.getConfiguration().setLong(GRIDMIX_GEN_BYTES, genbytes);
-    FileOutputFormat.setOutputPath(job, outdir);
-  }
-
-  /**
-   * Represents the input data characteristics.
-   */
-  static class DataStatistics {
-    private long dataSize;
-    private long numFiles;
-    private boolean isDataCompressed;
-    
-    DataStatistics(long dataSize, long numFiles, boolean isCompressed) {
-      this.dataSize = dataSize;
-      this.numFiles = numFiles;
-      this.isDataCompressed = isCompressed;
-    }
-    
-    long getDataSize() {
-      return dataSize;
-    }
-    
-    long getNumFiles() {
-      return numFiles;
-    }
-    
-    boolean isDataCompressed() {
-      return isDataCompressed;
-    }
-  }
-  
-  /**
-   * Publish the data statistics.
-   */
-  static DataStatistics publishDataStatistics(Path inputDir, long genBytes, 
-                                              Configuration conf) 
-  throws IOException {
-    if (CompressionEmulationUtil.isCompressionEmulationEnabled(conf)) {
-      return CompressionEmulationUtil.publishCompressedDataStatistics(inputDir, 
-                                        conf, genBytes);
-    } else {
-      return publishPlainDataStatistics(conf, inputDir);
-    }
-  }
-  
-  static DataStatistics publishPlainDataStatistics(Configuration conf, 
-                                                   Path inputDir) 
-  throws IOException {
-    FileSystem fs = inputDir.getFileSystem(conf);
-
-    // obtain input data file statuses
-    long dataSize = 0;
-    long fileCount = 0;
-    RemoteIterator<LocatedFileStatus> iter = fs.listFiles(inputDir, true);
-    PathFilter filter = new Utils.OutputFileUtils.OutputFilesFilter();
-    while (iter.hasNext()) {
-      LocatedFileStatus lStatus = iter.next();
-      if (filter.accept(lStatus.getPath())) {
-        dataSize += lStatus.getLen();
-        ++fileCount;
-      }
+    public GenerateData(Configuration conf, Path outdir, long genbytes)
+    throws IOException {
+        super(conf, 0L, JOB_NAME);
+        job.getConfiguration().setLong(GRIDMIX_GEN_BYTES, genbytes);
+        FileOutputFormat.setOutputPath(job, outdir);
     }
 
-    // publish the plain data statistics
-    LOG.info("Total size of input data : " 
-             + StringUtils.humanReadableInt(dataSize));
-    LOG.info("Total number of input data files : " + fileCount);
-    
-    return new DataStatistics(dataSize, fileCount, false);
-  }
-  
-  @Override
-  public Job call() throws IOException, InterruptedException,
-                           ClassNotFoundException {
-    UserGroupInformation ugi = UserGroupInformation.getLoginUser();
-    ugi.doAs( new PrivilegedExceptionAction <Job>() {
-       public Job run() throws IOException, ClassNotFoundException,
-                               InterruptedException {
-         // check if compression emulation is enabled
-         if (CompressionEmulationUtil
-             .isCompressionEmulationEnabled(job.getConfiguration())) {
-           CompressionEmulationUtil.configure(job);
-         } else {
-           configureRandomBytesDataGenerator();
-         }
-         job.submit();
-         return job;
-       }
-       
-       private void configureRandomBytesDataGenerator() {
-        job.setMapperClass(GenDataMapper.class);
-        job.setNumReduceTasks(0);
-        job.setMapOutputKeyClass(NullWritable.class);
-        job.setMapOutputValueClass(BytesWritable.class);
-        job.setInputFormatClass(GenDataFormat.class);
-        job.setOutputFormatClass(RawBytesOutputFormat.class);
-        job.setJarByClass(GenerateData.class);
-        try {
-          FileInputFormat.addInputPath(job, new Path("ignored"));
-        } catch (IOException e) {
-          LOG.error("Error while adding input path ", e);
+    /**
+     * Represents the input data characteristics.
+     */
+    static class DataStatistics {
+        private long dataSize;
+        private long numFiles;
+        private boolean isDataCompressed;
+
+        DataStatistics(long dataSize, long numFiles, boolean isCompressed) {
+            this.dataSize = dataSize;
+            this.numFiles = numFiles;
+            this.isDataCompressed = isCompressed;
         }
-      }
-    });
-    return job;
-  }
-  
-  @Override
-  protected boolean canEmulateCompression() {
-    return false;
-  }
 
-  public static class GenDataMapper
-      extends Mapper<NullWritable,LongWritable,NullWritable,BytesWritable> {
-
-    private BytesWritable val;
-    private final Random r = new Random();
-
-    @Override
-    protected void setup(Context context)
-        throws IOException, InterruptedException {
-      val = new BytesWritable(new byte[
-          context.getConfiguration().getInt(GRIDMIX_VAL_BYTES, 1024 * 1024)]);
-    }
-
-    @Override
-    public void map(NullWritable key, LongWritable value, Context context)
-        throws IOException, InterruptedException {
-      for (long bytes = value.get(); bytes > 0; bytes -= val.getLength()) {
-        r.nextBytes(val.getBytes());
-        val.setSize((int)Math.min(val.getLength(), bytes));
-        context.write(key, val);
-      }
-    }
-
-  }
-
-  static class GenDataFormat extends InputFormat<NullWritable,LongWritable> {
-
-    @Override
-    public List<InputSplit> getSplits(JobContext jobCtxt) throws IOException {
-      final JobClient client =
-        new JobClient(new JobConf(jobCtxt.getConfiguration()));
-      ClusterStatus stat = client.getClusterStatus(true);
-      final long toGen =
-        jobCtxt.getConfiguration().getLong(GRIDMIX_GEN_BYTES, -1);
-      if (toGen < 0) {
-        throw new IOException("Invalid/missing generation bytes: " + toGen);
-      }
-      final int nTrackers = stat.getTaskTrackers();
-      final long bytesPerTracker = toGen / nTrackers;
-      final ArrayList<InputSplit> splits = new ArrayList<InputSplit>(nTrackers);
-      final Pattern trackerPattern = Pattern.compile("tracker_([^:]*):.*");
-      final Matcher m = trackerPattern.matcher("");
-      for (String tracker : stat.getActiveTrackerNames()) {
-        m.reset(tracker);
-        if (!m.find()) {
-          System.err.println("Skipping node: " + tracker);
-          continue;
+        long getDataSize() {
+            return dataSize;
         }
-        final String name = m.group(1);
-        splits.add(new GenSplit(bytesPerTracker, new String[] { name }));
-      }
-      return splits;
+
+        long getNumFiles() {
+            return numFiles;
+        }
+
+        boolean isDataCompressed() {
+            return isDataCompressed;
+        }
+    }
+
+    /**
+     * Publish the data statistics.
+     */
+    static DataStatistics publishDataStatistics(Path inputDir, long genBytes,
+            Configuration conf)
+    throws IOException {
+        if (CompressionEmulationUtil.isCompressionEmulationEnabled(conf)) {
+            return CompressionEmulationUtil.publishCompressedDataStatistics(inputDir,
+                    conf, genBytes);
+        } else {
+            return publishPlainDataStatistics(conf, inputDir);
+        }
+    }
+
+    static DataStatistics publishPlainDataStatistics(Configuration conf,
+            Path inputDir)
+    throws IOException {
+        FileSystem fs = inputDir.getFileSystem(conf);
+
+        // obtain input data file statuses
+        long dataSize = 0;
+        long fileCount = 0;
+        RemoteIterator<LocatedFileStatus> iter = fs.listFiles(inputDir, true);
+        PathFilter filter = new Utils.OutputFileUtils.OutputFilesFilter();
+        while (iter.hasNext()) {
+            LocatedFileStatus lStatus = iter.next();
+            if (filter.accept(lStatus.getPath())) {
+                dataSize += lStatus.getLen();
+                ++fileCount;
+            }
+        }
+
+        // publish the plain data statistics
+        LOG.info("Total size of input data : "
+                 + StringUtils.humanReadableInt(dataSize));
+        LOG.info("Total number of input data files : " + fileCount);
+
+        return new DataStatistics(dataSize, fileCount, false);
     }
 
     @Override
-    public RecordReader<NullWritable,LongWritable> createRecordReader(
-        InputSplit split, final TaskAttemptContext taskContext)
+    public Job call() throws IOException, InterruptedException,
+        ClassNotFoundException {
+        UserGroupInformation ugi = UserGroupInformation.getLoginUser();
+        ugi.doAs( new PrivilegedExceptionAction <Job>() {
+            public Job run() throws IOException, ClassNotFoundException,
+                InterruptedException {
+                // check if compression emulation is enabled
+                if (CompressionEmulationUtil
+                    .isCompressionEmulationEnabled(job.getConfiguration())) {
+                    CompressionEmulationUtil.configure(job);
+                } else {
+                    configureRandomBytesDataGenerator();
+                }
+                job.submit();
+                return job;
+            }
+
+            private void configureRandomBytesDataGenerator() {
+                job.setMapperClass(GenDataMapper.class);
+                job.setNumReduceTasks(0);
+                job.setMapOutputKeyClass(NullWritable.class);
+                job.setMapOutputValueClass(BytesWritable.class);
+                job.setInputFormatClass(GenDataFormat.class);
+                job.setOutputFormatClass(RawBytesOutputFormat.class);
+                job.setJarByClass(GenerateData.class);
+                try {
+                    FileInputFormat.addInputPath(job, new Path("ignored"));
+                } catch (IOException e) {
+                    LOG.error("Error while adding input path ", e);
+                }
+            }
+        });
+        return job;
+    }
+
+    @Override
+    protected boolean canEmulateCompression() {
+        return false;
+    }
+
+    public static class GenDataMapper
+        extends Mapper<NullWritable,LongWritable,NullWritable,BytesWritable> {
+
+        private BytesWritable val;
+        private final Random r = new Random();
+
+        @Override
+        protected void setup(Context context)
+        throws IOException, InterruptedException {
+            val = new BytesWritable(new byte[
+                                        context.getConfiguration().getInt(GRIDMIX_VAL_BYTES, 1024 * 1024)]);
+        }
+
+        @Override
+        public void map(NullWritable key, LongWritable value, Context context)
+        throws IOException, InterruptedException {
+            for (long bytes = value.get(); bytes > 0; bytes -= val.getLength()) {
+                r.nextBytes(val.getBytes());
+                val.setSize((int)Math.min(val.getLength(), bytes));
+                context.write(key, val);
+            }
+        }
+
+    }
+
+    static class GenDataFormat extends InputFormat<NullWritable,LongWritable> {
+
+        @Override
+        public List<InputSplit> getSplits(JobContext jobCtxt) throws IOException {
+            final JobClient client =
+                new JobClient(new JobConf(jobCtxt.getConfiguration()));
+            ClusterStatus stat = client.getClusterStatus(true);
+            final long toGen =
+                jobCtxt.getConfiguration().getLong(GRIDMIX_GEN_BYTES, -1);
+            if (toGen < 0) {
+                throw new IOException("Invalid/missing generation bytes: " + toGen);
+            }
+            final int nTrackers = stat.getTaskTrackers();
+            final long bytesPerTracker = toGen / nTrackers;
+            final ArrayList<InputSplit> splits = new ArrayList<InputSplit>(nTrackers);
+            final Pattern trackerPattern = Pattern.compile("tracker_([^:]*):.*");
+            final Matcher m = trackerPattern.matcher("");
+            for (String tracker : stat.getActiveTrackerNames()) {
+                m.reset(tracker);
+                if (!m.find()) {
+                    System.err.println("Skipping node: " + tracker);
+                    continue;
+                }
+                final String name = m.group(1);
+                splits.add(new GenSplit(bytesPerTracker, new String[] { name }));
+            }
+            return splits;
+        }
+
+        @Override
+        public RecordReader<NullWritable,LongWritable> createRecordReader(
+            InputSplit split, final TaskAttemptContext taskContext)
         throws IOException {
-      return new RecordReader<NullWritable,LongWritable>() {
-        long written = 0L;
-        long write = 0L;
-        long RINTERVAL;
-        long toWrite;
-        final NullWritable key = NullWritable.get();
-        final LongWritable val = new LongWritable();
+            return new RecordReader<NullWritable,LongWritable>() {
+                long written = 0L;
+                long write = 0L;
+                long RINTERVAL;
+                long toWrite;
+                final NullWritable key = NullWritable.get();
+                final LongWritable val = new LongWritable();
 
-        @Override
-        public void initialize(InputSplit split, TaskAttemptContext ctxt)
-            throws IOException, InterruptedException {
-          toWrite = split.getLength();
-          RINTERVAL = ctxt.getConfiguration().getInt(
-              GRIDMIX_GEN_INTERVAL, 10) << 20;
+                @Override
+                public void initialize(InputSplit split, TaskAttemptContext ctxt)
+                throws IOException, InterruptedException {
+                    toWrite = split.getLength();
+                    RINTERVAL = ctxt.getConfiguration().getInt(
+                                    GRIDMIX_GEN_INTERVAL, 10) << 20;
+                }
+                @Override
+                public boolean nextKeyValue() throws IOException {
+                    written += write;
+                    write = Math.min(toWrite - written, RINTERVAL);
+                    val.set(write);
+                    return written < toWrite;
+                }
+                @Override
+                public float getProgress() throws IOException {
+                    return written / ((float)toWrite);
+                }
+                @Override
+                public NullWritable getCurrentKey() {
+                    return key;
+                }
+                @Override
+                public LongWritable getCurrentValue() {
+                    return val;
+                }
+                @Override
+                public void close() throws IOException {
+                    taskContext.setStatus("Wrote " + toWrite);
+                }
+            };
+        }
+    }
+
+    static class GenSplit extends InputSplit implements Writable {
+        private long bytes;
+        private int nLoc;
+        private String[] locations;
+
+        public GenSplit() { }
+        public GenSplit(long bytes, String[] locations) {
+            this(bytes, locations.length, locations);
+        }
+        public GenSplit(long bytes, int nLoc, String[] locations) {
+            this.bytes = bytes;
+            this.nLoc = nLoc;
+            this.locations = Arrays.copyOf(locations, nLoc);
         }
         @Override
-        public boolean nextKeyValue() throws IOException {
-          written += write;
-          write = Math.min(toWrite - written, RINTERVAL);
-          val.set(write);
-          return written < toWrite;
+        public long getLength() {
+            return bytes;
         }
         @Override
-        public float getProgress() throws IOException {
-          return written / ((float)toWrite);
+        public String[] getLocations() {
+            return locations;
         }
         @Override
-        public NullWritable getCurrentKey() { return key; }
+        public void readFields(DataInput in) throws IOException {
+            bytes = in.readLong();
+            nLoc = in.readInt();
+            if (null == locations || locations.length < nLoc) {
+                locations = new String[nLoc];
+            }
+            for (int i = 0; i < nLoc; ++i) {
+                locations[i] = Text.readString(in);
+            }
+        }
         @Override
-        public LongWritable getCurrentValue() { return val; }
+        public void write(DataOutput out) throws IOException {
+            out.writeLong(bytes);
+            out.writeInt(nLoc);
+            for (int i = 0; i < nLoc; ++i) {
+                Text.writeString(out, locations[i]);
+            }
+        }
+    }
+
+    static class RawBytesOutputFormat
+        extends FileOutputFormat<NullWritable,BytesWritable> {
+
         @Override
-        public void close() throws IOException {
-          taskContext.setStatus("Wrote " + toWrite);
+        public RecordWriter<NullWritable,BytesWritable> getRecordWriter(
+            TaskAttemptContext job) throws IOException {
+
+            return new ChunkWriter(getDefaultWorkFile(job, ""),
+                                   job.getConfiguration());
         }
-      };
-    }
-  }
 
-  static class GenSplit extends InputSplit implements Writable {
-    private long bytes;
-    private int nLoc;
-    private String[] locations;
+        static class ChunkWriter extends RecordWriter<NullWritable,BytesWritable> {
+            private final Path outDir;
+            private final FileSystem fs;
+            private final int blocksize;
+            private final short replicas;
+            private final FsPermission genPerms = new FsPermission((short) 0777);
+            private final long maxFileBytes;
 
-    public GenSplit() { }
-    public GenSplit(long bytes, String[] locations) {
-      this(bytes, locations.length, locations);
-    }
-    public GenSplit(long bytes, int nLoc, String[] locations) {
-      this.bytes = bytes;
-      this.nLoc = nLoc;
-      this.locations = Arrays.copyOf(locations, nLoc);
-    }
-    @Override
-    public long getLength() {
-      return bytes;
-    }
-    @Override
-    public String[] getLocations() {
-      return locations;
-    }
-    @Override
-    public void readFields(DataInput in) throws IOException {
-      bytes = in.readLong();
-      nLoc = in.readInt();
-      if (null == locations || locations.length < nLoc) {
-        locations = new String[nLoc];
-      }
-      for (int i = 0; i < nLoc; ++i) {
-        locations[i] = Text.readString(in);
-      }
-    }
-    @Override
-    public void write(DataOutput out) throws IOException {
-      out.writeLong(bytes);
-      out.writeInt(nLoc);
-      for (int i = 0; i < nLoc; ++i) {
-        Text.writeString(out, locations[i]);
-      }
-    }
-  }
+            private long accFileBytes = 0L;
+            private long fileIdx = -1L;
+            private OutputStream fileOut = null;
 
-  static class RawBytesOutputFormat
-      extends FileOutputFormat<NullWritable,BytesWritable> {
-
-    @Override
-    public RecordWriter<NullWritable,BytesWritable> getRecordWriter(
-        TaskAttemptContext job) throws IOException {
-
-      return new ChunkWriter(getDefaultWorkFile(job, ""),
-          job.getConfiguration());
-    }
-
-    static class ChunkWriter extends RecordWriter<NullWritable,BytesWritable> {
-      private final Path outDir;
-      private final FileSystem fs;
-      private final int blocksize;
-      private final short replicas;
-      private final FsPermission genPerms = new FsPermission((short) 0777);
-      private final long maxFileBytes;
-
-      private long accFileBytes = 0L;
-      private long fileIdx = -1L;
-      private OutputStream fileOut = null;
-
-      public ChunkWriter(Path outDir, Configuration conf) throws IOException {
-        this.outDir = outDir;
-        fs = outDir.getFileSystem(conf);
-        blocksize = conf.getInt(GRIDMIX_GEN_BLOCKSIZE, 1 << 28);
-        replicas = (short) conf.getInt(GRIDMIX_GEN_REPLICATION, 3);
-        maxFileBytes = conf.getLong(GRIDMIX_GEN_CHUNK, 1L << 30);
-        nextDestination();
-      }
-      private void nextDestination() throws IOException {
-        if (fileOut != null) {
-          fileOut.close();
+            public ChunkWriter(Path outDir, Configuration conf) throws IOException {
+                this.outDir = outDir;
+                fs = outDir.getFileSystem(conf);
+                blocksize = conf.getInt(GRIDMIX_GEN_BLOCKSIZE, 1 << 28);
+                replicas = (short) conf.getInt(GRIDMIX_GEN_REPLICATION, 3);
+                maxFileBytes = conf.getLong(GRIDMIX_GEN_CHUNK, 1L << 30);
+                nextDestination();
+            }
+            private void nextDestination() throws IOException {
+                if (fileOut != null) {
+                    fileOut.close();
+                }
+                fileOut = fs.create(new Path(outDir, "segment-" + (++fileIdx)),
+                                    genPerms, false, 64 * 1024, replicas,
+                                    blocksize, null);
+                accFileBytes = 0L;
+            }
+            @Override
+            public void write(NullWritable key, BytesWritable value)
+            throws IOException {
+                int written = 0;
+                final int total = value.getLength();
+                while (written < total) {
+                    if (accFileBytes >= maxFileBytes) {
+                        nextDestination();
+                    }
+                    final int write = (int)
+                                      Math.min(total - written, maxFileBytes - accFileBytes);
+                    fileOut.write(value.getBytes(), written, write);
+                    written += write;
+                    accFileBytes += write;
+                }
+            }
+            @Override
+            public void close(TaskAttemptContext ctxt) throws IOException {
+                fileOut.close();
+            }
         }
-        fileOut = fs.create(new Path(outDir, "segment-" + (++fileIdx)),
-                            genPerms, false, 64 * 1024, replicas, 
-                            blocksize, null);
-        accFileBytes = 0L;
-      }
-      @Override
-      public void write(NullWritable key, BytesWritable value)
-          throws IOException {
-        int written = 0;
-        final int total = value.getLength();
-        while (written < total) {
-          if (accFileBytes >= maxFileBytes) {
-            nextDestination();
-          }
-          final int write = (int)
-            Math.min(total - written, maxFileBytes - accFileBytes);
-          fileOut.write(value.getBytes(), written, write);
-          written += write;
-          accFileBytes += write;
-        }
-      }
-      @Override
-      public void close(TaskAttemptContext ctxt) throws IOException {
-        fileOut.close();
-      }
     }
-  }
 
 }

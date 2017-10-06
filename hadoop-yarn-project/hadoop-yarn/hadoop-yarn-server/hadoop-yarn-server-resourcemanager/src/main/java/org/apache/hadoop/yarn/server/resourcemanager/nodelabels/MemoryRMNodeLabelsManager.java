@@ -28,55 +28,55 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.nodelabels.NodeLabelsStore;
 
 public class MemoryRMNodeLabelsManager extends RMNodeLabelsManager {
-  Map<NodeId, Set<String>> lastNodeToLabels = null;
-  Collection<String> lastAddedlabels = null;
-  Collection<String> lastRemovedlabels = null;
+    Map<NodeId, Set<String>> lastNodeToLabels = null;
+    Collection<String> lastAddedlabels = null;
+    Collection<String> lastRemovedlabels = null;
 
-  @Override
-  public void initNodeLabelStore(Configuration conf) {
-    this.store = new NodeLabelsStore(this) {
+    @Override
+    public void initNodeLabelStore(Configuration conf) {
+        this.store = new NodeLabelsStore(this) {
 
-      @Override
-      public void recover() throws IOException {
+            @Override
+            public void recover() throws IOException {
+                // do nothing
+            }
+
+            @Override
+            public void removeClusterNodeLabels(Collection<String> labels)
+            throws IOException {
+                // do nothing
+            }
+
+            @Override
+            public void updateNodeToLabelsMappings(
+                Map<NodeId, Set<String>> nodeToLabels) throws IOException {
+                // do nothing
+            }
+
+            @Override
+            public void storeNewClusterNodeLabels(Set<String> label) throws IOException {
+                // do nothing
+            }
+
+            @Override
+            public void close() throws IOException {
+                // do nothing
+            }
+        };
+    }
+
+    @Override
+    protected void initDispatcher(Configuration conf) {
+        super.dispatcher = null;
+    }
+
+    @Override
+    protected void startDispatcher() {
         // do nothing
-      }
+    }
 
-      @Override
-      public void removeClusterNodeLabels(Collection<String> labels)
-          throws IOException {
+    @Override
+    protected void stopDispatcher() {
         // do nothing
-      }
-
-      @Override
-      public void updateNodeToLabelsMappings(
-          Map<NodeId, Set<String>> nodeToLabels) throws IOException {
-        // do nothing
-      }
-
-      @Override
-      public void storeNewClusterNodeLabels(Set<String> label) throws IOException {
-        // do nothing
-      }
-
-      @Override
-      public void close() throws IOException {
-        // do nothing
-      }
-    };
-  }
-
-  @Override
-  protected void initDispatcher(Configuration conf) {
-    super.dispatcher = null;
-  }
-
-  @Override
-  protected void startDispatcher() {
-    // do nothing
-  }
-  
-  @Override
-  protected void stopDispatcher() {
-    // do nothing
-  }
+    }
 }

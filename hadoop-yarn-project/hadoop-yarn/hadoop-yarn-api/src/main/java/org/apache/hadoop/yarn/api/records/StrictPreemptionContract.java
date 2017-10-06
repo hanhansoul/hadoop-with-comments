@@ -37,27 +37,27 @@ import org.apache.hadoop.yarn.util.Records;
 @Evolving
 public abstract class StrictPreemptionContract {
 
-  @Private
-  @Unstable
-  public static StrictPreemptionContract newInstance(Set<PreemptionContainer> containers) {
-    StrictPreemptionContract contract =
-        Records.newRecord(StrictPreemptionContract.class);
-    contract.setContainers(containers);
-    return contract;
-  }
+    @Private
+    @Unstable
+    public static StrictPreemptionContract newInstance(Set<PreemptionContainer> containers) {
+        StrictPreemptionContract contract =
+            Records.newRecord(StrictPreemptionContract.class);
+        contract.setContainers(containers);
+        return contract;
+    }
 
-  /**
-   * Get the set of {@link PreemptionContainer} specifying containers owned by
-   * the <code>ApplicationMaster</code> that may be reclaimed by the
-   * <code>ResourceManager</code>.
-   * @return the set of {@link ContainerId} to be preempted.
-   */
-  @Public
-  @Evolving
-  public abstract Set<PreemptionContainer> getContainers();
+    /**
+     * Get the set of {@link PreemptionContainer} specifying containers owned by
+     * the <code>ApplicationMaster</code> that may be reclaimed by the
+     * <code>ResourceManager</code>.
+     * @return the set of {@link ContainerId} to be preempted.
+     */
+    @Public
+    @Evolving
+    public abstract Set<PreemptionContainer> getContainers();
 
-  @Private
-  @Unstable
-  public abstract void setContainers(Set<PreemptionContainer> containers);
+    @Private
+    @Unstable
+    public abstract void setContainers(Set<PreemptionContainer> containers);
 
 }

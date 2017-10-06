@@ -27,72 +27,72 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.LeafQueu
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CapacitySchedulerLeafQueueInfo extends CapacitySchedulerQueueInfo {
 
-  protected int numActiveApplications;
-  protected int numPendingApplications;
-  protected int numContainers;
-  protected int maxApplications;
-  protected int maxApplicationsPerUser;
-  protected int userLimit;
-  protected UsersInfo users; // To add another level in the XML
-  protected float userLimitFactor;
-  protected ResourceInfo aMResourceLimit;
-  protected ResourceInfo userAMResourceLimit;
+    protected int numActiveApplications;
+    protected int numPendingApplications;
+    protected int numContainers;
+    protected int maxApplications;
+    protected int maxApplicationsPerUser;
+    protected int userLimit;
+    protected UsersInfo users; // To add another level in the XML
+    protected float userLimitFactor;
+    protected ResourceInfo aMResourceLimit;
+    protected ResourceInfo userAMResourceLimit;
 
-  CapacitySchedulerLeafQueueInfo() {
-  };
+    CapacitySchedulerLeafQueueInfo() {
+    };
 
-  CapacitySchedulerLeafQueueInfo(LeafQueue q) {
-    super(q);
-    numActiveApplications = q.getNumActiveApplications();
-    numPendingApplications = q.getNumPendingApplications();
-    numContainers = q.getNumContainers();
-    maxApplications = q.getMaxApplications();
-    maxApplicationsPerUser = q.getMaxApplicationsPerUser();
-    userLimit = q.getUserLimit();
-    users = new UsersInfo(q.getUsers());
-    userLimitFactor = q.getUserLimitFactor();
-    aMResourceLimit = new ResourceInfo(q.getAMResourceLimit());
-    userAMResourceLimit = new ResourceInfo(q.getUserAMResourceLimit());
-  }
+    CapacitySchedulerLeafQueueInfo(LeafQueue q) {
+        super(q);
+        numActiveApplications = q.getNumActiveApplications();
+        numPendingApplications = q.getNumPendingApplications();
+        numContainers = q.getNumContainers();
+        maxApplications = q.getMaxApplications();
+        maxApplicationsPerUser = q.getMaxApplicationsPerUser();
+        userLimit = q.getUserLimit();
+        users = new UsersInfo(q.getUsers());
+        userLimitFactor = q.getUserLimitFactor();
+        aMResourceLimit = new ResourceInfo(q.getAMResourceLimit());
+        userAMResourceLimit = new ResourceInfo(q.getUserAMResourceLimit());
+    }
 
-  public int getNumActiveApplications() {
-    return numActiveApplications;
-  }
+    public int getNumActiveApplications() {
+        return numActiveApplications;
+    }
 
-  public int getNumPendingApplications() {
-    return numPendingApplications;
-  }
+    public int getNumPendingApplications() {
+        return numPendingApplications;
+    }
 
-  public int getNumContainers() {
-    return numContainers;
-  }
+    public int getNumContainers() {
+        return numContainers;
+    }
 
-  public int getMaxApplications() {
-    return maxApplications;
-  }
+    public int getMaxApplications() {
+        return maxApplications;
+    }
 
-  public int getMaxApplicationsPerUser() {
-    return maxApplicationsPerUser;
-  }
+    public int getMaxApplicationsPerUser() {
+        return maxApplicationsPerUser;
+    }
 
-  public int getUserLimit() {
-    return userLimit;
-  }
+    public int getUserLimit() {
+        return userLimit;
+    }
 
-  //Placing here because of JERSEY-1199
-  public UsersInfo getUsers() {
-    return users;
-  }
+    //Placing here because of JERSEY-1199
+    public UsersInfo getUsers() {
+        return users;
+    }
 
-  public float getUserLimitFactor() {
-    return userLimitFactor;
-  }
-  
-  public ResourceInfo getAMResourceLimit() {
-    return aMResourceLimit;
-  }
-  
-  public ResourceInfo getUserAMResourceLimit() {
-    return userAMResourceLimit; 
-  }
+    public float getUserLimitFactor() {
+        return userLimitFactor;
+    }
+
+    public ResourceInfo getAMResourceLimit() {
+        return aMResourceLimit;
+    }
+
+    public ResourceInfo getUserAMResourceLimit() {
+        return userAMResourceLimit;
+    }
 }

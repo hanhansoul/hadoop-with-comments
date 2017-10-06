@@ -37,29 +37,29 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class CombineTextInputFormat
-  extends CombineFileInputFormat<LongWritable,Text> {
-  public RecordReader<LongWritable,Text> createRecordReader(InputSplit split,
-    TaskAttemptContext context) throws IOException {
-    return new CombineFileRecordReader<LongWritable,Text>(
-      (CombineFileSplit)split, context, TextRecordReaderWrapper.class);
-  }
-
-  /**
-   * A record reader that may be passed to <code>CombineFileRecordReader</code>
-   * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
-   * for <code>TextInputFormat</code>.
-   *
-   * @see CombineFileRecordReader
-   * @see CombineFileInputFormat
-   * @see TextInputFormat
-   */
-  private static class TextRecordReaderWrapper
-    extends CombineFileRecordReaderWrapper<LongWritable,Text> {
-    // this constructor signature is required by CombineFileRecordReader
-    public TextRecordReaderWrapper(CombineFileSplit split,
-      TaskAttemptContext context, Integer idx)
-      throws IOException, InterruptedException {
-      super(new TextInputFormat(), split, context, idx);
+    extends CombineFileInputFormat<LongWritable,Text> {
+    public RecordReader<LongWritable,Text> createRecordReader(InputSplit split,
+            TaskAttemptContext context) throws IOException {
+        return new CombineFileRecordReader<LongWritable,Text>(
+                   (CombineFileSplit)split, context, TextRecordReaderWrapper.class);
     }
-  }
+
+    /**
+     * A record reader that may be passed to <code>CombineFileRecordReader</code>
+     * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
+     * for <code>TextInputFormat</code>.
+     *
+     * @see CombineFileRecordReader
+     * @see CombineFileInputFormat
+     * @see TextInputFormat
+     */
+    private static class TextRecordReaderWrapper
+        extends CombineFileRecordReaderWrapper<LongWritable,Text> {
+        // this constructor signature is required by CombineFileRecordReader
+        public TextRecordReaderWrapper(CombineFileSplit split,
+                                       TaskAttemptContext context, Integer idx)
+        throws IOException, InterruptedException {
+            super(new TextInputFormat(), split, context, idx);
+        }
+    }
 }

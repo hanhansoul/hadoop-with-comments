@@ -34,59 +34,59 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class ContainerStartData {
 
-  @Public
-  @Unstable
-  public static ContainerStartData newInstance(ContainerId containerId,
-      Resource allocatedResource, NodeId assignedNode, Priority priority,
-      long startTime) {
-    ContainerStartData containerSD =
-        Records.newRecord(ContainerStartData.class);
-    containerSD.setContainerId(containerId);
-    containerSD.setAllocatedResource(allocatedResource);
-    containerSD.setAssignedNode(assignedNode);
-    containerSD.setPriority(priority);
-    containerSD.setStartTime(startTime);
-    return containerSD;
-  }
+    @Public
+    @Unstable
+    public static ContainerStartData newInstance(ContainerId containerId,
+            Resource allocatedResource, NodeId assignedNode, Priority priority,
+            long startTime) {
+        ContainerStartData containerSD =
+            Records.newRecord(ContainerStartData.class);
+        containerSD.setContainerId(containerId);
+        containerSD.setAllocatedResource(allocatedResource);
+        containerSD.setAssignedNode(assignedNode);
+        containerSD.setPriority(priority);
+        containerSD.setStartTime(startTime);
+        return containerSD;
+    }
 
-  @Public
-  @Unstable
-  public abstract ContainerId getContainerId();
+    @Public
+    @Unstable
+    public abstract ContainerId getContainerId();
 
-  @Public
-  @Unstable
-  public abstract void setContainerId(ContainerId containerId);
+    @Public
+    @Unstable
+    public abstract void setContainerId(ContainerId containerId);
 
-  @Public
-  @Unstable
-  public abstract Resource getAllocatedResource();
+    @Public
+    @Unstable
+    public abstract Resource getAllocatedResource();
 
-  @Public
-  @Unstable
-  public abstract void setAllocatedResource(Resource resource);
+    @Public
+    @Unstable
+    public abstract void setAllocatedResource(Resource resource);
 
-  @Public
-  @Unstable
-  public abstract NodeId getAssignedNode();
+    @Public
+    @Unstable
+    public abstract NodeId getAssignedNode();
 
-  @Public
-  @Unstable
-  public abstract void setAssignedNode(NodeId nodeId);
+    @Public
+    @Unstable
+    public abstract void setAssignedNode(NodeId nodeId);
 
-  @Public
-  @Unstable
-  public abstract Priority getPriority();
+    @Public
+    @Unstable
+    public abstract Priority getPriority();
 
-  @Public
-  @Unstable
-  public abstract void setPriority(Priority priority);
+    @Public
+    @Unstable
+    public abstract void setPriority(Priority priority);
 
-  @Public
-  @Unstable
-  public abstract long getStartTime();
+    @Public
+    @Unstable
+    public abstract long getStartTime();
 
-  @Public
-  @Unstable
-  public abstract void setStartTime(long startTime);
+    @Public
+    @Unstable
+    public abstract void setStartTime(long startTime);
 
 }

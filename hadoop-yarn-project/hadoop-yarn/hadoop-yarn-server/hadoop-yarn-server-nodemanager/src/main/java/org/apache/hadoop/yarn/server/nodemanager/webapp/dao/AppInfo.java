@@ -33,41 +33,41 @@ import org.apache.hadoop.yarn.util.ConverterUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppInfo {
 
-  protected String id;
-  protected String state;
-  protected String user;
-  protected ArrayList<String> containerids;
+    protected String id;
+    protected String state;
+    protected String user;
+    protected ArrayList<String> containerids;
 
-  public AppInfo() {
-  } // JAXB needs this
+    public AppInfo() {
+    } // JAXB needs this
 
-  public AppInfo(final Application app) {
-    this.id = ConverterUtils.toString(app.getAppId());
-    this.state = app.getApplicationState().toString();
-    this.user = app.getUser();
+    public AppInfo(final Application app) {
+        this.id = ConverterUtils.toString(app.getAppId());
+        this.state = app.getApplicationState().toString();
+        this.user = app.getUser();
 
-    this.containerids = new ArrayList<String>();
-    Map<ContainerId, Container> appContainers = app.getContainers();
-    for (ContainerId containerId : appContainers.keySet()) {
-      String containerIdStr = ConverterUtils.toString(containerId);
-      containerids.add(containerIdStr);
+        this.containerids = new ArrayList<String>();
+        Map<ContainerId, Container> appContainers = app.getContainers();
+        for (ContainerId containerId : appContainers.keySet()) {
+            String containerIdStr = ConverterUtils.toString(containerId);
+            containerids.add(containerIdStr);
+        }
     }
-  }
 
-  public String getId() {
-    return this.id;
-  }
+    public String getId() {
+        return this.id;
+    }
 
-  public String getUser() {
-    return this.user;
-  }
+    public String getUser() {
+        return this.user;
+    }
 
-  public String getState() {
-    return this.state;
-  }
+    public String getState() {
+        return this.state;
+    }
 
-  public ArrayList<String> getContainers() {
-    return this.containerids;
-  }
+    public ArrayList<String> getContainers() {
+        return this.containerids;
+    }
 
 }

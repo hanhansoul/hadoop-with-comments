@@ -22,15 +22,15 @@ import org.apache.hadoop.yarn.api.records.SerializedException;
 import org.apache.hadoop.yarn.api.records.URL;
 
 public interface LocalResourceStatus {
-  public LocalResource getResource();
-  public ResourceStatusType getStatus();
-  public URL getLocalPath();
-  public long getLocalSize();
-  public SerializedException getException();
+    public LocalResource getResource();
+    public ResourceStatusType getStatus();
+    public URL getLocalPath();
+    public long getLocalSize();
+    public SerializedException getException();
 
-  public void setResource(LocalResource resource);
-  public void setStatus(ResourceStatusType status);
-  public void setLocalPath(URL localPath);
-  public void setLocalSize(long size);
-  public void setException(SerializedException exception);
+    public void setResource(LocalResource resource);
+    public void setStatus(ResourceStatusType status);
+    public void setLocalPath(URL localPath);
+    public void setLocalSize(long size);
+    public void setException(SerializedException exception);
 }

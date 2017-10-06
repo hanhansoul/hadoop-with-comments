@@ -39,96 +39,96 @@ import org.apache.hadoop.yarn.util.Times;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaskAttemptInfo {
 
-  protected long startTime;
-  protected long finishTime;
-  protected long elapsedTime;
-  protected float progress;
-  protected String id;
-  protected String rack;
-  protected TaskAttemptState state;
-  protected String status;
-  protected String nodeHttpAddress;
-  protected String diagnostics;
-  protected String type;
-  protected String assignedContainerId;
+    protected long startTime;
+    protected long finishTime;
+    protected long elapsedTime;
+    protected float progress;
+    protected String id;
+    protected String rack;
+    protected TaskAttemptState state;
+    protected String status;
+    protected String nodeHttpAddress;
+    protected String diagnostics;
+    protected String type;
+    protected String assignedContainerId;
 
-  @XmlTransient
-  protected ContainerId assignedContainer;
+    @XmlTransient
+    protected ContainerId assignedContainer;
 
-  public TaskAttemptInfo() {
-  }
-
-  public TaskAttemptInfo(TaskAttempt ta, Boolean isRunning) {
-    this(ta, TaskType.MAP, isRunning);
-  }
-
-  public TaskAttemptInfo(TaskAttempt ta, TaskType type, Boolean isRunning) {
-    final TaskAttemptReport report = ta.getReport();
-    this.type = type.toString();
-    this.id = MRApps.toString(ta.getID());
-    this.nodeHttpAddress = ta.getNodeHttpAddress();
-    this.startTime = report.getStartTime();
-    this.finishTime = report.getFinishTime();
-    this.assignedContainerId = ConverterUtils.toString(report.getContainerId());
-    this.assignedContainer = report.getContainerId();
-    this.progress = report.getProgress() * 100;
-    this.status = report.getStateString();
-    this.state = report.getTaskAttemptState();
-    this.elapsedTime = Times
-        .elapsed(this.startTime, this.finishTime, isRunning);
-    if (this.elapsedTime == -1) {
-      this.elapsedTime = 0;
+    public TaskAttemptInfo() {
     }
-    this.diagnostics = report.getDiagnosticInfo();
-    this.rack = ta.getNodeRackName();
-  }
 
-  public String getAssignedContainerIdStr() {
-    return this.assignedContainerId;
-  }
+    public TaskAttemptInfo(TaskAttempt ta, Boolean isRunning) {
+        this(ta, TaskType.MAP, isRunning);
+    }
 
-  public ContainerId getAssignedContainerId() {
-    return this.assignedContainer;
-  }
+    public TaskAttemptInfo(TaskAttempt ta, TaskType type, Boolean isRunning) {
+        final TaskAttemptReport report = ta.getReport();
+        this.type = type.toString();
+        this.id = MRApps.toString(ta.getID());
+        this.nodeHttpAddress = ta.getNodeHttpAddress();
+        this.startTime = report.getStartTime();
+        this.finishTime = report.getFinishTime();
+        this.assignedContainerId = ConverterUtils.toString(report.getContainerId());
+        this.assignedContainer = report.getContainerId();
+        this.progress = report.getProgress() * 100;
+        this.status = report.getStateString();
+        this.state = report.getTaskAttemptState();
+        this.elapsedTime = Times
+                           .elapsed(this.startTime, this.finishTime, isRunning);
+        if (this.elapsedTime == -1) {
+            this.elapsedTime = 0;
+        }
+        this.diagnostics = report.getDiagnosticInfo();
+        this.rack = ta.getNodeRackName();
+    }
 
-  public String getState() {
-    return this.state.toString();
-  }
+    public String getAssignedContainerIdStr() {
+        return this.assignedContainerId;
+    }
 
-  public String getStatus() {
-    return status;
-  }
+    public ContainerId getAssignedContainerId() {
+        return this.assignedContainer;
+    }
 
-  public String getId() {
-    return this.id;
-  }
+    public String getState() {
+        return this.state.toString();
+    }
 
-  public long getStartTime() {
-    return this.startTime;
-  }
+    public String getStatus() {
+        return status;
+    }
 
-  public long getFinishTime() {
-    return this.finishTime;
-  }
+    public String getId() {
+        return this.id;
+    }
 
-  public float getProgress() {
-    return this.progress;
-  }
+    public long getStartTime() {
+        return this.startTime;
+    }
 
-  public long getElapsedTime() {
-    return this.elapsedTime;
-  }
+    public long getFinishTime() {
+        return this.finishTime;
+    }
 
-  public String getNode() {
-    return this.nodeHttpAddress;
-  }
+    public float getProgress() {
+        return this.progress;
+    }
 
-  public String getRack() {
-    return this.rack;
-  }
+    public long getElapsedTime() {
+        return this.elapsedTime;
+    }
 
-  public String getNote() {
-    return this.diagnostics;
-  }
+    public String getNode() {
+        return this.nodeHttpAddress;
+    }
+
+    public String getRack() {
+        return this.rack;
+    }
+
+    public String getNote() {
+        return this.diagnostics;
+    }
 
 }

@@ -31,24 +31,24 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class CancelDelegationTokenRequest {
 
-  @Private
-  @Unstable
-  public static CancelDelegationTokenRequest newInstance(Token dToken) {
-    CancelDelegationTokenRequest request =
-        Records.newRecord(CancelDelegationTokenRequest.class);
-    request.setDelegationToken(dToken);
-    return request;
-  }
+    @Private
+    @Unstable
+    public static CancelDelegationTokenRequest newInstance(Token dToken) {
+        CancelDelegationTokenRequest request =
+            Records.newRecord(CancelDelegationTokenRequest.class);
+        request.setDelegationToken(dToken);
+        return request;
+    }
 
-  /**
-   * Get the delegation token requested to be cancelled.
-   * @return the delegation token requested to be cancelled.
-   */
-  @Private
-  @Unstable
-  public abstract Token getDelegationToken();
+    /**
+     * Get the delegation token requested to be cancelled.
+     * @return the delegation token requested to be cancelled.
+     */
+    @Private
+    @Unstable
+    public abstract Token getDelegationToken();
 
-  @Private
-  @Unstable
-  public abstract void setDelegationToken(Token dToken);
+    @Private
+    @Unstable
+    public abstract void setDelegationToken(Token dToken);
 }

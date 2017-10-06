@@ -55,83 +55,83 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceRespo
 @Stable
 public interface ResourceManagerAdministrationProtocol extends GetUserMappingsProtocol {
 
-  @Public
-  @Stable
-  @Idempotent
-  public RefreshQueuesResponse refreshQueues(RefreshQueuesRequest request) 
-  throws StandbyException, YarnException, IOException;
+    @Public
+    @Stable
+    @Idempotent
+    public RefreshQueuesResponse refreshQueues(RefreshQueuesRequest request)
+    throws StandbyException, YarnException, IOException;
 
-  @Public
-  @Stable
-  @Idempotent
-  public RefreshNodesResponse refreshNodes(RefreshNodesRequest request)
-  throws StandbyException, YarnException, IOException;
+    @Public
+    @Stable
+    @Idempotent
+    public RefreshNodesResponse refreshNodes(RefreshNodesRequest request)
+    throws StandbyException, YarnException, IOException;
 
-  @Public
-  @Stable
-  @Idempotent
-  public RefreshSuperUserGroupsConfigurationResponse 
-  refreshSuperUserGroupsConfiguration(
-      RefreshSuperUserGroupsConfigurationRequest request)
-  throws StandbyException, YarnException, IOException;
+    @Public
+    @Stable
+    @Idempotent
+    public RefreshSuperUserGroupsConfigurationResponse
+    refreshSuperUserGroupsConfiguration(
+        RefreshSuperUserGroupsConfigurationRequest request)
+    throws StandbyException, YarnException, IOException;
 
-  @Public
-  @Stable
-  @Idempotent
-  public RefreshUserToGroupsMappingsResponse refreshUserToGroupsMappings(
-      RefreshUserToGroupsMappingsRequest request)
-  throws StandbyException, YarnException, IOException;
+    @Public
+    @Stable
+    @Idempotent
+    public RefreshUserToGroupsMappingsResponse refreshUserToGroupsMappings(
+        RefreshUserToGroupsMappingsRequest request)
+    throws StandbyException, YarnException, IOException;
 
-  @Public
-  @Stable
-  @Idempotent
-  public RefreshAdminAclsResponse refreshAdminAcls(
-      RefreshAdminAclsRequest request)
-  throws YarnException, IOException;
+    @Public
+    @Stable
+    @Idempotent
+    public RefreshAdminAclsResponse refreshAdminAcls(
+        RefreshAdminAclsRequest request)
+    throws YarnException, IOException;
 
-  @Public
-  @Stable
-  @Idempotent
-  public RefreshServiceAclsResponse refreshServiceAcls(
-      RefreshServiceAclsRequest request)
-  throws YarnException, IOException;
-  
-  /**
-   * <p>The interface used by admin to update nodes' resources to the
-   * <code>ResourceManager</code> </p>.
-   * 
-   * <p>The admin client is required to provide details such as a map from 
-   * {@link NodeId} to {@link ResourceOption} required to update resources on 
-   * a list of <code>RMNode</code> in <code>ResourceManager</code> etc.
-   * via the {@link UpdateNodeResourceRequest}.</p>
-   * 
-   * @param request request to update resource for a node in cluster.
-   * @return (empty) response on accepting update.
-   * @throws YarnException
-   * @throws IOException
-   */
-  @Public
-  @Evolving
-  @Idempotent
-  public UpdateNodeResourceResponse updateNodeResource(
-      UpdateNodeResourceRequest request) 
-  throws YarnException, IOException;
-   
-  @Public
-  @Evolving
-  @Idempotent
-  public AddToClusterNodeLabelsResponse addToClusterNodeLabels(AddToClusterNodeLabelsRequest request)
-      throws YarnException, IOException;
-   
-  @Public
-  @Evolving
-  @Idempotent
-  public RemoveFromClusterNodeLabelsResponse removeFromClusterNodeLabels(
-      RemoveFromClusterNodeLabelsRequest request) throws YarnException, IOException;
-  
-  @Public
-  @Evolving
-  @Idempotent
-  public ReplaceLabelsOnNodeResponse replaceLabelsOnNode(
-      ReplaceLabelsOnNodeRequest request) throws YarnException, IOException;
+    @Public
+    @Stable
+    @Idempotent
+    public RefreshServiceAclsResponse refreshServiceAcls(
+        RefreshServiceAclsRequest request)
+    throws YarnException, IOException;
+
+    /**
+     * <p>The interface used by admin to update nodes' resources to the
+     * <code>ResourceManager</code> </p>.
+     *
+     * <p>The admin client is required to provide details such as a map from
+     * {@link NodeId} to {@link ResourceOption} required to update resources on
+     * a list of <code>RMNode</code> in <code>ResourceManager</code> etc.
+     * via the {@link UpdateNodeResourceRequest}.</p>
+     *
+     * @param request request to update resource for a node in cluster.
+     * @return (empty) response on accepting update.
+     * @throws YarnException
+     * @throws IOException
+     */
+    @Public
+    @Evolving
+    @Idempotent
+    public UpdateNodeResourceResponse updateNodeResource(
+        UpdateNodeResourceRequest request)
+    throws YarnException, IOException;
+
+    @Public
+    @Evolving
+    @Idempotent
+    public AddToClusterNodeLabelsResponse addToClusterNodeLabels(AddToClusterNodeLabelsRequest request)
+    throws YarnException, IOException;
+
+    @Public
+    @Evolving
+    @Idempotent
+    public RemoveFromClusterNodeLabelsResponse removeFromClusterNodeLabels(
+        RemoveFromClusterNodeLabelsRequest request) throws YarnException, IOException;
+
+    @Public
+    @Evolving
+    @Idempotent
+    public ReplaceLabelsOnNodeResponse replaceLabelsOnNode(
+        ReplaceLabelsOnNodeRequest request) throws YarnException, IOException;
 }

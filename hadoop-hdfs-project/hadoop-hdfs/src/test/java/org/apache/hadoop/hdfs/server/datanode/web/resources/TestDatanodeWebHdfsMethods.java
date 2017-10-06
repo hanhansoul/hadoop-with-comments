@@ -34,21 +34,21 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class TestDatanodeWebHdfsMethods {
-  private static final String LOGICAL_NAME = "minidfs";
+    private static final String LOGICAL_NAME = "minidfs";
 
-  @Test
-  public void testDeserializeHAToken() throws IOException {
-    Configuration conf = DFSTestUtil.newHAConfiguration(LOGICAL_NAME);
-    DataNode dn = mock(DataNode.class);
-    doReturn(conf).when(dn).getConf();
-    ServletContext context = mock(ServletContext.class);
-    doReturn(dn).when(context).getAttribute("datanode");
-    final Token<DelegationTokenIdentifier> token = new
-            Token<DelegationTokenIdentifier>();
-    DatanodeWebHdfsMethods method = new DatanodeWebHdfsMethods();
-    Whitebox.setInternalState(method, "context", context);
-    final Token<DelegationTokenIdentifier> tok2 = method.deserializeToken
-            (token.encodeToUrlString(), LOGICAL_NAME);
-    Assert.assertTrue(HAUtil.isTokenForLogicalUri(tok2));
-  }
+    @Test
+    public void testDeserializeHAToken() throws IOException {
+        Configuration conf = DFSTestUtil.newHAConfiguration(LOGICAL_NAME);
+        DataNode dn = mock(DataNode.class);
+        doReturn(conf).when(dn).getConf();
+        ServletContext context = mock(ServletContext.class);
+        doReturn(dn).when(context).getAttribute("datanode");
+        final Token<DelegationTokenIdentifier> token = new
+        Token<DelegationTokenIdentifier>();
+        DatanodeWebHdfsMethods method = new DatanodeWebHdfsMethods();
+        Whitebox.setInternalState(method, "context", context);
+        final Token<DelegationTokenIdentifier> tok2 = method.deserializeToken
+                (token.encodeToUrlString(), LOGICAL_NAME);
+        Assert.assertTrue(HAUtil.isTokenForLogicalUri(tok2));
+    }
 }

@@ -27,13 +27,13 @@ import org.apache.hadoop.yarn.server.api.ResourceManagerAdministrationProtocol;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * <p>The request sent by admin to change a list of nodes' resource to the 
+ * <p>The request sent by admin to change a list of nodes' resource to the
  * <code>ResourceManager</code>.</p>
- * 
- * <p>The request contains details such as a map from {@link NodeId} to 
- * {@link ResourceOption} for updating the RMNodes' resources in 
+ *
+ * <p>The request contains details such as a map from {@link NodeId} to
+ * {@link ResourceOption} for updating the RMNodes' resources in
  * <code>ResourceManager</code>.
- * 
+ *
  * @see ResourceManagerAdministrationProtocol#updateNodeResource(
  *      UpdateNodeResourceRequest)
  */
@@ -42,30 +42,30 @@ import org.apache.hadoop.yarn.util.Records;
 public abstract class UpdateNodeResourceRequest {
 
 
-  @Public
-  @Evolving
-  public static UpdateNodeResourceRequest newInstance(
-      Map<NodeId, ResourceOption> nodeResourceMap) {
-    UpdateNodeResourceRequest request =
-        Records.newRecord(UpdateNodeResourceRequest.class);
-    request.setNodeResourceMap(nodeResourceMap);
-    return request;
-  }
-  
-  /**
-   * Get the map from <code>NodeId</code> to <code>ResourceOption</code>.
-   * @return the map of <NodeId, ResourceOption>
-   */
-  @Public
-  @Evolving
-  public abstract Map<NodeId, ResourceOption> getNodeResourceMap();
-  
-  /**
-   * Set the map from <code>NodeId</code> to <code>ResourceOption</code>.
-   * @param nodeResourceMap the map of <NodeId, ResourceOption>
-   */
-  @Public
-  @Evolving
-  public abstract void setNodeResourceMap(Map<NodeId, ResourceOption> nodeResourceMap);
+    @Public
+    @Evolving
+    public static UpdateNodeResourceRequest newInstance(
+        Map<NodeId, ResourceOption> nodeResourceMap) {
+        UpdateNodeResourceRequest request =
+            Records.newRecord(UpdateNodeResourceRequest.class);
+        request.setNodeResourceMap(nodeResourceMap);
+        return request;
+    }
+
+    /**
+     * Get the map from <code>NodeId</code> to <code>ResourceOption</code>.
+     * @return the map of <NodeId, ResourceOption>
+     */
+    @Public
+    @Evolving
+    public abstract Map<NodeId, ResourceOption> getNodeResourceMap();
+
+    /**
+     * Set the map from <code>NodeId</code> to <code>ResourceOption</code>.
+     * @param nodeResourceMap the map of <NodeId, ResourceOption>
+     */
+    @Public
+    @Evolving
+    public abstract void setNodeResourceMap(Map<NodeId, ResourceOption> nodeResourceMap);
 
 }

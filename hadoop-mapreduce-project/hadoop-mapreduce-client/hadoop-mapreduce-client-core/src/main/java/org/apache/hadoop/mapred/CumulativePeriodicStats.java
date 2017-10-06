@@ -21,7 +21,7 @@ package org.apache.hadoop.mapred;
  *
  * This class is a concrete PeriodicStatsAccumulator that deals with
  *  measurements where the raw data are a measurement of an
- *  accumulation.  The result in each bucket is the estimate 
+ *  accumulation.  The result in each bucket is the estimate
  *  of the progress-weighted change in that quantity over the
  *  progress range covered by the bucket.
  *
@@ -31,29 +31,29 @@ package org.apache.hadoop.mapred;
  *
  */
 class CumulativePeriodicStats extends PeriodicStatsAccumulator {
-  // int's are acceptable here, even though times are normally
-  // long's, because these are a difference and an int won't
-  // overflow for 24 days.  Tasks can't run for more than about a
-  // week for other reasons, and most jobs would be written 
-  int previousValue = 0;
+    // int's are acceptable here, even though times are normally
+    // long's, because these are a difference and an int won't
+    // overflow for 24 days.  Tasks can't run for more than about a
+    // week for other reasons, and most jobs would be written
+    int previousValue = 0;
 
-  CumulativePeriodicStats(int count) {
-    super(count);
-  }
-
-  /**
-   *
-   * accumulates a new reading by keeping a running account of the
-   *  value distance from the beginning of the bucket to the end of
-   *  this reading
-   */
-  @Override
-    protected void extendInternal(double newProgress, int newValue) {
-    if (state == null) {
-      return;
+    CumulativePeriodicStats(int count) {
+        super(count);
     }
 
-    state.currentAccumulation += (double)(newValue - previousValue);
-    previousValue = newValue;
-  }
+    /**
+     *
+     * accumulates a new reading by keeping a running account of the
+     *  value distance from the beginning of the bucket to the end of
+     *  this reading
+     */
+    @Override
+    protected void extendInternal(double newProgress, int newValue) {
+        if (state == null) {
+            return;
+        }
+
+        state.currentAccumulation += (double)(newValue - previousValue);
+        previousValue = newValue;
+    }
 }

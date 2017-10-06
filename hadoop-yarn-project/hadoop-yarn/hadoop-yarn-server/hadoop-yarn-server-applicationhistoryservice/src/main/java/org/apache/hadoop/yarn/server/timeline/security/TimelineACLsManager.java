@@ -48,145 +48,145 @@ import com.google.common.annotations.VisibleForTesting;
 @Private
 public class TimelineACLsManager {
 
-  private static final Log LOG = LogFactory.getLog(TimelineACLsManager.class);
-  private static final int DOMAIN_ACCESS_ENTRY_CACHE_SIZE = 100;
+    private static final Log LOG = LogFactory.getLog(TimelineACLsManager.class);
+    private static final int DOMAIN_ACCESS_ENTRY_CACHE_SIZE = 100;
 
-  private AdminACLsManager adminAclsManager;
-  private Map<String, AccessControlListExt> aclExts;
-  private TimelineStore store;
+    private AdminACLsManager adminAclsManager;
+    private Map<String, AccessControlListExt> aclExts;
+    private TimelineStore store;
 
-  @SuppressWarnings("unchecked")
-  public TimelineACLsManager(Configuration conf) {
-    this.adminAclsManager = new AdminACLsManager(conf);
-    aclExts = Collections.synchronizedMap(
-        new LRUMap(DOMAIN_ACCESS_ENTRY_CACHE_SIZE));
-  }
-
-  public void setTimelineStore(TimelineStore store) {
-    this.store = store;
-  }
-
-  private AccessControlListExt loadDomainFromTimelineStore(
-      String domainId) throws IOException {
-    if (store == null) {
-      return null;
-    }
-    TimelineDomain domain = store.getDomain(domainId);
-    if (domain == null) {
-      return null;
-    } else {
-      return putDomainIntoCache(domain);
-    }
-  }
-
-  public void replaceIfExist(TimelineDomain domain) {
-    if (aclExts.containsKey(domain.getId())) {
-      putDomainIntoCache(domain);
-    }
-  }
-
-  private AccessControlListExt putDomainIntoCache(
-      TimelineDomain domain) {
-    Map<ApplicationAccessType, AccessControlList> acls
-    = new HashMap<ApplicationAccessType, AccessControlList>(2);
-    acls.put(ApplicationAccessType.VIEW_APP,
-        new AccessControlList(StringHelper.cjoin(domain.getReaders())));
-    acls.put(ApplicationAccessType.MODIFY_APP,
-        new AccessControlList(StringHelper.cjoin(domain.getWriters())));
-    AccessControlListExt aclExt =
-        new AccessControlListExt(domain.getOwner(), acls);
-    aclExts.put(domain.getId(), aclExt);
-    return aclExt;
-  }
-
-  public boolean checkAccess(UserGroupInformation callerUGI,
-      ApplicationAccessType applicationAccessType,
-      TimelineEntity entity) throws YarnException, IOException {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Verifying the access of "
-          + (callerUGI == null ? null : callerUGI.getShortUserName())
-          + " on the timeline entity "
-          + new EntityIdentifier(entity.getEntityId(), entity.getEntityType()));
+    @SuppressWarnings("unchecked")
+    public TimelineACLsManager(Configuration conf) {
+        this.adminAclsManager = new AdminACLsManager(conf);
+        aclExts = Collections.synchronizedMap(
+                      new LRUMap(DOMAIN_ACCESS_ENTRY_CACHE_SIZE));
     }
 
-    if (!adminAclsManager.areACLsEnabled()) {
-      return true;
+    public void setTimelineStore(TimelineStore store) {
+        this.store = store;
     }
 
-    // find domain owner and acls
-    AccessControlListExt aclExt = aclExts.get(entity.getDomainId());
-    if (aclExt == null) {
-      aclExt = loadDomainFromTimelineStore(entity.getDomainId());
-    }
-    if (aclExt == null) {
-      throw new YarnException("Domain information of the timeline entity "
-          + new EntityIdentifier(entity.getEntityId(), entity.getEntityType())
-          + " doesn't exist.");
-    }
-    String owner = aclExt.owner;
-    AccessControlList domainACL = aclExt.acls.get(applicationAccessType);
-    if (domainACL == null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("ACL not found for access-type " + applicationAccessType
-            + " for domain " + entity.getDomainId() + " owned by "
-            + owner + ". Using default ["
-            + YarnConfiguration.DEFAULT_YARN_APP_ACL + "]");
-      }
-      domainACL =
-          new AccessControlList(YarnConfiguration.DEFAULT_YARN_APP_ACL);
+    private AccessControlListExt loadDomainFromTimelineStore(
+        String domainId) throws IOException {
+        if (store == null) {
+            return null;
+        }
+        TimelineDomain domain = store.getDomain(domainId);
+        if (domain == null) {
+            return null;
+        } else {
+            return putDomainIntoCache(domain);
+        }
     }
 
-    if (callerUGI != null
-        && (adminAclsManager.isAdmin(callerUGI) ||
-            callerUGI.getShortUserName().equals(owner) ||
-            domainACL.isUserAllowed(callerUGI))) {
-      return true;
-    }
-    return false;
-  }
-
-  public boolean checkAccess(UserGroupInformation callerUGI,
-      TimelineDomain domain) throws YarnException, IOException {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Verifying the access of "
-          + (callerUGI == null ? null : callerUGI.getShortUserName())
-          + " on the timeline domain " + domain);
+    public void replaceIfExist(TimelineDomain domain) {
+        if (aclExts.containsKey(domain.getId())) {
+            putDomainIntoCache(domain);
+        }
     }
 
-    if (!adminAclsManager.areACLsEnabled()) {
-      return true;
+    private AccessControlListExt putDomainIntoCache(
+        TimelineDomain domain) {
+        Map<ApplicationAccessType, AccessControlList> acls
+            = new HashMap<ApplicationAccessType, AccessControlList>(2);
+        acls.put(ApplicationAccessType.VIEW_APP,
+                 new AccessControlList(StringHelper.cjoin(domain.getReaders())));
+        acls.put(ApplicationAccessType.MODIFY_APP,
+                 new AccessControlList(StringHelper.cjoin(domain.getWriters())));
+        AccessControlListExt aclExt =
+            new AccessControlListExt(domain.getOwner(), acls);
+        aclExts.put(domain.getId(), aclExt);
+        return aclExt;
     }
 
-    String owner = domain.getOwner();
-    if (owner == null || owner.length() == 0) {
-      throw new YarnException("Owner information of the timeline domain "
-          + domain.getId() + " is corrupted.");
-    }
-    if (callerUGI != null
-        && (adminAclsManager.isAdmin(callerUGI) ||
-            callerUGI.getShortUserName().equals(owner))) {
-      return true;
-    }
-    return false;
-  }
+    public boolean checkAccess(UserGroupInformation callerUGI,
+                               ApplicationAccessType applicationAccessType,
+                               TimelineEntity entity) throws YarnException, IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Verifying the access of "
+                      + (callerUGI == null ? null : callerUGI.getShortUserName())
+                      + " on the timeline entity "
+                      + new EntityIdentifier(entity.getEntityId(), entity.getEntityType()));
+        }
 
-  @Private
-  @VisibleForTesting
-  public AdminACLsManager
-      setAdminACLsManager(AdminACLsManager adminAclsManager) {
-    AdminACLsManager oldAdminACLsManager = this.adminAclsManager;
-    this.adminAclsManager = adminAclsManager;
-    return oldAdminACLsManager;
-  }
+        if (!adminAclsManager.areACLsEnabled()) {
+            return true;
+        }
 
-  private static class AccessControlListExt {
-    private String owner;
-    private Map<ApplicationAccessType, AccessControlList> acls;
+        // find domain owner and acls
+        AccessControlListExt aclExt = aclExts.get(entity.getDomainId());
+        if (aclExt == null) {
+            aclExt = loadDomainFromTimelineStore(entity.getDomainId());
+        }
+        if (aclExt == null) {
+            throw new YarnException("Domain information of the timeline entity "
+                                    + new EntityIdentifier(entity.getEntityId(), entity.getEntityType())
+                                    + " doesn't exist.");
+        }
+        String owner = aclExt.owner;
+        AccessControlList domainACL = aclExt.acls.get(applicationAccessType);
+        if (domainACL == null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("ACL not found for access-type " + applicationAccessType
+                          + " for domain " + entity.getDomainId() + " owned by "
+                          + owner + ". Using default ["
+                          + YarnConfiguration.DEFAULT_YARN_APP_ACL + "]");
+            }
+            domainACL =
+                new AccessControlList(YarnConfiguration.DEFAULT_YARN_APP_ACL);
+        }
 
-    public AccessControlListExt(
-        String owner, Map<ApplicationAccessType, AccessControlList> acls) {
-      this.owner = owner;
-      this.acls = acls;
+        if (callerUGI != null
+            && (adminAclsManager.isAdmin(callerUGI) ||
+                callerUGI.getShortUserName().equals(owner) ||
+                domainACL.isUserAllowed(callerUGI))) {
+            return true;
+        }
+        return false;
     }
-  }
+
+    public boolean checkAccess(UserGroupInformation callerUGI,
+                               TimelineDomain domain) throws YarnException, IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Verifying the access of "
+                      + (callerUGI == null ? null : callerUGI.getShortUserName())
+                      + " on the timeline domain " + domain);
+        }
+
+        if (!adminAclsManager.areACLsEnabled()) {
+            return true;
+        }
+
+        String owner = domain.getOwner();
+        if (owner == null || owner.length() == 0) {
+            throw new YarnException("Owner information of the timeline domain "
+                                    + domain.getId() + " is corrupted.");
+        }
+        if (callerUGI != null
+            && (adminAclsManager.isAdmin(callerUGI) ||
+                callerUGI.getShortUserName().equals(owner))) {
+            return true;
+        }
+        return false;
+    }
+
+    @Private
+    @VisibleForTesting
+    public AdminACLsManager
+    setAdminACLsManager(AdminACLsManager adminAclsManager) {
+        AdminACLsManager oldAdminACLsManager = this.adminAclsManager;
+        this.adminAclsManager = adminAclsManager;
+        return oldAdminACLsManager;
+    }
+
+    private static class AccessControlListExt {
+        private String owner;
+        private Map<ApplicationAccessType, AccessControlList> acls;
+
+        public AccessControlListExt(
+            String owner, Map<ApplicationAccessType, AccessControlList> acls) {
+            this.owner = owner;
+            this.acls = acls;
+        }
+    }
 }

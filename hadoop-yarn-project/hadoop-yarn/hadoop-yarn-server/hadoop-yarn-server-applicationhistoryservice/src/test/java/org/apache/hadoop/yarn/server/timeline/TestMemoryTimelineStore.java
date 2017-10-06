@@ -29,68 +29,68 @@ import java.io.IOException;
 
 public class TestMemoryTimelineStore extends TimelineStoreTestUtils {
 
-  @Before
-  public void setup() throws Exception {
-    store = new MemoryTimelineStore();
-    store.init(new YarnConfiguration());
-    store.start();
-    loadTestEntityData();
-    loadVerificationEntityData();
-    loadTestDomainData();
-  }
+    @Before
+    public void setup() throws Exception {
+        store = new MemoryTimelineStore();
+        store.init(new YarnConfiguration());
+        store.start();
+        loadTestEntityData();
+        loadVerificationEntityData();
+        loadTestDomainData();
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    store.stop();
-  }
+    @After
+    public void tearDown() throws Exception {
+        store.stop();
+    }
 
-  public TimelineStore getTimelineStore() {
-    return store;
-  }
+    public TimelineStore getTimelineStore() {
+        return store;
+    }
 
-  @Test
-  public void testGetSingleEntity() throws IOException {
-    super.testGetSingleEntity();
-  }
+    @Test
+    public void testGetSingleEntity() throws IOException {
+        super.testGetSingleEntity();
+    }
 
-  @Test
-  public void testGetEntities() throws IOException {
-    super.testGetEntities();
-  }
+    @Test
+    public void testGetEntities() throws IOException {
+        super.testGetEntities();
+    }
 
-  @Test
-  public void testGetEntitiesWithFromId() throws IOException {
-    super.testGetEntitiesWithFromId();
-  }
+    @Test
+    public void testGetEntitiesWithFromId() throws IOException {
+        super.testGetEntitiesWithFromId();
+    }
 
-  @Test
-  public void testGetEntitiesWithFromTs() throws IOException {
-    super.testGetEntitiesWithFromTs();
-  }
+    @Test
+    public void testGetEntitiesWithFromTs() throws IOException {
+        super.testGetEntitiesWithFromTs();
+    }
 
-  @Test
-  public void testGetEntitiesWithPrimaryFilters() throws IOException {
-    super.testGetEntitiesWithPrimaryFilters();
-  }
+    @Test
+    public void testGetEntitiesWithPrimaryFilters() throws IOException {
+        super.testGetEntitiesWithPrimaryFilters();
+    }
 
-  @Test
-  public void testGetEntitiesWithSecondaryFilters() throws IOException {
-    super.testGetEntitiesWithSecondaryFilters();
-  }
+    @Test
+    public void testGetEntitiesWithSecondaryFilters() throws IOException {
+        super.testGetEntitiesWithSecondaryFilters();
+    }
 
-  @Test
-  public void testGetEvents() throws IOException {
-    super.testGetEvents();
-  }
+    @Test
+    public void testGetEvents() throws IOException {
+        super.testGetEvents();
+    }
 
-  @Test
-  public void testGetDomain() throws IOException {
-    super.testGetDomain();
-  }
+    @Test
+    public void testGetDomain() throws IOException {
+        super.testGetDomain();
+    }
 
-  @Test
-  public void testGetDomains() throws IOException {
-    super.testGetDomains();
-  }
+    @Test
+    public void testGetDomains() throws IOException {
+        super.testGetDomains();
+    }
 
 }

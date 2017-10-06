@@ -39,188 +39,188 @@ import org.apache.hadoop.mapreduce.MRJobConfig;
 @InterfaceStability.Unstable
 public class MROutputFiles extends MapOutputFile {
 
-  private LocalDirAllocator lDirAlloc =
-    new LocalDirAllocator(MRConfig.LOCAL_DIR);
+    private LocalDirAllocator lDirAlloc =
+        new LocalDirAllocator(MRConfig.LOCAL_DIR);
 
-  public MROutputFiles() {
-  }
-
-  /**
-   * Return the path to local map output file created earlier
-   *
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getOutputFile()
-      throws IOException {
-    return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + Path.SEPARATOR
-        + MAP_OUTPUT_FILENAME_STRING, getConf());
-  }
-
-  /**
-   * Create a local map output file name.
-   *
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getOutputFileForWrite(long size)
-      throws IOException {
-    return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + Path.SEPARATOR
-        + MAP_OUTPUT_FILENAME_STRING, size, getConf());
-  }
-
-  /**
-   * Create a local map output file name on the same volume.
-   */
-  @Override
-  public Path getOutputFileForWriteInVolume(Path existing) {
-    return new Path(existing.getParent(), MAP_OUTPUT_FILENAME_STRING);
-  }
-
-  /**
-   * Return the path to a local map output index file created earlier
-   *
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getOutputIndexFile()
-      throws IOException {
-    return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + Path.SEPARATOR
-        + MAP_OUTPUT_FILENAME_STRING + MAP_OUTPUT_INDEX_SUFFIX_STRING,
-        getConf());
-  }
-
-  /**
-   * Create a local map output index file name.
-   *
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getOutputIndexFileForWrite(long size)
-      throws IOException {
-    return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + Path.SEPARATOR
-        + MAP_OUTPUT_FILENAME_STRING + MAP_OUTPUT_INDEX_SUFFIX_STRING,
-        size, getConf());
-  }
-
-  /**
-   * Create a local map output index file name on the same volume.
-   */
-  @Override
-  public Path getOutputIndexFileForWriteInVolume(Path existing) {
-    return new Path(existing.getParent(),
-        MAP_OUTPUT_FILENAME_STRING + MAP_OUTPUT_INDEX_SUFFIX_STRING);
-  }
-
-  /**
-   * Return a local map spill file created earlier.
-   *
-   * @param spillNumber the number
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getSpillFile(int spillNumber)
-      throws IOException {
-    return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + "/spill"
-        + spillNumber + ".out", getConf());
-  }
-
-  /**
-   * Create a local map spill file name.
-   *
-   * @param spillNumber the number
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getSpillFileForWrite(int spillNumber, long size)
-      throws IOException {
-    return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + "/spill"
-        + spillNumber + ".out", size, getConf());
-  }
-
-  /**
-   * Return a local map spill index file created earlier
-   *
-   * @param spillNumber the number
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getSpillIndexFile(int spillNumber)
-      throws IOException {
-    return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + "/spill"
-        + spillNumber + ".out.index", getConf());
-  }
-
-  /**
-   * Create a local map spill index file name.
-   *
-   * @param spillNumber the number
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getSpillIndexFileForWrite(int spillNumber, long size)
-      throws IOException {
-    return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + "/spill"
-        + spillNumber + ".out.index", size, getConf());
-  }
-
-  /**
-   * Return a local reduce input file created earlier
-   *
-   * @param mapId a map task id
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getInputFile(int mapId)
-      throws IOException {
-    return lDirAlloc.getLocalPathToRead(String.format(
-        REDUCE_INPUT_FILE_FORMAT_STRING, MRJobConfig.OUTPUT, Integer
-            .valueOf(mapId)), getConf());
-  }
-
-  /**
-   * Create a local reduce input file name.
-   *
-   * @param mapId a map task id
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  @Override
-  public Path getInputFileForWrite(org.apache.hadoop.mapreduce.TaskID mapId,
-                                   long size)
-      throws IOException {
-    return lDirAlloc.getLocalPathForWrite(String.format(
-        REDUCE_INPUT_FILE_FORMAT_STRING, MRJobConfig.OUTPUT, mapId.getId()),
-        size, getConf());
-  }
-
-  /** Removes all of the files related to a task. */
-  @Override
-  public void removeAll()
-      throws IOException {
-    ((JobConf)getConf()).deleteLocalFiles(MRJobConfig.OUTPUT);
-  }
-
-  @Override
-  public void setConf(Configuration conf) {
-    if (!(conf instanceof JobConf)) {
-      conf = new JobConf(conf);
+    public MROutputFiles() {
     }
-    super.setConf(conf);
-  }
+
+    /**
+     * Return the path to local map output file created earlier
+     *
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getOutputFile()
+    throws IOException {
+        return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + Path.SEPARATOR
+                                            + MAP_OUTPUT_FILENAME_STRING, getConf());
+    }
+
+    /**
+     * Create a local map output file name.
+     *
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getOutputFileForWrite(long size)
+    throws IOException {
+        return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + Path.SEPARATOR
+                                              + MAP_OUTPUT_FILENAME_STRING, size, getConf());
+    }
+
+    /**
+     * Create a local map output file name on the same volume.
+     */
+    @Override
+    public Path getOutputFileForWriteInVolume(Path existing) {
+        return new Path(existing.getParent(), MAP_OUTPUT_FILENAME_STRING);
+    }
+
+    /**
+     * Return the path to a local map output index file created earlier
+     *
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getOutputIndexFile()
+    throws IOException {
+        return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + Path.SEPARATOR
+                                            + MAP_OUTPUT_FILENAME_STRING + MAP_OUTPUT_INDEX_SUFFIX_STRING,
+                                            getConf());
+    }
+
+    /**
+     * Create a local map output index file name.
+     *
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getOutputIndexFileForWrite(long size)
+    throws IOException {
+        return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + Path.SEPARATOR
+                                              + MAP_OUTPUT_FILENAME_STRING + MAP_OUTPUT_INDEX_SUFFIX_STRING,
+                                              size, getConf());
+    }
+
+    /**
+     * Create a local map output index file name on the same volume.
+     */
+    @Override
+    public Path getOutputIndexFileForWriteInVolume(Path existing) {
+        return new Path(existing.getParent(),
+                        MAP_OUTPUT_FILENAME_STRING + MAP_OUTPUT_INDEX_SUFFIX_STRING);
+    }
+
+    /**
+     * Return a local map spill file created earlier.
+     *
+     * @param spillNumber the number
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getSpillFile(int spillNumber)
+    throws IOException {
+        return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + "/spill"
+                                            + spillNumber + ".out", getConf());
+    }
+
+    /**
+     * Create a local map spill file name.
+     *
+     * @param spillNumber the number
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getSpillFileForWrite(int spillNumber, long size)
+    throws IOException {
+        return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + "/spill"
+                                              + spillNumber + ".out", size, getConf());
+    }
+
+    /**
+     * Return a local map spill index file created earlier
+     *
+     * @param spillNumber the number
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getSpillIndexFile(int spillNumber)
+    throws IOException {
+        return lDirAlloc.getLocalPathToRead(MRJobConfig.OUTPUT + "/spill"
+                                            + spillNumber + ".out.index", getConf());
+    }
+
+    /**
+     * Create a local map spill index file name.
+     *
+     * @param spillNumber the number
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getSpillIndexFileForWrite(int spillNumber, long size)
+    throws IOException {
+        return lDirAlloc.getLocalPathForWrite(MRJobConfig.OUTPUT + "/spill"
+                                              + spillNumber + ".out.index", size, getConf());
+    }
+
+    /**
+     * Return a local reduce input file created earlier
+     *
+     * @param mapId a map task id
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getInputFile(int mapId)
+    throws IOException {
+        return lDirAlloc.getLocalPathToRead(String.format(
+                                                REDUCE_INPUT_FILE_FORMAT_STRING, MRJobConfig.OUTPUT, Integer
+                                                .valueOf(mapId)), getConf());
+    }
+
+    /**
+     * Create a local reduce input file name.
+     *
+     * @param mapId a map task id
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    @Override
+    public Path getInputFileForWrite(org.apache.hadoop.mapreduce.TaskID mapId,
+                                     long size)
+    throws IOException {
+        return lDirAlloc.getLocalPathForWrite(String.format(
+                REDUCE_INPUT_FILE_FORMAT_STRING, MRJobConfig.OUTPUT, mapId.getId()),
+                                              size, getConf());
+    }
+
+    /** Removes all of the files related to a task. */
+    @Override
+    public void removeAll()
+    throws IOException {
+        ((JobConf)getConf()).deleteLocalFiles(MRJobConfig.OUTPUT);
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+        if (!(conf instanceof JobConf)) {
+            conf = new JobConf(conf);
+        }
+        super.setConf(conf);
+    }
 
 }

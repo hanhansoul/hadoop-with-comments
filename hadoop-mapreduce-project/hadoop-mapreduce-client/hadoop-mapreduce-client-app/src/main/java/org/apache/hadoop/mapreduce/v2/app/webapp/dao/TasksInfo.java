@@ -27,17 +27,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TasksInfo {
 
-  protected ArrayList<TaskInfo> task = new ArrayList<TaskInfo>();
+    protected ArrayList<TaskInfo> task = new ArrayList<TaskInfo>();
 
-  public TasksInfo() {
-  } // JAXB needs this
+    public TasksInfo() {
+    } // JAXB needs this
 
-  public void add(TaskInfo taskInfo) {
-    task.add(taskInfo);
-  }
+    public void add(TaskInfo taskInfo) {
+        task.add(taskInfo);
+    }
 
-  public ArrayList<TaskInfo> getTasks() {
-    return task;
-  }
+    public ArrayList<TaskInfo> getTasks() {
+        return task;
+    }
 
 }

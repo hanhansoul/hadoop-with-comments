@@ -29,9 +29,9 @@ import org.apache.hadoop.yarn.api.protocolrecords.StartContainersRequest;
  */
 public class InvalidAuxServiceException extends YarnException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public InvalidAuxServiceException(String msg) {
-    super(msg);
-  }
+    public InvalidAuxServiceException(String msg) {
+        super(msg);
+    }
 }

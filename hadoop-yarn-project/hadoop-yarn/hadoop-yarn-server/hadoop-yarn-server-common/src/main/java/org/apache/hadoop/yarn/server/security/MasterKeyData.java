@@ -28,31 +28,31 @@ import org.apache.hadoop.yarn.util.Records;
 
 public class MasterKeyData {
 
-  private final MasterKey masterKeyRecord;
-  // Underlying secret-key also stored to avoid repetitive encoding and
-  // decoding the masterKeyRecord bytes.
-  private final SecretKey generatedSecretKey;
+    private final MasterKey masterKeyRecord;
+    // Underlying secret-key also stored to avoid repetitive encoding and
+    // decoding the masterKeyRecord bytes.
+    private final SecretKey generatedSecretKey;
 
-  public MasterKeyData(int serialNo, SecretKey secretKey) {
-    this.masterKeyRecord = Records.newRecord(MasterKey.class);
-    this.masterKeyRecord.setKeyId(serialNo);
-    this.generatedSecretKey = secretKey;
-    this.masterKeyRecord.setBytes(ByteBuffer.wrap(generatedSecretKey
-      .getEncoded()));
-  }
+    public MasterKeyData(int serialNo, SecretKey secretKey) {
+        this.masterKeyRecord = Records.newRecord(MasterKey.class);
+        this.masterKeyRecord.setKeyId(serialNo);
+        this.generatedSecretKey = secretKey;
+        this.masterKeyRecord.setBytes(ByteBuffer.wrap(generatedSecretKey
+                                      .getEncoded()));
+    }
 
-  public MasterKeyData(MasterKey masterKeyRecord, SecretKey secretKey) {
-    this.masterKeyRecord = masterKeyRecord;
-    this.generatedSecretKey = secretKey;
+    public MasterKeyData(MasterKey masterKeyRecord, SecretKey secretKey) {
+        this.masterKeyRecord = masterKeyRecord;
+        this.generatedSecretKey = secretKey;
 
-  }
+    }
 
-  public MasterKey getMasterKey() {
-    return this.masterKeyRecord;
-  }
+    public MasterKey getMasterKey() {
+        return this.masterKeyRecord;
+    }
 
-  public SecretKey getSecretKey() {
-    return this.generatedSecretKey;
-  }
+    public SecretKey getSecretKey() {
+        return this.generatedSecretKey;
+    }
 }
 

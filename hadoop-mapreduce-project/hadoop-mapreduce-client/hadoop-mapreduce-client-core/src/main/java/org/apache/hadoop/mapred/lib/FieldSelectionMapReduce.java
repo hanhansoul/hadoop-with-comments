@@ -45,24 +45,24 @@ import org.apache.hadoop.mapreduce.lib.fieldsel.*;
  * TextInputFormat, the mapper will ignore the key to the map function. and the
  * fields are from the value only. Otherwise, the fields are the union of those
  * from the key and those from the value.
- * 
+ *
  * The field separator is under attribute "mapreduce.fieldsel.data.field.separator"
- * 
- * The map output field list spec is under attribute 
+ *
+ * The map output field list spec is under attribute
  * "mapreduce.fieldsel.map.output.key.value.fields.spec".
  * The value is expected to be like "keyFieldsSpec:valueFieldsSpec"
  * key/valueFieldsSpec are comma (,) separated field spec: fieldSpec,fieldSpec,fieldSpec ...
  * Each field spec can be a simple number (e.g. 5) specifying a specific field, or a range
- * (like 2-5) to specify a range of fields, or an open range (like 3-) specifying all 
+ * (like 2-5) to specify a range of fields, or an open range (like 3-) specifying all
  * the fields starting from field 3. The open range field spec applies value fields only.
  * They have no effect on the key fields.
- * 
+ *
  * Here is an example: "4,3,0,1:6,5,1-3,7-". It specifies to use fields 4,3,0 and 1 for keys,
  * and use fields 6,5,1,2,3,7 and above for values.
- * 
- * The reduce output field list spec is under attribute 
+ *
+ * The reduce output field list spec is under attribute
  * "mapreduce.fieldsel.reduce.output.key.value.fields.spec".
- * 
+ *
  * The reducer extracts output key/value pairs in a similar manner, except that
  * the key is never ignored.
  */
@@ -71,121 +71,121 @@ import org.apache.hadoop.mapreduce.lib.fieldsel.*;
 public class FieldSelectionMapReduce<K, V>
     implements Mapper<K, V, Text, Text>, Reducer<Text, Text, Text, Text> {
 
-  private String mapOutputKeyValueSpec;
+    private String mapOutputKeyValueSpec;
 
-  private boolean ignoreInputKey;
+    private boolean ignoreInputKey;
 
-  private String fieldSeparator = "\t";
+    private String fieldSeparator = "\t";
 
-  private List<Integer> mapOutputKeyFieldList = new ArrayList<Integer>();
+    private List<Integer> mapOutputKeyFieldList = new ArrayList<Integer>();
 
-  private List<Integer> mapOutputValueFieldList = new ArrayList<Integer>();
+    private List<Integer> mapOutputValueFieldList = new ArrayList<Integer>();
 
-  private int allMapValueFieldsFrom = -1;
+    private int allMapValueFieldsFrom = -1;
 
-  private String reduceOutputKeyValueSpec;
+    private String reduceOutputKeyValueSpec;
 
-  private List<Integer> reduceOutputKeyFieldList = new ArrayList<Integer>();
+    private List<Integer> reduceOutputKeyFieldList = new ArrayList<Integer>();
 
-  private List<Integer> reduceOutputValueFieldList = new ArrayList<Integer>();
+    private List<Integer> reduceOutputValueFieldList = new ArrayList<Integer>();
 
-  private int allReduceValueFieldsFrom = -1;
+    private int allReduceValueFieldsFrom = -1;
 
 
-  public static final Log LOG = LogFactory.getLog("FieldSelectionMapReduce");
+    public static final Log LOG = LogFactory.getLog("FieldSelectionMapReduce");
 
-  private String specToString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append("fieldSeparator: ").append(fieldSeparator).append("\n");
+    private String specToString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("fieldSeparator: ").append(fieldSeparator).append("\n");
 
-    sb.append("mapOutputKeyValueSpec: ").append(mapOutputKeyValueSpec).append(
-        "\n");
-    sb.append("reduceOutputKeyValueSpec: ").append(reduceOutputKeyValueSpec)
+        sb.append("mapOutputKeyValueSpec: ").append(mapOutputKeyValueSpec).append(
+            "\n");
+        sb.append("reduceOutputKeyValueSpec: ").append(reduceOutputKeyValueSpec)
         .append("\n");
 
-    sb.append("allMapValueFieldsFrom: ").append(allMapValueFieldsFrom).append(
-        "\n");
+        sb.append("allMapValueFieldsFrom: ").append(allMapValueFieldsFrom).append(
+            "\n");
 
-    sb.append("allReduceValueFieldsFrom: ").append(allReduceValueFieldsFrom)
+        sb.append("allReduceValueFieldsFrom: ").append(allReduceValueFieldsFrom)
         .append("\n");
 
-    int i = 0;
+        int i = 0;
 
-    sb.append("mapOutputKeyFieldList.length: ").append(
-        mapOutputKeyFieldList.size()).append("\n");
-    for (i = 0; i < mapOutputKeyFieldList.size(); i++) {
-      sb.append("\t").append(mapOutputKeyFieldList.get(i)).append("\n");
+        sb.append("mapOutputKeyFieldList.length: ").append(
+            mapOutputKeyFieldList.size()).append("\n");
+        for (i = 0; i < mapOutputKeyFieldList.size(); i++) {
+            sb.append("\t").append(mapOutputKeyFieldList.get(i)).append("\n");
+        }
+        sb.append("mapOutputValueFieldList.length: ").append(
+            mapOutputValueFieldList.size()).append("\n");
+        for (i = 0; i < mapOutputValueFieldList.size(); i++) {
+            sb.append("\t").append(mapOutputValueFieldList.get(i)).append("\n");
+        }
+
+        sb.append("reduceOutputKeyFieldList.length: ").append(
+            reduceOutputKeyFieldList.size()).append("\n");
+        for (i = 0; i < reduceOutputKeyFieldList.size(); i++) {
+            sb.append("\t").append(reduceOutputKeyFieldList.get(i)).append("\n");
+        }
+        sb.append("reduceOutputValueFieldList.length: ").append(
+            reduceOutputValueFieldList.size()).append("\n");
+        for (i = 0; i < reduceOutputValueFieldList.size(); i++) {
+            sb.append("\t").append(reduceOutputValueFieldList.get(i)).append("\n");
+        }
+        return sb.toString();
     }
-    sb.append("mapOutputValueFieldList.length: ").append(
-        mapOutputValueFieldList.size()).append("\n");
-    for (i = 0; i < mapOutputValueFieldList.size(); i++) {
-      sb.append("\t").append(mapOutputValueFieldList.get(i)).append("\n");
-    }
 
-    sb.append("reduceOutputKeyFieldList.length: ").append(
-        reduceOutputKeyFieldList.size()).append("\n");
-    for (i = 0; i < reduceOutputKeyFieldList.size(); i++) {
-      sb.append("\t").append(reduceOutputKeyFieldList.get(i)).append("\n");
-    }
-    sb.append("reduceOutputValueFieldList.length: ").append(
-        reduceOutputValueFieldList.size()).append("\n");
-    for (i = 0; i < reduceOutputValueFieldList.size(); i++) {
-      sb.append("\t").append(reduceOutputValueFieldList.get(i)).append("\n");
-    }
-    return sb.toString();
-  }
-
-  /**
-   * The identify function. Input key/value pair is written directly to output.
-   */
-  public void map(K key, V val,
-      OutputCollector<Text, Text> output, Reporter reporter) 
-      throws IOException {
-    FieldSelectionHelper helper = new FieldSelectionHelper(
-      FieldSelectionHelper.emptyText, FieldSelectionHelper.emptyText);
-    helper.extractOutputKeyValue(key.toString(), val.toString(),
-      fieldSeparator, mapOutputKeyFieldList, mapOutputValueFieldList,
-      allMapValueFieldsFrom, ignoreInputKey, true);
-    output.collect(helper.getKey(), helper.getValue());
-  }
-
-  private void parseOutputKeyValueSpec() {
-    allMapValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
-      mapOutputKeyValueSpec, mapOutputKeyFieldList, mapOutputValueFieldList);
-    
-    allReduceValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
-      reduceOutputKeyValueSpec, reduceOutputKeyFieldList,
-      reduceOutputValueFieldList);
-  }
-
-  public void configure(JobConf job) {
-    this.fieldSeparator = job.get(FieldSelectionHelper.DATA_FIELD_SEPERATOR,
-        "\t");
-    this.mapOutputKeyValueSpec = job.get(
-        FieldSelectionHelper.MAP_OUTPUT_KEY_VALUE_SPEC, "0-:");
-    this.ignoreInputKey = TextInputFormat.class.getCanonicalName().equals(
-        job.getInputFormat().getClass().getCanonicalName());
-    this.reduceOutputKeyValueSpec = job.get(
-        FieldSelectionHelper.REDUCE_OUTPUT_KEY_VALUE_SPEC, "0-:");
-    parseOutputKeyValueSpec();
-    LOG.info(specToString());
-  }
-
-  public void close() throws IOException {
-    // TODO Auto-generated method stub
-
-  }
-
-  public void reduce(Text key, Iterator<Text> values,
-                     OutputCollector<Text, Text> output, Reporter reporter)
+    /**
+     * The identify function. Input key/value pair is written directly to output.
+     */
+    public void map(K key, V val,
+                    OutputCollector<Text, Text> output, Reporter reporter)
     throws IOException {
-    String keyStr = key.toString() + this.fieldSeparator;
-    while (values.hasNext()) {
-        FieldSelectionHelper helper = new FieldSelectionHelper();
-        helper.extractOutputKeyValue(keyStr, values.next().toString(),
-          fieldSeparator, reduceOutputKeyFieldList,
-          reduceOutputValueFieldList, allReduceValueFieldsFrom, false, false);
-      output.collect(helper.getKey(), helper.getValue());
+        FieldSelectionHelper helper = new FieldSelectionHelper(
+            FieldSelectionHelper.emptyText, FieldSelectionHelper.emptyText);
+        helper.extractOutputKeyValue(key.toString(), val.toString(),
+                                     fieldSeparator, mapOutputKeyFieldList, mapOutputValueFieldList,
+                                     allMapValueFieldsFrom, ignoreInputKey, true);
+        output.collect(helper.getKey(), helper.getValue());
     }
-  }
+
+    private void parseOutputKeyValueSpec() {
+        allMapValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
+                                    mapOutputKeyValueSpec, mapOutputKeyFieldList, mapOutputValueFieldList);
+
+        allReduceValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
+                                       reduceOutputKeyValueSpec, reduceOutputKeyFieldList,
+                                       reduceOutputValueFieldList);
+    }
+
+    public void configure(JobConf job) {
+        this.fieldSeparator = job.get(FieldSelectionHelper.DATA_FIELD_SEPERATOR,
+                                      "\t");
+        this.mapOutputKeyValueSpec = job.get(
+                                         FieldSelectionHelper.MAP_OUTPUT_KEY_VALUE_SPEC, "0-:");
+        this.ignoreInputKey = TextInputFormat.class.getCanonicalName().equals(
+                                  job.getInputFormat().getClass().getCanonicalName());
+        this.reduceOutputKeyValueSpec = job.get(
+                                            FieldSelectionHelper.REDUCE_OUTPUT_KEY_VALUE_SPEC, "0-:");
+        parseOutputKeyValueSpec();
+        LOG.info(specToString());
+    }
+
+    public void close() throws IOException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public void reduce(Text key, Iterator<Text> values,
+                       OutputCollector<Text, Text> output, Reporter reporter)
+    throws IOException {
+        String keyStr = key.toString() + this.fieldSeparator;
+        while (values.hasNext()) {
+            FieldSelectionHelper helper = new FieldSelectionHelper();
+            helper.extractOutputKeyValue(keyStr, values.next().toString(),
+                                         fieldSeparator, reduceOutputKeyFieldList,
+                                         reduceOutputValueFieldList, allReduceValueFieldsFrom, false, false);
+            output.collect(helper.getKey(), helper.getValue());
+        }
+    }
 }

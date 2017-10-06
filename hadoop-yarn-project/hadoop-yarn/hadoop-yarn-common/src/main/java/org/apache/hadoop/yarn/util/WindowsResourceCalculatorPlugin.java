@@ -29,142 +29,142 @@ import org.apache.hadoop.util.StringUtils;
 
 @Private
 public class WindowsResourceCalculatorPlugin extends ResourceCalculatorPlugin {
-  
-  static final Log LOG = LogFactory
-      .getLog(WindowsResourceCalculatorPlugin.class);
-  
-  long vmemSize;
-  long memSize;
-  long vmemAvailable;
-  long memAvailable;
-  int numProcessors;
-  long cpuFrequencyKhz;
-  long cumulativeCpuTimeMs;
-  float cpuUsage;
-  
-  long lastRefreshTime;
-  private final int refreshIntervalMs = 1000;
-  
-  WindowsBasedProcessTree pTree = null;
-  
-  public WindowsResourceCalculatorPlugin() {
-    lastRefreshTime = 0;
-    reset();
-  }
-  
-  void reset() {
-    vmemSize = -1;
-    memSize = -1;
-    vmemAvailable = -1;
-    memAvailable = -1;
-    numProcessors = -1;
-    cpuFrequencyKhz = -1;
-    cumulativeCpuTimeMs = -1;
-    cpuUsage = -1;
-  }
 
-  String getSystemInfoInfoFromShell() {
-    ShellCommandExecutor shellExecutor = new ShellCommandExecutor(
-        new String[] { Shell.WINUTILS, "systeminfo" });
-    try {
-      shellExecutor.execute();
-      return shellExecutor.getOutput();
-    } catch (IOException e) {
-      LOG.error(StringUtils.stringifyException(e));
+    static final Log LOG = LogFactory
+                           .getLog(WindowsResourceCalculatorPlugin.class);
+
+    long vmemSize;
+    long memSize;
+    long vmemAvailable;
+    long memAvailable;
+    int numProcessors;
+    long cpuFrequencyKhz;
+    long cumulativeCpuTimeMs;
+    float cpuUsage;
+
+    long lastRefreshTime;
+    private final int refreshIntervalMs = 1000;
+
+    WindowsBasedProcessTree pTree = null;
+
+    public WindowsResourceCalculatorPlugin() {
+        lastRefreshTime = 0;
+        reset();
     }
-    return null;
-  }
-  
-  void refreshIfNeeded() {
-    long now = System.currentTimeMillis();
-    if (now - lastRefreshTime > refreshIntervalMs) {
-      long refreshInterval = now - lastRefreshTime;
-      lastRefreshTime = now;
-      long lastCumCpuTimeMs = cumulativeCpuTimeMs;
-      reset();
-      String sysInfoStr = getSystemInfoInfoFromShell();
-      if (sysInfoStr != null) {
-        final int sysInfoSplitCount = 7;
-        String[] sysInfo = sysInfoStr.substring(0, sysInfoStr.indexOf("\r\n"))
-            .split(",");
-        if (sysInfo.length == sysInfoSplitCount) {
-          try {
-            vmemSize = Long.parseLong(sysInfo[0]);
-            memSize = Long.parseLong(sysInfo[1]);
-            vmemAvailable = Long.parseLong(sysInfo[2]);
-            memAvailable = Long.parseLong(sysInfo[3]);
-            numProcessors = Integer.parseInt(sysInfo[4]);
-            cpuFrequencyKhz = Long.parseLong(sysInfo[5]);
-            cumulativeCpuTimeMs = Long.parseLong(sysInfo[6]);
-            if (lastCumCpuTimeMs != -1) {
-              cpuUsage = (cumulativeCpuTimeMs - lastCumCpuTimeMs)
-                  / (refreshInterval * 1.0f);
-            }
 
-          } catch (NumberFormatException nfe) {
-            LOG.warn("Error parsing sysInfo." + nfe);
-          }
-        } else {
-          LOG.warn("Expected split length of sysInfo to be "
-              + sysInfoSplitCount + ". Got " + sysInfo.length);
+    void reset() {
+        vmemSize = -1;
+        memSize = -1;
+        vmemAvailable = -1;
+        memAvailable = -1;
+        numProcessors = -1;
+        cpuFrequencyKhz = -1;
+        cumulativeCpuTimeMs = -1;
+        cpuUsage = -1;
+    }
+
+    String getSystemInfoInfoFromShell() {
+        ShellCommandExecutor shellExecutor = new ShellCommandExecutor(
+            new String[] { Shell.WINUTILS, "systeminfo" });
+        try {
+            shellExecutor.execute();
+            return shellExecutor.getOutput();
+        } catch (IOException e) {
+            LOG.error(StringUtils.stringifyException(e));
         }
-      }
+        return null;
     }
-  }
-  
-  /** {@inheritDoc} */
-  @Override
-  public long getVirtualMemorySize() {
-    refreshIfNeeded();
-    return vmemSize;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getPhysicalMemorySize() {
-    refreshIfNeeded();
-    return memSize;
-  }
+    void refreshIfNeeded() {
+        long now = System.currentTimeMillis();
+        if (now - lastRefreshTime > refreshIntervalMs) {
+            long refreshInterval = now - lastRefreshTime;
+            lastRefreshTime = now;
+            long lastCumCpuTimeMs = cumulativeCpuTimeMs;
+            reset();
+            String sysInfoStr = getSystemInfoInfoFromShell();
+            if (sysInfoStr != null) {
+                final int sysInfoSplitCount = 7;
+                String[] sysInfo = sysInfoStr.substring(0, sysInfoStr.indexOf("\r\n"))
+                                   .split(",");
+                if (sysInfo.length == sysInfoSplitCount) {
+                    try {
+                        vmemSize = Long.parseLong(sysInfo[0]);
+                        memSize = Long.parseLong(sysInfo[1]);
+                        vmemAvailable = Long.parseLong(sysInfo[2]);
+                        memAvailable = Long.parseLong(sysInfo[3]);
+                        numProcessors = Integer.parseInt(sysInfo[4]);
+                        cpuFrequencyKhz = Long.parseLong(sysInfo[5]);
+                        cumulativeCpuTimeMs = Long.parseLong(sysInfo[6]);
+                        if (lastCumCpuTimeMs != -1) {
+                            cpuUsage = (cumulativeCpuTimeMs - lastCumCpuTimeMs)
+                                       / (refreshInterval * 1.0f);
+                        }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getAvailableVirtualMemorySize() {
-    refreshIfNeeded();
-    return vmemAvailable;
-  }
+                    } catch (NumberFormatException nfe) {
+                        LOG.warn("Error parsing sysInfo." + nfe);
+                    }
+                } else {
+                    LOG.warn("Expected split length of sysInfo to be "
+                             + sysInfoSplitCount + ". Got " + sysInfo.length);
+                }
+            }
+        }
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getAvailablePhysicalMemorySize() {
-    refreshIfNeeded();
-    return memAvailable;
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getVirtualMemorySize() {
+        refreshIfNeeded();
+        return vmemSize;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public int getNumProcessors() {
-    refreshIfNeeded();
-    return numProcessors;
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getPhysicalMemorySize() {
+        refreshIfNeeded();
+        return memSize;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getCpuFrequency() {
-    refreshIfNeeded();
-    return -1;
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getAvailableVirtualMemorySize() {
+        refreshIfNeeded();
+        return vmemAvailable;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getCumulativeCpuTime() {
-    refreshIfNeeded();
-    return cumulativeCpuTimeMs;
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getAvailablePhysicalMemorySize() {
+        refreshIfNeeded();
+        return memAvailable;
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public float getCpuUsage() {
-    refreshIfNeeded();
-    return cpuUsage;
-  }
+    /** {@inheritDoc} */
+    @Override
+    public int getNumProcessors() {
+        refreshIfNeeded();
+        return numProcessors;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long getCpuFrequency() {
+        refreshIfNeeded();
+        return -1;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long getCumulativeCpuTime() {
+        refreshIfNeeded();
+        return cumulativeCpuTimeMs;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public float getCpuUsage() {
+        refreshIfNeeded();
+        return cpuUsage;
+    }
 }

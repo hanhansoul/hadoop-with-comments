@@ -31,66 +31,66 @@ import static org.junit.Assert.*;
 
 public class TestRawBytesStreaming {
 
-  protected File INPUT_FILE = new File("target/input.txt");
-  protected File OUTPUT_DIR = new File("target/out");
-  protected String input = "roses.are.red\nviolets.are.blue\nbunnies.are.pink\n";
-  protected String map = UtilTest.makeJavaCommand(RawBytesMapApp.class, new String[]{"."});
-  protected String reduce = UtilTest.makeJavaCommand(RawBytesReduceApp.class, new String[0]);
-  protected String outputExpect = "are\t3\nblue\t1\nbunnies\t1\npink\t1\nred\t1\nroses\t1\nviolets\t1\n";
-  
-  public TestRawBytesStreaming() throws IOException {
-    UtilTest utilTest = new UtilTest(getClass().getName());
-    utilTest.checkUserDir();
-    utilTest.redirectIfAntJunit();
-  }
+    protected File INPUT_FILE = new File("target/input.txt");
+    protected File OUTPUT_DIR = new File("target/out");
+    protected String input = "roses.are.red\nviolets.are.blue\nbunnies.are.pink\n";
+    protected String map = UtilTest.makeJavaCommand(RawBytesMapApp.class, new String[] {"."});
+    protected String reduce = UtilTest.makeJavaCommand(RawBytesReduceApp.class, new String[0]);
+    protected String outputExpect = "are\t3\nblue\t1\nbunnies\t1\npink\t1\nred\t1\nroses\t1\nviolets\t1\n";
 
-  protected void createInput() throws IOException {
-    DataOutputStream out = new DataOutputStream(new FileOutputStream(INPUT_FILE.getAbsoluteFile()));
-    out.write(input.getBytes("UTF-8"));
-    out.close();
-  }
-
-  protected String[] genArgs() {
-    return new String[] {
-      "-input", INPUT_FILE.getAbsolutePath(),
-      "-output", OUTPUT_DIR.getAbsolutePath(),
-      "-mapper", map,
-      "-reducer", reduce,
-      "-jobconf", "mapreduce.task.files.preserve.failedtasks=true",
-      "-jobconf", "stream.tmpdir="+System.getProperty("test.build.data","/tmp"),
-      "-jobconf", "stream.map.output=rawbytes",
-      "-jobconf", "stream.reduce.input=rawbytes",
-      "-verbose"
-    };
-  }
-
-  @Test
-  public void testCommandLine() throws Exception {
-    try {
-      try {
-        FileUtil.fullyDelete(OUTPUT_DIR.getAbsoluteFile());
-      } catch (Exception e) {
-      }
-
-      createInput();
-      OUTPUT_DIR.delete();
-
-      // During tests, the default Configuration will use a local mapred
-      // So don't specify -config or -cluster
-      StreamJob job = new StreamJob();
-      job.setConf(new Configuration());
-      job.run(genArgs());
-      File outFile = new File(OUTPUT_DIR, "part-00000").getAbsoluteFile();
-      String output = StreamUtil.slurp(outFile);
-      outFile.delete();
-      System.out.println("   map=" + map);
-      System.out.println("reduce=" + reduce);
-      System.err.println("outEx1=" + outputExpect);
-      System.err.println("  out1=" + output);
-      assertEquals(outputExpect, output);
-    } finally {
-      INPUT_FILE.delete();
-      FileUtil.fullyDelete(OUTPUT_DIR.getAbsoluteFile());
+    public TestRawBytesStreaming() throws IOException {
+        UtilTest utilTest = new UtilTest(getClass().getName());
+        utilTest.checkUserDir();
+        utilTest.redirectIfAntJunit();
     }
-  }
+
+    protected void createInput() throws IOException {
+        DataOutputStream out = new DataOutputStream(new FileOutputStream(INPUT_FILE.getAbsoluteFile()));
+        out.write(input.getBytes("UTF-8"));
+        out.close();
+    }
+
+    protected String[] genArgs() {
+        return new String[] {
+                   "-input", INPUT_FILE.getAbsolutePath(),
+                   "-output", OUTPUT_DIR.getAbsolutePath(),
+                   "-mapper", map,
+                   "-reducer", reduce,
+                   "-jobconf", "mapreduce.task.files.preserve.failedtasks=true",
+                   "-jobconf", "stream.tmpdir="+System.getProperty("test.build.data","/tmp"),
+                   "-jobconf", "stream.map.output=rawbytes",
+                   "-jobconf", "stream.reduce.input=rawbytes",
+                   "-verbose"
+               };
+    }
+
+    @Test
+    public void testCommandLine() throws Exception {
+        try {
+            try {
+                FileUtil.fullyDelete(OUTPUT_DIR.getAbsoluteFile());
+            } catch (Exception e) {
+            }
+
+            createInput();
+            OUTPUT_DIR.delete();
+
+            // During tests, the default Configuration will use a local mapred
+            // So don't specify -config or -cluster
+            StreamJob job = new StreamJob();
+            job.setConf(new Configuration());
+            job.run(genArgs());
+            File outFile = new File(OUTPUT_DIR, "part-00000").getAbsoluteFile();
+            String output = StreamUtil.slurp(outFile);
+            outFile.delete();
+            System.out.println("   map=" + map);
+            System.out.println("reduce=" + reduce);
+            System.err.println("outEx1=" + outputExpect);
+            System.err.println("  out1=" + output);
+            assertEquals(outputExpect, output);
+        } finally {
+            INPUT_FILE.delete();
+            FileUtil.fullyDelete(OUTPUT_DIR.getAbsoluteFile());
+        }
+    }
 }

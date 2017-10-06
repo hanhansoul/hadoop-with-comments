@@ -22,20 +22,20 @@ import org.apache.hadoop.oncrpc.XDR;
 /** Credential used by RPCSEC_GSS */
 public class CredentialsGSS extends Credentials {
 
-  public CredentialsGSS() {
-    super(AuthFlavor.RPCSEC_GSS);
-  }
+    public CredentialsGSS() {
+        super(AuthFlavor.RPCSEC_GSS);
+    }
 
-  @Override
-  public void read(XDR xdr) {
-    // TODO Auto-generated method stub
-    
-  }
+    @Override
+    public void read(XDR xdr) {
+        // TODO Auto-generated method stub
 
-  @Override
-  public void write(XDR xdr) {
-    // TODO Auto-generated method stub
-    
-  }
+    }
+
+    @Override
+    public void write(XDR xdr) {
+        // TODO Auto-generated method stub
+
+    }
 
 }

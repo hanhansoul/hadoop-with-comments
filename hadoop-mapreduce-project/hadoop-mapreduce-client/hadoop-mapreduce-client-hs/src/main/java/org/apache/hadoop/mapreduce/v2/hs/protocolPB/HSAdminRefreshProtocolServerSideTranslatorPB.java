@@ -38,76 +38,76 @@ import com.google.protobuf.ServiceException;
 public class HSAdminRefreshProtocolServerSideTranslatorPB implements
     HSAdminRefreshProtocolPB {
 
-  private final HSAdminRefreshProtocol impl;
+    private final HSAdminRefreshProtocol impl;
 
-  private final static RefreshAdminAclsResponseProto 
+    private final static RefreshAdminAclsResponseProto
     VOID_REFRESH_ADMIN_ACLS_RESPONSE = RefreshAdminAclsResponseProto
-      .newBuilder().build();
+                                       .newBuilder().build();
 
-  private final static RefreshLoadedJobCacheResponseProto 
+    private final static RefreshLoadedJobCacheResponseProto
     VOID_REFRESH_LOADED_JOB_CACHE_RESPONSE = RefreshLoadedJobCacheResponseProto
-      .newBuilder().build();
+            .newBuilder().build();
 
-  private final static RefreshJobRetentionSettingsResponseProto 
-    VOID_REFRESH_JOB_RETENTION_SETTINGS_RESPONSE = 
-      RefreshJobRetentionSettingsResponseProto.newBuilder().build();
+    private final static RefreshJobRetentionSettingsResponseProto
+    VOID_REFRESH_JOB_RETENTION_SETTINGS_RESPONSE =
+        RefreshJobRetentionSettingsResponseProto.newBuilder().build();
 
-  private final static RefreshLogRetentionSettingsResponseProto 
-    VOID_REFRESH_LOG_RETENTION_SETTINGS_RESPONSE = 
-      RefreshLogRetentionSettingsResponseProto.newBuilder().build();
+    private final static RefreshLogRetentionSettingsResponseProto
+    VOID_REFRESH_LOG_RETENTION_SETTINGS_RESPONSE =
+        RefreshLogRetentionSettingsResponseProto.newBuilder().build();
 
-  public HSAdminRefreshProtocolServerSideTranslatorPB(
-      HSAdminRefreshProtocol impl) {
-    this.impl = impl;
-  }
-
-  @Override
-  public RefreshAdminAclsResponseProto refreshAdminAcls(
-      RpcController controller, RefreshAdminAclsRequestProto request)
-      throws ServiceException {
-    try {
-      impl.refreshAdminAcls();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    public HSAdminRefreshProtocolServerSideTranslatorPB(
+        HSAdminRefreshProtocol impl) {
+        this.impl = impl;
     }
-    return VOID_REFRESH_ADMIN_ACLS_RESPONSE;
-  }
 
-  @Override
-  public RefreshLoadedJobCacheResponseProto refreshLoadedJobCache(
-      RpcController controller, RefreshLoadedJobCacheRequestProto request)
-      throws ServiceException {
-    try {
-      impl.refreshLoadedJobCache();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshAdminAclsResponseProto refreshAdminAcls(
+        RpcController controller, RefreshAdminAclsRequestProto request)
+    throws ServiceException {
+        try {
+            impl.refreshAdminAcls();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+        return VOID_REFRESH_ADMIN_ACLS_RESPONSE;
     }
-    return VOID_REFRESH_LOADED_JOB_CACHE_RESPONSE;
-  }
 
-  @Override
-  public RefreshJobRetentionSettingsResponseProto refreshJobRetentionSettings(
-      RpcController controller, 
-      RefreshJobRetentionSettingsRequestProto request)
-      throws ServiceException {
-    try {
-      impl.refreshJobRetentionSettings();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshLoadedJobCacheResponseProto refreshLoadedJobCache(
+        RpcController controller, RefreshLoadedJobCacheRequestProto request)
+    throws ServiceException {
+        try {
+            impl.refreshLoadedJobCache();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+        return VOID_REFRESH_LOADED_JOB_CACHE_RESPONSE;
     }
-    return VOID_REFRESH_JOB_RETENTION_SETTINGS_RESPONSE;
-  }
 
-  @Override
-  public RefreshLogRetentionSettingsResponseProto refreshLogRetentionSettings(
-      RpcController controller, 
-      RefreshLogRetentionSettingsRequestProto request)
-      throws ServiceException {
-    try {
-      impl.refreshLogRetentionSettings();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshJobRetentionSettingsResponseProto refreshJobRetentionSettings(
+        RpcController controller,
+        RefreshJobRetentionSettingsRequestProto request)
+    throws ServiceException {
+        try {
+            impl.refreshJobRetentionSettings();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+        return VOID_REFRESH_JOB_RETENTION_SETTINGS_RESPONSE;
     }
-    return VOID_REFRESH_LOG_RETENTION_SETTINGS_RESPONSE;
-  }
+
+    @Override
+    public RefreshLogRetentionSettingsResponseProto refreshLogRetentionSettings(
+        RpcController controller,
+        RefreshLogRetentionSettingsRequestProto request)
+    throws ServiceException {
+        try {
+            impl.refreshLogRetentionSettings();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+        return VOID_REFRESH_LOG_RETENTION_SETTINGS_RESPONSE;
+    }
 }

@@ -30,43 +30,43 @@ import org.apache.hadoop.mapreduce.v2.app.job.event.TaskAttemptStatusUpdateEvent
  *  that nothing needs to be computed.  It's not currently used.
  */
 public class NullTaskRuntimesEngine implements TaskRuntimeEstimator {
-  @Override
-  public void enrollAttempt(TaskAttemptStatus status, long timestamp) {
-    // no code
-  }
+    @Override
+    public void enrollAttempt(TaskAttemptStatus status, long timestamp) {
+        // no code
+    }
 
-  @Override
-  public long attemptEnrolledTime(TaskAttemptId attemptID) {
-    return Long.MAX_VALUE;
-  }
+    @Override
+    public long attemptEnrolledTime(TaskAttemptId attemptID) {
+        return Long.MAX_VALUE;
+    }
 
-  @Override
-  public void updateAttempt(TaskAttemptStatus status, long timestamp) {
-    // no code
-  }
+    @Override
+    public void updateAttempt(TaskAttemptStatus status, long timestamp) {
+        // no code
+    }
 
-  @Override
-  public void contextualize(Configuration conf, AppContext context) {
-    // no code
-  }
+    @Override
+    public void contextualize(Configuration conf, AppContext context) {
+        // no code
+    }
 
-  @Override
-  public long thresholdRuntime(TaskId id) {
-    return Long.MAX_VALUE;
-  }
+    @Override
+    public long thresholdRuntime(TaskId id) {
+        return Long.MAX_VALUE;
+    }
 
-  @Override
-  public long estimatedRuntime(TaskAttemptId id) {
-    return -1L;
-  }
-  @Override
-  public long estimatedNewAttemptRuntime(TaskId id) {
-    return -1L;
-  }
+    @Override
+    public long estimatedRuntime(TaskAttemptId id) {
+        return -1L;
+    }
+    @Override
+    public long estimatedNewAttemptRuntime(TaskId id) {
+        return -1L;
+    }
 
-  @Override
-  public long runtimeEstimateVariance(TaskAttemptId id) {
-    return -1L;
-  }
+    @Override
+    public long runtimeEstimateVariance(TaskAttemptId id) {
+        return -1L;
+    }
 
 }

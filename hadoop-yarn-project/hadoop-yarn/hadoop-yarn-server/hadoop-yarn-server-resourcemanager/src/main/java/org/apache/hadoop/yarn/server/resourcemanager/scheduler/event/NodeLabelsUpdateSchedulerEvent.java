@@ -24,14 +24,14 @@ import java.util.Set;
 import org.apache.hadoop.yarn.api.records.NodeId;
 
 public class NodeLabelsUpdateSchedulerEvent extends SchedulerEvent {
-  private Map<NodeId, Set<String>> nodeToLabels;
+    private Map<NodeId, Set<String>> nodeToLabels;
 
-  public NodeLabelsUpdateSchedulerEvent(Map<NodeId, Set<String>> nodeToLabels) {
-    super(SchedulerEventType.NODE_LABELS_UPDATE);
-    this.nodeToLabels = nodeToLabels;
-  }
-  
-  public Map<NodeId, Set<String>> getUpdatedNodeToLabels() {
-    return nodeToLabels;
-  }
+    public NodeLabelsUpdateSchedulerEvent(Map<NodeId, Set<String>> nodeToLabels) {
+        super(SchedulerEventType.NODE_LABELS_UPDATE);
+        this.nodeToLabels = nodeToLabels;
+    }
+
+    public Map<NodeId, Set<String>> getUpdatedNodeToLabels() {
+        return nodeToLabels;
+    }
 }

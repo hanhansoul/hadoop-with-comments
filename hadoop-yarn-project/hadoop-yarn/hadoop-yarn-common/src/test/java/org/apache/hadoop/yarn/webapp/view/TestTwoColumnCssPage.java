@@ -28,42 +28,42 @@ import org.junit.Test;
 
 public class TestTwoColumnCssPage {
 
-  public static class TestController extends Controller {
-    @Override
-    public void index() {
-      set("title", "Testing a Two Column Layout");
-      set("ui.accordion.id", "nav");
-      render(TwoColumnCssLayout.class);
+    public static class TestController extends Controller {
+        @Override
+        public void index() {
+            set("title", "Testing a Two Column Layout");
+            set("ui.accordion.id", "nav");
+            render(TwoColumnCssLayout.class);
+        }
+
+        public void names() {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 8; ++i) {
+                sb.append(MockApps.newAppName()).append(' ');
+            }
+            setTitle(sb.toString());
+        }
+
+        public void textnames() {
+            names();
+            renderText($("title"));
+        }
     }
 
-    public void names() {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < 8; ++i) {
-        sb.append(MockApps.newAppName()).append(' ');
-      }
-      setTitle(sb.toString());
+    public static class TestView extends HtmlPage {
+        @Override
+        public void render(Page.HTML<_> html) {
+            html.
+            title($("title")).
+            h1($("title"))._();
+        }
     }
 
-    public void textnames() {
-      names();
-      renderText($("title"));
+    @Test public void shouldNotThrow() {
+        WebAppTests.testPage(TwoColumnCssLayout.class);
     }
-  }
 
-  public static class TestView extends HtmlPage {
-    @Override
-    public void render(Page.HTML<_> html) {
-      html.
-        title($("title")).
-        h1($("title"))._();
+    public static void main(String[] args) {
+        WebApps.$for("test").at(8888).inDevMode().start().joinThread();
     }
-  }
-
-  @Test public void shouldNotThrow() {
-    WebAppTests.testPage(TwoColumnCssLayout.class);
-  }
-
-  public static void main(String[] args) {
-    WebApps.$for("test").at(8888).inDevMode().start().joinThread();
-  }
 }

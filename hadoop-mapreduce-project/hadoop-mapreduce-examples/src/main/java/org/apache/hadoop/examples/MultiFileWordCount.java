@@ -47,215 +47,215 @@ import org.apache.hadoop.util.ToolRunner;
 
 
 /**
- * MultiFileWordCount is an example to demonstrate the usage of 
+ * MultiFileWordCount is an example to demonstrate the usage of
  * MultiFileInputFormat. This examples counts the occurrences of
  * words in the text files under the given input directory.
  */
 public class MultiFileWordCount extends Configured implements Tool {
 
-  /**
-   * This record keeps &lt;filename,offset&gt; pairs.
-   */
-  public static class WordOffset implements WritableComparable {
+    /**
+     * This record keeps &lt;filename,offset&gt; pairs.
+     */
+    public static class WordOffset implements WritableComparable {
 
-    private long offset;
-    private String fileName;
+        private long offset;
+        private String fileName;
 
-    public void readFields(DataInput in) throws IOException {
-      this.offset = in.readLong();
-      this.fileName = Text.readString(in);
+        public void readFields(DataInput in) throws IOException {
+            this.offset = in.readLong();
+            this.fileName = Text.readString(in);
+        }
+
+        public void write(DataOutput out) throws IOException {
+            out.writeLong(offset);
+            Text.writeString(out, fileName);
+        }
+
+        public int compareTo(Object o) {
+            WordOffset that = (WordOffset)o;
+
+            int f = this.fileName.compareTo(that.fileName);
+            if(f == 0) {
+                return (int)Math.signum((double)(this.offset - that.offset));
+            }
+            return f;
+        }
+        @Override
+        public boolean equals(Object obj) {
+            if(obj instanceof WordOffset)
+                return this.compareTo(obj) == 0;
+            return false;
+        }
+        @Override
+        public int hashCode() {
+            assert false : "hashCode not designed";
+            return 42; //an arbitrary constant
+        }
     }
 
-    public void write(DataOutput out) throws IOException {
-      out.writeLong(offset);
-      Text.writeString(out, fileName);
+
+    /**
+     * To use {@link CombineFileInputFormat}, one should extend it, to return a
+     * (custom) {@link RecordReader}. CombineFileInputFormat uses
+     * {@link CombineFileSplit}s.
+     */
+    public static class MyInputFormat
+        extends CombineFileInputFormat<WordOffset, Text>  {
+
+        public RecordReader<WordOffset,Text> createRecordReader(InputSplit split,
+                TaskAttemptContext context) throws IOException {
+            return new CombineFileRecordReader<WordOffset, Text>(
+                       (CombineFileSplit)split, context, CombineFileLineRecordReader.class);
+        }
     }
 
-    public int compareTo(Object o) {
-      WordOffset that = (WordOffset)o;
+    /**
+     * RecordReader is responsible from extracting records from a chunk
+     * of the CombineFileSplit.
+     */
+    public static class CombineFileLineRecordReader
+        extends RecordReader<WordOffset, Text> {
 
-      int f = this.fileName.compareTo(that.fileName);
-      if(f == 0) {
-        return (int)Math.signum((double)(this.offset - that.offset));
-      }
-      return f;
-    }
-    @Override
-    public boolean equals(Object obj) {
-      if(obj instanceof WordOffset)
-        return this.compareTo(obj) == 0;
-      return false;
-    }
-    @Override
-    public int hashCode() {
-      assert false : "hashCode not designed";
-      return 42; //an arbitrary constant
-    }
-  }
+        private long startOffset; //offset of the chunk;
+        private long end; //end of the chunk;
+        private long pos; // current pos
+        private FileSystem fs;
+        private Path path;
+        private WordOffset key;
+        private Text value;
 
+        private FSDataInputStream fileIn;
+        private LineReader reader;
 
-  /**
-   * To use {@link CombineFileInputFormat}, one should extend it, to return a 
-   * (custom) {@link RecordReader}. CombineFileInputFormat uses 
-   * {@link CombineFileSplit}s. 
-   */
-  public static class MyInputFormat 
-    extends CombineFileInputFormat<WordOffset, Text>  {
+        public CombineFileLineRecordReader(CombineFileSplit split,
+                                           TaskAttemptContext context, Integer index) throws IOException {
 
-    public RecordReader<WordOffset,Text> createRecordReader(InputSplit split,
-        TaskAttemptContext context) throws IOException {
-      return new CombineFileRecordReader<WordOffset, Text>(
-        (CombineFileSplit)split, context, CombineFileLineRecordReader.class);
-    }
-  }
+            this.path = split.getPath(index);
+            fs = this.path.getFileSystem(context.getConfiguration());
+            this.startOffset = split.getOffset(index);
+            this.end = startOffset + split.getLength(index);
+            boolean skipFirstLine = false;
 
-  /**
-   * RecordReader is responsible from extracting records from a chunk
-   * of the CombineFileSplit. 
-   */
-  public static class CombineFileLineRecordReader 
-    extends RecordReader<WordOffset, Text> {
+            //open the file
+            fileIn = fs.open(path);
+            if (startOffset != 0) {
+                skipFirstLine = true;
+                --startOffset;
+                fileIn.seek(startOffset);
+            }
+            reader = new LineReader(fileIn);
+            if (skipFirstLine) {  // skip first line and re-establish "startOffset".
+                startOffset += reader.readLine(new Text(), 0,
+                                               (int)Math.min((long)Integer.MAX_VALUE, end - startOffset));
+            }
+            this.pos = startOffset;
+        }
 
-    private long startOffset; //offset of the chunk;
-    private long end; //end of the chunk;
-    private long pos; // current pos 
-    private FileSystem fs;
-    private Path path;
-    private WordOffset key;
-    private Text value;
-    
-    private FSDataInputStream fileIn;
-    private LineReader reader;
-    
-    public CombineFileLineRecordReader(CombineFileSplit split,
-        TaskAttemptContext context, Integer index) throws IOException {
-      
-      this.path = split.getPath(index);
-      fs = this.path.getFileSystem(context.getConfiguration());
-      this.startOffset = split.getOffset(index);
-      this.end = startOffset + split.getLength(index);
-      boolean skipFirstLine = false;
-      
-      //open the file
-      fileIn = fs.open(path);
-      if (startOffset != 0) {
-        skipFirstLine = true;
-        --startOffset;
-        fileIn.seek(startOffset);
-      }
-      reader = new LineReader(fileIn);
-      if (skipFirstLine) {  // skip first line and re-establish "startOffset".
-        startOffset += reader.readLine(new Text(), 0,
-                    (int)Math.min((long)Integer.MAX_VALUE, end - startOffset));
-      }
-      this.pos = startOffset;
-    }
-
-    public void initialize(InputSplit split, TaskAttemptContext context)
+        public void initialize(InputSplit split, TaskAttemptContext context)
         throws IOException, InterruptedException {
-    }
+        }
 
-    public void close() throws IOException { }
+        public void close() throws IOException { }
 
-    public float getProgress() throws IOException {
-      if (startOffset == end) {
-        return 0.0f;
-      } else {
-        return Math.min(1.0f, (pos - startOffset) / (float)(end - startOffset));
-      }
-    }
+        public float getProgress() throws IOException {
+            if (startOffset == end) {
+                return 0.0f;
+            } else {
+                return Math.min(1.0f, (pos - startOffset) / (float)(end - startOffset));
+            }
+        }
 
-    public boolean nextKeyValue() throws IOException {
-      if (key == null) {
-        key = new WordOffset();
-        key.fileName = path.getName();
-      }
-      key.offset = pos;
-      if (value == null) {
-        value = new Text();
-      }
-      int newSize = 0;
-      if (pos < end) {
-        newSize = reader.readLine(value);
-        pos += newSize;
-      }
-      if (newSize == 0) {
-        key = null;
-        value = null;
-        return false;
-      } else {
-        return true;
-      }
-    }
+        public boolean nextKeyValue() throws IOException {
+            if (key == null) {
+                key = new WordOffset();
+                key.fileName = path.getName();
+            }
+            key.offset = pos;
+            if (value == null) {
+                value = new Text();
+            }
+            int newSize = 0;
+            if (pos < end) {
+                newSize = reader.readLine(value);
+                pos += newSize;
+            }
+            if (newSize == 0) {
+                key = null;
+                value = null;
+                return false;
+            } else {
+                return true;
+            }
+        }
 
-    public WordOffset getCurrentKey() 
+        public WordOffset getCurrentKey()
         throws IOException, InterruptedException {
-      return key;
+            return key;
+        }
+
+        public Text getCurrentValue() throws IOException, InterruptedException {
+            return value;
+        }
     }
 
-    public Text getCurrentValue() throws IOException, InterruptedException {
-      return value;
-    }
-  }
+    /**
+     * This Mapper is similar to the one in {@link WordCount.MapClass}.
+     */
+    public static class MapClass extends
+        Mapper<WordOffset, Text, Text, IntWritable> {
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
 
-  /**
-   * This Mapper is similar to the one in {@link WordCount.MapClass}.
-   */
-  public static class MapClass extends 
-      Mapper<WordOffset, Text, Text, IntWritable> {
-    private final static IntWritable one = new IntWritable(1);
-    private Text word = new Text();
-    
-    public void map(WordOffset key, Text value, Context context)
+        public void map(WordOffset key, Text value, Context context)
         throws IOException, InterruptedException {
-      
-      String line = value.toString();
-      StringTokenizer itr = new StringTokenizer(line);
-      while (itr.hasMoreTokens()) {
-        word.set(itr.nextToken());
-        context.write(word, one);
-      }
-    }
-  }
-  
-  private void printUsage() {
-    System.out.println("Usage : multifilewc <input_dir> <output>" );
-  }
 
-  public int run(String[] args) throws Exception {
-
-    if(args.length < 2) {
-      printUsage();
-      return 2;
+            String line = value.toString();
+            StringTokenizer itr = new StringTokenizer(line);
+            while (itr.hasMoreTokens()) {
+                word.set(itr.nextToken());
+                context.write(word, one);
+            }
+        }
     }
 
-    Job job = new Job(getConf());
-    job.setJobName("MultiFileWordCount");
-    job.setJarByClass(MultiFileWordCount.class);
+    private void printUsage() {
+        System.out.println("Usage : multifilewc <input_dir> <output>" );
+    }
 
-    //set the InputFormat of the job to our InputFormat
-    job.setInputFormatClass(MyInputFormat.class);
-    
-    // the keys are words (strings)
-    job.setOutputKeyClass(Text.class);
-    // the values are counts (ints)
-    job.setOutputValueClass(IntWritable.class);
+    public int run(String[] args) throws Exception {
 
-    //use the defined mapper
-    job.setMapperClass(MapClass.class);
-    //use the WordCount Reducer
-    job.setCombinerClass(IntSumReducer.class);
-    job.setReducerClass(IntSumReducer.class);
+        if(args.length < 2) {
+            printUsage();
+            return 2;
+        }
 
-    FileInputFormat.addInputPaths(job, args[0]);
-    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        Job job = new Job(getConf());
+        job.setJobName("MultiFileWordCount");
+        job.setJarByClass(MultiFileWordCount.class);
 
-    return job.waitForCompletion(true) ? 0 : 1;
-  }
+        //set the InputFormat of the job to our InputFormat
+        job.setInputFormatClass(MyInputFormat.class);
 
-  public static void main(String[] args) throws Exception {
-    int ret = ToolRunner.run(new MultiFileWordCount(), args);
-    System.exit(ret);
-  }
+        // the keys are words (strings)
+        job.setOutputKeyClass(Text.class);
+        // the values are counts (ints)
+        job.setOutputValueClass(IntWritable.class);
+
+        //use the defined mapper
+        job.setMapperClass(MapClass.class);
+        //use the WordCount Reducer
+        job.setCombinerClass(IntSumReducer.class);
+        job.setReducerClass(IntSumReducer.class);
+
+        FileInputFormat.addInputPaths(job, args[0]);
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        return job.waitForCompletion(true) ? 0 : 1;
+    }
+
+    public static void main(String[] args) throws Exception {
+        int ret = ToolRunner.run(new MultiFileWordCount(), args);
+        System.exit(ret);
+    }
 
 }

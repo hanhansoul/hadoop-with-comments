@@ -63,154 +63,154 @@ import org.junit.rules.Timeout;
 
 public class TestSecureNNWithQJM {
 
-  private static final Path TEST_PATH = new Path("/test-dir");
-  private static final Path TEST_PATH_2 = new Path("/test-dir-2");
+    private static final Path TEST_PATH = new Path("/test-dir");
+    private static final Path TEST_PATH_2 = new Path("/test-dir-2");
 
-  private static HdfsConfiguration baseConf;
-  private static File baseDir;
-  private static MiniKdc kdc;
+    private static HdfsConfiguration baseConf;
+    private static File baseDir;
+    private static MiniKdc kdc;
 
-  private MiniDFSCluster cluster;
-  private HdfsConfiguration conf;
-  private FileSystem fs;
-  private MiniJournalCluster mjc;
+    private MiniDFSCluster cluster;
+    private HdfsConfiguration conf;
+    private FileSystem fs;
+    private MiniJournalCluster mjc;
 
-  @Rule
-  public Timeout timeout = new Timeout(30000);
+    @Rule
+    public Timeout timeout = new Timeout(30000);
 
-  @BeforeClass
-  public static void init() throws Exception {
-    baseDir = new File(System.getProperty("test.build.dir", "target/test-dir"),
-      TestSecureNNWithQJM.class.getSimpleName());
-    FileUtil.fullyDelete(baseDir);
-    assertTrue(baseDir.mkdirs());
+    @BeforeClass
+    public static void init() throws Exception {
+        baseDir = new File(System.getProperty("test.build.dir", "target/test-dir"),
+                           TestSecureNNWithQJM.class.getSimpleName());
+        FileUtil.fullyDelete(baseDir);
+        assertTrue(baseDir.mkdirs());
 
-    Properties kdcConf = MiniKdc.createConf();
-    kdc = new MiniKdc(kdcConf, baseDir);
-    kdc.start();
+        Properties kdcConf = MiniKdc.createConf();
+        kdc = new MiniKdc(kdcConf, baseDir);
+        kdc.start();
 
-    baseConf = new HdfsConfiguration();
-    SecurityUtil.setAuthenticationMethod(AuthenticationMethod.KERBEROS,
-      baseConf);
-    UserGroupInformation.setConfiguration(baseConf);
-    assertTrue("Expected configuration to enable security",
-      UserGroupInformation.isSecurityEnabled());
+        baseConf = new HdfsConfiguration();
+        SecurityUtil.setAuthenticationMethod(AuthenticationMethod.KERBEROS,
+                                             baseConf);
+        UserGroupInformation.setConfiguration(baseConf);
+        assertTrue("Expected configuration to enable security",
+                   UserGroupInformation.isSecurityEnabled());
 
-    String userName = UserGroupInformation.getLoginUser().getShortUserName();
-    File keytabFile = new File(baseDir, userName + ".keytab");
-    String keytab = keytabFile.getAbsolutePath();
-    // Windows will not reverse name lookup "127.0.0.1" to "localhost".
-    String krbInstance = Path.WINDOWS ? "127.0.0.1" : "localhost";
-    kdc.createPrincipal(keytabFile,
-      userName + "/" + krbInstance,
-      "HTTP/" + krbInstance);
-    String hdfsPrincipal = userName + "/" + krbInstance + "@" + kdc.getRealm();
-    String spnegoPrincipal = "HTTP/" + krbInstance + "@" + kdc.getRealm();
+        String userName = UserGroupInformation.getLoginUser().getShortUserName();
+        File keytabFile = new File(baseDir, userName + ".keytab");
+        String keytab = keytabFile.getAbsolutePath();
+        // Windows will not reverse name lookup "127.0.0.1" to "localhost".
+        String krbInstance = Path.WINDOWS ? "127.0.0.1" : "localhost";
+        kdc.createPrincipal(keytabFile,
+                            userName + "/" + krbInstance,
+                            "HTTP/" + krbInstance);
+        String hdfsPrincipal = userName + "/" + krbInstance + "@" + kdc.getRealm();
+        String spnegoPrincipal = "HTTP/" + krbInstance + "@" + kdc.getRealm();
 
-    baseConf.set(DFS_NAMENODE_KERBEROS_PRINCIPAL_KEY, hdfsPrincipal);
-    baseConf.set(DFS_NAMENODE_KEYTAB_FILE_KEY, keytab);
-    baseConf.set(DFS_DATANODE_KERBEROS_PRINCIPAL_KEY, hdfsPrincipal);
-    baseConf.set(DFS_DATANODE_KEYTAB_FILE_KEY, keytab);
-    baseConf.set(DFS_WEB_AUTHENTICATION_KERBEROS_PRINCIPAL_KEY, spnegoPrincipal);
-    baseConf.set(DFS_JOURNALNODE_KEYTAB_FILE_KEY, keytab);
-    baseConf.set(DFS_JOURNALNODE_KERBEROS_PRINCIPAL_KEY, hdfsPrincipal);
-    baseConf.set(DFS_JOURNALNODE_KERBEROS_INTERNAL_SPNEGO_PRINCIPAL_KEY,
-      spnegoPrincipal);
-    baseConf.setBoolean(DFS_BLOCK_ACCESS_TOKEN_ENABLE_KEY, true);
-    baseConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "authentication");
-    baseConf.set(DFS_HTTP_POLICY_KEY, HttpConfig.Policy.HTTPS_ONLY.name());
-    baseConf.set(DFS_NAMENODE_HTTPS_ADDRESS_KEY, "localhost:0");
-    baseConf.set(DFS_DATANODE_HTTPS_ADDRESS_KEY, "localhost:0");
-    baseConf.set(DFS_JOURNALNODE_HTTPS_ADDRESS_KEY, "localhost:0");
-    baseConf.setInt(IPC_CLIENT_CONNECT_MAX_RETRIES_ON_SASL_KEY, 10);
+        baseConf.set(DFS_NAMENODE_KERBEROS_PRINCIPAL_KEY, hdfsPrincipal);
+        baseConf.set(DFS_NAMENODE_KEYTAB_FILE_KEY, keytab);
+        baseConf.set(DFS_DATANODE_KERBEROS_PRINCIPAL_KEY, hdfsPrincipal);
+        baseConf.set(DFS_DATANODE_KEYTAB_FILE_KEY, keytab);
+        baseConf.set(DFS_WEB_AUTHENTICATION_KERBEROS_PRINCIPAL_KEY, spnegoPrincipal);
+        baseConf.set(DFS_JOURNALNODE_KEYTAB_FILE_KEY, keytab);
+        baseConf.set(DFS_JOURNALNODE_KERBEROS_PRINCIPAL_KEY, hdfsPrincipal);
+        baseConf.set(DFS_JOURNALNODE_KERBEROS_INTERNAL_SPNEGO_PRINCIPAL_KEY,
+                     spnegoPrincipal);
+        baseConf.setBoolean(DFS_BLOCK_ACCESS_TOKEN_ENABLE_KEY, true);
+        baseConf.set(DFS_DATA_TRANSFER_PROTECTION_KEY, "authentication");
+        baseConf.set(DFS_HTTP_POLICY_KEY, HttpConfig.Policy.HTTPS_ONLY.name());
+        baseConf.set(DFS_NAMENODE_HTTPS_ADDRESS_KEY, "localhost:0");
+        baseConf.set(DFS_DATANODE_HTTPS_ADDRESS_KEY, "localhost:0");
+        baseConf.set(DFS_JOURNALNODE_HTTPS_ADDRESS_KEY, "localhost:0");
+        baseConf.setInt(IPC_CLIENT_CONNECT_MAX_RETRIES_ON_SASL_KEY, 10);
 
-    String keystoresDir = baseDir.getAbsolutePath();
-    String sslConfDir = KeyStoreTestUtil.getClasspathDir(
-      TestSecureNNWithQJM.class);
-    KeyStoreTestUtil.setupSSLConfig(keystoresDir, sslConfDir, baseConf, false);
-  }
-
-  @AfterClass
-  public static void destroy() {
-    if (kdc != null) {
-      kdc.stop();
+        String keystoresDir = baseDir.getAbsolutePath();
+        String sslConfDir = KeyStoreTestUtil.getClasspathDir(
+                                TestSecureNNWithQJM.class);
+        KeyStoreTestUtil.setupSSLConfig(keystoresDir, sslConfDir, baseConf, false);
     }
-    FileUtil.fullyDelete(baseDir);
-  }
 
-  @Before
-  public void setup() throws Exception {
-    conf = new HdfsConfiguration(baseConf);
-  }
-
-  @After
-  public void shutdown() throws IOException {
-    IOUtils.cleanup(null, fs);
-    if (cluster != null) {
-      cluster.shutdown();
+    @AfterClass
+    public static void destroy() {
+        if (kdc != null) {
+            kdc.stop();
+        }
+        FileUtil.fullyDelete(baseDir);
     }
-    if (mjc != null) {
-      mjc.shutdown();
+
+    @Before
+    public void setup() throws Exception {
+        conf = new HdfsConfiguration(baseConf);
     }
-  }
 
-  @Test
-  public void testSecureMode() throws Exception {
-    doNNWithQJMTest();
-  }
+    @After
+    public void shutdown() throws IOException {
+        IOUtils.cleanup(null, fs);
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+        if (mjc != null) {
+            mjc.shutdown();
+        }
+    }
 
-  @Test
-  public void testSecondaryNameNodeHttpAddressNotNeeded() throws Exception {
-    conf.set(DFS_NAMENODE_SECONDARY_HTTP_ADDRESS_KEY, "null");
-    doNNWithQJMTest();
-  }
+    @Test
+    public void testSecureMode() throws Exception {
+        doNNWithQJMTest();
+    }
 
-  /**
-   * Tests use of QJM with the defined cluster.
-   *
-   * @throws IOException if there is an I/O error
-   */
-  private void doNNWithQJMTest() throws IOException {
-    startCluster();
-    assertTrue(fs.mkdirs(TEST_PATH));
+    @Test
+    public void testSecondaryNameNodeHttpAddressNotNeeded() throws Exception {
+        conf.set(DFS_NAMENODE_SECONDARY_HTTP_ADDRESS_KEY, "null");
+        doNNWithQJMTest();
+    }
 
-    // Restart the NN and make sure the edit was persisted
-    // and loaded again
-    restartNameNode();
+    /**
+     * Tests use of QJM with the defined cluster.
+     *
+     * @throws IOException if there is an I/O error
+     */
+    private void doNNWithQJMTest() throws IOException {
+        startCluster();
+        assertTrue(fs.mkdirs(TEST_PATH));
 
-    assertTrue(fs.exists(TEST_PATH));
-    assertTrue(fs.mkdirs(TEST_PATH_2));
+        // Restart the NN and make sure the edit was persisted
+        // and loaded again
+        restartNameNode();
 
-    // Restart the NN again and make sure both edits are persisted.
-    restartNameNode();
-    assertTrue(fs.exists(TEST_PATH));
-    assertTrue(fs.exists(TEST_PATH_2));
-  }
+        assertTrue(fs.exists(TEST_PATH));
+        assertTrue(fs.mkdirs(TEST_PATH_2));
 
-  /**
-   * Restarts the NameNode and obtains a new FileSystem.
-   *
-   * @throws IOException if there is an I/O error
-   */
-  private void restartNameNode() throws IOException {
-    IOUtils.cleanup(null, fs);
-    cluster.restartNameNode();
-    fs = cluster.getFileSystem();
-  }
+        // Restart the NN again and make sure both edits are persisted.
+        restartNameNode();
+        assertTrue(fs.exists(TEST_PATH));
+        assertTrue(fs.exists(TEST_PATH_2));
+    }
 
-  /**
-   * Starts a cluster using QJM with the defined configuration.
-   *
-   * @throws IOException if there is an I/O error
-   */
-  private void startCluster() throws IOException {
-    mjc = new MiniJournalCluster.Builder(conf)
-      .build();
-    conf.set(DFS_NAMENODE_EDITS_DIR_KEY,
-      mjc.getQuorumJournalURI("myjournal").toString());
-    cluster = new MiniDFSCluster.Builder(conf)
-      .build();
-    cluster.waitActive();
-    fs = cluster.getFileSystem();
-  }
+    /**
+     * Restarts the NameNode and obtains a new FileSystem.
+     *
+     * @throws IOException if there is an I/O error
+     */
+    private void restartNameNode() throws IOException {
+        IOUtils.cleanup(null, fs);
+        cluster.restartNameNode();
+        fs = cluster.getFileSystem();
+    }
+
+    /**
+     * Starts a cluster using QJM with the defined configuration.
+     *
+     * @throws IOException if there is an I/O error
+     */
+    private void startCluster() throws IOException {
+        mjc = new MiniJournalCluster.Builder(conf)
+        .build();
+        conf.set(DFS_NAMENODE_EDITS_DIR_KEY,
+                 mjc.getQuorumJournalURI("myjournal").toString());
+        cluster = new MiniDFSCluster.Builder(conf)
+        .build();
+        cluster.waitActive();
+        fs = cluster.getFileSystem();
+    }
 }

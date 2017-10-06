@@ -39,83 +39,83 @@ import com.google.protobuf.ServiceException;
 public class HSAdminRefreshProtocolClientSideTranslatorPB implements
     ProtocolMetaInterface, HSAdminRefreshProtocol, Closeable {
 
-  /** RpcController is not used and hence is set to null */
-  private final static RpcController NULL_CONTROLLER = null;
+    /** RpcController is not used and hence is set to null */
+    private final static RpcController NULL_CONTROLLER = null;
 
-  private final HSAdminRefreshProtocolPB rpcProxy;
+    private final HSAdminRefreshProtocolPB rpcProxy;
 
-  private final static RefreshAdminAclsRequestProto 
+    private final static RefreshAdminAclsRequestProto
     VOID_REFRESH_ADMIN_ACLS_REQUEST = RefreshAdminAclsRequestProto
-      .newBuilder().build();
+                                      .newBuilder().build();
 
-  private final static RefreshLoadedJobCacheRequestProto 
+    private final static RefreshLoadedJobCacheRequestProto
     VOID_REFRESH_LOADED_JOB_CACHE_REQUEST = RefreshLoadedJobCacheRequestProto
-      .newBuilder().build();
-  
-  private final static RefreshJobRetentionSettingsRequestProto 
-    VOID_REFRESH_JOB_RETENTION_SETTINGS_REQUEST = 
-       RefreshJobRetentionSettingsRequestProto.newBuilder().build();
-  
-  private final static RefreshLogRetentionSettingsRequestProto 
-    VOID_REFRESH_LOG_RETENTION_SETTINGS_REQUEST = 
-      RefreshLogRetentionSettingsRequestProto.newBuilder().build();
+                                            .newBuilder().build();
 
-  public HSAdminRefreshProtocolClientSideTranslatorPB(
-      HSAdminRefreshProtocolPB rpcProxy) {
-    this.rpcProxy = rpcProxy;
-  }
+    private final static RefreshJobRetentionSettingsRequestProto
+    VOID_REFRESH_JOB_RETENTION_SETTINGS_REQUEST =
+        RefreshJobRetentionSettingsRequestProto.newBuilder().build();
 
-  @Override
-  public void close() throws IOException {
-    RPC.stopProxy(rpcProxy);
-  }
+    private final static RefreshLogRetentionSettingsRequestProto
+    VOID_REFRESH_LOG_RETENTION_SETTINGS_REQUEST =
+        RefreshLogRetentionSettingsRequestProto.newBuilder().build();
 
-  @Override
-  public void refreshAdminAcls() throws IOException {
-    try {
-      rpcProxy.refreshAdminAcls(NULL_CONTROLLER,
-          VOID_REFRESH_ADMIN_ACLS_REQUEST);
-    } catch (ServiceException se) {
-      throw ProtobufHelper.getRemoteException(se);
+    public HSAdminRefreshProtocolClientSideTranslatorPB(
+        HSAdminRefreshProtocolPB rpcProxy) {
+        this.rpcProxy = rpcProxy;
     }
-  }
 
-
-  @Override
-  public void refreshLoadedJobCache() throws IOException {
-    try {
-      rpcProxy.refreshLoadedJobCache(NULL_CONTROLLER,
-          VOID_REFRESH_LOADED_JOB_CACHE_REQUEST);
-    } catch (ServiceException se) {
-      throw ProtobufHelper.getRemoteException(se);
+    @Override
+    public void close() throws IOException {
+        RPC.stopProxy(rpcProxy);
     }
-  }
-  
-  @Override
-  public void refreshJobRetentionSettings() throws IOException {
-    try {
-      rpcProxy.refreshJobRetentionSettings(NULL_CONTROLLER,
-          VOID_REFRESH_JOB_RETENTION_SETTINGS_REQUEST);
-    } catch (ServiceException se) {
-      throw ProtobufHelper.getRemoteException(se);
-    }
-  }
 
-  @Override
-  public void refreshLogRetentionSettings() throws IOException {
-    try {
-      rpcProxy.refreshLogRetentionSettings(NULL_CONTROLLER,
-          VOID_REFRESH_LOG_RETENTION_SETTINGS_REQUEST);
-    } catch (ServiceException se) {
-      throw ProtobufHelper.getRemoteException(se);
+    @Override
+    public void refreshAdminAcls() throws IOException {
+        try {
+            rpcProxy.refreshAdminAcls(NULL_CONTROLLER,
+                                      VOID_REFRESH_ADMIN_ACLS_REQUEST);
+        } catch (ServiceException se) {
+            throw ProtobufHelper.getRemoteException(se);
+        }
     }
-  }
 
-  @Override
-  public boolean isMethodSupported(String methodName) throws IOException {
-    return RpcClientUtil.isMethodSupported(rpcProxy,
-        HSAdminRefreshProtocolPB.class, RPC.RpcKind.RPC_PROTOCOL_BUFFER,
-        RPC.getProtocolVersion(HSAdminRefreshProtocolPB.class), methodName);
-  }
+
+    @Override
+    public void refreshLoadedJobCache() throws IOException {
+        try {
+            rpcProxy.refreshLoadedJobCache(NULL_CONTROLLER,
+                                           VOID_REFRESH_LOADED_JOB_CACHE_REQUEST);
+        } catch (ServiceException se) {
+            throw ProtobufHelper.getRemoteException(se);
+        }
+    }
+
+    @Override
+    public void refreshJobRetentionSettings() throws IOException {
+        try {
+            rpcProxy.refreshJobRetentionSettings(NULL_CONTROLLER,
+                                                 VOID_REFRESH_JOB_RETENTION_SETTINGS_REQUEST);
+        } catch (ServiceException se) {
+            throw ProtobufHelper.getRemoteException(se);
+        }
+    }
+
+    @Override
+    public void refreshLogRetentionSettings() throws IOException {
+        try {
+            rpcProxy.refreshLogRetentionSettings(NULL_CONTROLLER,
+                                                 VOID_REFRESH_LOG_RETENTION_SETTINGS_REQUEST);
+        } catch (ServiceException se) {
+            throw ProtobufHelper.getRemoteException(se);
+        }
+    }
+
+    @Override
+    public boolean isMethodSupported(String methodName) throws IOException {
+        return RpcClientUtil.isMethodSupported(rpcProxy,
+                                               HSAdminRefreshProtocolPB.class, RPC.RpcKind.RPC_PROTOCOL_BUFFER,
+                                               RPC.getProtocolVersion(HSAdminRefreshProtocolPB.class), methodName);
+    }
 
 }

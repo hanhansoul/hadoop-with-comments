@@ -28,9 +28,9 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class S3FileSystemException extends IOException {
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public S3FileSystemException(String message) {
-    super(message);
-  }
+    public S3FileSystemException(String message) {
+        super(message);
+    }
 }

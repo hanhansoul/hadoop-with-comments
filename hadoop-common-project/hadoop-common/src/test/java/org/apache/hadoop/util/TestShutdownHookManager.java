@@ -22,41 +22,41 @@ import org.junit.Test;
 
 public class TestShutdownHookManager {
 
-  @Test
-  public void shutdownHookManager() {
-    ShutdownHookManager mgr = ShutdownHookManager.get();
-    Assert.assertNotNull(mgr);
-    Assert.assertEquals(0, mgr.getShutdownHooksInOrder().size());
-    Runnable hook1 = new Runnable() {
-      @Override
-      public void run() {
-      }
-    };
-    Runnable hook2 = new Runnable() {
-      @Override
-      public void run() {
-      }
-    };
+    @Test
+    public void shutdownHookManager() {
+        ShutdownHookManager mgr = ShutdownHookManager.get();
+        Assert.assertNotNull(mgr);
+        Assert.assertEquals(0, mgr.getShutdownHooksInOrder().size());
+        Runnable hook1 = new Runnable() {
+            @Override
+            public void run() {
+            }
+        };
+        Runnable hook2 = new Runnable() {
+            @Override
+            public void run() {
+            }
+        };
 
-    mgr.addShutdownHook(hook1, 0);
-    Assert.assertTrue(mgr.hasShutdownHook(hook1));
-    Assert.assertEquals(1, mgr.getShutdownHooksInOrder().size());
-    Assert.assertEquals(hook1, mgr.getShutdownHooksInOrder().get(0));
-    mgr.removeShutdownHook(hook1);
-    Assert.assertFalse(mgr.hasShutdownHook(hook1));
+        mgr.addShutdownHook(hook1, 0);
+        Assert.assertTrue(mgr.hasShutdownHook(hook1));
+        Assert.assertEquals(1, mgr.getShutdownHooksInOrder().size());
+        Assert.assertEquals(hook1, mgr.getShutdownHooksInOrder().get(0));
+        mgr.removeShutdownHook(hook1);
+        Assert.assertFalse(mgr.hasShutdownHook(hook1));
 
-    mgr.addShutdownHook(hook1, 0);
-    Assert.assertTrue(mgr.hasShutdownHook(hook1));
-    Assert.assertEquals(1, mgr.getShutdownHooksInOrder().size());
-    Assert.assertTrue(mgr.hasShutdownHook(hook1));
-    Assert.assertEquals(1, mgr.getShutdownHooksInOrder().size());
+        mgr.addShutdownHook(hook1, 0);
+        Assert.assertTrue(mgr.hasShutdownHook(hook1));
+        Assert.assertEquals(1, mgr.getShutdownHooksInOrder().size());
+        Assert.assertTrue(mgr.hasShutdownHook(hook1));
+        Assert.assertEquals(1, mgr.getShutdownHooksInOrder().size());
 
-    mgr.addShutdownHook(hook2, 1);
-    Assert.assertTrue(mgr.hasShutdownHook(hook1));
-    Assert.assertTrue(mgr.hasShutdownHook(hook2));
-    Assert.assertEquals(2, mgr.getShutdownHooksInOrder().size());
-    Assert.assertEquals(hook2, mgr.getShutdownHooksInOrder().get(0));
-    Assert.assertEquals(hook1, mgr.getShutdownHooksInOrder().get(1));
+        mgr.addShutdownHook(hook2, 1);
+        Assert.assertTrue(mgr.hasShutdownHook(hook1));
+        Assert.assertTrue(mgr.hasShutdownHook(hook2));
+        Assert.assertEquals(2, mgr.getShutdownHooksInOrder().size());
+        Assert.assertEquals(hook2, mgr.getShutdownHooksInOrder().get(0));
+        Assert.assertEquals(hook1, mgr.getShutdownHooksInOrder().get(1));
 
-  }
+    }
 }

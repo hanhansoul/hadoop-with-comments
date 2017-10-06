@@ -22,6 +22,6 @@ import java.io.IOException;
 
 public interface HistoryEventHandler {
 
-  void handleEvent(HistoryEvent event) throws IOException;
+    void handleEvent(HistoryEvent event) throws IOException;
 
 }

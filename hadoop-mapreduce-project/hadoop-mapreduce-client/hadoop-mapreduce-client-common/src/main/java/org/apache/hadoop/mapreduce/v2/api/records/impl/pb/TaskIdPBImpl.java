@@ -28,115 +28,115 @@ import org.apache.hadoop.mapreduce.v2.proto.MRProtos.TaskTypeProto;
 import org.apache.hadoop.mapreduce.v2.util.MRProtoUtils;
 
 public class TaskIdPBImpl extends TaskId {
-  TaskIdProto proto = TaskIdProto.getDefaultInstance();
-  TaskIdProto.Builder builder = null;
-  boolean viaProto = false;
+    TaskIdProto proto = TaskIdProto.getDefaultInstance();
+    TaskIdProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private JobId jobId = null;  
+    private JobId jobId = null;
 
-  public TaskIdPBImpl() {
-    builder = TaskIdProto.newBuilder(proto);
-  }
-
-  public TaskIdPBImpl(TaskIdProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public synchronized TaskIdProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private synchronized void mergeLocalToBuilder() {
-    if (this.jobId != null
-        && !((JobIdPBImpl) this.jobId).getProto().equals(builder.getJobId())) {
-      builder.setJobId(convertToProtoFormat(this.jobId));
+    public TaskIdPBImpl() {
+        builder = TaskIdProto.newBuilder(proto);
     }
-  }
 
-  private synchronized void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private synchronized void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = TaskIdProto.newBuilder(proto);
+    public TaskIdPBImpl(TaskIdProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public synchronized int getId() {
-    TaskIdProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getId());
-  }
-
-  @Override
-  public synchronized void setId(int id) {
-    maybeInitBuilder();
-    builder.setId((id));
-  }
-
-  @Override
-  public synchronized JobId getJobId() {
-    TaskIdProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.jobId != null) {
-      return this.jobId;
+    public synchronized TaskIdProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasJobId()) {
-      return null;
+
+    private synchronized void mergeLocalToBuilder() {
+        if (this.jobId != null
+            && !((JobIdPBImpl) this.jobId).getProto().equals(builder.getJobId())) {
+            builder.setJobId(convertToProtoFormat(this.jobId));
+        }
     }
-    jobId = convertFromProtoFormat(p.getJobId());
-    return jobId;
-  }
 
-  @Override
-  public synchronized void setJobId(JobId jobId) {
-    maybeInitBuilder();
-    if (jobId == null)
-      builder.clearJobId();
-    this.jobId = jobId;
-  }
-
-  @Override
-  public synchronized TaskType getTaskType() {
-    TaskIdProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasTaskType()) {
-      return null;
+    private synchronized void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return convertFromProtoFormat(p.getTaskType());
-  }
 
-  @Override
-  public synchronized void setTaskType(TaskType taskType) {
-    maybeInitBuilder();
-    if (taskType == null) {
-      builder.clearTaskType();
-      return;
+    private synchronized void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = TaskIdProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    builder.setTaskType(convertToProtoFormat(taskType));
-  }
 
-  private JobIdPBImpl convertFromProtoFormat(JobIdProto p) {
-    return new JobIdPBImpl(p);
-  }
+    @Override
+    public synchronized int getId() {
+        TaskIdProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getId());
+    }
 
-  private JobIdProto convertToProtoFormat(JobId t) {
-    return ((JobIdPBImpl)t).getProto();
-  }
+    @Override
+    public synchronized void setId(int id) {
+        maybeInitBuilder();
+        builder.setId((id));
+    }
 
-  private TaskTypeProto convertToProtoFormat(TaskType e) {
-    return MRProtoUtils.convertToProtoFormat(e);
-  }
+    @Override
+    public synchronized JobId getJobId() {
+        TaskIdProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.jobId != null) {
+            return this.jobId;
+        }
+        if (!p.hasJobId()) {
+            return null;
+        }
+        jobId = convertFromProtoFormat(p.getJobId());
+        return jobId;
+    }
 
-  private TaskType convertFromProtoFormat(TaskTypeProto e) {
-    return MRProtoUtils.convertFromProtoFormat(e);
-  }
+    @Override
+    public synchronized void setJobId(JobId jobId) {
+        maybeInitBuilder();
+        if (jobId == null)
+            builder.clearJobId();
+        this.jobId = jobId;
+    }
+
+    @Override
+    public synchronized TaskType getTaskType() {
+        TaskIdProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasTaskType()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getTaskType());
+    }
+
+    @Override
+    public synchronized void setTaskType(TaskType taskType) {
+        maybeInitBuilder();
+        if (taskType == null) {
+            builder.clearTaskType();
+            return;
+        }
+        builder.setTaskType(convertToProtoFormat(taskType));
+    }
+
+    private JobIdPBImpl convertFromProtoFormat(JobIdProto p) {
+        return new JobIdPBImpl(p);
+    }
+
+    private JobIdProto convertToProtoFormat(JobId t) {
+        return ((JobIdPBImpl)t).getProto();
+    }
+
+    private TaskTypeProto convertToProtoFormat(TaskType e) {
+        return MRProtoUtils.convertToProtoFormat(e);
+    }
+
+    private TaskType convertFromProtoFormat(TaskTypeProto e) {
+        return MRProtoUtils.convertFromProtoFormat(e);
+    }
 }

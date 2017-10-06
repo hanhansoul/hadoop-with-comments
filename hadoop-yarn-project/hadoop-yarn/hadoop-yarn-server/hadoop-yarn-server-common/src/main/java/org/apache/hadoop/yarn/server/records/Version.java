@@ -24,7 +24,7 @@ import org.apache.hadoop.yarn.util.Records;
 
 /**
  * The version information for state get stored in YARN components,
- * i.e. RMState, NMState, etc., which include: majorVersion and 
+ * i.e. RMState, NMState, etc., which include: majorVersion and
  * minorVersion.
  * The major version update means incompatible changes happen while
  * minor version update indicates compatible changes.
@@ -33,52 +33,52 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class Version {
 
-  public static Version newInstance(int majorVersion, int minorVersion) {
-    Version version = Records.newRecord(Version.class);
-    version.setMajorVersion(majorVersion);
-    version.setMinorVersion(minorVersion);
-    return version;
-  }
-
-  public abstract int getMajorVersion();
-
-  public abstract void setMajorVersion(int majorVersion);
-
-  public abstract int getMinorVersion();
-
-  public abstract void setMinorVersion(int minorVersion);
-
-  public String toString() {
-    return getMajorVersion() + "." + getMinorVersion();
-  }
-
-  public boolean isCompatibleTo(Version version) {
-    return getMajorVersion() == version.getMajorVersion();
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + getMajorVersion();
-    result = prime * result + getMinorVersion();
-    return result;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Version other = (Version) obj;
-    if (this.getMajorVersion() == other.getMajorVersion()
-        && this.getMinorVersion() == other.getMinorVersion()) {
-      return true;
-    } else {
-      return false;
+    public static Version newInstance(int majorVersion, int minorVersion) {
+        Version version = Records.newRecord(Version.class);
+        version.setMajorVersion(majorVersion);
+        version.setMinorVersion(minorVersion);
+        return version;
     }
-  }
+
+    public abstract int getMajorVersion();
+
+    public abstract void setMajorVersion(int majorVersion);
+
+    public abstract int getMinorVersion();
+
+    public abstract void setMinorVersion(int minorVersion);
+
+    public String toString() {
+        return getMajorVersion() + "." + getMinorVersion();
+    }
+
+    public boolean isCompatibleTo(Version version) {
+        return getMajorVersion() == version.getMajorVersion();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + getMajorVersion();
+        result = prime * result + getMinorVersion();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Version other = (Version) obj;
+        if (this.getMajorVersion() == other.getMajorVersion()
+            && this.getMinorVersion() == other.getMinorVersion()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

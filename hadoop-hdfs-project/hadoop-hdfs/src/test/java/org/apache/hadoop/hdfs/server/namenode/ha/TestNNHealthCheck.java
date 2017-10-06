@@ -33,41 +33,41 @@ import org.mockito.Mockito;
 
 public class TestNNHealthCheck {
 
-  @Test
-  public void testNNHealthCheck() throws IOException {
-    MiniDFSCluster cluster = null;
-    try {
-      Configuration conf = new Configuration();
-      cluster = new MiniDFSCluster.Builder(conf)
-          .numDataNodes(0)
-          .nnTopology(MiniDFSNNTopology.simpleHATopology())
-          .build();
+    @Test
+    public void testNNHealthCheck() throws IOException {
+        MiniDFSCluster cluster = null;
+        try {
+            Configuration conf = new Configuration();
+            cluster = new MiniDFSCluster.Builder(conf)
+            .numDataNodes(0)
+            .nnTopology(MiniDFSNNTopology.simpleHATopology())
+            .build();
 
-      NameNodeResourceChecker mockResourceChecker = Mockito.mock(
-          NameNodeResourceChecker.class);
-      Mockito.doReturn(true).when(mockResourceChecker).hasAvailableDiskSpace();
-      cluster.getNameNode(0).getNamesystem()
-          .setNNResourceChecker(mockResourceChecker);
-      
-      NamenodeProtocols rpc = cluster.getNameNodeRpc(0);
-      
-      // Should not throw error, which indicates healthy.
-      rpc.monitorHealth();
-      
-      Mockito.doReturn(false).when(mockResourceChecker).hasAvailableDiskSpace();
-      
-      try {
-        // Should throw error - NN is unhealthy.
-        rpc.monitorHealth();
-        fail("Should not have succeeded in calling monitorHealth");
-      } catch (HealthCheckFailedException hcfe) {
-        GenericTestUtils.assertExceptionContains(
-            "The NameNode has no resources available", hcfe);
-      }
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+            NameNodeResourceChecker mockResourceChecker = Mockito.mock(
+                        NameNodeResourceChecker.class);
+            Mockito.doReturn(true).when(mockResourceChecker).hasAvailableDiskSpace();
+            cluster.getNameNode(0).getNamesystem()
+            .setNNResourceChecker(mockResourceChecker);
+
+            NamenodeProtocols rpc = cluster.getNameNodeRpc(0);
+
+            // Should not throw error, which indicates healthy.
+            rpc.monitorHealth();
+
+            Mockito.doReturn(false).when(mockResourceChecker).hasAvailableDiskSpace();
+
+            try {
+                // Should throw error - NN is unhealthy.
+                rpc.monitorHealth();
+                fail("Should not have succeeded in calling monitorHealth");
+            } catch (HealthCheckFailedException hcfe) {
+                GenericTestUtils.assertExceptionContains(
+                    "The NameNode has no resources available", hcfe);
+            }
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
     }
-  }
 }

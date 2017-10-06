@@ -24,7 +24,7 @@ package org.apache.hadoop.fs.swift.exceptions;
  */
 public class SwiftUnsupportedFeatureException extends SwiftException {
 
-  public SwiftUnsupportedFeatureException(String message) {
-    super(message);
-  }
+    public SwiftUnsupportedFeatureException(String message) {
+        super(message);
+    }
 }

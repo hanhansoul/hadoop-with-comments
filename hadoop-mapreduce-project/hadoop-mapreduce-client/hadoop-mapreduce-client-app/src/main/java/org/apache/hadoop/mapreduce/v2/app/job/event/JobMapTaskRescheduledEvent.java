@@ -24,15 +24,15 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskId;
 
 public class JobMapTaskRescheduledEvent extends JobEvent {
 
-  private TaskId taskID;
+    private TaskId taskID;
 
-  public JobMapTaskRescheduledEvent(TaskId taskID) {
-    super(taskID.getJobId(), JobEventType.JOB_MAP_TASK_RESCHEDULED);
-    this.taskID = taskID;
-  }
+    public JobMapTaskRescheduledEvent(TaskId taskID) {
+        super(taskID.getJobId(), JobEventType.JOB_MAP_TASK_RESCHEDULED);
+        this.taskID = taskID;
+    }
 
-  public TaskId getTaskID() {
-    return taskID;
-  }
+    public TaskId getTaskID() {
+        return taskID;
+    }
 
 }

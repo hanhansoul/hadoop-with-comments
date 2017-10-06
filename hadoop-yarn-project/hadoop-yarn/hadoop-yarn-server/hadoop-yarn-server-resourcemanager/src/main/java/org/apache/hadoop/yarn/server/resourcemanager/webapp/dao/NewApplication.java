@@ -27,28 +27,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NewApplication {
 
-  @XmlElement(name="application-id")
-  String applicationId;
+    @XmlElement(name="application-id")
+    String applicationId;
 
-  @XmlElement(name="maximum-resource-capability")
-  ResourceInfo maximumResourceCapability;
+    @XmlElement(name="maximum-resource-capability")
+    ResourceInfo maximumResourceCapability;
 
-  public NewApplication() {
-    applicationId = "";
-    maximumResourceCapability = new ResourceInfo();
-  }
+    public NewApplication() {
+        applicationId = "";
+        maximumResourceCapability = new ResourceInfo();
+    }
 
-  public NewApplication(String appId, ResourceInfo maxResources) {
-    applicationId = appId;
-    maximumResourceCapability = maxResources;
-  }
+    public NewApplication(String appId, ResourceInfo maxResources) {
+        applicationId = appId;
+        maximumResourceCapability = maxResources;
+    }
 
-  public String getApplicationId() {
-    return applicationId;
-  }
+    public String getApplicationId() {
+        return applicationId;
+    }
 
-  public ResourceInfo getMaximumResourceCapability() {
-    return maximumResourceCapability;
-  }
+    public ResourceInfo getMaximumResourceCapability() {
+        return maximumResourceCapability;
+    }
 
 }

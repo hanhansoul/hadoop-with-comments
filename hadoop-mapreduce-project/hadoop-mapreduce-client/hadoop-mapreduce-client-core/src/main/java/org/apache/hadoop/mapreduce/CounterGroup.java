@@ -29,5 +29,5 @@ import org.apache.hadoop.mapreduce.counters.CounterGroupBase;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface CounterGroup extends CounterGroupBase<Counter> {
-  // essentially a typedef so user doesn't have to use generic syntax
+    // essentially a typedef so user doesn't have to use generic syntax
 }

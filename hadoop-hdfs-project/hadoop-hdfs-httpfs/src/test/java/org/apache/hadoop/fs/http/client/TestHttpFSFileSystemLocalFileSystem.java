@@ -37,64 +37,64 @@ import java.net.URISyntaxException;
 @RunWith(value = Parameterized.class)
 public class TestHttpFSFileSystemLocalFileSystem extends BaseTestHttpFSWith {
 
-  private static String PATH_PREFIX;
+    private static String PATH_PREFIX;
 
-  static {
-    new TestDirHelper();
-    String prefix =
-      System.getProperty("test.build.dir", "target/test-dir") + "/local";
-    File file = new File(prefix);
-    file.mkdirs();
-    PATH_PREFIX = file.getAbsolutePath();
-  }
-
-  public TestHttpFSFileSystemLocalFileSystem(Operation operation) {
-    super(operation);
-  }
-
-  @Override
-  protected Path getProxiedFSTestDir() {
-    return addPrefix(new Path(TestDirHelper.getTestDir().getAbsolutePath()));
-  }
-
-  @Override
-  protected String getProxiedFSURI() {
-    return "file:///";
-  }
-
-  @Override
-  protected Configuration getProxiedFSConf() {
-    Configuration conf = new Configuration(false);
-    conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, getProxiedFSURI());
-    return conf;
-  }
-
-  protected Path addPrefix(Path path) {
-    return Path.mergePaths(new Path(PATH_PREFIX), path);
-  }
-
-  @Override
-  protected void testSetPermission() throws Exception {
-    if (Path.WINDOWS) {
-      FileSystem fs = FileSystem.get(getProxiedFSConf());
-      Path path = new Path(getProxiedFSTestDir(), "foodir");
-      fs.mkdirs(path);
-
-      fs = getHttpFSFileSystem();
-      FsPermission permission1 = new FsPermission(FsAction.READ_WRITE, FsAction.NONE, FsAction.NONE);
-      fs.setPermission(path, permission1);
-      fs.close();
-
-      fs = FileSystem.get(getProxiedFSConf());
-      FileStatus status1 = fs.getFileStatus(path);
-      fs.close();
-      FsPermission permission2 = status1.getPermission();
-      Assert.assertEquals(permission2, permission1);
-
-      // sticky bit not supported on Windows with local file system, so the
-      // subclass skips that part of the test
-    } else {
-      super.testSetPermission();
+    static {
+        new TestDirHelper();
+        String prefix =
+            System.getProperty("test.build.dir", "target/test-dir") + "/local";
+        File file = new File(prefix);
+        file.mkdirs();
+        PATH_PREFIX = file.getAbsolutePath();
     }
-  }
+
+    public TestHttpFSFileSystemLocalFileSystem(Operation operation) {
+        super(operation);
+    }
+
+    @Override
+    protected Path getProxiedFSTestDir() {
+        return addPrefix(new Path(TestDirHelper.getTestDir().getAbsolutePath()));
+    }
+
+    @Override
+    protected String getProxiedFSURI() {
+        return "file:///";
+    }
+
+    @Override
+    protected Configuration getProxiedFSConf() {
+        Configuration conf = new Configuration(false);
+        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, getProxiedFSURI());
+        return conf;
+    }
+
+    protected Path addPrefix(Path path) {
+        return Path.mergePaths(new Path(PATH_PREFIX), path);
+    }
+
+    @Override
+    protected void testSetPermission() throws Exception {
+        if (Path.WINDOWS) {
+            FileSystem fs = FileSystem.get(getProxiedFSConf());
+            Path path = new Path(getProxiedFSTestDir(), "foodir");
+            fs.mkdirs(path);
+
+            fs = getHttpFSFileSystem();
+            FsPermission permission1 = new FsPermission(FsAction.READ_WRITE, FsAction.NONE, FsAction.NONE);
+            fs.setPermission(path, permission1);
+            fs.close();
+
+            fs = FileSystem.get(getProxiedFSConf());
+            FileStatus status1 = fs.getFileStatus(path);
+            fs.close();
+            FsPermission permission2 = status1.getPermission();
+            Assert.assertEquals(permission2, permission1);
+
+            // sticky bit not supported on Windows with local file system, so the
+            // subclass skips that part of the test
+        } else {
+            super.testSetPermission();
+        }
+    }
 }

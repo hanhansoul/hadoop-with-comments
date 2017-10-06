@@ -40,145 +40,145 @@ import org.apache.hadoop.service.AbstractService;
  */
 public abstract class HistoryServerStateStoreService extends AbstractService {
 
-  public static class HistoryServerState {
-    Map<MRDelegationTokenIdentifier, Long> tokenState =
-        new HashMap<MRDelegationTokenIdentifier, Long>();
-    Set<DelegationKey> tokenMasterKeyState = new HashSet<DelegationKey>();
+    public static class HistoryServerState {
+        Map<MRDelegationTokenIdentifier, Long> tokenState =
+            new HashMap<MRDelegationTokenIdentifier, Long>();
+        Set<DelegationKey> tokenMasterKeyState = new HashSet<DelegationKey>();
 
-    public Map<MRDelegationTokenIdentifier, Long> getTokenState() {
-      return tokenState;
+        public Map<MRDelegationTokenIdentifier, Long> getTokenState() {
+            return tokenState;
+        }
+
+        public Set<DelegationKey> getTokenMasterKeyState() {
+            return tokenMasterKeyState;
+        }
     }
 
-    public Set<DelegationKey> getTokenMasterKeyState() {
-      return tokenMasterKeyState;
+    public HistoryServerStateStoreService() {
+        super(HistoryServerStateStoreService.class.getName());
     }
-  }
 
-  public HistoryServerStateStoreService() {
-    super(HistoryServerStateStoreService.class.getName());
-  }
+    /**
+     * Initialize the state storage
+     *
+     * @param conf the configuration
+     * @throws IOException
+     */
+    @Override
+    public void serviceInit(Configuration conf) throws IOException {
+        initStorage(conf);
+    }
 
-  /**
-   * Initialize the state storage
-   *
-   * @param conf the configuration
-   * @throws IOException
-   */
-  @Override
-  public void serviceInit(Configuration conf) throws IOException {
-    initStorage(conf);
-  }
+    /**
+     * Start the state storage for use
+     *
+     * @throws IOException
+     */
+    @Override
+    public void serviceStart() throws IOException {
+        startStorage();
+    }
 
-  /**
-   * Start the state storage for use
-   *
-   * @throws IOException
-   */
-  @Override
-  public void serviceStart() throws IOException {
-    startStorage();
-  }
+    /**
+     * Shutdown the state storage.
+     *
+     * @throws IOException
+     */
+    @Override
+    public void serviceStop() throws IOException {
+        closeStorage();
+    }
 
-  /**
-   * Shutdown the state storage.
-   * 
-   * @throws IOException
-   */
-  @Override
-  public void serviceStop() throws IOException {
-    closeStorage();
-  }
+    /**
+     * Implementation-specific initialization.
+     *
+     * @param conf the configuration
+     * @throws IOException
+     */
+    protected abstract void initStorage(Configuration conf) throws IOException;
 
-  /**
-   * Implementation-specific initialization.
-   * 
-   * @param conf the configuration
-   * @throws IOException
-   */
-  protected abstract void initStorage(Configuration conf) throws IOException;
+    /**
+     * Implementation-specific startup.
+     *
+     * @throws IOException
+     */
+    protected abstract void startStorage() throws IOException;
 
-  /**
-   * Implementation-specific startup.
-   * 
-   * @throws IOException
-   */
-  protected abstract void startStorage() throws IOException;
+    /**
+     * Implementation-specific shutdown.
+     *
+     * @throws IOException
+     */
+    protected abstract void closeStorage() throws IOException;
 
-  /**
-   * Implementation-specific shutdown.
-   * 
-   * @throws IOException
-   */
-  protected abstract void closeStorage() throws IOException;
+    /**
+     * Load the history server state from the state storage.
+     *
+     * @throws IOException
+     */
+    public abstract HistoryServerState loadState() throws IOException;
 
-  /**
-   * Load the history server state from the state storage.
-   * 
-   * @throws IOException
-   */
-  public abstract HistoryServerState loadState() throws IOException;
+    /**
+     * Blocking method to store a delegation token along with the current token
+     * sequence number to the state storage.
+     *
+     * Implementations must not return from this method until the token has been
+     * committed to the state store.
+     *
+     * @param tokenId the token to store
+     * @param renewDate the token renewal deadline
+     * @throws IOException
+     */
+    public abstract void storeToken(MRDelegationTokenIdentifier tokenId,
+                                    Long renewDate) throws IOException;
 
-  /**
-   * Blocking method to store a delegation token along with the current token
-   * sequence number to the state storage.
-   * 
-   * Implementations must not return from this method until the token has been
-   * committed to the state store.
-   * 
-   * @param tokenId the token to store
-   * @param renewDate the token renewal deadline
-   * @throws IOException
-   */
-  public abstract void storeToken(MRDelegationTokenIdentifier tokenId,
-      Long renewDate) throws IOException;
+    /**
+     * Blocking method to update the expiration of a delegation token
+     * in the state storage.
+     *
+     * Implementations must not return from this method until the expiration
+     * date of the token has been updated in the state store.
+     *
+     * @param tokenId the token to update
+     * @param renewDate the new token renewal deadline
+     * @throws IOException
+     */
+    public abstract void updateToken(MRDelegationTokenIdentifier tokenId,
+                                     Long renewDate) throws IOException;
 
-  /**
-   * Blocking method to update the expiration of a delegation token
-   * in the state storage.
-   * 
-   * Implementations must not return from this method until the expiration
-   * date of the token has been updated in the state store.
-   * 
-   * @param tokenId the token to update
-   * @param renewDate the new token renewal deadline
-   * @throws IOException
-   */
-  public abstract void updateToken(MRDelegationTokenIdentifier tokenId,
-      Long renewDate) throws IOException;
+    /**
+     * Blocking method to remove a delegation token from the state storage.
+     *
+     * Implementations must not return from this method until the token has been
+     * removed from the state store.
+     *
+     * @param tokenId the token to remove
+     * @throws IOException
+     */
+    public abstract void removeToken(MRDelegationTokenIdentifier tokenId)
+    throws IOException;
 
-  /**
-   * Blocking method to remove a delegation token from the state storage.
-   * 
-   * Implementations must not return from this method until the token has been
-   * removed from the state store.
-   * 
-   * @param tokenId the token to remove
-   * @throws IOException
-   */
-  public abstract void removeToken(MRDelegationTokenIdentifier tokenId)
-      throws IOException;
+    /**
+     * Blocking method to store a delegation token master key.
+     *
+     * Implementations must not return from this method until the key has been
+     * committed to the state store.
+     *
+     * @param key the master key to store
+     * @throws IOException
+     */
+    public abstract void storeTokenMasterKey(
+        DelegationKey key) throws IOException;
 
-  /**
-   * Blocking method to store a delegation token master key.
-   * 
-   * Implementations must not return from this method until the key has been
-   * committed to the state store.
-   * 
-   * @param key the master key to store
-   * @throws IOException
-   */
-  public abstract void storeTokenMasterKey(
-      DelegationKey key) throws IOException;
-
-  /**
-   * Blocking method to remove a delegation token master key.
-   * 
-   * Implementations must not return from this method until the key has been
-   * removed from the state store.
-   * 
-   * @param key the master key to remove
-   * @throws IOException
-   */
-  public abstract void removeTokenMasterKey(DelegationKey key)
-      throws IOException;
+    /**
+     * Blocking method to remove a delegation token master key.
+     *
+     * Implementations must not return from this method until the key has been
+     * removed from the state store.
+     *
+     * @param key the master key to remove
+     * @throws IOException
+     */
+    public abstract void removeTokenMasterKey(DelegationKey key)
+    throws IOException;
 }

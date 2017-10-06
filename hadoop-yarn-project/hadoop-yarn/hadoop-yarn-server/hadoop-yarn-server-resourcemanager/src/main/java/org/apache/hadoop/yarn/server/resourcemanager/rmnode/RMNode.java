@@ -31,120 +31,120 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 
 /**
- * Node managers information on available resources 
+ * Node managers information on available resources
  * and other static information.
  *
  */
 public interface RMNode {
 
-  /** negative value means no timeout */
-  public static final int OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT = -1;
-  
-  /**
-   * the node id of of this node.
-   * @return the node id of this node.
-   */
-  public NodeId getNodeID();
-  
-  /**
-   * the hostname of this node
-   * @return hostname of this node
-   */
-  public String getHostName();
-  
-  /**
-   * the command port for this node
-   * @return command port for this node
-   */
-  public int getCommandPort();
-  
-  /**
-   * the http port for this node
-   * @return http port for this node
-   */
-  public int getHttpPort();
+    /** negative value means no timeout */
+    public static final int OVER_COMMIT_TIMEOUT_MILLIS_DEFAULT = -1;
+
+    /**
+     * the node id of of this node.
+     * @return the node id of this node.
+     */
+    public NodeId getNodeID();
+
+    /**
+     * the hostname of this node
+     * @return hostname of this node
+     */
+    public String getHostName();
+
+    /**
+     * the command port for this node
+     * @return command port for this node
+     */
+    public int getCommandPort();
+
+    /**
+     * the http port for this node
+     * @return http port for this node
+     */
+    public int getHttpPort();
 
 
-  /**
-   * the ContainerManager address for this node.
-   * @return the ContainerManager address for this node.
-   */
-  public String getNodeAddress();
-  
-  /**
-   * the http-Address for this node.
-   * @return the http-url address for this node
-   */
-  public String getHttpAddress();
-  
-  /**
-   * the latest health report received from this node.
-   * @return the latest health report received from this node.
-   */
-  public String getHealthReport();
-  
-  /**
-   * the time of the latest health report received from this node.
-   * @return the time of the latest health report received from this node.
-   */
-  public long getLastHealthReportTime();
+    /**
+     * the ContainerManager address for this node.
+     * @return the ContainerManager address for this node.
+     */
+    public String getNodeAddress();
 
-  /**
-   * the node manager version of the node received as part of the
-   * registration with the resource manager
-   */
-  public String getNodeManagerVersion();
+    /**
+     * the http-Address for this node.
+     * @return the http-url address for this node
+     */
+    public String getHttpAddress();
 
-  /**
-   * the total available resource.
-   * @return the total available resource.
-   */
-  public Resource getTotalCapability();
-  
-  /**
-   * The rack name for this node manager.
-   * @return the rack name.
-   */
-  public String getRackName();
-  
-  /**
-   * the {@link Node} information for this node.
-   * @return {@link Node} information for this node.
-   */
-  public Node getNode();
-  
-  public NodeState getState();
+    /**
+     * the latest health report received from this node.
+     * @return the latest health report received from this node.
+     */
+    public String getHealthReport();
 
-  public List<ContainerId> getContainersToCleanUp();
+    /**
+     * the time of the latest health report received from this node.
+     * @return the time of the latest health report received from this node.
+     */
+    public long getLastHealthReportTime();
 
-  public List<ApplicationId> getAppsToCleanup();
+    /**
+     * the node manager version of the node received as part of the
+     * registration with the resource manager
+     */
+    public String getNodeManagerVersion();
 
-  /**
-   * Update a {@link NodeHeartbeatResponse} with the list of containers and
-   * applications to clean up for this node.
-   * @param response the {@link NodeHeartbeatResponse} to update
-   */
-  public void updateNodeHeartbeatResponseForCleanup(NodeHeartbeatResponse response);
+    /**
+     * the total available resource.
+     * @return the total available resource.
+     */
+    public Resource getTotalCapability();
 
-  public NodeHeartbeatResponse getLastNodeHeartBeatResponse();
+    /**
+     * The rack name for this node manager.
+     * @return the rack name.
+     */
+    public String getRackName();
 
-  /**
-   * Reset lastNodeHeartbeatResponse's ID to 0.
-   */
-  void resetLastNodeHeartBeatResponse();
+    /**
+     * the {@link Node} information for this node.
+     * @return {@link Node} information for this node.
+     */
+    public Node getNode();
 
-  /**
-   * Get and clear the list of containerUpdates accumulated across NM
-   * heartbeats.
-   * 
-   * @return containerUpdates accumulated across NM heartbeats.
-   */
-  public List<UpdatedContainerInfo> pullContainerUpdates();
-  
-  /**
-   * Get set of labels in this node
-   * 
-   * @return labels in this node
-   */
-  public Set<String> getNodeLabels();
+    public NodeState getState();
+
+    public List<ContainerId> getContainersToCleanUp();
+
+    public List<ApplicationId> getAppsToCleanup();
+
+    /**
+     * Update a {@link NodeHeartbeatResponse} with the list of containers and
+     * applications to clean up for this node.
+     * @param response the {@link NodeHeartbeatResponse} to update
+     */
+    public void updateNodeHeartbeatResponseForCleanup(NodeHeartbeatResponse response);
+
+    public NodeHeartbeatResponse getLastNodeHeartBeatResponse();
+
+    /**
+     * Reset lastNodeHeartbeatResponse's ID to 0.
+     */
+    void resetLastNodeHeartBeatResponse();
+
+    /**
+     * Get and clear the list of containerUpdates accumulated across NM
+     * heartbeats.
+     *
+     * @return containerUpdates accumulated across NM heartbeats.
+     */
+    public List<UpdatedContainerInfo> pullContainerUpdates();
+
+    /**
+     * Get set of labels in this node
+     *
+     * @return labels in this node
+     */
+    public Set<String> getNodeLabels();
 }

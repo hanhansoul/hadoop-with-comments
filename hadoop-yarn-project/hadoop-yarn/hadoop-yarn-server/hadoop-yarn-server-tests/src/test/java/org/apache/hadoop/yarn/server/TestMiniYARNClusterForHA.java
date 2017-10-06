@@ -31,29 +31,29 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestMiniYARNClusterForHA {
-  MiniYARNCluster cluster;
+    MiniYARNCluster cluster;
 
-  @Before
-  public void setup() throws IOException, InterruptedException {
-    Configuration conf = new YarnConfiguration();
-    conf.setBoolean(YarnConfiguration.AUTO_FAILOVER_ENABLED, false);
-    conf.set(YarnConfiguration.RM_WEBAPP_ADDRESS, "localhost:0");
+    @Before
+    public void setup() throws IOException, InterruptedException {
+        Configuration conf = new YarnConfiguration();
+        conf.setBoolean(YarnConfiguration.AUTO_FAILOVER_ENABLED, false);
+        conf.set(YarnConfiguration.RM_WEBAPP_ADDRESS, "localhost:0");
 
-    cluster = new MiniYARNCluster(TestMiniYARNClusterForHA.class.getName(),
-        2, 1, 1, 1);
-    cluster.init(conf);
-    cluster.start();
+        cluster = new MiniYARNCluster(TestMiniYARNClusterForHA.class.getName(),
+                                      2, 1, 1, 1);
+        cluster.init(conf);
+        cluster.start();
 
-    cluster.getResourceManager(0).getRMContext().getRMAdminService()
+        cluster.getResourceManager(0).getRMContext().getRMAdminService()
         .transitionToActive(new HAServiceProtocol.StateChangeRequestInfo(
-            HAServiceProtocol.RequestSource.REQUEST_BY_USER));
+                                HAServiceProtocol.RequestSource.REQUEST_BY_USER));
 
-    assertFalse("RM never turned active", -1 == cluster.getActiveRMIndex());
-  }
+        assertFalse("RM never turned active", -1 == cluster.getActiveRMIndex());
+    }
 
-  @Test
-  public void testClusterWorks() throws YarnException, InterruptedException {
-    assertTrue("NMs fail to connect to the RM",
-        cluster.waitForNodeManagersToConnect(5000));
-  }
+    @Test
+    public void testClusterWorks() throws YarnException, InterruptedException {
+        assertTrue("NMs fail to connect to the RM",
+                   cluster.waitForNodeManagersToConnect(5000));
+    }
 }

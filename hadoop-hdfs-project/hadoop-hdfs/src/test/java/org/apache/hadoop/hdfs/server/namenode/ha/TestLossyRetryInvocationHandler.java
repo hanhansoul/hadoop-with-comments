@@ -31,27 +31,27 @@ import org.junit.Test;
  * used by the trash emptier thread in NN)
  */
 public class TestLossyRetryInvocationHandler {
-  
-  @Test
-  public void testStartNNWithTrashEmptier() throws Exception {
-    MiniDFSCluster cluster = null;
-    Configuration conf = new HdfsConfiguration();
-    
-    // enable both trash emptier and dropping response
-    conf.setLong("fs.trash.interval", 360);
-    conf.setInt(DFSConfigKeys.DFS_CLIENT_TEST_DROP_NAMENODE_RESPONSE_NUM_KEY, 2);
-    
-    try {
-      cluster = new MiniDFSCluster.Builder(conf)
-          .nnTopology(MiniDFSNNTopology.simpleHATopology()).numDataNodes(0)
-          .build();
-      cluster.waitActive();
-      cluster.transitionToActive(0);
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+
+    @Test
+    public void testStartNNWithTrashEmptier() throws Exception {
+        MiniDFSCluster cluster = null;
+        Configuration conf = new HdfsConfiguration();
+
+        // enable both trash emptier and dropping response
+        conf.setLong("fs.trash.interval", 360);
+        conf.setInt(DFSConfigKeys.DFS_CLIENT_TEST_DROP_NAMENODE_RESPONSE_NUM_KEY, 2);
+
+        try {
+            cluster = new MiniDFSCluster.Builder(conf)
+            .nnTopology(MiniDFSNNTopology.simpleHATopology()).numDataNodes(0)
+            .build();
+            cluster.waitActive();
+            cluster.transitionToActive(0);
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
     }
-  }
-  
+
 }

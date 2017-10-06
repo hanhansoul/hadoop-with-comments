@@ -28,60 +28,60 @@ import org.apache.hadoop.mapreduce.MapReduceTestUtil.Fake_RR;
 import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl;
 
 public class TestWrappedRRClassloader extends TestCase {
-  /**
-   * Tests the class loader set by 
-   * {@link Configuration#setClassLoader(ClassLoader)}
-   * is inherited by any {@link WrappedRecordReader}s created by
-   * {@link CompositeRecordReader}
-   */
-  public void testClassLoader() throws Exception {
-    Configuration conf = new Configuration();
-    Fake_ClassLoader classLoader = new Fake_ClassLoader();
-    conf.setClassLoader(classLoader);
-    assertTrue(conf.getClassLoader() instanceof Fake_ClassLoader);
+    /**
+     * Tests the class loader set by
+     * {@link Configuration#setClassLoader(ClassLoader)}
+     * is inherited by any {@link WrappedRecordReader}s created by
+     * {@link CompositeRecordReader}
+     */
+    public void testClassLoader() throws Exception {
+        Configuration conf = new Configuration();
+        Fake_ClassLoader classLoader = new Fake_ClassLoader();
+        conf.setClassLoader(classLoader);
+        assertTrue(conf.getClassLoader() instanceof Fake_ClassLoader);
 
-    FileSystem fs = FileSystem.get(conf);
-    Path testdir = new Path(System.getProperty("test.build.data", "/tmp"))
+        FileSystem fs = FileSystem.get(conf);
+        Path testdir = new Path(System.getProperty("test.build.data", "/tmp"))
         .makeQualified(fs);
 
-    Path base = new Path(testdir, "/empty");
-    Path[] src = { new Path(base, "i0"), new Path("i1"), new Path("i2") };
-    conf.set(CompositeInputFormat.JOIN_EXPR, 
-      CompositeInputFormat.compose("outer", IF_ClassLoaderChecker.class, src));
+        Path base = new Path(testdir, "/empty");
+        Path[] src = { new Path(base, "i0"), new Path("i1"), new Path("i2") };
+        conf.set(CompositeInputFormat.JOIN_EXPR,
+                 CompositeInputFormat.compose("outer", IF_ClassLoaderChecker.class, src));
 
-    CompositeInputFormat<NullWritable> inputFormat = 
-      new CompositeInputFormat<NullWritable>();
-    // create dummy TaskAttemptID
-    TaskAttemptID tid = new TaskAttemptID("jt", 1, TaskType.MAP, 0, 0);
-    conf.set(MRJobConfig.TASK_ATTEMPT_ID, tid.toString());
-    inputFormat.createRecordReader
-      (inputFormat.getSplits(Job.getInstance(conf)).get(0), 
-       new TaskAttemptContextImpl(conf, tid));
-  }
-
-  public static class Fake_ClassLoader extends ClassLoader {
-  }
-
-  public static class IF_ClassLoaderChecker<K, V> 
-      extends MapReduceTestUtil.Fake_IF<K, V> {
-
-    public IF_ClassLoaderChecker() {
+        CompositeInputFormat<NullWritable> inputFormat =
+            new CompositeInputFormat<NullWritable>();
+        // create dummy TaskAttemptID
+        TaskAttemptID tid = new TaskAttemptID("jt", 1, TaskType.MAP, 0, 0);
+        conf.set(MRJobConfig.TASK_ATTEMPT_ID, tid.toString());
+        inputFormat.createRecordReader
+        (inputFormat.getSplits(Job.getInstance(conf)).get(0),
+         new TaskAttemptContextImpl(conf, tid));
     }
 
-    public RecordReader<K, V> createRecordReader(InputSplit ignored, 
-        TaskAttemptContext context) {
-      return new RR_ClassLoaderChecker<K, V>(context.getConfiguration());
+    public static class Fake_ClassLoader extends ClassLoader {
     }
-  }
 
-  public static class RR_ClassLoaderChecker<K, V> extends Fake_RR<K, V> {
+    public static class IF_ClassLoaderChecker<K, V>
+        extends MapReduceTestUtil.Fake_IF<K, V> {
 
-    @SuppressWarnings("unchecked")
-    public RR_ClassLoaderChecker(Configuration conf) {
-      assertTrue("The class loader has not been inherited from "
-          + CompositeRecordReader.class.getSimpleName(),
-          conf.getClassLoader() instanceof Fake_ClassLoader);
+        public IF_ClassLoaderChecker() {
+        }
 
+        public RecordReader<K, V> createRecordReader(InputSplit ignored,
+                TaskAttemptContext context) {
+            return new RR_ClassLoaderChecker<K, V>(context.getConfiguration());
+        }
     }
-  }
+
+    public static class RR_ClassLoaderChecker<K, V> extends Fake_RR<K, V> {
+
+        @SuppressWarnings("unchecked")
+        public RR_ClassLoaderChecker(Configuration conf) {
+            assertTrue("The class loader has not been inherited from "
+                       + CompositeRecordReader.class.getSimpleName(),
+                       conf.getClassLoader() instanceof Fake_ClassLoader);
+
+        }
+    }
 }

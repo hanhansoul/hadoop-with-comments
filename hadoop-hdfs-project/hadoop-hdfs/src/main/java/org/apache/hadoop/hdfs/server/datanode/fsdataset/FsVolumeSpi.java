@@ -26,37 +26,37 @@ import org.apache.hadoop.hdfs.StorageType;
  * This is an interface for the underlying volume.
  */
 public interface FsVolumeSpi {
-  /** @return the StorageUuid of the volume */
-  public String getStorageID();
+    /** @return the StorageUuid of the volume */
+    public String getStorageID();
 
-  /** @return a list of block pools. */
-  public String[] getBlockPoolList();
+    /** @return a list of block pools. */
+    public String[] getBlockPoolList();
 
-  /** @return the available storage space in bytes. */
-  public long getAvailable() throws IOException;
+    /** @return the available storage space in bytes. */
+    public long getAvailable() throws IOException;
 
-  /** @return the base path to the volume */
-  public String getBasePath();
+    /** @return the base path to the volume */
+    public String getBasePath();
 
-  /** @return the path to the volume */
-  public String getPath(String bpid) throws IOException;
+    /** @return the path to the volume */
+    public String getPath(String bpid) throws IOException;
 
-  /** @return the directory for the finalized blocks in the block pool. */
-  public File getFinalizedDir(String bpid) throws IOException;
-  
-  public StorageType getStorageType();
+    /** @return the directory for the finalized blocks in the block pool. */
+    public File getFinalizedDir(String bpid) throws IOException;
 
-  /**
-   * Reserve disk space for an RBW block so a writer does not run out of
-   * space before the block is full.
-   */
-  public void reserveSpaceForRbw(long bytesToReserve);
+    public StorageType getStorageType();
 
-  /**
-   * Release disk space previously reserved for RBW block.
-   */
-  public void releaseReservedSpace(long bytesToRelease);
+    /**
+     * Reserve disk space for an RBW block so a writer does not run out of
+     * space before the block is full.
+     */
+    public void reserveSpaceForRbw(long bytesToReserve);
 
-  /** Returns true if the volume is NOT backed by persistent storage. */
-  public boolean isTransientStorage();
+    /**
+     * Release disk space previously reserved for RBW block.
+     */
+    public void releaseReservedSpace(long bytesToRelease);
+
+    /** Returns true if the volume is NOT backed by persistent storage. */
+    public boolean isTransientStorage();
 }

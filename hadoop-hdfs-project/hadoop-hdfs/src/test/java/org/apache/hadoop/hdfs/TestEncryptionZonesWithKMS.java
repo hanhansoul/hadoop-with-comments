@@ -33,50 +33,50 @@ import java.util.UUID;
 
 public class TestEncryptionZonesWithKMS extends TestEncryptionZones {
 
-  private MiniKMS miniKMS;
+    private MiniKMS miniKMS;
 
-  @Override
-  protected String getKeyProviderURI() {
-    return KMSClientProvider.SCHEME_NAME + "://" +
-        miniKMS.getKMSUrl().toExternalForm().replace("://", "@");
-  }
+    @Override
+    protected String getKeyProviderURI() {
+        return KMSClientProvider.SCHEME_NAME + "://" +
+               miniKMS.getKMSUrl().toExternalForm().replace("://", "@");
+    }
 
-  @Before
-  public void setup() throws Exception {
-    File kmsDir = new File("target/test-classes/" +
-        UUID.randomUUID().toString());
-    Assert.assertTrue(kmsDir.mkdirs());
-    MiniKMS.Builder miniKMSBuilder = new MiniKMS.Builder();
-    miniKMS = miniKMSBuilder.setKmsConfDir(kmsDir).build();
-    miniKMS.start();
-    super.setup();
-  }
+    @Before
+    public void setup() throws Exception {
+        File kmsDir = new File("target/test-classes/" +
+                               UUID.randomUUID().toString());
+        Assert.assertTrue(kmsDir.mkdirs());
+        MiniKMS.Builder miniKMSBuilder = new MiniKMS.Builder();
+        miniKMS = miniKMSBuilder.setKmsConfDir(kmsDir).build();
+        miniKMS.start();
+        super.setup();
+    }
 
-  @After
-  public void teardown() {
-    super.teardown();
-    miniKMS.stop();
-  }
-  
-  @Override
-  protected void setProvider() {
-  }
+    @After
+    public void teardown() {
+        super.teardown();
+        miniKMS.stop();
+    }
 
-  @Test(timeout = 120000)
-  public void testDelegationToken() throws Exception {
-    final String renewer = "JobTracker";
-    UserGroupInformation.createRemoteUser(renewer);
+    @Override
+    protected void setProvider() {
+    }
 
-    Credentials creds = new Credentials();
-    Token<?> tokens[] = fs.addDelegationTokens(renewer, creds);
-    DistributedFileSystem.LOG.debug("Delegation tokens: " +
-        Arrays.asList(tokens));
-    Assert.assertEquals(2, tokens.length);
-    Assert.assertEquals(2, creds.numberOfTokens());
-    
-    // If the dt exists, will not get again
-    tokens = fs.addDelegationTokens(renewer, creds);
-    Assert.assertEquals(0, tokens.length);
-    Assert.assertEquals(2, creds.numberOfTokens());
-  }
+    @Test(timeout = 120000)
+    public void testDelegationToken() throws Exception {
+        final String renewer = "JobTracker";
+        UserGroupInformation.createRemoteUser(renewer);
+
+        Credentials creds = new Credentials();
+        Token<?> tokens[] = fs.addDelegationTokens(renewer, creds);
+        DistributedFileSystem.LOG.debug("Delegation tokens: " +
+                                        Arrays.asList(tokens));
+        Assert.assertEquals(2, tokens.length);
+        Assert.assertEquals(2, creds.numberOfTokens());
+
+        // If the dt exists, will not get again
+        tokens = fs.addDelegationTokens(renewer, creds);
+        Assert.assertEquals(0, tokens.length);
+        Assert.assertEquals(2, creds.numberOfTokens());
+    }
 }

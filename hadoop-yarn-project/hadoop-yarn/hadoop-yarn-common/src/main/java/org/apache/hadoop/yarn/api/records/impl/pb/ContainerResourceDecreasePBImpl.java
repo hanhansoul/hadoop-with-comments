@@ -27,110 +27,110 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ContainerResourceDecreaseProtoOrB
 import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProto;
 
 public class ContainerResourceDecreasePBImpl extends ContainerResourceDecrease {
-  ContainerResourceDecreaseProto proto = ContainerResourceDecreaseProto
-      .getDefaultInstance();
-  ContainerResourceDecreaseProto.Builder builder = null;
-  boolean viaProto = false;
+    ContainerResourceDecreaseProto proto = ContainerResourceDecreaseProto
+                                           .getDefaultInstance();
+    ContainerResourceDecreaseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ContainerId existingContainerId = null;
-  private Resource targetCapability = null;
+    private ContainerId existingContainerId = null;
+    private Resource targetCapability = null;
 
-  public ContainerResourceDecreasePBImpl() {
-    builder = ContainerResourceDecreaseProto.newBuilder();
-  }
-
-  public ContainerResourceDecreasePBImpl(ContainerResourceDecreaseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public ContainerResourceDecreaseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public ContainerId getContainerId() {
-    ContainerResourceDecreaseProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.existingContainerId != null) {
-      return this.existingContainerId;
+    public ContainerResourceDecreasePBImpl() {
+        builder = ContainerResourceDecreaseProto.newBuilder();
     }
-    if (p.hasContainerId()) {
-      this.existingContainerId = convertFromProtoFormat(p.getContainerId());
+
+    public ContainerResourceDecreasePBImpl(ContainerResourceDecreaseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return this.existingContainerId;
-  }
 
-  @Override
-  public void setContainerId(ContainerId existingContainerId) {
-    maybeInitBuilder();
-    if (existingContainerId == null) {
-      builder.clearContainerId();
+    public ContainerResourceDecreaseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    this.existingContainerId = existingContainerId;
-  }
 
-  @Override
-  public Resource getCapability() {
-    ContainerResourceDecreaseProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.targetCapability != null) {
-      return this.targetCapability;
+    @Override
+    public ContainerId getContainerId() {
+        ContainerResourceDecreaseProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.existingContainerId != null) {
+            return this.existingContainerId;
+        }
+        if (p.hasContainerId()) {
+            this.existingContainerId = convertFromProtoFormat(p.getContainerId());
+        }
+        return this.existingContainerId;
     }
-    if (p.hasCapability()) {
-      this.targetCapability = convertFromProtoFormat(p.getCapability());
+
+    @Override
+    public void setContainerId(ContainerId existingContainerId) {
+        maybeInitBuilder();
+        if (existingContainerId == null) {
+            builder.clearContainerId();
+        }
+        this.existingContainerId = existingContainerId;
     }
-    return this.targetCapability;
-  }
 
-  @Override
-  public void setCapability(Resource targetCapability) {
-    maybeInitBuilder();
-    if (targetCapability == null) {
-      builder.clearCapability();
+    @Override
+    public Resource getCapability() {
+        ContainerResourceDecreaseProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.targetCapability != null) {
+            return this.targetCapability;
+        }
+        if (p.hasCapability()) {
+            this.targetCapability = convertFromProtoFormat(p.getCapability());
+        }
+        return this.targetCapability;
     }
-    this.targetCapability = targetCapability;
-  }
 
-  private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
-    return new ContainerIdPBImpl(p);
-  }
-
-  private ContainerIdProto convertToProtoFormat(ContainerId t) {
-    return ((ContainerIdPBImpl) t).getProto();
-  }
-
-  private Resource convertFromProtoFormat(ResourceProto p) {
-    return new ResourcePBImpl(p);
-  }
-
-  private ResourceProto convertToProtoFormat(Resource t) {
-    return ((ResourcePBImpl) t).getProto();
-  }
-
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+    @Override
+    public void setCapability(Resource targetCapability) {
+        maybeInitBuilder();
+        if (targetCapability == null) {
+            builder.clearCapability();
+        }
+        this.targetCapability = targetCapability;
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ContainerResourceDecreaseProto.newBuilder(proto);
+    private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
+        return new ContainerIdPBImpl(p);
     }
-    viaProto = false;
-  }
 
-  private void mergeLocalToBuilder() {
-    if (this.existingContainerId != null) {
-      builder.setContainerId(convertToProtoFormat(this.existingContainerId));
+    private ContainerIdProto convertToProtoFormat(ContainerId t) {
+        return ((ContainerIdPBImpl) t).getProto();
     }
-    if (this.targetCapability != null) {
-      builder.setCapability(convertToProtoFormat(this.targetCapability));
+
+    private Resource convertFromProtoFormat(ResourceProto p) {
+        return new ResourcePBImpl(p);
     }
-  }
+
+    private ResourceProto convertToProtoFormat(Resource t) {
+        return ((ResourcePBImpl) t).getProto();
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ContainerResourceDecreaseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private void mergeLocalToBuilder() {
+        if (this.existingContainerId != null) {
+            builder.setContainerId(convertToProtoFormat(this.existingContainerId));
+        }
+        if (this.targetCapability != null) {
+            builder.setCapability(convertToProtoFormat(this.targetCapability));
+        }
+    }
 }

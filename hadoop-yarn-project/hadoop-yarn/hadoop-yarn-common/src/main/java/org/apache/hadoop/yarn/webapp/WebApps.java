@@ -72,284 +72,284 @@ import com.google.inject.servlet.GuiceFilter;
  */
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class WebApps {
-  static final Logger LOG = LoggerFactory.getLogger(WebApps.class);
-  public static class Builder<T> {
-    static class ServletStruct {
-      public Class<? extends HttpServlet> clazz;
-      public String name;
-      public String spec;
-    }
-    
-    final String name;
-    final String wsName;
-    final Class<T> api;
-    final T application;
-    String bindAddress = "0.0.0.0";
-    int port = 0;
-    boolean findPort = false;
-    Configuration conf;
-    Policy httpPolicy = null;
-    boolean devMode = false;
-    private String spnegoPrincipalKey;
-    private String spnegoKeytabKey;
-    private final HashSet<ServletStruct> servlets = new HashSet<ServletStruct>();
-    private final HashMap<String, Object> attributes = new HashMap<String, Object>();
-
-    Builder(String name, Class<T> api, T application, String wsName) {
-      this.name = name;
-      this.api = api;
-      this.application = application;
-      this.wsName = wsName;
-    }
-
-    Builder(String name, Class<T> api, T application) {
-      this(name, api, application, null);
-    }
-
-    public Builder<T> at(String bindAddress) {
-      String[] parts = StringUtils.split(bindAddress, ':');
-      if (parts.length == 2) {
-        int port = Integer.parseInt(parts[1]);
-        return at(parts[0], port, port == 0);
-      }
-      return at(bindAddress, 0, true);
-    }
-
-    public Builder<T> at(int port) {
-      return at("0.0.0.0", port, port == 0);
-    }
-
-    public Builder<T> at(String address, int port, boolean findPort) {
-      this.bindAddress = checkNotNull(address, "bind address");
-      this.port = port;
-      this.findPort = findPort;
-      return this;
-    }
-
-    public Builder<T> withAttribute(String key, Object value) {
-      attributes.put(key, value);
-      return this;
-    }
-    
-    public Builder<T> withServlet(String name, String pathSpec, 
-        Class<? extends HttpServlet> servlet) {
-      ServletStruct struct = new ServletStruct();
-      struct.clazz = servlet;
-      struct.name = name;
-      struct.spec = pathSpec;
-      servlets.add(struct);
-      return this;
-    }
-    
-    public Builder<T> with(Configuration conf) {
-      this.conf = conf;
-      return this;
-    }
-
-    public Builder<T> withHttpPolicy(Configuration conf, Policy httpPolicy) {
-      this.conf = conf;
-      this.httpPolicy = httpPolicy;
-      return this;
-    }
-
-    public Builder<T> withHttpSpnegoPrincipalKey(String spnegoPrincipalKey) {
-      this.spnegoPrincipalKey = spnegoPrincipalKey;
-      return this;
-    }
-    
-    public Builder<T> withHttpSpnegoKeytabKey(String spnegoKeytabKey) {
-      this.spnegoKeytabKey = spnegoKeytabKey;
-      return this;
-    }
-
-    public Builder<T> inDevMode() {
-      devMode = true;
-      return this;
-    }
-
-    public WebApp start(WebApp webapp) {
-      if (webapp == null) {
-        webapp = new WebApp() {
-          @Override
-          public void setup() {
-            // Defaults should be fine in usual cases
-          }
-        };
-      }
-      webapp.setName(name);
-      webapp.setWebServices(wsName);
-      String basePath = "/" + name;
-      webapp.setRedirectPath(basePath);
-      List<String> pathList = new ArrayList<String>();
-      if (basePath.equals("/")) { 
-        webapp.addServePathSpec("/*");
-        pathList.add("/*");
-      }  else {
-        webapp.addServePathSpec(basePath);
-        webapp.addServePathSpec(basePath + "/*");
-        pathList.add(basePath + "/*");
-      }
-      if (wsName != null && !wsName.equals(basePath)) {
-        if (wsName.equals("/")) { 
-          webapp.addServePathSpec("/*");
-          pathList.add("/*");
-        } else {
-          webapp.addServePathSpec("/" + wsName);
-          webapp.addServePathSpec("/" + wsName + "/*");
-          pathList.add("/" + wsName + "/*");
+    static final Logger LOG = LoggerFactory.getLogger(WebApps.class);
+    public static class Builder<T> {
+        static class ServletStruct {
+            public Class<? extends HttpServlet> clazz;
+            public String name;
+            public String spec;
         }
-      }
-      if (conf == null) {
-        conf = new Configuration();
-      }
-      try {
-        if (application != null) {
-          webapp.setHostClass(application.getClass());
-        } else {
-          String cls = inferHostClass();
-          LOG.debug("setting webapp host class to {}", cls);
-          webapp.setHostClass(Class.forName(cls));
+
+        final String name;
+        final String wsName;
+        final Class<T> api;
+        final T application;
+        String bindAddress = "0.0.0.0";
+        int port = 0;
+        boolean findPort = false;
+        Configuration conf;
+        Policy httpPolicy = null;
+        boolean devMode = false;
+        private String spnegoPrincipalKey;
+        private String spnegoKeytabKey;
+        private final HashSet<ServletStruct> servlets = new HashSet<ServletStruct>();
+        private final HashMap<String, Object> attributes = new HashMap<String, Object>();
+
+        Builder(String name, Class<T> api, T application, String wsName) {
+            this.name = name;
+            this.api = api;
+            this.application = application;
+            this.wsName = wsName;
         }
-        if (devMode) {
-          if (port > 0) {
-            try {
-              new URL("http://localhost:"+ port +"/__stop").getContent();
-              LOG.info("stopping existing webapp instance");
-              Thread.sleep(100);
-            } catch (ConnectException e) {
-              LOG.info("no existing webapp instance found: {}", e.toString());
-            } catch (Exception e) {
-              // should not be fatal
-              LOG.warn("error stopping existing instance: {}", e.toString());
+
+        Builder(String name, Class<T> api, T application) {
+            this(name, api, application, null);
+        }
+
+        public Builder<T> at(String bindAddress) {
+            String[] parts = StringUtils.split(bindAddress, ':');
+            if (parts.length == 2) {
+                int port = Integer.parseInt(parts[1]);
+                return at(parts[0], port, port == 0);
             }
-          } else {
-            LOG.error("dev mode does NOT work with ephemeral port!");
-            System.exit(1);
-          }
-        }
-        String httpScheme;
-        if (this.httpPolicy == null) {
-          httpScheme = WebAppUtils.getHttpSchemePrefix(conf);
-        } else {
-          httpScheme =
-              (httpPolicy == Policy.HTTPS_ONLY) ? WebAppUtils.HTTPS_PREFIX
-                  : WebAppUtils.HTTP_PREFIX;
-        }
-        HttpServer2.Builder builder = new HttpServer2.Builder()
-            .setName(name)
-            .addEndpoint(
-                URI.create(httpScheme + bindAddress
-                    + ":" + port)).setConf(conf).setFindPort(findPort)
-            .setACL(new AdminACLsManager(conf).getAdminAcl())
-            .setPathSpec(pathList.toArray(new String[0]));
-
-        boolean hasSpnegoConf = spnegoPrincipalKey != null
-            && conf.get(spnegoPrincipalKey) != null && spnegoKeytabKey != null
-            && conf.get(spnegoKeytabKey) != null;
-
-        if (hasSpnegoConf) {
-          builder.setUsernameConfKey(spnegoPrincipalKey)
-              .setKeytabConfKey(spnegoKeytabKey)
-              .setSecurityEnabled(UserGroupInformation.isSecurityEnabled());
+            return at(bindAddress, 0, true);
         }
 
-        if (httpScheme.equals(WebAppUtils.HTTPS_PREFIX)) {
-          WebAppUtils.loadSslConfiguration(builder);
+        public Builder<T> at(int port) {
+            return at("0.0.0.0", port, port == 0);
         }
 
-        HttpServer2 server = builder.build();
+        public Builder<T> at(String address, int port, boolean findPort) {
+            this.bindAddress = checkNotNull(address, "bind address");
+            this.port = port;
+            this.findPort = findPort;
+            return this;
+        }
 
-        for(ServletStruct struct: servlets) {
-          server.addServlet(struct.name, struct.spec, struct.clazz);
+        public Builder<T> withAttribute(String key, Object value) {
+            attributes.put(key, value);
+            return this;
         }
-        for(Map.Entry<String, Object> entry : attributes.entrySet()) {
-          server.setAttribute(entry.getKey(), entry.getValue());
-        }
-        HttpServer2.defineFilter(server.getWebAppContext(), "guice",
-          GuiceFilter.class.getName(), null, new String[] { "/*" });
 
-        webapp.setConf(conf);
-        webapp.setHttpServer(server);
-        server.start();
-        LOG.info("Web app /"+ name +" started at "+ server.getConnectorAddress(0).getPort());
-      } catch (ClassNotFoundException e) {
-        throw new WebAppException("Error starting http server", e);
-      } catch (IOException e) {
-        throw new WebAppException("Error starting http server", e);
-      }
-      Injector injector = Guice.createInjector(webapp, new AbstractModule() {
-        @Override
-        protected void configure() {
-          if (api != null) {
-            bind(api).toInstance(application);
-          }
+        public Builder<T> withServlet(String name, String pathSpec,
+                                      Class<? extends HttpServlet> servlet) {
+            ServletStruct struct = new ServletStruct();
+            struct.clazz = servlet;
+            struct.name = name;
+            struct.spec = pathSpec;
+            servlets.add(struct);
+            return this;
         }
-      });
-      LOG.info("Registered webapp guice modules");
-      // save a guice filter instance for webapp stop (mostly for unit tests)
-      webapp.setGuiceFilter(injector.getInstance(GuiceFilter.class));
-      if (devMode) {
-        injector.getInstance(Dispatcher.class).setDevMode(devMode);
-        LOG.info("in dev mode!");
-      }
-      return webapp;
+
+        public Builder<T> with(Configuration conf) {
+            this.conf = conf;
+            return this;
+        }
+
+        public Builder<T> withHttpPolicy(Configuration conf, Policy httpPolicy) {
+            this.conf = conf;
+            this.httpPolicy = httpPolicy;
+            return this;
+        }
+
+        public Builder<T> withHttpSpnegoPrincipalKey(String spnegoPrincipalKey) {
+            this.spnegoPrincipalKey = spnegoPrincipalKey;
+            return this;
+        }
+
+        public Builder<T> withHttpSpnegoKeytabKey(String spnegoKeytabKey) {
+            this.spnegoKeytabKey = spnegoKeytabKey;
+            return this;
+        }
+
+        public Builder<T> inDevMode() {
+            devMode = true;
+            return this;
+        }
+
+        public WebApp start(WebApp webapp) {
+            if (webapp == null) {
+                webapp = new WebApp() {
+                    @Override
+                    public void setup() {
+                        // Defaults should be fine in usual cases
+                    }
+                };
+            }
+            webapp.setName(name);
+            webapp.setWebServices(wsName);
+            String basePath = "/" + name;
+            webapp.setRedirectPath(basePath);
+            List<String> pathList = new ArrayList<String>();
+            if (basePath.equals("/")) {
+                webapp.addServePathSpec("/*");
+                pathList.add("/*");
+            }  else {
+                webapp.addServePathSpec(basePath);
+                webapp.addServePathSpec(basePath + "/*");
+                pathList.add(basePath + "/*");
+            }
+            if (wsName != null && !wsName.equals(basePath)) {
+                if (wsName.equals("/")) {
+                    webapp.addServePathSpec("/*");
+                    pathList.add("/*");
+                } else {
+                    webapp.addServePathSpec("/" + wsName);
+                    webapp.addServePathSpec("/" + wsName + "/*");
+                    pathList.add("/" + wsName + "/*");
+                }
+            }
+            if (conf == null) {
+                conf = new Configuration();
+            }
+            try {
+                if (application != null) {
+                    webapp.setHostClass(application.getClass());
+                } else {
+                    String cls = inferHostClass();
+                    LOG.debug("setting webapp host class to {}", cls);
+                    webapp.setHostClass(Class.forName(cls));
+                }
+                if (devMode) {
+                    if (port > 0) {
+                        try {
+                            new URL("http://localhost:"+ port +"/__stop").getContent();
+                            LOG.info("stopping existing webapp instance");
+                            Thread.sleep(100);
+                        } catch (ConnectException e) {
+                            LOG.info("no existing webapp instance found: {}", e.toString());
+                        } catch (Exception e) {
+                            // should not be fatal
+                            LOG.warn("error stopping existing instance: {}", e.toString());
+                        }
+                    } else {
+                        LOG.error("dev mode does NOT work with ephemeral port!");
+                        System.exit(1);
+                    }
+                }
+                String httpScheme;
+                if (this.httpPolicy == null) {
+                    httpScheme = WebAppUtils.getHttpSchemePrefix(conf);
+                } else {
+                    httpScheme =
+                        (httpPolicy == Policy.HTTPS_ONLY) ? WebAppUtils.HTTPS_PREFIX
+                        : WebAppUtils.HTTP_PREFIX;
+                }
+                HttpServer2.Builder builder = new HttpServer2.Builder()
+                .setName(name)
+                .addEndpoint(
+                    URI.create(httpScheme + bindAddress
+                               + ":" + port)).setConf(conf).setFindPort(findPort)
+                .setACL(new AdminACLsManager(conf).getAdminAcl())
+                .setPathSpec(pathList.toArray(new String[0]));
+
+                boolean hasSpnegoConf = spnegoPrincipalKey != null
+                                        && conf.get(spnegoPrincipalKey) != null && spnegoKeytabKey != null
+                                        && conf.get(spnegoKeytabKey) != null;
+
+                if (hasSpnegoConf) {
+                    builder.setUsernameConfKey(spnegoPrincipalKey)
+                    .setKeytabConfKey(spnegoKeytabKey)
+                    .setSecurityEnabled(UserGroupInformation.isSecurityEnabled());
+                }
+
+                if (httpScheme.equals(WebAppUtils.HTTPS_PREFIX)) {
+                    WebAppUtils.loadSslConfiguration(builder);
+                }
+
+                HttpServer2 server = builder.build();
+
+                for(ServletStruct struct: servlets) {
+                    server.addServlet(struct.name, struct.spec, struct.clazz);
+                }
+                for(Map.Entry<String, Object> entry : attributes.entrySet()) {
+                    server.setAttribute(entry.getKey(), entry.getValue());
+                }
+                HttpServer2.defineFilter(server.getWebAppContext(), "guice",
+                                         GuiceFilter.class.getName(), null, new String[] { "/*" });
+
+                webapp.setConf(conf);
+                webapp.setHttpServer(server);
+                server.start();
+                LOG.info("Web app /"+ name +" started at "+ server.getConnectorAddress(0).getPort());
+            } catch (ClassNotFoundException e) {
+                throw new WebAppException("Error starting http server", e);
+            } catch (IOException e) {
+                throw new WebAppException("Error starting http server", e);
+            }
+            Injector injector = Guice.createInjector(webapp, new AbstractModule() {
+                @Override
+                protected void configure() {
+                    if (api != null) {
+                        bind(api).toInstance(application);
+                    }
+                }
+            });
+            LOG.info("Registered webapp guice modules");
+            // save a guice filter instance for webapp stop (mostly for unit tests)
+            webapp.setGuiceFilter(injector.getInstance(GuiceFilter.class));
+            if (devMode) {
+                injector.getInstance(Dispatcher.class).setDevMode(devMode);
+                LOG.info("in dev mode!");
+            }
+            return webapp;
+        }
+
+        public WebApp start() {
+            return start(null);
+        }
+
+        private String inferHostClass() {
+            String thisClass = this.getClass().getName();
+            Throwable t = new Throwable();
+            for (StackTraceElement e : t.getStackTrace()) {
+                if (e.getClassName().equals(thisClass)) continue;
+                return e.getClassName();
+            }
+            LOG.warn("could not infer host class from", t);
+            return thisClass;
+        }
     }
 
-    public WebApp start() {
-      return start(null);
+    /**
+     * Create a new webapp builder.
+     * @see WebApps for a complete example
+     * @param <T> application (holding the embedded webapp) type
+     * @param prefix of the webapp
+     * @param api the api class for the application
+     * @param app the application instance
+     * @param wsPrefix the prefix for the webservice api for this app
+     * @return a webapp builder
+     */
+    public static <T> Builder<T> $for(String prefix, Class<T> api, T app, String wsPrefix) {
+        return new Builder<T>(prefix, api, app, wsPrefix);
     }
 
-    private String inferHostClass() {
-      String thisClass = this.getClass().getName();
-      Throwable t = new Throwable();
-      for (StackTraceElement e : t.getStackTrace()) {
-        if (e.getClassName().equals(thisClass)) continue;
-        return e.getClassName();
-      }
-      LOG.warn("could not infer host class from", t);
-      return thisClass;
+    /**
+     * Create a new webapp builder.
+     * @see WebApps for a complete example
+     * @param <T> application (holding the embedded webapp) type
+     * @param prefix of the webapp
+     * @param api the api class for the application
+     * @param app the application instance
+     * @return a webapp builder
+     */
+    public static <T> Builder<T> $for(String prefix, Class<T> api, T app) {
+        return new Builder<T>(prefix, api, app);
     }
-  }
 
-  /**
-   * Create a new webapp builder.
-   * @see WebApps for a complete example
-   * @param <T> application (holding the embedded webapp) type
-   * @param prefix of the webapp
-   * @param api the api class for the application
-   * @param app the application instance
-   * @param wsPrefix the prefix for the webservice api for this app
-   * @return a webapp builder
-   */
-  public static <T> Builder<T> $for(String prefix, Class<T> api, T app, String wsPrefix) {
-    return new Builder<T>(prefix, api, app, wsPrefix);
-  }
+    // Short cut mostly for tests/demos
+    @SuppressWarnings("unchecked")
+    public static <T> Builder<T> $for(String prefix, T app) {
+        return $for(prefix, (Class<T>)app.getClass(), app);
+    }
 
-  /**
-   * Create a new webapp builder.
-   * @see WebApps for a complete example
-   * @param <T> application (holding the embedded webapp) type
-   * @param prefix of the webapp
-   * @param api the api class for the application
-   * @param app the application instance
-   * @return a webapp builder
-   */
-  public static <T> Builder<T> $for(String prefix, Class<T> api, T app) {
-    return new Builder<T>(prefix, api, app);
-  }
+    // Ditto
+    public static <T> Builder<T> $for(T app) {
+        return $for("", app);
+    }
 
-  // Short cut mostly for tests/demos
-  @SuppressWarnings("unchecked")
-  public static <T> Builder<T> $for(String prefix, T app) {
-    return $for(prefix, (Class<T>)app.getClass(), app);
-  }
-
-  // Ditto
-  public static <T> Builder<T> $for(T app) {
-    return $for("", app);
-  }
-
-  public static <T> Builder<T> $for(String prefix) {
-    return $for(prefix, null, null);
-  }
+    public static <T> Builder<T> $for(String prefix) {
+        return $for(prefix, null, null);
+    }
 }

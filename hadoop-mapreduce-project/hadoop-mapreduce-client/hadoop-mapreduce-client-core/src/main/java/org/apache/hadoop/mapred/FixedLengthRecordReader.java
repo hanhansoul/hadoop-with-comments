@@ -35,55 +35,55 @@ import org.apache.hadoop.io.LongWritable;
 public class FixedLengthRecordReader
     implements RecordReader<LongWritable, BytesWritable> {
 
-  private int recordLength;
-  // Make use of the new API implementation to avoid code duplication.
-  private org.apache.hadoop.mapreduce.lib.input.FixedLengthRecordReader reader;
+    private int recordLength;
+    // Make use of the new API implementation to avoid code duplication.
+    private org.apache.hadoop.mapreduce.lib.input.FixedLengthRecordReader reader;
 
-  public FixedLengthRecordReader(Configuration job, FileSplit split,
-                                 int recordLength) throws IOException {
-    this.recordLength = recordLength;
-    reader = new org.apache.hadoop.mapreduce.lib.input.FixedLengthRecordReader(
-        recordLength);
-    reader.initialize(job, split.getStart(), split.getLength(),
-        split.getPath());
-  }
-
-  @Override
-  public LongWritable createKey() {
-    return new LongWritable();
-  }
-  
-  @Override
-  public BytesWritable createValue() {
-    return new BytesWritable(new byte[recordLength]);
-  }
-  
-  @Override
-  public synchronized boolean next(LongWritable key, BytesWritable value)
-      throws IOException {
-    boolean dataRead = reader.nextKeyValue();
-    if (dataRead) {
-      LongWritable newKey = reader.getCurrentKey();
-      BytesWritable newValue = reader.getCurrentValue();
-      key.set(newKey.get());
-      value.set(newValue);
+    public FixedLengthRecordReader(Configuration job, FileSplit split,
+                                   int recordLength) throws IOException {
+        this.recordLength = recordLength;
+        reader = new org.apache.hadoop.mapreduce.lib.input.FixedLengthRecordReader(
+            recordLength);
+        reader.initialize(job, split.getStart(), split.getLength(),
+                          split.getPath());
     }
-    return dataRead;
-  }
 
-  @Override
-  public float getProgress() throws IOException {
-    return reader.getProgress();
-  }
-  
-  @Override
-  public synchronized long getPos() throws IOException {
-    return reader.getPos();
-  }
+    @Override
+    public LongWritable createKey() {
+        return new LongWritable();
+    }
 
-  @Override
-  public void close() throws IOException {
-    reader.close();
-  }    
+    @Override
+    public BytesWritable createValue() {
+        return new BytesWritable(new byte[recordLength]);
+    }
+
+    @Override
+    public synchronized boolean next(LongWritable key, BytesWritable value)
+    throws IOException {
+        boolean dataRead = reader.nextKeyValue();
+        if (dataRead) {
+            LongWritable newKey = reader.getCurrentKey();
+            BytesWritable newValue = reader.getCurrentValue();
+            key.set(newKey.get());
+            value.set(newValue);
+        }
+        return dataRead;
+    }
+
+    @Override
+    public float getProgress() throws IOException {
+        return reader.getProgress();
+    }
+
+    @Override
+    public synchronized long getPos() throws IOException {
+        return reader.getPos();
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
 
 }

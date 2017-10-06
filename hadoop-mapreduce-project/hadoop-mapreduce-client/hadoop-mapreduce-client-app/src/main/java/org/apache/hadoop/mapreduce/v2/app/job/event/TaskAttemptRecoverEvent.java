@@ -24,27 +24,27 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class TaskAttemptRecoverEvent extends TaskAttemptEvent {
 
-  private TaskAttemptInfo taInfo;
-  private OutputCommitter committer;
-  private boolean recoverAttemptOutput;
+    private TaskAttemptInfo taInfo;
+    private OutputCommitter committer;
+    private boolean recoverAttemptOutput;
 
-  public TaskAttemptRecoverEvent(TaskAttemptId id, TaskAttemptInfo taInfo,
-      OutputCommitter committer, boolean recoverOutput) {
-    super(id, TaskAttemptEventType.TA_RECOVER);
-    this.taInfo = taInfo;
-    this.committer = committer;
-    this.recoverAttemptOutput = recoverOutput;
-  }
+    public TaskAttemptRecoverEvent(TaskAttemptId id, TaskAttemptInfo taInfo,
+                                   OutputCommitter committer, boolean recoverOutput) {
+        super(id, TaskAttemptEventType.TA_RECOVER);
+        this.taInfo = taInfo;
+        this.committer = committer;
+        this.recoverAttemptOutput = recoverOutput;
+    }
 
-  public TaskAttemptInfo getTaskAttemptInfo() {
-    return taInfo;
-  }
+    public TaskAttemptInfo getTaskAttemptInfo() {
+        return taInfo;
+    }
 
-  public OutputCommitter getCommitter() {
-    return committer;
-  }
+    public OutputCommitter getCommitter() {
+        return committer;
+    }
 
-  public boolean getRecoverOutput() {
-    return recoverAttemptOutput;
-  }
+    public boolean getRecoverOutput() {
+        return recoverAttemptOutput;
+    }
 }

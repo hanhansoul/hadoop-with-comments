@@ -23,14 +23,14 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class JobDiagnosticsUpdateEvent extends JobEvent {
 
-  private String diagnosticUpdate;
+    private String diagnosticUpdate;
 
-  public JobDiagnosticsUpdateEvent(JobId jobID, String diagnostic) {
-    super(jobID, JobEventType.JOB_DIAGNOSTIC_UPDATE);
-    this.diagnosticUpdate = diagnostic;
-  }
+    public JobDiagnosticsUpdateEvent(JobId jobID, String diagnostic) {
+        super(jobID, JobEventType.JOB_DIAGNOSTIC_UPDATE);
+        this.diagnosticUpdate = diagnostic;
+    }
 
-  public String getDiagnosticUpdate() {
-    return this.diagnosticUpdate;
-  }
+    public String getDiagnosticUpdate() {
+        return this.diagnosticUpdate;
+    }
 }

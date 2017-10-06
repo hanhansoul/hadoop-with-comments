@@ -32,29 +32,29 @@ import org.apache.hadoop.yarn.util.TrackingUriPlugin;
 public class MapReduceTrackingUriPlugin extends TrackingUriPlugin implements
     Configurable {
 
-  @Override
-  public void setConf(Configuration conf) {
-    Configuration jobConf = null;
-    // Force loading of mapred configuration.
-    if (conf != null) {
-      jobConf = new JobConf(conf);
-    } else {
-      jobConf = new JobConf();
+    @Override
+    public void setConf(Configuration conf) {
+        Configuration jobConf = null;
+        // Force loading of mapred configuration.
+        if (conf != null) {
+            jobConf = new JobConf(conf);
+        } else {
+            jobConf = new JobConf();
+        }
+        super.setConf(jobConf);
     }
-    super.setConf(jobConf);
-  }
 
-  /**
-   * Gets the URI to access the given application on MapReduce history server
-   * @param id the ID for which a URI is returned
-   * @return the tracking URI
-   * @throws URISyntaxException
-   */
-  @Override
-  public URI getTrackingUri(ApplicationId id) throws URISyntaxException {
-    String jobSuffix = id.toString().replaceFirst("^application_", "job_");
-    String historyServerAddress =
-        MRWebAppUtil.getJHSWebappURLWithScheme(getConf());
-    return new URI(historyServerAddress + "/jobhistory/job/"+ jobSuffix);
-  }
+    /**
+     * Gets the URI to access the given application on MapReduce history server
+     * @param id the ID for which a URI is returned
+     * @return the tracking URI
+     * @throws URISyntaxException
+     */
+    @Override
+    public URI getTrackingUri(ApplicationId id) throws URISyntaxException {
+        String jobSuffix = id.toString().replaceFirst("^application_", "job_");
+        String historyServerAddress =
+            MRWebAppUtil.getJHSWebappURLWithScheme(getConf());
+        return new URI(historyServerAddress + "/jobhistory/job/"+ jobSuffix);
+    }
 }

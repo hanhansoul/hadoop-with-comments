@@ -26,20 +26,20 @@ import org.apache.hadoop.mapreduce.JobACL;
  */
 @InterfaceAudience.Private
 public enum Operation {
-  VIEW_JOB_COUNTERS(QueueACL.ADMINISTER_JOBS, JobACL.VIEW_JOB),
-  VIEW_JOB_DETAILS(QueueACL.ADMINISTER_JOBS, JobACL.VIEW_JOB),
-  VIEW_TASK_LOGS(QueueACL.ADMINISTER_JOBS, JobACL.VIEW_JOB),
-  KILL_JOB(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
-  FAIL_TASK(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
-  KILL_TASK(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
-  SET_JOB_PRIORITY(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
-  SUBMIT_JOB(QueueACL.SUBMIT_JOB, null);
-  
-  public QueueACL qACLNeeded;
-  public JobACL jobACLNeeded;
-  
-  Operation(QueueACL qACL, JobACL jobACL) {
-    this.qACLNeeded = qACL;
-    this.jobACLNeeded = jobACL;
-  }
+    VIEW_JOB_COUNTERS(QueueACL.ADMINISTER_JOBS, JobACL.VIEW_JOB),
+    VIEW_JOB_DETAILS(QueueACL.ADMINISTER_JOBS, JobACL.VIEW_JOB),
+    VIEW_TASK_LOGS(QueueACL.ADMINISTER_JOBS, JobACL.VIEW_JOB),
+    KILL_JOB(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
+    FAIL_TASK(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
+    KILL_TASK(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
+    SET_JOB_PRIORITY(QueueACL.ADMINISTER_JOBS, JobACL.MODIFY_JOB),
+    SUBMIT_JOB(QueueACL.SUBMIT_JOB, null);
+
+    public QueueACL qACLNeeded;
+    public JobACL jobACLNeeded;
+
+    Operation(QueueACL qACL, JobACL jobACL) {
+        this.qACLNeeded = qACL;
+        this.jobACLNeeded = jobACL;
+    }
 }

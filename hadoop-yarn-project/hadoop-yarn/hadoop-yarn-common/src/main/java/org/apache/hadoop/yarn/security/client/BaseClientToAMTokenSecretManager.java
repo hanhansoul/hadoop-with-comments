@@ -38,33 +38,33 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 public abstract class BaseClientToAMTokenSecretManager extends
     SecretManager<ClientToAMTokenIdentifier> {
 
-  @Private
-  public abstract SecretKey getMasterKey(
-      ApplicationAttemptId applicationAttemptId);
+    @Private
+    public abstract SecretKey getMasterKey(
+        ApplicationAttemptId applicationAttemptId);
 
-  @Private
-  @Override
-  public synchronized byte[] createPassword(
-      ClientToAMTokenIdentifier identifier) {
-    return createPassword(identifier.getBytes(),
-      getMasterKey(identifier.getApplicationAttemptID()));
-  }
-
-  @Private
-  @Override
-  public byte[] retrievePassword(ClientToAMTokenIdentifier identifier)
-      throws SecretManager.InvalidToken {
-    SecretKey masterKey = getMasterKey(identifier.getApplicationAttemptID());
-    if (masterKey == null) {
-      throw new SecretManager.InvalidToken("Illegal client-token!");
+    @Private
+    @Override
+    public synchronized byte[] createPassword(
+        ClientToAMTokenIdentifier identifier) {
+        return createPassword(identifier.getBytes(),
+                              getMasterKey(identifier.getApplicationAttemptID()));
     }
-    return createPassword(identifier.getBytes(), masterKey);
-  }
 
-  @Private
-  @Override
-  public ClientToAMTokenIdentifier createIdentifier() {
-    return new ClientToAMTokenIdentifier();
-  }
+    @Private
+    @Override
+    public byte[] retrievePassword(ClientToAMTokenIdentifier identifier)
+    throws SecretManager.InvalidToken {
+        SecretKey masterKey = getMasterKey(identifier.getApplicationAttemptID());
+        if (masterKey == null) {
+            throw new SecretManager.InvalidToken("Illegal client-token!");
+        }
+        return createPassword(identifier.getBytes(), masterKey);
+    }
+
+    @Private
+    @Override
+    public ClientToAMTokenIdentifier createIdentifier() {
+        return new ClientToAMTokenIdentifier();
+    }
 
 }

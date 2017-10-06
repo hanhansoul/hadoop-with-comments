@@ -27,25 +27,25 @@ import org.apache.hadoop.fs.Path;
  * Reading JSON-encoded job traces and produce {@link LoggedJob} instances.
  */
 public class JobTraceReader extends JsonObjectMapperParser<LoggedJob> {
-  /**
-   * Constructor.
-   * 
-   * @param path
-   *          Path to the JSON trace file, possibly compressed.
-   * @param conf
-   * @throws IOException
-   */
-  public JobTraceReader(Path path, Configuration conf) throws IOException {
-    super(path, LoggedJob.class, conf);
-  }
+    /**
+     * Constructor.
+     *
+     * @param path
+     *          Path to the JSON trace file, possibly compressed.
+     * @param conf
+     * @throws IOException
+     */
+    public JobTraceReader(Path path, Configuration conf) throws IOException {
+        super(path, LoggedJob.class, conf);
+    }
 
-  /**
-   * Constructor.
-   * 
-   * @param input
-   *          The input stream for the JSON trace.
-   */
-  public JobTraceReader(InputStream input) throws IOException {
-    super(input, LoggedJob.class);
-  }
+    /**
+     * Constructor.
+     *
+     * @param input
+     *          The input stream for the JSON trace.
+     */
+    public JobTraceReader(InputStream input) throws IOException {
+        super(input, LoggedJob.class);
+    }
 }

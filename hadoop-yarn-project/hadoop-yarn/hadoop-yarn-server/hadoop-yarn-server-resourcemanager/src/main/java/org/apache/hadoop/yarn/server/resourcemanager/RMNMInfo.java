@@ -39,69 +39,69 @@ import org.mortbay.util.ajax.JSON;
  * JMX bean listing statuses of all node managers.
  */
 public class RMNMInfo implements RMNMInfoBeans {
-  private static final Log LOG = LogFactory.getLog(RMNMInfo.class);
-  private RMContext rmContext;
-  private ResourceScheduler scheduler;
+    private static final Log LOG = LogFactory.getLog(RMNMInfo.class);
+    private RMContext rmContext;
+    private ResourceScheduler scheduler;
 
-  /**
-   * Constructor for RMNMInfo registers the bean with JMX.
-   * 
-   * @param rmc resource manager's context object
-   * @param sched resource manager's scheduler object
-   */
-  public RMNMInfo(RMContext rmc, ResourceScheduler sched) {
-    this.rmContext = rmc;
-    this.scheduler = sched;
+    /**
+     * Constructor for RMNMInfo registers the bean with JMX.
+     *
+     * @param rmc resource manager's context object
+     * @param sched resource manager's scheduler object
+     */
+    public RMNMInfo(RMContext rmc, ResourceScheduler sched) {
+        this.rmContext = rmc;
+        this.scheduler = sched;
 
-    StandardMBean bean;
-    try {
-        bean = new StandardMBean(this,RMNMInfoBeans.class);
-        MBeans.register("ResourceManager", "RMNMInfo", bean);
-    } catch (NotCompliantMBeanException e) {
-        LOG.warn("Error registering RMNMInfo MBean", e);
+        StandardMBean bean;
+        try {
+            bean = new StandardMBean(this,RMNMInfoBeans.class);
+            MBeans.register("ResourceManager", "RMNMInfo", bean);
+        } catch (NotCompliantMBeanException e) {
+            LOG.warn("Error registering RMNMInfo MBean", e);
+        }
+        LOG.info("Registered RMNMInfo MBean");
     }
-    LOG.info("Registered RMNMInfo MBean");
-  }
 
 
-  static class InfoMap extends LinkedHashMap<String, Object> {
-    private static final long serialVersionUID = 1L;
-  }
+    static class InfoMap extends LinkedHashMap<String, Object> {
+        private static final long serialVersionUID = 1L;
+    }
 
-  /**
-   * Implements getLiveNodeManagers()
-   * 
-   * @return JSON formatted string containing statuses of all node managers
-   */
-  @Override // RMNMInfoBeans
-  public String getLiveNodeManagers() {
-    Collection<RMNode> nodes = this.rmContext.getRMNodes().values();
-    List<InfoMap> nodesInfo = new ArrayList<InfoMap>();
+    /**
+     * Implements getLiveNodeManagers()
+     *
+     * @return JSON formatted string containing statuses of all node managers
+     */
+    @Override // RMNMInfoBeans
+    public String getLiveNodeManagers() {
+        Collection<RMNode> nodes = this.rmContext.getRMNodes().values();
+        List<InfoMap> nodesInfo = new ArrayList<InfoMap>();
 
-    for (final RMNode ni : nodes) {
-        SchedulerNodeReport report = scheduler.getNodeReport(ni.getNodeID());
-        InfoMap info = new InfoMap();
-        info.put("HostName", ni.getHostName());
-        info.put("Rack", ni.getRackName());
-        info.put("State", ni.getState().toString());
-        info.put("NodeId", ni.getNodeID());
-        info.put("NodeHTTPAddress", ni.getHttpAddress());
-        info.put("LastHealthUpdate",
-                        ni.getLastHealthReportTime());
-        info.put("HealthReport",
-                        ni.getHealthReport());
-        info.put("NodeManagerVersion",
-                ni.getNodeManagerVersion());
-        if(report != null) {
-          info.put("NumContainers", report.getNumContainers());
-          info.put("UsedMemoryMB", report.getUsedResource().getMemory());
-          info.put("AvailableMemoryMB",
-              report.getAvailableResource().getMemory());
+        for (final RMNode ni : nodes) {
+            SchedulerNodeReport report = scheduler.getNodeReport(ni.getNodeID());
+            InfoMap info = new InfoMap();
+            info.put("HostName", ni.getHostName());
+            info.put("Rack", ni.getRackName());
+            info.put("State", ni.getState().toString());
+            info.put("NodeId", ni.getNodeID());
+            info.put("NodeHTTPAddress", ni.getHttpAddress());
+            info.put("LastHealthUpdate",
+                     ni.getLastHealthReportTime());
+            info.put("HealthReport",
+                     ni.getHealthReport());
+            info.put("NodeManagerVersion",
+                     ni.getNodeManagerVersion());
+            if(report != null) {
+                info.put("NumContainers", report.getNumContainers());
+                info.put("UsedMemoryMB", report.getUsedResource().getMemory());
+                info.put("AvailableMemoryMB",
+                         report.getAvailableResource().getMemory());
+            }
+
+            nodesInfo.add(info);
         }
 
-        nodesInfo.add(info);
+        return JSON.toString(nodesInfo);
     }
-
-    return JSON.toString(nodesInfo);
-  }
 }

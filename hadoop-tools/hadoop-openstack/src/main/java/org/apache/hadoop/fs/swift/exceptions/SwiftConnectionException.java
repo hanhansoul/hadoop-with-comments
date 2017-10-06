@@ -22,14 +22,14 @@ package org.apache.hadoop.fs.swift.exceptions;
  * Thrown to indicate that connection is lost or failed to be made
  */
 public class SwiftConnectionException extends SwiftException {
-  public SwiftConnectionException() {
-  }
+    public SwiftConnectionException() {
+    }
 
-  public SwiftConnectionException(String message) {
-    super(message);
-  }
+    public SwiftConnectionException(String message) {
+        super(message);
+    }
 
-  public SwiftConnectionException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public SwiftConnectionException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

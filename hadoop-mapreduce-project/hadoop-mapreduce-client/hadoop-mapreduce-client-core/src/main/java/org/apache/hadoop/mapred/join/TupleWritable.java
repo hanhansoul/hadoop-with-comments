@@ -36,46 +36,46 @@ import org.apache.hadoop.io.Writable;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class TupleWritable 
+public class TupleWritable
     extends org.apache.hadoop.mapreduce.lib.join.TupleWritable {
 
-  /**
-   * Create an empty tuple with no allocated storage for writables.
-   */
-  public TupleWritable() {
-    super();
-  }
+    /**
+     * Create an empty tuple with no allocated storage for writables.
+     */
+    public TupleWritable() {
+        super();
+    }
 
-  /**
-   * Initialize tuple with storage; unknown whether any of them contain
-   * &quot;written&quot; values.
-   */
-  public TupleWritable(Writable[] vals) {
-    super(vals);
-  }
+    /**
+     * Initialize tuple with storage; unknown whether any of them contain
+     * &quot;written&quot; values.
+     */
+    public TupleWritable(Writable[] vals) {
+        super(vals);
+    }
 
-  /**
-   * Record that the tuple contains an element at the position provided.
-   */
-  void setWritten(int i) {
-    written.set(i);
-  }
+    /**
+     * Record that the tuple contains an element at the position provided.
+     */
+    void setWritten(int i) {
+        written.set(i);
+    }
 
-  /**
-   * Record that the tuple does not contain an element at the position
-   * provided.
-   */
-  void clearWritten(int i) {
-    written.clear(i);
-  }
+    /**
+     * Record that the tuple does not contain an element at the position
+     * provided.
+     */
+    void clearWritten(int i) {
+        written.clear(i);
+    }
 
-  /**
-   * Clear any record of which writables have been written to, without
-   * releasing storage.
-   */
-  void clearWritten() {
-    written.clear();
-  }
+    /**
+     * Clear any record of which writables have been written to, without
+     * releasing storage.
+     */
+    void clearWritten() {
+        written.clear();
+    }
 
 
 }

@@ -28,19 +28,19 @@ import static org.junit.Assert.fail;
 
 public class TestSchedulingMonitor {
 
-  @Test(timeout = 10000)
-  public void testRMStarts() {
-    Configuration conf = new YarnConfiguration();
-    conf.setBoolean(YarnConfiguration.RM_SCHEDULER_ENABLE_MONITORS, true);
-    conf.set(YarnConfiguration.RM_SCHEDULER_MONITOR_POLICIES,
-        ProportionalCapacityPreemptionPolicy.class.getCanonicalName());
+    @Test(timeout = 10000)
+    public void testRMStarts() {
+        Configuration conf = new YarnConfiguration();
+        conf.setBoolean(YarnConfiguration.RM_SCHEDULER_ENABLE_MONITORS, true);
+        conf.set(YarnConfiguration.RM_SCHEDULER_MONITOR_POLICIES,
+                 ProportionalCapacityPreemptionPolicy.class.getCanonicalName());
 
-    ResourceManager rm = new ResourceManager();
-    try {
-      rm.init(conf);
-    } catch (Exception e) {
-      fail("ResourceManager does not start when " +
-          YarnConfiguration.RM_SCHEDULER_ENABLE_MONITORS + " is set to true");
+        ResourceManager rm = new ResourceManager();
+        try {
+            rm.init(conf);
+        } catch (Exception e) {
+            fail("ResourceManager does not start when " +
+                 YarnConfiguration.RM_SCHEDULER_ENABLE_MONITORS + " is set to true");
+        }
     }
-  }
 }

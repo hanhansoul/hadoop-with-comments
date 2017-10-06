@@ -27,30 +27,30 @@ import static org.apache.hadoop.metrics2.lib.Interns.*;
 
 public class TestMetricsCollectorImpl {
 
-  @Test public void recordBuilderShouldNoOpIfFiltered() {
-    SubsetConfiguration fc = new ConfigBuilder()
+    @Test public void recordBuilderShouldNoOpIfFiltered() {
+        SubsetConfiguration fc = new ConfigBuilder()
         .add("p.exclude", "foo").subset("p");
-    MetricsCollectorImpl mb = new MetricsCollectorImpl();
-    mb.setRecordFilter(newGlobFilter(fc));
-    MetricsRecordBuilderImpl rb = mb.addRecord("foo");
-    rb.tag(info("foo", ""), "value").addGauge(info("g0", ""), 1);
-    assertEquals("no tags", 0, rb.tags().size());
-    assertEquals("no metrics", 0, rb.metrics().size());
-    assertNull("null record", rb.getRecord());
-    assertEquals("no records", 0, mb.getRecords().size());
-  }
+        MetricsCollectorImpl mb = new MetricsCollectorImpl();
+        mb.setRecordFilter(newGlobFilter(fc));
+        MetricsRecordBuilderImpl rb = mb.addRecord("foo");
+        rb.tag(info("foo", ""), "value").addGauge(info("g0", ""), 1);
+        assertEquals("no tags", 0, rb.tags().size());
+        assertEquals("no metrics", 0, rb.metrics().size());
+        assertNull("null record", rb.getRecord());
+        assertEquals("no records", 0, mb.getRecords().size());
+    }
 
-  @Test public void testPerMetricFiltering() {
-    SubsetConfiguration fc = new ConfigBuilder()
+    @Test public void testPerMetricFiltering() {
+        SubsetConfiguration fc = new ConfigBuilder()
         .add("p.exclude", "foo").subset("p");
-    MetricsCollectorImpl mb = new MetricsCollectorImpl();
-    mb.setMetricFilter(newGlobFilter(fc));
-    MetricsRecordBuilderImpl rb = mb.addRecord("foo");
-    rb.tag(info("foo", ""), "").addCounter(info("c0", ""), 0)
-      .addGauge(info("foo", ""), 1);
-    assertEquals("1 tag", 1, rb.tags().size());
-    assertEquals("1 metric", 1, rb.metrics().size());
-    assertEquals("expect foo tag", "foo", rb.tags().get(0).name());
-    assertEquals("expect c0", "c0", rb.metrics().get(0).name());
-  }
+        MetricsCollectorImpl mb = new MetricsCollectorImpl();
+        mb.setMetricFilter(newGlobFilter(fc));
+        MetricsRecordBuilderImpl rb = mb.addRecord("foo");
+        rb.tag(info("foo", ""), "").addCounter(info("c0", ""), 0)
+        .addGauge(info("foo", ""), 1);
+        assertEquals("1 tag", 1, rb.tags().size());
+        assertEquals("1 metric", 1, rb.metrics().size());
+        assertEquals("expect foo tag", "foo", rb.tags().get(0).name());
+        assertEquals("expect c0", "c0", rb.metrics().get(0).name());
+    }
 }

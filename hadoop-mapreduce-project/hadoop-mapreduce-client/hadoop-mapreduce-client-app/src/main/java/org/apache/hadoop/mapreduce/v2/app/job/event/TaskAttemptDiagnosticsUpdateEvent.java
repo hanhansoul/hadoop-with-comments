@@ -23,15 +23,15 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class TaskAttemptDiagnosticsUpdateEvent extends TaskAttemptEvent {
 
-  private String diagnosticInfo;
+    private String diagnosticInfo;
 
-  public TaskAttemptDiagnosticsUpdateEvent(TaskAttemptId attemptID,
-      String diagnosticInfo) {
-    super(attemptID, TaskAttemptEventType.TA_DIAGNOSTICS_UPDATE);
-    this.diagnosticInfo = diagnosticInfo;
-  }
+    public TaskAttemptDiagnosticsUpdateEvent(TaskAttemptId attemptID,
+            String diagnosticInfo) {
+        super(attemptID, TaskAttemptEventType.TA_DIAGNOSTICS_UPDATE);
+        this.diagnosticInfo = diagnosticInfo;
+    }
 
-  public String getDiagnosticInfo() {
-    return diagnosticInfo;
-  }
+    public String getDiagnosticInfo() {
+        return diagnosticInfo;
+    }
 }

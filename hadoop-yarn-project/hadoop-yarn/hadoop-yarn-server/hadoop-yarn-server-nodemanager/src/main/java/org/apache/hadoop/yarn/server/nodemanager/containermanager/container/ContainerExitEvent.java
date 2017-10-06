@@ -21,21 +21,21 @@ package org.apache.hadoop.yarn.server.nodemanager.containermanager.container;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 
 public class ContainerExitEvent extends ContainerEvent {
-  private int exitCode;
-  private final String diagnosticInfo;
+    private int exitCode;
+    private final String diagnosticInfo;
 
-  public ContainerExitEvent(ContainerId cID, ContainerEventType eventType,
-      int exitCode, String diagnosticInfo) {
-    super(cID, eventType);
-    this.exitCode = exitCode;
-    this.diagnosticInfo = diagnosticInfo;
-  }
+    public ContainerExitEvent(ContainerId cID, ContainerEventType eventType,
+                              int exitCode, String diagnosticInfo) {
+        super(cID, eventType);
+        this.exitCode = exitCode;
+        this.diagnosticInfo = diagnosticInfo;
+    }
 
-  public int getExitCode() {
-    return this.exitCode;
-  }
+    public int getExitCode() {
+        return this.exitCode;
+    }
 
-  public String getDiagnosticInfo() {
-    return diagnosticInfo;
-  }
+    public String getDiagnosticInfo() {
+        return diagnosticInfo;
+    }
 }

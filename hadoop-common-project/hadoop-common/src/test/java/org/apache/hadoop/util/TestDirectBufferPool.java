@@ -29,69 +29,69 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 public class TestDirectBufferPool {
-  final org.apache.hadoop.util.DirectBufferPool pool = new org.apache.hadoop.util.DirectBufferPool();
-  
-  @Test
-  public void testBasics() {
-    ByteBuffer a = pool.getBuffer(100);
-    assertEquals(100, a.capacity());
-    assertEquals(100, a.remaining());
-    pool.returnBuffer(a);
-    
-    // Getting a new buffer should return the same one
-    ByteBuffer b = pool.getBuffer(100);
-    assertSame(a, b);
-    
-    // Getting a new buffer before returning "B" should
-    // not return the same one
-    ByteBuffer c = pool.getBuffer(100);
-    assertNotSame(b, c);
-    pool.returnBuffer(b);
-    pool.returnBuffer(c);
-  }
-  
-  @Test
-  public void testBuffersAreReset() {
-    ByteBuffer a = pool.getBuffer(100);
-    a.putInt(0xdeadbeef);
-    assertEquals(96, a.remaining());
-    pool.returnBuffer(a);
+    final org.apache.hadoop.util.DirectBufferPool pool = new org.apache.hadoop.util.DirectBufferPool();
 
-    // Even though we return the same buffer,
-    // its position should be reset to 0
-    ByteBuffer b = pool.getBuffer(100);
-    assertSame(a, b);
-    assertEquals(100, a.remaining());
-    pool.returnBuffer(b);
-  }
-  
-  @Test
-  public void testWeakRefClearing() {
-    // Allocate and return 10 buffers.
-    List<ByteBuffer> bufs = Lists.newLinkedList();
-    for (int i = 0; i < 10; i++) {
-      ByteBuffer buf = pool.getBuffer(100);
-      bufs.add(buf);
-    }
-    
-    for (ByteBuffer buf : bufs) {
-      pool.returnBuffer(buf);      
+    @Test
+    public void testBasics() {
+        ByteBuffer a = pool.getBuffer(100);
+        assertEquals(100, a.capacity());
+        assertEquals(100, a.remaining());
+        pool.returnBuffer(a);
+
+        // Getting a new buffer should return the same one
+        ByteBuffer b = pool.getBuffer(100);
+        assertSame(a, b);
+
+        // Getting a new buffer before returning "B" should
+        // not return the same one
+        ByteBuffer c = pool.getBuffer(100);
+        assertNotSame(b, c);
+        pool.returnBuffer(b);
+        pool.returnBuffer(c);
     }
 
-    assertEquals(10, pool.countBuffersOfSize(100));
+    @Test
+    public void testBuffersAreReset() {
+        ByteBuffer a = pool.getBuffer(100);
+        a.putInt(0xdeadbeef);
+        assertEquals(96, a.remaining());
+        pool.returnBuffer(a);
 
-    // Clear out any references to the buffers, and force
-    // GC. Weak refs should get cleared.
-    bufs.clear();
-    bufs = null;
-    for (int i = 0; i < 3; i++) {
-      System.gc();
+        // Even though we return the same buffer,
+        // its position should be reset to 0
+        ByteBuffer b = pool.getBuffer(100);
+        assertSame(a, b);
+        assertEquals(100, a.remaining());
+        pool.returnBuffer(b);
     }
 
-    ByteBuffer buf = pool.getBuffer(100);
-    // the act of getting a buffer should clear all the nulled
-    // references from the pool.
-    assertEquals(0, pool.countBuffersOfSize(100));
-    pool.returnBuffer(buf);
-  }
+    @Test
+    public void testWeakRefClearing() {
+        // Allocate and return 10 buffers.
+        List<ByteBuffer> bufs = Lists.newLinkedList();
+        for (int i = 0; i < 10; i++) {
+            ByteBuffer buf = pool.getBuffer(100);
+            bufs.add(buf);
+        }
+
+        for (ByteBuffer buf : bufs) {
+            pool.returnBuffer(buf);
+        }
+
+        assertEquals(10, pool.countBuffersOfSize(100));
+
+        // Clear out any references to the buffers, and force
+        // GC. Weak refs should get cleared.
+        bufs.clear();
+        bufs = null;
+        for (int i = 0; i < 3; i++) {
+            System.gc();
+        }
+
+        ByteBuffer buf = pool.getBuffer(100);
+        // the act of getting a buffer should clear all the nulled
+        // references from the pool.
+        assertEquals(0, pool.countBuffersOfSize(100));
+        pool.returnBuffer(buf);
+    }
 }

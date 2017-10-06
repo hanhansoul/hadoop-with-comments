@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package org.apache.hadoop.mapred;
+package org.apache.hadoop.mapred;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -33,39 +33,39 @@ import org.apache.hadoop.io.Writable;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class MapTaskCompletionEventsUpdate implements Writable {
-  TaskCompletionEvent[] events;
-  boolean reset;
+    TaskCompletionEvent[] events;
+    boolean reset;
 
-  public MapTaskCompletionEventsUpdate() { }
+    public MapTaskCompletionEventsUpdate() { }
 
-  public MapTaskCompletionEventsUpdate(TaskCompletionEvent[] events,
-      boolean reset) {
-    this.events = events;
-    this.reset = reset;
-  }
-
-  public boolean shouldReset() {
-    return reset;
-  }
-
-  public TaskCompletionEvent[] getMapTaskCompletionEvents() {
-    return events;
-  }
-
-  public void write(DataOutput out) throws IOException {
-    out.writeBoolean(reset);
-    out.writeInt(events.length);
-    for (TaskCompletionEvent event : events) {
-      event.write(out);
+    public MapTaskCompletionEventsUpdate(TaskCompletionEvent[] events,
+                                         boolean reset) {
+        this.events = events;
+        this.reset = reset;
     }
-  }
 
-  public void readFields(DataInput in) throws IOException {
-    reset = in.readBoolean();
-    events = new TaskCompletionEvent[in.readInt()];
-    for (int i = 0; i < events.length; ++i) {
-      events[i] = new TaskCompletionEvent();
-      events[i].readFields(in);
+    public boolean shouldReset() {
+        return reset;
     }
-  }
+
+    public TaskCompletionEvent[] getMapTaskCompletionEvents() {
+        return events;
+    }
+
+    public void write(DataOutput out) throws IOException {
+        out.writeBoolean(reset);
+        out.writeInt(events.length);
+        for (TaskCompletionEvent event : events) {
+            event.write(out);
+        }
+    }
+
+    public void readFields(DataInput in) throws IOException {
+        reset = in.readBoolean();
+        events = new TaskCompletionEvent[in.readInt()];
+        for (int i = 0; i < events.length; ++i) {
+            events[i] = new TaskCompletionEvent();
+            events[i].readFields(in);
+        }
+    }
 }

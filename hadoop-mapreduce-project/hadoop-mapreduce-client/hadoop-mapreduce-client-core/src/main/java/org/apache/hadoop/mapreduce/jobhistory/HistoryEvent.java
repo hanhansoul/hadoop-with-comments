@@ -29,12 +29,12 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Unstable
 public interface HistoryEvent {
 
-  /** Return this event's type. */
-  EventType getEventType();
+    /** Return this event's type. */
+    EventType getEventType();
 
-  /** Return the Avro datum wrapped by this. */
-  Object getDatum();
+    /** Return the Avro datum wrapped by this. */
+    Object getDatum();
 
-  /** Set the Avro datum wrapped by this. */
-  void setDatum(Object datum);
+    /** Set the Avro datum wrapped by this. */
+    void setDatum(Object datum);
 }

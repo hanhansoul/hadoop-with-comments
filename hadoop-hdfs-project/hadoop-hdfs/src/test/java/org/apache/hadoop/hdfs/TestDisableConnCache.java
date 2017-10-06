@@ -30,34 +30,34 @@ import org.junit.Test;
  * mini-cluster.
  */
 public class TestDisableConnCache {
-  static final Log LOG = LogFactory.getLog(TestDisableConnCache.class);
+    static final Log LOG = LogFactory.getLog(TestDisableConnCache.class);
 
-  static final int BLOCK_SIZE = 4096;
-  static final int FILE_SIZE = 3 * BLOCK_SIZE;
-  
-  /**
-   * Test that the socket cache can be disabled by setting the capacity to
-   * 0. Regression test for HDFS-3365.
-   * @throws Exception 
-   */
-  @Test
-  public void testDisableCache() throws Exception {
-    HdfsConfiguration confWithoutCache = new HdfsConfiguration();
-    // Configure a new instance with no peer caching, ensure that it doesn't
-    // cache anything
-    confWithoutCache.setInt(
-        DFSConfigKeys.DFS_CLIENT_SOCKET_CACHE_CAPACITY_KEY, 0);
-    BlockReaderTestUtil util = new BlockReaderTestUtil(1, confWithoutCache);
-    final Path testFile = new Path("/testConnCache.dat");
-    util.writeFile(testFile, FILE_SIZE / 1024);
-    FileSystem fsWithoutCache = FileSystem.newInstance(util.getConf());
-    try {
-      DFSTestUtil.readFile(fsWithoutCache, testFile);
-      assertEquals(0, ((DistributedFileSystem)fsWithoutCache).
-          dfs.getClientContext().getPeerCache().size());
-    } finally {
-      fsWithoutCache.close();
-      util.shutdown();
+    static final int BLOCK_SIZE = 4096;
+    static final int FILE_SIZE = 3 * BLOCK_SIZE;
+
+    /**
+     * Test that the socket cache can be disabled by setting the capacity to
+     * 0. Regression test for HDFS-3365.
+     * @throws Exception
+     */
+    @Test
+    public void testDisableCache() throws Exception {
+        HdfsConfiguration confWithoutCache = new HdfsConfiguration();
+        // Configure a new instance with no peer caching, ensure that it doesn't
+        // cache anything
+        confWithoutCache.setInt(
+            DFSConfigKeys.DFS_CLIENT_SOCKET_CACHE_CAPACITY_KEY, 0);
+        BlockReaderTestUtil util = new BlockReaderTestUtil(1, confWithoutCache);
+        final Path testFile = new Path("/testConnCache.dat");
+        util.writeFile(testFile, FILE_SIZE / 1024);
+        FileSystem fsWithoutCache = FileSystem.newInstance(util.getConf());
+        try {
+            DFSTestUtil.readFile(fsWithoutCache, testFile);
+            assertEquals(0, ((DistributedFileSystem)fsWithoutCache).
+                         dfs.getClientContext().getPeerCache().size());
+        } finally {
+            fsWithoutCache.close();
+            util.shutdown();
+        }
     }
-  }
 }

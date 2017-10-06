@@ -27,20 +27,19 @@ import static org.junit.Assert.*;
 
 public class TestFileSystemInitialization {
 
- /**
-   * Check if FileSystem can be properly initialized if URLStreamHandlerFactory
-   * is registered.
-   */
-  @Test
-  public void testInitializationWithRegisteredStreamFactory() {
-    Configuration conf = new Configuration();
-    URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory(conf));
-    try {
-      FileSystem.getFileSystemClass("file", conf);
+    /**
+      * Check if FileSystem can be properly initialized if URLStreamHandlerFactory
+      * is registered.
+      */
+    @Test
+    public void testInitializationWithRegisteredStreamFactory() {
+        Configuration conf = new Configuration();
+        URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory(conf));
+        try {
+            FileSystem.getFileSystemClass("file", conf);
+        } catch (IOException ok) {
+            // we might get an exception but this not related to infinite loop problem
+            assertFalse(false);
+        }
     }
-    catch (IOException ok) {
-      // we might get an exception but this not related to infinite loop problem
-      assertFalse(false);
-    }
-  }
 }

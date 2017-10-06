@@ -20,24 +20,24 @@ package org.apache.hadoop.yarn.server.resourcemanager.scheduler.event;
 
 public enum SchedulerEventType {
 
-  // Source: Node
-  NODE_ADDED,
-  NODE_REMOVED,
-  NODE_UPDATE,
-  NODE_RESOURCE_UPDATE,
-  NODE_LABELS_UPDATE,
+    // Source: Node
+    NODE_ADDED,
+    NODE_REMOVED,
+    NODE_UPDATE,
+    NODE_RESOURCE_UPDATE,
+    NODE_LABELS_UPDATE,
 
-  // Source: RMApp
-  APP_ADDED,
-  APP_REMOVED,
+    // Source: RMApp
+    APP_ADDED,
+    APP_REMOVED,
 
-  // Source: RMAppAttempt
-  APP_ATTEMPT_ADDED,
-  APP_ATTEMPT_REMOVED,
+    // Source: RMAppAttempt
+    APP_ATTEMPT_ADDED,
+    APP_ATTEMPT_REMOVED,
 
-  // Source: ContainerAllocationExpirer
-  CONTAINER_EXPIRED,
+    // Source: ContainerAllocationExpirer
+    CONTAINER_EXPIRED,
 
-  // Source: RMContainer
-  CONTAINER_RESCHEDULED
+    // Source: RMContainer
+    CONTAINER_RESCHEDULED
 }

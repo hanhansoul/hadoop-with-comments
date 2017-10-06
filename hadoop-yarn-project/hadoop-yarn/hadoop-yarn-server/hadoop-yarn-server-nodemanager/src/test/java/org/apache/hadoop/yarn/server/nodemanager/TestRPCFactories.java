@@ -34,78 +34,78 @@ import org.apache.hadoop.yarn.server.nodemanager.api.LocalizationProtocol;
 import org.junit.Test;
 
 public class TestRPCFactories {
-  
-  
-  
-  @Test
-  public void test() {
-    testPbServerFactory();
-    
-    testPbClientFactory();
-  }
-  
-  
-  
-  private void testPbServerFactory() {
-    InetSocketAddress addr = new InetSocketAddress(0);
-    Configuration conf = new Configuration();
-    LocalizationProtocol instance = new LocalizationProtocolTestImpl();
-    Server server = null;
-    try {
-      server = 
-        RpcServerFactoryPBImpl.get().getServer(
-            LocalizationProtocol.class, instance, addr, conf, null, 1);
-      server.start();
-    } catch (YarnRuntimeException e) {
-      e.printStackTrace();
-      Assert.fail("Failed to create server");
-    } finally {
-      if (server != null) {
-        server.stop();
-      }
+
+
+
+    @Test
+    public void test() {
+        testPbServerFactory();
+
+        testPbClientFactory();
     }
-  }
 
-  
-  private void testPbClientFactory() {
-    InetSocketAddress addr = new InetSocketAddress(0);
-    System.err.println(addr.getHostName() + addr.getPort());
-    Configuration conf = new Configuration();
-    LocalizationProtocol instance = new LocalizationProtocolTestImpl();
-    Server server = null;
-    try {
-      server = 
-        RpcServerFactoryPBImpl.get().getServer(
-            LocalizationProtocol.class, instance, addr, conf, null, 1);
-      server.start();
-      System.err.println(server.getListenerAddress());
-      System.err.println(NetUtils.getConnectAddress(server));
 
-      try {
-        LocalizationProtocol client = (LocalizationProtocol)
-          RpcClientFactoryPBImpl.get().getClient(
-              LocalizationProtocol.class, 1,
-              NetUtils.getConnectAddress(server), conf);
-        Assert.assertNotNull(client);
-      } catch (YarnRuntimeException e) {
-        e.printStackTrace();
-        Assert.fail("Failed to create client");
-      }
-      
-    } catch (YarnRuntimeException e) {
-      e.printStackTrace();
-      Assert.fail("Failed to create server");
-    } finally {
-      server.stop();
-    }     
-  }
 
-  public class LocalizationProtocolTestImpl implements LocalizationProtocol {
-
-    @Override
-    public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status) {
-      return null;
+    private void testPbServerFactory() {
+        InetSocketAddress addr = new InetSocketAddress(0);
+        Configuration conf = new Configuration();
+        LocalizationProtocol instance = new LocalizationProtocolTestImpl();
+        Server server = null;
+        try {
+            server =
+                RpcServerFactoryPBImpl.get().getServer(
+                    LocalizationProtocol.class, instance, addr, conf, null, 1);
+            server.start();
+        } catch (YarnRuntimeException e) {
+            e.printStackTrace();
+            Assert.fail("Failed to create server");
+        } finally {
+            if (server != null) {
+                server.stop();
+            }
+        }
     }
-    
-  }
+
+
+    private void testPbClientFactory() {
+        InetSocketAddress addr = new InetSocketAddress(0);
+        System.err.println(addr.getHostName() + addr.getPort());
+        Configuration conf = new Configuration();
+        LocalizationProtocol instance = new LocalizationProtocolTestImpl();
+        Server server = null;
+        try {
+            server =
+                RpcServerFactoryPBImpl.get().getServer(
+                    LocalizationProtocol.class, instance, addr, conf, null, 1);
+            server.start();
+            System.err.println(server.getListenerAddress());
+            System.err.println(NetUtils.getConnectAddress(server));
+
+            try {
+                LocalizationProtocol client = (LocalizationProtocol)
+                                              RpcClientFactoryPBImpl.get().getClient(
+                                                  LocalizationProtocol.class, 1,
+                                                  NetUtils.getConnectAddress(server), conf);
+                Assert.assertNotNull(client);
+            } catch (YarnRuntimeException e) {
+                e.printStackTrace();
+                Assert.fail("Failed to create client");
+            }
+
+        } catch (YarnRuntimeException e) {
+            e.printStackTrace();
+            Assert.fail("Failed to create server");
+        } finally {
+            server.stop();
+        }
+    }
+
+    public class LocalizationProtocolTestImpl implements LocalizationProtocol {
+
+        @Override
+        public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status) {
+            return null;
+        }
+
+    }
 }

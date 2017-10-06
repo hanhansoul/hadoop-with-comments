@@ -32,38 +32,38 @@ import org.apache.hadoop.fs.Path;
 
 public class TestS3NInMemoryFileSystem extends TestCase {
 
-  private static final String TEST_PATH = "s3n://test/data.txt";
-  
-  private static final String TEST_DATA = "Sample data for testing.";
-  
-  private S3NInMemoryFileSystem fs;
-  
-  @Override
-  public void setUp() throws IOException {
-    fs = new S3NInMemoryFileSystem();
-    fs.initialize(URI.create("s3n://test/"), new Configuration());
-  }
- 
-  public void testBasicReadWriteIO() throws IOException {
-    FSDataOutputStream writeData = fs.create(new Path(TEST_PATH));
-    writeData.write(TEST_DATA.getBytes());
-    writeData.flush();
-    writeData.close();
-    
-    FSDataInputStream readData = fs.open(new Path(TEST_PATH));
-    BufferedReader br = new BufferedReader(new InputStreamReader(readData));
-    String line = "";
-    StringBuffer stringBuffer = new StringBuffer();
-    while ((line = br.readLine()) != null) {
-        stringBuffer.append(line);
+    private static final String TEST_PATH = "s3n://test/data.txt";
+
+    private static final String TEST_DATA = "Sample data for testing.";
+
+    private S3NInMemoryFileSystem fs;
+
+    @Override
+    public void setUp() throws IOException {
+        fs = new S3NInMemoryFileSystem();
+        fs.initialize(URI.create("s3n://test/"), new Configuration());
     }
-    br.close();
-    
-    assert(TEST_DATA.equals(stringBuffer.toString()));
-  }
-  
-  @Override
-  public void tearDown() throws IOException {
-    fs.close();  
-  }
+
+    public void testBasicReadWriteIO() throws IOException {
+        FSDataOutputStream writeData = fs.create(new Path(TEST_PATH));
+        writeData.write(TEST_DATA.getBytes());
+        writeData.flush();
+        writeData.close();
+
+        FSDataInputStream readData = fs.open(new Path(TEST_PATH));
+        BufferedReader br = new BufferedReader(new InputStreamReader(readData));
+        String line = "";
+        StringBuffer stringBuffer = new StringBuffer();
+        while ((line = br.readLine()) != null) {
+            stringBuffer.append(line);
+        }
+        br.close();
+
+        assert(TEST_DATA.equals(stringBuffer.toString()));
+    }
+
+    @Override
+    public void tearDown() throws IOException {
+        fs.close();
+    }
 }

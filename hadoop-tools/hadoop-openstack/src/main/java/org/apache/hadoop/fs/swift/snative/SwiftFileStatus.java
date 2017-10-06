@@ -28,83 +28,83 @@ import org.apache.hadoop.fs.permission.FsPermission;
  */
 public class SwiftFileStatus extends FileStatus {
 
-  public SwiftFileStatus() {
-  }
+    public SwiftFileStatus() {
+    }
 
-  public SwiftFileStatus(long length,
-                         boolean isdir,
-                         int block_replication,
-                         long blocksize, long modification_time, Path path) {
-    super(length, isdir, block_replication, blocksize, modification_time, path);
-  }
+    public SwiftFileStatus(long length,
+                           boolean isdir,
+                           int block_replication,
+                           long blocksize, long modification_time, Path path) {
+        super(length, isdir, block_replication, blocksize, modification_time, path);
+    }
 
-  public SwiftFileStatus(long length,
-                         boolean isdir,
-                         int block_replication,
-                         long blocksize,
-                         long modification_time,
-                         long access_time,
-                         FsPermission permission,
-                         String owner, String group, Path path) {
-    super(length, isdir, block_replication, blocksize, modification_time,
-            access_time, permission, owner, group, path);
-  }
+    public SwiftFileStatus(long length,
+                           boolean isdir,
+                           int block_replication,
+                           long blocksize,
+                           long modification_time,
+                           long access_time,
+                           FsPermission permission,
+                           String owner, String group, Path path) {
+        super(length, isdir, block_replication, blocksize, modification_time,
+              access_time, permission, owner, group, path);
+    }
 
-  //HDFS2+ only
+    //HDFS2+ only
 
-  public SwiftFileStatus(long length,
-                         boolean isdir,
-                         int block_replication,
-                         long blocksize,
-                         long modification_time,
-                         long access_time,
-                         FsPermission permission,
-                         String owner, String group, Path symlink, Path path) {
-    super(length, isdir, block_replication, blocksize, modification_time,
-          access_time, permission, owner, group, symlink, path);
-  }
+    public SwiftFileStatus(long length,
+                           boolean isdir,
+                           int block_replication,
+                           long blocksize,
+                           long modification_time,
+                           long access_time,
+                           FsPermission permission,
+                           String owner, String group, Path symlink, Path path) {
+        super(length, isdir, block_replication, blocksize, modification_time,
+              access_time, permission, owner, group, symlink, path);
+    }
 
-  /**
-   * Declare that the path represents a directory, which in the
-   * SwiftNativeFileSystem means "is a directory or a 0 byte file"
-   *
-   * @return true if the status is considered to be a file
-   */
-  @Override
-  public boolean isDir() {
-    return super.isDirectory() || getLen() == 0;
-  }
+    /**
+     * Declare that the path represents a directory, which in the
+     * SwiftNativeFileSystem means "is a directory or a 0 byte file"
+     *
+     * @return true if the status is considered to be a file
+     */
+    @Override
+    public boolean isDir() {
+        return super.isDirectory() || getLen() == 0;
+    }
 
-  /**
-   * A entry is a file if it is not a directory.
-   * By implementing it <i>and not marking as an override</i> this
-   * subclass builds and runs in both Hadoop versions.
-   * @return the opposite value to {@link #isDir()}
-   */
-  @Override
-  public boolean isFile() {
-    return !isDir();
-  }
+    /**
+     * A entry is a file if it is not a directory.
+     * By implementing it <i>and not marking as an override</i> this
+     * subclass builds and runs in both Hadoop versions.
+     * @return the opposite value to {@link #isDir()}
+     */
+    @Override
+    public boolean isFile() {
+        return !isDir();
+    }
 
-  /**
-   * Directory test
-   * @return true if the file is considered to be a directory
-   */
-  public boolean isDirectory() {
-    return isDir();
-  }
+    /**
+     * Directory test
+     * @return true if the file is considered to be a directory
+     */
+    public boolean isDirectory() {
+        return isDir();
+    }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append(getClass().getSimpleName());
-    sb.append("{ ");
-    sb.append("path=").append(getPath());
-    sb.append("; isDirectory=").append(isDir());
-    sb.append("; length=").append(getLen());
-    sb.append("; blocksize=").append(getBlockSize());
-    sb.append("; modification_time=").append(getModificationTime());
-    sb.append("}");
-    return sb.toString();
-  }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append("{ ");
+        sb.append("path=").append(getPath());
+        sb.append("; isDirectory=").append(isDir());
+        sb.append("; length=").append(getLen());
+        sb.append("; blocksize=").append(getBlockSize());
+        sb.append("; modification_time=").append(getModificationTime());
+        sb.append("}");
+        return sb.toString();
+    }
 }

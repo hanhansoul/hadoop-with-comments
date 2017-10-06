@@ -22,55 +22,55 @@ import java.util.Random;
 
 /**
  * Class that represents a numeric minimum and a maximum
- * 
+ *
  * @param <T>
  *          the type of number being used
  */
 class Range<T extends Number> {
 
-  private static final String SEP = ",";
+    private static final String SEP = ",";
 
-  private T min;
-  private T max;
+    private T min;
+    private T max;
 
-  Range(T min, T max) {
-    this.min = min;
-    this.max = max;
-  }
-
-  /**
-   * @return the minimum value
-   */
-  T getLower() {
-    return min;
-  }
-
-  /**
-   * @return the maximum value
-   */
-  T getUpper() {
-    return max;
-  }
-
-  public String toString() {
-    return min + SEP + max;
-  }
-
-  /**
-   * Gets a long number between two values
-   * 
-   * @param rnd
-   * @param range
-   * 
-   * @return long
-   */
-  static long betweenPositive(Random rnd, Range<Long> range) {
-    if (range.getLower().equals(range.getUpper())) {
-      return range.getLower();
+    Range(T min, T max) {
+        this.min = min;
+        this.max = max;
     }
-    long nextRnd = rnd.nextLong();
-    long normRange = (range.getUpper() - range.getLower() + 1);
-    return Math.abs(nextRnd % normRange) + range.getLower();
-  }
+
+    /**
+     * @return the minimum value
+     */
+    T getLower() {
+        return min;
+    }
+
+    /**
+     * @return the maximum value
+     */
+    T getUpper() {
+        return max;
+    }
+
+    public String toString() {
+        return min + SEP + max;
+    }
+
+    /**
+     * Gets a long number between two values
+     *
+     * @param rnd
+     * @param range
+     *
+     * @return long
+     */
+    static long betweenPositive(Random rnd, Range<Long> range) {
+        if (range.getLower().equals(range.getUpper())) {
+            return range.getLower();
+        }
+        long nextRnd = rnd.nextLong();
+        long normRange = (range.getUpper() - range.getLower() + 1);
+        return Math.abs(nextRnd % normRange) + range.getLower();
+    }
 
 }

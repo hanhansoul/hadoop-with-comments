@@ -32,51 +32,51 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestRegisterNodeManagerRequest {
-  @Test
-  public void testRegisterNodeManagerRequest() {
-    RegisterNodeManagerRequest request =
-        RegisterNodeManagerRequest.newInstance(
-          NodeId.newInstance("host", 1234), 1234, Resource.newInstance(0, 0),
-          "version", Arrays.asList(NMContainerStatus.newInstance(
-            ContainerId.newContainerId(
-              ApplicationAttemptId.newInstance(
-                ApplicationId.newInstance(1234L, 1), 1), 1),
-            ContainerState.RUNNING, Resource.newInstance(1024, 1), "good", -1,
-            Priority.newInstance(0), 1234)), Arrays.asList(
-            ApplicationId.newInstance(1234L, 1),
-            ApplicationId.newInstance(1234L, 2)));
+    @Test
+    public void testRegisterNodeManagerRequest() {
+        RegisterNodeManagerRequest request =
+            RegisterNodeManagerRequest.newInstance(
+                NodeId.newInstance("host", 1234), 1234, Resource.newInstance(0, 0),
+                "version", Arrays.asList(NMContainerStatus.newInstance(
+                                             ContainerId.newContainerId(
+                                                     ApplicationAttemptId.newInstance(
+                                                             ApplicationId.newInstance(1234L, 1), 1), 1),
+                                             ContainerState.RUNNING, Resource.newInstance(1024, 1), "good", -1,
+                                             Priority.newInstance(0), 1234)), Arrays.asList(
+                    ApplicationId.newInstance(1234L, 1),
+                    ApplicationId.newInstance(1234L, 2)));
 
-    // serialze to proto, and get request from proto
-    RegisterNodeManagerRequest request1 =
-        new RegisterNodeManagerRequestPBImpl(
+        // serialze to proto, and get request from proto
+        RegisterNodeManagerRequest request1 =
+            new RegisterNodeManagerRequestPBImpl(
             ((RegisterNodeManagerRequestPBImpl) request).getProto());
 
-    // check values
-    Assert.assertEquals(request1.getNMContainerStatuses().size(), request
-        .getNMContainerStatuses().size());
-    Assert.assertEquals(request1.getNMContainerStatuses().get(0).getContainerId(),
-        request.getNMContainerStatuses().get(0).getContainerId());
-    Assert.assertEquals(request1.getRunningApplications().size(), request
-        .getRunningApplications().size());
-    Assert.assertEquals(request1.getRunningApplications().get(0), request
-        .getRunningApplications().get(0));
-    Assert.assertEquals(request1.getRunningApplications().get(1), request
-        .getRunningApplications().get(1));
-  }
-  
-  @Test
-  public void testRegisterNodeManagerRequestWithNullArrays() {
-    RegisterNodeManagerRequest request =
-        RegisterNodeManagerRequest.newInstance(NodeId.newInstance("host", 1234),
-            1234, Resource.newInstance(0, 0), "version", null, null);
+        // check values
+        Assert.assertEquals(request1.getNMContainerStatuses().size(), request
+                            .getNMContainerStatuses().size());
+        Assert.assertEquals(request1.getNMContainerStatuses().get(0).getContainerId(),
+                            request.getNMContainerStatuses().get(0).getContainerId());
+        Assert.assertEquals(request1.getRunningApplications().size(), request
+                            .getRunningApplications().size());
+        Assert.assertEquals(request1.getRunningApplications().get(0), request
+                            .getRunningApplications().get(0));
+        Assert.assertEquals(request1.getRunningApplications().get(1), request
+                            .getRunningApplications().get(1));
+    }
 
-    // serialze to proto, and get request from proto
-    RegisterNodeManagerRequest request1 =
-        new RegisterNodeManagerRequestPBImpl(
+    @Test
+    public void testRegisterNodeManagerRequestWithNullArrays() {
+        RegisterNodeManagerRequest request =
+            RegisterNodeManagerRequest.newInstance(NodeId.newInstance("host", 1234),
+                    1234, Resource.newInstance(0, 0), "version", null, null);
+
+        // serialze to proto, and get request from proto
+        RegisterNodeManagerRequest request1 =
+            new RegisterNodeManagerRequestPBImpl(
             ((RegisterNodeManagerRequestPBImpl) request).getProto());
 
-    // check values
-    Assert.assertEquals(0, request1.getNMContainerStatuses().size());
-    Assert.assertEquals(0, request1.getRunningApplications().size());
-  }
+        // check values
+        Assert.assertEquals(0, request1.getNMContainerStatuses().size());
+        Assert.assertEquals(0, request1.getRunningApplications().size());
+    }
 }

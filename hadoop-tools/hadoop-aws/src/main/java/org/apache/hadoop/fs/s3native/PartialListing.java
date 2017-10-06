@@ -37,28 +37,28 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 class PartialListing {
-  
-  private final String priorLastKey;
-  private final FileMetadata[] files;
-  private final String[] commonPrefixes;
-  
-  public PartialListing(String priorLastKey, FileMetadata[] files,
-      String[] commonPrefixes) {
-    this.priorLastKey = priorLastKey;
-    this.files = files;
-    this.commonPrefixes = commonPrefixes;
-  }
 
-  public FileMetadata[] getFiles() {
-    return files;
-  }
+    private final String priorLastKey;
+    private final FileMetadata[] files;
+    private final String[] commonPrefixes;
 
-  public String[] getCommonPrefixes() {
-    return commonPrefixes;
-  }
+    public PartialListing(String priorLastKey, FileMetadata[] files,
+                          String[] commonPrefixes) {
+        this.priorLastKey = priorLastKey;
+        this.files = files;
+        this.commonPrefixes = commonPrefixes;
+    }
 
-  public String getPriorLastKey() {
-    return priorLastKey;
-  }
-  
+    public FileMetadata[] getFiles() {
+        return files;
+    }
+
+    public String[] getCommonPrefixes() {
+        return commonPrefixes;
+    }
+
+    public String getPriorLastKey() {
+        return priorLastKey;
+    }
+
 }

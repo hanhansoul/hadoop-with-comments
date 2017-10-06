@@ -26,50 +26,50 @@ import org.apache.hadoop.oncrpc.XDR;
  * RENAME3 Request
  */
 public class RENAME3Request extends NFS3Request {
-  private final FileHandle fromDirHandle;
-  private final String fromName;
-  private final FileHandle toDirHandle;
-  private final String toName;
-  
-  public static RENAME3Request deserialize(XDR xdr) throws IOException {
-    FileHandle fromDirHandle = readHandle(xdr);
-    String fromName = xdr.readString();
-    FileHandle toDirHandle = readHandle(xdr);
-    String toName = xdr.readString();
-    return new RENAME3Request(fromDirHandle, fromName, toDirHandle, toName);
-  }
-  
-  public RENAME3Request(FileHandle fromDirHandle, String fromName,
-      FileHandle toDirHandle, String toName) {
-    this.fromDirHandle = fromDirHandle;
-    this.fromName = fromName;
-    this.toDirHandle = toDirHandle;
-    this.toName = toName;
-  }
-  
-  public FileHandle getFromDirHandle() {
-    return fromDirHandle;
-  }
+    private final FileHandle fromDirHandle;
+    private final String fromName;
+    private final FileHandle toDirHandle;
+    private final String toName;
 
-  public String getFromName() {
-    return fromName;
-  }
+    public static RENAME3Request deserialize(XDR xdr) throws IOException {
+        FileHandle fromDirHandle = readHandle(xdr);
+        String fromName = xdr.readString();
+        FileHandle toDirHandle = readHandle(xdr);
+        String toName = xdr.readString();
+        return new RENAME3Request(fromDirHandle, fromName, toDirHandle, toName);
+    }
 
-  public FileHandle getToDirHandle() {
-    return toDirHandle;
-  }
+    public RENAME3Request(FileHandle fromDirHandle, String fromName,
+                          FileHandle toDirHandle, String toName) {
+        this.fromDirHandle = fromDirHandle;
+        this.fromName = fromName;
+        this.toDirHandle = toDirHandle;
+        this.toName = toName;
+    }
 
-  public String getToName() {
-    return toName;
-  }
+    public FileHandle getFromDirHandle() {
+        return fromDirHandle;
+    }
 
-  @Override
-  public void serialize(XDR xdr) {
-    fromDirHandle.serialize(xdr);
-    xdr.writeInt(fromName.getBytes().length);
-    xdr.writeFixedOpaque(fromName.getBytes());
-    toDirHandle.serialize(xdr);
-    xdr.writeInt(toName.getBytes().length);
-    xdr.writeFixedOpaque(toName.getBytes());
-  }
+    public String getFromName() {
+        return fromName;
+    }
+
+    public FileHandle getToDirHandle() {
+        return toDirHandle;
+    }
+
+    public String getToName() {
+        return toName;
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        fromDirHandle.serialize(xdr);
+        xdr.writeInt(fromName.getBytes().length);
+        xdr.writeFixedOpaque(fromName.getBytes());
+        toDirHandle.serialize(xdr);
+        xdr.writeInt(toName.getBytes().length);
+        xdr.writeFixedOpaque(toName.getBytes());
+    }
 }

@@ -27,45 +27,45 @@ import com.google.protobuf.TextFormat;
 
 @Private
 @Unstable
-public class RefreshSuperUserGroupsConfigurationRequestPBImpl 
-extends RefreshSuperUserGroupsConfigurationRequest {
+public class RefreshSuperUserGroupsConfigurationRequestPBImpl
+    extends RefreshSuperUserGroupsConfigurationRequest {
 
-  RefreshSuperUserGroupsConfigurationRequestProto proto = RefreshSuperUserGroupsConfigurationRequestProto.getDefaultInstance();
-  RefreshSuperUserGroupsConfigurationRequestProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public RefreshSuperUserGroupsConfigurationRequestPBImpl() {
-    builder = RefreshSuperUserGroupsConfigurationRequestProto.newBuilder();
-  }
+    RefreshSuperUserGroupsConfigurationRequestProto proto = RefreshSuperUserGroupsConfigurationRequestProto.getDefaultInstance();
+    RefreshSuperUserGroupsConfigurationRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public RefreshSuperUserGroupsConfigurationRequestPBImpl(RefreshSuperUserGroupsConfigurationRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public RefreshSuperUserGroupsConfigurationRequestProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public RefreshSuperUserGroupsConfigurationRequestPBImpl() {
+        builder = RefreshSuperUserGroupsConfigurationRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    public RefreshSuperUserGroupsConfigurationRequestPBImpl(RefreshSuperUserGroupsConfigurationRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public RefreshSuperUserGroupsConfigurationRequestProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

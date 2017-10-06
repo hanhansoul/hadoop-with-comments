@@ -24,47 +24,47 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Private
 @Evolving
 public class ResourceWeights {
-  public static final ResourceWeights NEUTRAL = new ResourceWeights(1.0f);
+    public static final ResourceWeights NEUTRAL = new ResourceWeights(1.0f);
 
-  private float[] weights = new float[ResourceType.values().length];
+    private float[] weights = new float[ResourceType.values().length];
 
-  public ResourceWeights(float memoryWeight, float cpuWeight) {
-    weights[ResourceType.MEMORY.ordinal()] = memoryWeight;
-    weights[ResourceType.CPU.ordinal()] = cpuWeight;
-  }
-
-  public ResourceWeights(float weight) {
-    setWeight(weight);
-  }
-
-  public ResourceWeights() { }
-
-  public void setWeight(float weight) {
-    for (int i = 0; i < weights.length; i++) {
-      weights[i] = weight;
+    public ResourceWeights(float memoryWeight, float cpuWeight) {
+        weights[ResourceType.MEMORY.ordinal()] = memoryWeight;
+        weights[ResourceType.CPU.ordinal()] = cpuWeight;
     }
-  }
 
-  public void setWeight(ResourceType resourceType, float weight) {
-    weights[resourceType.ordinal()] = weight;
-  }
-  
-  public float getWeight(ResourceType resourceType) {
-    return weights[resourceType.ordinal()];
-  }
-  
-  public String toString() {
-    StringBuffer sb = new StringBuffer();
-    sb.append("<");
-    for (int i = 0; i < ResourceType.values().length; i++) {
-      if (i != 0) {
-        sb.append(", ");
-      }
-      ResourceType resourceType = ResourceType.values()[i];
-      sb.append(resourceType.name().toLowerCase());
-      sb.append(String.format(" weight=%.1f", getWeight(resourceType)));
+    public ResourceWeights(float weight) {
+        setWeight(weight);
     }
-    sb.append(">");
-    return sb.toString();
-  }
+
+    public ResourceWeights() { }
+
+    public void setWeight(float weight) {
+        for (int i = 0; i < weights.length; i++) {
+            weights[i] = weight;
+        }
+    }
+
+    public void setWeight(ResourceType resourceType, float weight) {
+        weights[resourceType.ordinal()] = weight;
+    }
+
+    public float getWeight(ResourceType resourceType) {
+        return weights[resourceType.ordinal()];
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("<");
+        for (int i = 0; i < ResourceType.values().length; i++) {
+            if (i != 0) {
+                sb.append(", ");
+            }
+            ResourceType resourceType = ResourceType.values()[i];
+            sb.append(resourceType.name().toLowerCase());
+            sb.append(String.format(" weight=%.1f", getWeight(resourceType)));
+        }
+        sb.append(">");
+        return sb.toString();
+    }
 }

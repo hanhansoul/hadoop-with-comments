@@ -28,9 +28,9 @@ import java.io.IOException;
 @InterfaceAudience.Private
 public class KMSJMXServlet extends JMXJsonServlet {
 
-  @Override
-  protected boolean isInstrumentationAccessAllowed(HttpServletRequest request,
-      HttpServletResponse response) throws IOException {
-    return true;
-  }
+    @Override
+    protected boolean isInstrumentationAccessAllowed(HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        return true;
+    }
 }

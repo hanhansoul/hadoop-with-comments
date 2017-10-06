@@ -39,95 +39,95 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestQuotasWithHA {
-  private static final Path TEST_DIR = new Path("/test");
-  private static final Path TEST_FILE = new Path(TEST_DIR, "file");
-  private static final String TEST_DIR_STR = TEST_DIR.toUri().getPath();
-  
-  private static final long NS_QUOTA = 10000;
-  private static final long DS_QUOTA = 10000;
-  private static final long BLOCK_SIZE = 1024; // 1KB blocks
-  
-  private MiniDFSCluster cluster;
-  private NameNode nn0;
-  private NameNode nn1;
-  private FileSystem fs;
+    private static final Path TEST_DIR = new Path("/test");
+    private static final Path TEST_FILE = new Path(TEST_DIR, "file");
+    private static final String TEST_DIR_STR = TEST_DIR.toUri().getPath();
 
-  @Before
-  public void setupCluster() throws Exception {
-    Configuration conf = new Configuration();
-    conf.setInt(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
-    conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
-    HAUtil.setAllowStandbyReads(conf, true);
-    
-    cluster = new MiniDFSCluster.Builder(conf)
-      .nnTopology(MiniDFSNNTopology.simpleHATopology())
-      .numDataNodes(1)
-      .waitSafeMode(false)
-      .build();
-    cluster.waitActive();
-    
-    nn0 = cluster.getNameNode(0);
-    nn1 = cluster.getNameNode(1);
-    fs = HATestUtil.configureFailoverFs(cluster, conf);
-    
-    cluster.transitionToActive(0);
-  }
-  
-  @After
-  public void shutdownCluster() throws IOException {
-    if (cluster != null) {
-      cluster.shutdown();
+    private static final long NS_QUOTA = 10000;
+    private static final long DS_QUOTA = 10000;
+    private static final long BLOCK_SIZE = 1024; // 1KB blocks
+
+    private MiniDFSCluster cluster;
+    private NameNode nn0;
+    private NameNode nn1;
+    private FileSystem fs;
+
+    @Before
+    public void setupCluster() throws Exception {
+        Configuration conf = new Configuration();
+        conf.setInt(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
+        conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
+        HAUtil.setAllowStandbyReads(conf, true);
+
+        cluster = new MiniDFSCluster.Builder(conf)
+        .nnTopology(MiniDFSNNTopology.simpleHATopology())
+        .numDataNodes(1)
+        .waitSafeMode(false)
+        .build();
+        cluster.waitActive();
+
+        nn0 = cluster.getNameNode(0);
+        nn1 = cluster.getNameNode(1);
+        fs = HATestUtil.configureFailoverFs(cluster, conf);
+
+        cluster.transitionToActive(0);
     }
-  }
 
-  /**
-   * Test that quotas are properly tracked by the standby through
-   * create, append, delete.
-   */
-  @Test(timeout=60000)
-  public void testQuotasTrackedOnStandby() throws Exception {
-    fs.mkdirs(TEST_DIR);
-    DistributedFileSystem dfs = (DistributedFileSystem)fs;
-    dfs.setQuota(TEST_DIR, NS_QUOTA, DS_QUOTA);
-    long expectedSize = 3 * BLOCK_SIZE + BLOCK_SIZE/2;
-    DFSTestUtil.createFile(fs, TEST_FILE, expectedSize, (short)1, 1L);
-
-    HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
-    ContentSummary cs = nn1.getRpcServer().getContentSummary(TEST_DIR_STR);
-    assertEquals(NS_QUOTA, cs.getQuota());
-    assertEquals(DS_QUOTA, cs.getSpaceQuota());
-    assertEquals(expectedSize, cs.getSpaceConsumed());
-    assertEquals(1, cs.getDirectoryCount());
-    assertEquals(1, cs.getFileCount());
-
-    // Append to the file and make sure quota is updated correctly.
-    FSDataOutputStream stm = fs.append(TEST_FILE);
-    try {
-      byte[] data = new byte[(int) (BLOCK_SIZE * 3 / 2)];
-      stm.write(data);
-      expectedSize += data.length;
-    } finally {
-      IOUtils.closeStream(stm);
+    @After
+    public void shutdownCluster() throws IOException {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
     }
-    
-    HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
-    cs = nn1.getRpcServer().getContentSummary(TEST_DIR_STR);
-    assertEquals(NS_QUOTA, cs.getQuota());
-    assertEquals(DS_QUOTA, cs.getSpaceQuota());
-    assertEquals(expectedSize, cs.getSpaceConsumed());
-    assertEquals(1, cs.getDirectoryCount());
-    assertEquals(1, cs.getFileCount());
 
-    
-    fs.delete(TEST_FILE, true);
-    expectedSize = 0;
-    HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
-    cs = nn1.getRpcServer().getContentSummary(TEST_DIR_STR);
-    assertEquals(NS_QUOTA, cs.getQuota());
-    assertEquals(DS_QUOTA, cs.getSpaceQuota());
-    assertEquals(expectedSize, cs.getSpaceConsumed());
-    assertEquals(1, cs.getDirectoryCount());
-    assertEquals(0, cs.getFileCount());
-  }
+    /**
+     * Test that quotas are properly tracked by the standby through
+     * create, append, delete.
+     */
+    @Test(timeout=60000)
+    public void testQuotasTrackedOnStandby() throws Exception {
+        fs.mkdirs(TEST_DIR);
+        DistributedFileSystem dfs = (DistributedFileSystem)fs;
+        dfs.setQuota(TEST_DIR, NS_QUOTA, DS_QUOTA);
+        long expectedSize = 3 * BLOCK_SIZE + BLOCK_SIZE/2;
+        DFSTestUtil.createFile(fs, TEST_FILE, expectedSize, (short)1, 1L);
+
+        HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
+        ContentSummary cs = nn1.getRpcServer().getContentSummary(TEST_DIR_STR);
+        assertEquals(NS_QUOTA, cs.getQuota());
+        assertEquals(DS_QUOTA, cs.getSpaceQuota());
+        assertEquals(expectedSize, cs.getSpaceConsumed());
+        assertEquals(1, cs.getDirectoryCount());
+        assertEquals(1, cs.getFileCount());
+
+        // Append to the file and make sure quota is updated correctly.
+        FSDataOutputStream stm = fs.append(TEST_FILE);
+        try {
+            byte[] data = new byte[(int) (BLOCK_SIZE * 3 / 2)];
+            stm.write(data);
+            expectedSize += data.length;
+        } finally {
+            IOUtils.closeStream(stm);
+        }
+
+        HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
+        cs = nn1.getRpcServer().getContentSummary(TEST_DIR_STR);
+        assertEquals(NS_QUOTA, cs.getQuota());
+        assertEquals(DS_QUOTA, cs.getSpaceQuota());
+        assertEquals(expectedSize, cs.getSpaceConsumed());
+        assertEquals(1, cs.getDirectoryCount());
+        assertEquals(1, cs.getFileCount());
+
+
+        fs.delete(TEST_FILE, true);
+        expectedSize = 0;
+        HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
+        cs = nn1.getRpcServer().getContentSummary(TEST_DIR_STR);
+        assertEquals(NS_QUOTA, cs.getQuota());
+        assertEquals(DS_QUOTA, cs.getSpaceQuota());
+        assertEquals(expectedSize, cs.getSpaceConsumed());
+        assertEquals(1, cs.getDirectoryCount());
+        assertEquals(0, cs.getFileCount());
+    }
 }

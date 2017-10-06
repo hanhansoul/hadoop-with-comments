@@ -43,203 +43,203 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
  */
 public interface RMApp extends EventHandler<RMAppEvent> {
 
-  /**
-   * The application id for this {@link RMApp}.
-   * @return the {@link ApplicationId} for this {@link RMApp}.
-   */
-  ApplicationId getApplicationId();
-  
-  /**
-   * The application submission context for this {@link RMApp}
-   * @return the {@link ApplicationSubmissionContext} for this {@link RMApp}
-   */
-  ApplicationSubmissionContext getApplicationSubmissionContext();
+    /**
+     * The application id for this {@link RMApp}.
+     * @return the {@link ApplicationId} for this {@link RMApp}.
+     */
+    ApplicationId getApplicationId();
 
-  /**
-   * The current state of the {@link RMApp}.
-   * @return the current state {@link RMAppState} for this application.
-   */
-  RMAppState getState();
+    /**
+     * The application submission context for this {@link RMApp}
+     * @return the {@link ApplicationSubmissionContext} for this {@link RMApp}
+     */
+    ApplicationSubmissionContext getApplicationSubmissionContext();
 
-  /**
-   * The user who submitted this application.
-   * @return the user who submitted the application.
-   */
-  String getUser();
+    /**
+     * The current state of the {@link RMApp}.
+     * @return the current state {@link RMAppState} for this application.
+     */
+    RMAppState getState();
 
-  /**
-   * Progress of application.
-   * @return the progress of the {@link RMApp}.
-   */
-  float getProgress();
+    /**
+     * The user who submitted this application.
+     * @return the user who submitted the application.
+     */
+    String getUser();
 
-  /**
-   * {@link RMApp} can have multiple application attempts {@link RMAppAttempt}.
-   * This method returns the {@link RMAppAttempt} corresponding to
-   *  {@link ApplicationAttemptId}.
-   * @param appAttemptId the application attempt id
-   * @return  the {@link RMAppAttempt} corresponding to the {@link ApplicationAttemptId}.
-   */
-  RMAppAttempt getRMAppAttempt(ApplicationAttemptId appAttemptId);
+    /**
+     * Progress of application.
+     * @return the progress of the {@link RMApp}.
+     */
+    float getProgress();
 
-  /**
-   * Each Application is submitted to a queue decided by {@link
-   * ApplicationSubmissionContext#setQueue(String)}.
-   * This method returns the queue to which an application was submitted.
-   * @return the queue to which the application was submitted to.
-   */
-  String getQueue();
-  
-  /**
-   * Reflects a change in the application's queue from the one specified in the
-   * {@link ApplicationSubmissionContext}.
-   * @param name the new queue name
-   */
-  void setQueue(String name);
+    /**
+     * {@link RMApp} can have multiple application attempts {@link RMAppAttempt}.
+     * This method returns the {@link RMAppAttempt} corresponding to
+     *  {@link ApplicationAttemptId}.
+     * @param appAttemptId the application attempt id
+     * @return  the {@link RMAppAttempt} corresponding to the {@link ApplicationAttemptId}.
+     */
+    RMAppAttempt getRMAppAttempt(ApplicationAttemptId appAttemptId);
 
-  /**
-   * The name of the application as set in {@link
-   * ApplicationSubmissionContext#setApplicationName(String)}.
-   * @return the name of the application.
-   */
-  String getName();
+    /**
+     * Each Application is submitted to a queue decided by {@link
+     * ApplicationSubmissionContext#setQueue(String)}.
+     * This method returns the queue to which an application was submitted.
+     * @return the queue to which the application was submitted to.
+     */
+    String getQueue();
 
-  /**
-   * {@link RMApp} can have multiple application attempts {@link RMAppAttempt}.
-   * This method returns the current {@link RMAppAttempt}.
-   * @return the current {@link RMAppAttempt}
-   */
-  RMAppAttempt getCurrentAppAttempt();
+    /**
+     * Reflects a change in the application's queue from the one specified in the
+     * {@link ApplicationSubmissionContext}.
+     * @param name the new queue name
+     */
+    void setQueue(String name);
 
-  /**
-   * {@link RMApp} can have multiple application attempts {@link RMAppAttempt}.
-   * This method returns the all {@link RMAppAttempt}s for the RMApp.
-   * @return all {@link RMAppAttempt}s for the RMApp.
-   */
-  Map<ApplicationAttemptId, RMAppAttempt> getAppAttempts();
+    /**
+     * The name of the application as set in {@link
+     * ApplicationSubmissionContext#setApplicationName(String)}.
+     * @return the name of the application.
+     */
+    String getName();
 
-  /**
-   * To get the status of an application in the RM, this method can be used.
-   * If full access is not allowed then the following fields in the report
-   * will be stubbed:
-   * <ul>
-   *   <li>host - set to "N/A"</li>
-   *   <li>RPC port - set to -1</li>
-   *   <li>client token - set to "N/A"</li>
-   *   <li>diagnostics - set to "N/A"</li>
-   *   <li>tracking URL - set to "N/A"</li>
-   *   <li>original tracking URL - set to "N/A"</li>
-   *   <li>resource usage report - all values are -1</li>
-   * </ul>
-   *
-   * @param clientUserName the user name of the client requesting the report
-   * @param allowAccess whether to allow full access to the report
-   * @return the {@link ApplicationReport} detailing the status of the application.
-   */
-  ApplicationReport createAndGetApplicationReport(String clientUserName,
-      boolean allowAccess);
-  
-  /**
-   * To receive the collection of all {@link RMNode}s whose updates have been
-   * received by the RMApp. Updates can be node becoming lost or becoming
-   * healthy etc. The method clears the information from the {@link RMApp}. So
-   * each call to this method gives the delta from the previous call.
-   * @param updatedNodes Collection into which the updates are transferred
-   * @return the number of nodes added to the {@link Collection}
-   */
-  int pullRMNodeUpdates(Collection<RMNode> updatedNodes);
+    /**
+     * {@link RMApp} can have multiple application attempts {@link RMAppAttempt}.
+     * This method returns the current {@link RMAppAttempt}.
+     * @return the current {@link RMAppAttempt}
+     */
+    RMAppAttempt getCurrentAppAttempt();
 
-  /**
-   * The finish time of the {@link RMApp}
-   * @return the finish time of the application.,
-   */
-  long getFinishTime();
+    /**
+     * {@link RMApp} can have multiple application attempts {@link RMAppAttempt}.
+     * This method returns the all {@link RMAppAttempt}s for the RMApp.
+     * @return all {@link RMAppAttempt}s for the RMApp.
+     */
+    Map<ApplicationAttemptId, RMAppAttempt> getAppAttempts();
 
-  /**
-   * the start time of the application.
-   * @return the start time of the application.
-   */
-  long getStartTime();
+    /**
+     * To get the status of an application in the RM, this method can be used.
+     * If full access is not allowed then the following fields in the report
+     * will be stubbed:
+     * <ul>
+     *   <li>host - set to "N/A"</li>
+     *   <li>RPC port - set to -1</li>
+     *   <li>client token - set to "N/A"</li>
+     *   <li>diagnostics - set to "N/A"</li>
+     *   <li>tracking URL - set to "N/A"</li>
+     *   <li>original tracking URL - set to "N/A"</li>
+     *   <li>resource usage report - all values are -1</li>
+     * </ul>
+     *
+     * @param clientUserName the user name of the client requesting the report
+     * @param allowAccess whether to allow full access to the report
+     * @return the {@link ApplicationReport} detailing the status of the application.
+     */
+    ApplicationReport createAndGetApplicationReport(String clientUserName,
+            boolean allowAccess);
 
-  /**
-   * the submit time of the application.
-   * @return the submit time of the application.
-   */
-  long getSubmitTime();
-  
-  /**
-   * The tracking url for the application master.
-   * @return the tracking url for the application master.
-   */
-  String getTrackingUrl();
+    /**
+     * To receive the collection of all {@link RMNode}s whose updates have been
+     * received by the RMApp. Updates can be node becoming lost or becoming
+     * healthy etc. The method clears the information from the {@link RMApp}. So
+     * each call to this method gives the delta from the previous call.
+     * @param updatedNodes Collection into which the updates are transferred
+     * @return the number of nodes added to the {@link Collection}
+     */
+    int pullRMNodeUpdates(Collection<RMNode> updatedNodes);
 
-  /**
-   * The original tracking url for the application master.
-   * @return the original tracking url for the application master.
-   */
-  String getOriginalTrackingUrl();
+    /**
+     * The finish time of the {@link RMApp}
+     * @return the finish time of the application.,
+     */
+    long getFinishTime();
 
-  /**
-   * the diagnostics information for the application master.
-   * @return the diagnostics information for the application master.
-   */
-  StringBuilder getDiagnostics();
+    /**
+     * the start time of the application.
+     * @return the start time of the application.
+     */
+    long getStartTime();
 
-  /**
-   * The final finish state of the AM when unregistering as in
-   * {@link FinishApplicationMasterRequest#setFinalApplicationStatus(FinalApplicationStatus)}.
-   * @return the final finish state of the AM as set in
-   * {@link FinishApplicationMasterRequest#setFinalApplicationStatus(FinalApplicationStatus)}.
-   */
-  FinalApplicationStatus getFinalApplicationStatus();
+    /**
+     * the submit time of the application.
+     * @return the submit time of the application.
+     */
+    long getSubmitTime();
 
-  /**
-   * The number of max attempts of the application.
-   * @return the number of max attempts of the application.
-   */
-  int getMaxAppAttempts();
-  
-  /**
-   * Returns the application type
-   * @return the application type.
-   */
-  String getApplicationType();
+    /**
+     * The tracking url for the application master.
+     * @return the tracking url for the application master.
+     */
+    String getTrackingUrl();
 
-  /**
-   * Get tags for the application
-   * @return tags corresponding to the application
-   */
-  Set<String> getApplicationTags();
+    /**
+     * The original tracking url for the application master.
+     * @return the original tracking url for the application master.
+     */
+    String getOriginalTrackingUrl();
 
-  /**
-   * Check whether this application's state has been saved to the state store.
-   * @return the flag indicating whether the applications's state is stored.
-   */
-  boolean isAppFinalStateStored();
-  
-  
-  /**
-   * Nodes on which the containers for this {@link RMApp} ran.
-   * @return the set of nodes that ran any containers from this {@link RMApp}
-   * Add more node on which containers for this {@link RMApp} ran
-   */
-  Set<NodeId> getRanNodes();
+    /**
+     * the diagnostics information for the application master.
+     * @return the diagnostics information for the application master.
+     */
+    StringBuilder getDiagnostics();
 
-  /**
-   * Create the external user-facing state of ApplicationMaster from the
-   * current state of the {@link RMApp}.
-   * @return the external user-facing state of ApplicationMaster.
-   */
-  YarnApplicationState createApplicationState();
-  
-  /**
-   * Get RMAppMetrics of the {@link RMApp}.
-   * 
-   * @return metrics
-   */
-  RMAppMetrics getRMAppMetrics();
+    /**
+     * The final finish state of the AM when unregistering as in
+     * {@link FinishApplicationMasterRequest#setFinalApplicationStatus(FinalApplicationStatus)}.
+     * @return the final finish state of the AM as set in
+     * {@link FinishApplicationMasterRequest#setFinalApplicationStatus(FinalApplicationStatus)}.
+     */
+    FinalApplicationStatus getFinalApplicationStatus();
 
-  ReservationId getReservationId();
-  
-  ResourceRequest getAMResourceRequest();
+    /**
+     * The number of max attempts of the application.
+     * @return the number of max attempts of the application.
+     */
+    int getMaxAppAttempts();
+
+    /**
+     * Returns the application type
+     * @return the application type.
+     */
+    String getApplicationType();
+
+    /**
+     * Get tags for the application
+     * @return tags corresponding to the application
+     */
+    Set<String> getApplicationTags();
+
+    /**
+     * Check whether this application's state has been saved to the state store.
+     * @return the flag indicating whether the applications's state is stored.
+     */
+    boolean isAppFinalStateStored();
+
+
+    /**
+     * Nodes on which the containers for this {@link RMApp} ran.
+     * @return the set of nodes that ran any containers from this {@link RMApp}
+     * Add more node on which containers for this {@link RMApp} ran
+     */
+    Set<NodeId> getRanNodes();
+
+    /**
+     * Create the external user-facing state of ApplicationMaster from the
+     * current state of the {@link RMApp}.
+     * @return the external user-facing state of ApplicationMaster.
+     */
+    YarnApplicationState createApplicationState();
+
+    /**
+     * Get RMAppMetrics of the {@link RMApp}.
+     *
+     * @return metrics
+     */
+    RMAppMetrics getRMAppMetrics();
+
+    ReservationId getReservationId();
+
+    ResourceRequest getAMResourceRequest();
 }

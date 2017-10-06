@@ -23,26 +23,26 @@ import org.apache.hadoop.util.ReflectionUtils;
 
 public class HistoryServerStateStoreServiceFactory {
 
-  /**
-   * Constructs an instance of the configured storage class
-   * 
-   * @param conf the configuration
-   * @return the state storage instance
-   */
-  public static HistoryServerStateStoreService getStore(Configuration conf) {
-    Class<? extends HistoryServerStateStoreService> storeClass =
-        HistoryServerNullStateStoreService.class;
-    boolean recoveryEnabled = conf.getBoolean(
-        JHAdminConfig.MR_HS_RECOVERY_ENABLE,
-        JHAdminConfig.DEFAULT_MR_HS_RECOVERY_ENABLE);
-    if (recoveryEnabled) {
-      storeClass = conf.getClass(JHAdminConfig.MR_HS_STATE_STORE, null,
-          HistoryServerStateStoreService.class);
-      if (storeClass == null) {
-        throw new RuntimeException("Unable to locate storage class, check "
-            + JHAdminConfig.MR_HS_STATE_STORE);
-      }
+    /**
+     * Constructs an instance of the configured storage class
+     *
+     * @param conf the configuration
+     * @return the state storage instance
+     */
+    public static HistoryServerStateStoreService getStore(Configuration conf) {
+        Class<? extends HistoryServerStateStoreService> storeClass =
+            HistoryServerNullStateStoreService.class;
+        boolean recoveryEnabled = conf.getBoolean(
+                                      JHAdminConfig.MR_HS_RECOVERY_ENABLE,
+                                      JHAdminConfig.DEFAULT_MR_HS_RECOVERY_ENABLE);
+        if (recoveryEnabled) {
+            storeClass = conf.getClass(JHAdminConfig.MR_HS_STATE_STORE, null,
+                                       HistoryServerStateStoreService.class);
+            if (storeClass == null) {
+                throw new RuntimeException("Unable to locate storage class, check "
+                                           + JHAdminConfig.MR_HS_STATE_STORE);
+            }
+        }
+        return ReflectionUtils.newInstance(storeClass, conf);
     }
-    return ReflectionUtils.newInstance(storeClass, conf);
-  }
 }

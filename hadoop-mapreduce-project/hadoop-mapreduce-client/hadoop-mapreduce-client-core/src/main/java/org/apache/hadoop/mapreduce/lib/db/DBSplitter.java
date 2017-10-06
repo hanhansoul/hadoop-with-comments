@@ -38,10 +38,10 @@ import org.apache.hadoop.mapreduce.InputSplit;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public interface DBSplitter {
-  /**
-   * Given a ResultSet containing one record (and already advanced to that record)
-   * with two columns (a low value, and a high value, both of the same type), determine
-   * a set of splits that span the given values.
-   */
-  List<InputSplit> split(Configuration conf, ResultSet results, String colName) throws SQLException;
+    /**
+     * Given a ResultSet containing one record (and already advanced to that record)
+     * with two columns (a low value, and a high value, both of the same type), determine
+     * a set of splits that span the given values.
+     */
+    List<InputSplit> split(Configuration conf, ResultSet results, String colName) throws SQLException;
 }

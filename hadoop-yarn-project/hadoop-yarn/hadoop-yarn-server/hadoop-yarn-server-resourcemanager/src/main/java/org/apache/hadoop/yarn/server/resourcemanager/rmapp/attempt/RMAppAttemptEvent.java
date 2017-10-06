@@ -23,15 +23,15 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class RMAppAttemptEvent extends AbstractEvent<RMAppAttemptEventType> {
 
-  private final ApplicationAttemptId appAttemptId;
+    private final ApplicationAttemptId appAttemptId;
 
-  public RMAppAttemptEvent(ApplicationAttemptId appAttemptId,
-      RMAppAttemptEventType type) {
-    super(type);
-    this.appAttemptId = appAttemptId;
-  }
+    public RMAppAttemptEvent(ApplicationAttemptId appAttemptId,
+                             RMAppAttemptEventType type) {
+        super(type);
+        this.appAttemptId = appAttemptId;
+    }
 
-  public ApplicationAttemptId getApplicationAttemptId() {
-    return this.appAttemptId;
-  }
+    public ApplicationAttemptId getApplicationAttemptId() {
+        return this.appAttemptId;
+    }
 }

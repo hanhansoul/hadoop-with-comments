@@ -40,127 +40,127 @@ import org.apache.hadoop.yarn.util.Clock;
  * This class keeps track of tasks that have already been launched. It
  * determines if a task is alive and running or marks a task as dead if it does
  * not hear from it for a long time.
- * 
+ *
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class TaskHeartbeatHandler extends AbstractService {
-  
-  private static class ReportTime {
-    private long lastProgress;
-    
-    public ReportTime(long time) {
-      setLastProgress(time);
+
+    private static class ReportTime {
+        private long lastProgress;
+
+        public ReportTime(long time) {
+            setLastProgress(time);
+        }
+
+        public synchronized void setLastProgress(long time) {
+            lastProgress = time;
+        }
+
+        public synchronized long getLastProgress() {
+            return lastProgress;
+        }
     }
-    
-    public synchronized void setLastProgress(long time) {
-      lastProgress = time;
+
+    private static final Log LOG = LogFactory.getLog(TaskHeartbeatHandler.class);
+
+    //thread which runs periodically to see the last time since a heartbeat is
+    //received from a task.
+    private Thread lostTaskCheckerThread;
+    private volatile boolean stopped;
+    private int taskTimeOut = 5 * 60 * 1000;// 5 mins
+    private int taskTimeOutCheckInterval = 30 * 1000; // 30 seconds.
+
+    private final EventHandler eventHandler;
+    private final Clock clock;
+
+    private ConcurrentMap<TaskAttemptId, ReportTime> runningAttempts;
+
+    public TaskHeartbeatHandler(EventHandler eventHandler, Clock clock,
+                                int numThreads) {
+        super("TaskHeartbeatHandler");
+        this.eventHandler = eventHandler;
+        this.clock = clock;
+        runningAttempts =
+            new ConcurrentHashMap<TaskAttemptId, ReportTime>(16, 0.75f, numThreads);
     }
-
-    public synchronized long getLastProgress() {
-      return lastProgress;
-    }
-  }
-  
-  private static final Log LOG = LogFactory.getLog(TaskHeartbeatHandler.class);
-  
-  //thread which runs periodically to see the last time since a heartbeat is
-  //received from a task.
-  private Thread lostTaskCheckerThread;
-  private volatile boolean stopped;
-  private int taskTimeOut = 5 * 60 * 1000;// 5 mins
-  private int taskTimeOutCheckInterval = 30 * 1000; // 30 seconds.
-
-  private final EventHandler eventHandler;
-  private final Clock clock;
-  
-  private ConcurrentMap<TaskAttemptId, ReportTime> runningAttempts;
-
-  public TaskHeartbeatHandler(EventHandler eventHandler, Clock clock,
-      int numThreads) {
-    super("TaskHeartbeatHandler");
-    this.eventHandler = eventHandler;
-    this.clock = clock;
-    runningAttempts =
-      new ConcurrentHashMap<TaskAttemptId, ReportTime>(16, 0.75f, numThreads);
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    super.serviceInit(conf);
-    taskTimeOut = conf.getInt(MRJobConfig.TASK_TIMEOUT, 5 * 60 * 1000);
-    taskTimeOutCheckInterval =
-        conf.getInt(MRJobConfig.TASK_TIMEOUT_CHECK_INTERVAL_MS, 30 * 1000);
-  }
-
-  @Override
-  protected void serviceStart() throws Exception {
-    lostTaskCheckerThread = new Thread(new PingChecker());
-    lostTaskCheckerThread.setName("TaskHeartbeatHandler PingChecker");
-    lostTaskCheckerThread.start();
-    super.serviceStart();
-  }
-
-  @Override
-  protected void serviceStop() throws Exception {
-    stopped = true;
-    if (lostTaskCheckerThread != null) {
-      lostTaskCheckerThread.interrupt();
-    }
-    super.serviceStop();
-  }
-
-  public void progressing(TaskAttemptId attemptID) {
-  //only put for the registered attempts
-    //TODO throw an exception if the task isn't registered.
-    ReportTime time = runningAttempts.get(attemptID);
-    if(time != null) {
-      time.setLastProgress(clock.getTime());
-    }
-  }
-
-  
-  public void register(TaskAttemptId attemptID) {
-    runningAttempts.put(attemptID, new ReportTime(clock.getTime()));
-  }
-
-  public void unregister(TaskAttemptId attemptID) {
-    runningAttempts.remove(attemptID);
-  }
-
-  private class PingChecker implements Runnable {
 
     @Override
-    public void run() {
-      while (!stopped && !Thread.currentThread().isInterrupted()) {
-        Iterator<Map.Entry<TaskAttemptId, ReportTime>> iterator =
-            runningAttempts.entrySet().iterator();
-
-        // avoid calculating current time everytime in loop
-        long currentTime = clock.getTime();
-
-        while (iterator.hasNext()) {
-          Map.Entry<TaskAttemptId, ReportTime> entry = iterator.next();
-          boolean taskTimedOut = (taskTimeOut > 0) && 
-              (currentTime > (entry.getValue().getLastProgress() + taskTimeOut));
-           
-          if(taskTimedOut) {
-            // task is lost, remove from the list and raise lost event
-            iterator.remove();
-            eventHandler.handle(new TaskAttemptDiagnosticsUpdateEvent(entry
-                .getKey(), "AttemptID:" + entry.getKey().toString()
-                + " Timed out after " + taskTimeOut / 1000 + " secs"));
-            eventHandler.handle(new TaskAttemptEvent(entry.getKey(),
-                TaskAttemptEventType.TA_TIMED_OUT));
-          }
-        }
-        try {
-          Thread.sleep(taskTimeOutCheckInterval);
-        } catch (InterruptedException e) {
-          LOG.info("TaskHeartbeatHandler thread interrupted");
-          break;
-        }
-      }
+    protected void serviceInit(Configuration conf) throws Exception {
+        super.serviceInit(conf);
+        taskTimeOut = conf.getInt(MRJobConfig.TASK_TIMEOUT, 5 * 60 * 1000);
+        taskTimeOutCheckInterval =
+            conf.getInt(MRJobConfig.TASK_TIMEOUT_CHECK_INTERVAL_MS, 30 * 1000);
     }
-  }
+
+    @Override
+    protected void serviceStart() throws Exception {
+        lostTaskCheckerThread = new Thread(new PingChecker());
+        lostTaskCheckerThread.setName("TaskHeartbeatHandler PingChecker");
+        lostTaskCheckerThread.start();
+        super.serviceStart();
+    }
+
+    @Override
+    protected void serviceStop() throws Exception {
+        stopped = true;
+        if (lostTaskCheckerThread != null) {
+            lostTaskCheckerThread.interrupt();
+        }
+        super.serviceStop();
+    }
+
+    public void progressing(TaskAttemptId attemptID) {
+        //only put for the registered attempts
+        //TODO throw an exception if the task isn't registered.
+        ReportTime time = runningAttempts.get(attemptID);
+        if(time != null) {
+            time.setLastProgress(clock.getTime());
+        }
+    }
+
+
+    public void register(TaskAttemptId attemptID) {
+        runningAttempts.put(attemptID, new ReportTime(clock.getTime()));
+    }
+
+    public void unregister(TaskAttemptId attemptID) {
+        runningAttempts.remove(attemptID);
+    }
+
+    private class PingChecker implements Runnable {
+
+        @Override
+        public void run() {
+            while (!stopped && !Thread.currentThread().isInterrupted()) {
+                Iterator<Map.Entry<TaskAttemptId, ReportTime>> iterator =
+                    runningAttempts.entrySet().iterator();
+
+                // avoid calculating current time everytime in loop
+                long currentTime = clock.getTime();
+
+                while (iterator.hasNext()) {
+                    Map.Entry<TaskAttemptId, ReportTime> entry = iterator.next();
+                    boolean taskTimedOut = (taskTimeOut > 0) &&
+                                           (currentTime > (entry.getValue().getLastProgress() + taskTimeOut));
+
+                    if(taskTimedOut) {
+                        // task is lost, remove from the list and raise lost event
+                        iterator.remove();
+                        eventHandler.handle(new TaskAttemptDiagnosticsUpdateEvent(entry
+                                            .getKey(), "AttemptID:" + entry.getKey().toString()
+                                            + " Timed out after " + taskTimeOut / 1000 + " secs"));
+                        eventHandler.handle(new TaskAttemptEvent(entry.getKey(),
+                                            TaskAttemptEventType.TA_TIMED_OUT));
+                    }
+                }
+                try {
+                    Thread.sleep(taskTimeOutCheckInterval);
+                } catch (InterruptedException e) {
+                    LOG.info("TaskHeartbeatHandler thread interrupted");
+                    break;
+                }
+            }
+        }
+    }
 
 }

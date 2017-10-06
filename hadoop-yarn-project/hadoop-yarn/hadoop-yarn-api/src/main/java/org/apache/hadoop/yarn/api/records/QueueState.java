@@ -24,27 +24,27 @@ import org.apache.hadoop.yarn.api.ApplicationClientProtocol;
 
 /**
  * <p>State of a Queue.</p>
- * 
+ *
  * <p>A queue is in one of:
  *   <ul>
- *     <li>{@link #RUNNING} - normal state.</li> 
+ *     <li>{@link #RUNNING} - normal state.</li>
  *     <li>{@link #STOPPED} - not accepting new application submissions.
  *   </ul>
  * </p>
- * 
+ *
  * @see QueueInfo
  * @see ApplicationClientProtocol#getQueueInfo(org.apache.hadoop.yarn.api.protocolrecords.GetQueueInfoRequest)
  */
 @Public
 @Stable
 public enum QueueState {
-  /**
-   * Stopped - Not accepting submissions of new applications.
-   */
-  STOPPED,
-  
-  /**
-   * Running - normal operation.
-   */
-  RUNNING
+    /**
+     * Stopped - Not accepting submissions of new applications.
+     */
+    STOPPED,
+
+    /**
+     * Running - normal operation.
+     */
+    RUNNING
 }

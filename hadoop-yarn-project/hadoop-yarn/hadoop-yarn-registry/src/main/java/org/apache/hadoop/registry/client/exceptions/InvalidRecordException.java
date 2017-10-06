@@ -29,13 +29,13 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public class InvalidRecordException extends RegistryIOException {
 
-  public InvalidRecordException(String path, String error) {
-    super(path, error);
-  }
+    public InvalidRecordException(String path, String error) {
+        super(path, error);
+    }
 
-  public InvalidRecordException(String path,
-      String error,
-      Throwable cause) {
-    super(path, error, cause);
-  }
+    public InvalidRecordException(String path,
+                                  String error,
+                                  Throwable cause) {
+        super(path, error, cause);
+    }
 }

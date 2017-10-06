@@ -23,15 +23,15 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ContainerResourceFailedEvent extends ContainerResourceEvent {
 
-  private final String diagnosticMesage;
+    private final String diagnosticMesage;
 
-  public ContainerResourceFailedEvent(ContainerId container,
-      LocalResourceRequest rsrc, String diagnosticMesage) {
-    super(container, ContainerEventType.RESOURCE_FAILED, rsrc);
-    this.diagnosticMesage = diagnosticMesage;
-  }
+    public ContainerResourceFailedEvent(ContainerId container,
+                                        LocalResourceRequest rsrc, String diagnosticMesage) {
+        super(container, ContainerEventType.RESOURCE_FAILED, rsrc);
+        this.diagnosticMesage = diagnosticMesage;
+    }
 
-  public String getDiagnosticMessage() {
-    return diagnosticMesage;
-  }
+    public String getDiagnosticMessage() {
+        return diagnosticMesage;
+    }
 }

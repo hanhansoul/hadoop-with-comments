@@ -28,16 +28,16 @@ import com.google.common.collect.ImmutableList;
  */
 @InterfaceAudience.Private
 public class AclFeature implements INode.Feature {
-  public static final ImmutableList<AclEntry> EMPTY_ENTRY_LIST =
-    ImmutableList.of();
+    public static final ImmutableList<AclEntry> EMPTY_ENTRY_LIST =
+        ImmutableList.of();
 
-  private final ImmutableList<AclEntry> entries;
+    private final ImmutableList<AclEntry> entries;
 
-  public AclFeature(ImmutableList<AclEntry> entries) {
-    this.entries = entries;
-  }
+    public AclFeature(ImmutableList<AclEntry> entries) {
+        this.entries = entries;
+    }
 
-  public ImmutableList<AclEntry> getEntries() {
-    return entries;
-  }
+    public ImmutableList<AclEntry> getEntries() {
+        return entries;
+    }
 }

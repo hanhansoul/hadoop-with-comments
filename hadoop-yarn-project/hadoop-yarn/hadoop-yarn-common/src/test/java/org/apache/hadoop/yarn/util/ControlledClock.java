@@ -19,24 +19,24 @@ package org.apache.hadoop.yarn.util;
 
 
 public class ControlledClock implements Clock {
-  private long time = -1;
-  private final Clock actualClock;
-  public ControlledClock(Clock actualClock) {
-    this.actualClock = actualClock;
-  }
-  public synchronized void setTime(long time) {
-    this.time = time;
-  }
-  public synchronized void reset() {
-    time = -1;
-  }
-
-  @Override
-  public synchronized long getTime() {
-    if (time != -1) {
-      return time;
+    private long time = -1;
+    private final Clock actualClock;
+    public ControlledClock(Clock actualClock) {
+        this.actualClock = actualClock;
     }
-    return actualClock.getTime();
-  }
+    public synchronized void setTime(long time) {
+        this.time = time;
+    }
+    public synchronized void reset() {
+        time = -1;
+    }
+
+    @Override
+    public synchronized long getTime() {
+        if (time != -1) {
+            return time;
+        }
+        return actualClock.getTime();
+    }
 
 }

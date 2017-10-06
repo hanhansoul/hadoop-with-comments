@@ -21,17 +21,17 @@ package org.apache.hadoop.tools.rumen.datatypes;
  * This represents the default java data-types (like int, long, float etc).
  */
 public class DefaultDataType implements DataType<String> {
-  private String value;
-  
-  public DefaultDataType(String value) {
-    this.value = value;
-  }
-  
-  /**
-   * Get the value of the attribute.
-   */
-  @Override
-  public String getValue() {
-    return value;
-  }
+    private String value;
+
+    public DefaultDataType(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Get the value of the attribute.
+     */
+    @Override
+    public String getValue() {
+        return value;
+    }
 }

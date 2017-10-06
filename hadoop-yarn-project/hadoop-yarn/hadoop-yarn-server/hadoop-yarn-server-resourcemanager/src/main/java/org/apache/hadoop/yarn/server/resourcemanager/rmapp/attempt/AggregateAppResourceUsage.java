@@ -22,39 +22,39 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 
 @Private
 public class AggregateAppResourceUsage {
-  long memorySeconds;
-  long vcoreSeconds;
+    long memorySeconds;
+    long vcoreSeconds;
 
-  public AggregateAppResourceUsage(long memorySeconds, long vcoreSeconds) {
-    this.memorySeconds = memorySeconds;
-    this.vcoreSeconds = vcoreSeconds;
-  }
+    public AggregateAppResourceUsage(long memorySeconds, long vcoreSeconds) {
+        this.memorySeconds = memorySeconds;
+        this.vcoreSeconds = vcoreSeconds;
+    }
 
-  /**
-   * @return the memorySeconds
-   */
-  public long getMemorySeconds() {
-    return memorySeconds;
-  }
+    /**
+     * @return the memorySeconds
+     */
+    public long getMemorySeconds() {
+        return memorySeconds;
+    }
 
-  /**
-   * @param memorySeconds the memorySeconds to set
-   */
-  public void setMemorySeconds(long memorySeconds) {
-    this.memorySeconds = memorySeconds;
-  }
+    /**
+     * @param memorySeconds the memorySeconds to set
+     */
+    public void setMemorySeconds(long memorySeconds) {
+        this.memorySeconds = memorySeconds;
+    }
 
-  /**
-   * @return the vcoreSeconds
-   */
-  public long getVcoreSeconds() {
-    return vcoreSeconds;
-  }
+    /**
+     * @return the vcoreSeconds
+     */
+    public long getVcoreSeconds() {
+        return vcoreSeconds;
+    }
 
-  /**
-   * @param vcoreSeconds the vcoreSeconds to set
-   */
-  public void setVcoreSeconds(long vcoreSeconds) {
-    this.vcoreSeconds = vcoreSeconds;
-  }
+    /**
+     * @param vcoreSeconds the vcoreSeconds to set
+     */
+    public void setVcoreSeconds(long vcoreSeconds) {
+        this.vcoreSeconds = vcoreSeconds;
+    }
 }

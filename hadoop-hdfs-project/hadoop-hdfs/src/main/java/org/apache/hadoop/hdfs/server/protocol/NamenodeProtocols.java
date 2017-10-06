@@ -31,14 +31,14 @@ import org.apache.hadoop.tracing.TraceAdminProtocol;
 /** The full set of RPC methods implemented by the Namenode.  */
 @InterfaceAudience.Private
 public interface NamenodeProtocols
-  extends ClientProtocol,
-          DatanodeProtocol,
-          NamenodeProtocol,
-          RefreshAuthorizationPolicyProtocol,
-          RefreshUserMappingsProtocol,
-          RefreshCallQueueProtocol,
-          GenericRefreshProtocol,
-          GetUserMappingsProtocol,
-          HAServiceProtocol,
-          TraceAdminProtocol {
+    extends ClientProtocol,
+    DatanodeProtocol,
+    NamenodeProtocol,
+    RefreshAuthorizationPolicyProtocol,
+    RefreshUserMappingsProtocol,
+    RefreshCallQueueProtocol,
+    GenericRefreshProtocol,
+    GetUserMappingsProtocol,
+    HAServiceProtocol,
+    TraceAdminProtocol {
 }

@@ -28,62 +28,62 @@ import org.apache.hadoop.oncrpc.XDR;
  * MKNOD3 Request
  */
 public class MKNOD3Request extends RequestWithHandle {
-  private final String name;
-  private int type;
-  private SetAttr3 objAttr = null;
-  private Specdata3 spec = null;
+    private final String name;
+    private int type;
+    private SetAttr3 objAttr = null;
+    private Specdata3 spec = null;
 
-  public MKNOD3Request(FileHandle handle, String name, int type,
-      SetAttr3 objAttr, Specdata3 spec) {
-    super(handle);
-    this.name = name;
-    this.type = type;
-    this.objAttr = objAttr;
-    this.spec = spec;
-  }
-
-  public static MKNOD3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    int type = xdr.readInt();
-    SetAttr3 objAttr =  new SetAttr3();
-    Specdata3 spec = null;
-    if (type == NfsFileType.NFSCHR.toValue()
-        || type == NfsFileType.NFSBLK.toValue()) {
-      objAttr.deserialize(xdr);
-      spec = new Specdata3(xdr.readInt(), xdr.readInt());
-    } else if (type == NfsFileType.NFSSOCK.toValue()
-        || type == NfsFileType.NFSFIFO.toValue()) {
-      objAttr.deserialize(xdr);
+    public MKNOD3Request(FileHandle handle, String name, int type,
+                         SetAttr3 objAttr, Specdata3 spec) {
+        super(handle);
+        this.name = name;
+        this.type = type;
+        this.objAttr = objAttr;
+        this.spec = spec;
     }
-    return new MKNOD3Request(handle, name, type, objAttr, spec);
-  }
 
-  public String getName() {
-    return name;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  public SetAttr3 getObjAttr() {
-    return objAttr;
-  }
-
-  public Specdata3 getSpec() {
-    return spec;
-  }
-
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.length());
-    xdr.writeFixedOpaque(name.getBytes(), name.length());
-    objAttr.serialize(xdr);
-    if (spec != null) {
-      xdr.writeInt(spec.getSpecdata1());
-      xdr.writeInt(spec.getSpecdata2());
+    public static MKNOD3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        int type = xdr.readInt();
+        SetAttr3 objAttr =  new SetAttr3();
+        Specdata3 spec = null;
+        if (type == NfsFileType.NFSCHR.toValue()
+            || type == NfsFileType.NFSBLK.toValue()) {
+            objAttr.deserialize(xdr);
+            spec = new Specdata3(xdr.readInt(), xdr.readInt());
+        } else if (type == NfsFileType.NFSSOCK.toValue()
+                   || type == NfsFileType.NFSFIFO.toValue()) {
+            objAttr.deserialize(xdr);
+        }
+        return new MKNOD3Request(handle, name, type, objAttr, spec);
     }
-  }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public SetAttr3 getObjAttr() {
+        return objAttr;
+    }
+
+    public Specdata3 getSpec() {
+        return spec;
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.length());
+        xdr.writeFixedOpaque(name.getBytes(), name.length());
+        objAttr.serialize(xdr);
+        if (spec != null) {
+            xdr.writeInt(spec.getSpecdata1());
+            xdr.writeInt(spec.getSpecdata2());
+        }
+    }
 }

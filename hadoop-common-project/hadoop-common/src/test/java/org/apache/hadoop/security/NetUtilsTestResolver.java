@@ -32,54 +32,54 @@ import org.apache.hadoop.security.SecurityUtil.QualifiedHostResolver;
  * and host mapping
  */
 public class NetUtilsTestResolver extends QualifiedHostResolver {
-  Map<String, InetAddress> resolvedHosts = new HashMap<String, InetAddress>();
-  List<String> hostSearches = new LinkedList<String>();
+    Map<String, InetAddress> resolvedHosts = new HashMap<String, InetAddress>();
+    List<String> hostSearches = new LinkedList<String>();
 
-  public static NetUtilsTestResolver install() {
-    NetUtilsTestResolver resolver = new NetUtilsTestResolver();
-    resolver.setSearchDomains("a.b", "b", "c");
-    resolver.addResolvedHost("host.a.b.", "1.1.1.1");
-    resolver.addResolvedHost("b-host.b.", "2.2.2.2");
-    resolver.addResolvedHost("simple.", "3.3.3.3");    
-    SecurityUtil.hostResolver = resolver;
-    return resolver;
-  }
-
-  public void addResolvedHost(String host, String ip) {
-    InetAddress addr;
-    try {
-      addr = InetAddress.getByName(ip);
-      addr = InetAddress.getByAddress(host, addr.getAddress());
-    } catch (UnknownHostException e) {
-      throw new IllegalArgumentException("not an ip:"+ip);
+    public static NetUtilsTestResolver install() {
+        NetUtilsTestResolver resolver = new NetUtilsTestResolver();
+        resolver.setSearchDomains("a.b", "b", "c");
+        resolver.addResolvedHost("host.a.b.", "1.1.1.1");
+        resolver.addResolvedHost("b-host.b.", "2.2.2.2");
+        resolver.addResolvedHost("simple.", "3.3.3.3");
+        SecurityUtil.hostResolver = resolver;
+        return resolver;
     }
-    resolvedHosts.put(host, addr);
-  }
 
-  @Override
-  public InetAddress getInetAddressByName(String host) throws UnknownHostException {
-    hostSearches.add(host);
-    if (!resolvedHosts.containsKey(host)) {
-      throw new UnknownHostException(host);
+    public void addResolvedHost(String host, String ip) {
+        InetAddress addr;
+        try {
+            addr = InetAddress.getByName(ip);
+            addr = InetAddress.getByAddress(host, addr.getAddress());
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("not an ip:"+ip);
+        }
+        resolvedHosts.put(host, addr);
     }
-    return resolvedHosts.get(host);
-  }
 
-  @Override
-  public InetAddress getByExactName(String host) {
-    return super.getByExactName(host);
-  }
-  
-  @Override
-  public InetAddress getByNameWithSearch(String host) {
-    return super.getByNameWithSearch(host);
-  }
-  
-  public String[] getHostSearches() {
-    return hostSearches.toArray(new String[0]);
-  }
+    @Override
+    public InetAddress getInetAddressByName(String host) throws UnknownHostException {
+        hostSearches.add(host);
+        if (!resolvedHosts.containsKey(host)) {
+            throw new UnknownHostException(host);
+        }
+        return resolvedHosts.get(host);
+    }
 
-  public void reset() {
-    hostSearches.clear();
-  }
+    @Override
+    public InetAddress getByExactName(String host) {
+        return super.getByExactName(host);
+    }
+
+    @Override
+    public InetAddress getByNameWithSearch(String host) {
+        return super.getByNameWithSearch(host);
+    }
+
+    public String[] getHostSearches() {
+        return hostSearches.toArray(new String[0]);
+    }
+
+    public void reset() {
+        hostSearches.clear();
+    }
 }

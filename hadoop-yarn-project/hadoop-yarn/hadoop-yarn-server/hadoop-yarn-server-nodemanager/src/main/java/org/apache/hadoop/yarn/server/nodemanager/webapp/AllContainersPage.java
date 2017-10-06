@@ -41,60 +41,60 @@ import com.google.inject.Inject;
 
 public class AllContainersPage extends NMView {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    setTitle("All containers running on this node");
-    set(DATATABLES_ID, "containers");
-    set(initID(DATATABLES, "containers"), containersTableInit());
-    setTableStyles(html, "containers");
-  }
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        setTitle("All containers running on this node");
+        set(DATATABLES_ID, "containers");
+        set(initID(DATATABLES, "containers"), containersTableInit());
+        setTableStyles(html, "containers");
+    }
 
-  private String containersTableInit() {
-    return tableInit().
-        // containerid, containerid, log-url
-        append(", aoColumns:[null, null, {bSearchable:false}]} ").toString();
-  }
-
-  @Override
-  protected Class<? extends SubView> content() {
-    return AllContainersBlock.class;
-  }
-
-  public static class AllContainersBlock extends HtmlBlock implements
-      YarnWebParams {
-
-    private final Context nmContext;
-
-    @Inject
-    public AllContainersBlock(Context nmContext) {
-      this.nmContext = nmContext;
+    private String containersTableInit() {
+        return tableInit().
+               // containerid, containerid, log-url
+               append(", aoColumns:[null, null, {bSearchable:false}]} ").toString();
     }
 
     @Override
-    protected void render(Block html) {
-      TBODY<TABLE<BODY<Hamlet>>> tableBody = html.body()
-        .table("#containers")
-          .thead()
-            .tr()
-              .td()._("ContainerId")._()
-              .td()._("ContainerState")._()
-              .td()._("logs")._()
-            ._()
-          ._().tbody();
-      for (Entry<ContainerId, Container> entry : this.nmContext
-          .getContainers().entrySet()) {
-        ContainerInfo info = new ContainerInfo(this.nmContext, entry.getValue());
-        tableBody
-          .tr()
-            .td().a(url("container", info.getId()), info.getId())
-            ._()
-            .td()._(info.getState())._()
-            .td()
-                .a(url(info.getShortLogLink()), "logs")._()
-          ._();
-      }
-      tableBody._()._()._();
+    protected Class<? extends SubView> content() {
+        return AllContainersBlock.class;
     }
 
-  }
+    public static class AllContainersBlock extends HtmlBlock implements
+        YarnWebParams {
+
+        private final Context nmContext;
+
+        @Inject
+        public AllContainersBlock(Context nmContext) {
+            this.nmContext = nmContext;
+        }
+
+        @Override
+        protected void render(Block html) {
+            TBODY<TABLE<BODY<Hamlet>>> tableBody = html.body()
+                                                   .table("#containers")
+                                                   .thead()
+                                                   .tr()
+                                                   .td()._("ContainerId")._()
+                                                   .td()._("ContainerState")._()
+                                                   .td()._("logs")._()
+                                                   ._()
+                                                   ._().tbody();
+            for (Entry<ContainerId, Container> entry : this.nmContext
+                 .getContainers().entrySet()) {
+                ContainerInfo info = new ContainerInfo(this.nmContext, entry.getValue());
+                tableBody
+                .tr()
+                .td().a(url("container", info.getId()), info.getId())
+                ._()
+                .td()._(info.getState())._()
+                .td()
+                .a(url(info.getShortLogLink()), "logs")._()
+                ._();
+            }
+            tableBody._()._()._();
+        }
+
+    }
 }

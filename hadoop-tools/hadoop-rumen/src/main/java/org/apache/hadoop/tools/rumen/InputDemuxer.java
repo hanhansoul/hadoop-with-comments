@@ -29,28 +29,28 @@ import org.apache.hadoop.fs.Path;
  * streams.
  */
 public interface InputDemuxer extends Closeable {
-  /**
-   * Bind the {@link InputDemuxer} to a particular file.
-   * 
-   * @param path
-   *          The path to the file it should bind to.
-   * @param conf
-   *          Configuration
-   * @throws IOException
-   * 
-   *           Returns true when the binding succeeds. If the file can be read
-   *           but is in the wrong format, returns false. IOException is
-   *           reserved for read errors.
-   */
-  public void bindTo(Path path, Configuration conf) throws IOException;
+    /**
+     * Bind the {@link InputDemuxer} to a particular file.
+     *
+     * @param path
+     *          The path to the file it should bind to.
+     * @param conf
+     *          Configuration
+     * @throws IOException
+     *
+     *           Returns true when the binding succeeds. If the file can be read
+     *           but is in the wrong format, returns false. IOException is
+     *           reserved for read errors.
+     */
+    public void bindTo(Path path, Configuration conf) throws IOException;
 
-  /**
-   * Get the next <name, input> pair. The name should preserve the original job
-   * history file or job conf file name. The input object should be closed
-   * before calling getNext() again. The old input object would be invalid after
-   * calling getNext() again.
-   * 
-   * @return the next <name, input> pair.
-   */
-  public Pair<String, InputStream> getNext() throws IOException;
+    /**
+     * Get the next <name, input> pair. The name should preserve the original job
+     * history file or job conf file name. The input object should be closed
+     * before calling getNext() again. The old input object would be invalid after
+     * calling getNext() again.
+     *
+     * @return the next <name, input> pair.
+     */
+    public Pair<String, InputStream> getNext() throws IOException;
 }

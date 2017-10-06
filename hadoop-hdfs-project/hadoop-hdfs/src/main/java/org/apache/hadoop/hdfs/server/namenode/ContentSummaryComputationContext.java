@@ -23,101 +23,101 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class ContentSummaryComputationContext {
-  private FSDirectory dir = null;
-  private FSNamesystem fsn = null;
-  private Content.Counts counts = null;
-  private long nextCountLimit = 0;
-  private long limitPerRun = 0;
-  private long yieldCount = 0;
-  private long sleepMilliSec = 0;
-  private int sleepNanoSec = 0;
+    private FSDirectory dir = null;
+    private FSNamesystem fsn = null;
+    private Content.Counts counts = null;
+    private long nextCountLimit = 0;
+    private long limitPerRun = 0;
+    private long yieldCount = 0;
+    private long sleepMilliSec = 0;
+    private int sleepNanoSec = 0;
 
-  /**
-   * Constructor
-   *
-   * @param dir The FSDirectory instance
-   * @param fsn The FSNamesystem instance
-   * @param limitPerRun allowed number of operations in one
-   *        locking period. 0 or a negative number means
-   *        no limit (i.e. no yielding)
-   */
-  public ContentSummaryComputationContext(FSDirectory dir,
-      FSNamesystem fsn, long limitPerRun, long sleepMicroSec) {
-    this.dir = dir;
-    this.fsn = fsn;
-    this.limitPerRun = limitPerRun;
-    this.nextCountLimit = limitPerRun;
-    this.counts = Content.Counts.newInstance();
-    this.sleepMilliSec = sleepMicroSec/1000;
-    this.sleepNanoSec = (int)((sleepMicroSec%1000)*1000);
-  }
-
-  /** Constructor for blocking computation. */
-  public ContentSummaryComputationContext() {
-    this(null, null, 0, 1000);
-  }
-
-  /** Return current yield count */
-  public long getYieldCount() {
-    return yieldCount;
-  }
-
-  /**
-   * Relinquish locks held during computation for a short while
-   * and reacquire them. This will give other threads a chance
-   * to acquire the contended locks and run.
-   *
-   * @return true if locks were released and reacquired.
-   */
-  public boolean yield() {
-    // Are we set up to do this?
-    if (limitPerRun <= 0 || dir == null || fsn == null) {
-      return false;
+    /**
+     * Constructor
+     *
+     * @param dir The FSDirectory instance
+     * @param fsn The FSNamesystem instance
+     * @param limitPerRun allowed number of operations in one
+     *        locking period. 0 or a negative number means
+     *        no limit (i.e. no yielding)
+     */
+    public ContentSummaryComputationContext(FSDirectory dir,
+                                            FSNamesystem fsn, long limitPerRun, long sleepMicroSec) {
+        this.dir = dir;
+        this.fsn = fsn;
+        this.limitPerRun = limitPerRun;
+        this.nextCountLimit = limitPerRun;
+        this.counts = Content.Counts.newInstance();
+        this.sleepMilliSec = sleepMicroSec/1000;
+        this.sleepNanoSec = (int)((sleepMicroSec%1000)*1000);
     }
 
-    // Have we reached the limit?
-    long currentCount = counts.get(Content.FILE) +
-        counts.get(Content.SYMLINK) +
-        counts.get(Content.DIRECTORY) +
-        counts.get(Content.SNAPSHOTTABLE_DIRECTORY);
-    if (currentCount <= nextCountLimit) {
-      return false;
+    /** Constructor for blocking computation. */
+    public ContentSummaryComputationContext() {
+        this(null, null, 0, 1000);
     }
 
-    // Update the next limit
-    nextCountLimit = currentCount + limitPerRun;
-
-    boolean hadDirReadLock = dir.hasReadLock();
-    boolean hadDirWriteLock = dir.hasWriteLock();
-    boolean hadFsnReadLock = fsn.hasReadLock();
-    boolean hadFsnWriteLock = fsn.hasWriteLock();
-
-    // sanity check.
-    if (!hadDirReadLock || !hadFsnReadLock || hadDirWriteLock ||
-        hadFsnWriteLock || dir.getReadHoldCount() != 1 ||
-        fsn.getReadHoldCount() != 1) {
-      // cannot relinquish
-      return false;
+    /** Return current yield count */
+    public long getYieldCount() {
+        return yieldCount;
     }
 
-    // unlock
-    dir.readUnlock();
-    fsn.readUnlock();
+    /**
+     * Relinquish locks held during computation for a short while
+     * and reacquire them. This will give other threads a chance
+     * to acquire the contended locks and run.
+     *
+     * @return true if locks were released and reacquired.
+     */
+    public boolean yield() {
+        // Are we set up to do this?
+        if (limitPerRun <= 0 || dir == null || fsn == null) {
+            return false;
+        }
 
-    try {
-      Thread.sleep(sleepMilliSec, sleepNanoSec);
-    } catch (InterruptedException ie) {
-    } finally {
-      // reacquire
-      fsn.readLock();
-      dir.readLock();
+        // Have we reached the limit?
+        long currentCount = counts.get(Content.FILE) +
+                            counts.get(Content.SYMLINK) +
+                            counts.get(Content.DIRECTORY) +
+                            counts.get(Content.SNAPSHOTTABLE_DIRECTORY);
+        if (currentCount <= nextCountLimit) {
+            return false;
+        }
+
+        // Update the next limit
+        nextCountLimit = currentCount + limitPerRun;
+
+        boolean hadDirReadLock = dir.hasReadLock();
+        boolean hadDirWriteLock = dir.hasWriteLock();
+        boolean hadFsnReadLock = fsn.hasReadLock();
+        boolean hadFsnWriteLock = fsn.hasWriteLock();
+
+        // sanity check.
+        if (!hadDirReadLock || !hadFsnReadLock || hadDirWriteLock ||
+            hadFsnWriteLock || dir.getReadHoldCount() != 1 ||
+            fsn.getReadHoldCount() != 1) {
+            // cannot relinquish
+            return false;
+        }
+
+        // unlock
+        dir.readUnlock();
+        fsn.readUnlock();
+
+        try {
+            Thread.sleep(sleepMilliSec, sleepNanoSec);
+        } catch (InterruptedException ie) {
+        } finally {
+            // reacquire
+            fsn.readLock();
+            dir.readLock();
+        }
+        yieldCount++;
+        return true;
     }
-    yieldCount++;
-    return true;
-  }
 
-  /** Get the content counts */
-  public Content.Counts getCounts() {
-    return counts;
-  }
+    /** Get the content counts */
+    public Content.Counts getCounts() {
+        return counts;
+    }
 }

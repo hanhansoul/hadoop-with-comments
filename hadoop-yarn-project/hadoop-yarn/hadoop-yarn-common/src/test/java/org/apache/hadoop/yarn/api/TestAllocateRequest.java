@@ -31,43 +31,43 @@ import org.apache.hadoop.yarn.proto.YarnServiceProtos.AllocateRequestProto;
 import org.junit.Test;
 
 public class TestAllocateRequest {
-  @Test
-  public void testAllcoateRequestWithIncrease() {
-    List<ContainerResourceIncreaseRequest> incRequests =
-        new ArrayList<ContainerResourceIncreaseRequest>();
-    for (int i = 0; i < 3; i++) {
-      incRequests.add(ContainerResourceIncreaseRequest.newInstance(null,
-          Resource.newInstance(0, i)));
+    @Test
+    public void testAllcoateRequestWithIncrease() {
+        List<ContainerResourceIncreaseRequest> incRequests =
+            new ArrayList<ContainerResourceIncreaseRequest>();
+        for (int i = 0; i < 3; i++) {
+            incRequests.add(ContainerResourceIncreaseRequest.newInstance(null,
+                            Resource.newInstance(0, i)));
+        }
+        AllocateRequest r =
+            AllocateRequest.newInstance(123, 0f, null, null, null, incRequests);
+
+        // serde
+        AllocateRequestProto p = ((AllocateRequestPBImpl) r).getProto();
+        r = new AllocateRequestPBImpl(p);
+
+        // check value
+        Assert.assertEquals(123, r.getResponseId());
+        Assert.assertEquals(incRequests.size(), r.getIncreaseRequests().size());
+
+        for (int i = 0; i < incRequests.size(); i++) {
+            Assert.assertEquals(r.getIncreaseRequests().get(i).getCapability()
+                                .getVirtualCores(), incRequests.get(i).getCapability()
+                                .getVirtualCores());
+        }
     }
-    AllocateRequest r =
-        AllocateRequest.newInstance(123, 0f, null, null, null, incRequests);
 
-    // serde
-    AllocateRequestProto p = ((AllocateRequestPBImpl) r).getProto();
-    r = new AllocateRequestPBImpl(p);
+    @Test
+    public void testAllcoateRequestWithoutIncrease() {
+        AllocateRequest r =
+            AllocateRequest.newInstance(123, 0f, null, null, null, null);
 
-    // check value
-    Assert.assertEquals(123, r.getResponseId());
-    Assert.assertEquals(incRequests.size(), r.getIncreaseRequests().size());
+        // serde
+        AllocateRequestProto p = ((AllocateRequestPBImpl) r).getProto();
+        r = new AllocateRequestPBImpl(p);
 
-    for (int i = 0; i < incRequests.size(); i++) {
-      Assert.assertEquals(r.getIncreaseRequests().get(i).getCapability()
-          .getVirtualCores(), incRequests.get(i).getCapability()
-          .getVirtualCores());
+        // check value
+        Assert.assertEquals(123, r.getResponseId());
+        Assert.assertEquals(0, r.getIncreaseRequests().size());
     }
-  }
-
-  @Test
-  public void testAllcoateRequestWithoutIncrease() {
-    AllocateRequest r =
-        AllocateRequest.newInstance(123, 0f, null, null, null, null);
-
-    // serde
-    AllocateRequestProto p = ((AllocateRequestPBImpl) r).getProto();
-    r = new AllocateRequestPBImpl(p);
-
-    // check value
-    Assert.assertEquals(123, r.getResponseId());
-    Assert.assertEquals(0, r.getIncreaseRequests().size());
-  }
 }

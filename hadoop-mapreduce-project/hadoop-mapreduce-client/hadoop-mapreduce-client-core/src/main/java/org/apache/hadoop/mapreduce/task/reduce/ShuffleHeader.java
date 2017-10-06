@@ -28,7 +28,7 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
 /**
- * Shuffle Header information that is sent by the TaskTracker and 
+ * Shuffle Header information that is sent by the TaskTracker and
  * deciphered by the Fetcher thread of Reduce task
  *
  */
@@ -36,43 +36,43 @@ import org.apache.hadoop.io.WritableUtils;
 @InterfaceStability.Stable
 public class ShuffleHeader implements Writable {
 
-  /** Header info of the shuffle http request/response */
-  public static final String HTTP_HEADER_NAME = "name";
-  public static final String DEFAULT_HTTP_HEADER_NAME = "mapreduce";
-  public static final String HTTP_HEADER_VERSION = "version";
-  public static final String DEFAULT_HTTP_HEADER_VERSION = "1.0.0";
+    /** Header info of the shuffle http request/response */
+    public static final String HTTP_HEADER_NAME = "name";
+    public static final String DEFAULT_HTTP_HEADER_NAME = "mapreduce";
+    public static final String HTTP_HEADER_VERSION = "version";
+    public static final String DEFAULT_HTTP_HEADER_VERSION = "1.0.0";
 
-  /**
-   * The longest possible length of task attempt id that we will accept.
-   */
-  private static final int MAX_ID_LENGTH = 1000;
+    /**
+     * The longest possible length of task attempt id that we will accept.
+     */
+    private static final int MAX_ID_LENGTH = 1000;
 
-  String mapId;
-  long uncompressedLength;
-  long compressedLength;
-  int forReduce;
-  
-  public ShuffleHeader() { }
-  
-  public ShuffleHeader(String mapId, long compressedLength,
-      long uncompressedLength, int forReduce) {
-    this.mapId = mapId;
-    this.compressedLength = compressedLength;
-    this.uncompressedLength = uncompressedLength;
-    this.forReduce = forReduce;
-  }
-  
-  public void readFields(DataInput in) throws IOException {
-    mapId = WritableUtils.readStringSafely(in, MAX_ID_LENGTH);
-    compressedLength = WritableUtils.readVLong(in);
-    uncompressedLength = WritableUtils.readVLong(in);
-    forReduce = WritableUtils.readVInt(in);
-  }
+    String mapId;
+    long uncompressedLength;
+    long compressedLength;
+    int forReduce;
 
-  public void write(DataOutput out) throws IOException {
-    Text.writeString(out, mapId);
-    WritableUtils.writeVLong(out, compressedLength);
-    WritableUtils.writeVLong(out, uncompressedLength);
-    WritableUtils.writeVInt(out, forReduce);
-  }
+    public ShuffleHeader() { }
+
+    public ShuffleHeader(String mapId, long compressedLength,
+                         long uncompressedLength, int forReduce) {
+        this.mapId = mapId;
+        this.compressedLength = compressedLength;
+        this.uncompressedLength = uncompressedLength;
+        this.forReduce = forReduce;
+    }
+
+    public void readFields(DataInput in) throws IOException {
+        mapId = WritableUtils.readStringSafely(in, MAX_ID_LENGTH);
+        compressedLength = WritableUtils.readVLong(in);
+        uncompressedLength = WritableUtils.readVLong(in);
+        forReduce = WritableUtils.readVInt(in);
+    }
+
+    public void write(DataOutput out) throws IOException {
+        Text.writeString(out, mapId);
+        WritableUtils.writeVLong(out, compressedLength);
+        WritableUtils.writeVLong(out, uncompressedLength);
+        WritableUtils.writeVInt(out, forReduce);
+    }
 }

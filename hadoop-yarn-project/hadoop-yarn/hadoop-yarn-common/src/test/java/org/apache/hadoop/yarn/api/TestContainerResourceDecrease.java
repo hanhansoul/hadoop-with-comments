@@ -30,37 +30,37 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ContainerResourceDecreaseProto;
 import org.junit.Test;
 
 public class TestContainerResourceDecrease {
-  @Test
-  public void testResourceDecreaseContext() {
-    ContainerId containerId = ContainerId
-        .newContainerId(ApplicationAttemptId.newInstance(
-            ApplicationId.newInstance(1234, 3), 3), 7);
-    Resource resource = Resource.newInstance(1023, 3);
-    ContainerResourceDecrease ctx = ContainerResourceDecrease.newInstance(
-        containerId, resource);
+    @Test
+    public void testResourceDecreaseContext() {
+        ContainerId containerId = ContainerId
+                                  .newContainerId(ApplicationAttemptId.newInstance(
+                                              ApplicationId.newInstance(1234, 3), 3), 7);
+        Resource resource = Resource.newInstance(1023, 3);
+        ContainerResourceDecrease ctx = ContainerResourceDecrease.newInstance(
+                                            containerId, resource);
 
-    // get proto and recover to ctx
-    ContainerResourceDecreaseProto proto = 
-        ((ContainerResourceDecreasePBImpl) ctx).getProto();
-    ctx = new ContainerResourceDecreasePBImpl(proto);
+        // get proto and recover to ctx
+        ContainerResourceDecreaseProto proto =
+            ((ContainerResourceDecreasePBImpl) ctx).getProto();
+        ctx = new ContainerResourceDecreasePBImpl(proto);
 
-    // check values
-    Assert.assertEquals(ctx.getCapability(), resource);
-    Assert.assertEquals(ctx.getContainerId(), containerId);
-  }
-  
-  @Test
-  public void testResourceDecreaseContextWithNull() {
-    ContainerResourceDecrease ctx = ContainerResourceDecrease.newInstance(null,
-        null);
-    
-    // get proto and recover to ctx;
-    ContainerResourceDecreaseProto proto = 
-        ((ContainerResourceDecreasePBImpl) ctx).getProto();
-    ctx = new ContainerResourceDecreasePBImpl(proto);
+        // check values
+        Assert.assertEquals(ctx.getCapability(), resource);
+        Assert.assertEquals(ctx.getContainerId(), containerId);
+    }
 
-    // check values
-    Assert.assertNull(ctx.getCapability());
-    Assert.assertNull(ctx.getContainerId());
-  }
+    @Test
+    public void testResourceDecreaseContextWithNull() {
+        ContainerResourceDecrease ctx = ContainerResourceDecrease.newInstance(null,
+                                        null);
+
+        // get proto and recover to ctx;
+        ContainerResourceDecreaseProto proto =
+            ((ContainerResourceDecreasePBImpl) ctx).getProto();
+        ctx = new ContainerResourceDecreasePBImpl(proto);
+
+        // check values
+        Assert.assertNull(ctx.getCapability());
+        Assert.assertNull(ctx.getContainerId());
+    }
 }

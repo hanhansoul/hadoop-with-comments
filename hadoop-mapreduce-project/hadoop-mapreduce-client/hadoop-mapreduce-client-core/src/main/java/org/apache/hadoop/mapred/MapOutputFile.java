@@ -39,130 +39,130 @@ import org.apache.hadoop.fs.Path;
 @InterfaceStability.Unstable
 public abstract class MapOutputFile implements Configurable {
 
-  private Configuration conf;
+    private Configuration conf;
 
-  static final String MAP_OUTPUT_FILENAME_STRING = "file.out";
-  static final String MAP_OUTPUT_INDEX_SUFFIX_STRING = ".index";
-  static final String REDUCE_INPUT_FILE_FORMAT_STRING = "%s/map_%d.out";
+    static final String MAP_OUTPUT_FILENAME_STRING = "file.out";
+    static final String MAP_OUTPUT_INDEX_SUFFIX_STRING = ".index";
+    static final String REDUCE_INPUT_FILE_FORMAT_STRING = "%s/map_%d.out";
 
-  public MapOutputFile() {
-  }
+    public MapOutputFile() {
+    }
 
-  /**
-   * Return the path to local map output file created earlier
-   *
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getOutputFile() throws IOException;
+    /**
+     * Return the path to local map output file created earlier
+     *
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getOutputFile() throws IOException;
 
-  /**
-   * Create a local map output file name.
-   *
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getOutputFileForWrite(long size) throws IOException;
+    /**
+     * Create a local map output file name.
+     *
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getOutputFileForWrite(long size) throws IOException;
 
-  /**
-   * Create a local map output file name on the same volume.
-   */
-  public abstract Path getOutputFileForWriteInVolume(Path existing);
+    /**
+     * Create a local map output file name on the same volume.
+     */
+    public abstract Path getOutputFileForWriteInVolume(Path existing);
 
-  /**
-   * Return the path to a local map output index file created earlier
-   *
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getOutputIndexFile() throws IOException;
+    /**
+     * Return the path to a local map output index file created earlier
+     *
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getOutputIndexFile() throws IOException;
 
-  /**
-   * Create a local map output index file name.
-   *
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getOutputIndexFileForWrite(long size) throws IOException;
+    /**
+     * Create a local map output index file name.
+     *
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getOutputIndexFileForWrite(long size) throws IOException;
 
-  /**
-   * Create a local map output index file name on the same volume.
-   */
-  public abstract Path getOutputIndexFileForWriteInVolume(Path existing);
+    /**
+     * Create a local map output index file name on the same volume.
+     */
+    public abstract Path getOutputIndexFileForWriteInVolume(Path existing);
 
-  /**
-   * Return a local map spill file created earlier.
-   *
-   * @param spillNumber the number
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getSpillFile(int spillNumber) throws IOException;
+    /**
+     * Return a local map spill file created earlier.
+     *
+     * @param spillNumber the number
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getSpillFile(int spillNumber) throws IOException;
 
-  /**
-   * Create a local map spill file name.
-   *
-   * @param spillNumber the number
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getSpillFileForWrite(int spillNumber, long size)
-      throws IOException;
+    /**
+     * Create a local map spill file name.
+     *
+     * @param spillNumber the number
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getSpillFileForWrite(int spillNumber, long size)
+    throws IOException;
 
-  /**
-   * Return a local map spill index file created earlier
-   *
-   * @param spillNumber the number
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getSpillIndexFile(int spillNumber) throws IOException;
+    /**
+     * Return a local map spill index file created earlier
+     *
+     * @param spillNumber the number
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getSpillIndexFile(int spillNumber) throws IOException;
 
-  /**
-   * Create a local map spill index file name.
-   *
-   * @param spillNumber the number
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getSpillIndexFileForWrite(int spillNumber, long size)
-      throws IOException;
+    /**
+     * Create a local map spill index file name.
+     *
+     * @param spillNumber the number
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getSpillIndexFileForWrite(int spillNumber, long size)
+    throws IOException;
 
-  /**
-   * Return a local reduce input file created earlier
-   *
-   * @param mapId a map task id
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getInputFile(int mapId) throws IOException;
+    /**
+     * Return a local reduce input file created earlier
+     *
+     * @param mapId a map task id
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getInputFile(int mapId) throws IOException;
 
-  /**
-   * Create a local reduce input file name.
-   *
-   * @param mapId a map task id
-   * @param size the size of the file
-   * @return path
-   * @throws IOException
-   */
-  public abstract Path getInputFileForWrite(
-      org.apache.hadoop.mapreduce.TaskID mapId, long size) throws IOException;
+    /**
+     * Create a local reduce input file name.
+     *
+     * @param mapId a map task id
+     * @param size the size of the file
+     * @return path
+     * @throws IOException
+     */
+    public abstract Path getInputFileForWrite(
+        org.apache.hadoop.mapreduce.TaskID mapId, long size) throws IOException;
 
-  /** Removes all of the files related to a task. */
-  public abstract void removeAll() throws IOException;
+    /** Removes all of the files related to a task. */
+    public abstract void removeAll() throws IOException;
 
-  @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
+    @Override
+    public void setConf(Configuration conf) {
+        this.conf = conf;
+    }
 
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
+    @Override
+    public Configuration getConf() {
+        return conf;
+    }
 
 }

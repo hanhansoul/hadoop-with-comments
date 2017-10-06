@@ -39,160 +39,160 @@ import java.util.List;
 @Unstable
 public class TimelinePutResponse {
 
-  private List<TimelinePutError> errors = new ArrayList<TimelinePutError>();
+    private List<TimelinePutError> errors = new ArrayList<TimelinePutError>();
 
-  public TimelinePutResponse() {
+    public TimelinePutResponse() {
 
-  }
-
-  /**
-   * Get a list of {@link TimelinePutError} instances
-   * 
-   * @return a list of {@link TimelinePutError} instances
-   */
-  @XmlElement(name = "errors")
-  public List<TimelinePutError> getErrors() {
-    return errors;
-  }
-
-  /**
-   * Add a single {@link TimelinePutError} instance into the existing list
-   * 
-   * @param error
-   *          a single {@link TimelinePutError} instance
-   */
-  public void addError(TimelinePutError error) {
-    errors.add(error);
-  }
-
-  /**
-   * Add a list of {@link TimelinePutError} instances into the existing list
-   * 
-   * @param errors
-   *          a list of {@link TimelinePutError} instances
-   */
-  public void addErrors(List<TimelinePutError> errors) {
-    this.errors.addAll(errors);
-  }
-
-  /**
-   * Set the list to the given list of {@link TimelinePutError} instances
-   * 
-   * @param errors
-   *          a list of {@link TimelinePutError} instances
-   */
-  public void setErrors(List<TimelinePutError> errors) {
-    this.errors.clear();
-    this.errors.addAll(errors);
-  }
-
-  /**
-   * A class that holds the error code for one entity.
-   */
-  @XmlRootElement(name = "error")
-  @XmlAccessorType(XmlAccessType.NONE)
-  @Public
-  @Unstable
-  public static class TimelinePutError {
-
-    /**
-     * Error code returned when no start time can be found when putting an
-     * entity. This occurs when the entity does not already exist in the store
-     * and it is put with no start time or events specified.
-     */
-    public static final int NO_START_TIME = 1;
-    /**
-     * Error code returned if an IOException is encountered when putting an
-     * entity.
-     */
-    public static final int IO_EXCEPTION = 2;
-
-    /**
-     * Error code returned if the user specifies the timeline system reserved
-     * filter key
-     */
-    public static final int SYSTEM_FILTER_CONFLICT = 3;
-
-    /**
-     * Error code returned if the user is denied to access the timeline data
-     */
-    public static final int ACCESS_DENIED = 4;
-
-    /**
-     * Error code returned if the entity doesn't have an valid domain ID
-     */
-    public static final int NO_DOMAIN = 5;
-
-    /**
-     * Error code returned if the user is denied to relate the entity to another
-     * one in different domain
-     */
-    public static final int FORBIDDEN_RELATION = 6;
-
-    private String entityId;
-    private String entityType;
-    private int errorCode;
-
-    /**
-     * Get the entity Id
-     * 
-     * @return the entity Id
-     */
-    @XmlElement(name = "entity")
-    public String getEntityId() {
-      return entityId;
     }
 
     /**
-     * Set the entity Id
-     * 
-     * @param entityId
-     *          the entity Id
+     * Get a list of {@link TimelinePutError} instances
+     *
+     * @return a list of {@link TimelinePutError} instances
      */
-    public void setEntityId(String entityId) {
-      this.entityId = entityId;
+    @XmlElement(name = "errors")
+    public List<TimelinePutError> getErrors() {
+        return errors;
     }
 
     /**
-     * Get the entity type
-     * 
-     * @return the entity type
+     * Add a single {@link TimelinePutError} instance into the existing list
+     *
+     * @param error
+     *          a single {@link TimelinePutError} instance
      */
-    @XmlElement(name = "entitytype")
-    public String getEntityType() {
-      return entityType;
+    public void addError(TimelinePutError error) {
+        errors.add(error);
     }
 
     /**
-     * Set the entity type
-     * 
-     * @param entityType
-     *          the entity type
+     * Add a list of {@link TimelinePutError} instances into the existing list
+     *
+     * @param errors
+     *          a list of {@link TimelinePutError} instances
      */
-    public void setEntityType(String entityType) {
-      this.entityType = entityType;
+    public void addErrors(List<TimelinePutError> errors) {
+        this.errors.addAll(errors);
     }
 
     /**
-     * Get the error code
-     * 
-     * @return an error code
+     * Set the list to the given list of {@link TimelinePutError} instances
+     *
+     * @param errors
+     *          a list of {@link TimelinePutError} instances
      */
-    @XmlElement(name = "errorcode")
-    public int getErrorCode() {
-      return errorCode;
+    public void setErrors(List<TimelinePutError> errors) {
+        this.errors.clear();
+        this.errors.addAll(errors);
     }
 
     /**
-     * Set the error code to the given error code
-     * 
-     * @param errorCode
-     *          an error code
+     * A class that holds the error code for one entity.
      */
-    public void setErrorCode(int errorCode) {
-      this.errorCode = errorCode;
-    }
+    @XmlRootElement(name = "error")
+    @XmlAccessorType(XmlAccessType.NONE)
+    @Public
+    @Unstable
+    public static class TimelinePutError {
 
-  }
+        /**
+         * Error code returned when no start time can be found when putting an
+         * entity. This occurs when the entity does not already exist in the store
+         * and it is put with no start time or events specified.
+         */
+        public static final int NO_START_TIME = 1;
+        /**
+         * Error code returned if an IOException is encountered when putting an
+         * entity.
+         */
+        public static final int IO_EXCEPTION = 2;
+
+        /**
+         * Error code returned if the user specifies the timeline system reserved
+         * filter key
+         */
+        public static final int SYSTEM_FILTER_CONFLICT = 3;
+
+        /**
+         * Error code returned if the user is denied to access the timeline data
+         */
+        public static final int ACCESS_DENIED = 4;
+
+        /**
+         * Error code returned if the entity doesn't have an valid domain ID
+         */
+        public static final int NO_DOMAIN = 5;
+
+        /**
+         * Error code returned if the user is denied to relate the entity to another
+         * one in different domain
+         */
+        public static final int FORBIDDEN_RELATION = 6;
+
+        private String entityId;
+        private String entityType;
+        private int errorCode;
+
+        /**
+         * Get the entity Id
+         *
+         * @return the entity Id
+         */
+        @XmlElement(name = "entity")
+        public String getEntityId() {
+            return entityId;
+        }
+
+        /**
+         * Set the entity Id
+         *
+         * @param entityId
+         *          the entity Id
+         */
+        public void setEntityId(String entityId) {
+            this.entityId = entityId;
+        }
+
+        /**
+         * Get the entity type
+         *
+         * @return the entity type
+         */
+        @XmlElement(name = "entitytype")
+        public String getEntityType() {
+            return entityType;
+        }
+
+        /**
+         * Set the entity type
+         *
+         * @param entityType
+         *          the entity type
+         */
+        public void setEntityType(String entityType) {
+            this.entityType = entityType;
+        }
+
+        /**
+         * Get the error code
+         *
+         * @return an error code
+         */
+        @XmlElement(name = "errorcode")
+        public int getErrorCode() {
+            return errorCode;
+        }
+
+        /**
+         * Set the error code to the given error code
+         *
+         * @param errorCode
+         *          an error code
+         */
+        public void setErrorCode(int errorCode) {
+            this.errorCode = errorCode;
+        }
+
+    }
 
 }

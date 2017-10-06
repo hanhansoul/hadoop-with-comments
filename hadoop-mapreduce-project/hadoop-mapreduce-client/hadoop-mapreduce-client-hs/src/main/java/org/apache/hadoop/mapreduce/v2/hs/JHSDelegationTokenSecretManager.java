@@ -40,108 +40,108 @@ import org.apache.hadoop.security.token.delegation.DelegationKey;
 public class JHSDelegationTokenSecretManager
     extends AbstractDelegationTokenSecretManager<MRDelegationTokenIdentifier> {
 
-  private static final Log LOG = LogFactory.getLog(
-      JHSDelegationTokenSecretManager.class);
+    private static final Log LOG = LogFactory.getLog(
+                                       JHSDelegationTokenSecretManager.class);
 
-  private HistoryServerStateStoreService store;
+    private HistoryServerStateStoreService store;
 
-  /**
-   * Create a secret manager
-   * @param delegationKeyUpdateInterval the number of seconds for rolling new
-   *        secret keys.
-   * @param delegationTokenMaxLifetime the maximum lifetime of the delegation
-   *        tokens
-   * @param delegationTokenRenewInterval how often the tokens must be renewed
-   * @param delegationTokenRemoverScanInterval how often the tokens are scanned
-   *        for expired tokens
-   * @param store history server state store for persisting state
-   */
-  public JHSDelegationTokenSecretManager(long delegationKeyUpdateInterval,
-                                      long delegationTokenMaxLifetime, 
-                                      long delegationTokenRenewInterval,
-                                      long delegationTokenRemoverScanInterval,
-                                      HistoryServerStateStoreService store) {
-    super(delegationKeyUpdateInterval, delegationTokenMaxLifetime,
-          delegationTokenRenewInterval, delegationTokenRemoverScanInterval);
-    this.store = store;
-  }
+    /**
+     * Create a secret manager
+     * @param delegationKeyUpdateInterval the number of seconds for rolling new
+     *        secret keys.
+     * @param delegationTokenMaxLifetime the maximum lifetime of the delegation
+     *        tokens
+     * @param delegationTokenRenewInterval how often the tokens must be renewed
+     * @param delegationTokenRemoverScanInterval how often the tokens are scanned
+     *        for expired tokens
+     * @param store history server state store for persisting state
+     */
+    public JHSDelegationTokenSecretManager(long delegationKeyUpdateInterval,
+                                           long delegationTokenMaxLifetime,
+                                           long delegationTokenRenewInterval,
+                                           long delegationTokenRemoverScanInterval,
+                                           HistoryServerStateStoreService store) {
+        super(delegationKeyUpdateInterval, delegationTokenMaxLifetime,
+              delegationTokenRenewInterval, delegationTokenRemoverScanInterval);
+        this.store = store;
+    }
 
-  @Override
-  public MRDelegationTokenIdentifier createIdentifier() {
-    return new MRDelegationTokenIdentifier();
-  }
+    @Override
+    public MRDelegationTokenIdentifier createIdentifier() {
+        return new MRDelegationTokenIdentifier();
+    }
 
-  @Override
-  protected void storeNewMasterKey(DelegationKey key) throws IOException {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Storing master key " + key.getKeyId());
+    @Override
+    protected void storeNewMasterKey(DelegationKey key) throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Storing master key " + key.getKeyId());
+        }
+        try {
+            store.storeTokenMasterKey(key);
+        } catch (IOException e) {
+            LOG.error("Unable to store master key " + key.getKeyId(), e);
+        }
     }
-    try {
-      store.storeTokenMasterKey(key);
-    } catch (IOException e) {
-      LOG.error("Unable to store master key " + key.getKeyId(), e);
-    }
-  }
 
-  @Override
-  protected void removeStoredMasterKey(DelegationKey key) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Removing master key " + key.getKeyId());
+    @Override
+    protected void removeStoredMasterKey(DelegationKey key) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Removing master key " + key.getKeyId());
+        }
+        try {
+            store.removeTokenMasterKey(key);
+        } catch (IOException e) {
+            LOG.error("Unable to remove master key " + key.getKeyId(), e);
+        }
     }
-    try {
-      store.removeTokenMasterKey(key);
-    } catch (IOException e) {
-      LOG.error("Unable to remove master key " + key.getKeyId(), e);
-    }
-  }
 
-  @Override
-  protected void storeNewToken(MRDelegationTokenIdentifier tokenId,
-      long renewDate) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Storing token " + tokenId.getSequenceNumber());
+    @Override
+    protected void storeNewToken(MRDelegationTokenIdentifier tokenId,
+                                 long renewDate) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Storing token " + tokenId.getSequenceNumber());
+        }
+        try {
+            store.storeToken(tokenId, renewDate);
+        } catch (IOException e) {
+            LOG.error("Unable to store token " + tokenId.getSequenceNumber(), e);
+        }
     }
-    try {
-      store.storeToken(tokenId, renewDate);
-    } catch (IOException e) {
-      LOG.error("Unable to store token " + tokenId.getSequenceNumber(), e);
-    }
-  }
 
-  @Override
-  protected void removeStoredToken(MRDelegationTokenIdentifier tokenId)
-      throws IOException {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Storing token " + tokenId.getSequenceNumber());
+    @Override
+    protected void removeStoredToken(MRDelegationTokenIdentifier tokenId)
+    throws IOException {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Storing token " + tokenId.getSequenceNumber());
+        }
+        try {
+            store.removeToken(tokenId);
+        } catch (IOException e) {
+            LOG.error("Unable to remove token " + tokenId.getSequenceNumber(), e);
+        }
     }
-    try {
-      store.removeToken(tokenId);
-    } catch (IOException e) {
-      LOG.error("Unable to remove token " + tokenId.getSequenceNumber(), e);
-    }
-  }
 
-  @Override
-  protected void updateStoredToken(MRDelegationTokenIdentifier tokenId,
-      long renewDate) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Updating token " + tokenId.getSequenceNumber());
+    @Override
+    protected void updateStoredToken(MRDelegationTokenIdentifier tokenId,
+                                     long renewDate) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Updating token " + tokenId.getSequenceNumber());
+        }
+        try {
+            store.updateToken(tokenId, renewDate);
+        } catch (IOException e) {
+            LOG.error("Unable to update token " + tokenId.getSequenceNumber(), e);
+        }
     }
-    try {
-      store.updateToken(tokenId, renewDate);
-    } catch (IOException e) {
-      LOG.error("Unable to update token " + tokenId.getSequenceNumber(), e);
-    }
-  }
 
-  public void recover(HistoryServerState state) throws IOException {
-    LOG.info("Recovering " + getClass().getSimpleName());
-    for (DelegationKey key : state.tokenMasterKeyState) {
-      addKey(key);
+    public void recover(HistoryServerState state) throws IOException {
+        LOG.info("Recovering " + getClass().getSimpleName());
+        for (DelegationKey key : state.tokenMasterKeyState) {
+            addKey(key);
+        }
+        for (Entry<MRDelegationTokenIdentifier, Long> entry :
+             state.tokenState.entrySet()) {
+            addPersistedDelegationToken(entry.getKey(), entry.getValue());
+        }
     }
-    for (Entry<MRDelegationTokenIdentifier, Long> entry :
-        state.tokenState.entrySet()) {
-      addPersistedDelegationToken(entry.getKey(), entry.getValue());
-    }
-  }
 }

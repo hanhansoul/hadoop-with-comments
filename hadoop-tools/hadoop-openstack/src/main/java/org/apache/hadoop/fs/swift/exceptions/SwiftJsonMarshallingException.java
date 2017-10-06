@@ -23,11 +23,11 @@ package org.apache.hadoop.fs.swift.exceptions;
  */
 public class SwiftJsonMarshallingException extends SwiftException {
 
-  public SwiftJsonMarshallingException(String message) {
-    super(message);
-  }
+    public SwiftJsonMarshallingException(String message) {
+        super(message);
+    }
 
-  public SwiftJsonMarshallingException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public SwiftJsonMarshallingException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

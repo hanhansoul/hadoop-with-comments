@@ -32,26 +32,26 @@ import static junit.framework.TestCase.assertEquals;
 
 public class AvroTestUtil {
 
-  public static void testReflect(Object value, String schema) throws Exception {
-    testReflect(value, value.getClass(), schema);
-  }
+    public static void testReflect(Object value, String schema) throws Exception {
+        testReflect(value, value.getClass(), schema);
+    }
 
-  public static void testReflect(Object value, Type type, String schema)
+    public static void testReflect(Object value, Type type, String schema)
     throws Exception {
 
-    // check that schema matches expected
-    Schema s = ReflectData.get().getSchema(type);
-    assertEquals(Schema.parse(schema), s);
+        // check that schema matches expected
+        Schema s = ReflectData.get().getSchema(type);
+        assertEquals(Schema.parse(schema), s);
 
-    // check that value is serialized correctly
-    ReflectDatumWriter<Object> writer = new ReflectDatumWriter<Object>(s);
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    writer.write(value, EncoderFactory.get().directBinaryEncoder(out, null));
-    ReflectDatumReader<Object> reader = new ReflectDatumReader<Object>(s);
-    Object after =
-      reader.read(null,
-                  DecoderFactory.get().binaryDecoder(out.toByteArray(), null));
-    assertEquals(value, after);
-  }
+        // check that value is serialized correctly
+        ReflectDatumWriter<Object> writer = new ReflectDatumWriter<Object>(s);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        writer.write(value, EncoderFactory.get().directBinaryEncoder(out, null));
+        ReflectDatumReader<Object> reader = new ReflectDatumReader<Object>(s);
+        Object after =
+            reader.read(null,
+                        DecoderFactory.get().binaryDecoder(out.toByteArray(), null));
+        assertEquals(value, after);
+    }
 
 }

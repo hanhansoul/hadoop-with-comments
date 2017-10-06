@@ -31,44 +31,44 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class TestHtmlBlock {
-  public static class TestBlock extends HtmlBlock {
-    @Override
-    public void render(Block html) {
-      html.
-        p("#testid")._("test note")._();
+    public static class TestBlock extends HtmlBlock {
+        @Override
+        public void render(Block html) {
+            html.
+            p("#testid")._("test note")._();
+        }
     }
-  }
 
-  public static class ShortBlock extends HtmlBlock {
-    @Override
-    public void render(Block html) {
-      html.
-        p()._("should throw");
+    public static class ShortBlock extends HtmlBlock {
+        @Override
+        public void render(Block html) {
+            html.
+            p()._("should throw");
+        }
     }
-  }
 
-  public static class ShortPage extends HtmlPage {
-    @Override
-    public void render(Page.HTML<_> html) {
-      html.
-        title("short test").
-        _(ShortBlock.class);
+    public static class ShortPage extends HtmlPage {
+        @Override
+        public void render(Page.HTML<_> html) {
+            html.
+            title("short test").
+            _(ShortBlock.class);
+        }
     }
-  }
 
-  @Test public void testUsual() {
-    Injector injector = WebAppTests.testBlock(TestBlock.class);
-    PrintWriter out = injector.getInstance(PrintWriter.class);
+    @Test public void testUsual() {
+        Injector injector = WebAppTests.testBlock(TestBlock.class);
+        PrintWriter out = injector.getInstance(PrintWriter.class);
 
-    verify(out).print(" id=\"testid\"");
-    verify(out).print("test note");
-  }
+        verify(out).print(" id=\"testid\"");
+        verify(out).print("test note");
+    }
 
-  @Test(expected=WebAppException.class) public void testShortBlock() {
-    WebAppTests.testBlock(ShortBlock.class);
-  }
+    @Test(expected=WebAppException.class) public void testShortBlock() {
+        WebAppTests.testBlock(ShortBlock.class);
+    }
 
-  @Test(expected=WebAppException.class) public void testShortPage() {
-    WebAppTests.testPage(ShortPage.class);
-  }
+    @Test(expected=WebAppException.class) public void testShortPage() {
+        WebAppTests.testPage(ShortPage.class);
+    }
 }

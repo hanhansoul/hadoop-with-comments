@@ -30,13 +30,13 @@ import org.codehaus.jackson.map.SerializerProvider;
  */
 @SuppressWarnings("unchecked")
 public class DefaultRumenSerializer extends JsonSerializer<DataType> {
-  public void serialize(DataType object, JsonGenerator jGen, SerializerProvider sProvider) 
-  throws IOException, JsonProcessingException {
-    Object data = object.getValue();
-    if (data instanceof String) {
-      jGen.writeString(data.toString());
-    } else {
-      jGen.writeObject(data);
-    }
-  };
+    public void serialize(DataType object, JsonGenerator jGen, SerializerProvider sProvider)
+    throws IOException, JsonProcessingException {
+        Object data = object.getValue();
+        if (data instanceof String) {
+            jGen.writeString(data.toString());
+        } else {
+            jGen.writeObject(data);
+        }
+    };
 }

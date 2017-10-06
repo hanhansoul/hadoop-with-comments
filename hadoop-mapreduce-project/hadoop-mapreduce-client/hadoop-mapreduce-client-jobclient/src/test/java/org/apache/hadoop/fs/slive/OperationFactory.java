@@ -30,53 +30,53 @@ import org.apache.hadoop.fs.slive.Constants.OperationType;
  */
 class OperationFactory {
 
-  private Map<OperationType, Operation> typedOperations;
-  private ConfigExtractor config;
-  private Random rnd;
+    private Map<OperationType, Operation> typedOperations;
+    private ConfigExtractor config;
+    private Random rnd;
 
-  OperationFactory(ConfigExtractor cfg, Random rnd) {
-    this.typedOperations = new HashMap<OperationType, Operation>();
-    this.config = cfg;
-    this.rnd = rnd;
-  }
+    OperationFactory(ConfigExtractor cfg, Random rnd) {
+        this.typedOperations = new HashMap<OperationType, Operation>();
+        this.config = cfg;
+        this.rnd = rnd;
+    }
 
-  /**
-   * Gets an operation instance (cached) for a given operation type
-   * 
-   * @param type
-   *          the operation type to fetch for
-   * 
-   * @return Operation operation instance or null if it can not be fetched.
-   */
-  Operation getOperation(OperationType type) {
-    Operation op = typedOperations.get(type);
-    if (op != null) {
-      return op;
+    /**
+     * Gets an operation instance (cached) for a given operation type
+     *
+     * @param type
+     *          the operation type to fetch for
+     *
+     * @return Operation operation instance or null if it can not be fetched.
+     */
+    Operation getOperation(OperationType type) {
+        Operation op = typedOperations.get(type);
+        if (op != null) {
+            return op;
+        }
+        switch (type) {
+            case READ:
+                op = new ReadOp(this.config, rnd);
+                break;
+            case LS:
+                op = new ListOp(this.config, rnd);
+                break;
+            case MKDIR:
+                op = new MkdirOp(this.config, rnd);
+                break;
+            case APPEND:
+                op = new AppendOp(this.config, rnd);
+                break;
+            case RENAME:
+                op = new RenameOp(this.config, rnd);
+                break;
+            case DELETE:
+                op = new DeleteOp(this.config, rnd);
+                break;
+            case CREATE:
+                op = new CreateOp(this.config, rnd);
+                break;
+        }
+        typedOperations.put(type, op);
+        return op;
     }
-    switch (type) {
-    case READ:
-      op = new ReadOp(this.config, rnd);
-      break;
-    case LS:
-      op = new ListOp(this.config, rnd);
-      break;
-    case MKDIR:
-      op = new MkdirOp(this.config, rnd);
-      break;
-    case APPEND:
-      op = new AppendOp(this.config, rnd);
-      break;
-    case RENAME:
-      op = new RenameOp(this.config, rnd);
-      break;
-    case DELETE:
-      op = new DeleteOp(this.config, rnd);
-      break;
-    case CREATE:
-      op = new CreateOp(this.config, rnd);
-      break;
-    }
-    typedOperations.put(type, op);
-    return op;
-  }
 }

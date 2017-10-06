@@ -26,8 +26,8 @@ import java.io.IOException;
  */
 public class TestLocalMRNotification extends NotificationTestCase {
 
-  public TestLocalMRNotification() throws IOException {
-    super(HadoopTestCase.LOCAL_MR);
-  }
+    public TestLocalMRNotification() throws IOException {
+        super(HadoopTestCase.LOCAL_MR);
+    }
 
 }

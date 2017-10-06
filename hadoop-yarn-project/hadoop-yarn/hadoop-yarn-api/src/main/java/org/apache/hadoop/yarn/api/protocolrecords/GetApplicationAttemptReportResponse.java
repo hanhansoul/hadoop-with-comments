@@ -29,12 +29,12 @@ import org.apache.hadoop.yarn.util.Records;
  * The response sent by the <code>ResourceManager</code> to a client requesting
  * an application attempt report.
  * </p>
- * 
+ *
  * <p>
  * The response includes an {@link ApplicationAttemptReport} which has the
  * details about the particular application attempt
  * </p>
- * 
+ *
  * @see ApplicationAttemptReport
  * @see ApplicationHistoryProtocol#getApplicationAttemptReport(GetApplicationAttemptReportRequest)
  */
@@ -42,33 +42,33 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class GetApplicationAttemptReportResponse {
 
-  @Public
-  @Unstable
-  public static GetApplicationAttemptReportResponse newInstance(
-      ApplicationAttemptReport ApplicationAttemptReport) {
-    GetApplicationAttemptReportResponse response =
-        Records.newRecord(GetApplicationAttemptReportResponse.class);
-    response.setApplicationAttemptReport(ApplicationAttemptReport);
-    return response;
-  }
+    @Public
+    @Unstable
+    public static GetApplicationAttemptReportResponse newInstance(
+        ApplicationAttemptReport ApplicationAttemptReport) {
+        GetApplicationAttemptReportResponse response =
+            Records.newRecord(GetApplicationAttemptReportResponse.class);
+        response.setApplicationAttemptReport(ApplicationAttemptReport);
+        return response;
+    }
 
-  /**
-   * Get the <code>ApplicationAttemptReport</code> for the application attempt.
-   * 
-   * @return <code>ApplicationAttemptReport</code> for the application attempt
-   */
-  @Public
-  @Unstable
-  public abstract ApplicationAttemptReport getApplicationAttemptReport();
+    /**
+     * Get the <code>ApplicationAttemptReport</code> for the application attempt.
+     *
+     * @return <code>ApplicationAttemptReport</code> for the application attempt
+     */
+    @Public
+    @Unstable
+    public abstract ApplicationAttemptReport getApplicationAttemptReport();
 
-  /**
-   * Get the <code>ApplicationAttemptReport</code> for the application attempt.
-   * 
-   * @param applicationAttemptReport
-   *          <code>ApplicationAttemptReport</code> for the application attempt
-   */
-  @Public
-  @Unstable
-  public abstract void setApplicationAttemptReport(
-      ApplicationAttemptReport applicationAttemptReport);
+    /**
+     * Get the <code>ApplicationAttemptReport</code> for the application attempt.
+     *
+     * @param applicationAttemptReport
+     *          <code>ApplicationAttemptReport</code> for the application attempt
+     */
+    @Public
+    @Unstable
+    public abstract void setApplicationAttemptReport(
+        ApplicationAttemptReport applicationAttemptReport);
 }

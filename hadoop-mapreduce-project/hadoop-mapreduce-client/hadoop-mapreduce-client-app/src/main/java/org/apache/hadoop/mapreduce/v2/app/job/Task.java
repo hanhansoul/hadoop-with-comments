@@ -31,28 +31,28 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskType;
  * Read only view of Task.
  */
 public interface Task {
-  TaskId getID();
-  TaskReport getReport();
-  TaskState getState();
-  Counters getCounters();
-  float getProgress();
-  TaskType getType();
-  Map<TaskAttemptId, TaskAttempt> getAttempts();
-  TaskAttempt getAttempt(TaskAttemptId attemptID);
+    TaskId getID();
+    TaskReport getReport();
+    TaskState getState();
+    Counters getCounters();
+    float getProgress();
+    TaskType getType();
+    Map<TaskAttemptId, TaskAttempt> getAttempts();
+    TaskAttempt getAttempt(TaskAttemptId attemptID);
 
-  /** Has Task reached the final state or not.
-   */
-  boolean isFinished();
+    /** Has Task reached the final state or not.
+     */
+    boolean isFinished();
 
-  /**
-   * Can the output of the taskAttempt be committed. Note that once the task
-   * gives a go for a commit, further canCommit requests from any other attempts
-   * should return false.
-   * 
-   * @param taskAttemptID
-   * @return whether the attempt's output can be committed or not.
-   */
-  boolean canCommit(TaskAttemptId taskAttemptID);
+    /**
+     * Can the output of the taskAttempt be committed. Note that once the task
+     * gives a go for a commit, further canCommit requests from any other attempts
+     * should return false.
+     *
+     * @param taskAttemptID
+     * @return whether the attempt's output can be committed or not.
+     */
+    boolean canCommit(TaskAttemptId taskAttemptID);
 
-  
+
 }

@@ -37,132 +37,132 @@ import org.apache.hadoop.yarn.proto.YarnServiceProtos.GetNodesToLabelsResponsePr
 
 public class GetNodesToLabelsResponsePBImpl extends
     GetNodesToLabelsResponse {
-  GetNodesToLabelsResponseProto proto = GetNodesToLabelsResponseProto
-      .getDefaultInstance();
-  GetNodesToLabelsResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetNodesToLabelsResponseProto proto = GetNodesToLabelsResponseProto
+                                          .getDefaultInstance();
+    GetNodesToLabelsResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private Map<NodeId, Set<String>> nodeToLabels;
-  
-  public GetNodesToLabelsResponsePBImpl() {
-    this.builder = GetNodesToLabelsResponseProto.newBuilder();
-  }
+    private Map<NodeId, Set<String>> nodeToLabels;
 
-  public GetNodesToLabelsResponsePBImpl(GetNodesToLabelsResponseProto proto) {
-    this.proto = proto;
-    this.viaProto = true;
-  }
-
-  private void initNodeToLabels() {
-    if (this.nodeToLabels != null) {
-      return;
+    public GetNodesToLabelsResponsePBImpl() {
+        this.builder = GetNodesToLabelsResponseProto.newBuilder();
     }
-    GetNodesToLabelsResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<NodeIdToLabelsProto> list = p.getNodeToLabelsList();
-    this.nodeToLabels = new HashMap<NodeId, Set<String>>();
 
-    for (NodeIdToLabelsProto c : list) {
-      this.nodeToLabels.put(new NodeIdPBImpl(c.getNodeId()),
-          Sets.newHashSet(c.getNodeLabelsList()));
+    public GetNodesToLabelsResponsePBImpl(GetNodesToLabelsResponseProto proto) {
+        this.proto = proto;
+        this.viaProto = true;
     }
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetNodesToLabelsResponseProto.newBuilder(proto);
-    }
-    viaProto = false;
-  }
+    private void initNodeToLabels() {
+        if (this.nodeToLabels != null) {
+            return;
+        }
+        GetNodesToLabelsResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<NodeIdToLabelsProto> list = p.getNodeToLabelsList();
+        this.nodeToLabels = new HashMap<NodeId, Set<String>>();
 
-  private void addNodeToLabelsToProto() {
-    maybeInitBuilder();
-    builder.clearNodeToLabels();
-    if (nodeToLabels == null) {
-      return;
+        for (NodeIdToLabelsProto c : list) {
+            this.nodeToLabels.put(new NodeIdPBImpl(c.getNodeId()),
+                                  Sets.newHashSet(c.getNodeLabelsList()));
+        }
     }
-    Iterable<NodeIdToLabelsProto> iterable =
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetNodesToLabelsResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private void addNodeToLabelsToProto() {
+        maybeInitBuilder();
+        builder.clearNodeToLabels();
+        if (nodeToLabels == null) {
+            return;
+        }
+        Iterable<NodeIdToLabelsProto> iterable =
         new Iterable<NodeIdToLabelsProto>() {
-          @Override
-          public Iterator<NodeIdToLabelsProto> iterator() {
-            return new Iterator<NodeIdToLabelsProto>() {
+            @Override
+            public Iterator<NodeIdToLabelsProto> iterator() {
+                return new Iterator<NodeIdToLabelsProto>() {
 
-              Iterator<Entry<NodeId, Set<String>>> iter = nodeToLabels
-                  .entrySet().iterator();
+                    Iterator<Entry<NodeId, Set<String>>> iter = nodeToLabels
+                            .entrySet().iterator();
 
-              @Override
-              public void remove() {
-                throw new UnsupportedOperationException();
-              }
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+                    }
 
-              @Override
-              public NodeIdToLabelsProto next() {
-                Entry<NodeId, Set<String>> now = iter.next();
-                return NodeIdToLabelsProto.newBuilder()
-                    .setNodeId(convertToProtoFormat(now.getKey()))
-                    .addAllNodeLabels(now.getValue()).build();
-              }
+                    @Override
+                    public NodeIdToLabelsProto next() {
+                        Entry<NodeId, Set<String>> now = iter.next();
+                        return NodeIdToLabelsProto.newBuilder()
+                               .setNodeId(convertToProtoFormat(now.getKey()))
+                               .addAllNodeLabels(now.getValue()).build();
+                    }
 
-              @Override
-              public boolean hasNext() {
-                return iter.hasNext();
-              }
-            };
-          }
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
+                };
+            }
         };
-    builder.addAllNodeToLabels(iterable);
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.nodeToLabels != null) {
-      addNodeToLabelsToProto();
+        builder.addAllNodeToLabels(iterable);
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  public GetNodesToLabelsResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public Map<NodeId, Set<String>> getNodeToLabels() {
-    initNodeToLabels();
-    return this.nodeToLabels;
-  }
-
-  @Override
-  public void setNodeToLabels(Map<NodeId, Set<String>> map) {
-    initNodeToLabels();
-    nodeToLabels.clear();
-    nodeToLabels.putAll(map);
-  }
-  
-  private NodeIdProto convertToProtoFormat(NodeId t) {
-    return ((NodeIdPBImpl)t).getProto();
-  }
-  
-  @Override
-  public int hashCode() {
-    assert false : "hashCode not designed";
-    return 0;
-  }
-  
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    private void mergeLocalToBuilder() {
+        if (this.nodeToLabels != null) {
+            addNodeToLabelsToProto();
+        }
     }
-    return false;
-  }
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    public GetNodesToLabelsResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public Map<NodeId, Set<String>> getNodeToLabels() {
+        initNodeToLabels();
+        return this.nodeToLabels;
+    }
+
+    @Override
+    public void setNodeToLabels(Map<NodeId, Set<String>> map) {
+        initNodeToLabels();
+        nodeToLabels.clear();
+        nodeToLabels.putAll(map);
+    }
+
+    private NodeIdProto convertToProtoFormat(NodeId t) {
+        return ((NodeIdPBImpl)t).getProto();
+    }
+
+    @Override
+    public int hashCode() {
+        assert false : "hashCode not designed";
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 }

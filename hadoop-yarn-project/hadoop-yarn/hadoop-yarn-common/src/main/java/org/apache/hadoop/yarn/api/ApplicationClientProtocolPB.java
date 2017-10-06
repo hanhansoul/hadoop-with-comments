@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.proto.ApplicationClientProtocol.ApplicationClientP
 @Private
 @Unstable
 @ProtocolInfo(protocolName = "org.apache.hadoop.yarn.api.ApplicationClientProtocolPB",
-    protocolVersion = 1)
+              protocolVersion = 1)
 public interface ApplicationClientProtocolPB extends ApplicationClientProtocolService.BlockingInterface {
 
 }

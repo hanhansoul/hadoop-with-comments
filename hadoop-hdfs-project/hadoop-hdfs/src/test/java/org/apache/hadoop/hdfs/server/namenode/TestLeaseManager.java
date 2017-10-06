@@ -33,93 +33,93 @@ import org.mockito.Mockito;
 
 
 public class TestLeaseManager {
-  final Configuration conf = new HdfsConfiguration();
-  
-  @Test
-  public void testRemoveLeaseWithPrefixPath() throws Exception {
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
-    cluster.waitActive();
+    final Configuration conf = new HdfsConfiguration();
 
-    LeaseManager lm = NameNodeAdapter.getLeaseManager(cluster.getNamesystem());
-    lm.addLease("holder1", "/a/b");
-    lm.addLease("holder2", "/a/c");
-    assertNotNull(lm.getLeaseByPath("/a/b"));
-    assertNotNull(lm.getLeaseByPath("/a/c"));
+    @Test
+    public void testRemoveLeaseWithPrefixPath() throws Exception {
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
+        cluster.waitActive();
 
-    lm.removeLeaseWithPrefixPath("/a");
+        LeaseManager lm = NameNodeAdapter.getLeaseManager(cluster.getNamesystem());
+        lm.addLease("holder1", "/a/b");
+        lm.addLease("holder2", "/a/c");
+        assertNotNull(lm.getLeaseByPath("/a/b"));
+        assertNotNull(lm.getLeaseByPath("/a/c"));
 
-    assertNull(lm.getLeaseByPath("/a/b"));
-    assertNull(lm.getLeaseByPath("/a/c"));
+        lm.removeLeaseWithPrefixPath("/a");
 
-    lm.addLease("holder1", "/a/b");
-    lm.addLease("holder2", "/a/c");
+        assertNull(lm.getLeaseByPath("/a/b"));
+        assertNull(lm.getLeaseByPath("/a/c"));
 
-    lm.removeLeaseWithPrefixPath("/a/");
+        lm.addLease("holder1", "/a/b");
+        lm.addLease("holder2", "/a/c");
 
-    assertNull(lm.getLeaseByPath("/a/b"));
-    assertNull(lm.getLeaseByPath("/a/c"));
-  }
+        lm.removeLeaseWithPrefixPath("/a/");
 
-  /** Check that even if LeaseManager.checkLease is not able to relinquish
-   * leases, the Namenode does't enter an infinite loop while holding the FSN
-   * write lock and thus become unresponsive
-   */
-  @Test (timeout=1000)
-  public void testCheckLeaseNotInfiniteLoop() {
-    FSNamesystem fsn = Mockito.mock(FSNamesystem.class);
-    Mockito.when(fsn.isRunning()).thenReturn(true);
-    Mockito.when(fsn.hasWriteLock()).thenReturn(true);
-    LeaseManager lm = new LeaseManager(fsn);
-
-    //Make sure the leases we are going to add exceed the hard limit
-    lm.setLeasePeriod(0,0);
-
-    //Add some leases to the LeaseManager
-    lm.addLease("holder1", "src1");
-    lm.addLease("holder2", "src2");
-    lm.addLease("holder3", "src3");
-    assertEquals(lm.getNumSortedLeases(), 3);
-
-    //Initiate a call to checkLease. This should exit within the test timeout
-    lm.checkLeases();
-  }
-
-  /**
-   * Make sure the lease is restored even if only the inode has the record.
-   */
-  @Test
-  public void testLeaseRestorationOnRestart() throws Exception {
-    MiniDFSCluster cluster = null;
-    try {
-      cluster = new MiniDFSCluster.Builder(new HdfsConfiguration())
-          .numDataNodes(1).build();
-      DistributedFileSystem dfs = cluster.getFileSystem();
-
-      // Create an empty file
-      String path = "/testLeaseRestorationOnRestart";
-      FSDataOutputStream out = dfs.create(new Path(path));
-
-      // Remove the lease from the lease manager, but leave it in the inode.
-      FSDirectory dir = cluster.getNamesystem().getFSDirectory();
-      INodeFile file = dir.getINode(path).asFile();
-      cluster.getNamesystem().leaseManager.removeLease(
-          file.getFileUnderConstructionFeature().getClientName(), path);
-
-      // Save a fsimage.
-      dfs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
-      cluster.getNameNodeRpc().saveNamespace();
-      dfs.setSafeMode(SafeModeAction.SAFEMODE_LEAVE);
-
-      // Restart the namenode.
-      cluster.restartNameNode(true);
-
-      // Check whether the lease manager has the lease
-      assertNotNull("Lease should exist",
-          cluster.getNamesystem().leaseManager.getLeaseByPath(path));
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+        assertNull(lm.getLeaseByPath("/a/b"));
+        assertNull(lm.getLeaseByPath("/a/c"));
     }
-  }
+
+    /** Check that even if LeaseManager.checkLease is not able to relinquish
+     * leases, the Namenode does't enter an infinite loop while holding the FSN
+     * write lock and thus become unresponsive
+     */
+    @Test (timeout=1000)
+    public void testCheckLeaseNotInfiniteLoop() {
+        FSNamesystem fsn = Mockito.mock(FSNamesystem.class);
+        Mockito.when(fsn.isRunning()).thenReturn(true);
+        Mockito.when(fsn.hasWriteLock()).thenReturn(true);
+        LeaseManager lm = new LeaseManager(fsn);
+
+        //Make sure the leases we are going to add exceed the hard limit
+        lm.setLeasePeriod(0,0);
+
+        //Add some leases to the LeaseManager
+        lm.addLease("holder1", "src1");
+        lm.addLease("holder2", "src2");
+        lm.addLease("holder3", "src3");
+        assertEquals(lm.getNumSortedLeases(), 3);
+
+        //Initiate a call to checkLease. This should exit within the test timeout
+        lm.checkLeases();
+    }
+
+    /**
+     * Make sure the lease is restored even if only the inode has the record.
+     */
+    @Test
+    public void testLeaseRestorationOnRestart() throws Exception {
+        MiniDFSCluster cluster = null;
+        try {
+            cluster = new MiniDFSCluster.Builder(new HdfsConfiguration())
+            .numDataNodes(1).build();
+            DistributedFileSystem dfs = cluster.getFileSystem();
+
+            // Create an empty file
+            String path = "/testLeaseRestorationOnRestart";
+            FSDataOutputStream out = dfs.create(new Path(path));
+
+            // Remove the lease from the lease manager, but leave it in the inode.
+            FSDirectory dir = cluster.getNamesystem().getFSDirectory();
+            INodeFile file = dir.getINode(path).asFile();
+            cluster.getNamesystem().leaseManager.removeLease(
+                file.getFileUnderConstructionFeature().getClientName(), path);
+
+            // Save a fsimage.
+            dfs.setSafeMode(SafeModeAction.SAFEMODE_ENTER);
+            cluster.getNameNodeRpc().saveNamespace();
+            dfs.setSafeMode(SafeModeAction.SAFEMODE_LEAVE);
+
+            // Restart the namenode.
+            cluster.restartNameNode(true);
+
+            // Check whether the lease manager has the lease
+            assertNotNull("Lease should exist",
+                          cluster.getNamesystem().leaseManager.getLeaseByPath(path));
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
+    }
 }

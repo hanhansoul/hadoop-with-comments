@@ -19,50 +19,50 @@ package org.apache.hadoop.tools.rumen;
 
 public class CDFPiecewiseLinearRandomGenerator extends CDFRandomGenerator {
 
-  /**
-   * @param cdf
-   *          builds a CDFRandomValue engine around this
-   *          {@link LoggedDiscreteCDF}, with a defaultly seeded RNG
-   */
-  public CDFPiecewiseLinearRandomGenerator(LoggedDiscreteCDF cdf) {
-    super(cdf);
-  }
+    /**
+     * @param cdf
+     *          builds a CDFRandomValue engine around this
+     *          {@link LoggedDiscreteCDF}, with a defaultly seeded RNG
+     */
+    public CDFPiecewiseLinearRandomGenerator(LoggedDiscreteCDF cdf) {
+        super(cdf);
+    }
 
-  /**
-   * @param cdf
-   *          builds a CDFRandomValue engine around this
-   *          {@link LoggedDiscreteCDF}, with an explicitly seeded RNG
-   * @param seed
-   *          the random number generator seed
-   */
-  public CDFPiecewiseLinearRandomGenerator(LoggedDiscreteCDF cdf, long seed) {
-    super(cdf, seed);
-  }
+    /**
+     * @param cdf
+     *          builds a CDFRandomValue engine around this
+     *          {@link LoggedDiscreteCDF}, with an explicitly seeded RNG
+     * @param seed
+     *          the random number generator seed
+     */
+    public CDFPiecewiseLinearRandomGenerator(LoggedDiscreteCDF cdf, long seed) {
+        super(cdf, seed);
+    }
 
-  /**
-   * TODO This code assumes that the empirical minimum resp. maximum is the
-   * epistomological minimum resp. maximum. This is probably okay for the
-   * minimum, because that likely represents a task where everything went well,
-   * but for the maximum we may want to develop a way of extrapolating past the
-   * maximum.
-   */
-  @Override
-  public long valueAt(double probability) {
-    int rangeFloor = floorIndex(probability);
+    /**
+     * TODO This code assumes that the empirical minimum resp. maximum is the
+     * epistomological minimum resp. maximum. This is probably okay for the
+     * minimum, because that likely represents a task where everything went well,
+     * but for the maximum we may want to develop a way of extrapolating past the
+     * maximum.
+     */
+    @Override
+    public long valueAt(double probability) {
+        int rangeFloor = floorIndex(probability);
 
-    double segmentProbMin = getRankingAt(rangeFloor);
-    double segmentProbMax = getRankingAt(rangeFloor + 1);
+        double segmentProbMin = getRankingAt(rangeFloor);
+        double segmentProbMax = getRankingAt(rangeFloor + 1);
 
-    long segmentMinValue = getDatumAt(rangeFloor);
-    long segmentMaxValue = getDatumAt(rangeFloor + 1);
+        long segmentMinValue = getDatumAt(rangeFloor);
+        long segmentMaxValue = getDatumAt(rangeFloor + 1);
 
-    // If this is zero, this object is based on an ill-formed cdf
-    double segmentProbRange = segmentProbMax - segmentProbMin;
-    long segmentDatumRange = segmentMaxValue - segmentMinValue;
+        // If this is zero, this object is based on an ill-formed cdf
+        double segmentProbRange = segmentProbMax - segmentProbMin;
+        long segmentDatumRange = segmentMaxValue - segmentMinValue;
 
-    long result = (long) ((probability - segmentProbMin) / segmentProbRange * segmentDatumRange)
-        + segmentMinValue;
+        long result = (long) ((probability - segmentProbMin) / segmentProbRange * segmentDatumRange)
+                      + segmentMinValue;
 
-    return result;
-  }
+        return result;
+    }
 }

@@ -32,55 +32,57 @@ import org.apache.hadoop.hdfs.server.datanode.SimulatedFSDataset;
 import org.junit.Test;
 
 public class TestSetrepIncreasing {
-  static void setrep(int fromREP, int toREP, boolean simulatedStorage) throws IOException {
-    Configuration conf = new HdfsConfiguration();
-    if (simulatedStorage) {
-      SimulatedFSDataset.setFactory(conf);
-    }
-    conf.set(DFSConfigKeys.DFS_REPLICATION_KEY, "" + fromREP);
-    conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 1000L);
-    conf.set(DFSConfigKeys.DFS_NAMENODE_REPLICATION_PENDING_TIMEOUT_SEC_KEY, Integer.toString(2));
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(10).build();
-    FileSystem fs = cluster.getFileSystem();
-    assertTrue("Not a HDFS: "+fs.getUri(), fs instanceof DistributedFileSystem);
-
-    try {
-      Path root = TestDFSShell.mkdir(fs, 
-          new Path("/test/setrep" + fromREP + "-" + toREP));
-      Path f = TestDFSShell.writeFile(fs, new Path(root, "foo"));
-      
-      // Verify setrep for changing replication
-      {
-        String[] args = {"-setrep", "-w", "" + toREP, "" + f};
-        FsShell shell = new FsShell();
-        shell.setConf(conf);
-        try {
-          assertEquals(0, shell.run(args));
-        } catch (Exception e) {
-          assertTrue("-setrep " + e, false);
+    static void setrep(int fromREP, int toREP, boolean simulatedStorage) throws IOException {
+        Configuration conf = new HdfsConfiguration();
+        if (simulatedStorage) {
+            SimulatedFSDataset.setFactory(conf);
         }
-      }
+        conf.set(DFSConfigKeys.DFS_REPLICATION_KEY, "" + fromREP);
+        conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 1000L);
+        conf.set(DFSConfigKeys.DFS_NAMENODE_REPLICATION_PENDING_TIMEOUT_SEC_KEY, Integer.toString(2));
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(10).build();
+        FileSystem fs = cluster.getFileSystem();
+        assertTrue("Not a HDFS: "+fs.getUri(), fs instanceof DistributedFileSystem);
 
-      //get fs again since the old one may be closed
-      fs = cluster.getFileSystem();
-      FileStatus file = fs.getFileStatus(f);
-      long len = file.getLen();
-      for(BlockLocation locations : fs.getFileBlockLocations(file, 0, len)) {
-        assertTrue(locations.getHosts().length == toREP);
-      }
-      TestDFSShell.show("done setrep waiting: " + root);
-    } finally {
-      try {fs.close();} catch (Exception e) {}
-      cluster.shutdown();
+        try {
+            Path root = TestDFSShell.mkdir(fs,
+                                           new Path("/test/setrep" + fromREP + "-" + toREP));
+            Path f = TestDFSShell.writeFile(fs, new Path(root, "foo"));
+
+            // Verify setrep for changing replication
+            {
+                String[] args = {"-setrep", "-w", "" + toREP, "" + f};
+                FsShell shell = new FsShell();
+                shell.setConf(conf);
+                try {
+                    assertEquals(0, shell.run(args));
+                } catch (Exception e) {
+                    assertTrue("-setrep " + e, false);
+                }
+            }
+
+            //get fs again since the old one may be closed
+            fs = cluster.getFileSystem();
+            FileStatus file = fs.getFileStatus(f);
+            long len = file.getLen();
+            for(BlockLocation locations : fs.getFileBlockLocations(file, 0, len)) {
+                assertTrue(locations.getHosts().length == toREP);
+            }
+            TestDFSShell.show("done setrep waiting: " + root);
+        } finally {
+            try {
+                fs.close();
+            } catch (Exception e) {}
+            cluster.shutdown();
+        }
     }
-  }
 
-  @Test(timeout=120000)
-  public void testSetrepIncreasing() throws IOException {
-    setrep(3, 7, false);
-  }
-  @Test(timeout=120000)
-  public void testSetrepIncreasingSimulatedStorage() throws IOException {
-    setrep(3, 7, true);
-  }
+    @Test(timeout=120000)
+    public void testSetrepIncreasing() throws IOException {
+        setrep(3, 7, false);
+    }
+    @Test(timeout=120000)
+    public void testSetrepIncreasingSimulatedStorage() throws IOException {
+        setrep(3, 7, true);
+    }
 }

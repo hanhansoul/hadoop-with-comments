@@ -46,86 +46,86 @@ import javax.management.Query;
  * Implement the read-only WebHDFS API for fsimage.
  */
 class FSImageHandler extends SimpleChannelUpstreamHandler {
-  public static final Log LOG = LogFactory.getLog(FSImageHandler.class);
-  private final FSImageLoader image;
+    public static final Log LOG = LogFactory.getLog(FSImageHandler.class);
+    private final FSImageLoader image;
 
-  FSImageHandler(FSImageLoader image) throws IOException {
-    this.image = image;
-  }
-
-  @Override
-  public void messageReceived(
-      ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-    ChannelFuture future = e.getFuture();
-    try {
-      future = handleOperation(e);
-    } finally {
-      future.addListener(ChannelFutureListener.CLOSE);
+    FSImageHandler(FSImageLoader image) throws IOException {
+        this.image = image;
     }
-  }
 
-  private ChannelFuture handleOperation(MessageEvent e)
-      throws IOException {
-    HttpRequest request = (HttpRequest) e.getMessage();
-    HttpResponse response = new DefaultHttpResponse(
+    @Override
+    public void messageReceived(
+        ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+        ChannelFuture future = e.getFuture();
+        try {
+            future = handleOperation(e);
+        } finally {
+            future.addListener(ChannelFutureListener.CLOSE);
+        }
+    }
+
+    private ChannelFuture handleOperation(MessageEvent e)
+    throws IOException {
+        HttpRequest request = (HttpRequest) e.getMessage();
+        HttpResponse response = new DefaultHttpResponse(
             HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-    response.setHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json");
+        response.setHeader(HttpHeaders.Names.CONTENT_TYPE, "application/json");
 
-    if (request.getMethod() != HttpMethod.GET) {
-      response.setStatus(HttpResponseStatus.METHOD_NOT_ALLOWED);
-      return e.getChannel().write(response);
+        if (request.getMethod() != HttpMethod.GET) {
+            response.setStatus(HttpResponseStatus.METHOD_NOT_ALLOWED);
+            return e.getChannel().write(response);
+        }
+
+        QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
+        final String op = getOp(decoder);
+
+        String content;
+        String path = null;
+        try {
+            path = getPath(decoder);
+            if ("GETFILESTATUS".equals(op)) {
+                content = image.getFileStatus(path);
+            } else if ("LISTSTATUS".equals(op)) {
+                content = image.listStatus(path);
+            } else if ("GETACLSTATUS".equals(op)) {
+                content = image.getAclStatus(path);
+            } else {
+                throw new IllegalArgumentException("Invalid value for webhdfs parameter" + " \"op\"");
+            }
+        } catch (IllegalArgumentException ex) {
+            response.setStatus(HttpResponseStatus.BAD_REQUEST);
+            content = JsonUtil.toJsonString(ex);
+        } catch (FileNotFoundException ex) {
+            response.setStatus(HttpResponseStatus.NOT_FOUND);
+            content = JsonUtil.toJsonString(ex);
+        } catch (Exception ex) {
+            content = JsonUtil.toJsonString(ex);
+        }
+
+        HttpHeaders.setContentLength(response, content.length());
+        e.getChannel().write(response);
+        ChannelFuture future = e.getChannel().write(content);
+
+        LOG.info(response.getStatus().getCode() + " method="
+                 + request.getMethod().getName() + " op=" + op + " target=" + path);
+
+        return future;
     }
 
-    QueryStringDecoder decoder = new QueryStringDecoder(request.getUri());
-    final String op = getOp(decoder);
-
-    String content;
-    String path = null;
-    try {
-      path = getPath(decoder);
-      if ("GETFILESTATUS".equals(op)) {
-        content = image.getFileStatus(path);
-      } else if ("LISTSTATUS".equals(op)) {
-        content = image.listStatus(path);
-      } else if ("GETACLSTATUS".equals(op)) {
-        content = image.getAclStatus(path);
-      } else {
-        throw new IllegalArgumentException("Invalid value for webhdfs parameter" + " \"op\"");
-      }
-    } catch (IllegalArgumentException ex) {
-      response.setStatus(HttpResponseStatus.BAD_REQUEST);
-      content = JsonUtil.toJsonString(ex);
-    } catch (FileNotFoundException ex) {
-      response.setStatus(HttpResponseStatus.NOT_FOUND);
-      content = JsonUtil.toJsonString(ex);
-    } catch (Exception ex) {
-      content = JsonUtil.toJsonString(ex);
+    private static String getOp(QueryStringDecoder decoder) {
+        Map<String, List<String>> parameters = decoder.getParameters();
+        return parameters.containsKey("op")
+               ? parameters.get("op").get(0).toUpperCase() : null;
     }
 
-    HttpHeaders.setContentLength(response, content.length());
-    e.getChannel().write(response);
-    ChannelFuture future = e.getChannel().write(content);
-
-    LOG.info(response.getStatus().getCode() + " method="
-        + request.getMethod().getName() + " op=" + op + " target=" + path);
-
-    return future;
-  }
-
-  private static String getOp(QueryStringDecoder decoder) {
-    Map<String, List<String>> parameters = decoder.getParameters();
-    return parameters.containsKey("op")
-            ? parameters.get("op").get(0).toUpperCase() : null;
-  }
-
-  private static String getPath(QueryStringDecoder decoder)
-          throws FileNotFoundException {
-    String path = decoder.getPath();
-    if (path.startsWith("/webhdfs/v1/")) {
-      return path.substring(11);
-    } else {
-      throw new FileNotFoundException("Path: " + path + " should " +
-              "start with \"/webhdfs/v1/\"");
+    private static String getPath(QueryStringDecoder decoder)
+    throws FileNotFoundException {
+        String path = decoder.getPath();
+        if (path.startsWith("/webhdfs/v1/")) {
+            return path.substring(11);
+        } else {
+            throw new FileNotFoundException("Path: " + path + " should " +
+                                            "start with \"/webhdfs/v1/\"");
+        }
     }
-  }
 }

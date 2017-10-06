@@ -73,230 +73,230 @@ import org.junit.Before;
 
 public abstract class BaseContainerManagerTest {
 
-  protected static RecordFactory recordFactory = RecordFactoryProvider
-      .getRecordFactory(null);
+    protected static RecordFactory recordFactory = RecordFactoryProvider
+            .getRecordFactory(null);
 
-  protected static FileContext localFS;
-  protected static File localDir;
-  protected static File localLogDir;
-  protected static File remoteLogDir;
-  protected static File tmpDir;
+    protected static FileContext localFS;
+    protected static File localDir;
+    protected static File localLogDir;
+    protected static File remoteLogDir;
+    protected static File tmpDir;
 
-  protected final NodeManagerMetrics metrics = NodeManagerMetrics.create();
+    protected final NodeManagerMetrics metrics = NodeManagerMetrics.create();
 
-  public BaseContainerManagerTest() throws UnsupportedFileSystemException {
-    localFS = FileContext.getLocalFSFileContext();
-    localDir =
-        new File("target", this.getClass().getSimpleName() + "-localDir")
-            .getAbsoluteFile();
-    localLogDir =
-        new File("target", this.getClass().getSimpleName() + "-localLogDir")
-            .getAbsoluteFile();
-    remoteLogDir =
-      new File("target", this.getClass().getSimpleName() + "-remoteLogDir")
-          .getAbsoluteFile();
-    tmpDir = new File("target", this.getClass().getSimpleName() + "-tmpDir");
-  }
+    public BaseContainerManagerTest() throws UnsupportedFileSystemException {
+        localFS = FileContext.getLocalFSFileContext();
+        localDir =
+            new File("target", this.getClass().getSimpleName() + "-localDir")
+        .getAbsoluteFile();
+        localLogDir =
+            new File("target", this.getClass().getSimpleName() + "-localLogDir")
+        .getAbsoluteFile();
+        remoteLogDir =
+            new File("target", this.getClass().getSimpleName() + "-remoteLogDir")
+        .getAbsoluteFile();
+        tmpDir = new File("target", this.getClass().getSimpleName() + "-tmpDir");
+    }
 
-  protected static Log LOG = LogFactory
-      .getLog(BaseContainerManagerTest.class);
+    protected static Log LOG = LogFactory
+                               .getLog(BaseContainerManagerTest.class);
 
-  protected static final int HTTP_PORT = 5412;
-  protected Configuration conf = new YarnConfiguration();
-  protected Context context = new NMContext(new NMContainerTokenSecretManager(
-    conf), new NMTokenSecretManagerInNM(), null,
+    protected static final int HTTP_PORT = 5412;
+    protected Configuration conf = new YarnConfiguration();
+    protected Context context = new NMContext(new NMContainerTokenSecretManager(
+                conf), new NMTokenSecretManagerInNM(), null,
     new ApplicationACLsManager(conf), new NMNullStateStoreService()) {
-    public int getHttpPort() {
-      return HTTP_PORT;
+        public int getHttpPort() {
+            return HTTP_PORT;
+        };
     };
-  };
-  protected ContainerExecutor exec;
-  protected DeletionService delSrvc;
-  protected String user = "nobody";
-  protected NodeHealthCheckerService nodeHealthChecker;
-  protected LocalDirsHandlerService dirsHandler;
-  protected final long DUMMY_RM_IDENTIFIER = 1234;
+    protected ContainerExecutor exec;
+    protected DeletionService delSrvc;
+    protected String user = "nobody";
+    protected NodeHealthCheckerService nodeHealthChecker;
+    protected LocalDirsHandlerService dirsHandler;
+    protected final long DUMMY_RM_IDENTIFIER = 1234;
 
-  protected NodeStatusUpdater nodeStatusUpdater = new NodeStatusUpdaterImpl(
-      context, new AsyncDispatcher(), null, metrics) {
-    @Override
-    protected ResourceTracker getRMClient() {
-      return new LocalRMInterface();
-    };
+    protected NodeStatusUpdater nodeStatusUpdater = new NodeStatusUpdaterImpl(
+    context, new AsyncDispatcher(), null, metrics) {
+        @Override
+        protected ResourceTracker getRMClient() {
+            return new LocalRMInterface();
+        };
 
-    @Override
-    protected void stopRMProxy() {
-      return;
-    }
-
-    @Override
-    protected void startStatusUpdater() {
-      return; // Don't start any updating thread.
-    }
-
-    @Override
-    public long getRMIdentifier() {
-      // There is no real RM registration, simulate and set RMIdentifier
-      return DUMMY_RM_IDENTIFIER;
-    }
-  };
-
-  protected ContainerManagerImpl containerManager = null;
-
-  protected ContainerExecutor createContainerExecutor() {
-    DefaultContainerExecutor exec = new DefaultContainerExecutor();
-    exec.setConf(conf);
-    return exec;
-  }
-
-  @Before
-  public void setup() throws IOException {
-    localFS.delete(new Path(localDir.getAbsolutePath()), true);
-    localFS.delete(new Path(tmpDir.getAbsolutePath()), true);
-    localFS.delete(new Path(localLogDir.getAbsolutePath()), true);
-    localFS.delete(new Path(remoteLogDir.getAbsolutePath()), true);
-    localDir.mkdir();
-    tmpDir.mkdir();
-    localLogDir.mkdir();
-    remoteLogDir.mkdir();
-    LOG.info("Created localDir in " + localDir.getAbsolutePath());
-    LOG.info("Created tmpDir in " + tmpDir.getAbsolutePath());
-
-    String bindAddress = "0.0.0.0:12345";
-    conf.set(YarnConfiguration.NM_ADDRESS, bindAddress);
-    conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir.getAbsolutePath());
-    conf.set(YarnConfiguration.NM_LOG_DIRS, localLogDir.getAbsolutePath());
-    conf.set(YarnConfiguration.NM_REMOTE_APP_LOG_DIR, remoteLogDir.getAbsolutePath());
-
-    conf.setLong(YarnConfiguration.NM_LOG_RETAIN_SECONDS, 1);
-    // Default delSrvc
-    delSrvc = createDeletionService();
-    delSrvc.init(conf);
-
-    exec = createContainerExecutor();
-    nodeHealthChecker = new NodeHealthCheckerService();
-    nodeHealthChecker.init(conf);
-    dirsHandler = nodeHealthChecker.getDiskHandler();
-    containerManager = createContainerManager(delSrvc);
-    ((NMContext)context).setContainerManager(containerManager);
-    nodeStatusUpdater.init(conf);
-    containerManager.init(conf);
-    nodeStatusUpdater.start();
-    ((NMContext)context).setNodeStatusUpdater(nodeStatusUpdater);
-  }
-
-  protected ContainerManagerImpl
-      createContainerManager(DeletionService delSrvc) {
-    
-    return new ContainerManagerImpl(context, exec, delSrvc, nodeStatusUpdater,
-      metrics, new ApplicationACLsManager(conf), dirsHandler) {
-      @Override
-      public void
-          setBlockNewContainerRequests(boolean blockNewContainerRequests) {
-        // do nothing
-      }
-
-      @Override
-        protected void authorizeGetAndStopContainerRequest(ContainerId containerId,
-            Container container, boolean stopRequest, NMTokenIdentifier identifier) throws YarnException {
-          // do nothing
-        }
-      @Override
-      protected void authorizeUser(UserGroupInformation remoteUgi,
-          NMTokenIdentifier nmTokenIdentifier) {
-        // do nothing
-      }
-      @Override
-        protected void authorizeStartRequest(
-            NMTokenIdentifier nmTokenIdentifier,
-            ContainerTokenIdentifier containerTokenIdentifier) throws YarnException {
-          // do nothing
-        }
-      
-      @Override
-        protected void updateNMTokenIdentifier(
-            NMTokenIdentifier nmTokenIdentifier) throws InvalidToken {
-          // Do nothing
+        @Override
+        protected void stopRMProxy() {
+            return;
         }
 
-      @Override
-      public Map<String, ByteBuffer> getAuxServiceMetaData() {
-        Map<String, ByteBuffer> serviceData = new HashMap<String, ByteBuffer>();
-        serviceData.put("AuxService1",
-            ByteBuffer.wrap("AuxServiceMetaData1".getBytes()));
-        serviceData.put("AuxService2",
-            ByteBuffer.wrap("AuxServiceMetaData2".getBytes()));
-        return serviceData;
-      }
-    };
-  }
+        @Override
+        protected void startStatusUpdater() {
+            return; // Don't start any updating thread.
+        }
 
-  protected DeletionService createDeletionService() {
-    return new DeletionService(exec) {
-      @Override
-      public void delete(String user, Path subDir, Path... baseDirs) {
-        // Don't do any deletions.
-        LOG.info("Psuedo delete: user - " + user + ", subDir - " + subDir
-            + ", baseDirs - " + baseDirs); 
-      };
+        @Override
+        public long getRMIdentifier() {
+            // There is no real RM registration, simulate and set RMIdentifier
+            return DUMMY_RM_IDENTIFIER;
+        }
     };
-  }
 
-  @After
-  public void tearDown() throws IOException, InterruptedException {
-    if (containerManager != null) {
-      containerManager.stop();
+    protected ContainerManagerImpl containerManager = null;
+
+    protected ContainerExecutor createContainerExecutor() {
+        DefaultContainerExecutor exec = new DefaultContainerExecutor();
+        exec.setConf(conf);
+        return exec;
     }
-    createContainerExecutor().deleteAsUser(user,
-        new Path(localDir.getAbsolutePath()), new Path[] {});
-  }
 
-  public static void waitForContainerState(ContainerManagementProtocol containerManager,
-      ContainerId containerID, ContainerState finalState)
-      throws InterruptedException, YarnException, IOException {
-    waitForContainerState(containerManager, containerID, finalState, 20);
-  }
+    @Before
+    public void setup() throws IOException {
+        localFS.delete(new Path(localDir.getAbsolutePath()), true);
+        localFS.delete(new Path(tmpDir.getAbsolutePath()), true);
+        localFS.delete(new Path(localLogDir.getAbsolutePath()), true);
+        localFS.delete(new Path(remoteLogDir.getAbsolutePath()), true);
+        localDir.mkdir();
+        tmpDir.mkdir();
+        localLogDir.mkdir();
+        remoteLogDir.mkdir();
+        LOG.info("Created localDir in " + localDir.getAbsolutePath());
+        LOG.info("Created tmpDir in " + tmpDir.getAbsolutePath());
 
-  public static void waitForContainerState(ContainerManagementProtocol containerManager,
-          ContainerId containerID, ContainerState finalState, int timeOutMax)
-          throws InterruptedException, YarnException, IOException {
-    List<ContainerId> list = new ArrayList<ContainerId>();
-    list.add(containerID);
-    GetContainerStatusesRequest request =
-        GetContainerStatusesRequest.newInstance(list);
-    ContainerStatus containerStatus =
-        containerManager.getContainerStatuses(request).getContainerStatuses()
-          .get(0);
-    int timeoutSecs = 0;
-      while (!containerStatus.getState().equals(finalState)
-          && timeoutSecs++ < timeOutMax) {
-          Thread.sleep(1000);
-          LOG.info("Waiting for container to get into state " + finalState
-              + ". Current state is " + containerStatus.getState());
-          containerStatus = containerManager.getContainerStatuses(request).getContainerStatuses().get(0);
+        String bindAddress = "0.0.0.0:12345";
+        conf.set(YarnConfiguration.NM_ADDRESS, bindAddress);
+        conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir.getAbsolutePath());
+        conf.set(YarnConfiguration.NM_LOG_DIRS, localLogDir.getAbsolutePath());
+        conf.set(YarnConfiguration.NM_REMOTE_APP_LOG_DIR, remoteLogDir.getAbsolutePath());
+
+        conf.setLong(YarnConfiguration.NM_LOG_RETAIN_SECONDS, 1);
+        // Default delSrvc
+        delSrvc = createDeletionService();
+        delSrvc.init(conf);
+
+        exec = createContainerExecutor();
+        nodeHealthChecker = new NodeHealthCheckerService();
+        nodeHealthChecker.init(conf);
+        dirsHandler = nodeHealthChecker.getDiskHandler();
+        containerManager = createContainerManager(delSrvc);
+        ((NMContext)context).setContainerManager(containerManager);
+        nodeStatusUpdater.init(conf);
+        containerManager.init(conf);
+        nodeStatusUpdater.start();
+        ((NMContext)context).setNodeStatusUpdater(nodeStatusUpdater);
+    }
+
+    protected ContainerManagerImpl
+    createContainerManager(DeletionService delSrvc) {
+
+        return new ContainerManagerImpl(context, exec, delSrvc, nodeStatusUpdater,
+        metrics, new ApplicationACLsManager(conf), dirsHandler) {
+            @Override
+            public void
+            setBlockNewContainerRequests(boolean blockNewContainerRequests) {
+                // do nothing
+            }
+
+            @Override
+            protected void authorizeGetAndStopContainerRequest(ContainerId containerId,
+                    Container container, boolean stopRequest, NMTokenIdentifier identifier) throws YarnException {
+                // do nothing
+            }
+            @Override
+            protected void authorizeUser(UserGroupInformation remoteUgi,
+                                         NMTokenIdentifier nmTokenIdentifier) {
+                // do nothing
+            }
+            @Override
+            protected void authorizeStartRequest(
+                NMTokenIdentifier nmTokenIdentifier,
+                ContainerTokenIdentifier containerTokenIdentifier) throws YarnException {
+                // do nothing
+            }
+
+            @Override
+            protected void updateNMTokenIdentifier(
+                NMTokenIdentifier nmTokenIdentifier) throws InvalidToken {
+                // Do nothing
+            }
+
+            @Override
+            public Map<String, ByteBuffer> getAuxServiceMetaData() {
+                Map<String, ByteBuffer> serviceData = new HashMap<String, ByteBuffer>();
+                serviceData.put("AuxService1",
+                                ByteBuffer.wrap("AuxServiceMetaData1".getBytes()));
+                serviceData.put("AuxService2",
+                                ByteBuffer.wrap("AuxServiceMetaData2".getBytes()));
+                return serviceData;
+            }
+        };
+    }
+
+    protected DeletionService createDeletionService() {
+        return new DeletionService(exec) {
+            @Override
+            public void delete(String user, Path subDir, Path... baseDirs) {
+                // Don't do any deletions.
+                LOG.info("Psuedo delete: user - " + user + ", subDir - " + subDir
+                         + ", baseDirs - " + baseDirs);
+            };
+        };
+    }
+
+    @After
+    public void tearDown() throws IOException, InterruptedException {
+        if (containerManager != null) {
+            containerManager.stop();
+        }
+        createContainerExecutor().deleteAsUser(user,
+                                               new Path(localDir.getAbsolutePath()), new Path[] {});
+    }
+
+    public static void waitForContainerState(ContainerManagementProtocol containerManager,
+            ContainerId containerID, ContainerState finalState)
+    throws InterruptedException, YarnException, IOException {
+        waitForContainerState(containerManager, containerID, finalState, 20);
+    }
+
+    public static void waitForContainerState(ContainerManagementProtocol containerManager,
+            ContainerId containerID, ContainerState finalState, int timeOutMax)
+    throws InterruptedException, YarnException, IOException {
+        List<ContainerId> list = new ArrayList<ContainerId>();
+        list.add(containerID);
+        GetContainerStatusesRequest request =
+            GetContainerStatusesRequest.newInstance(list);
+        ContainerStatus containerStatus =
+            containerManager.getContainerStatuses(request).getContainerStatuses()
+            .get(0);
+        int timeoutSecs = 0;
+        while (!containerStatus.getState().equals(finalState)
+               && timeoutSecs++ < timeOutMax) {
+            Thread.sleep(1000);
+            LOG.info("Waiting for container to get into state " + finalState
+                     + ". Current state is " + containerStatus.getState());
+            containerStatus = containerManager.getContainerStatuses(request).getContainerStatuses().get(0);
         }
         LOG.info("Container state is " + containerStatus.getState());
         Assert.assertEquals("ContainerState is not correct (timedout)",
-            finalState, containerStatus.getState());
-      }
-
-  static void waitForApplicationState(ContainerManagerImpl containerManager,
-      ApplicationId appID, ApplicationState finalState)
-      throws InterruptedException {
-    // Wait for app-finish
-    Application app =
-        containerManager.getContext().getApplications().get(appID);
-    int timeout = 0;
-    while (!(app.getApplicationState().equals(finalState))
-        && timeout++ < 15) {
-      LOG.info("Waiting for app to reach " + finalState
-          + ".. Current state is "
-          + app.getApplicationState());
-      Thread.sleep(1000);
+                            finalState, containerStatus.getState());
     }
-  
-    Assert.assertTrue("App is not in " + finalState + " yet!! Timedout!!",
-        app.getApplicationState().equals(finalState));
-  }
+
+    static void waitForApplicationState(ContainerManagerImpl containerManager,
+                                        ApplicationId appID, ApplicationState finalState)
+    throws InterruptedException {
+        // Wait for app-finish
+        Application app =
+            containerManager.getContext().getApplications().get(appID);
+        int timeout = 0;
+        while (!(app.getApplicationState().equals(finalState))
+               && timeout++ < 15) {
+            LOG.info("Waiting for app to reach " + finalState
+                     + ".. Current state is "
+                     + app.getApplicationState());
+            Thread.sleep(1000);
+        }
+
+        Assert.assertTrue("App is not in " + finalState + " yet!! Timedout!!",
+                          app.getApplicationState().equals(finalState));
+    }
 
 }

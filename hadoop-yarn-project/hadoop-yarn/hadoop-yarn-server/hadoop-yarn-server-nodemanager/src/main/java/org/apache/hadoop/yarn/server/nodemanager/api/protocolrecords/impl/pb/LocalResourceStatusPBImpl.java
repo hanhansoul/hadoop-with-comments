@@ -34,191 +34,191 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalResour
 import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.ResourceStatusType;
 
 public class LocalResourceStatusPBImpl
-  extends ProtoBase<LocalResourceStatusProto> implements LocalResourceStatus {
+    extends ProtoBase<LocalResourceStatusProto> implements LocalResourceStatus {
 
-  LocalResourceStatusProto proto =
-    LocalResourceStatusProto.getDefaultInstance();
-  LocalResourceStatusProto.Builder builder = null;
-  boolean viaProto = false;
+    LocalResourceStatusProto proto =
+        LocalResourceStatusProto.getDefaultInstance();
+    LocalResourceStatusProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private LocalResource resource;
-  private URL localPath;
-  private SerializedException exception;
+    private LocalResource resource;
+    private URL localPath;
+    private SerializedException exception;
 
-  public LocalResourceStatusPBImpl() {
-    builder = LocalResourceStatusProto.newBuilder();
-  }
-
-  public LocalResourceStatusPBImpl(LocalResourceStatusProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public LocalResourceStatusProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.resource != null &&
-        !((LocalResourcePBImpl)this.resource).getProto()
-          .equals(builder.getResource())) {
-      builder.setResource(convertToProtoFormat(this.resource));
+    public LocalResourceStatusPBImpl() {
+        builder = LocalResourceStatusProto.newBuilder();
     }
-    if (this.localPath != null &&
-        !((URLPBImpl)this.localPath).getProto()
-          .equals(builder.getLocalPath())) {
-      builder.setLocalPath(convertToProtoFormat(this.localPath));
+
+    public LocalResourceStatusPBImpl(LocalResourceStatusProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (this.exception != null &&
-        !((SerializedExceptionPBImpl)this.exception).getProto()
-          .equals(builder.getException())) {
-      builder.setException(convertToProtoFormat(this.exception));
+
+    public LocalResourceStatusProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = LocalResourceStatusProto.newBuilder(proto);
+    private void mergeLocalToBuilder() {
+        if (this.resource != null &&
+            !((LocalResourcePBImpl)this.resource).getProto()
+            .equals(builder.getResource())) {
+            builder.setResource(convertToProtoFormat(this.resource));
+        }
+        if (this.localPath != null &&
+            !((URLPBImpl)this.localPath).getProto()
+            .equals(builder.getLocalPath())) {
+            builder.setLocalPath(convertToProtoFormat(this.localPath));
+        }
+        if (this.exception != null &&
+            !((SerializedExceptionPBImpl)this.exception).getProto()
+            .equals(builder.getException())) {
+            builder.setException(convertToProtoFormat(this.exception));
+        }
     }
-    viaProto = false;
-  }
 
-  @Override
-  public LocalResource getResource() {
-    LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.resource != null) {
-      return this.resource;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    if (!p.hasResource()) {
-      return null;
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = LocalResourceStatusProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    this.resource = convertFromProtoFormat(p.getResource());
-    return this.resource;
-  }
 
-  @Override
-  public ResourceStatusType getStatus() {
-    LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasStatus()) {
-      return null;
+    @Override
+    public LocalResource getResource() {
+        LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.resource != null) {
+            return this.resource;
+        }
+        if (!p.hasResource()) {
+            return null;
+        }
+        this.resource = convertFromProtoFormat(p.getResource());
+        return this.resource;
     }
-    return convertFromProtoFormat(p.getStatus());
-  }
 
-  @Override
-  public URL getLocalPath() {
-    LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.localPath != null) {
-      return this.localPath;
+    @Override
+    public ResourceStatusType getStatus() {
+        LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasStatus()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getStatus());
     }
-    if (!p.hasLocalPath()) {
-      return null;
+
+    @Override
+    public URL getLocalPath() {
+        LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.localPath != null) {
+            return this.localPath;
+        }
+        if (!p.hasLocalPath()) {
+            return null;
+        }
+        this.localPath = convertFromProtoFormat(p.getLocalPath());
+        return this.localPath;
     }
-    this.localPath = convertFromProtoFormat(p.getLocalPath());
-    return this.localPath;
-  }
 
-  @Override
-  public long getLocalSize() {
-    LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getLocalSize());
-  }
-
-  @Override
-  public SerializedException getException() {
-    LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.exception != null) {
-      return this.exception;
+    @Override
+    public long getLocalSize() {
+        LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getLocalSize());
     }
-    if (!p.hasException()) {
-      return null;
+
+    @Override
+    public SerializedException getException() {
+        LocalResourceStatusProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.exception != null) {
+            return this.exception;
+        }
+        if (!p.hasException()) {
+            return null;
+        }
+        this.exception = convertFromProtoFormat(p.getException());
+        return this.exception;
     }
-    this.exception = convertFromProtoFormat(p.getException());
-    return this.exception;
-  }
 
 
-  @Override
-  public void setResource(LocalResource resource) {
-    maybeInitBuilder();
-    if (resource == null)
-      builder.clearResource();
-    this.resource = resource;
-  }
-
-  @Override
-  public void setStatus(ResourceStatusType status) {
-    maybeInitBuilder();
-    if (status == null) {
-      builder.clearStatus();
-      return;
+    @Override
+    public void setResource(LocalResource resource) {
+        maybeInitBuilder();
+        if (resource == null)
+            builder.clearResource();
+        this.resource = resource;
     }
-    builder.setStatus(convertToProtoFormat(status));
-  }
 
-  @Override
-  public void setLocalPath(URL localPath) {
-    maybeInitBuilder();
-    if (localPath == null)
-      builder.clearLocalPath();
-    this.localPath = localPath;
-  }
+    @Override
+    public void setStatus(ResourceStatusType status) {
+        maybeInitBuilder();
+        if (status == null) {
+            builder.clearStatus();
+            return;
+        }
+        builder.setStatus(convertToProtoFormat(status));
+    }
 
-  @Override
-  public void setLocalSize(long size) {
-    maybeInitBuilder();
-    builder.setLocalSize(size);
-  }
+    @Override
+    public void setLocalPath(URL localPath) {
+        maybeInitBuilder();
+        if (localPath == null)
+            builder.clearLocalPath();
+        this.localPath = localPath;
+    }
 
-  @Override
-  public void setException(SerializedException exception) {
-    maybeInitBuilder();
-    if (exception == null)
-      builder.clearException();
-    this.exception = exception;
-  }
+    @Override
+    public void setLocalSize(long size) {
+        maybeInitBuilder();
+        builder.setLocalSize(size);
+    }
 
-  private LocalResourceProto convertToProtoFormat(LocalResource rsrc) {
-    return ((LocalResourcePBImpl)rsrc).getProto();
-  }
+    @Override
+    public void setException(SerializedException exception) {
+        maybeInitBuilder();
+        if (exception == null)
+            builder.clearException();
+        this.exception = exception;
+    }
 
-  private LocalResourcePBImpl convertFromProtoFormat(LocalResourceProto rsrc) {
-    return new LocalResourcePBImpl(rsrc);
-  }
+    private LocalResourceProto convertToProtoFormat(LocalResource rsrc) {
+        return ((LocalResourcePBImpl)rsrc).getProto();
+    }
 
-  private URLPBImpl convertFromProtoFormat(URLProto p) {
-    return new URLPBImpl(p);
-  }
+    private LocalResourcePBImpl convertFromProtoFormat(LocalResourceProto rsrc) {
+        return new LocalResourcePBImpl(rsrc);
+    }
 
-  private URLProto convertToProtoFormat(URL t) {
-    return ((URLPBImpl)t).getProto();
-  }
+    private URLPBImpl convertFromProtoFormat(URLProto p) {
+        return new URLPBImpl(p);
+    }
 
-  private ResourceStatusTypeProto convertToProtoFormat(ResourceStatusType e) {
-    return ResourceStatusTypeProto.valueOf(e.name());
-  }
+    private URLProto convertToProtoFormat(URL t) {
+        return ((URLPBImpl)t).getProto();
+    }
 
-  private ResourceStatusType convertFromProtoFormat(ResourceStatusTypeProto e) {
-    return ResourceStatusType.valueOf(e.name());
-  }
+    private ResourceStatusTypeProto convertToProtoFormat(ResourceStatusType e) {
+        return ResourceStatusTypeProto.valueOf(e.name());
+    }
 
-  private SerializedExceptionPBImpl convertFromProtoFormat(SerializedExceptionProto p) {
-    return new SerializedExceptionPBImpl(p);
-  }
+    private ResourceStatusType convertFromProtoFormat(ResourceStatusTypeProto e) {
+        return ResourceStatusType.valueOf(e.name());
+    }
 
-  private SerializedExceptionProto convertToProtoFormat(SerializedException t) {
-    return ((SerializedExceptionPBImpl)t).getProto();
-  }
+    private SerializedExceptionPBImpl convertFromProtoFormat(SerializedExceptionProto p) {
+        return new SerializedExceptionPBImpl(p);
+    }
+
+    private SerializedExceptionProto convertToProtoFormat(SerializedException t) {
+        return ((SerializedExceptionPBImpl)t).getProto();
+    }
 
 }

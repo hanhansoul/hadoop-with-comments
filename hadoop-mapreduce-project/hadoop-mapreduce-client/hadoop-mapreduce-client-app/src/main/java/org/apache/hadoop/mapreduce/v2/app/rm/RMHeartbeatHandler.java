@@ -19,7 +19,7 @@
 package org.apache.hadoop.mapreduce.v2.app.rm;
 
 public interface RMHeartbeatHandler {
-  long getLastHeartbeatTime();
+    long getLastHeartbeatTime();
 
-  void runOnNextHeartbeat(Runnable callback);
+    void runOnNextHeartbeat(Runnable callback);
 }

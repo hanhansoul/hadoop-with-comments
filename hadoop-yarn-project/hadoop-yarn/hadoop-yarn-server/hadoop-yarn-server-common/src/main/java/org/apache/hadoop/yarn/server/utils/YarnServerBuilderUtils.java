@@ -36,27 +36,27 @@ import org.apache.hadoop.yarn.util.Records;
  */
 public class YarnServerBuilderUtils {
 
-  private static final RecordFactory recordFactory = RecordFactoryProvider
-      .getRecordFactory(null);
+    private static final RecordFactory recordFactory = RecordFactoryProvider
+            .getRecordFactory(null);
 
-  public static NodeHeartbeatResponse newNodeHeartbeatResponse(int responseId,
-      NodeAction action, List<ContainerId> containersToCleanUp,
-      List<ApplicationId> applicationsToCleanUp,
-      MasterKey containerTokenMasterKey, MasterKey nmTokenMasterKey,
-      long nextHeartbeatInterval) {
-    NodeHeartbeatResponse response = recordFactory
-        .newRecordInstance(NodeHeartbeatResponse.class);
-    response.setResponseId(responseId);
-    response.setNodeAction(action);
-    response.setContainerTokenMasterKey(containerTokenMasterKey);
-    response.setNMTokenMasterKey(nmTokenMasterKey);
-    response.setNextHeartBeatInterval(nextHeartbeatInterval);
-    if(containersToCleanUp != null) {
-      response.addAllContainersToCleanup(containersToCleanUp);
+    public static NodeHeartbeatResponse newNodeHeartbeatResponse(int responseId,
+            NodeAction action, List<ContainerId> containersToCleanUp,
+            List<ApplicationId> applicationsToCleanUp,
+            MasterKey containerTokenMasterKey, MasterKey nmTokenMasterKey,
+            long nextHeartbeatInterval) {
+        NodeHeartbeatResponse response = recordFactory
+                                         .newRecordInstance(NodeHeartbeatResponse.class);
+        response.setResponseId(responseId);
+        response.setNodeAction(action);
+        response.setContainerTokenMasterKey(containerTokenMasterKey);
+        response.setNMTokenMasterKey(nmTokenMasterKey);
+        response.setNextHeartBeatInterval(nextHeartbeatInterval);
+        if(containersToCleanUp != null) {
+            response.addAllContainersToCleanup(containersToCleanUp);
+        }
+        if(applicationsToCleanUp != null) {
+            response.addAllApplicationsToCleanup(applicationsToCleanUp);
+        }
+        return response;
     }
-    if(applicationsToCleanUp != null) {
-      response.addAllApplicationsToCleanup(applicationsToCleanUp);
-    }
-    return response;
-  }
 }

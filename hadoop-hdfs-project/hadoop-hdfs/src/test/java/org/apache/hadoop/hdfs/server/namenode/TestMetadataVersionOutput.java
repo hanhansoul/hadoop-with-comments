@@ -38,52 +38,52 @@ import static org.apache.hadoop.hdfs.DFSConfigKeys.DFS_HA_NAMENODES_KEY_PREFIX;
 
 public class TestMetadataVersionOutput {
 
-  private MiniDFSCluster dfsCluster = null;
-  private final Configuration conf = new Configuration();
+    private MiniDFSCluster dfsCluster = null;
+    private final Configuration conf = new Configuration();
 
-  @After
-  public void tearDown() throws Exception {
-    if (dfsCluster != null) {
-      dfsCluster.shutdown();
+    @After
+    public void tearDown() throws Exception {
+        if (dfsCluster != null) {
+            dfsCluster.shutdown();
+        }
+        Thread.sleep(2000);
     }
-    Thread.sleep(2000);
-  }
 
-  private void initConfig() {
-    conf.set(DFS_NAMESERVICE_ID, "ns1");
-    conf.set(DFS_HA_NAMENODES_KEY_PREFIX + ".ns1", "nn1");
-    conf.set(DFS_HA_NAMENODE_ID_KEY, "nn1");
-    conf.set(DFS_NAMENODE_NAME_DIR_KEY + ".ns1.nn1", MiniDFSCluster.getBaseDirectory() + "1");
-    conf.unset(DFS_NAMENODE_NAME_DIR_KEY);
-  }
+    private void initConfig() {
+        conf.set(DFS_NAMESERVICE_ID, "ns1");
+        conf.set(DFS_HA_NAMENODES_KEY_PREFIX + ".ns1", "nn1");
+        conf.set(DFS_HA_NAMENODE_ID_KEY, "nn1");
+        conf.set(DFS_NAMENODE_NAME_DIR_KEY + ".ns1.nn1", MiniDFSCluster.getBaseDirectory() + "1");
+        conf.unset(DFS_NAMENODE_NAME_DIR_KEY);
+    }
 
-  @Test(timeout = 30000)
-  public void testMetadataVersionOutput() throws IOException {
+    @Test(timeout = 30000)
+    public void testMetadataVersionOutput() throws IOException {
 
-    initConfig();
-    dfsCluster = new MiniDFSCluster.Builder(conf).
+        initConfig();
+        dfsCluster = new MiniDFSCluster.Builder(conf).
         manageNameDfsDirs(false).
         numDataNodes(1).
         checkExitOnShutdown(false).
         build();
-    dfsCluster.waitClusterUp();
-    dfsCluster.shutdown(false);
-    initConfig();
-    final PrintStream origOut = System.out;
-    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    final PrintStream stdOut = new PrintStream(baos);
-    System.setOut(stdOut);
-    try {
-      NameNode.createNameNode(new String[] { "-metadataVersion" }, conf);
-    } catch (Exception e) {
-      assertExceptionContains("ExitException", e);
+        dfsCluster.waitClusterUp();
+        dfsCluster.shutdown(false);
+        initConfig();
+        final PrintStream origOut = System.out;
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final PrintStream stdOut = new PrintStream(baos);
+        System.setOut(stdOut);
+        try {
+            NameNode.createNameNode(new String[] { "-metadataVersion" }, conf);
+        } catch (Exception e) {
+            assertExceptionContains("ExitException", e);
+        }
+        /* Check if meta data version is printed correctly. */
+        final String verNumStr = HdfsConstants.NAMENODE_LAYOUT_VERSION + "";
+        assertTrue(baos.toString("UTF-8").
+                   contains("HDFS Image Version: " + verNumStr));
+        assertTrue(baos.toString("UTF-8").
+                   contains("Software format version: " + verNumStr));
+        System.setOut(origOut);
     }
-    /* Check if meta data version is printed correctly. */
-    final String verNumStr = HdfsConstants.NAMENODE_LAYOUT_VERSION + "";
-    assertTrue(baos.toString("UTF-8").
-      contains("HDFS Image Version: " + verNumStr));
-    assertTrue(baos.toString("UTF-8").
-      contains("Software format version: " + verNumStr));
-    System.setOut(origOut);
-  }
 }

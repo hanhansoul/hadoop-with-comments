@@ -27,32 +27,32 @@ import org.apache.avro.generic.GenericData;
 
 public class AvroArrayUtils {
 
-  private static final Schema ARRAY_INT
-      = Schema.createArray(Schema.create(Schema.Type.INT));
+    private static final Schema ARRAY_INT
+        = Schema.createArray(Schema.create(Schema.Type.INT));
 
-  static public List<Integer> NULL_PROGRESS_SPLITS_ARRAY
-    = new GenericData.Array<Integer>(0, ARRAY_INT);
+    static public List<Integer> NULL_PROGRESS_SPLITS_ARRAY
+        = new GenericData.Array<Integer>(0, ARRAY_INT);
 
-  public static List<Integer>
+    public static List<Integer>
     toAvro(int values[]) {
-    List<Integer> result = new ArrayList<Integer>(values.length);
+        List<Integer> result = new ArrayList<Integer>(values.length);
 
-    for (int i = 0; i < values.length; ++i) {
-      result.add(values[i]);
+        for (int i = 0; i < values.length; ++i) {
+            result.add(values[i]);
+        }
+
+        return result;
     }
 
-    return result;
-  }
+    public static int[] fromAvro(List<Integer> avro) {
+        int[] result = new int[(int)avro.size()];
 
-  public static int[] fromAvro(List<Integer> avro) {
-    int[] result = new int[(int)avro.size()];
+        int i = 0;
 
-    int i = 0;
-      
-    for (Iterator<Integer> iter = avro.iterator(); iter.hasNext(); ++i) {
-      result[i] = iter.next();
+        for (Iterator<Integer> iter = avro.iterator(); iter.hasNext(); ++i) {
+            result[i] = iter.next();
+        }
+
+        return result;
     }
-
-    return result;
-  }
 }

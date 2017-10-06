@@ -36,16 +36,16 @@ import org.apache.hadoop.yarn.webapp.RemoteExceptionData;
 @Provider
 public class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
-  private final Map<Class, JAXBContext> typesContextMap;
+    private final Map<Class, JAXBContext> typesContextMap;
 
-  public JAXBContextResolver() throws Exception {
+    public JAXBContextResolver() throws Exception {
 
-    JAXBContext context;
-    JAXBContext unWrappedRootContext;
+        JAXBContext context;
+        JAXBContext unWrappedRootContext;
 
-    // you have to specify all the dao classes here
-    final Class[] cTypes =
-        { AppInfo.class, AppAttemptInfo.class, AppAttemptsInfo.class,
+        // you have to specify all the dao classes here
+        final Class[] cTypes = {
+            AppInfo.class, AppAttemptInfo.class, AppAttemptsInfo.class,
             ClusterInfo.class, CapacitySchedulerQueueInfo.class,
             FifoSchedulerInfo.class, SchedulerTypeInfo.class, NodeInfo.class,
             UserMetricsInfo.class, CapacitySchedulerInfo.class,
@@ -53,30 +53,32 @@ public class JAXBContextResolver implements ContextResolver<JAXBContext> {
             NodesInfo.class, RemoteExceptionData.class,
             CapacitySchedulerQueueInfoList.class, ResourceInfo.class,
             UsersInfo.class, UserInfo.class, ApplicationStatisticsInfo.class,
-            StatisticsItemInfo.class };
-    // these dao classes need root unwrapping
-    final Class[] rootUnwrappedTypes =
-        { NewApplication.class, ApplicationSubmissionContextInfo.class,
+            StatisticsItemInfo.class
+        };
+        // these dao classes need root unwrapping
+        final Class[] rootUnwrappedTypes = {
+            NewApplication.class, ApplicationSubmissionContextInfo.class,
             ContainerLaunchContextInfo.class, LocalResourceInfo.class,
-            DelegationToken.class };
+            DelegationToken.class
+        };
 
-    this.typesContextMap = new HashMap<Class, JAXBContext>();
-    context =
-        new JSONJAXBContext(JSONConfiguration.natural().rootUnwrapping(false)
-          .build(), cTypes);
-    unWrappedRootContext =
-        new JSONJAXBContext(JSONConfiguration.natural().rootUnwrapping(true)
-          .build(), rootUnwrappedTypes);
-    for (Class type : cTypes) {
-      typesContextMap.put(type, context);
+        this.typesContextMap = new HashMap<Class, JAXBContext>();
+        context =
+            new JSONJAXBContext(JSONConfiguration.natural().rootUnwrapping(false)
+                                .build(), cTypes);
+        unWrappedRootContext =
+            new JSONJAXBContext(JSONConfiguration.natural().rootUnwrapping(true)
+                                .build(), rootUnwrappedTypes);
+        for (Class type : cTypes) {
+            typesContextMap.put(type, context);
+        }
+        for (Class type : rootUnwrappedTypes) {
+            typesContextMap.put(type, unWrappedRootContext);
+        }
     }
-    for (Class type : rootUnwrappedTypes) {
-      typesContextMap.put(type, unWrappedRootContext);
-    }
-  }
 
-  @Override
-  public JAXBContext getContext(Class<?> objectType) {
-    return typesContextMap.get(objectType);
-  }
+    @Override
+    public JAXBContext getContext(Class<?> objectType) {
+        return typesContextMap.get(objectType);
+    }
 }

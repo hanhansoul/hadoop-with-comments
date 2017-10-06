@@ -34,48 +34,48 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class TestStaticUserWebFilter {
-  private FilterConfig mockConfig(String username) {
-    FilterConfig mock = Mockito.mock(FilterConfig.class);
-    Mockito.doReturn(username).when(mock).getInitParameter(
-        CommonConfigurationKeys.HADOOP_HTTP_STATIC_USER);
-    return mock;
-  }
-  
-  @Test
-  public void testFilter() throws Exception {
-    FilterConfig config = mockConfig("myuser");
-    StaticUserFilter suf = new StaticUserFilter();
-    suf.init(config);
-    
-    ArgumentCaptor<HttpServletRequestWrapper> wrapperArg =
-      ArgumentCaptor.forClass(HttpServletRequestWrapper.class);
+    private FilterConfig mockConfig(String username) {
+        FilterConfig mock = Mockito.mock(FilterConfig.class);
+        Mockito.doReturn(username).when(mock).getInitParameter(
+            CommonConfigurationKeys.HADOOP_HTTP_STATIC_USER);
+        return mock;
+    }
 
-    FilterChain chain = mock(FilterChain.class);
-    
-    suf.doFilter(mock(HttpServletRequest.class), mock(ServletResponse.class),
-        chain);
-        
-    Mockito.verify(chain).doFilter(wrapperArg.capture(), Mockito.<ServletResponse>anyObject());
-    
-    HttpServletRequestWrapper wrapper = wrapperArg.getValue();
-    assertEquals("myuser", wrapper.getUserPrincipal().getName());
-    assertEquals("myuser", wrapper.getRemoteUser());
-    
-    suf.destroy();
-  }
-  
-  @Test
-  public void testOldStyleConfiguration() {
-    Configuration conf = new Configuration();
-    conf.set("dfs.web.ugi", "joe,group1,group2");
-    assertEquals("joe", StaticUserWebFilter.getUsernameFromConf(conf));
-  }
+    @Test
+    public void testFilter() throws Exception {
+        FilterConfig config = mockConfig("myuser");
+        StaticUserFilter suf = new StaticUserFilter();
+        suf.init(config);
 
-  @Test
-  public void testConfiguration() {
-    Configuration conf = new Configuration();
-    conf.set(CommonConfigurationKeys.HADOOP_HTTP_STATIC_USER, "joe");
-    assertEquals("joe", StaticUserWebFilter.getUsernameFromConf(conf));
-  }
+        ArgumentCaptor<HttpServletRequestWrapper> wrapperArg =
+            ArgumentCaptor.forClass(HttpServletRequestWrapper.class);
+
+        FilterChain chain = mock(FilterChain.class);
+
+        suf.doFilter(mock(HttpServletRequest.class), mock(ServletResponse.class),
+                     chain);
+
+        Mockito.verify(chain).doFilter(wrapperArg.capture(), Mockito.<ServletResponse>anyObject());
+
+        HttpServletRequestWrapper wrapper = wrapperArg.getValue();
+        assertEquals("myuser", wrapper.getUserPrincipal().getName());
+        assertEquals("myuser", wrapper.getRemoteUser());
+
+        suf.destroy();
+    }
+
+    @Test
+    public void testOldStyleConfiguration() {
+        Configuration conf = new Configuration();
+        conf.set("dfs.web.ugi", "joe,group1,group2");
+        assertEquals("joe", StaticUserWebFilter.getUsernameFromConf(conf));
+    }
+
+    @Test
+    public void testConfiguration() {
+        Configuration conf = new Configuration();
+        conf.set(CommonConfigurationKeys.HADOOP_HTTP_STATIC_USER, "joe");
+        assertEquals("joe", StaticUserWebFilter.getUsernameFromConf(conf));
+    }
 
 }

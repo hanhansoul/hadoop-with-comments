@@ -23,20 +23,20 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.ContainerAlloca
 
 /**
  * The {@link SchedulerEvent} which notifies that a {@link ContainerId}
- * has expired, sent by {@link ContainerAllocationExpirer} 
+ * has expired, sent by {@link ContainerAllocationExpirer}
  *
  */
 public class ContainerExpiredSchedulerEvent extends SchedulerEvent {
 
-  private final ContainerId containerId;
-  
-  public ContainerExpiredSchedulerEvent(ContainerId containerId) {
-    super(SchedulerEventType.CONTAINER_EXPIRED);
-    this.containerId = containerId;
-  }
+    private final ContainerId containerId;
 
-  public ContainerId getContainerId() {
-    return containerId;
-  }
+    public ContainerExpiredSchedulerEvent(ContainerId containerId) {
+        super(SchedulerEventType.CONTAINER_EXPIRED);
+        this.containerId = containerId;
+    }
+
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
 }

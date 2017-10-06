@@ -26,42 +26,42 @@ import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.Epoch;
 
 public class EpochPBImpl extends Epoch {
 
-  EpochProto proto = EpochProto.getDefaultInstance();
-  EpochProto.Builder builder = null;
-  boolean viaProto = false;
+    EpochProto proto = EpochProto.getDefaultInstance();
+    EpochProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public EpochPBImpl() {
-    builder = EpochProto.newBuilder();
-  }
-
-  public EpochPBImpl(EpochProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public EpochProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = EpochProto.newBuilder(proto);
+    public EpochPBImpl() {
+        builder = EpochProto.newBuilder();
     }
-    viaProto = false;
-  }
 
-  @Override
-  public long getEpoch() {
-    EpochProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getEpoch();
-  }
+    public EpochPBImpl(EpochProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
 
-  @Override
-  public void setEpoch(long sequentialNumber) {
-    maybeInitBuilder();
-    builder.setEpoch(sequentialNumber);
-  }
+    public EpochProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = EpochProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public long getEpoch() {
+        EpochProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getEpoch();
+    }
+
+    @Override
+    public void setEpoch(long sequentialNumber) {
+        maybeInitBuilder();
+        builder.setEpoch(sequentialNumber);
+    }
 
 }

@@ -40,19 +40,19 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
  * TextInputFormat, the mapper will ignore the key to the map function. and the
  * fields are from the value only. Otherwise, the fields are the union of those
  * from the key and those from the value.
- * 
+ *
  * The field separator is under attribute "mapreduce.fieldsel.data.field.separator"
- * 
- * The map output field list spec is under attribute 
- * "mapreduce.fieldsel.map.output.key.value.fields.spec". 
+ *
+ * The map output field list spec is under attribute
+ * "mapreduce.fieldsel.map.output.key.value.fields.spec".
  * The value is expected to be like
  * "keyFieldsSpec:valueFieldsSpec" key/valueFieldsSpec are comma (,) separated
- * field spec: fieldSpec,fieldSpec,fieldSpec ... Each field spec can be a 
+ * field spec: fieldSpec,fieldSpec,fieldSpec ... Each field spec can be a
  * simple number (e.g. 5) specifying a specific field, or a range (like 2-5)
- * to specify a range of fields, or an open range (like 3-) specifying all 
+ * to specify a range of fields, or an open range (like 3-) specifying all
  * the fields starting from field 3. The open range field spec applies value
  * fields only. They have no effect on the key fields.
- * 
+ *
  * Here is an example: "4,3,0,1:6,5,1-3,7-". It specifies to use fields
  * 4,3,0 and 1 for keys, and use fields 6,5,1,2,3,7 and above for values.
  */
@@ -61,50 +61,50 @@ import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 public class FieldSelectionMapper<K, V>
     extends Mapper<K, V, Text, Text> {
 
-  private String mapOutputKeyValueSpec;
+    private String mapOutputKeyValueSpec;
 
-  private boolean ignoreInputKey;
+    private boolean ignoreInputKey;
 
-  private String fieldSeparator = "\t";
+    private String fieldSeparator = "\t";
 
-  private List<Integer> mapOutputKeyFieldList = new ArrayList<Integer>();
+    private List<Integer> mapOutputKeyFieldList = new ArrayList<Integer>();
 
-  private List<Integer> mapOutputValueFieldList = new ArrayList<Integer>();
+    private List<Integer> mapOutputValueFieldList = new ArrayList<Integer>();
 
-  private int allMapValueFieldsFrom = -1;
+    private int allMapValueFieldsFrom = -1;
 
-  public static final Log LOG = LogFactory.getLog("FieldSelectionMapReduce");
+    public static final Log LOG = LogFactory.getLog("FieldSelectionMapReduce");
 
-  public void setup(Context context) 
-      throws IOException, InterruptedException {
-    Configuration conf = context.getConfiguration();
-    this.fieldSeparator = 
-      conf.get(FieldSelectionHelper.DATA_FIELD_SEPERATOR, "\t");
-    this.mapOutputKeyValueSpec = 
-      conf.get(FieldSelectionHelper.MAP_OUTPUT_KEY_VALUE_SPEC, "0-:");
-    try {
-      this.ignoreInputKey = TextInputFormat.class.getCanonicalName().equals(
-        context.getInputFormatClass().getCanonicalName());
-    } catch (ClassNotFoundException e) {
-      throw new IOException("Input format class not found", e);
+    public void setup(Context context)
+    throws IOException, InterruptedException {
+        Configuration conf = context.getConfiguration();
+        this.fieldSeparator =
+            conf.get(FieldSelectionHelper.DATA_FIELD_SEPERATOR, "\t");
+        this.mapOutputKeyValueSpec =
+            conf.get(FieldSelectionHelper.MAP_OUTPUT_KEY_VALUE_SPEC, "0-:");
+        try {
+            this.ignoreInputKey = TextInputFormat.class.getCanonicalName().equals(
+                                      context.getInputFormatClass().getCanonicalName());
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Input format class not found", e);
+        }
+        allMapValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
+                                    mapOutputKeyValueSpec, mapOutputKeyFieldList, mapOutputValueFieldList);
+        LOG.info(FieldSelectionHelper.specToString(fieldSeparator,
+                 mapOutputKeyValueSpec, allMapValueFieldsFrom, mapOutputKeyFieldList,
+                 mapOutputValueFieldList) + "\nignoreInputKey:" + ignoreInputKey);
     }
-    allMapValueFieldsFrom = FieldSelectionHelper.parseOutputKeyValueSpec(
-      mapOutputKeyValueSpec, mapOutputKeyFieldList, mapOutputValueFieldList);
-    LOG.info(FieldSelectionHelper.specToString(fieldSeparator,
-      mapOutputKeyValueSpec, allMapValueFieldsFrom, mapOutputKeyFieldList,
-      mapOutputValueFieldList) + "\nignoreInputKey:" + ignoreInputKey);
-  }
 
-  /**
-   * The identify function. Input key/value pair is written directly to output.
-   */
-  public void map(K key, V val, Context context) 
-      throws IOException, InterruptedException {
-    FieldSelectionHelper helper = new FieldSelectionHelper(
-      FieldSelectionHelper.emptyText, FieldSelectionHelper.emptyText);
-    helper.extractOutputKeyValue(key.toString(), val.toString(),
-      fieldSeparator, mapOutputKeyFieldList, mapOutputValueFieldList,
-      allMapValueFieldsFrom, ignoreInputKey, true);
-    context.write(helper.getKey(), helper.getValue());
-  }
+    /**
+     * The identify function. Input key/value pair is written directly to output.
+     */
+    public void map(K key, V val, Context context)
+    throws IOException, InterruptedException {
+        FieldSelectionHelper helper = new FieldSelectionHelper(
+            FieldSelectionHelper.emptyText, FieldSelectionHelper.emptyText);
+        helper.extractOutputKeyValue(key.toString(), val.toString(),
+                                     fieldSeparator, mapOutputKeyFieldList, mapOutputValueFieldList,
+                                     allMapValueFieldsFrom, ignoreInputKey, true);
+        context.write(helper.getKey(), helper.getValue());
+    }
 }

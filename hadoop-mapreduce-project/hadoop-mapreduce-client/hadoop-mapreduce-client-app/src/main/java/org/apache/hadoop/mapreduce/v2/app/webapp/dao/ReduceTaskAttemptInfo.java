@@ -30,54 +30,54 @@ import org.apache.hadoop.yarn.util.Times;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ReduceTaskAttemptInfo extends TaskAttemptInfo {
 
-  protected long shuffleFinishTime;
-  protected long mergeFinishTime;
-  protected long elapsedShuffleTime;
-  protected long elapsedMergeTime;
-  protected long elapsedReduceTime;
+    protected long shuffleFinishTime;
+    protected long mergeFinishTime;
+    protected long elapsedShuffleTime;
+    protected long elapsedMergeTime;
+    protected long elapsedReduceTime;
 
-  public ReduceTaskAttemptInfo() {
-  }
-
-  public ReduceTaskAttemptInfo(TaskAttempt ta, TaskType type) {
-    super(ta, type, false);
-
-    this.shuffleFinishTime = ta.getShuffleFinishTime();
-    this.mergeFinishTime = ta.getSortFinishTime();
-    this.elapsedShuffleTime = Times.elapsed(this.startTime,
-        this.shuffleFinishTime, false);
-    if (this.elapsedShuffleTime == -1) {
-      this.elapsedShuffleTime = 0;
+    public ReduceTaskAttemptInfo() {
     }
-    this.elapsedMergeTime = Times.elapsed(this.shuffleFinishTime,
-        this.mergeFinishTime, false);
-    if (this.elapsedMergeTime == -1) {
-      this.elapsedMergeTime = 0;
+
+    public ReduceTaskAttemptInfo(TaskAttempt ta, TaskType type) {
+        super(ta, type, false);
+
+        this.shuffleFinishTime = ta.getShuffleFinishTime();
+        this.mergeFinishTime = ta.getSortFinishTime();
+        this.elapsedShuffleTime = Times.elapsed(this.startTime,
+                                                this.shuffleFinishTime, false);
+        if (this.elapsedShuffleTime == -1) {
+            this.elapsedShuffleTime = 0;
+        }
+        this.elapsedMergeTime = Times.elapsed(this.shuffleFinishTime,
+                                              this.mergeFinishTime, false);
+        if (this.elapsedMergeTime == -1) {
+            this.elapsedMergeTime = 0;
+        }
+        this.elapsedReduceTime = Times.elapsed(this.mergeFinishTime,
+                                               this.finishTime, false);
+        if (this.elapsedReduceTime == -1) {
+            this.elapsedReduceTime = 0;
+        }
     }
-    this.elapsedReduceTime = Times.elapsed(this.mergeFinishTime,
-        this.finishTime, false);
-    if (this.elapsedReduceTime == -1) {
-      this.elapsedReduceTime = 0;
+
+    public long getShuffleFinishTime() {
+        return this.shuffleFinishTime;
     }
-  }
 
-  public long getShuffleFinishTime() {
-    return this.shuffleFinishTime;
-  }
+    public long getMergeFinishTime() {
+        return this.mergeFinishTime;
+    }
 
-  public long getMergeFinishTime() {
-    return this.mergeFinishTime;
-  }
+    public long getElapsedShuffleTime() {
+        return this.elapsedShuffleTime;
+    }
 
-  public long getElapsedShuffleTime() {
-    return this.elapsedShuffleTime;
-  }
+    public long getElapsedMergeTime() {
+        return this.elapsedMergeTime;
+    }
 
-  public long getElapsedMergeTime() {
-    return this.elapsedMergeTime;
-  }
-
-  public long getElapsedReduceTime() {
-    return this.elapsedReduceTime;
-  }
+    public long getElapsedReduceTime() {
+        return this.elapsedReduceTime;
+    }
 }

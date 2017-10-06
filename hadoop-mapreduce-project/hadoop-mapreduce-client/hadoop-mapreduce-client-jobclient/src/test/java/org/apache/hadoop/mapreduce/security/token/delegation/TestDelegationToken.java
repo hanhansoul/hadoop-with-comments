@@ -35,109 +35,109 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 @Ignore
 public class TestDelegationToken {
-  private MiniMRCluster cluster;
-  private UserGroupInformation user1;
-  private UserGroupInformation user2;
-  
-  @Before
-  public void setup() throws Exception {
-    user1 = UserGroupInformation.createUserForTesting("alice", 
-                                                      new String[]{"users"});
-    user2 = UserGroupInformation.createUserForTesting("bob", 
-                                                      new String[]{"users"});
-    cluster = new MiniMRCluster(0,0,1,"file:///",1);
-  }
-  
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testDelegationToken() throws Exception {
-    
-    final JobClient client;
-    client = user1.doAs(new PrivilegedExceptionAction<JobClient>(){
-      @Override
-      public JobClient run() throws Exception {
-        return new JobClient(cluster.createJobConf());
-      }
-    });
-    
-    final JobClient bobClient;
-    bobClient = user2.doAs(new PrivilegedExceptionAction<JobClient>(){
-      @Override
-      public JobClient run() throws Exception {
-        return new JobClient(cluster.createJobConf());
-      }
-    });
-    
-    final Token<DelegationTokenIdentifier> token = 
-      client.getDelegationToken(new Text(user1.getUserName()));
-    
-    DataInputBuffer inBuf = new DataInputBuffer();
-    byte[] bytes = token.getIdentifier();
-    inBuf.reset(bytes, bytes.length);
-    DelegationTokenIdentifier ident = new DelegationTokenIdentifier();
-    ident.readFields(inBuf);
-    
-    assertEquals("alice", ident.getUser().getUserName());
-    long createTime = ident.getIssueDate();
-    long maxTime = ident.getMaxDate();
-    long currentTime = System.currentTimeMillis();
-    System.out.println("create time: " + createTime);
-    System.out.println("current time: " + currentTime);
-    System.out.println("max time: " + maxTime);
-    assertTrue("createTime < current", createTime < currentTime);
-    assertTrue("current < maxTime", currentTime < maxTime);
+    private MiniMRCluster cluster;
+    private UserGroupInformation user1;
+    private UserGroupInformation user2;
 
-    // renew should work as user alice
-    user1.doAs(new PrivilegedExceptionAction<Void>() {
-      @Override
-      public Void run() throws Exception {
-        client.renewDelegationToken(token);
-        client.renewDelegationToken(token);
-        return null;
-      }   
-    });
-    
-    // bob should fail to renew
-    user2.doAs(new PrivilegedExceptionAction<Void>() {
-      @Override
-      public Void run() throws Exception {
-        try {
-          bobClient.renewDelegationToken(token);
-          Assert.fail("bob renew");
-        } catch (AccessControlException ace) {
-          // PASS
-        }
-        return null;
-      }
-    });
-        
-    // bob should fail to cancel
-    user2.doAs(new PrivilegedExceptionAction<Void>() {
-      @Override
-      public Void run() throws Exception {
-        try {
-          bobClient.cancelDelegationToken(token);
-          Assert.fail("bob cancel");
-        } catch (AccessControlException ace) {
-          // PASS
-        }
-        return null;
-      }
-    });
-    
-    // alice should be able to cancel but only cancel once
-    user1.doAs(new PrivilegedExceptionAction<Void>() {
-      @Override
-      public Void run() throws Exception {
-        client.cancelDelegationToken(token);
-        try {
-          client.cancelDelegationToken(token);
-          Assert.fail("second alice cancel");
-        } catch (InvalidToken it) {
-          // PASS
-        }
-        return null;
-      }   
-    });
-  }
+    @Before
+    public void setup() throws Exception {
+        user1 = UserGroupInformation.createUserForTesting("alice",
+                new String[] {"users"});
+        user2 = UserGroupInformation.createUserForTesting("bob",
+                new String[] {"users"});
+        cluster = new MiniMRCluster(0,0,1,"file:///",1);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    public void testDelegationToken() throws Exception {
+
+        final JobClient client;
+        client = user1.doAs(new PrivilegedExceptionAction<JobClient>() {
+            @Override
+            public JobClient run() throws Exception {
+                return new JobClient(cluster.createJobConf());
+            }
+        });
+
+        final JobClient bobClient;
+        bobClient = user2.doAs(new PrivilegedExceptionAction<JobClient>() {
+            @Override
+            public JobClient run() throws Exception {
+                return new JobClient(cluster.createJobConf());
+            }
+        });
+
+        final Token<DelegationTokenIdentifier> token =
+            client.getDelegationToken(new Text(user1.getUserName()));
+
+        DataInputBuffer inBuf = new DataInputBuffer();
+        byte[] bytes = token.getIdentifier();
+        inBuf.reset(bytes, bytes.length);
+        DelegationTokenIdentifier ident = new DelegationTokenIdentifier();
+        ident.readFields(inBuf);
+
+        assertEquals("alice", ident.getUser().getUserName());
+        long createTime = ident.getIssueDate();
+        long maxTime = ident.getMaxDate();
+        long currentTime = System.currentTimeMillis();
+        System.out.println("create time: " + createTime);
+        System.out.println("current time: " + currentTime);
+        System.out.println("max time: " + maxTime);
+        assertTrue("createTime < current", createTime < currentTime);
+        assertTrue("current < maxTime", currentTime < maxTime);
+
+        // renew should work as user alice
+        user1.doAs(new PrivilegedExceptionAction<Void>() {
+            @Override
+            public Void run() throws Exception {
+                client.renewDelegationToken(token);
+                client.renewDelegationToken(token);
+                return null;
+            }
+        });
+
+        // bob should fail to renew
+        user2.doAs(new PrivilegedExceptionAction<Void>() {
+            @Override
+            public Void run() throws Exception {
+                try {
+                    bobClient.renewDelegationToken(token);
+                    Assert.fail("bob renew");
+                } catch (AccessControlException ace) {
+                    // PASS
+                }
+                return null;
+            }
+        });
+
+        // bob should fail to cancel
+        user2.doAs(new PrivilegedExceptionAction<Void>() {
+            @Override
+            public Void run() throws Exception {
+                try {
+                    bobClient.cancelDelegationToken(token);
+                    Assert.fail("bob cancel");
+                } catch (AccessControlException ace) {
+                    // PASS
+                }
+                return null;
+            }
+        });
+
+        // alice should be able to cancel but only cancel once
+        user1.doAs(new PrivilegedExceptionAction<Void>() {
+            @Override
+            public Void run() throws Exception {
+                client.cancelDelegationToken(token);
+                try {
+                    client.cancelDelegationToken(token);
+                    Assert.fail("second alice cancel");
+                } catch (InvalidToken it) {
+                    // PASS
+                }
+                return null;
+            }
+        });
+    }
 }

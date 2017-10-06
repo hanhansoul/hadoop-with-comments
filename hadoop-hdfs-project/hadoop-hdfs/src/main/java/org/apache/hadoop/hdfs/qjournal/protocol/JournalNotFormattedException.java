@@ -26,10 +26,10 @@ import java.io.IOException;
  */
 @InterfaceAudience.Private
 public class JournalNotFormattedException extends IOException {
-  private static final long serialVersionUID = 1L;
-  
-  public JournalNotFormattedException(String msg) {
-    super(msg);
-  }
+    private static final long serialVersionUID = 1L;
+
+    public JournalNotFormattedException(String msg) {
+        super(msg);
+    }
 
 }

@@ -31,18 +31,18 @@ import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterReque
  */
 public class InvalidApplicationMasterRequestException extends YarnException {
 
-  private static final long serialVersionUID = 1357686L;
+    private static final long serialVersionUID = 1357686L;
 
-  public InvalidApplicationMasterRequestException(Throwable cause) {
-    super(cause);
-  }
+    public InvalidApplicationMasterRequestException(Throwable cause) {
+        super(cause);
+    }
 
-  public InvalidApplicationMasterRequestException(String message) {
-    super(message);
-  }
+    public InvalidApplicationMasterRequestException(String message) {
+        super(message);
+    }
 
-  public InvalidApplicationMasterRequestException(String message,
-      Throwable cause) {
-    super(message, cause);
-  }
+    public InvalidApplicationMasterRequestException(String message,
+            Throwable cause) {
+        super(message, cause);
+    }
 }

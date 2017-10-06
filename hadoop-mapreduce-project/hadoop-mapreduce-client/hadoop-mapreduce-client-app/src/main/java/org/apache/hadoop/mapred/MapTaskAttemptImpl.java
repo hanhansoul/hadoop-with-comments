@@ -35,30 +35,30 @@ import org.apache.hadoop.yarn.util.Clock;
 @SuppressWarnings("rawtypes")
 public class MapTaskAttemptImpl extends TaskAttemptImpl {
 
-  private final TaskSplitMetaInfo splitInfo;
+    private final TaskSplitMetaInfo splitInfo;
 
-  public MapTaskAttemptImpl(TaskId taskId, int attempt, 
-      EventHandler eventHandler, Path jobFile, 
-      int partition, TaskSplitMetaInfo splitInfo, JobConf conf,
-      TaskAttemptListener taskAttemptListener, 
-      Token<JobTokenIdentifier> jobToken,
-      Credentials credentials, Clock clock,
-      AppContext appContext) {
-    super(taskId, attempt, eventHandler, 
-        taskAttemptListener, jobFile, partition, conf, splitInfo.getLocations(),
-        jobToken, credentials, clock, appContext);
-    this.splitInfo = splitInfo;
-  }
+    public MapTaskAttemptImpl(TaskId taskId, int attempt,
+                              EventHandler eventHandler, Path jobFile,
+                              int partition, TaskSplitMetaInfo splitInfo, JobConf conf,
+                              TaskAttemptListener taskAttemptListener,
+                              Token<JobTokenIdentifier> jobToken,
+                              Credentials credentials, Clock clock,
+                              AppContext appContext) {
+        super(taskId, attempt, eventHandler,
+              taskAttemptListener, jobFile, partition, conf, splitInfo.getLocations(),
+              jobToken, credentials, clock, appContext);
+        this.splitInfo = splitInfo;
+    }
 
-  @Override
-  public Task createRemoteTask() {
-    //job file name is set in TaskAttempt, setting it null here
-    MapTask mapTask =
-      new MapTask("", TypeConverter.fromYarn(getID()), partition,
-          splitInfo.getSplitIndex(), 1); // YARN doesn't have the concept of slots per task, set it as 1.
-    mapTask.setUser(conf.get(MRJobConfig.USER_NAME));
-    mapTask.setConf(conf);
-    return mapTask;
-  }
+    @Override
+    public Task createRemoteTask() {
+        //job file name is set in TaskAttempt, setting it null here
+        MapTask mapTask =
+            new MapTask("", TypeConverter.fromYarn(getID()), partition,
+                        splitInfo.getSplitIndex(), 1); // YARN doesn't have the concept of slots per task, set it as 1.
+        mapTask.setUser(conf.get(MRJobConfig.USER_NAME));
+        mapTask.setConf(conf);
+        return mapTask;
+    }
 
 }

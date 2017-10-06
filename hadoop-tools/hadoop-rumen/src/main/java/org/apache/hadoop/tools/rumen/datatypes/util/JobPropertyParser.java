@@ -24,11 +24,11 @@ import org.apache.hadoop.tools.rumen.datatypes.JobProperties;
  * A {@link JobProperties} parsing utility.
  */
 public interface JobPropertyParser {
-  /**
-   * Parse the specified job configuration key-value pair.
-   * 
-   * @return Returns a {@link DataType} if this parser can parse this value.
-   *         Returns 'null' otherwise.
-   */
-  public DataType<?> parseJobProperty(String key, String value);
+    /**
+     * Parse the specified job configuration key-value pair.
+     *
+     * @return Returns a {@link DataType} if this parser can parse this value.
+     *         Returns 'null' otherwise.
+     */
+    public DataType<?> parseJobProperty(String key, String value);
 }

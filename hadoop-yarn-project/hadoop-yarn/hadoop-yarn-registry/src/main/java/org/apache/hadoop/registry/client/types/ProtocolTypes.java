@@ -28,72 +28,72 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public interface ProtocolTypes {
 
-  /**
-   * Addresses are URIs of Hadoop Filesystem paths: {@value}.
-   */
-  String PROTOCOL_FILESYSTEM = "hadoop/filesystem";
+    /**
+     * Addresses are URIs of Hadoop Filesystem paths: {@value}.
+     */
+    String PROTOCOL_FILESYSTEM = "hadoop/filesystem";
 
-  /**
-   * Hadoop IPC,  "classic" or protobuf : {@value}.
-   */
-  String PROTOCOL_HADOOP_IPC = "hadoop/IPC";
+    /**
+     * Hadoop IPC,  "classic" or protobuf : {@value}.
+     */
+    String PROTOCOL_HADOOP_IPC = "hadoop/IPC";
 
-  /**
-   * Corba IIOP: {@value}.
-   */
-  String PROTOCOL_IIOP = "IIOP";
+    /**
+     * Corba IIOP: {@value}.
+     */
+    String PROTOCOL_IIOP = "IIOP";
 
-  /**
-   * REST: {@value}.
-   */
-  String PROTOCOL_REST = "REST";
+    /**
+     * REST: {@value}.
+     */
+    String PROTOCOL_REST = "REST";
 
-  /**
-   * Java RMI: {@value}.
-   */
-  String PROTOCOL_RMI = "RMI";
+    /**
+     * Java RMI: {@value}.
+     */
+    String PROTOCOL_RMI = "RMI";
 
-  /**
-   * SunOS RPC, as used by NFS and similar: {@value}.
-   */
-  String PROTOCOL_SUN_RPC = "sunrpc";
+    /**
+     * SunOS RPC, as used by NFS and similar: {@value}.
+     */
+    String PROTOCOL_SUN_RPC = "sunrpc";
 
-  /**
-   * Thrift-based protocols: {@value}.
-   */
-  String PROTOCOL_THRIFT = "thrift";
+    /**
+     * Thrift-based protocols: {@value}.
+     */
+    String PROTOCOL_THRIFT = "thrift";
 
-  /**
-   * Custom TCP protocol: {@value}.
-   */
-  String PROTOCOL_TCP = "tcp";
+    /**
+     * Custom TCP protocol: {@value}.
+     */
+    String PROTOCOL_TCP = "tcp";
 
-  /**
-   * Custom UPC-based protocol : {@value}.
-   */
-  String PROTOCOL_UDP = "udp";
+    /**
+     * Custom UPC-based protocol : {@value}.
+     */
+    String PROTOCOL_UDP = "udp";
 
-  /**
-   * Default value —the protocol is unknown : "{@value}"
-   */
-  String PROTOCOL_UNKNOWN = "";
+    /**
+     * Default value —the protocol is unknown : "{@value}"
+     */
+    String PROTOCOL_UNKNOWN = "";
 
-  /**
-   * Web page: {@value}.
-   *
-   * This protocol implies that the URLs are designed for
-   * people to view via web browsers.
-   */
-  String PROTOCOL_WEBUI = "webui";
+    /**
+     * Web page: {@value}.
+     *
+     * This protocol implies that the URLs are designed for
+     * people to view via web browsers.
+     */
+    String PROTOCOL_WEBUI = "webui";
 
-  /**
-   * Web Services: {@value}.
-   */
-  String PROTOCOL_WSAPI = "WS-*";
+    /**
+     * Web Services: {@value}.
+     */
+    String PROTOCOL_WSAPI = "WS-*";
 
-  /**
-   * A zookeeper binding: {@value}.
-   */
-  String PROTOCOL_ZOOKEEPER_BINDING = "zookeeper";
+    /**
+     * A zookeeper binding: {@value}.
+     */
+    String PROTOCOL_ZOOKEEPER_BINDING = "zookeeper";
 
 }

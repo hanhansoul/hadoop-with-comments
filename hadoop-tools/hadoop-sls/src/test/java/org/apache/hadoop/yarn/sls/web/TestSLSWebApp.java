@@ -31,91 +31,91 @@ import java.util.Set;
 
 public class TestSLSWebApp {
 
-  @Test
-  public void testSimulateInfoPageHtmlTemplate() throws Exception {
-    String simulateInfoTemplate = FileUtils.readFileToString(
-            new File("src/main/html/simulate.info.html.template"));
+    @Test
+    public void testSimulateInfoPageHtmlTemplate() throws Exception {
+        String simulateInfoTemplate = FileUtils.readFileToString(
+                                          new File("src/main/html/simulate.info.html.template"));
 
-    SLSRunner.simulateInfoMap.put("Number of racks", 10);
-    SLSRunner.simulateInfoMap.put("Number of nodes", 100);
-    SLSRunner.simulateInfoMap.put("Node memory (MB)", 1024);
-    SLSRunner.simulateInfoMap.put("Node VCores", 1);
-    SLSRunner.simulateInfoMap.put("Number of applications", 100);
-    SLSRunner.simulateInfoMap.put("Number of tasks", 1000);
-    SLSRunner.simulateInfoMap.put("Average tasks per applicaion", 10);
-    SLSRunner.simulateInfoMap.put("Number of queues", 4);
-    SLSRunner.simulateInfoMap.put("Average applications per queue", 25);
-    SLSRunner.simulateInfoMap.put("Estimated simulate time (s)", 10000);
+        SLSRunner.simulateInfoMap.put("Number of racks", 10);
+        SLSRunner.simulateInfoMap.put("Number of nodes", 100);
+        SLSRunner.simulateInfoMap.put("Node memory (MB)", 1024);
+        SLSRunner.simulateInfoMap.put("Node VCores", 1);
+        SLSRunner.simulateInfoMap.put("Number of applications", 100);
+        SLSRunner.simulateInfoMap.put("Number of tasks", 1000);
+        SLSRunner.simulateInfoMap.put("Average tasks per applicaion", 10);
+        SLSRunner.simulateInfoMap.put("Number of queues", 4);
+        SLSRunner.simulateInfoMap.put("Average applications per queue", 25);
+        SLSRunner.simulateInfoMap.put("Estimated simulate time (s)", 10000);
 
-    StringBuilder info = new StringBuilder();
-    for (Map.Entry<String, Object> entry :
-            SLSRunner.simulateInfoMap.entrySet()) {
-      info.append("<tr>");
-      info.append("<td class='td1'>" + entry.getKey() + "</td>");
-      info.append("<td class='td2'>" + entry.getValue() + "</td>");
-      info.append("</tr>");
-    }
+        StringBuilder info = new StringBuilder();
+        for (Map.Entry<String, Object> entry :
+             SLSRunner.simulateInfoMap.entrySet()) {
+            info.append("<tr>");
+            info.append("<td class='td1'>" + entry.getKey() + "</td>");
+            info.append("<td class='td2'>" + entry.getValue() + "</td>");
+            info.append("</tr>");
+        }
 
-    String simulateInfo =
+        String simulateInfo =
             MessageFormat.format(simulateInfoTemplate, info.toString());
-    Assert.assertTrue("The simulate info html page should not be empty",
-            simulateInfo.length() > 0);
-    for (Map.Entry<String, Object> entry :
-            SLSRunner.simulateInfoMap.entrySet()) {
-      Assert.assertTrue("The simulate info html page should have information "
-              + "of " + entry.getKey(), simulateInfo.contains("<td class='td1'>"
-              + entry.getKey() + "</td><td class='td2'>"
-              + entry.getValue() + "</td>"));
+        Assert.assertTrue("The simulate info html page should not be empty",
+                          simulateInfo.length() > 0);
+        for (Map.Entry<String, Object> entry :
+             SLSRunner.simulateInfoMap.entrySet()) {
+            Assert.assertTrue("The simulate info html page should have information "
+                              + "of " + entry.getKey(), simulateInfo.contains("<td class='td1'>"
+                                      + entry.getKey() + "</td><td class='td2'>"
+                                      + entry.getValue() + "</td>"));
+        }
     }
-  }
 
-  @Test
-  public void testSimulatePageHtmlTemplate() throws Exception {
-    String simulateTemplate = FileUtils.readFileToString(
-            new File("src/main/html/simulate.html.template"));
+    @Test
+    public void testSimulatePageHtmlTemplate() throws Exception {
+        String simulateTemplate = FileUtils.readFileToString(
+                                      new File("src/main/html/simulate.html.template"));
 
-    Set<String> queues = new HashSet<String>();
-    queues.add("sls_queue_1");
-    queues.add("sls_queue_2");
-    queues.add("sls_queue_3");
-    String queueInfo = "";
-    int i = 0;
-    for (String queue : queues) {
-      queueInfo += "legends[4][" + i + "] = 'queue" + queue
-              + ".allocated.memory'";
-      queueInfo += "legends[5][" + i + "] = 'queue" + queue
-              + ".allocated.vcores'";
-      i ++;
+        Set<String> queues = new HashSet<String>();
+        queues.add("sls_queue_1");
+        queues.add("sls_queue_2");
+        queues.add("sls_queue_3");
+        String queueInfo = "";
+        int i = 0;
+        for (String queue : queues) {
+            queueInfo += "legends[4][" + i + "] = 'queue" + queue
+                         + ".allocated.memory'";
+            queueInfo += "legends[5][" + i + "] = 'queue" + queue
+                         + ".allocated.vcores'";
+            i ++;
+        }
+        String simulateInfo = MessageFormat.format(simulateTemplate,
+                              queueInfo, "s", 1000, 1000);
+        Assert.assertTrue("The simulate page html page should not be empty",
+                          simulateInfo.length() > 0);
     }
-    String simulateInfo = MessageFormat.format(simulateTemplate,
-            queueInfo, "s", 1000, 1000);
-    Assert.assertTrue("The simulate page html page should not be empty",
-            simulateInfo.length() > 0);
-  }
 
-  @Test
-  public void testTrackPageHtmlTemplate() throws Exception {
-    String trackTemplate = FileUtils.readFileToString(
-            new File("src/main/html/track.html.template"));
-    String trackedQueueInfo = "";
-    Set<String> trackedQueues = new HashSet<String>();
-    trackedQueues.add("sls_queue_1");
-    trackedQueues.add("sls_queue_2");
-    trackedQueues.add("sls_queue_3");
-    for(String queue : trackedQueues) {
-      trackedQueueInfo += "<option value='Queue " + queue + "'>"
-              + queue + "</option>";
+    @Test
+    public void testTrackPageHtmlTemplate() throws Exception {
+        String trackTemplate = FileUtils.readFileToString(
+                                   new File("src/main/html/track.html.template"));
+        String trackedQueueInfo = "";
+        Set<String> trackedQueues = new HashSet<String>();
+        trackedQueues.add("sls_queue_1");
+        trackedQueues.add("sls_queue_2");
+        trackedQueues.add("sls_queue_3");
+        for(String queue : trackedQueues) {
+            trackedQueueInfo += "<option value='Queue " + queue + "'>"
+                                + queue + "</option>";
+        }
+        String trackedAppInfo = "";
+        Set<String> trackedApps = new HashSet<String>();
+        trackedApps.add("app_1");
+        trackedApps.add("app_2");
+        for(String job : trackedApps) {
+            trackedAppInfo += "<option value='Job " + job + "'>" + job + "</option>";
+        }
+        String trackInfo = MessageFormat.format(trackTemplate, trackedQueueInfo,
+                                                trackedAppInfo, "s", 1000, 1000);
+        Assert.assertTrue("The queue/app tracking html page should not be empty",
+                          trackInfo.length() > 0);
     }
-    String trackedAppInfo = "";
-    Set<String> trackedApps = new HashSet<String>();
-    trackedApps.add("app_1");
-    trackedApps.add("app_2");
-    for(String job : trackedApps) {
-      trackedAppInfo += "<option value='Job " + job + "'>" + job + "</option>";
-    }
-    String trackInfo = MessageFormat.format(trackTemplate, trackedQueueInfo,
-            trackedAppInfo, "s", 1000, 1000);
-    Assert.assertTrue("The queue/app tracking html page should not be empty",
-            trackInfo.length() > 0);
-  }
 }

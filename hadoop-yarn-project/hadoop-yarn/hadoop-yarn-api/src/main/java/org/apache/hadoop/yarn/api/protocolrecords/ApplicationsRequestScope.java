@@ -27,12 +27,12 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Unstable
 public enum ApplicationsRequestScope {
-  /** All jobs */
-  ALL,
+    /** All jobs */
+    ALL,
 
-  /** Jobs viewable by current user */
-  VIEWABLE,
+    /** Jobs viewable by current user */
+    VIEWABLE,
 
-  /** Jobs owned by current user */
-  OWN
+    /** Jobs owned by current user */
+    OWN
 }

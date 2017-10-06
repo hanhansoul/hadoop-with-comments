@@ -60,279 +60,279 @@ import com.google.inject.Inject;
 
 public class AppBlock extends HtmlBlock {
 
-  private static final Log LOG = LogFactory.getLog(AppBlock.class);
-  protected ApplicationBaseProtocol appBaseProt;
-  protected Configuration conf;
-  protected ApplicationId appID = null;
+    private static final Log LOG = LogFactory.getLog(AppBlock.class);
+    protected ApplicationBaseProtocol appBaseProt;
+    protected Configuration conf;
+    protected ApplicationId appID = null;
 
-  @Inject
-  protected AppBlock(ApplicationBaseProtocol appBaseProt, ViewContext ctx,
-      Configuration conf) {
-    super(ctx);
-    this.appBaseProt = appBaseProt;
-    this.conf = conf;
-  }
-
-  @Override
-  protected void render(Block html) {
-    String webUiType = $(WEB_UI_TYPE);
-    String aid = $(APPLICATION_ID);
-    if (aid.isEmpty()) {
-      puts("Bad request: requires Application ID");
-      return;
+    @Inject
+    protected AppBlock(ApplicationBaseProtocol appBaseProt, ViewContext ctx,
+                       Configuration conf) {
+        super(ctx);
+        this.appBaseProt = appBaseProt;
+        this.conf = conf;
     }
 
-    try {
-      appID = Apps.toAppID(aid);
-    } catch (Exception e) {
-      puts("Invalid Application ID: " + aid);
-      return;
-    }
+    @Override
+    protected void render(Block html) {
+        String webUiType = $(WEB_UI_TYPE);
+        String aid = $(APPLICATION_ID);
+        if (aid.isEmpty()) {
+            puts("Bad request: requires Application ID");
+            return;
+        }
 
-    UserGroupInformation callerUGI = getCallerUGI();
-    ApplicationReport appReport;
-    try {
-      final GetApplicationReportRequest request =
-          GetApplicationReportRequest.newInstance(appID);
-      if (callerUGI == null) {
-        appReport =
-            appBaseProt.getApplicationReport(request).getApplicationReport();
-      } else {
-        appReport = callerUGI.doAs(
-            new PrivilegedExceptionAction<ApplicationReport> () {
-          @Override
-          public ApplicationReport run() throws Exception {
-            return appBaseProt.getApplicationReport(request)
-                .getApplicationReport();
-          }
-        });
-      }
-    } catch (Exception e) {
-      String message = "Failed to read the application " + appID + ".";
-      LOG.error(message, e);
-      html.p()._(message)._();
-      return;
-    }
+        try {
+            appID = Apps.toAppID(aid);
+        } catch (Exception e) {
+            puts("Invalid Application ID: " + aid);
+            return;
+        }
 
-    if (appReport == null) {
-      puts("Application not found: " + aid);
-      return;
-    }
+        UserGroupInformation callerUGI = getCallerUGI();
+        ApplicationReport appReport;
+        try {
+            final GetApplicationReportRequest request =
+                GetApplicationReportRequest.newInstance(appID);
+            if (callerUGI == null) {
+                appReport =
+                    appBaseProt.getApplicationReport(request).getApplicationReport();
+            } else {
+                appReport = callerUGI.doAs(
+                new PrivilegedExceptionAction<ApplicationReport> () {
+                    @Override
+                    public ApplicationReport run() throws Exception {
+                        return appBaseProt.getApplicationReport(request)
+                               .getApplicationReport();
+                    }
+                });
+            }
+        } catch (Exception e) {
+            String message = "Failed to read the application " + appID + ".";
+            LOG.error(message, e);
+            html.p()._(message)._();
+            return;
+        }
 
-    AppInfo app = new AppInfo(appReport);
+        if (appReport == null) {
+            puts("Application not found: " + aid);
+            return;
+        }
 
-    setTitle(join("Application ", aid));
+        AppInfo app = new AppInfo(appReport);
 
-    if (webUiType != null
-        && webUiType.equals(YarnWebParams.RM_WEB_UI)
-        && conf.getBoolean(YarnConfiguration.RM_WEBAPP_UI_ACTIONS_ENABLED,
-          YarnConfiguration.DEFAULT_RM_WEBAPP_UI_ACTIONS_ENABLED)) {
-      // Application Kill
-      html.div()
-        .button()
-          .$onclick("confirmAction()").b("Kill Application")._()
-          ._();
+        setTitle(join("Application ", aid));
 
-      StringBuilder script = new StringBuilder();
-      script.append("function confirmAction() {")
-          .append(" b = confirm(\"Are you sure?\");")
-          .append(" if (b == true) {")
-          .append(" $.ajax({")
-          .append(" type: 'PUT',")
-          .append(" url: '/ws/v1/cluster/apps/").append(aid).append("/state',")
-          .append(" contentType: 'application/json',")
-          .append(" data: '{\"state\":\"KILLED\"}',")
-          .append(" dataType: 'json'")
-          .append(" }).done(function(data){")
-          .append(" setTimeout(function(){")
-          .append(" location.href = '/cluster/app/").append(aid).append("';")
-          .append(" }, 1000);")
-          .append(" }).fail(function(data){")
-          .append(" console.log(data);")
-          .append(" });")
-          .append(" }")
-          .append("}");
+        if (webUiType != null
+            && webUiType.equals(YarnWebParams.RM_WEB_UI)
+            && conf.getBoolean(YarnConfiguration.RM_WEBAPP_UI_ACTIONS_ENABLED,
+                               YarnConfiguration.DEFAULT_RM_WEBAPP_UI_ACTIONS_ENABLED)) {
+            // Application Kill
+            html.div()
+            .button()
+            .$onclick("confirmAction()").b("Kill Application")._()
+            ._();
 
-      html.script().$type("text/javascript")._(script.toString())._();
-    }
+            StringBuilder script = new StringBuilder();
+            script.append("function confirmAction() {")
+            .append(" b = confirm(\"Are you sure?\");")
+            .append(" if (b == true) {")
+            .append(" $.ajax({")
+            .append(" type: 'PUT',")
+            .append(" url: '/ws/v1/cluster/apps/").append(aid).append("/state',")
+            .append(" contentType: 'application/json',")
+            .append(" data: '{\"state\":\"KILLED\"}',")
+            .append(" dataType: 'json'")
+            .append(" }).done(function(data){")
+            .append(" setTimeout(function(){")
+            .append(" location.href = '/cluster/app/").append(aid).append("';")
+            .append(" }, 1000);")
+            .append(" }).fail(function(data){")
+            .append(" console.log(data);")
+            .append(" });")
+            .append(" }")
+            .append("}");
 
-    info("Application Overview")
-      ._("User:", app.getUser())
-      ._("Name:", app.getName())
-      ._("Application Type:", app.getType())
-      ._("Application Tags:",
-        app.getApplicationTags() == null ? "" : app.getApplicationTags())
-      ._(
-        "YarnApplicationState:",
-        app.getAppState() == null ? UNAVAILABLE : clarifyAppState(app
-          .getAppState()))
-      ._("FinalStatus Reported by AM:",
-        clairfyAppFinalStatus(app.getFinalAppStatus()))
-      ._("Started:", Times.format(app.getStartedTime()))
-      ._(
-        "Elapsed:",
-        StringUtils.formatTime(Times.elapsed(app.getStartedTime(),
-          app.getFinishedTime())))
-      ._(
-        "Tracking URL:",
-        app.getTrackingUrl() == null
+            html.script().$type("text/javascript")._(script.toString())._();
+        }
+
+        info("Application Overview")
+        ._("User:", app.getUser())
+        ._("Name:", app.getName())
+        ._("Application Type:", app.getType())
+        ._("Application Tags:",
+           app.getApplicationTags() == null ? "" : app.getApplicationTags())
+        ._(
+            "YarnApplicationState:",
+            app.getAppState() == null ? UNAVAILABLE : clarifyAppState(app
+                    .getAppState()))
+        ._("FinalStatus Reported by AM:",
+           clairfyAppFinalStatus(app.getFinalAppStatus()))
+        ._("Started:", Times.format(app.getStartedTime()))
+        ._(
+            "Elapsed:",
+            StringUtils.formatTime(Times.elapsed(app.getStartedTime(),
+                                   app.getFinishedTime())))
+        ._(
+            "Tracking URL:",
+            app.getTrackingUrl() == null
             || app.getTrackingUrl().equals(UNAVAILABLE) ? null : root_url(app
-          .getTrackingUrl()),
-        app.getTrackingUrl() == null
+                    .getTrackingUrl()),
+            app.getTrackingUrl() == null
             || app.getTrackingUrl().equals(UNAVAILABLE) ? "Unassigned" : app
-          .getAppState() == YarnApplicationState.FINISHED
+            .getAppState() == YarnApplicationState.FINISHED
             || app.getAppState() == YarnApplicationState.FAILED
             || app.getAppState() == YarnApplicationState.KILLED ? "History"
             : "ApplicationMaster")
-      ._("Diagnostics:",
-        app.getDiagnosticsInfo() == null ? "" : app.getDiagnosticsInfo());
+        ._("Diagnostics:",
+           app.getDiagnosticsInfo() == null ? "" : app.getDiagnosticsInfo());
 
-    Collection<ApplicationAttemptReport> attempts;
-    try {
-      final GetApplicationAttemptsRequest request =
-          GetApplicationAttemptsRequest.newInstance(appID);
-      if (callerUGI == null) {
-        attempts = appBaseProt.getApplicationAttempts(request)
-            .getApplicationAttemptList();
-      } else {
-        attempts = callerUGI.doAs(
-            new PrivilegedExceptionAction<Collection<ApplicationAttemptReport>> () {
-          @Override
-          public Collection<ApplicationAttemptReport> run() throws Exception {
-            return appBaseProt.getApplicationAttempts(request)
-                .getApplicationAttemptList();
-          }
-        });
-      }
-    } catch (Exception e) {
-      String message =
-          "Failed to read the attempts of the application " + appID + ".";
-      LOG.error(message, e);
-      html.p()._(message)._();
-      return;
-    }
-
-    createApplicationMetricsTable(html);
-
-    html._(InfoBlock.class);
-
-    generateApplicationTable(html, callerUGI, attempts);
-
-  }
-
-  protected void generateApplicationTable(Block html,
-      UserGroupInformation callerUGI,
-      Collection<ApplicationAttemptReport> attempts) {
-    // Application Attempt Table
-    TBODY<TABLE<Hamlet>> tbody =
-        html.table("#attempts").thead().tr().th(".id", "Attempt ID")
-          .th(".started", "Started").th(".node", "Node").th(".logs", "Logs")
-          ._()._().tbody();
-
-    StringBuilder attemptsTableData = new StringBuilder("[\n");
-    for (final ApplicationAttemptReport appAttemptReport : attempts) {
-      AppAttemptInfo appAttempt = new AppAttemptInfo(appAttemptReport);
-      ContainerReport containerReport;
-      try {
-        // AM container is always the first container of the attempt
-        final GetContainerReportRequest request =
-            GetContainerReportRequest.newInstance(ContainerId.newContainerId(
-              appAttemptReport.getApplicationAttemptId(), 1));
-        if (callerUGI == null) {
-          containerReport =
-              appBaseProt.getContainerReport(request).getContainerReport();
-        } else {
-          containerReport = callerUGI.doAs(
-              new PrivilegedExceptionAction<ContainerReport>() {
-            @Override
-            public ContainerReport run() throws Exception {
-              ContainerReport report = null;
-              if (request.getContainerId() != null) {
-                  try {
-                    report = appBaseProt.getContainerReport(request)
-                        .getContainerReport();
-                  } catch (ContainerNotFoundException ex) {
-                    LOG.warn(ex.getMessage());
-                  }
-              }
-              return report;
+        Collection<ApplicationAttemptReport> attempts;
+        try {
+            final GetApplicationAttemptsRequest request =
+                GetApplicationAttemptsRequest.newInstance(appID);
+            if (callerUGI == null) {
+                attempts = appBaseProt.getApplicationAttempts(request)
+                           .getApplicationAttemptList();
+            } else {
+                attempts = callerUGI.doAs(
+                new PrivilegedExceptionAction<Collection<ApplicationAttemptReport>> () {
+                    @Override
+                    public Collection<ApplicationAttemptReport> run() throws Exception {
+                        return appBaseProt.getApplicationAttempts(request)
+                               .getApplicationAttemptList();
+                    }
+                });
             }
-          });
+        } catch (Exception e) {
+            String message =
+                "Failed to read the attempts of the application " + appID + ".";
+            LOG.error(message, e);
+            html.p()._(message)._();
+            return;
         }
-      } catch (Exception e) {
-        String message =
-            "Failed to read the AM container of the application attempt "
-                + appAttemptReport.getApplicationAttemptId() + ".";
-        LOG.error(message, e);
-        html.p()._(message)._();
-        return;
-      }
-      long startTime = 0L;
-      String logsLink = null;
-      String nodeLink = null;
-      if (containerReport != null) {
-        ContainerInfo container = new ContainerInfo(containerReport);
-        startTime = container.getStartedTime();
-        logsLink = containerReport.getLogUrl();
-        nodeLink = containerReport.getNodeHttpAddress();
-      }
-      // AppAttemptID numerical value parsed by parseHadoopID in
-      // yarn.dt.plugins.js
-      attemptsTableData
-        .append("[\"<a href='")
-        .append(url("appattempt", appAttempt.getAppAttemptId()))
-        .append("'>")
-        .append(appAttempt.getAppAttemptId())
-        .append("</a>\",\"")
-        .append(startTime)
-        .append("\",\"<a ")
-        .append(nodeLink == null ? "#" : "href='" + nodeLink)
-        .append("'>")
-        .append(nodeLink == null ? "N/A" : StringEscapeUtils
-            .escapeJavaScript(StringEscapeUtils.escapeHtml(nodeLink)))
-        .append("</a>\",\"<a ")
-        .append(logsLink == null ? "#" : "href='" + logsLink).append("'>")
-        .append(logsLink == null ? "N/A" : "Logs").append("</a>\"],\n");
+
+        createApplicationMetricsTable(html);
+
+        html._(InfoBlock.class);
+
+        generateApplicationTable(html, callerUGI, attempts);
+
     }
-    if (attemptsTableData.charAt(attemptsTableData.length() - 2) == ',') {
-      attemptsTableData.delete(attemptsTableData.length() - 2,
-        attemptsTableData.length() - 1);
+
+    protected void generateApplicationTable(Block html,
+                                            UserGroupInformation callerUGI,
+                                            Collection<ApplicationAttemptReport> attempts) {
+        // Application Attempt Table
+        TBODY<TABLE<Hamlet>> tbody =
+            html.table("#attempts").thead().tr().th(".id", "Attempt ID")
+            .th(".started", "Started").th(".node", "Node").th(".logs", "Logs")
+            ._()._().tbody();
+
+        StringBuilder attemptsTableData = new StringBuilder("[\n");
+        for (final ApplicationAttemptReport appAttemptReport : attempts) {
+            AppAttemptInfo appAttempt = new AppAttemptInfo(appAttemptReport);
+            ContainerReport containerReport;
+            try {
+                // AM container is always the first container of the attempt
+                final GetContainerReportRequest request =
+                    GetContainerReportRequest.newInstance(ContainerId.newContainerId(
+                                appAttemptReport.getApplicationAttemptId(), 1));
+                if (callerUGI == null) {
+                    containerReport =
+                        appBaseProt.getContainerReport(request).getContainerReport();
+                } else {
+                    containerReport = callerUGI.doAs(
+                    new PrivilegedExceptionAction<ContainerReport>() {
+                        @Override
+                        public ContainerReport run() throws Exception {
+                            ContainerReport report = null;
+                            if (request.getContainerId() != null) {
+                                try {
+                                    report = appBaseProt.getContainerReport(request)
+                                             .getContainerReport();
+                                } catch (ContainerNotFoundException ex) {
+                                    LOG.warn(ex.getMessage());
+                                }
+                            }
+                            return report;
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                String message =
+                    "Failed to read the AM container of the application attempt "
+                    + appAttemptReport.getApplicationAttemptId() + ".";
+                LOG.error(message, e);
+                html.p()._(message)._();
+                return;
+            }
+            long startTime = 0L;
+            String logsLink = null;
+            String nodeLink = null;
+            if (containerReport != null) {
+                ContainerInfo container = new ContainerInfo(containerReport);
+                startTime = container.getStartedTime();
+                logsLink = containerReport.getLogUrl();
+                nodeLink = containerReport.getNodeHttpAddress();
+            }
+            // AppAttemptID numerical value parsed by parseHadoopID in
+            // yarn.dt.plugins.js
+            attemptsTableData
+            .append("[\"<a href='")
+            .append(url("appattempt", appAttempt.getAppAttemptId()))
+            .append("'>")
+            .append(appAttempt.getAppAttemptId())
+            .append("</a>\",\"")
+            .append(startTime)
+            .append("\",\"<a ")
+            .append(nodeLink == null ? "#" : "href='" + nodeLink)
+            .append("'>")
+            .append(nodeLink == null ? "N/A" : StringEscapeUtils
+                    .escapeJavaScript(StringEscapeUtils.escapeHtml(nodeLink)))
+            .append("</a>\",\"<a ")
+            .append(logsLink == null ? "#" : "href='" + logsLink).append("'>")
+            .append(logsLink == null ? "N/A" : "Logs").append("</a>\"],\n");
+        }
+        if (attemptsTableData.charAt(attemptsTableData.length() - 2) == ',') {
+            attemptsTableData.delete(attemptsTableData.length() - 2,
+                                     attemptsTableData.length() - 1);
+        }
+        attemptsTableData.append("]");
+        html.script().$type("text/javascript")
+        ._("var attemptsTableData=" + attemptsTableData)._();
+
+        tbody._()._();
     }
-    attemptsTableData.append("]");
-    html.script().$type("text/javascript")
-      ._("var attemptsTableData=" + attemptsTableData)._();
 
-    tbody._()._();
-  }
-
-  private String clarifyAppState(YarnApplicationState state) {
-    String ret = state.toString();
-    switch (state) {
-    case NEW:
-      return ret + ": waiting for application to be initialized";
-    case NEW_SAVING:
-      return ret + ": waiting for application to be persisted in state-store.";
-    case SUBMITTED:
-      return ret + ": waiting for application to be accepted by scheduler.";
-    case ACCEPTED:
-      return ret + ": waiting for AM container to be allocated, launched and"
-          + " register with RM.";
-    case RUNNING:
-      return ret + ": AM has registered with RM and started running.";
-    default:
-      return ret;
+    private String clarifyAppState(YarnApplicationState state) {
+        String ret = state.toString();
+        switch (state) {
+            case NEW:
+                return ret + ": waiting for application to be initialized";
+            case NEW_SAVING:
+                return ret + ": waiting for application to be persisted in state-store.";
+            case SUBMITTED:
+                return ret + ": waiting for application to be accepted by scheduler.";
+            case ACCEPTED:
+                return ret + ": waiting for AM container to be allocated, launched and"
+                       + " register with RM.";
+            case RUNNING:
+                return ret + ": AM has registered with RM and started running.";
+            default:
+                return ret;
+        }
     }
-  }
 
-  private String clairfyAppFinalStatus(FinalApplicationStatus status) {
-    if (status == FinalApplicationStatus.UNDEFINED) {
-      return "Application has not completed yet.";
+    private String clairfyAppFinalStatus(FinalApplicationStatus status) {
+        if (status == FinalApplicationStatus.UNDEFINED) {
+            return "Application has not completed yet.";
+        }
+        return status.toString();
     }
-    return status.toString();
-  }
 
-  // The preemption metrics only need to be shown in RM WebUI
-  protected void createApplicationMetricsTable(Block html) {
+    // The preemption metrics only need to be shown in RM WebUI
+    protected void createApplicationMetricsTable(Block html) {
 
-  }
+    }
 }

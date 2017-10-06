@@ -65,195 +65,195 @@ import com.google.inject.Singleton;
 @Singleton
 @Path("/ws/v1/node")
 public class NMWebServices {
-  private Context nmContext;
-  private ResourceView rview;
-  private WebApp webapp;
-  private static RecordFactory recordFactory = RecordFactoryProvider
-      .getRecordFactory(null);
+    private Context nmContext;
+    private ResourceView rview;
+    private WebApp webapp;
+    private static RecordFactory recordFactory = RecordFactoryProvider
+            .getRecordFactory(null);
 
-  private @javax.ws.rs.core.Context 
+    private @javax.ws.rs.core.Context
     HttpServletRequest request;
-  
-  private @javax.ws.rs.core.Context 
+
+    private @javax.ws.rs.core.Context
     HttpServletResponse response;
 
-  @javax.ws.rs.core.Context
+    @javax.ws.rs.core.Context
     UriInfo uriInfo;
 
-  @Inject
-  public NMWebServices(final Context nm, final ResourceView view,
-      final WebApp webapp) {
-    this.nmContext = nm;
-    this.rview = view;
-    this.webapp = webapp;
-  }
+    @Inject
+    public NMWebServices(final Context nm, final ResourceView view,
+                         final WebApp webapp) {
+        this.nmContext = nm;
+        this.rview = view;
+        this.webapp = webapp;
+    }
 
-  private void init() {
-    //clear content type
-    response.setContentType(null);
-  }
+    private void init() {
+        //clear content type
+        response.setContentType(null);
+    }
 
-  @GET
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public NodeInfo get() {
-    return getNodeInfo();
-  }
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public NodeInfo get() {
+        return getNodeInfo();
+    }
 
-  @GET
-  @Path("/info")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public NodeInfo getNodeInfo() {
-    init();
-    return new NodeInfo(this.nmContext, this.rview);
-  }
+    @GET
+    @Path("/info")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public NodeInfo getNodeInfo() {
+        init();
+        return new NodeInfo(this.nmContext, this.rview);
+    }
 
-  @GET
-  @Path("/apps")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public AppsInfo getNodeApps(@QueryParam("state") String stateQuery,
-      @QueryParam("user") String userQuery) {
-    init();
-    AppsInfo allApps = new AppsInfo();
-    for (Entry<ApplicationId, Application> entry : this.nmContext
-        .getApplications().entrySet()) {
+    @GET
+    @Path("/apps")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public AppsInfo getNodeApps(@QueryParam("state") String stateQuery,
+                                @QueryParam("user") String userQuery) {
+        init();
+        AppsInfo allApps = new AppsInfo();
+        for (Entry<ApplicationId, Application> entry : this.nmContext
+             .getApplications().entrySet()) {
 
-      AppInfo appInfo = new AppInfo(entry.getValue());
-      if (stateQuery != null && !stateQuery.isEmpty()) {
-        ApplicationState.valueOf(stateQuery);
-        if (!appInfo.getState().equalsIgnoreCase(stateQuery)) {
-          continue;
+            AppInfo appInfo = new AppInfo(entry.getValue());
+            if (stateQuery != null && !stateQuery.isEmpty()) {
+                ApplicationState.valueOf(stateQuery);
+                if (!appInfo.getState().equalsIgnoreCase(stateQuery)) {
+                    continue;
+                }
+            }
+            if (userQuery != null) {
+                if (userQuery.isEmpty()) {
+                    String msg = "Error: You must specify a non-empty string for the user";
+                    throw new BadRequestException(msg);
+                }
+                if (!appInfo.getUser().toString().equals(userQuery)) {
+                    continue;
+                }
+            }
+            allApps.add(appInfo);
         }
-      }
-      if (userQuery != null) {
-        if (userQuery.isEmpty()) {
-          String msg = "Error: You must specify a non-empty string for the user";
-          throw new BadRequestException(msg);
+        return allApps;
+    }
+
+    @GET
+    @Path("/apps/{appid}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public AppInfo getNodeApp(@PathParam("appid") String appId) {
+        init();
+        ApplicationId id = ConverterUtils.toApplicationId(recordFactory, appId);
+        if (id == null) {
+            throw new NotFoundException("app with id " + appId + " not found");
         }
-        if (!appInfo.getUser().toString().equals(userQuery)) {
-          continue;
+        Application app = this.nmContext.getApplications().get(id);
+        if (app == null) {
+            throw new NotFoundException("app with id " + appId + " not found");
         }
-      }
-      allApps.add(appInfo);
-    }
-    return allApps;
-  }
+        return new AppInfo(app);
 
-  @GET
-  @Path("/apps/{appid}")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public AppInfo getNodeApp(@PathParam("appid") String appId) {
-    init();
-    ApplicationId id = ConverterUtils.toApplicationId(recordFactory, appId);
-    if (id == null) {
-      throw new NotFoundException("app with id " + appId + " not found");
-    }
-    Application app = this.nmContext.getApplications().get(id);
-    if (app == null) {
-      throw new NotFoundException("app with id " + appId + " not found");
-    }
-    return new AppInfo(app);
-
-  }
-
-  @GET
-  @Path("/containers")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public ContainersInfo getNodeContainers() {
-    init();
-    ContainersInfo allContainers = new ContainersInfo();
-    for (Entry<ContainerId, Container> entry : this.nmContext.getContainers()
-        .entrySet()) {
-      if (entry.getValue() == null) {
-        // just skip it
-        continue;
-      }
-      ContainerInfo info = new ContainerInfo(this.nmContext, entry.getValue(),
-          uriInfo.getBaseUri().toString(), webapp.name());
-      allContainers.add(info);
-    }
-    return allContainers;
-  }
-
-  @GET
-  @Path("/containers/{containerid}")
-  @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-  public ContainerInfo getNodeContainer(@PathParam("containerid") String id) {
-    ContainerId containerId = null;
-    init();
-    try {
-      containerId = ConverterUtils.toContainerId(id);
-    } catch (Exception e) {
-      throw new BadRequestException("invalid container id, " + id);
     }
 
-    Container container = nmContext.getContainers().get(containerId);
-    if (container == null) {
-      throw new NotFoundException("container with id, " + id + ", not found");
-    }
-    return new ContainerInfo(this.nmContext, container, uriInfo.getBaseUri()
-        .toString(), webapp.name());
-
-  }
-  
-  /**
-   * Returns the contents of a container's log file in plain text. 
-   *
-   * Only works for containers that are still in the NodeManager's memory, so
-   * logs are no longer available after the corresponding application is no
-   * longer running.
-   * 
-   * @param containerIdStr
-   *    The container ID
-   * @param filename
-   *    The name of the log file
-   * @return
-   *    The contents of the container's log file
-   */
-  @GET
-  @Path("/containerlogs/{containerid}/{filename}")
-  @Produces({ MediaType.TEXT_PLAIN })
-  @Public
-  @Unstable
-  public Response getLogs(@PathParam("containerid") String containerIdStr,
-      @PathParam("filename") String filename) {
-    ContainerId containerId;
-    try {
-      containerId = ConverterUtils.toContainerId(containerIdStr);
-    } catch (IllegalArgumentException ex) {
-      return Response.status(Status.BAD_REQUEST).build();
-    }
-    
-    File logFile = null;
-    try {
-      logFile = ContainerLogsUtils.getContainerLogFile(
-          containerId, filename, request.getRemoteUser(), nmContext);
-    } catch (NotFoundException ex) {
-      return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
-    } catch (YarnException ex) {
-      return Response.serverError().entity(ex.getMessage()).build();
-    }
-    
-    try {
-      final FileInputStream fis = ContainerLogsUtils.openLogFileForRead(
-          containerIdStr, logFile, nmContext);
-      
-      StreamingOutput stream = new StreamingOutput() {
-        @Override
-        public void write(OutputStream os) throws IOException,
-            WebApplicationException {
-          int bufferSize = 65536;
-          byte[] buf = new byte[bufferSize];
-          int len;
-          while ((len = fis.read(buf, 0, bufferSize)) > 0) {
-            os.write(buf, 0, len);
-          }
-          os.flush();
+    @GET
+    @Path("/containers")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public ContainersInfo getNodeContainers() {
+        init();
+        ContainersInfo allContainers = new ContainersInfo();
+        for (Entry<ContainerId, Container> entry : this.nmContext.getContainers()
+             .entrySet()) {
+            if (entry.getValue() == null) {
+                // just skip it
+                continue;
+            }
+            ContainerInfo info = new ContainerInfo(this.nmContext, entry.getValue(),
+                                                   uriInfo.getBaseUri().toString(), webapp.name());
+            allContainers.add(info);
         }
-      };
-      
-      return Response.ok(stream).build();
-    } catch (IOException ex) {
-      return Response.serverError().entity(ex.getMessage()).build();
+        return allContainers;
     }
-  }
+
+    @GET
+    @Path("/containers/{containerid}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public ContainerInfo getNodeContainer(@PathParam("containerid") String id) {
+        ContainerId containerId = null;
+        init();
+        try {
+            containerId = ConverterUtils.toContainerId(id);
+        } catch (Exception e) {
+            throw new BadRequestException("invalid container id, " + id);
+        }
+
+        Container container = nmContext.getContainers().get(containerId);
+        if (container == null) {
+            throw new NotFoundException("container with id, " + id + ", not found");
+        }
+        return new ContainerInfo(this.nmContext, container, uriInfo.getBaseUri()
+                                 .toString(), webapp.name());
+
+    }
+
+    /**
+     * Returns the contents of a container's log file in plain text.
+     *
+     * Only works for containers that are still in the NodeManager's memory, so
+     * logs are no longer available after the corresponding application is no
+     * longer running.
+     *
+     * @param containerIdStr
+     *    The container ID
+     * @param filename
+     *    The name of the log file
+     * @return
+     *    The contents of the container's log file
+     */
+    @GET
+    @Path("/containerlogs/{containerid}/{filename}")
+    @Produces({ MediaType.TEXT_PLAIN })
+    @Public
+    @Unstable
+    public Response getLogs(@PathParam("containerid") String containerIdStr,
+                            @PathParam("filename") String filename) {
+        ContainerId containerId;
+        try {
+            containerId = ConverterUtils.toContainerId(containerIdStr);
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        File logFile = null;
+        try {
+            logFile = ContainerLogsUtils.getContainerLogFile(
+                          containerId, filename, request.getRemoteUser(), nmContext);
+        } catch (NotFoundException ex) {
+            return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+        } catch (YarnException ex) {
+            return Response.serverError().entity(ex.getMessage()).build();
+        }
+
+        try {
+            final FileInputStream fis = ContainerLogsUtils.openLogFileForRead(
+                                            containerIdStr, logFile, nmContext);
+
+            StreamingOutput stream = new StreamingOutput() {
+                @Override
+                public void write(OutputStream os) throws IOException,
+                    WebApplicationException {
+                    int bufferSize = 65536;
+                    byte[] buf = new byte[bufferSize];
+                    int len;
+                    while ((len = fis.read(buf, 0, bufferSize)) > 0) {
+                        os.write(buf, 0, len);
+                    }
+                    os.flush();
+                }
+            };
+
+            return Response.ok(stream).build();
+        } catch (IOException ex) {
+            return Response.serverError().entity(ex.getMessage()).build();
+        }
+    }
 }

@@ -27,28 +27,28 @@ import static org.junit.Assert.*;
 
 public class TestStreamingCombiner extends TestStreaming {
 
-  protected String combine = UtilTest.makeJavaCommand(
-      UniqApp.class, new String[]{""});
-  
-  public TestStreamingCombiner() throws IOException {
-    super();
-  }
-  
-  protected String[] genArgs() {
-    args.add("-combiner");
-    args.add(combine);
-    return super.genArgs();
-  }
+    protected String combine = UtilTest.makeJavaCommand(
+                                   UniqApp.class, new String[] {""});
 
-  @Test
-  public void testCommandLine() throws Exception {
-    super.testCommandLine();
-    // validate combiner counters
-    String counterGrp = "org.apache.hadoop.mapred.Task$Counter";
-    Counters counters = job.running_.getCounters();
-    assertTrue(counters.findCounter(
-               counterGrp, "COMBINE_INPUT_RECORDS").getValue() != 0);
-    assertTrue(counters.findCounter(
-               counterGrp, "COMBINE_OUTPUT_RECORDS").getValue() != 0);
-  }
+    public TestStreamingCombiner() throws IOException {
+        super();
+    }
+
+    protected String[] genArgs() {
+        args.add("-combiner");
+        args.add(combine);
+        return super.genArgs();
+    }
+
+    @Test
+    public void testCommandLine() throws Exception {
+        super.testCommandLine();
+        // validate combiner counters
+        String counterGrp = "org.apache.hadoop.mapred.Task$Counter";
+        Counters counters = job.running_.getCounters();
+        assertTrue(counters.findCounter(
+                       counterGrp, "COMBINE_INPUT_RECORDS").getValue() != 0);
+        assertTrue(counters.findCounter(
+                       counterGrp, "COMBINE_OUTPUT_RECORDS").getValue() != 0);
+    }
 }

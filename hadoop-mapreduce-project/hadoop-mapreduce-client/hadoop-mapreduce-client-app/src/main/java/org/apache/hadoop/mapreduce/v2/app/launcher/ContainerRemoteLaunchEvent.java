@@ -26,41 +26,41 @@ import org.apache.hadoop.yarn.api.records.ContainerLaunchContext;
 
 public class ContainerRemoteLaunchEvent extends ContainerLauncherEvent {
 
-  private final Container allocatedContainer;
-  private final ContainerLaunchContext containerLaunchContext;
-  private final Task task;
+    private final Container allocatedContainer;
+    private final ContainerLaunchContext containerLaunchContext;
+    private final Task task;
 
-  public ContainerRemoteLaunchEvent(TaskAttemptId taskAttemptID,
-      ContainerLaunchContext containerLaunchContext,
-      Container allocatedContainer, Task remoteTask) {
-    super(taskAttemptID, allocatedContainer.getId(), StringInterner
-      .weakIntern(allocatedContainer.getNodeId().toString()),
-      allocatedContainer.getContainerToken(),
-      ContainerLauncher.EventType.CONTAINER_REMOTE_LAUNCH);
-    this.allocatedContainer = allocatedContainer;
-    this.containerLaunchContext = containerLaunchContext;
-    this.task = remoteTask;
-  }
+    public ContainerRemoteLaunchEvent(TaskAttemptId taskAttemptID,
+                                      ContainerLaunchContext containerLaunchContext,
+                                      Container allocatedContainer, Task remoteTask) {
+        super(taskAttemptID, allocatedContainer.getId(), StringInterner
+              .weakIntern(allocatedContainer.getNodeId().toString()),
+              allocatedContainer.getContainerToken(),
+              ContainerLauncher.EventType.CONTAINER_REMOTE_LAUNCH);
+        this.allocatedContainer = allocatedContainer;
+        this.containerLaunchContext = containerLaunchContext;
+        this.task = remoteTask;
+    }
 
-  public ContainerLaunchContext getContainerLaunchContext() {
-    return this.containerLaunchContext;
-  }
+    public ContainerLaunchContext getContainerLaunchContext() {
+        return this.containerLaunchContext;
+    }
 
-  public Container getAllocatedContainer() {
-    return this.allocatedContainer;
-  }
+    public Container getAllocatedContainer() {
+        return this.allocatedContainer;
+    }
 
-  public Task getRemoteTask() {
-    return this.task;
-  }
-  
-  @Override
-  public int hashCode() {
-    return super.hashCode();
-  }
+    public Task getRemoteTask() {
+        return this.task;
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    return super.equals(obj);
-  }
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

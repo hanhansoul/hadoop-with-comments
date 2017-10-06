@@ -32,33 +32,33 @@ import org.junit.Test;
 
 public class TestAsyncDispatcher {
 
-  /* This test checks whether dispatcher hangs on close if following two things
-   * happen :
-   * 1. A thread which was putting event to event queue is interrupted.
-   * 2. Event queue is empty on close.
-   */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Test(timeout=10000)
-  public void testDispatcherOnCloseIfQueueEmpty() throws Exception {
-    BlockingQueue<Event> eventQueue = spy(new LinkedBlockingQueue<Event>());
-    Event event = mock(Event.class);
-    doThrow(new InterruptedException()).when(eventQueue).put(event);
-    DrainDispatcher disp = new DrainDispatcher(eventQueue);
-    disp.init(new Configuration());
-    disp.setDrainEventsOnStop();
-    disp.start();
-    // Wait for event handler thread to start and begin waiting for events.
-    disp.waitForEventThreadToWait();
-    try {
-      disp.getEventHandler().handle(event);
-      Assert.fail("Expected YarnRuntimeException");
-    } catch (YarnRuntimeException e) {
-      Assert.assertTrue(e.getCause() instanceof InterruptedException);
+    /* This test checks whether dispatcher hangs on close if following two things
+     * happen :
+     * 1. A thread which was putting event to event queue is interrupted.
+     * 2. Event queue is empty on close.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test(timeout=10000)
+    public void testDispatcherOnCloseIfQueueEmpty() throws Exception {
+        BlockingQueue<Event> eventQueue = spy(new LinkedBlockingQueue<Event>());
+        Event event = mock(Event.class);
+        doThrow(new InterruptedException()).when(eventQueue).put(event);
+        DrainDispatcher disp = new DrainDispatcher(eventQueue);
+        disp.init(new Configuration());
+        disp.setDrainEventsOnStop();
+        disp.start();
+        // Wait for event handler thread to start and begin waiting for events.
+        disp.waitForEventThreadToWait();
+        try {
+            disp.getEventHandler().handle(event);
+            Assert.fail("Expected YarnRuntimeException");
+        } catch (YarnRuntimeException e) {
+            Assert.assertTrue(e.getCause() instanceof InterruptedException);
+        }
+        // Queue should be empty and dispatcher should not hang on close
+        Assert.assertTrue("Event Queue should have been empty",
+                          eventQueue.isEmpty());
+        disp.close();
     }
-    // Queue should be empty and dispatcher should not hang on close
-    Assert.assertTrue("Event Queue should have been empty",
-        eventQueue.isEmpty());
-    disp.close();
-  }
 }
 

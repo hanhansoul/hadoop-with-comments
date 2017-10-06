@@ -21,17 +21,19 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class RMFatalEvent extends AbstractEvent<RMFatalEventType> {
-  private String cause;
+    private String cause;
 
-  public RMFatalEvent(RMFatalEventType rmFatalEventType, String cause) {
-    super(rmFatalEventType);
-    this.cause = cause;
-  }
+    public RMFatalEvent(RMFatalEventType rmFatalEventType, String cause) {
+        super(rmFatalEventType);
+        this.cause = cause;
+    }
 
-  public RMFatalEvent(RMFatalEventType rmFatalEventType, Exception cause) {
-    super(rmFatalEventType);
-    this.cause = StringUtils.stringifyException(cause);
-  }
+    public RMFatalEvent(RMFatalEventType rmFatalEventType, Exception cause) {
+        super(rmFatalEventType);
+        this.cause = StringUtils.stringifyException(cause);
+    }
 
-  public String getCause() {return this.cause;}
+    public String getCause() {
+        return this.cause;
+    }
 }

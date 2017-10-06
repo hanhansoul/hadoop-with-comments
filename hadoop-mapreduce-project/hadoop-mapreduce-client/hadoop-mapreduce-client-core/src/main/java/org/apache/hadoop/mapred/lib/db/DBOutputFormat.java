@@ -37,88 +37,88 @@ import org.apache.hadoop.util.Progressable;
 
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class DBOutputFormat<K  extends DBWritable, V> 
+public class DBOutputFormat<K  extends DBWritable, V>
     extends org.apache.hadoop.mapreduce.lib.db.DBOutputFormat<K, V>
     implements OutputFormat<K, V> {
 
-  /**
-   * A RecordWriter that writes the reduce output to a SQL table
-   */
-  protected class DBRecordWriter extends 
-      org.apache.hadoop.mapreduce.lib.db.DBOutputFormat<K, V>.DBRecordWriter
-      implements RecordWriter<K, V> {
+    /**
+     * A RecordWriter that writes the reduce output to a SQL table
+     */
+    protected class DBRecordWriter extends
+        org.apache.hadoop.mapreduce.lib.db.DBOutputFormat<K, V>.DBRecordWriter
+        implements RecordWriter<K, V> {
 
-    protected DBRecordWriter(Connection connection, 
-      PreparedStatement statement) throws SQLException {
-      super(connection, statement);
+        protected DBRecordWriter(Connection connection,
+                                 PreparedStatement statement) throws SQLException {
+            super(connection, statement);
+        }
+
+        /** {@inheritDoc} */
+        public void close(Reporter reporter) throws IOException {
+            super.close(null);
+        }
     }
 
     /** {@inheritDoc} */
-    public void close(Reporter reporter) throws IOException {
-      super.close(null);
+    public void checkOutputSpecs(FileSystem filesystem, JobConf job)
+    throws IOException {
     }
-  }
-
-  /** {@inheritDoc} */
-  public void checkOutputSpecs(FileSystem filesystem, JobConf job)
-  throws IOException {
-  }
 
 
-  /** {@inheritDoc} */
-  public RecordWriter<K, V> getRecordWriter(FileSystem filesystem,
-      JobConf job, String name, Progressable progress) throws IOException {
-    org.apache.hadoop.mapreduce.RecordWriter<K, V> w = super.getRecordWriter(
-      new TaskAttemptContextImpl(job, 
-            TaskAttemptID.forName(job.get(MRJobConfig.TASK_ATTEMPT_ID))));
-    org.apache.hadoop.mapreduce.lib.db.DBOutputFormat.DBRecordWriter writer = 
-     (org.apache.hadoop.mapreduce.lib.db.DBOutputFormat.DBRecordWriter) w;
-    try {
-      return new DBRecordWriter(writer.getConnection(), writer.getStatement());
-    } catch(SQLException se) {
-      throw new IOException(se);
+    /** {@inheritDoc} */
+    public RecordWriter<K, V> getRecordWriter(FileSystem filesystem,
+            JobConf job, String name, Progressable progress) throws IOException {
+        org.apache.hadoop.mapreduce.RecordWriter<K, V> w = super.getRecordWriter(
+                    new TaskAttemptContextImpl(job,
+                                               TaskAttemptID.forName(job.get(MRJobConfig.TASK_ATTEMPT_ID))));
+        org.apache.hadoop.mapreduce.lib.db.DBOutputFormat.DBRecordWriter writer =
+            (org.apache.hadoop.mapreduce.lib.db.DBOutputFormat.DBRecordWriter) w;
+        try {
+            return new DBRecordWriter(writer.getConnection(), writer.getStatement());
+        } catch(SQLException se) {
+            throw new IOException(se);
+        }
     }
-  }
 
-  /**
-   * Initializes the reduce-part of the job with the appropriate output settings
-   * 
-   * @param job The job
-   * @param tableName The table to insert data into
-   * @param fieldNames The field names in the table.
-   */
-  public static void setOutput(JobConf job, String tableName, String... fieldNames) {
-    if(fieldNames.length > 0 && fieldNames[0] != null) {
-      DBConfiguration dbConf = setOutput(job, tableName);
-      dbConf.setOutputFieldNames(fieldNames);
-    } else {
-      if(fieldNames.length > 0)
-        setOutput(job, tableName, fieldNames.length);
-      else 
-        throw new IllegalArgumentException("Field names must be greater than 0");
+    /**
+     * Initializes the reduce-part of the job with the appropriate output settings
+     *
+     * @param job The job
+     * @param tableName The table to insert data into
+     * @param fieldNames The field names in the table.
+     */
+    public static void setOutput(JobConf job, String tableName, String... fieldNames) {
+        if(fieldNames.length > 0 && fieldNames[0] != null) {
+            DBConfiguration dbConf = setOutput(job, tableName);
+            dbConf.setOutputFieldNames(fieldNames);
+        } else {
+            if(fieldNames.length > 0)
+                setOutput(job, tableName, fieldNames.length);
+            else
+                throw new IllegalArgumentException("Field names must be greater than 0");
+        }
     }
-  }
-  
-  /**
-   * Initializes the reduce-part of the job with the appropriate output settings
-   * 
-   * @param job The job
-   * @param tableName The table to insert data into
-   * @param fieldCount the number of fields in the table.
-   */
-  public static void setOutput(JobConf job, String tableName, int fieldCount) {
-    DBConfiguration dbConf = setOutput(job, tableName);
-    dbConf.setOutputFieldCount(fieldCount);
-  }
-  
-  private static DBConfiguration setOutput(JobConf job, String tableName) {
-    job.setOutputFormat(DBOutputFormat.class);
-    job.setReduceSpeculativeExecution(false);
 
-    DBConfiguration dbConf = new DBConfiguration(job);
-    
-    dbConf.setOutputTableName(tableName);
-    return dbConf;
-  }
-  
+    /**
+     * Initializes the reduce-part of the job with the appropriate output settings
+     *
+     * @param job The job
+     * @param tableName The table to insert data into
+     * @param fieldCount the number of fields in the table.
+     */
+    public static void setOutput(JobConf job, String tableName, int fieldCount) {
+        DBConfiguration dbConf = setOutput(job, tableName);
+        dbConf.setOutputFieldCount(fieldCount);
+    }
+
+    private static DBConfiguration setOutput(JobConf job, String tableName) {
+        job.setOutputFormat(DBOutputFormat.class);
+        job.setReduceSpeculativeExecution(false);
+
+        DBConfiguration dbConf = new DBConfiguration(job);
+
+        dbConf.setOutputTableName(tableName);
+        return dbConf;
+    }
+
 }

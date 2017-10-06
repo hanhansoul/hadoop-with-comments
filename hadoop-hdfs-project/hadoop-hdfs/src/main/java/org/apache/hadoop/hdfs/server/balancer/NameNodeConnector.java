@@ -59,190 +59,190 @@ import com.google.common.annotations.VisibleForTesting;
  */
 @InterfaceAudience.Private
 public class NameNodeConnector implements Closeable {
-  private static final Log LOG = LogFactory.getLog(NameNodeConnector.class);
+    private static final Log LOG = LogFactory.getLog(NameNodeConnector.class);
 
-  private static final int MAX_NOT_CHANGED_ITERATIONS = 5;
-  private static boolean write2IdFile = true;
-  
-  /** Create {@link NameNodeConnector} for the given namenodes. */
-  public static List<NameNodeConnector> newNameNodeConnectors(
-      Collection<URI> namenodes, String name, Path idPath, Configuration conf)
-      throws IOException {
-    final List<NameNodeConnector> connectors = new ArrayList<NameNodeConnector>(
-        namenodes.size());
-    for (URI uri : namenodes) {
-      NameNodeConnector nnc = new NameNodeConnector(name, uri, idPath,
-          null, conf);
-      nnc.getKeyManager().startBlockKeyUpdater();
-      connectors.add(nnc);
+    private static final int MAX_NOT_CHANGED_ITERATIONS = 5;
+    private static boolean write2IdFile = true;
+
+    /** Create {@link NameNodeConnector} for the given namenodes. */
+    public static List<NameNodeConnector> newNameNodeConnectors(
+        Collection<URI> namenodes, String name, Path idPath, Configuration conf)
+    throws IOException {
+        final List<NameNodeConnector> connectors = new ArrayList<NameNodeConnector>(
+            namenodes.size());
+        for (URI uri : namenodes) {
+            NameNodeConnector nnc = new NameNodeConnector(name, uri, idPath,
+                    null, conf);
+            nnc.getKeyManager().startBlockKeyUpdater();
+            connectors.add(nnc);
+        }
+        return connectors;
     }
-    return connectors;
-  }
 
-  public static List<NameNodeConnector> newNameNodeConnectors(
-      Map<URI, List<Path>> namenodes, String name, Path idPath,
-      Configuration conf) throws IOException {
-    final List<NameNodeConnector> connectors = new ArrayList<NameNodeConnector>(
-        namenodes.size());
-    for (Map.Entry<URI, List<Path>> entry : namenodes.entrySet()) {
-      NameNodeConnector nnc = new NameNodeConnector(name, entry.getKey(),
-          idPath, entry.getValue(), conf);
-      nnc.getKeyManager().startBlockKeyUpdater();
-      connectors.add(nnc);
+    public static List<NameNodeConnector> newNameNodeConnectors(
+        Map<URI, List<Path>> namenodes, String name, Path idPath,
+        Configuration conf) throws IOException {
+        final List<NameNodeConnector> connectors = new ArrayList<NameNodeConnector>(
+            namenodes.size());
+        for (Map.Entry<URI, List<Path>> entry : namenodes.entrySet()) {
+            NameNodeConnector nnc = new NameNodeConnector(name, entry.getKey(),
+                    idPath, entry.getValue(), conf);
+            nnc.getKeyManager().startBlockKeyUpdater();
+            connectors.add(nnc);
+        }
+        return connectors;
     }
-    return connectors;
-  }
 
-  @VisibleForTesting
-  public static void setWrite2IdFile(boolean write2IdFile) {
-    NameNodeConnector.write2IdFile = write2IdFile;
-  }
-
-  private final URI nameNodeUri;
-  private final String blockpoolID;
-
-  private final NamenodeProtocol namenode;
-  private final ClientProtocol client;
-  private final KeyManager keyManager;
-  final AtomicBoolean fallbackToSimpleAuth = new AtomicBoolean(false);
-
-  private final DistributedFileSystem fs;
-  private final Path idPath;
-  private final OutputStream out;
-  private final List<Path> targetPaths;
-  private final AtomicLong bytesMoved = new AtomicLong();
-
-  private int notChangedIterations = 0;
-
-  public NameNodeConnector(String name, URI nameNodeUri, Path idPath,
-                           List<Path> targetPaths, Configuration conf)
-      throws IOException {
-    this.nameNodeUri = nameNodeUri;
-    this.idPath = idPath;
-    this.targetPaths = targetPaths == null || targetPaths.isEmpty() ? Arrays
-        .asList(new Path("/")) : targetPaths;
-
-    this.namenode = NameNodeProxies.createProxy(conf, nameNodeUri,
-        NamenodeProtocol.class).getProxy();
-    this.client = NameNodeProxies.createProxy(conf, nameNodeUri,
-        ClientProtocol.class, fallbackToSimpleAuth).getProxy();
-    this.fs = (DistributedFileSystem)FileSystem.get(nameNodeUri, conf);
-
-    final NamespaceInfo namespaceinfo = namenode.versionRequest();
-    this.blockpoolID = namespaceinfo.getBlockPoolID();
-
-    final FsServerDefaults defaults = fs.getServerDefaults(new Path("/"));
-    this.keyManager = new KeyManager(blockpoolID, namenode,
-        defaults.getEncryptDataTransfer(), conf);
-    // if it is for test, we do not create the id file
-    out = checkAndMarkRunning();
-    if (out == null) {
-      // Exit if there is another one running.
-      throw new IOException("Another " + name + " is running.");
+    @VisibleForTesting
+    public static void setWrite2IdFile(boolean write2IdFile) {
+        NameNodeConnector.write2IdFile = write2IdFile;
     }
-  }
 
-  public DistributedFileSystem getDistributedFileSystem() {
-    return fs;
-  }
+    private final URI nameNodeUri;
+    private final String blockpoolID;
 
-  /** @return the block pool ID */
-  public String getBlockpoolID() {
-    return blockpoolID;
-  }
+    private final NamenodeProtocol namenode;
+    private final ClientProtocol client;
+    private final KeyManager keyManager;
+    final AtomicBoolean fallbackToSimpleAuth = new AtomicBoolean(false);
 
-  AtomicLong getBytesMoved() {
-    return bytesMoved;
-  }
+    private final DistributedFileSystem fs;
+    private final Path idPath;
+    private final OutputStream out;
+    private final List<Path> targetPaths;
+    private final AtomicLong bytesMoved = new AtomicLong();
 
-  /** @return blocks with locations. */
-  public BlocksWithLocations getBlocks(DatanodeInfo datanode, long size)
-      throws IOException {
-    return namenode.getBlocks(datanode, size);
-  }
+    private int notChangedIterations = 0;
 
-  /** @return live datanode storage reports. */
-  public DatanodeStorageReport[] getLiveDatanodeStorageReport()
-      throws IOException {
-    return client.getDatanodeStorageReport(DatanodeReportType.LIVE);
-  }
+    public NameNodeConnector(String name, URI nameNodeUri, Path idPath,
+                             List<Path> targetPaths, Configuration conf)
+    throws IOException {
+        this.nameNodeUri = nameNodeUri;
+        this.idPath = idPath;
+        this.targetPaths = targetPaths == null || targetPaths.isEmpty() ? Arrays
+                           .asList(new Path("/")) : targetPaths;
 
-  /** @return the key manager */
-  public KeyManager getKeyManager() {
-    return keyManager;
-  }
+        this.namenode = NameNodeProxies.createProxy(conf, nameNodeUri,
+                        NamenodeProtocol.class).getProxy();
+        this.client = NameNodeProxies.createProxy(conf, nameNodeUri,
+                      ClientProtocol.class, fallbackToSimpleAuth).getProxy();
+        this.fs = (DistributedFileSystem)FileSystem.get(nameNodeUri, conf);
 
-  /** @return the list of paths to scan/migrate */
-  public List<Path> getTargetPaths() {
-    return targetPaths;
-  }
+        final NamespaceInfo namespaceinfo = namenode.versionRequest();
+        this.blockpoolID = namespaceinfo.getBlockPoolID();
 
-  /** Should the instance continue running? */
-  public boolean shouldContinue(long dispatchBlockMoveBytes) {
-    if (dispatchBlockMoveBytes > 0) {
-      notChangedIterations = 0;
-    } else {
-      notChangedIterations++;
-      if (notChangedIterations >= MAX_NOT_CHANGED_ITERATIONS) {
-        System.out.println("No block has been moved for "
-            + notChangedIterations + " iterations. Exiting...");
-        return false;
-      }
+        final FsServerDefaults defaults = fs.getServerDefaults(new Path("/"));
+        this.keyManager = new KeyManager(blockpoolID, namenode,
+                                         defaults.getEncryptDataTransfer(), conf);
+        // if it is for test, we do not create the id file
+        out = checkAndMarkRunning();
+        if (out == null) {
+            // Exit if there is another one running.
+            throw new IOException("Another " + name + " is running.");
+        }
     }
-    return true;
-  }
-  
 
-  /**
-   * The idea for making sure that there is no more than one instance
-   * running in an HDFS is to create a file in the HDFS, writes the hostname
-   * of the machine on which the instance is running to the file, but did not
-   * close the file until it exits. 
-   * 
-   * This prevents the second instance from running because it can not
-   * creates the file while the first one is running.
-   * 
-   * This method checks if there is any running instance. If no, mark yes.
-   * Note that this is an atomic operation.
-   * 
-   * @return null if there is a running instance;
-   *         otherwise, the output stream to the newly created file.
-   */
-  private OutputStream checkAndMarkRunning() throws IOException {
-    try {
-      final FSDataOutputStream out = fs.create(idPath);
-      if (write2IdFile) {
-        out.writeBytes(InetAddress.getLocalHost().getHostName());
-        out.hflush();
-      }
-      return out;
-    } catch(RemoteException e) {
-      if(AlreadyBeingCreatedException.class.getName().equals(e.getClassName())){
-        return null;
-      } else {
-        throw e;
-      }
+    public DistributedFileSystem getDistributedFileSystem() {
+        return fs;
     }
-  }
 
-  @Override
-  public void close() {
-    keyManager.close();
-
-    // close the output file
-    IOUtils.closeStream(out); 
-    if (fs != null) {
-      try {
-        fs.delete(idPath, true);
-      } catch(IOException ioe) {
-        LOG.warn("Failed to delete " + idPath, ioe);
-      }
+    /** @return the block pool ID */
+    public String getBlockpoolID() {
+        return blockpoolID;
     }
-  }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[namenodeUri=" + nameNodeUri
-        + ", bpid=" + blockpoolID + "]";
-  }
+    AtomicLong getBytesMoved() {
+        return bytesMoved;
+    }
+
+    /** @return blocks with locations. */
+    public BlocksWithLocations getBlocks(DatanodeInfo datanode, long size)
+    throws IOException {
+        return namenode.getBlocks(datanode, size);
+    }
+
+    /** @return live datanode storage reports. */
+    public DatanodeStorageReport[] getLiveDatanodeStorageReport()
+    throws IOException {
+        return client.getDatanodeStorageReport(DatanodeReportType.LIVE);
+    }
+
+    /** @return the key manager */
+    public KeyManager getKeyManager() {
+        return keyManager;
+    }
+
+    /** @return the list of paths to scan/migrate */
+    public List<Path> getTargetPaths() {
+        return targetPaths;
+    }
+
+    /** Should the instance continue running? */
+    public boolean shouldContinue(long dispatchBlockMoveBytes) {
+        if (dispatchBlockMoveBytes > 0) {
+            notChangedIterations = 0;
+        } else {
+            notChangedIterations++;
+            if (notChangedIterations >= MAX_NOT_CHANGED_ITERATIONS) {
+                System.out.println("No block has been moved for "
+                                   + notChangedIterations + " iterations. Exiting...");
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    /**
+     * The idea for making sure that there is no more than one instance
+     * running in an HDFS is to create a file in the HDFS, writes the hostname
+     * of the machine on which the instance is running to the file, but did not
+     * close the file until it exits.
+     *
+     * This prevents the second instance from running because it can not
+     * creates the file while the first one is running.
+     *
+     * This method checks if there is any running instance. If no, mark yes.
+     * Note that this is an atomic operation.
+     *
+     * @return null if there is a running instance;
+     *         otherwise, the output stream to the newly created file.
+     */
+    private OutputStream checkAndMarkRunning() throws IOException {
+        try {
+            final FSDataOutputStream out = fs.create(idPath);
+            if (write2IdFile) {
+                out.writeBytes(InetAddress.getLocalHost().getHostName());
+                out.hflush();
+            }
+            return out;
+        } catch(RemoteException e) {
+            if(AlreadyBeingCreatedException.class.getName().equals(e.getClassName())) {
+                return null;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    @Override
+    public void close() {
+        keyManager.close();
+
+        // close the output file
+        IOUtils.closeStream(out);
+        if (fs != null) {
+            try {
+                fs.delete(idPath, true);
+            } catch(IOException ioe) {
+                LOG.warn("Failed to delete " + idPath, ioe);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[namenodeUri=" + nameNodeUri
+               + ", bpid=" + blockpoolID + "]";
+    }
 }

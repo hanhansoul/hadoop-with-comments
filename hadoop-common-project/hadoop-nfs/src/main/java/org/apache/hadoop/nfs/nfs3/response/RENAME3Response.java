@@ -24,39 +24,39 @@ import org.apache.hadoop.oncrpc.security.Verifier;
  * RENAME3 Response
  */
 public class RENAME3Response extends NFS3Response {
-  private final WccData fromDirWcc;
-  private final WccData toDirWcc;
+    private final WccData fromDirWcc;
+    private final WccData toDirWcc;
 
-  public RENAME3Response(int status) {
-    this(status, new WccData(null, null), new WccData(null, null));
-  }
-  
-  public RENAME3Response(int status, WccData fromWccData, WccData toWccData) {
-    super(status);
-    this.fromDirWcc = fromWccData;
-    this.toDirWcc = toWccData;
-  }
+    public RENAME3Response(int status) {
+        this(status, new WccData(null, null), new WccData(null, null));
+    }
 
-  public WccData getFromDirWcc() {
-    return fromDirWcc;
-  }
+    public RENAME3Response(int status, WccData fromWccData, WccData toWccData) {
+        super(status);
+        this.fromDirWcc = fromWccData;
+        this.toDirWcc = toWccData;
+    }
 
-  public WccData getToDirWcc() {
-    return toDirWcc;
-  }
+    public WccData getFromDirWcc() {
+        return fromDirWcc;
+    }
 
-  public static RENAME3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    WccData fromDirWcc = WccData.deserialize(xdr);
-    WccData toDirWcc = WccData.deserialize(xdr);
-    return new RENAME3Response(status, fromDirWcc, toDirWcc);
-  }
+    public WccData getToDirWcc() {
+        return toDirWcc;
+    }
 
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    fromDirWcc.serialize(out);
-    toDirWcc.serialize(out);
-    return out;
-  }
+    public static RENAME3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        WccData fromDirWcc = WccData.deserialize(xdr);
+        WccData toDirWcc = WccData.deserialize(xdr);
+        return new RENAME3Response(status, fromDirWcc, toDirWcc);
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        fromDirWcc.serialize(out);
+        toDirWcc.serialize(out);
+        return out;
+    }
 }

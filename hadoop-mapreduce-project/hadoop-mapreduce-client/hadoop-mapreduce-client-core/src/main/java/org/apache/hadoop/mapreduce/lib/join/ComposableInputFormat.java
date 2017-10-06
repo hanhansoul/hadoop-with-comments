@@ -35,11 +35,11 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public abstract class ComposableInputFormat<K extends WritableComparable<?>,
-                                            V extends Writable>
+    V extends Writable>
     extends InputFormat<K,V> {
 
-  public abstract ComposableRecordReader<K,V> createRecordReader(
-    InputSplit split, TaskAttemptContext context) 
+    public abstract ComposableRecordReader<K,V> createRecordReader(
+        InputSplit split, TaskAttemptContext context)
     throws IOException, InterruptedException;
 
 }

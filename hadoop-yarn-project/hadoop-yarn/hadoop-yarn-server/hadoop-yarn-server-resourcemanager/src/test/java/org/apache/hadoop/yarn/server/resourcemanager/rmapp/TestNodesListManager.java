@@ -50,113 +50,113 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
 public class TestNodesListManager {
-  // To hold list of application for which event was received
-  ArrayList<ApplicationId> applist = new ArrayList<ApplicationId>();
+    // To hold list of application for which event was received
+    ArrayList<ApplicationId> applist = new ArrayList<ApplicationId>();
 
-  @Test(timeout = 300000)
-  public void testNodeUsableEvent() throws Exception {
-    Logger rootLogger = LogManager.getRootLogger();
-    rootLogger.setLevel(Level.DEBUG);
-    final Dispatcher dispatcher = getDispatcher();
-    YarnConfiguration conf = new YarnConfiguration();
-    MockRM rm = new MockRM(conf) {
-      @Override
-      protected Dispatcher createDispatcher() {
-        return dispatcher;
-      }
-    };
-    rm.start();
-    MockNM nm1 = rm.registerNode("h1:1234", 28000);
-    NodesListManager nodesListManager = rm.getNodesListManager();
-    Resource clusterResource = Resource.newInstance(28000, 8);
-    RMNode rmnode = MockNodes.newNodeInfo(1, clusterResource);
-
-    // Create killing APP
-    RMApp killrmApp = rm.submitApp(200);
-    rm.killApp(killrmApp.getApplicationId());
-    rm.waitForState(killrmApp.getApplicationId(), RMAppState.KILLED);
-
-    // Create finish APP
-    RMApp finshrmApp = rm.submitApp(2000);
-    nm1.nodeHeartbeat(true);
-    RMAppAttempt attempt = finshrmApp.getCurrentAppAttempt();
-    MockAM am = rm.sendAMLaunched(attempt.getAppAttemptId());
-    am.registerAppAttempt();
-    am.unregisterAppAttempt();
-    nm1.nodeHeartbeat(attempt.getAppAttemptId(), 1, ContainerState.COMPLETE);
-    am.waitForState(RMAppAttemptState.FINISHED);
-
-    // Create submitted App
-    RMApp subrmApp = rm.submitApp(200);
-
-    // Fire Event for NODE_USABLE
-    nodesListManager.handle(new NodesListManagerEvent(
-        NodesListManagerEventType.NODE_USABLE, rmnode));
-    if (applist.size() > 0) {
-      Assert.assertTrue(
-          "Event based on running app expected " + subrmApp.getApplicationId(),
-          applist.contains(subrmApp.getApplicationId()));
-      Assert.assertFalse(
-          "Event based on finish app not expected "
-              + finshrmApp.getApplicationId(),
-          applist.contains(finshrmApp.getApplicationId()));
-      Assert.assertFalse(
-          "Event based on killed app not expected "
-              + killrmApp.getApplicationId(),
-          applist.contains(killrmApp.getApplicationId()));
-    } else {
-      Assert.fail("Events received should have beeen more than 1");
-    }
-    applist.clear();
-
-    // Fire Event for NODE_UNUSABLE
-    nodesListManager.handle(new NodesListManagerEvent(
-        NodesListManagerEventType.NODE_UNUSABLE, rmnode));
-    if (applist.size() > 0) {
-      Assert.assertTrue(
-          "Event based on running app expected " + subrmApp.getApplicationId(),
-          applist.contains(subrmApp.getApplicationId()));
-      Assert.assertFalse(
-          "Event based on finish app not expected "
-              + finshrmApp.getApplicationId(),
-          applist.contains(finshrmApp.getApplicationId()));
-      Assert.assertFalse(
-          "Event based on killed app not expected "
-              + killrmApp.getApplicationId(),
-          applist.contains(killrmApp.getApplicationId()));
-    } else {
-      Assert.fail("Events received should have beeen more than 1");
-    }
-
-  }
-
-  /*
-   * Create dispatcher object
-   */
-  private Dispatcher getDispatcher() {
-    Dispatcher dispatcher = new AsyncDispatcher() {
-      @SuppressWarnings({ "rawtypes", "unchecked" })
-      @Override
-      public EventHandler getEventHandler() {
-
-        class EventArgMatcher extends ArgumentMatcher<AbstractEvent> {
-          @Override
-          public boolean matches(Object argument) {
-            if (argument instanceof RMAppNodeUpdateEvent) {
-              ApplicationId appid =
-                  ((RMAppNodeUpdateEvent) argument).getApplicationId();
-              applist.add(appid);
+    @Test(timeout = 300000)
+    public void testNodeUsableEvent() throws Exception {
+        Logger rootLogger = LogManager.getRootLogger();
+        rootLogger.setLevel(Level.DEBUG);
+        final Dispatcher dispatcher = getDispatcher();
+        YarnConfiguration conf = new YarnConfiguration();
+        MockRM rm = new MockRM(conf) {
+            @Override
+            protected Dispatcher createDispatcher() {
+                return dispatcher;
             }
-            return false;
-          }
+        };
+        rm.start();
+        MockNM nm1 = rm.registerNode("h1:1234", 28000);
+        NodesListManager nodesListManager = rm.getNodesListManager();
+        Resource clusterResource = Resource.newInstance(28000, 8);
+        RMNode rmnode = MockNodes.newNodeInfo(1, clusterResource);
+
+        // Create killing APP
+        RMApp killrmApp = rm.submitApp(200);
+        rm.killApp(killrmApp.getApplicationId());
+        rm.waitForState(killrmApp.getApplicationId(), RMAppState.KILLED);
+
+        // Create finish APP
+        RMApp finshrmApp = rm.submitApp(2000);
+        nm1.nodeHeartbeat(true);
+        RMAppAttempt attempt = finshrmApp.getCurrentAppAttempt();
+        MockAM am = rm.sendAMLaunched(attempt.getAppAttemptId());
+        am.registerAppAttempt();
+        am.unregisterAppAttempt();
+        nm1.nodeHeartbeat(attempt.getAppAttemptId(), 1, ContainerState.COMPLETE);
+        am.waitForState(RMAppAttemptState.FINISHED);
+
+        // Create submitted App
+        RMApp subrmApp = rm.submitApp(200);
+
+        // Fire Event for NODE_USABLE
+        nodesListManager.handle(new NodesListManagerEvent(
+                                    NodesListManagerEventType.NODE_USABLE, rmnode));
+        if (applist.size() > 0) {
+            Assert.assertTrue(
+                "Event based on running app expected " + subrmApp.getApplicationId(),
+                applist.contains(subrmApp.getApplicationId()));
+            Assert.assertFalse(
+                "Event based on finish app not expected "
+                + finshrmApp.getApplicationId(),
+                applist.contains(finshrmApp.getApplicationId()));
+            Assert.assertFalse(
+                "Event based on killed app not expected "
+                + killrmApp.getApplicationId(),
+                applist.contains(killrmApp.getApplicationId()));
+        } else {
+            Assert.fail("Events received should have beeen more than 1");
+        }
+        applist.clear();
+
+        // Fire Event for NODE_UNUSABLE
+        nodesListManager.handle(new NodesListManagerEvent(
+                                    NodesListManagerEventType.NODE_UNUSABLE, rmnode));
+        if (applist.size() > 0) {
+            Assert.assertTrue(
+                "Event based on running app expected " + subrmApp.getApplicationId(),
+                applist.contains(subrmApp.getApplicationId()));
+            Assert.assertFalse(
+                "Event based on finish app not expected "
+                + finshrmApp.getApplicationId(),
+                applist.contains(finshrmApp.getApplicationId()));
+            Assert.assertFalse(
+                "Event based on killed app not expected "
+                + killrmApp.getApplicationId(),
+                applist.contains(killrmApp.getApplicationId()));
+        } else {
+            Assert.fail("Events received should have beeen more than 1");
         }
 
-        EventHandler handler = spy(super.getEventHandler());
-        doNothing().when(handler).handle(argThat(new EventArgMatcher()));
-        return handler;
-      }
-    };
-    return dispatcher;
-  }
+    }
+
+    /*
+     * Create dispatcher object
+     */
+    private Dispatcher getDispatcher() {
+        Dispatcher dispatcher = new AsyncDispatcher() {
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @Override
+            public EventHandler getEventHandler() {
+
+                class EventArgMatcher extends ArgumentMatcher<AbstractEvent> {
+                    @Override
+                    public boolean matches(Object argument) {
+                        if (argument instanceof RMAppNodeUpdateEvent) {
+                            ApplicationId appid =
+                                ((RMAppNodeUpdateEvent) argument).getApplicationId();
+                            applist.add(appid);
+                        }
+                        return false;
+                    }
+                }
+
+                EventHandler handler = spy(super.getEventHandler());
+                doNothing().when(handler).handle(argThat(new EventArgMatcher()));
+                return handler;
+            }
+        };
+        return dispatcher;
+    }
 
 }

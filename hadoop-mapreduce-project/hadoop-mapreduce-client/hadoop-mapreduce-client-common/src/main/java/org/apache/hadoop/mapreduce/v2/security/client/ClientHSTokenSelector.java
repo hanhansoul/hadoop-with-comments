@@ -31,26 +31,26 @@ import org.apache.hadoop.security.token.TokenSelector;
 public class ClientHSTokenSelector implements
     TokenSelector<MRDelegationTokenIdentifier> {
 
-  private static final Log LOG = LogFactory
-      .getLog(ClientHSTokenSelector.class);
+    private static final Log LOG = LogFactory
+                                   .getLog(ClientHSTokenSelector.class);
 
-  @SuppressWarnings("unchecked")
-  public Token<MRDelegationTokenIdentifier> selectToken(Text service,
-      Collection<Token<? extends TokenIdentifier>> tokens) {
-    if (service == null) {
-      return null;
+    @SuppressWarnings("unchecked")
+    public Token<MRDelegationTokenIdentifier> selectToken(Text service,
+            Collection<Token<? extends TokenIdentifier>> tokens) {
+        if (service == null) {
+            return null;
+        }
+        LOG.debug("Looking for a token with service " + service.toString());
+        for (Token<? extends TokenIdentifier> token : tokens) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Token kind is " + token.getKind().toString()
+                          + " and the token's service name is " + token.getService());
+            }
+            if (MRDelegationTokenIdentifier.KIND_NAME.equals(token.getKind())
+                && service.equals(token.getService())) {
+                return (Token<MRDelegationTokenIdentifier>) token;
+            }
+        }
+        return null;
     }
-    LOG.debug("Looking for a token with service " + service.toString());
-    for (Token<? extends TokenIdentifier> token : tokens) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Token kind is " + token.getKind().toString()
-            + " and the token's service name is " + token.getService());
-      }
-      if (MRDelegationTokenIdentifier.KIND_NAME.equals(token.getKind())
-          && service.equals(token.getService())) {
-        return (Token<MRDelegationTokenIdentifier>) token;
-      }
-    }
-    return null;
-  }
 }

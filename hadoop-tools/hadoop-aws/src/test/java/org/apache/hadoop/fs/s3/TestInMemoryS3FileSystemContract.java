@@ -21,11 +21,11 @@ package org.apache.hadoop.fs.s3;
 import java.io.IOException;
 
 public class TestInMemoryS3FileSystemContract
-  extends S3FileSystemContractBaseTest {
+    extends S3FileSystemContractBaseTest {
 
-  @Override
-  FileSystemStore getFileSystemStore() throws IOException {
-    return new InMemoryFileSystemStore();
-  }
-  
+    @Override
+    FileSystemStore getFileSystemStore() throws IOException {
+        return new InMemoryFileSystemStore();
+    }
+
 }

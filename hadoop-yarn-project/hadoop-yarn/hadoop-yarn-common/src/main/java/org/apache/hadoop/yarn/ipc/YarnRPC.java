@@ -35,38 +35,38 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
  */
 @InterfaceAudience.LimitedPrivate({ "MapReduce", "YARN" })
 public abstract class YarnRPC {
-  private static final Log LOG = LogFactory.getLog(YarnRPC.class);
-  
-  public abstract Object getProxy(Class protocol, InetSocketAddress addr,
-      Configuration conf);
+    private static final Log LOG = LogFactory.getLog(YarnRPC.class);
 
-  public abstract void stopProxy(Object proxy, Configuration conf);
+    public abstract Object getProxy(Class protocol, InetSocketAddress addr,
+                                    Configuration conf);
 
-  public abstract Server getServer(Class protocol, Object instance,
-      InetSocketAddress addr, Configuration conf,
-      SecretManager<? extends TokenIdentifier> secretManager,
-      int numHandlers, String portRangeConfig);
+    public abstract void stopProxy(Object proxy, Configuration conf);
 
-  public Server getServer(Class protocol, Object instance,
-      InetSocketAddress addr, Configuration conf,
-      SecretManager<? extends TokenIdentifier> secretManager,
-      int numHandlers) {
-    return getServer(protocol, instance, addr, conf, secretManager, numHandlers,
-        null);
-  }
-  
-  public static YarnRPC create(Configuration conf) {
-    LOG.debug("Creating YarnRPC for " + 
-        conf.get(YarnConfiguration.IPC_RPC_IMPL));
-    String clazzName = conf.get(YarnConfiguration.IPC_RPC_IMPL);
-    if (clazzName == null) {
-      clazzName = YarnConfiguration.DEFAULT_IPC_RPC_IMPL;
+    public abstract Server getServer(Class protocol, Object instance,
+                                     InetSocketAddress addr, Configuration conf,
+                                     SecretManager<? extends TokenIdentifier> secretManager,
+                                     int numHandlers, String portRangeConfig);
+
+    public Server getServer(Class protocol, Object instance,
+                            InetSocketAddress addr, Configuration conf,
+                            SecretManager<? extends TokenIdentifier> secretManager,
+                            int numHandlers) {
+        return getServer(protocol, instance, addr, conf, secretManager, numHandlers,
+                         null);
     }
-    try {
-      return (YarnRPC) Class.forName(clazzName).newInstance();
-    } catch (Exception e) {
-      throw new YarnRuntimeException(e);
+
+    public static YarnRPC create(Configuration conf) {
+        LOG.debug("Creating YarnRPC for " +
+                  conf.get(YarnConfiguration.IPC_RPC_IMPL));
+        String clazzName = conf.get(YarnConfiguration.IPC_RPC_IMPL);
+        if (clazzName == null) {
+            clazzName = YarnConfiguration.DEFAULT_IPC_RPC_IMPL;
+        }
+        try {
+            return (YarnRPC) Class.forName(clazzName).newInstance();
+        } catch (Exception e) {
+            throw new YarnRuntimeException(e);
+        }
     }
-  }
 
 }

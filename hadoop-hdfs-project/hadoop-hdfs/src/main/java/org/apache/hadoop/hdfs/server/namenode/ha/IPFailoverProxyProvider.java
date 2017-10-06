@@ -41,7 +41,7 @@ import com.google.common.base.Preconditions;
  * clients can consistently reach only one node at a time.
  *
  * Clients with a live connection will likely get connection reset after an
- * IP failover. This case will be handled by the 
+ * IP failover. This case will be handled by the
  * FailoverOnNetworkExceptionRetry retry policy. I.e. if the call is
  * not idempotent, it won't get retried.
  *
@@ -52,82 +52,82 @@ import com.google.common.base.Preconditions;
  */
 public class IPFailoverProxyProvider<T> extends
     AbstractNNFailoverProxyProvider<T> {
-  private final Configuration conf;
-  private final Class<T> xface;
-  private final URI nameNodeUri;
-  private ProxyInfo<T> nnProxyInfo = null;
-  
-  public IPFailoverProxyProvider(Configuration conf, URI uri,
-      Class<T> xface) {
-    Preconditions.checkArgument(
-        xface.isAssignableFrom(NamenodeProtocols.class),
-        "Interface class %s is not a valid NameNode protocol!");
-    this.xface = xface;
-    this.nameNodeUri = uri;
+    private final Configuration conf;
+    private final Class<T> xface;
+    private final URI nameNodeUri;
+    private ProxyInfo<T> nnProxyInfo = null;
 
-    this.conf = new Configuration(conf);
-    int maxRetries = this.conf.getInt(
-        DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_KEY,
-        DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_DEFAULT);
-    this.conf.setInt(
-        CommonConfigurationKeysPublic.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY,
-        maxRetries);
-    
-    int maxRetriesOnSocketTimeouts = this.conf.getInt(
-        DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_ON_SOCKET_TIMEOUTS_KEY,
-        DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_ON_SOCKET_TIMEOUTS_DEFAULT);
-    this.conf.setInt(
-        CommonConfigurationKeysPublic.IPC_CLIENT_CONNECT_MAX_RETRIES_ON_SOCKET_TIMEOUTS_KEY,
-        maxRetriesOnSocketTimeouts);
-  }
-    
-  @Override
-  public Class<T> getInterface() {
-    return xface;
-  }
+    public IPFailoverProxyProvider(Configuration conf, URI uri,
+                                   Class<T> xface) {
+        Preconditions.checkArgument(
+            xface.isAssignableFrom(NamenodeProtocols.class),
+            "Interface class %s is not a valid NameNode protocol!");
+        this.xface = xface;
+        this.nameNodeUri = uri;
 
-  @Override
-  public synchronized ProxyInfo<T> getProxy() {
-    // Create a non-ha proxy if not already created.
-    if (nnProxyInfo == null) {
-      try {
-        // Create a proxy that is not wrapped in RetryProxy
-        InetSocketAddress nnAddr = NameNode.getAddress(nameNodeUri);
-        nnProxyInfo = new ProxyInfo<T>(NameNodeProxies.createNonHAProxy(
-            conf, nnAddr, xface, UserGroupInformation.getCurrentUser(), 
-            false).getProxy(), nnAddr.toString());
-      } catch (IOException ioe) {
-        throw new RuntimeException(ioe);
-      }
+        this.conf = new Configuration(conf);
+        int maxRetries = this.conf.getInt(
+                             DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_KEY,
+                             DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_DEFAULT);
+        this.conf.setInt(
+            CommonConfigurationKeysPublic.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY,
+            maxRetries);
+
+        int maxRetriesOnSocketTimeouts = this.conf.getInt(
+                                             DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_ON_SOCKET_TIMEOUTS_KEY,
+                                             DFSConfigKeys.DFS_CLIENT_FAILOVER_CONNECTION_RETRIES_ON_SOCKET_TIMEOUTS_DEFAULT);
+        this.conf.setInt(
+            CommonConfigurationKeysPublic.IPC_CLIENT_CONNECT_MAX_RETRIES_ON_SOCKET_TIMEOUTS_KEY,
+            maxRetriesOnSocketTimeouts);
     }
-    return nnProxyInfo;
-  }
 
-  /** Nothing to do for IP failover */
-  @Override
-  public void performFailover(T currentProxy) {
-  }
-
-  /**
-   * Close the proxy,
-   */
-  @Override
-  public synchronized void close() throws IOException {
-    if (nnProxyInfo == null) {
-      return;
+    @Override
+    public Class<T> getInterface() {
+        return xface;
     }
-    if (nnProxyInfo.proxy instanceof Closeable) {
-      ((Closeable)nnProxyInfo.proxy).close();
-    } else {
-      RPC.stopProxy(nnProxyInfo.proxy);
-    }
-  }
 
-  /**
-   * Logical URI is not used for IP failover.
-   */
-  @Override
-  public boolean useLogicalURI() {
-    return false;
-  }
+    @Override
+    public synchronized ProxyInfo<T> getProxy() {
+        // Create a non-ha proxy if not already created.
+        if (nnProxyInfo == null) {
+            try {
+                // Create a proxy that is not wrapped in RetryProxy
+                InetSocketAddress nnAddr = NameNode.getAddress(nameNodeUri);
+                nnProxyInfo = new ProxyInfo<T>(NameNodeProxies.createNonHAProxy(
+                                                   conf, nnAddr, xface, UserGroupInformation.getCurrentUser(),
+                                                   false).getProxy(), nnAddr.toString());
+            } catch (IOException ioe) {
+                throw new RuntimeException(ioe);
+            }
+        }
+        return nnProxyInfo;
+    }
+
+    /** Nothing to do for IP failover */
+    @Override
+    public void performFailover(T currentProxy) {
+    }
+
+    /**
+     * Close the proxy,
+     */
+    @Override
+    public synchronized void close() throws IOException {
+        if (nnProxyInfo == null) {
+            return;
+        }
+        if (nnProxyInfo.proxy instanceof Closeable) {
+            ((Closeable)nnProxyInfo.proxy).close();
+        } else {
+            RPC.stopProxy(nnProxyInfo.proxy);
+        }
+    }
+
+    /**
+     * Logical URI is not used for IP failover.
+     */
+    @Override
+    public boolean useLogicalURI() {
+        return false;
+    }
 }

@@ -21,26 +21,26 @@ import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  * Represents a state. This state is managed by {@link StatePool}.
- * 
- * Note that a {@link State} objects should be persistable. Currently, the 
+ *
+ * Note that a {@link State} objects should be persistable. Currently, the
  * {@link State} objects are persisted using the Jackson JSON library. Hence the
- * implementors of the {@link State} interface should be careful while defining 
- * their public setter and getter APIs.  
+ * implementors of the {@link State} interface should be careful while defining
+ * their public setter and getter APIs.
  */
 public interface State {
-  /**
-   * Returns true if the state is updated since creation (or reload).
-   */
-  @JsonIgnore
-  boolean isUpdated();
-  
-  /**
-   * Get the name of the state.
-   */
-  public String getName();
-  
-  /**
-   * Set the name of the state.
-   */
-  public void setName(String name);
+    /**
+     * Returns true if the state is updated since creation (or reload).
+     */
+    @JsonIgnore
+    boolean isUpdated();
+
+    /**
+     * Get the name of the state.
+     */
+    public String getName();
+
+    /**
+     * Set the name of the state.
+     */
+    public void setName(String name);
 }

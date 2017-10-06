@@ -35,60 +35,60 @@ import org.apache.hadoop.hdfs.server.namenode.snapshot.SnapshotFSImageFormat.Ref
 public class FileDiff extends
     AbstractINodeDiff<INodeFile, INodeFileAttributes, FileDiff> {
 
-  /** The file size at snapshot creation time. */
-  private final long fileSize;
+    /** The file size at snapshot creation time. */
+    private final long fileSize;
 
-  FileDiff(int snapshotId, INodeFile file) {
-    super(snapshotId, null, null);
-    fileSize = file.computeFileSize();
-  }
-
-  /** Constructor used by FSImage loading */
-  FileDiff(int snapshotId, INodeFileAttributes snapshotINode,
-      FileDiff posteriorDiff, long fileSize) {
-    super(snapshotId, snapshotINode, posteriorDiff);
-    this.fileSize = fileSize;
-  }
-
-  /** @return the file size in the snapshot. */
-  public long getFileSize() {
-    return fileSize;
-  }
-  
-  @Override
-  Quota.Counts combinePosteriorAndCollectBlocks(INodeFile currentINode,
-      FileDiff posterior, BlocksMapUpdateInfo collectedBlocks,
-      final List<INode> removedINodes) {
-    return currentINode.getFileWithSnapshotFeature()
-        .updateQuotaAndCollectBlocks(currentINode, posterior, collectedBlocks,
-            removedINodes);
-  }
-  
-  @Override
-  public String toString() {
-    return super.toString() + " fileSize=" + fileSize + ", rep="
-        + (snapshotINode == null? "?": snapshotINode.getFileReplication());
-  }
-
-  @Override
-  void write(DataOutput out, ReferenceMap referenceMap) throws IOException {
-    writeSnapshot(out);
-    out.writeLong(fileSize);
-
-    // write snapshotINode
-    if (snapshotINode != null) {
-      out.writeBoolean(true);
-      FSImageSerialization.writeINodeFileAttributes(snapshotINode, out);
-    } else {
-      out.writeBoolean(false);
+    FileDiff(int snapshotId, INodeFile file) {
+        super(snapshotId, null, null);
+        fileSize = file.computeFileSize();
     }
-  }
 
-  @Override
-  Quota.Counts destroyDiffAndCollectBlocks(INodeFile currentINode,
-      BlocksMapUpdateInfo collectedBlocks, final List<INode> removedINodes) {
-    return currentINode.getFileWithSnapshotFeature()
-        .updateQuotaAndCollectBlocks(currentINode, this, collectedBlocks,
-            removedINodes);
-  }
+    /** Constructor used by FSImage loading */
+    FileDiff(int snapshotId, INodeFileAttributes snapshotINode,
+             FileDiff posteriorDiff, long fileSize) {
+        super(snapshotId, snapshotINode, posteriorDiff);
+        this.fileSize = fileSize;
+    }
+
+    /** @return the file size in the snapshot. */
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    @Override
+    Quota.Counts combinePosteriorAndCollectBlocks(INodeFile currentINode,
+            FileDiff posterior, BlocksMapUpdateInfo collectedBlocks,
+            final List<INode> removedINodes) {
+        return currentINode.getFileWithSnapshotFeature()
+               .updateQuotaAndCollectBlocks(currentINode, posterior, collectedBlocks,
+                                            removedINodes);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " fileSize=" + fileSize + ", rep="
+               + (snapshotINode == null? "?": snapshotINode.getFileReplication());
+    }
+
+    @Override
+    void write(DataOutput out, ReferenceMap referenceMap) throws IOException {
+        writeSnapshot(out);
+        out.writeLong(fileSize);
+
+        // write snapshotINode
+        if (snapshotINode != null) {
+            out.writeBoolean(true);
+            FSImageSerialization.writeINodeFileAttributes(snapshotINode, out);
+        } else {
+            out.writeBoolean(false);
+        }
+    }
+
+    @Override
+    Quota.Counts destroyDiffAndCollectBlocks(INodeFile currentINode,
+            BlocksMapUpdateInfo collectedBlocks, final List<INode> removedINodes) {
+        return currentINode.getFileWithSnapshotFeature()
+               .updateQuotaAndCollectBlocks(currentINode, this, collectedBlocks,
+                                            removedINodes);
+    }
 }

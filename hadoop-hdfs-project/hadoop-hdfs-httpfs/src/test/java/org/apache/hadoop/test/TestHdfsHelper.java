@@ -32,133 +32,133 @@ import org.junit.runners.model.Statement;
 
 public class TestHdfsHelper extends TestDirHelper {
 
-  @Override
-  @Test
-  public void dummy() {
-  }
-
-  public static final String HADOOP_MINI_HDFS = "test.hadoop.hdfs";
-
-  private static ThreadLocal<Configuration> HDFS_CONF_TL = new InheritableThreadLocal<Configuration>();
-
-  private static ThreadLocal<Path> HDFS_TEST_DIR_TL = new InheritableThreadLocal<Path>();
-
-  @Override
-  public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
-    TestHdfs testHdfsAnnotation = frameworkMethod.getAnnotation(TestHdfs.class);
-    if (testHdfsAnnotation != null) {
-      statement = new HdfsStatement(statement, frameworkMethod.getName());
+    @Override
+    @Test
+    public void dummy() {
     }
-    return super.apply(statement, frameworkMethod, o);
-  }
 
-  private static class HdfsStatement extends Statement {
-    private Statement statement;
-    private String testName;
+    public static final String HADOOP_MINI_HDFS = "test.hadoop.hdfs";
 
-    public HdfsStatement(Statement statement, String testName) {
-      this.statement = statement;
-      this.testName = testName;
-    }
+    private static ThreadLocal<Configuration> HDFS_CONF_TL = new InheritableThreadLocal<Configuration>();
+
+    private static ThreadLocal<Path> HDFS_TEST_DIR_TL = new InheritableThreadLocal<Path>();
 
     @Override
-    public void evaluate() throws Throwable {
-      MiniDFSCluster miniHdfs = null;
-      Configuration conf = HadoopUsersConfTestHelper.getBaseConf();
-      if (Boolean.parseBoolean(System.getProperty(HADOOP_MINI_HDFS, "true"))) {
-        miniHdfs = startMiniHdfs(conf);
-        conf = miniHdfs.getConfiguration(0);
-      }
-      try {
-        HDFS_CONF_TL.set(conf);
-        HDFS_TEST_DIR_TL.set(resetHdfsTestDir(conf));
-        statement.evaluate();
-      } finally {
-        HDFS_CONF_TL.remove();
-        HDFS_TEST_DIR_TL.remove();
-      }
+    public Statement apply(Statement statement, FrameworkMethod frameworkMethod, Object o) {
+        TestHdfs testHdfsAnnotation = frameworkMethod.getAnnotation(TestHdfs.class);
+        if (testHdfsAnnotation != null) {
+            statement = new HdfsStatement(statement, frameworkMethod.getName());
+        }
+        return super.apply(statement, frameworkMethod, o);
     }
 
-    private static AtomicInteger counter = new AtomicInteger();
+    private static class HdfsStatement extends Statement {
+        private Statement statement;
+        private String testName;
 
-    private Path resetHdfsTestDir(Configuration conf) {
+        public HdfsStatement(Statement statement, String testName) {
+            this.statement = statement;
+            this.testName = testName;
+        }
 
-      Path testDir = new Path("/tmp/" + testName + "-" +
-        counter.getAndIncrement());
-      try {
-        // currentUser
-        FileSystem fs = FileSystem.get(conf);
-        fs.delete(testDir, true);
-        fs.mkdirs(testDir);
-      } catch (Exception ex) {
-        throw new RuntimeException(ex);
-      }
-      return testDir;
+        @Override
+        public void evaluate() throws Throwable {
+            MiniDFSCluster miniHdfs = null;
+            Configuration conf = HadoopUsersConfTestHelper.getBaseConf();
+            if (Boolean.parseBoolean(System.getProperty(HADOOP_MINI_HDFS, "true"))) {
+                miniHdfs = startMiniHdfs(conf);
+                conf = miniHdfs.getConfiguration(0);
+            }
+            try {
+                HDFS_CONF_TL.set(conf);
+                HDFS_TEST_DIR_TL.set(resetHdfsTestDir(conf));
+                statement.evaluate();
+            } finally {
+                HDFS_CONF_TL.remove();
+                HDFS_TEST_DIR_TL.remove();
+            }
+        }
+
+        private static AtomicInteger counter = new AtomicInteger();
+
+        private Path resetHdfsTestDir(Configuration conf) {
+
+            Path testDir = new Path("/tmp/" + testName + "-" +
+                                    counter.getAndIncrement());
+            try {
+                // currentUser
+                FileSystem fs = FileSystem.get(conf);
+                fs.delete(testDir, true);
+                fs.mkdirs(testDir);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+            return testDir;
+        }
     }
-  }
 
-  /**
-   * Returns the HDFS test directory for the current test, only available when the
-   * test method has been annotated with {@link TestHdfs}.
-   *
-   * @return the HDFS test directory for the current test. It is an full/absolute
-   *         <code>Path</code>.
-   */
-  public static Path getHdfsTestDir() {
-    Path testDir = HDFS_TEST_DIR_TL.get();
-    if (testDir == null) {
-      throw new IllegalStateException("This test does not use @TestHdfs");
+    /**
+     * Returns the HDFS test directory for the current test, only available when the
+     * test method has been annotated with {@link TestHdfs}.
+     *
+     * @return the HDFS test directory for the current test. It is an full/absolute
+     *         <code>Path</code>.
+     */
+    public static Path getHdfsTestDir() {
+        Path testDir = HDFS_TEST_DIR_TL.get();
+        if (testDir == null) {
+            throw new IllegalStateException("This test does not use @TestHdfs");
+        }
+        return testDir;
     }
-    return testDir;
-  }
 
-  /**
-   * Returns a FileSystemAccess <code>JobConf</code> preconfigured with the FileSystemAccess cluster
-   * settings for testing. This configuration is only available when the test
-   * method has been annotated with {@link TestHdfs}. Refer to {@link HTestCase}
-   * header for details)
-   *
-   * @return the FileSystemAccess <code>JobConf</code> preconfigured with the FileSystemAccess cluster
-   *         settings for testing
-   */
-  public static Configuration getHdfsConf() {
-    Configuration conf = HDFS_CONF_TL.get();
-    if (conf == null) {
-      throw new IllegalStateException("This test does not use @TestHdfs");
+    /**
+     * Returns a FileSystemAccess <code>JobConf</code> preconfigured with the FileSystemAccess cluster
+     * settings for testing. This configuration is only available when the test
+     * method has been annotated with {@link TestHdfs}. Refer to {@link HTestCase}
+     * header for details)
+     *
+     * @return the FileSystemAccess <code>JobConf</code> preconfigured with the FileSystemAccess cluster
+     *         settings for testing
+     */
+    public static Configuration getHdfsConf() {
+        Configuration conf = HDFS_CONF_TL.get();
+        if (conf == null) {
+            throw new IllegalStateException("This test does not use @TestHdfs");
+        }
+        return new Configuration(conf);
     }
-    return new Configuration(conf);
-  }
 
-  private static MiniDFSCluster MINI_DFS = null;
+    private static MiniDFSCluster MINI_DFS = null;
 
-  private static synchronized MiniDFSCluster startMiniHdfs(Configuration conf) throws Exception {
-    if (MINI_DFS == null) {
-      if (System.getProperty("hadoop.log.dir") == null) {
-        System.setProperty("hadoop.log.dir", new File(TEST_DIR_ROOT, "hadoop-log").getAbsolutePath());
-      }
-      if (System.getProperty("test.build.data") == null) {
-        System.setProperty("test.build.data", new File(TEST_DIR_ROOT, "hadoop-data").getAbsolutePath());
-      }
+    private static synchronized MiniDFSCluster startMiniHdfs(Configuration conf) throws Exception {
+        if (MINI_DFS == null) {
+            if (System.getProperty("hadoop.log.dir") == null) {
+                System.setProperty("hadoop.log.dir", new File(TEST_DIR_ROOT, "hadoop-log").getAbsolutePath());
+            }
+            if (System.getProperty("test.build.data") == null) {
+                System.setProperty("test.build.data", new File(TEST_DIR_ROOT, "hadoop-data").getAbsolutePath());
+            }
 
-      conf = new Configuration(conf);
-      HadoopUsersConfTestHelper.addUserConf(conf);
-      conf.set("fs.hdfs.impl.disable.cache", "true");
-      conf.set("dfs.block.access.token.enable", "false");
-      conf.set("dfs.permissions", "true");
-      conf.set("hadoop.security.authentication", "simple");
-      conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
-      conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_XATTRS_ENABLED_KEY, true);
-      MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
-      builder.numDataNodes(2);
-      MiniDFSCluster miniHdfs = builder.build();
-      FileSystem fileSystem = miniHdfs.getFileSystem();
-      fileSystem.mkdirs(new Path("/tmp"));
-      fileSystem.mkdirs(new Path("/user"));
-      fileSystem.setPermission(new Path("/tmp"), FsPermission.valueOf("-rwxrwxrwx"));
-      fileSystem.setPermission(new Path("/user"), FsPermission.valueOf("-rwxrwxrwx"));
-      MINI_DFS = miniHdfs;
+            conf = new Configuration(conf);
+            HadoopUsersConfTestHelper.addUserConf(conf);
+            conf.set("fs.hdfs.impl.disable.cache", "true");
+            conf.set("dfs.block.access.token.enable", "false");
+            conf.set("dfs.permissions", "true");
+            conf.set("hadoop.security.authentication", "simple");
+            conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+            conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_XATTRS_ENABLED_KEY, true);
+            MiniDFSCluster.Builder builder = new MiniDFSCluster.Builder(conf);
+            builder.numDataNodes(2);
+            MiniDFSCluster miniHdfs = builder.build();
+            FileSystem fileSystem = miniHdfs.getFileSystem();
+            fileSystem.mkdirs(new Path("/tmp"));
+            fileSystem.mkdirs(new Path("/user"));
+            fileSystem.setPermission(new Path("/tmp"), FsPermission.valueOf("-rwxrwxrwx"));
+            fileSystem.setPermission(new Path("/user"), FsPermission.valueOf("-rwxrwxrwx"));
+            MINI_DFS = miniHdfs;
+        }
+        return MINI_DFS;
     }
-    return MINI_DFS;
-  }
 
 }

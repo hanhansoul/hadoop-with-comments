@@ -26,21 +26,21 @@ import org.apache.hadoop.yarn.api.records.Container;
 
 public class TaskAttemptContainerAssignedEvent extends TaskAttemptEvent {
 
-  private final Container container;
-  private final Map<ApplicationAccessType, String> applicationACLs;
+    private final Container container;
+    private final Map<ApplicationAccessType, String> applicationACLs;
 
-  public TaskAttemptContainerAssignedEvent(TaskAttemptId id,
-      Container container, Map<ApplicationAccessType, String> applicationACLs) {
-    super(id, TaskAttemptEventType.TA_ASSIGNED);
-    this.container = container;
-    this.applicationACLs = applicationACLs;
-  }
+    public TaskAttemptContainerAssignedEvent(TaskAttemptId id,
+            Container container, Map<ApplicationAccessType, String> applicationACLs) {
+        super(id, TaskAttemptEventType.TA_ASSIGNED);
+        this.container = container;
+        this.applicationACLs = applicationACLs;
+    }
 
-  public Container getContainer() {
-    return this.container;
-  }
+    public Container getContainer() {
+        return this.container;
+    }
 
-  public Map<ApplicationAccessType, String> getApplicationACLs() {
-    return this.applicationACLs;
-  }
+    public Map<ApplicationAccessType, String> getApplicationACLs() {
+        return this.applicationACLs;
+    }
 }

@@ -34,129 +34,129 @@ import com.google.common.annotations.VisibleForTesting;
  * READDIR3 Response
  */
 public class READDIR3Response extends NFS3Response {
-  private final Nfs3FileAttributes postOpDirAttr;
-  private final long cookieVerf;
-  private final DirList3 dirList;
+    private final Nfs3FileAttributes postOpDirAttr;
+    private final long cookieVerf;
+    private final DirList3 dirList;
 
-  public static class Entry3 {
-    private final long fileId;
-    private final String name;
-    private final long cookie;
-    
-    public Entry3(long fileId, String name, long cookie) {
-      this.fileId = fileId;
-      this.name = name;
-      this.cookie = cookie;
+    public static class Entry3 {
+        private final long fileId;
+        private final String name;
+        private final long cookie;
+
+        public Entry3(long fileId, String name, long cookie) {
+            this.fileId = fileId;
+            this.name = name;
+            this.cookie = cookie;
+        }
+
+        long getFileId() {
+            return fileId;
+        }
+
+        @VisibleForTesting
+        public String getName() {
+            return name;
+        }
+
+        long getCookie() {
+            return cookie;
+        }
+
+        static Entry3 deserialzie(XDR xdr) {
+            long fileId = xdr.readHyper();
+            String name = xdr.readString();
+            long cookie = xdr.readHyper();
+            return new Entry3(fileId, name, cookie);
+        }
+
+        void seralize(XDR xdr) {
+            xdr.writeLongAsHyper(getFileId());
+            xdr.writeString(getName());
+            xdr.writeLongAsHyper(getCookie());
+        }
     }
 
-    long getFileId() {
-      return fileId;
+    public static class DirList3 {
+        final List<Entry3> entries;
+        final boolean eof;
+
+        public DirList3(Entry3[] entries, boolean eof) {
+            this.entries = Collections.unmodifiableList(Arrays.asList(entries));
+            this.eof = eof;
+        }
+
+        @VisibleForTesting
+        public List<Entry3> getEntries() {
+            return this.entries;
+        }
     }
 
-    @VisibleForTesting
-    public String getName() {
-      return name;
+    public READDIR3Response(int status) {
+        this(status, new Nfs3FileAttributes());
     }
 
-    long getCookie() {
-      return cookie;
+    public READDIR3Response(int status, Nfs3FileAttributes postOpAttr) {
+        this(status, postOpAttr, 0, null);
     }
 
-    static Entry3 deserialzie(XDR xdr) {
-      long fileId = xdr.readHyper();
-      String name = xdr.readString();
-      long cookie = xdr.readHyper();
-      return new Entry3(fileId, name, cookie);
+    public READDIR3Response(int status, Nfs3FileAttributes postOpAttr,
+                            final long cookieVerf, final DirList3 dirList) {
+        super(status);
+        this.postOpDirAttr = postOpAttr;
+        this.cookieVerf = cookieVerf;
+        this.dirList = dirList;
     }
 
-    void seralize(XDR xdr) {
-      xdr.writeLongAsHyper(getFileId());
-      xdr.writeString(getName());
-      xdr.writeLongAsHyper(getCookie());
+    public Nfs3FileAttributes getPostOpAttr() {
+        return postOpDirAttr;
     }
-  }
 
-  public static class DirList3 {
-    final List<Entry3> entries;
-    final boolean eof;
-    
-    public DirList3(Entry3[] entries, boolean eof) {
-      this.entries = Collections.unmodifiableList(Arrays.asList(entries));
-      this.eof = eof;
+    public long getCookieVerf() {
+        return cookieVerf;
     }
-    
-    @VisibleForTesting
-    public List<Entry3> getEntries() {
-      return this.entries;
+
+    public DirList3 getDirList() {
+        return dirList;
     }
-  }
 
-  public READDIR3Response(int status) {
-    this(status, new Nfs3FileAttributes());
-  }
+    public static READDIR3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        xdr.readBoolean();
+        Nfs3FileAttributes postOpDirAttr = Nfs3FileAttributes.deserialize(xdr);
+        long cookieVerf = 0;
+        ArrayList<Entry3> entries = new ArrayList<Entry3>();
+        DirList3 dirList = null;
 
-  public READDIR3Response(int status, Nfs3FileAttributes postOpAttr) {
-    this(status, postOpAttr, 0, null); 
-  }
-
-  public READDIR3Response(int status, Nfs3FileAttributes postOpAttr,
-      final long cookieVerf, final DirList3 dirList) {
-    super(status);
-    this.postOpDirAttr = postOpAttr;
-    this.cookieVerf = cookieVerf;
-    this.dirList = dirList;
-  }
-
-  public Nfs3FileAttributes getPostOpAttr() {
-    return postOpDirAttr;
-  }
-
-  public long getCookieVerf() {
-    return cookieVerf;
-  }
-
-  public DirList3 getDirList() {
-    return dirList;
-  }
-
-  public static READDIR3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    xdr.readBoolean();
-    Nfs3FileAttributes postOpDirAttr = Nfs3FileAttributes.deserialize(xdr);
-    long cookieVerf = 0;
-    ArrayList<Entry3> entries = new ArrayList<Entry3>();
-    DirList3 dirList = null;
-
-    if (status == Nfs3Status.NFS3_OK) {
-      cookieVerf = xdr.readHyper();
-      while (xdr.readBoolean()) {
-        Entry3 e =  Entry3.deserialzie(xdr);
-        entries.add(e);
-      }
-      boolean eof = xdr.readBoolean();
-      Entry3[] allEntries = new Entry3[entries.size()];
-      entries.toArray(allEntries);
-      dirList = new DirList3(allEntries, eof);
+        if (status == Nfs3Status.NFS3_OK) {
+            cookieVerf = xdr.readHyper();
+            while (xdr.readBoolean()) {
+                Entry3 e =  Entry3.deserialzie(xdr);
+                entries.add(e);
+            }
+            boolean eof = xdr.readBoolean();
+            Entry3[] allEntries = new Entry3[entries.size()];
+            entries.toArray(allEntries);
+            dirList = new DirList3(allEntries, eof);
+        }
+        return new READDIR3Response(status, postOpDirAttr, cookieVerf, dirList);
     }
-    return new READDIR3Response(status, postOpDirAttr, cookieVerf, dirList);
-  }
 
-  @Override
-  public XDR serialize(XDR xdr, int xid, Verifier verifier) {
-    super.serialize(xdr, xid, verifier);
-    xdr.writeBoolean(true); // Attributes follow
-    postOpDirAttr.serialize(xdr);
+    @Override
+    public XDR serialize(XDR xdr, int xid, Verifier verifier) {
+        super.serialize(xdr, xid, verifier);
+        xdr.writeBoolean(true); // Attributes follow
+        postOpDirAttr.serialize(xdr);
 
-    if (getStatus() == Nfs3Status.NFS3_OK) {
-      xdr.writeLongAsHyper(cookieVerf);
-      for (Entry3 e : dirList.entries) {
-        xdr.writeBoolean(true); // Value follows
-        e.seralize(xdr);
-      }
+        if (getStatus() == Nfs3Status.NFS3_OK) {
+            xdr.writeLongAsHyper(cookieVerf);
+            for (Entry3 e : dirList.entries) {
+                xdr.writeBoolean(true); // Value follows
+                e.seralize(xdr);
+            }
 
-      xdr.writeBoolean(false);
-      xdr.writeBoolean(dirList.eof);
+            xdr.writeBoolean(false);
+            xdr.writeBoolean(dirList.eof);
+        }
+        return xdr;
     }
-    return xdr;
-  }
 }

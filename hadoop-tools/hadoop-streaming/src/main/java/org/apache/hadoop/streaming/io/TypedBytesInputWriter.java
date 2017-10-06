@@ -31,33 +31,33 @@ import org.apache.hadoop.typedbytes.TypedBytesWritableOutput;
  */
 public class TypedBytesInputWriter extends InputWriter<Object, Object> {
 
-  private TypedBytesOutput tbOut;
-  private TypedBytesWritableOutput tbwOut;
+    private TypedBytesOutput tbOut;
+    private TypedBytesWritableOutput tbwOut;
 
-  @Override
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    super.initialize(pipeMapRed);
-    DataOutput clientOut = pipeMapRed.getClientOutput();
-    tbOut = new TypedBytesOutput(clientOut);
-    tbwOut = new TypedBytesWritableOutput(clientOut);
-  }
-
-  @Override
-  public void writeKey(Object key) throws IOException {
-    writeTypedBytes(key);
-  }
-
-  @Override
-  public void writeValue(Object value) throws IOException {
-    writeTypedBytes(value);
-  }
-  
-  private void writeTypedBytes(Object value) throws IOException {
-    if (value instanceof Writable) {
-      tbwOut.write((Writable) value);
-    } else {
-      tbOut.write(value);
+    @Override
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        super.initialize(pipeMapRed);
+        DataOutput clientOut = pipeMapRed.getClientOutput();
+        tbOut = new TypedBytesOutput(clientOut);
+        tbwOut = new TypedBytesWritableOutput(clientOut);
     }
-  }
-  
+
+    @Override
+    public void writeKey(Object key) throws IOException {
+        writeTypedBytes(key);
+    }
+
+    @Override
+    public void writeValue(Object value) throws IOException {
+        writeTypedBytes(value);
+    }
+
+    private void writeTypedBytes(Object value) throws IOException {
+        if (value instanceof Writable) {
+            tbwOut.write((Writable) value);
+        } else {
+            tbOut.write(value);
+        }
+    }
+
 }

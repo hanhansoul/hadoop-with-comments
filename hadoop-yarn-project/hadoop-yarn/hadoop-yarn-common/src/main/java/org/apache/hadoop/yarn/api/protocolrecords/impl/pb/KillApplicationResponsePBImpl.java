@@ -30,62 +30,62 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class KillApplicationResponsePBImpl extends KillApplicationResponse {
-  KillApplicationResponseProto proto = KillApplicationResponseProto.getDefaultInstance();
-  KillApplicationResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public KillApplicationResponsePBImpl() {
-    builder = KillApplicationResponseProto.newBuilder();
-  }
+    KillApplicationResponseProto proto = KillApplicationResponseProto.getDefaultInstance();
+    KillApplicationResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public KillApplicationResponsePBImpl(KillApplicationResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public KillApplicationResponseProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public KillApplicationResponsePBImpl() {
+        builder = KillApplicationResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = KillApplicationResponseProto.newBuilder(proto);
+    public KillApplicationResponsePBImpl(KillApplicationResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public boolean getIsKillCompleted() {
-    KillApplicationResponseProtoOrBuilder p =
-        viaProto ? proto : builder;
-    return p.getIsKillCompleted();
-  }
+    public KillApplicationResponseProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
 
-  @Override
-  public void setIsKillCompleted(boolean isKillCompleted) {
-    maybeInitBuilder();
-    builder.setIsKillCompleted(isKillCompleted);
-  }
-}  
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = KillApplicationResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    @Override
+    public boolean getIsKillCompleted() {
+        KillApplicationResponseProtoOrBuilder p =
+            viaProto ? proto : builder;
+        return p.getIsKillCompleted();
+    }
+
+    @Override
+    public void setIsKillCompleted(boolean isKillCompleted) {
+        maybeInitBuilder();
+        builder.setIsKillCompleted(isKillCompleted);
+    }
+}

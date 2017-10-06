@@ -23,33 +23,33 @@ package org.apache.hadoop.fs.slive;
  */
 class Timer {
 
-  // no construction allowed
-  private Timer() {
+    // no construction allowed
+    private Timer() {
 
-  }
-
-  /**
-   * The current time in milliseconds
-   * 
-   * @return long (milliseconds)
-   */
-  static long now() {
-    return System.currentTimeMillis();
-  }
-
-  /**
-   * Calculates how much time in milliseconds elapsed from given start time to
-   * the current time in milliseconds
-   * 
-   * @param startTime
-   * @return elapsed time (milliseconds)
-   */
-  static long elapsed(long startTime) {
-    long elapsedTime = now() - startTime;
-    if (elapsedTime < 0) {
-      elapsedTime = 0;
     }
-    return elapsedTime;
-  }
+
+    /**
+     * The current time in milliseconds
+     *
+     * @return long (milliseconds)
+     */
+    static long now() {
+        return System.currentTimeMillis();
+    }
+
+    /**
+     * Calculates how much time in milliseconds elapsed from given start time to
+     * the current time in milliseconds
+     *
+     * @param startTime
+     * @return elapsed time (milliseconds)
+     */
+    static long elapsed(long startTime) {
+        long elapsedTime = now() - startTime;
+        if (elapsedTime < 0) {
+            elapsedTime = 0;
+        }
+        return elapsedTime;
+    }
 
 }

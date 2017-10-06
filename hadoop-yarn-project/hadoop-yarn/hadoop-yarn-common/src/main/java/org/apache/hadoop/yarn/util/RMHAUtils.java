@@ -34,62 +34,62 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 @Unstable
 public class RMHAUtils {
 
-  public static String findActiveRMHAId(YarnConfiguration conf) {
-    YarnConfiguration yarnConf = new YarnConfiguration(conf);
-    Collection<String> rmIds =
-        yarnConf.getStringCollection(YarnConfiguration.RM_HA_IDS);
-    for (String currentId : rmIds) {
-      yarnConf.set(YarnConfiguration.RM_HA_ID, currentId);
-      try {
-        HAServiceState haState = getHAState(yarnConf);
-        if (haState.equals(HAServiceState.ACTIVE)) {
-          return currentId;
+    public static String findActiveRMHAId(YarnConfiguration conf) {
+        YarnConfiguration yarnConf = new YarnConfiguration(conf);
+        Collection<String> rmIds =
+            yarnConf.getStringCollection(YarnConfiguration.RM_HA_IDS);
+        for (String currentId : rmIds) {
+            yarnConf.set(YarnConfiguration.RM_HA_ID, currentId);
+            try {
+                HAServiceState haState = getHAState(yarnConf);
+                if (haState.equals(HAServiceState.ACTIVE)) {
+                    return currentId;
+                }
+            } catch (Exception e) {
+                // Couldn't check if this RM is active. Do nothing. Worst case,
+                // we wouldn't find an Active RM and return null.
+            }
         }
-      } catch (Exception e) {
-        // Couldn't check if this RM is active. Do nothing. Worst case,
-        // we wouldn't find an Active RM and return null.
-      }
+        return null; // Couldn't find an Active RM
     }
-    return null; // Couldn't find an Active RM
-  }
 
-  private static HAServiceState getHAState(YarnConfiguration yarnConf)
-      throws Exception {
-    HAServiceTarget haServiceTarget;
-    int rpcTimeoutForChecks =
-        yarnConf.getInt(CommonConfigurationKeys.HA_FC_CLI_CHECK_TIMEOUT_KEY,
-            CommonConfigurationKeys.HA_FC_CLI_CHECK_TIMEOUT_DEFAULT);
+    private static HAServiceState getHAState(YarnConfiguration yarnConf)
+    throws Exception {
+        HAServiceTarget haServiceTarget;
+        int rpcTimeoutForChecks =
+            yarnConf.getInt(CommonConfigurationKeys.HA_FC_CLI_CHECK_TIMEOUT_KEY,
+                            CommonConfigurationKeys.HA_FC_CLI_CHECK_TIMEOUT_DEFAULT);
 
-    yarnConf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY,
-        yarnConf.get(YarnConfiguration.RM_PRINCIPAL, ""));
-    haServiceTarget = new RMHAServiceTarget(yarnConf);
-    HAServiceProtocol proto =
-        haServiceTarget.getProxy(yarnConf, rpcTimeoutForChecks);
-    HAServiceState haState = proto.getServiceStatus().getState();
-    return haState;
-  }
-
-  public static List<String> getRMHAWebappAddresses(
-      final YarnConfiguration conf) {
-    Collection<String> rmIds =
-        conf.getStringCollection(YarnConfiguration.RM_HA_IDS);
-    List<String> addrs = new ArrayList<String>();
-    if (YarnConfiguration.useHttps(conf)) {
-      for (String id : rmIds) {
-        String addr = conf.get(
-            YarnConfiguration.RM_WEBAPP_HTTPS_ADDRESS + "." + id);
-        if (addr != null) {
-          addrs.add(addr);
-        }
-      }
-    } else {
-      for (String id : rmIds) {
-        String addr = conf.get(YarnConfiguration.RM_WEBAPP_ADDRESS + "." + id);
-        if (addr != null) {
-          addrs.add(addr);
-        }
-      }
+        yarnConf.set(CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY,
+                     yarnConf.get(YarnConfiguration.RM_PRINCIPAL, ""));
+        haServiceTarget = new RMHAServiceTarget(yarnConf);
+        HAServiceProtocol proto =
+            haServiceTarget.getProxy(yarnConf, rpcTimeoutForChecks);
+        HAServiceState haState = proto.getServiceStatus().getState();
+        return haState;
     }
-    return addrs;
-  }
+
+    public static List<String> getRMHAWebappAddresses(
+        final YarnConfiguration conf) {
+        Collection<String> rmIds =
+            conf.getStringCollection(YarnConfiguration.RM_HA_IDS);
+        List<String> addrs = new ArrayList<String>();
+        if (YarnConfiguration.useHttps(conf)) {
+            for (String id : rmIds) {
+                String addr = conf.get(
+                                  YarnConfiguration.RM_WEBAPP_HTTPS_ADDRESS + "." + id);
+                if (addr != null) {
+                    addrs.add(addr);
+                }
+            }
+        } else {
+            for (String id : rmIds) {
+                String addr = conf.get(YarnConfiguration.RM_WEBAPP_ADDRESS + "." + id);
+                if (addr != null) {
+                    addrs.add(addr);
+                }
+            }
+        }
+        return addrs;
+    }
 }

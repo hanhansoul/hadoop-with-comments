@@ -22,20 +22,20 @@ import org.apache.hadoop.mapreduce.TaskType;
 // This class exists to hold a bunch of static utils.  It's never instantiated.
 abstract class Version20LogInterfaceUtils {
 
-  static TaskType get20TaskType(String taskType) {
-    try {
-      return TaskType.valueOf(taskType);
-    } catch (IllegalArgumentException e) {
-      if ("CLEANUP".equals(taskType)) {
-        return TaskType.JOB_CLEANUP;
-      }
+    static TaskType get20TaskType(String taskType) {
+        try {
+            return TaskType.valueOf(taskType);
+        } catch (IllegalArgumentException e) {
+            if ("CLEANUP".equals(taskType)) {
+                return TaskType.JOB_CLEANUP;
+            }
 
-      if ("SETUP".equals(taskType)) {
-        return TaskType.JOB_SETUP;
-      }
+            if ("SETUP".equals(taskType)) {
+                return TaskType.JOB_SETUP;
+            }
 
-      return null;
+            return null;
+        }
     }
-  }
 
 }

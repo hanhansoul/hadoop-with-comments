@@ -38,58 +38,58 @@ import org.apache.hadoop.yarn.factory.providers.RecordFactoryProvider;
  * This class abstracts away how ApplicationReports are fetched.
  */
 public class AppReportFetcher {
-  private static final Log LOG = LogFactory.getLog(AppReportFetcher.class);
-  private final Configuration conf;
-  private final ApplicationClientProtocol applicationsManager;
-  private final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory(null);
-  
-  /**
-   * Create a new Connection to the RM to fetch Application reports.
-   * @param conf the conf to use to know where the RM is.
-   */
-  public AppReportFetcher(Configuration conf) {
-    this.conf = conf;
-    try {
-      applicationsManager = ClientRMProxy.createRMProxy(conf,
-          ApplicationClientProtocol.class);
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
-    }
-  }
-  
-  /**
-   * Just call directly into the applicationsManager given instead of creating
-   * a remote connection to it.  This is mostly for when the Proxy is running
-   * as part of the RM already.
-   * @param conf the configuration to use
-   * @param applicationsManager what to use to get the RM reports.
-   */
-  public AppReportFetcher(Configuration conf, ApplicationClientProtocol applicationsManager) {
-    this.conf = conf;
-    this.applicationsManager = applicationsManager;
-  }
-  
-  /**
-   * Get a report for the specified app.
-   * @param appId the id of the application to get. 
-   * @return the ApplicationReport for that app.
-   * @throws YarnException on any error.
-   * @throws IOException
-   */
-  public ApplicationReport getApplicationReport(ApplicationId appId)
-  throws YarnException, IOException {
-    GetApplicationReportRequest request = recordFactory
-        .newRecordInstance(GetApplicationReportRequest.class);
-    request.setApplicationId(appId);
-    
-    GetApplicationReportResponse response = applicationsManager
-        .getApplicationReport(request);
-    return response.getApplicationReport();
-  }
+    private static final Log LOG = LogFactory.getLog(AppReportFetcher.class);
+    private final Configuration conf;
+    private final ApplicationClientProtocol applicationsManager;
+    private final RecordFactory recordFactory = RecordFactoryProvider.getRecordFactory(null);
 
-  public void stop() {
-    if (this.applicationsManager != null) {
-      RPC.stopProxy(this.applicationsManager);
+    /**
+     * Create a new Connection to the RM to fetch Application reports.
+     * @param conf the conf to use to know where the RM is.
+     */
+    public AppReportFetcher(Configuration conf) {
+        this.conf = conf;
+        try {
+            applicationsManager = ClientRMProxy.createRMProxy(conf,
+                                  ApplicationClientProtocol.class);
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
+        }
     }
-  }
+
+    /**
+     * Just call directly into the applicationsManager given instead of creating
+     * a remote connection to it.  This is mostly for when the Proxy is running
+     * as part of the RM already.
+     * @param conf the configuration to use
+     * @param applicationsManager what to use to get the RM reports.
+     */
+    public AppReportFetcher(Configuration conf, ApplicationClientProtocol applicationsManager) {
+        this.conf = conf;
+        this.applicationsManager = applicationsManager;
+    }
+
+    /**
+     * Get a report for the specified app.
+     * @param appId the id of the application to get.
+     * @return the ApplicationReport for that app.
+     * @throws YarnException on any error.
+     * @throws IOException
+     */
+    public ApplicationReport getApplicationReport(ApplicationId appId)
+    throws YarnException, IOException {
+        GetApplicationReportRequest request = recordFactory
+                                              .newRecordInstance(GetApplicationReportRequest.class);
+        request.setApplicationId(appId);
+
+        GetApplicationReportResponse response = applicationsManager
+                                                .getApplicationReport(request);
+        return response.getApplicationReport();
+    }
+
+    public void stop() {
+        if (this.applicationsManager != null) {
+            RPC.stopProxy(this.applicationsManager);
+        }
+    }
 }

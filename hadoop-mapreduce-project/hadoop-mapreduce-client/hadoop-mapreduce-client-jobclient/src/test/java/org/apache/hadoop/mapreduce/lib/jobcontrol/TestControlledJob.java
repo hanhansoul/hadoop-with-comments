@@ -26,21 +26,21 @@ import org.junit.Test;
 /**
  */
 public class TestControlledJob {
-  
-  @Test
-  public void testAddingDependingJobToRunningJobFails() throws Exception {
-    Configuration conf = new Configuration();
-    ControlledJob job1 = new ControlledJob(conf);
-    job1.setJobState(ControlledJob.State.RUNNING);
-    assertFalse(job1.addDependingJob(new ControlledJob(conf)));
-  }
 
-  @Test
-  public void testAddingDependingJobToCompletedJobFails() throws Exception {
-    Configuration conf = new Configuration();
-    ControlledJob job1 = new ControlledJob(conf);
-    job1.setJobState(ControlledJob.State.SUCCESS);
-    assertFalse(job1.addDependingJob(new ControlledJob(conf)));
-  }
+    @Test
+    public void testAddingDependingJobToRunningJobFails() throws Exception {
+        Configuration conf = new Configuration();
+        ControlledJob job1 = new ControlledJob(conf);
+        job1.setJobState(ControlledJob.State.RUNNING);
+        assertFalse(job1.addDependingJob(new ControlledJob(conf)));
+    }
+
+    @Test
+    public void testAddingDependingJobToCompletedJobFails() throws Exception {
+        Configuration conf = new Configuration();
+        ControlledJob job1 = new ControlledJob(conf);
+        job1.setJobState(ControlledJob.State.SUCCESS);
+        assertFalse(job1.addDependingJob(new ControlledJob(conf)));
+    }
 
 }

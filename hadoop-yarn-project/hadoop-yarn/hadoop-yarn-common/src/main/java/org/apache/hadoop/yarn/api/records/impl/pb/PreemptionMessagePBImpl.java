@@ -33,135 +33,135 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class PreemptionMessagePBImpl extends PreemptionMessage {
 
-  PreemptionMessageProto proto = PreemptionMessageProto.getDefaultInstance();
-  PreemptionMessageProto.Builder builder = null;
+    PreemptionMessageProto proto = PreemptionMessageProto.getDefaultInstance();
+    PreemptionMessageProto.Builder builder = null;
 
-  boolean viaProto = false;
-  private StrictPreemptionContract strict;
-  private PreemptionContract contract;
+    boolean viaProto = false;
+    private StrictPreemptionContract strict;
+    private PreemptionContract contract;
 
-  public PreemptionMessagePBImpl() {
-    builder = PreemptionMessageProto.newBuilder();
-  }
-
-  public PreemptionMessagePBImpl(PreemptionMessageProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public synchronized PreemptionMessageProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public PreemptionMessagePBImpl() {
+        builder = PreemptionMessageProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (strict != null) {
-      builder.setStrictContract(convertToProtoFormat(strict));
+    public PreemptionMessagePBImpl(PreemptionMessageProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (contract != null) {
-      builder.setContract(convertToProtoFormat(contract));
+
+    public synchronized PreemptionMessageProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = PreemptionMessageProto.newBuilder(proto);
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    viaProto = false;
-  }
 
-  @Override
-  public synchronized StrictPreemptionContract getStrictContract() {
-    PreemptionMessageProtoOrBuilder p = viaProto ? proto : builder;
-    if (strict != null) {
-      return strict;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    if (!p.hasStrictContract()) {
-      return null;
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    strict = convertFromProtoFormat(p.getStrictContract());
-    return strict;
-  }
 
-  @Override
-  public synchronized void setStrictContract(StrictPreemptionContract strict) {
-    maybeInitBuilder();
-    if (null == strict) {
-      builder.clearStrictContract();
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.strict = strict;
-  }
 
-  @Override
-  public synchronized PreemptionContract getContract() {
-    PreemptionMessageProtoOrBuilder p = viaProto ? proto : builder;
-    if (contract != null) {
-      return contract;
+    private void mergeLocalToBuilder() {
+        if (strict != null) {
+            builder.setStrictContract(convertToProtoFormat(strict));
+        }
+        if (contract != null) {
+            builder.setContract(convertToProtoFormat(contract));
+        }
     }
-    if (!p.hasContract()) {
-      return null;
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = PreemptionMessageProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    contract = convertFromProtoFormat(p.getContract());
-    return contract;
-  }
 
-  @Override
-  public synchronized void setContract(final PreemptionContract c) {
-    maybeInitBuilder();
-    if (null == c) {
-      builder.clearContract();
+    @Override
+    public synchronized StrictPreemptionContract getStrictContract() {
+        PreemptionMessageProtoOrBuilder p = viaProto ? proto : builder;
+        if (strict != null) {
+            return strict;
+        }
+        if (!p.hasStrictContract()) {
+            return null;
+        }
+        strict = convertFromProtoFormat(p.getStrictContract());
+        return strict;
     }
-    this.contract = c;
-  }
 
-  private StrictPreemptionContractPBImpl convertFromProtoFormat(
-      StrictPreemptionContractProto p) {
-    return new StrictPreemptionContractPBImpl(p);
-  }
+    @Override
+    public synchronized void setStrictContract(StrictPreemptionContract strict) {
+        maybeInitBuilder();
+        if (null == strict) {
+            builder.clearStrictContract();
+        }
+        this.strict = strict;
+    }
 
-  private StrictPreemptionContractProto convertToProtoFormat(
-      StrictPreemptionContract t) {
-    return ((StrictPreemptionContractPBImpl)t).getProto();
-  }
+    @Override
+    public synchronized PreemptionContract getContract() {
+        PreemptionMessageProtoOrBuilder p = viaProto ? proto : builder;
+        if (contract != null) {
+            return contract;
+        }
+        if (!p.hasContract()) {
+            return null;
+        }
+        contract = convertFromProtoFormat(p.getContract());
+        return contract;
+    }
 
-  private PreemptionContractPBImpl convertFromProtoFormat(
-      PreemptionContractProto p) {
-    return new PreemptionContractPBImpl(p);
-  }
+    @Override
+    public synchronized void setContract(final PreemptionContract c) {
+        maybeInitBuilder();
+        if (null == c) {
+            builder.clearContract();
+        }
+        this.contract = c;
+    }
 
-  private PreemptionContractProto convertToProtoFormat(
-      PreemptionContract t) {
-    return ((PreemptionContractPBImpl)t).getProto();
-  }
+    private StrictPreemptionContractPBImpl convertFromProtoFormat(
+        StrictPreemptionContractProto p) {
+        return new StrictPreemptionContractPBImpl(p);
+    }
+
+    private StrictPreemptionContractProto convertToProtoFormat(
+        StrictPreemptionContract t) {
+        return ((StrictPreemptionContractPBImpl)t).getProto();
+    }
+
+    private PreemptionContractPBImpl convertFromProtoFormat(
+        PreemptionContractProto p) {
+        return new PreemptionContractPBImpl(p);
+    }
+
+    private PreemptionContractProto convertToProtoFormat(
+        PreemptionContract t) {
+        return ((PreemptionContractPBImpl)t).getProto();
+    }
 
 }

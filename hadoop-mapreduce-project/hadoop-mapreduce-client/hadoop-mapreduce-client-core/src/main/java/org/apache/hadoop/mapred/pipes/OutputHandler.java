@@ -35,155 +35,155 @@ import org.apache.hadoop.mapred.Reporter;
  * Handles the upward (C++ to Java) messages from the application.
  */
 class OutputHandler<K extends WritableComparable,
-                    V extends Writable>
-  implements UpwardProtocol<K, V> {
-  
-  private Reporter reporter;
-  private OutputCollector<K, V> collector;
-  private float progressValue = 0.0f;
-  private boolean done = false;
-  
-  private Throwable exception = null;
-  RecordReader<FloatWritable,NullWritable> recordReader = null;
-  private Map<Integer, Counters.Counter> registeredCounters = 
-    new HashMap<Integer, Counters.Counter>();
+    V extends Writable>
+    implements UpwardProtocol<K, V> {
 
-  private String expectedDigest = null;
-  private boolean digestReceived = false;
-  /**
-   * Create a handler that will handle any records output from the application.
-   * @param collector the "real" collector that takes the output
-   * @param reporter the reporter for reporting progress
-   */
-  public OutputHandler(OutputCollector<K, V> collector, Reporter reporter, 
-                       RecordReader<FloatWritable,NullWritable> recordReader,
-                       String expectedDigest) {
-    this.reporter = reporter;
-    this.collector = collector;
-    this.recordReader = recordReader;
-    this.expectedDigest = expectedDigest;
-  }
+    private Reporter reporter;
+    private OutputCollector<K, V> collector;
+    private float progressValue = 0.0f;
+    private boolean done = false;
 
-  /**
-   * The task output a normal record.
-   */
-  public void output(K key, V value) throws IOException {
-    collector.collect(key, value);
-  }
+    private Throwable exception = null;
+    RecordReader<FloatWritable,NullWritable> recordReader = null;
+    private Map<Integer, Counters.Counter> registeredCounters =
+        new HashMap<Integer, Counters.Counter>();
 
-  /**
-   * The task output a record with a partition number attached.
-   */
-  public void partitionedOutput(int reduce, K key, 
-                                V value) throws IOException {
-    PipesPartitioner.setNextPartition(reduce);
-    collector.collect(key, value);
-  }
-
-  /**
-   * Update the status message for the task.
-   */
-  public void status(String msg) {
-    reporter.setStatus(msg);
-  }
-
-  private FloatWritable progressKey = new FloatWritable(0.0f);
-  private NullWritable nullValue = NullWritable.get();
-  /**
-   * Update the amount done and call progress on the reporter.
-   */
-  public void progress(float progress) throws IOException {
-    progressValue = progress;
-    reporter.progress();
-    
-    if (recordReader != null) {
-      progressKey.set(progress);
-      recordReader.next(progressKey, nullValue);
+    private String expectedDigest = null;
+    private boolean digestReceived = false;
+    /**
+     * Create a handler that will handle any records output from the application.
+     * @param collector the "real" collector that takes the output
+     * @param reporter the reporter for reporting progress
+     */
+    public OutputHandler(OutputCollector<K, V> collector, Reporter reporter,
+                         RecordReader<FloatWritable,NullWritable> recordReader,
+                         String expectedDigest) {
+        this.reporter = reporter;
+        this.collector = collector;
+        this.recordReader = recordReader;
+        this.expectedDigest = expectedDigest;
     }
-  }
 
-  /**
-   * The task finished successfully.
-   */
-  public void done() throws IOException {
-    synchronized (this) {
-      done = true;
-      notify();
+    /**
+     * The task output a normal record.
+     */
+    public void output(K key, V value) throws IOException {
+        collector.collect(key, value);
     }
-  }
 
-  /**
-   * Get the current amount done.
-   * @return a float between 0.0 and 1.0
-   */
-  public float getProgress() {
-    return progressValue;
-  }
+    /**
+     * The task output a record with a partition number attached.
+     */
+    public void partitionedOutput(int reduce, K key,
+                                  V value) throws IOException {
+        PipesPartitioner.setNextPartition(reduce);
+        collector.collect(key, value);
+    }
 
-  /**
-   * The task failed with an exception.
-   */
-  public void failed(Throwable e) {
-    synchronized (this) {
-      exception = e;
-      notify();
+    /**
+     * Update the status message for the task.
+     */
+    public void status(String msg) {
+        reporter.setStatus(msg);
     }
-  }
 
-  /**
-   * Wait for the task to finish or abort.
-   * @return did the task finish correctly?
-   * @throws Throwable
-   */
-  public synchronized boolean waitForFinish() throws Throwable {
-    while (!done && exception == null) {
-      wait();
-    }
-    if (exception != null) {
-      throw exception;
-    }
-    return done;
-  }
+    private FloatWritable progressKey = new FloatWritable(0.0f);
+    private NullWritable nullValue = NullWritable.get();
+    /**
+     * Update the amount done and call progress on the reporter.
+     */
+    public void progress(float progress) throws IOException {
+        progressValue = progress;
+        reporter.progress();
 
-  public void registerCounter(int id, String group, String name) throws IOException {
-    Counters.Counter counter = reporter.getCounter(group, name);
-    registeredCounters.put(id, counter);
-  }
+        if (recordReader != null) {
+            progressKey.set(progress);
+            recordReader.next(progressKey, nullValue);
+        }
+    }
 
-  public void incrementCounter(int id, long amount) throws IOException {
-    if (id < registeredCounters.size()) {
-      Counters.Counter counter = registeredCounters.get(id);
-      counter.increment(amount);
-    } else {
-      throw new IOException("Invalid counter with id: " + id);
+    /**
+     * The task finished successfully.
+     */
+    public void done() throws IOException {
+        synchronized (this) {
+            done = true;
+            notify();
+        }
     }
-  }
-  
-  public synchronized boolean authenticate(String digest) throws IOException {
-    boolean success = true;
-    if (!expectedDigest.equals(digest)) {
-      exception = new IOException("Authentication Failed: Expected digest="
-          + expectedDigest + ", received=" + digestReceived);
-      success = false;
-    }
-    digestReceived = true;
-    notify();
-    return success;
-  }
 
-  /**
-   * This is called by Application and blocks the thread until
-   * authentication response is received.
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  synchronized void waitForAuthentication()
-      throws IOException, InterruptedException {
-    while (digestReceived == false && exception == null) {
-      wait();
+    /**
+     * Get the current amount done.
+     * @return a float between 0.0 and 1.0
+     */
+    public float getProgress() {
+        return progressValue;
     }
-    if (exception != null) {
-      throw new IOException(exception.getMessage());
+
+    /**
+     * The task failed with an exception.
+     */
+    public void failed(Throwable e) {
+        synchronized (this) {
+            exception = e;
+            notify();
+        }
     }
-  }
+
+    /**
+     * Wait for the task to finish or abort.
+     * @return did the task finish correctly?
+     * @throws Throwable
+     */
+    public synchronized boolean waitForFinish() throws Throwable {
+        while (!done && exception == null) {
+            wait();
+        }
+        if (exception != null) {
+            throw exception;
+        }
+        return done;
+    }
+
+    public void registerCounter(int id, String group, String name) throws IOException {
+        Counters.Counter counter = reporter.getCounter(group, name);
+        registeredCounters.put(id, counter);
+    }
+
+    public void incrementCounter(int id, long amount) throws IOException {
+        if (id < registeredCounters.size()) {
+            Counters.Counter counter = registeredCounters.get(id);
+            counter.increment(amount);
+        } else {
+            throw new IOException("Invalid counter with id: " + id);
+        }
+    }
+
+    public synchronized boolean authenticate(String digest) throws IOException {
+        boolean success = true;
+        if (!expectedDigest.equals(digest)) {
+            exception = new IOException("Authentication Failed: Expected digest="
+                                        + expectedDigest + ", received=" + digestReceived);
+            success = false;
+        }
+        digestReceived = true;
+        notify();
+        return success;
+    }
+
+    /**
+     * This is called by Application and blocks the thread until
+     * authentication response is received.
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    synchronized void waitForAuthentication()
+    throws IOException, InterruptedException {
+        while (digestReceived == false && exception == null) {
+            wait();
+        }
+        if (exception != null) {
+            throw new IOException(exception.getMessage());
+        }
+    }
 }

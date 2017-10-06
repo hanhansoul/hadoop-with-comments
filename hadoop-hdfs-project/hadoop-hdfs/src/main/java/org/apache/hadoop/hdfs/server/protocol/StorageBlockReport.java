@@ -22,19 +22,19 @@ package org.apache.hadoop.hdfs.server.protocol;
  * Block report for a Datanode storage
  */
 public class StorageBlockReport {
-  private final DatanodeStorage storage;
-  private final long[] blocks;
-  
-  public StorageBlockReport(DatanodeStorage storage, long[] blocks) {
-    this.storage = storage;
-    this.blocks = blocks;
-  }
+    private final DatanodeStorage storage;
+    private final long[] blocks;
 
-  public DatanodeStorage getStorage() {
-    return storage;
-  }
+    public StorageBlockReport(DatanodeStorage storage, long[] blocks) {
+        this.storage = storage;
+        this.blocks = blocks;
+    }
 
-  public long[] getBlocks() {
-    return blocks;
-  }
+    public DatanodeStorage getStorage() {
+        return storage;
+    }
+
+    public long[] getBlocks() {
+        return blocks;
+    }
 }

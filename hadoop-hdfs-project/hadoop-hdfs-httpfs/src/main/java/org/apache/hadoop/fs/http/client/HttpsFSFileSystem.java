@@ -25,10 +25,10 @@ package org.apache.hadoop.fs.http.client;
  */
 public class HttpsFSFileSystem extends HttpFSFileSystem {
 
-  public static final String SCHEME = "swebhdfs";
+    public static final String SCHEME = "swebhdfs";
 
-  @Override
-  public String getScheme() {
-    return SCHEME;
-  }
+    @Override
+    public String getScheme() {
+        return SCHEME;
+    }
 }

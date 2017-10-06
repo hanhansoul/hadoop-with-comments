@@ -27,58 +27,58 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestAclCLI extends CLITestHelperDFS {
-  private MiniDFSCluster cluster = null;
-  private FileSystem fs = null;
-  private String namenode = null;
-  private String username = null;
+    private MiniDFSCluster cluster = null;
+    private FileSystem fs = null;
+    private String namenode = null;
+    private String username = null;
 
-  @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    fs = cluster.getFileSystem();
-    namenode = conf.get(DFSConfigKeys.FS_DEFAULT_NAME_KEY, "file:///");
-    username = System.getProperty("user.name");
-  }
-
-  @After
-  @Override
-  public void tearDown() throws Exception {
-    super.tearDown();
-    if (fs != null) {
-      fs.close();
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        fs = cluster.getFileSystem();
+        namenode = conf.get(DFSConfigKeys.FS_DEFAULT_NAME_KEY, "file:///");
+        username = System.getProperty("user.name");
     }
-    if (cluster != null) {
-      cluster.shutdown();
+
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+        if (fs != null) {
+            fs.close();
+        }
+        if (cluster != null) {
+            cluster.shutdown();
+        }
     }
-  }
 
-  @Override
-  protected String getTestFile() {
-    return "testAclCLI.xml";
-  }
+    @Override
+    protected String getTestFile() {
+        return "testAclCLI.xml";
+    }
 
-  @Override
-  protected String expandCommand(final String cmd) {
-    String expCmd = cmd;
-    expCmd = expCmd.replaceAll("NAMENODE", namenode);
-    expCmd = expCmd.replaceAll("USERNAME", username);
-    expCmd = expCmd.replaceAll("#LF#",
-        System.getProperty("line.separator"));
-    expCmd = super.expandCommand(expCmd);
-    return expCmd;
-  }
+    @Override
+    protected String expandCommand(final String cmd) {
+        String expCmd = cmd;
+        expCmd = expCmd.replaceAll("NAMENODE", namenode);
+        expCmd = expCmd.replaceAll("USERNAME", username);
+        expCmd = expCmd.replaceAll("#LF#",
+                                   System.getProperty("line.separator"));
+        expCmd = super.expandCommand(expCmd);
+        return expCmd;
+    }
 
-  @Override
-  protected Result execute(CLICommand cmd) throws Exception {
-    return cmd.getExecutor(namenode).executeCommand(cmd.getCmd());
-  }
+    @Override
+    protected Result execute(CLICommand cmd) throws Exception {
+        return cmd.getExecutor(namenode).executeCommand(cmd.getCmd());
+    }
 
-  @Test
-  @Override
-  public void testAll() {
-    super.testAll();
-  }
+    @Test
+    @Override
+    public void testAll() {
+        super.testAll();
+    }
 }

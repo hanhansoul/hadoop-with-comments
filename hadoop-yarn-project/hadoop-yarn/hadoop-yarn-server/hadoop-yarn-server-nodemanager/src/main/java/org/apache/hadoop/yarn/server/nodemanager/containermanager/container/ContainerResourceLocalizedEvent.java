@@ -23,16 +23,16 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ContainerResourceLocalizedEvent extends ContainerResourceEvent {
 
-  private final Path loc;
+    private final Path loc;
 
-  public ContainerResourceLocalizedEvent(ContainerId container, LocalResourceRequest rsrc,
-      Path loc) {
-    super(container, ContainerEventType.RESOURCE_LOCALIZED, rsrc);
-    this.loc = loc;
-  }
+    public ContainerResourceLocalizedEvent(ContainerId container, LocalResourceRequest rsrc,
+                                           Path loc) {
+        super(container, ContainerEventType.RESOURCE_LOCALIZED, rsrc);
+        this.loc = loc;
+    }
 
-  public Path getLocation() {
-    return loc;
-  }
+    public Path getLocation() {
+        return loc;
+    }
 
 }

@@ -26,36 +26,36 @@ import org.apache.hadoop.oncrpc.XDR;
  * LINK3 Request
  */
 public class LINK3Request extends RequestWithHandle {
-  private final FileHandle fromDirHandle;
-  private final String fromName;
+    private final FileHandle fromDirHandle;
+    private final String fromName;
 
-  public LINK3Request(FileHandle handle, FileHandle fromDirHandle,
-      String fromName) {
-    super(handle);
-    this.fromDirHandle = fromDirHandle;
-    this.fromName = fromName;
-  }
+    public LINK3Request(FileHandle handle, FileHandle fromDirHandle,
+                        String fromName) {
+        super(handle);
+        this.fromDirHandle = fromDirHandle;
+        this.fromName = fromName;
+    }
 
-  public static LINK3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    FileHandle fromDirHandle = readHandle(xdr);
-    String fromName = xdr.readString();
-    return new LINK3Request(handle, fromDirHandle, fromName);
-  }
+    public static LINK3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        FileHandle fromDirHandle = readHandle(xdr);
+        String fromName = xdr.readString();
+        return new LINK3Request(handle, fromDirHandle, fromName);
+    }
 
-  public FileHandle getFromDirHandle() {
-    return fromDirHandle;
-  }
+    public FileHandle getFromDirHandle() {
+        return fromDirHandle;
+    }
 
-  public String getFromName() {
-    return fromName;
-  }
+    public String getFromName() {
+        return fromName;
+    }
 
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    fromDirHandle.serialize(xdr);
-    xdr.writeInt(fromName.length());
-    xdr.writeFixedOpaque(fromName.getBytes(), fromName.length());
-  }
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        fromDirHandle.serialize(xdr);
+        xdr.writeInt(fromName.length());
+        xdr.writeFixedOpaque(fromName.getBytes(), fromName.length());
+    }
 }

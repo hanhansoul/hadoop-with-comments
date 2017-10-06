@@ -48,181 +48,181 @@ import org.apache.hadoop.yarn.server.utils.BuilderUtils;
 import org.apache.hadoop.yarn.util.Clock;
 
 public class FairSchedulerTestBase {
-  protected static class MockClock implements Clock {
-    private long time = 0;
-    @Override
-    public long getTime() {
-      return time;
+    protected static class MockClock implements Clock {
+        private long time = 0;
+        @Override
+        public long getTime() {
+            return time;
+        }
+
+        public void tick(int seconds) {
+            time = time + seconds * 1000;
+        }
     }
 
-    public void tick(int seconds) {
-      time = time + seconds * 1000;
+    protected final static String TEST_DIR =
+        new File(System.getProperty("test.build.data", "/tmp")).getAbsolutePath();
+
+    private static RecordFactory
+    recordFactory = RecordFactoryProvider.getRecordFactory(null);
+
+    protected int APP_ID = 1; // Incrementing counter for scheduling apps
+    protected int ATTEMPT_ID = 1; // Incrementing counter for scheduling attempts
+
+    protected Configuration conf;
+    protected FairScheduler scheduler;
+    protected ResourceManager resourceManager;
+
+    // Helper methods
+    protected Configuration createConfiguration() {
+        Configuration conf = new YarnConfiguration();
+        conf.setClass(YarnConfiguration.RM_SCHEDULER, FairScheduler.class,
+                      ResourceScheduler.class);
+        conf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 0);
+        conf.setInt(FairSchedulerConfiguration.RM_SCHEDULER_INCREMENT_ALLOCATION_MB,
+                    1024);
+        conf.setInt(YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_MB, 10240);
+        conf.setBoolean(FairSchedulerConfiguration.ASSIGN_MULTIPLE, false);
+        conf.setFloat(FairSchedulerConfiguration.PREEMPTION_THRESHOLD, 0f);
+        return conf;
     }
-  }
 
-  protected final static String TEST_DIR =
-      new File(System.getProperty("test.build.data", "/tmp")).getAbsolutePath();
-
-  private static RecordFactory
-      recordFactory = RecordFactoryProvider.getRecordFactory(null);
-
-  protected int APP_ID = 1; // Incrementing counter for scheduling apps
-  protected int ATTEMPT_ID = 1; // Incrementing counter for scheduling attempts
-
-  protected Configuration conf;
-  protected FairScheduler scheduler;
-  protected ResourceManager resourceManager;
-
-  // Helper methods
-  protected Configuration createConfiguration() {
-    Configuration conf = new YarnConfiguration();
-    conf.setClass(YarnConfiguration.RM_SCHEDULER, FairScheduler.class,
-        ResourceScheduler.class);
-    conf.setInt(YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB, 0);
-    conf.setInt(FairSchedulerConfiguration.RM_SCHEDULER_INCREMENT_ALLOCATION_MB,
-        1024);
-    conf.setInt(YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_MB, 10240);
-    conf.setBoolean(FairSchedulerConfiguration.ASSIGN_MULTIPLE, false);
-    conf.setFloat(FairSchedulerConfiguration.PREEMPTION_THRESHOLD, 0f);
-    return conf;
-  }
-
-  protected ApplicationAttemptId createAppAttemptId(int appId, int attemptId) {
-    ApplicationId appIdImpl = ApplicationId.newInstance(0, appId);
-    return ApplicationAttemptId.newInstance(appIdImpl, attemptId);
-  }
-
-  protected ResourceRequest createResourceRequest(
-      int memory, String host, int priority, int numContainers,
-      boolean relaxLocality) {
-    return createResourceRequest(memory, 1, host, priority, numContainers,
-        relaxLocality);
-  }
-
-  protected ResourceRequest createResourceRequest(
-      int memory, int vcores, String host, int priority, int numContainers,
-      boolean relaxLocality) {
-    ResourceRequest request = recordFactory.newRecordInstance(ResourceRequest.class);
-    request.setCapability(BuilderUtils.newResource(memory, vcores));
-    request.setResourceName(host);
-    request.setNumContainers(numContainers);
-    Priority prio = recordFactory.newRecordInstance(Priority.class);
-    prio.setPriority(priority);
-    request.setPriority(prio);
-    request.setRelaxLocality(relaxLocality);
-    return request;
-  }
-
-  /**
-   * Creates a single container priority-1 request and submits to
-   * scheduler.
-   */
-  protected ApplicationAttemptId createSchedulingRequest(
-      int memory, String queueId, String userId) {
-    return createSchedulingRequest(memory, queueId, userId, 1);
-  }
-
-  protected ApplicationAttemptId createSchedulingRequest(
-      int memory, int vcores, String queueId, String userId) {
-    return createSchedulingRequest(memory, vcores, queueId, userId, 1);
-  }
-
-  protected ApplicationAttemptId createSchedulingRequest(
-      int memory, String queueId, String userId, int numContainers) {
-    return createSchedulingRequest(memory, queueId, userId, numContainers, 1);
-  }
-
-  protected ApplicationAttemptId createSchedulingRequest(
-      int memory, int vcores, String queueId, String userId, int numContainers) {
-    return createSchedulingRequest(memory, vcores, queueId, userId, numContainers, 1);
-  }
-
-  protected ApplicationAttemptId createSchedulingRequest(
-      int memory, String queueId, String userId, int numContainers, int priority) {
-    return createSchedulingRequest(memory, 1, queueId, userId, numContainers,
-        priority);
-  }
-
-  protected ApplicationAttemptId createSchedulingRequest(
-      int memory, int vcores, String queueId, String userId, int numContainers,
-      int priority) {
-    ApplicationAttemptId id = createAppAttemptId(this.APP_ID++, this.ATTEMPT_ID++);
-    scheduler.addApplication(id.getApplicationId(), queueId, userId, false);
-    // This conditional is for testAclSubmitApplication where app is rejected
-    // and no app is added.
-    if (scheduler.getSchedulerApplications().containsKey(id.getApplicationId())) {
-      scheduler.addApplicationAttempt(id, false, false);
+    protected ApplicationAttemptId createAppAttemptId(int appId, int attemptId) {
+        ApplicationId appIdImpl = ApplicationId.newInstance(0, appId);
+        return ApplicationAttemptId.newInstance(appIdImpl, attemptId);
     }
-    List<ResourceRequest> ask = new ArrayList<ResourceRequest>();
-    ResourceRequest request = createResourceRequest(memory, vcores, ResourceRequest.ANY,
-        priority, numContainers, true);
-    ask.add(request);
-    scheduler.allocate(id, ask,  new ArrayList<ContainerId>(), null, null);
-    RMApp rmApp = mock(RMApp.class);
-    RMAppAttempt rmAppAttempt = mock(RMAppAttempt.class);
-    when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
-    when(rmAppAttempt.getRMAppAttemptMetrics()).thenReturn(
-        new RMAppAttemptMetrics(id, resourceManager.getRMContext()));
-    resourceManager.getRMContext().getRMApps()
+
+    protected ResourceRequest createResourceRequest(
+        int memory, String host, int priority, int numContainers,
+        boolean relaxLocality) {
+        return createResourceRequest(memory, 1, host, priority, numContainers,
+                                     relaxLocality);
+    }
+
+    protected ResourceRequest createResourceRequest(
+        int memory, int vcores, String host, int priority, int numContainers,
+        boolean relaxLocality) {
+        ResourceRequest request = recordFactory.newRecordInstance(ResourceRequest.class);
+        request.setCapability(BuilderUtils.newResource(memory, vcores));
+        request.setResourceName(host);
+        request.setNumContainers(numContainers);
+        Priority prio = recordFactory.newRecordInstance(Priority.class);
+        prio.setPriority(priority);
+        request.setPriority(prio);
+        request.setRelaxLocality(relaxLocality);
+        return request;
+    }
+
+    /**
+     * Creates a single container priority-1 request and submits to
+     * scheduler.
+     */
+    protected ApplicationAttemptId createSchedulingRequest(
+        int memory, String queueId, String userId) {
+        return createSchedulingRequest(memory, queueId, userId, 1);
+    }
+
+    protected ApplicationAttemptId createSchedulingRequest(
+        int memory, int vcores, String queueId, String userId) {
+        return createSchedulingRequest(memory, vcores, queueId, userId, 1);
+    }
+
+    protected ApplicationAttemptId createSchedulingRequest(
+        int memory, String queueId, String userId, int numContainers) {
+        return createSchedulingRequest(memory, queueId, userId, numContainers, 1);
+    }
+
+    protected ApplicationAttemptId createSchedulingRequest(
+        int memory, int vcores, String queueId, String userId, int numContainers) {
+        return createSchedulingRequest(memory, vcores, queueId, userId, numContainers, 1);
+    }
+
+    protected ApplicationAttemptId createSchedulingRequest(
+        int memory, String queueId, String userId, int numContainers, int priority) {
+        return createSchedulingRequest(memory, 1, queueId, userId, numContainers,
+                                       priority);
+    }
+
+    protected ApplicationAttemptId createSchedulingRequest(
+        int memory, int vcores, String queueId, String userId, int numContainers,
+        int priority) {
+        ApplicationAttemptId id = createAppAttemptId(this.APP_ID++, this.ATTEMPT_ID++);
+        scheduler.addApplication(id.getApplicationId(), queueId, userId, false);
+        // This conditional is for testAclSubmitApplication where app is rejected
+        // and no app is added.
+        if (scheduler.getSchedulerApplications().containsKey(id.getApplicationId())) {
+            scheduler.addApplicationAttempt(id, false, false);
+        }
+        List<ResourceRequest> ask = new ArrayList<ResourceRequest>();
+        ResourceRequest request = createResourceRequest(memory, vcores, ResourceRequest.ANY,
+                                  priority, numContainers, true);
+        ask.add(request);
+        scheduler.allocate(id, ask,  new ArrayList<ContainerId>(), null, null);
+        RMApp rmApp = mock(RMApp.class);
+        RMAppAttempt rmAppAttempt = mock(RMAppAttempt.class);
+        when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
+        when(rmAppAttempt.getRMAppAttemptMetrics()).thenReturn(
+            new RMAppAttemptMetrics(id, resourceManager.getRMContext()));
+        resourceManager.getRMContext().getRMApps()
         .put(id.getApplicationId(), rmApp);
-    return id;
-  }
-  
-  protected ApplicationAttemptId createSchedulingRequest(String queueId,
-      String userId, List<ResourceRequest> ask) {
-    ApplicationAttemptId id = createAppAttemptId(this.APP_ID++,
-        this.ATTEMPT_ID++);
-    scheduler.addApplication(id.getApplicationId(), queueId, userId, false);
-    // This conditional is for testAclSubmitApplication where app is rejected
-    // and no app is added.
-    if (scheduler.getSchedulerApplications().containsKey(id.getApplicationId())) {
-      scheduler.addApplicationAttempt(id, false, false);
+        return id;
     }
-    scheduler.allocate(id, ask, new ArrayList<ContainerId>(), null, null);
-    RMApp rmApp = mock(RMApp.class);
-    RMAppAttempt rmAppAttempt = mock(RMAppAttempt.class);
-    when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
-    when(rmAppAttempt.getRMAppAttemptMetrics()).thenReturn(
-        new RMAppAttemptMetrics(id,resourceManager.getRMContext()));
-    resourceManager.getRMContext().getRMApps()
+
+    protected ApplicationAttemptId createSchedulingRequest(String queueId,
+            String userId, List<ResourceRequest> ask) {
+        ApplicationAttemptId id = createAppAttemptId(this.APP_ID++,
+                                  this.ATTEMPT_ID++);
+        scheduler.addApplication(id.getApplicationId(), queueId, userId, false);
+        // This conditional is for testAclSubmitApplication where app is rejected
+        // and no app is added.
+        if (scheduler.getSchedulerApplications().containsKey(id.getApplicationId())) {
+            scheduler.addApplicationAttempt(id, false, false);
+        }
+        scheduler.allocate(id, ask, new ArrayList<ContainerId>(), null, null);
+        RMApp rmApp = mock(RMApp.class);
+        RMAppAttempt rmAppAttempt = mock(RMAppAttempt.class);
+        when(rmApp.getCurrentAppAttempt()).thenReturn(rmAppAttempt);
+        when(rmAppAttempt.getRMAppAttemptMetrics()).thenReturn(
+            new RMAppAttemptMetrics(id,resourceManager.getRMContext()));
+        resourceManager.getRMContext().getRMApps()
         .put(id.getApplicationId(), rmApp);
-    return id;
-  }
+        return id;
+    }
 
-  protected void createSchedulingRequestExistingApplication(
-       int memory, int priority, ApplicationAttemptId attId) {
-    ResourceRequest request = createResourceRequest(memory, ResourceRequest.ANY,
-        priority, 1, true);
-    createSchedulingRequestExistingApplication(request, attId);
-  }
+    protected void createSchedulingRequestExistingApplication(
+        int memory, int priority, ApplicationAttemptId attId) {
+        ResourceRequest request = createResourceRequest(memory, ResourceRequest.ANY,
+                                  priority, 1, true);
+        createSchedulingRequestExistingApplication(request, attId);
+    }
 
-  protected void createSchedulingRequestExistingApplication(
-      int memory, int vcores, int priority, ApplicationAttemptId attId) {
-    ResourceRequest request = createResourceRequest(memory, vcores, ResourceRequest.ANY,
-        priority, 1, true);
-    createSchedulingRequestExistingApplication(request, attId);
-  }
+    protected void createSchedulingRequestExistingApplication(
+        int memory, int vcores, int priority, ApplicationAttemptId attId) {
+        ResourceRequest request = createResourceRequest(memory, vcores, ResourceRequest.ANY,
+                                  priority, 1, true);
+        createSchedulingRequestExistingApplication(request, attId);
+    }
 
-  protected void createSchedulingRequestExistingApplication(
-      ResourceRequest request, ApplicationAttemptId attId) {
-    List<ResourceRequest> ask = new ArrayList<ResourceRequest>();
-    ask.add(request);
-    scheduler.allocate(attId, ask,  new ArrayList<ContainerId>(), null, null);
-  }
+    protected void createSchedulingRequestExistingApplication(
+        ResourceRequest request, ApplicationAttemptId attId) {
+        List<ResourceRequest> ask = new ArrayList<ResourceRequest>();
+        ask.add(request);
+        scheduler.allocate(attId, ask,  new ArrayList<ContainerId>(), null, null);
+    }
 
-  protected void createApplicationWithAMResource(ApplicationAttemptId attId,
-      String queue, String user, Resource amResource) {
-    RMContext rmContext = resourceManager.getRMContext();
-    RMApp rmApp = new RMAppImpl(attId.getApplicationId(), rmContext, conf,
-        null, null, null, ApplicationSubmissionContext.newInstance(null, null,
-        null, null, null, false, false, 0, amResource, null), null, null,
-        0, null, null, null);
-    rmContext.getRMApps().put(attId.getApplicationId(), rmApp);
-    AppAddedSchedulerEvent appAddedEvent = new AppAddedSchedulerEvent(
-        attId.getApplicationId(), queue, user);
-    scheduler.handle(appAddedEvent);
-    AppAttemptAddedSchedulerEvent attempAddedEvent =
-        new AppAttemptAddedSchedulerEvent(attId, false);
-    scheduler.handle(attempAddedEvent);
-  }
+    protected void createApplicationWithAMResource(ApplicationAttemptId attId,
+            String queue, String user, Resource amResource) {
+        RMContext rmContext = resourceManager.getRMContext();
+        RMApp rmApp = new RMAppImpl(attId.getApplicationId(), rmContext, conf,
+                                    null, null, null, ApplicationSubmissionContext.newInstance(null, null,
+                                            null, null, null, false, false, 0, amResource, null), null, null,
+                                    0, null, null, null);
+        rmContext.getRMApps().put(attId.getApplicationId(), rmApp);
+        AppAddedSchedulerEvent appAddedEvent = new AppAddedSchedulerEvent(
+            attId.getApplicationId(), queue, user);
+        scheduler.handle(appAddedEvent);
+        AppAttemptAddedSchedulerEvent attempAddedEvent =
+            new AppAttemptAddedSchedulerEvent(attId, false);
+        scheduler.handle(attempAddedEvent);
+    }
 }

@@ -27,12 +27,12 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
 @Public
 @Stable
 public enum ContainerState {
-  /** New container */
-  NEW, 
-  
-  /** Running container */
-  RUNNING, 
-  
-  /** Completed container */
-  COMPLETE
+    /** New container */
+    NEW,
+
+    /** Running container */
+    RUNNING,
+
+    /** Completed container */
+    COMPLETE
 }

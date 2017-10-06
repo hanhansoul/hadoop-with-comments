@@ -37,67 +37,67 @@ import org.junit.BeforeClass;
  */
 public class TestFileContextAcl extends FSAclBaseTest {
 
-  @BeforeClass
-  public static void init() throws Exception {
-    conf = new Configuration();
-    conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    cluster.waitActive();
-  }
-
-  @Override
-  protected FileSystem createFileSystem() throws Exception {
-    FileContextFS fcFs = new FileContextFS();
-    fcFs.initialize(FileSystem.getDefaultUri(conf), conf);
-    return fcFs;
-  }
-
-  /*
-   * To Re-use the FSAclBaseTest's testcases, creating a filesystem
-   * implementation which works based on fileContext. In this only overriding
-   * acl related methods, other operations will happen using normal filesystem
-   * itself which is out of scope for this test
-   */
-  public static class FileContextFS extends DistributedFileSystem {
-
-    private FileContext fc;
-
-    @Override
-    public void initialize(URI uri, Configuration conf) throws IOException {
-      super.initialize(uri, conf);
-      fc = FileContext.getFileContext(conf);
+    @BeforeClass
+    public static void init() throws Exception {
+        conf = new Configuration();
+        conf.setBoolean(DFSConfigKeys.DFS_NAMENODE_ACLS_ENABLED_KEY, true);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        cluster.waitActive();
     }
 
     @Override
-    public void modifyAclEntries(Path path, List<AclEntry> aclSpec)
+    protected FileSystem createFileSystem() throws Exception {
+        FileContextFS fcFs = new FileContextFS();
+        fcFs.initialize(FileSystem.getDefaultUri(conf), conf);
+        return fcFs;
+    }
+
+    /*
+     * To Re-use the FSAclBaseTest's testcases, creating a filesystem
+     * implementation which works based on fileContext. In this only overriding
+     * acl related methods, other operations will happen using normal filesystem
+     * itself which is out of scope for this test
+     */
+    public static class FileContextFS extends DistributedFileSystem {
+
+        private FileContext fc;
+
+        @Override
+        public void initialize(URI uri, Configuration conf) throws IOException {
+            super.initialize(uri, conf);
+            fc = FileContext.getFileContext(conf);
+        }
+
+        @Override
+        public void modifyAclEntries(Path path, List<AclEntry> aclSpec)
         throws IOException {
-      fc.modifyAclEntries(path, aclSpec);
-    }
+            fc.modifyAclEntries(path, aclSpec);
+        }
 
-    @Override
-    public void removeAclEntries(Path path, List<AclEntry> aclSpec)
+        @Override
+        public void removeAclEntries(Path path, List<AclEntry> aclSpec)
         throws IOException {
-      fc.removeAclEntries(path, aclSpec);
-    }
+            fc.removeAclEntries(path, aclSpec);
+        }
 
-    @Override
-    public void removeDefaultAcl(Path path) throws IOException {
-      fc.removeDefaultAcl(path);
-    }
+        @Override
+        public void removeDefaultAcl(Path path) throws IOException {
+            fc.removeDefaultAcl(path);
+        }
 
-    @Override
-    public void removeAcl(Path path) throws IOException {
-      fc.removeAcl(path);
-    }
+        @Override
+        public void removeAcl(Path path) throws IOException {
+            fc.removeAcl(path);
+        }
 
-    @Override
-    public void setAcl(Path path, List<AclEntry> aclSpec) throws IOException {
-      fc.setAcl(path, aclSpec);
-    }
+        @Override
+        public void setAcl(Path path, List<AclEntry> aclSpec) throws IOException {
+            fc.setAcl(path, aclSpec);
+        }
 
-    @Override
-    public AclStatus getAclStatus(Path path) throws IOException {
-      return fc.getAclStatus(path);
+        @Override
+        public AclStatus getAclStatus(Path path) throws IOException {
+            return fc.getAclStatus(path);
+        }
     }
-  }
 }

@@ -35,56 +35,56 @@ import org.apache.hadoop.util.LineReader;
  */
 public class KeyOnlyTextOutputReader extends OutputReader<Text, NullWritable> {
 
-  private LineReader lineReader;
-  private byte[] bytes;
-  private DataInput clientIn;
-  private Configuration conf;
-  private Text key;
-  private Text line;
-  
-  @Override
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    super.initialize(pipeMapRed);
-    clientIn = pipeMapRed.getClientInput();
-    conf = pipeMapRed.getConfiguration();
-    lineReader = new LineReader((InputStream)clientIn, conf);
-    key = new Text();
-    line = new Text();
-  }
-  
-  @Override
-  public boolean readKeyValue() throws IOException {
-    if (lineReader.readLine(line) <= 0) {
-      return false;
-    }
-    bytes = line.getBytes();
-    key.set(bytes, 0, line.getLength());
+    private LineReader lineReader;
+    private byte[] bytes;
+    private DataInput clientIn;
+    private Configuration conf;
+    private Text key;
+    private Text line;
 
-    line.clear();
-    return true;
-  }
-  
-  @Override
-  public Text getCurrentKey() throws IOException {
-    return key;
-  }
-  
-  @Override
-  public NullWritable getCurrentValue() throws IOException {
-    return NullWritable.get();
-  }
-
-  @Override
-  public String getLastOutput() {
-    if (bytes != null) {
-      try {
-        return new String(bytes, "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        return "<undecodable>";
-      }
-    } else {
-      return null;
+    @Override
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        super.initialize(pipeMapRed);
+        clientIn = pipeMapRed.getClientInput();
+        conf = pipeMapRed.getConfiguration();
+        lineReader = new LineReader((InputStream)clientIn, conf);
+        key = new Text();
+        line = new Text();
     }
-  }
-  
+
+    @Override
+    public boolean readKeyValue() throws IOException {
+        if (lineReader.readLine(line) <= 0) {
+            return false;
+        }
+        bytes = line.getBytes();
+        key.set(bytes, 0, line.getLength());
+
+        line.clear();
+        return true;
+    }
+
+    @Override
+    public Text getCurrentKey() throws IOException {
+        return key;
+    }
+
+    @Override
+    public NullWritable getCurrentValue() throws IOException {
+        return NullWritable.get();
+    }
+
+    @Override
+    public String getLastOutput() {
+        if (bytes != null) {
+            try {
+                return new String(bytes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                return "<undecodable>";
+            }
+        } else {
+            return null;
+        }
+    }
+
 }

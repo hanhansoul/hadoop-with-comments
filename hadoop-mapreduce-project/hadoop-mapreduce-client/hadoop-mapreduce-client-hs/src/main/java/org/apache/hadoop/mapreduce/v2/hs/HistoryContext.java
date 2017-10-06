@@ -29,8 +29,8 @@ import org.apache.hadoop.mapreduce.v2.hs.webapp.dao.JobsInfo;
 
 public interface HistoryContext extends AppContext {
 
-  Map<JobId, Job> getAllJobs(ApplicationId appID);
+    Map<JobId, Job> getAllJobs(ApplicationId appID);
 
-  JobsInfo getPartialJobs(Long offset, Long count, String user,
-      String queue, Long sBegin, Long sEnd, Long fBegin, Long fEnd, JobState jobState);
+    JobsInfo getPartialJobs(Long offset, Long count, String user,
+                            String queue, Long sBegin, Long sEnd, Long fBegin, Long fEnd, JobState jobState);
 }

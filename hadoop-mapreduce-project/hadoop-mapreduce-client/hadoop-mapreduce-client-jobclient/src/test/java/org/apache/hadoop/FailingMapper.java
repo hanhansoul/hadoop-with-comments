@@ -28,33 +28,33 @@ import org.apache.hadoop.mapreduce.Mapper;
  *
  */
 public class FailingMapper extends Mapper<Text, Text, Text, Text> {
-  public void map(Text key, Text value,
-      Context context) throws IOException,InterruptedException {
+    public void map(Text key, Text value,
+                    Context context) throws IOException,InterruptedException {
 
-    // Just create a non-daemon thread which hangs forever. MR AM should not be
-    // hung by this.
-    new Thread() {
-      @Override
-      public void run() {
-        synchronized (this) {
-          try {
-            wait();
-          } catch (InterruptedException e) {
-            //
-          }
+        // Just create a non-daemon thread which hangs forever. MR AM should not be
+        // hung by this.
+        new Thread() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                        //
+                    }
+                }
+            }
+        } .start();
+
+        if (context.getTaskAttemptID().getId() == 0) {
+            System.out.println("Attempt:" + context.getTaskAttemptID() +
+                               " Failing mapper throwing exception");
+            throw new IOException("Attempt:" + context.getTaskAttemptID() +
+                                  " Failing mapper throwing exception");
+        } else {
+            System.out.println("Attempt:" + context.getTaskAttemptID() +
+                               " Exiting");
+            System.exit(-1);
         }
-      }
-    }.start();
-
-    if (context.getTaskAttemptID().getId() == 0) {
-      System.out.println("Attempt:" + context.getTaskAttemptID() + 
-        " Failing mapper throwing exception");
-      throw new IOException("Attempt:" + context.getTaskAttemptID() + 
-          " Failing mapper throwing exception");
-    } else {
-      System.out.println("Attempt:" + context.getTaskAttemptID() + 
-      " Exiting");
-      System.exit(-1);
     }
-  }
 }

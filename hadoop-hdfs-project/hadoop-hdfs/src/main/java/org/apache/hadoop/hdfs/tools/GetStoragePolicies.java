@@ -32,34 +32,34 @@ import java.io.IOException;
  */
 public class GetStoragePolicies extends Configured implements Tool {
 
-  @Override
-  public int run(String[] args) throws Exception {
-    FileSystem fs = FileSystem.get(getConf());
-    if (!(fs instanceof DistributedFileSystem)) {
-      System.err.println("GetStoragePolicies can only be used against HDFS. " +
-          "Please check the default FileSystem setting in your configuration.");
-      return 1;
-    }
-    DistributedFileSystem dfs = (DistributedFileSystem) fs;
-
-    try {
-      BlockStoragePolicy[] policies = dfs.getStoragePolicies();
-      System.out.println("Block Storage Policies:");
-      for (BlockStoragePolicy policy : policies) {
-        if (policy != null) {
-          System.out.println("\t" + policy);
+    @Override
+    public int run(String[] args) throws Exception {
+        FileSystem fs = FileSystem.get(getConf());
+        if (!(fs instanceof DistributedFileSystem)) {
+            System.err.println("GetStoragePolicies can only be used against HDFS. " +
+                               "Please check the default FileSystem setting in your configuration.");
+            return 1;
         }
-      }
-    } catch (IOException e) {
-      String[] content = e.getLocalizedMessage().split("\n");
-      System.err.println("GetStoragePolicies: " + content[0]);
-      return 1;
-    }
-    return 0;
-  }
+        DistributedFileSystem dfs = (DistributedFileSystem) fs;
 
-  public static void main(String[] args) throws Exception {
-    int rc = ToolRunner.run(new GetStoragePolicies(), args);
-    System.exit(rc);
-  }
+        try {
+            BlockStoragePolicy[] policies = dfs.getStoragePolicies();
+            System.out.println("Block Storage Policies:");
+            for (BlockStoragePolicy policy : policies) {
+                if (policy != null) {
+                    System.out.println("\t" + policy);
+                }
+            }
+        } catch (IOException e) {
+            String[] content = e.getLocalizedMessage().split("\n");
+            System.err.println("GetStoragePolicies: " + content[0]);
+            return 1;
+        }
+        return 0;
+    }
+
+    public static void main(String[] args) throws Exception {
+        int rc = ToolRunner.run(new GetStoragePolicies(), args);
+        System.exit(rc);
+    }
 }

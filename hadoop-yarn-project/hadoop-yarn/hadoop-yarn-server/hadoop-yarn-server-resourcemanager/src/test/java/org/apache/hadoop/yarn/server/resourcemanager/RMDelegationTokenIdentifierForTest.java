@@ -30,81 +30,81 @@ import org.apache.hadoop.yarn.security.client.RMDelegationTokenIdentifier;
 public class RMDelegationTokenIdentifierForTest extends
     RMDelegationTokenIdentifier {
 
-  private RMDelegationTokenIdentifierForTestProto.Builder builder =
-      RMDelegationTokenIdentifierForTestProto.newBuilder();
-  
-  public RMDelegationTokenIdentifierForTest() {
-  }
-  
-  public RMDelegationTokenIdentifierForTest(RMDelegationTokenIdentifier token,
-      String message) {
-    if (token.getOwner() != null) {
-      setOwner(new Text(token.getOwner()));
+    private RMDelegationTokenIdentifierForTestProto.Builder builder =
+        RMDelegationTokenIdentifierForTestProto.newBuilder();
+
+    public RMDelegationTokenIdentifierForTest() {
     }
-    if (token.getRenewer() != null) {
-      setRenewer(new Text(token.getRenewer()));
+
+    public RMDelegationTokenIdentifierForTest(RMDelegationTokenIdentifier token,
+            String message) {
+        if (token.getOwner() != null) {
+            setOwner(new Text(token.getOwner()));
+        }
+        if (token.getRenewer() != null) {
+            setRenewer(new Text(token.getRenewer()));
+        }
+        if (token.getRealUser() != null) {
+            setRealUser(new Text(token.getRealUser()));
+        }
+        setIssueDate(token.getIssueDate());
+        setMaxDate(token.getMaxDate());
+        setSequenceNumber(token.getSequenceNumber());
+        setMasterKeyId(token.getMasterKeyId());
+        builder.setMessage(message);
     }
-    if (token.getRealUser() != null) {
-      setRealUser(new Text(token.getRealUser()));
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+        builder.setOwner(getOwner().toString());
+        builder.setRenewer(getRenewer().toString());
+        builder.setRealUser(getRealUser().toString());
+        builder.setIssueDate(getIssueDate());
+        builder.setMaxDate(getMaxDate());
+        builder.setSequenceNumber(getSequenceNumber());
+        builder.setMasterKeyId(getMasterKeyId());
+        builder.setMessage(getMessage());
+        builder.build().writeTo((DataOutputStream) out);
     }
-    setIssueDate(token.getIssueDate());
-    setMaxDate(token.getMaxDate());
-    setSequenceNumber(token.getSequenceNumber());
-    setMasterKeyId(token.getMasterKeyId());
-    builder.setMessage(message);
-  }
-  
-  @Override
-  public void write(DataOutput out) throws IOException {
-    builder.setOwner(getOwner().toString());
-    builder.setRenewer(getRenewer().toString());
-    builder.setRealUser(getRealUser().toString());
-    builder.setIssueDate(getIssueDate());
-    builder.setMaxDate(getMaxDate());
-    builder.setSequenceNumber(getSequenceNumber());
-    builder.setMasterKeyId(getMasterKeyId());
-    builder.setMessage(getMessage());
-    builder.build().writeTo((DataOutputStream) out);
-  }
-  
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    builder.mergeFrom((DataInputStream) in);
-    if (builder.getOwner() != null) {
-      setOwner(new Text(builder.getOwner()));
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        builder.mergeFrom((DataInputStream) in);
+        if (builder.getOwner() != null) {
+            setOwner(new Text(builder.getOwner()));
+        }
+        if (builder.getRenewer() != null) {
+            setRenewer(new Text(builder.getRenewer()));
+        }
+        if (builder.getRealUser() != null) {
+            setRealUser(new Text(builder.getRealUser()));
+        }
+        setIssueDate(builder.getIssueDate());
+        setMaxDate(builder.getMaxDate());
+        setSequenceNumber(builder.getSequenceNumber());
+        setMasterKeyId(builder.getMasterKeyId());
     }
-    if (builder.getRenewer() != null) {
-      setRenewer(new Text(builder.getRenewer()));
+
+    public String getMessage() {
+        return builder.getMessage();
     }
-    if (builder.getRealUser() != null) {
-      setRealUser(new Text(builder.getRealUser()));
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof RMDelegationTokenIdentifierForTest) {
+            RMDelegationTokenIdentifierForTest that = (RMDelegationTokenIdentifierForTest) obj;
+            return this.getSequenceNumber() == that.getSequenceNumber()
+                   && this.getIssueDate() == that.getIssueDate()
+                   && this.getMaxDate() == that.getMaxDate()
+                   && this.getMasterKeyId() == that.getMasterKeyId()
+                   && isEqual(this.getOwner(), that.getOwner())
+                   && isEqual(this.getRenewer(), that.getRenewer())
+                   && isEqual(this.getRealUser(), that.getRealUser())
+                   && isEqual(this.getMessage(), that.getMessage());
+        }
+        return false;
     }
-    setIssueDate(builder.getIssueDate());
-    setMaxDate(builder.getMaxDate());
-    setSequenceNumber(builder.getSequenceNumber());
-    setMasterKeyId(builder.getMasterKeyId());
-  }
-  
-  public String getMessage() {
-    return builder.getMessage();
-  }
-  
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj instanceof RMDelegationTokenIdentifierForTest) {
-      RMDelegationTokenIdentifierForTest that = (RMDelegationTokenIdentifierForTest) obj;
-      return this.getSequenceNumber() == that.getSequenceNumber() 
-          && this.getIssueDate() == that.getIssueDate() 
-          && this.getMaxDate() == that.getMaxDate()
-          && this.getMasterKeyId() == that.getMasterKeyId()
-          && isEqual(this.getOwner(), that.getOwner()) 
-          && isEqual(this.getRenewer(), that.getRenewer())
-          && isEqual(this.getRealUser(), that.getRealUser())
-          && isEqual(this.getMessage(), that.getMessage());
-    }
-    return false;
-  }
 }

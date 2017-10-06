@@ -37,97 +37,97 @@ import java.util.List;
 @VisibleForTesting
 public class ZKPathDumper {
 
-  public static final int INDENT = 2;
-  private final CuratorFramework curator;
-  private final String root;
-  private final boolean verbose;
+    public static final int INDENT = 2;
+    private final CuratorFramework curator;
+    private final String root;
+    private final boolean verbose;
 
-  /**
-   * Create a path dumper -but do not dump the path until asked
-   * @param curator curator instance
-   * @param root root
-   * @param verbose verbose flag - includes more details (such as ACLs)
-   */
-  public ZKPathDumper(CuratorFramework curator,
-      String root,
-      boolean verbose) {
-    Preconditions.checkArgument(curator != null);
-    Preconditions.checkArgument(root != null);
-    this.curator = curator;
-    this.root = root;
-    this.verbose = verbose;
-  }
-
-  /**
-   * Trigger the recursive registry dump.
-   * @return a string view of the registry
-   */
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("ZK tree for ").append(root).append('\n');
-    expand(builder, root, 1);
-    return builder.toString();
-  }
-
-  /**
-   * Recursively expand the path into the supplied string builder, increasing
-   * the indentation by {@link #INDENT} as it proceeds (depth first) down
-   * the tree
-   * @param builder string build to append to
-   * @param path path to examine
-   * @param indent current indentation
-   */
-  private void expand(StringBuilder builder,
-      String path,
-      int indent) {
-    try {
-      GetChildrenBuilder childrenBuilder = curator.getChildren();
-      List<String> children = childrenBuilder.forPath(path);
-      for (String child : children) {
-        String childPath = path + "/" + child;
-        String body;
-        Stat stat = curator.checkExists().forPath(childPath);
-        StringBuilder bodyBuilder = new StringBuilder(256);
-        bodyBuilder.append("  [")
-                          .append(stat.getDataLength())
-                          .append("]");
-        if (stat.getEphemeralOwner() > 0) {
-          bodyBuilder.append("*");
-        }
-        if (verbose) {
-          // verbose: extract ACLs
-          builder.append(" -- ");
-          List<ACL> acls =
-              curator.getACL().forPath(childPath);
-          for (ACL acl : acls) {
-            builder.append(RegistrySecurity.aclToString(acl));
-            builder.append(" ");
-          }
-        }
-        body = bodyBuilder.toString();
-        // print each child
-        append(builder, indent, ' ');
-        builder.append('/').append(child);
-        builder.append(body);
-        builder.append('\n');
-        // recurse
-        expand(builder, childPath, indent + INDENT);
-      }
-    } catch (Exception e) {
-      builder.append(e.toString()).append("\n");
+    /**
+     * Create a path dumper -but do not dump the path until asked
+     * @param curator curator instance
+     * @param root root
+     * @param verbose verbose flag - includes more details (such as ACLs)
+     */
+    public ZKPathDumper(CuratorFramework curator,
+                        String root,
+                        boolean verbose) {
+        Preconditions.checkArgument(curator != null);
+        Preconditions.checkArgument(root != null);
+        this.curator = curator;
+        this.root = root;
+        this.verbose = verbose;
     }
-  }
 
-  /**
-   * Append the specified indentation to a builder
-   * @param builder string build to append to
-   * @param indent current indentation
-   * @param c charactor to use for indentation
-   */
-  private void append(StringBuilder builder, int indent, char c) {
-    for (int i = 0; i < indent; i++) {
-      builder.append(c);
+    /**
+     * Trigger the recursive registry dump.
+     * @return a string view of the registry
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ZK tree for ").append(root).append('\n');
+        expand(builder, root, 1);
+        return builder.toString();
     }
-  }
+
+    /**
+     * Recursively expand the path into the supplied string builder, increasing
+     * the indentation by {@link #INDENT} as it proceeds (depth first) down
+     * the tree
+     * @param builder string build to append to
+     * @param path path to examine
+     * @param indent current indentation
+     */
+    private void expand(StringBuilder builder,
+                        String path,
+                        int indent) {
+        try {
+            GetChildrenBuilder childrenBuilder = curator.getChildren();
+            List<String> children = childrenBuilder.forPath(path);
+            for (String child : children) {
+                String childPath = path + "/" + child;
+                String body;
+                Stat stat = curator.checkExists().forPath(childPath);
+                StringBuilder bodyBuilder = new StringBuilder(256);
+                bodyBuilder.append("  [")
+                .append(stat.getDataLength())
+                .append("]");
+                if (stat.getEphemeralOwner() > 0) {
+                    bodyBuilder.append("*");
+                }
+                if (verbose) {
+                    // verbose: extract ACLs
+                    builder.append(" -- ");
+                    List<ACL> acls =
+                        curator.getACL().forPath(childPath);
+                    for (ACL acl : acls) {
+                        builder.append(RegistrySecurity.aclToString(acl));
+                        builder.append(" ");
+                    }
+                }
+                body = bodyBuilder.toString();
+                // print each child
+                append(builder, indent, ' ');
+                builder.append('/').append(child);
+                builder.append(body);
+                builder.append('\n');
+                // recurse
+                expand(builder, childPath, indent + INDENT);
+            }
+        } catch (Exception e) {
+            builder.append(e.toString()).append("\n");
+        }
+    }
+
+    /**
+     * Append the specified indentation to a builder
+     * @param builder string build to append to
+     * @param indent current indentation
+     * @param c charactor to use for indentation
+     */
+    private void append(StringBuilder builder, int indent, char c) {
+        for (int i = 0; i < indent; i++) {
+            builder.append(c);
+        }
+    }
 }

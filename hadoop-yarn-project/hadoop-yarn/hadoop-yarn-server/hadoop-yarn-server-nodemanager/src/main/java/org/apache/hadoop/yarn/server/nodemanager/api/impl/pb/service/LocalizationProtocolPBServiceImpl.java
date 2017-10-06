@@ -34,24 +34,24 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerHe
 
 public class LocalizationProtocolPBServiceImpl implements LocalizationProtocolPB {
 
-  private LocalizationProtocol real;
-  
-  public LocalizationProtocolPBServiceImpl(LocalizationProtocol impl) {
-    this.real = impl;
-  }
-  
-  @Override
-  public LocalizerHeartbeatResponseProto heartbeat(RpcController controller,
-      LocalizerStatusProto proto) throws ServiceException {
-    LocalizerStatusPBImpl request = new LocalizerStatusPBImpl(proto);
-    try {
-      LocalizerHeartbeatResponse response = real.heartbeat(request);
-      return ((LocalizerHeartbeatResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    private LocalizationProtocol real;
+
+    public LocalizationProtocolPBServiceImpl(LocalizationProtocol impl) {
+        this.real = impl;
     }
-  }
+
+    @Override
+    public LocalizerHeartbeatResponseProto heartbeat(RpcController controller,
+            LocalizerStatusProto proto) throws ServiceException {
+        LocalizerStatusPBImpl request = new LocalizerStatusPBImpl(proto);
+        try {
+            LocalizerHeartbeatResponse response = real.heartbeat(request);
+            return ((LocalizerHeartbeatResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
 
 }

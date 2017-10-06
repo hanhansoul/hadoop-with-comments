@@ -34,31 +34,31 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class GetContainerReportRequest {
 
-  @Public
-  @Unstable
-  public static GetContainerReportRequest newInstance(ContainerId containerId) {
-    GetContainerReportRequest request =
-        Records.newRecord(GetContainerReportRequest.class);
-    request.setContainerId(containerId);
-    return request;
-  }
+    @Public
+    @Unstable
+    public static GetContainerReportRequest newInstance(ContainerId containerId) {
+        GetContainerReportRequest request =
+            Records.newRecord(GetContainerReportRequest.class);
+        request.setContainerId(containerId);
+        return request;
+    }
 
-  /**
-   * Get the <code>ContainerId</code> of the Container.
-   * 
-   * @return <code>ContainerId</code> of the Container
-   */
-  @Public
-  @Unstable
-  public abstract ContainerId getContainerId();
+    /**
+     * Get the <code>ContainerId</code> of the Container.
+     *
+     * @return <code>ContainerId</code> of the Container
+     */
+    @Public
+    @Unstable
+    public abstract ContainerId getContainerId();
 
-  /**
-   * Set the <code>ContainerId</code> of the container
-   * 
-   * @param containerId
-   *          <code>ContainerId</code> of the container
-   */
-  @Public
-  @Unstable
-  public abstract void setContainerId(ContainerId containerId);
+    /**
+     * Set the <code>ContainerId</code> of the container
+     *
+     * @param containerId
+     *          <code>ContainerId</code> of the container
+     */
+    @Public
+    @Unstable
+    public abstract void setContainerId(ContainerId containerId);
 }

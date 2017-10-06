@@ -26,14 +26,14 @@ import org.apache.hadoop.mapreduce.v2.app.job.Task;
 
 
 public class TaskSpeculationPredicate {
-  boolean canSpeculate(AppContext context, TaskId taskID) {
-    // This class rejects speculating any task that already has speculations,
-    //  or isn't running.
-    //  Subclasses should call TaskSpeculationPredicate.canSpeculate(...) , but
-    //  can be even more restrictive.
-    JobId jobID = taskID.getJobId();
-    Job job = context.getJob(jobID);
-    Task task = job.getTask(taskID);
-    return task.getAttempts().size() == 1;
-  }
+    boolean canSpeculate(AppContext context, TaskId taskID) {
+        // This class rejects speculating any task that already has speculations,
+        //  or isn't running.
+        //  Subclasses should call TaskSpeculationPredicate.canSpeculate(...) , but
+        //  can be even more restrictive.
+        JobId jobID = taskID.getJobId();
+        Job job = context.getJob(jobID);
+        Task task = job.getTask(taskID);
+        return task.getAttempts().size() == 1;
+    }
 }

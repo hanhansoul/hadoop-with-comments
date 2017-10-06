@@ -33,30 +33,30 @@ import org.apache.hadoop.yarn.util.resource.ResourceCalculator;
  * Read-only interface to {@link CapacityScheduler} context.
  */
 public interface CapacitySchedulerContext {
-  CapacitySchedulerConfiguration getConfiguration();
-  
-  Resource getMinimumResourceCapability();
+    CapacitySchedulerConfiguration getConfiguration();
 
-  Resource getMaximumResourceCapability();
+    Resource getMinimumResourceCapability();
 
-  RMContainerTokenSecretManager getContainerTokenSecretManager();
-  
-  int getNumClusterNodes();
+    Resource getMaximumResourceCapability();
 
-  RMContext getRMContext();
-  
-  Resource getClusterResource();
+    RMContainerTokenSecretManager getContainerTokenSecretManager();
 
-  /**
-   * Get the yarn configuration.
-   */
-  Configuration getConf();
+    int getNumClusterNodes();
 
-  Comparator<FiCaSchedulerApp> getApplicationComparator();
+    RMContext getRMContext();
 
-  ResourceCalculator getResourceCalculator();
+    Resource getClusterResource();
 
-  Comparator<CSQueue> getQueueComparator();
-  
-  FiCaSchedulerNode getNode(NodeId nodeId);
+    /**
+     * Get the yarn configuration.
+     */
+    Configuration getConf();
+
+    Comparator<FiCaSchedulerApp> getApplicationComparator();
+
+    ResourceCalculator getResourceCalculator();
+
+    Comparator<CSQueue> getQueueComparator();
+
+    FiCaSchedulerNode getNode(NodeId nodeId);
 }

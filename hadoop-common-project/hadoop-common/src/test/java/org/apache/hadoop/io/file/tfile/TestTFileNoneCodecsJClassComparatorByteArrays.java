@@ -5,9 +5,9 @@
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -20,20 +20,20 @@ package org.apache.hadoop.io.file.tfile;
 import java.io.IOException;
 
 /**
- * 
+ *
  * Byte arrays test case class using GZ compression codec, base class of none
  * and LZO compression classes.
- * 
+ *
  */
 
 public class TestTFileNoneCodecsJClassComparatorByteArrays extends TestTFileByteArrays {
-  /**
-   * Test non-compression codec, using the same test cases as in the ByteArrays.
-   */
-  @Override
-  public void setUp() throws IOException {
-    init(Compression.Algorithm.NONE.getName(),
-        "jclass: org.apache.hadoop.io.file.tfile.MyComparator", 24, 24);
-    super.setUp();
-  }
+    /**
+     * Test non-compression codec, using the same test cases as in the ByteArrays.
+     */
+    @Override
+    public void setUp() throws IOException {
+        init(Compression.Algorithm.NONE.getName(),
+             "jclass: org.apache.hadoop.io.file.tfile.MyComparator", 24, 24);
+        super.setUp();
+    }
 }

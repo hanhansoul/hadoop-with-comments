@@ -35,62 +35,62 @@ import org.apache.hadoop.yarn.webapp.util.WebAppUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppAttemptInfo {
 
-  protected int id;
-  protected long startTime;
-  protected String containerId;
-  protected String nodeHttpAddress;
-  protected String nodeId;
-  protected String logsLink;
-  protected String blacklistedNodes;
+    protected int id;
+    protected long startTime;
+    protected String containerId;
+    protected String nodeHttpAddress;
+    protected String nodeId;
+    protected String logsLink;
+    protected String blacklistedNodes;
 
-  public AppAttemptInfo() {
-  }
-
-  public AppAttemptInfo(ResourceManager rm, RMAppAttempt attempt, String user) {
-    this.startTime = 0;
-    this.containerId = "";
-    this.nodeHttpAddress = "";
-    this.nodeId = "";
-    this.logsLink = "";
-    this.blacklistedNodes = "";
-    if (attempt != null) {
-      this.id = attempt.getAppAttemptId().getAttemptId();
-      this.startTime = attempt.getStartTime();
-      Container masterContainer = attempt.getMasterContainer();
-      if (masterContainer != null) {
-        this.containerId = masterContainer.getId().toString();
-        this.nodeHttpAddress = masterContainer.getNodeHttpAddress();
-        this.nodeId = masterContainer.getNodeId().toString();
-        this.logsLink =
-            WebAppUtils.getRunningLogURL("//" + masterContainer.getNodeHttpAddress(),
-                ConverterUtils.toString(masterContainer.getId()), user);
-        if (rm.getResourceScheduler() instanceof AbstractYarnScheduler) {
-          AbstractYarnScheduler ayScheduler =
-              (AbstractYarnScheduler) rm.getResourceScheduler();
-          SchedulerApplicationAttempt sattempt =
-              ayScheduler.getApplicationAttempt(attempt.getAppAttemptId());
-          if (sattempt != null) {
-            blacklistedNodes =
-                StringUtils.join(sattempt.getBlacklistedNodes(), ", ");
-          }
-        }
-      }
+    public AppAttemptInfo() {
     }
-  }
 
-  public int getAttemptId() {
-    return this.id;
-  }
+    public AppAttemptInfo(ResourceManager rm, RMAppAttempt attempt, String user) {
+        this.startTime = 0;
+        this.containerId = "";
+        this.nodeHttpAddress = "";
+        this.nodeId = "";
+        this.logsLink = "";
+        this.blacklistedNodes = "";
+        if (attempt != null) {
+            this.id = attempt.getAppAttemptId().getAttemptId();
+            this.startTime = attempt.getStartTime();
+            Container masterContainer = attempt.getMasterContainer();
+            if (masterContainer != null) {
+                this.containerId = masterContainer.getId().toString();
+                this.nodeHttpAddress = masterContainer.getNodeHttpAddress();
+                this.nodeId = masterContainer.getNodeId().toString();
+                this.logsLink =
+                    WebAppUtils.getRunningLogURL("//" + masterContainer.getNodeHttpAddress(),
+                                                 ConverterUtils.toString(masterContainer.getId()), user);
+                if (rm.getResourceScheduler() instanceof AbstractYarnScheduler) {
+                    AbstractYarnScheduler ayScheduler =
+                        (AbstractYarnScheduler) rm.getResourceScheduler();
+                    SchedulerApplicationAttempt sattempt =
+                        ayScheduler.getApplicationAttempt(attempt.getAppAttemptId());
+                    if (sattempt != null) {
+                        blacklistedNodes =
+                            StringUtils.join(sattempt.getBlacklistedNodes(), ", ");
+                    }
+                }
+            }
+        }
+    }
 
-  public long getStartTime() {
-    return this.startTime;
-  }
+    public int getAttemptId() {
+        return this.id;
+    }
 
-  public String getNodeHttpAddress() {
-    return this.nodeHttpAddress;
-  }
+    public long getStartTime() {
+        return this.startTime;
+    }
 
-  public String getLogsLink() {
-    return this.logsLink;
-  }
+    public String getNodeHttpAddress() {
+        return this.nodeHttpAddress;
+    }
+
+    public String getLogsLink() {
+        return this.logsLink;
+    }
 }

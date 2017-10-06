@@ -27,35 +27,35 @@ import org.apache.hadoop.yarn.api.records.Resource;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ResourceInfo {
-  int memory;
-  int vCores;
-  
-  public ResourceInfo() {
-  }
+    int memory;
+    int vCores;
 
-  public ResourceInfo(Resource res) {
-    memory = res.getMemory();
-    vCores = res.getVirtualCores();
-  }
+    public ResourceInfo() {
+    }
 
-  public int getMemory() {
-    return memory;
-  }
+    public ResourceInfo(Resource res) {
+        memory = res.getMemory();
+        vCores = res.getVirtualCores();
+    }
 
-  public int getvCores() {
-    return vCores;
-  }
-  
-  @Override
-  public String toString() {
-    return "<memory:" + memory + ", vCores:" + vCores + ">";
-  }
+    public int getMemory() {
+        return memory;
+    }
 
-  public void setMemory(int memory) {
-    this.memory = memory;
-  }
+    public int getvCores() {
+        return vCores;
+    }
 
-  public void setvCores(int vCores) {
-    this.vCores = vCores;
-  }
+    @Override
+    public String toString() {
+        return "<memory:" + memory + ", vCores:" + vCores + ">";
+    }
+
+    public void setMemory(int memory) {
+        this.memory = memory;
+    }
+
+    public void setvCores(int vCores) {
+        this.vCores = vCores;
+    }
 }

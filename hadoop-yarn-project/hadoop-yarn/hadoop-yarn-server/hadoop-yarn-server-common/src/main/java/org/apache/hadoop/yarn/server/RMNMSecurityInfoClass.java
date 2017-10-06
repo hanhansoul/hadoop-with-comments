@@ -29,33 +29,33 @@ import org.apache.hadoop.yarn.server.api.ResourceTrackerPB;
 
 public class RMNMSecurityInfoClass extends SecurityInfo {
 
-  @Override
-  public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol.equals(ResourceTrackerPB.class)) {
-      return null;
+    @Override
+    public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol.equals(ResourceTrackerPB.class)) {
+            return null;
+        }
+        return new KerberosInfo() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public String serverPrincipal() {
+                return YarnConfiguration.RM_PRINCIPAL;
+            }
+
+            @Override
+            public String clientPrincipal() {
+                return YarnConfiguration.NM_PRINCIPAL;
+            }
+        };
     }
-    return new KerberosInfo() {
 
-      @Override
-      public Class<? extends Annotation> annotationType() {
+    @Override
+    public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
         return null;
-      }
-
-      @Override
-      public String serverPrincipal() {
-        return YarnConfiguration.RM_PRINCIPAL;
-      }
-
-      @Override
-      public String clientPrincipal() {
-        return YarnConfiguration.NM_PRINCIPAL;
-      }
-    };
-  }
-
-  @Override
-  public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
-    return null;
-  }
+    }
 
 }

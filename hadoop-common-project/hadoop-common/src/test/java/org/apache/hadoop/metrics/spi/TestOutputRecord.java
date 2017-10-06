@@ -23,16 +23,16 @@ import org.apache.hadoop.metrics.spi.AbstractMetricsContext.TagMap;
 import junit.framework.TestCase;
 
 public class TestOutputRecord extends TestCase {
-  public void testCopy() {
-    TagMap tags = new TagMap();
-    tags.put("tagkey", "tagval");
-    MetricMap metrics = new MetricMap();
-    metrics.put("metrickey", 123.4);
-    OutputRecord r = new OutputRecord(tags, metrics);
-    
-    assertEquals(tags, r.getTagsCopy());    
-    assertNotSame(tags, r.getTagsCopy());
-    assertEquals(metrics, r.getMetricsCopy());
-    assertNotSame(metrics, r.getMetricsCopy());
-  } 
+    public void testCopy() {
+        TagMap tags = new TagMap();
+        tags.put("tagkey", "tagval");
+        MetricMap metrics = new MetricMap();
+        metrics.put("metrickey", 123.4);
+        OutputRecord r = new OutputRecord(tags, metrics);
+
+        assertEquals(tags, r.getTagsCopy());
+        assertNotSame(tags, r.getTagsCopy());
+        assertEquals(metrics, r.getMetricsCopy());
+        assertNotSame(metrics, r.getMetricsCopy());
+    }
 }

@@ -24,9 +24,9 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 @Private
 public class QueueNotFoundException extends YarnRuntimeException {
 
-  private static final long serialVersionUID = 187239430L;
+    private static final long serialVersionUID = 187239430L;
 
-  public QueueNotFoundException(String message) {
-    super(message);
-  }
+    public QueueNotFoundException(String message) {
+        super(message);
+    }
 }

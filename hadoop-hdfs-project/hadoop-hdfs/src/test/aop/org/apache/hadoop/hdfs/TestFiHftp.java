@@ -43,145 +43,147 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestFiHftp {
-  final Log LOG = FileSystem.LOG;
-  {
-    ((Log4JLogger)LOG).getLogger().setLevel(Level.ALL);
-  }
-
-  static final short DATANODE_NUM = 1;
-  static final Random ran = new Random();
-  static final byte[] buffer = new byte[1 << 16];
-  static final MessageDigest md5;
-  static {
-    try {
-      md5 = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private static byte[] createFile(FileSystem fs, Path name, long length, 
-      short replication, long blocksize) throws IOException {
-    final FSDataOutputStream out = fs.create(name, false, 4096,
-        replication, blocksize);
-    try {
-      for(long n = length; n > 0; ) {
-        ran.nextBytes(buffer);
-        final int w = n < buffer.length? (int)n: buffer.length;
-        out.write(buffer, 0, w);
-        md5.update(buffer, 0, w);
-        n -= w;
-      }
-    } finally {
-      IOUtils.closeStream(out);
-    }
-    return md5.digest();
-  }
-
-  @Test
-  public void testHftpOpen() throws IOException {
-    final Configuration conf = new Configuration();
-    MiniDFSCluster cluster = null;
-    try {
-      cluster = new MiniDFSCluster.Builder(conf).numDataNodes(DATANODE_NUM).build();
-      cluster.waitActive();
-
-      //test with a file
-      //which is larger than the servlet response buffer size
-      {
-        final long blocksize = 1L << 20; //  
-        final long filesize = 2*blocksize + 100;
-        runTestHftpOpen(cluster, "/foo", blocksize, filesize);
-      }
-
-      //test with a small file
-      //which is smaller than the servlet response buffer size
-      { 
-        final long blocksize = 1L << 10; //  
-        final long filesize = 2*blocksize + 100;
-        runTestHftpOpen(cluster, "/small", blocksize, filesize);
-      }
-    } finally {
-      if (cluster != null) {cluster.shutdown();}
-    }
-  }
-
-  /**
-   * A test with a 3GB file.
-   * It may take ~6 minutes.
-   */
-  void largeFileTest(final MiniDFSCluster cluster) throws IOException {
-    final long blocksize = 128L << 20;  
-    final long filesize = 3L << 30;
-    runTestHftpOpen(cluster, "/large", blocksize, filesize);
-  }
-
-  /**
-   * @param blocksize
-   * @param filesize must be > block size 
-   */
-  private void runTestHftpOpen(final MiniDFSCluster cluster, final String file,
-      final long blocksize, final long filesize) throws IOException {
-    //create a file
-    final DistributedFileSystem dfs = (DistributedFileSystem)cluster.getFileSystem();
-    final Path filepath = new Path(file);
-    final byte[] filemd5 = createFile(dfs, filepath, filesize, DATANODE_NUM,
-        blocksize);
-    DFSTestUtil.waitReplication(dfs, filepath, DATANODE_NUM);
-
-    //test hftp open and read
-    final HftpFileSystem hftpfs = cluster.getHftpFileSystem(0);
+    final Log LOG = FileSystem.LOG;
     {
-      final FSDataInputStream in = hftpfs.open(filepath);
-      long bytesRead = 0;
-      try {
-        for(int r; (r = in.read(buffer)) != -1; ) {
-          bytesRead += r;
-          md5.update(buffer, 0, r);
+        ((Log4JLogger)LOG).getLogger().setLevel(Level.ALL);
+    }
+
+    static final short DATANODE_NUM = 1;
+    static final Random ran = new Random();
+    static final byte[] buffer = new byte[1 << 16];
+    static final MessageDigest md5;
+    static {
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
-      } finally {
-        LOG.info("bytesRead=" + bytesRead);
-        in.close();
-      }
-      Assert.assertEquals(filesize, bytesRead);
-      Assert.assertArrayEquals(filemd5, md5.digest());
     }
 
-    //delete the second block
-    final DFSClient client = dfs.getClient();
-    final LocatedBlocks locatedblocks = client.getNamenode().getBlockLocations(
-        file, 0, filesize);
-    Assert.assertEquals((filesize - 1)/blocksize + 1,
-        locatedblocks.locatedBlockCount());
-    final LocatedBlock lb = locatedblocks.get(1);
-    final ExtendedBlock blk = lb.getBlock();
-    Assert.assertEquals(blocksize, lb.getBlockSize());
-    final DatanodeInfo[] datanodeinfos = lb.getLocations();
-    Assert.assertEquals(DATANODE_NUM, datanodeinfos.length);
-    final DataNode dn = cluster.getDataNode(datanodeinfos[0].getIpcPort());
-    LOG.info("dn=" + dn + ", blk=" + blk + " (length=" + blk.getNumBytes() + ")");
-    final FSDataset data = (FSDataset)dn.getFSDataset();
-    final File blkfile = data.getBlockFile(blk);
-    Assert.assertTrue(blkfile.delete());
-
-    //read again by hftp, should get an exception 
-    LOG.info("hftpfs.getUri() = " + hftpfs.getUri());
-    final ContentSummary cs = hftpfs.getContentSummary(filepath);
-    LOG.info("hftpfs.getContentSummary = " + cs);
-    Assert.assertEquals(filesize, cs.getLength());
-
-    final FSDataInputStream in = hftpfs.open(hftpfs.makeQualified(filepath));
-    long bytesRead = 0;
-    try {
-      for(int r; (r = in.read(buffer)) != -1; ) {
-        bytesRead += r;
-      }
-      Assert.fail();
-    } catch(IOException ioe) {
-      LOG.info("GOOD: get an exception", ioe);
-    } finally {
-      LOG.info("bytesRead=" + bytesRead);
-      in.close();
+    private static byte[] createFile(FileSystem fs, Path name, long length,
+                                     short replication, long blocksize) throws IOException {
+        final FSDataOutputStream out = fs.create(name, false, 4096,
+                                       replication, blocksize);
+        try {
+            for(long n = length; n > 0; ) {
+                ran.nextBytes(buffer);
+                final int w = n < buffer.length? (int)n: buffer.length;
+                out.write(buffer, 0, w);
+                md5.update(buffer, 0, w);
+                n -= w;
+            }
+        } finally {
+            IOUtils.closeStream(out);
+        }
+        return md5.digest();
     }
-  }
+
+    @Test
+    public void testHftpOpen() throws IOException {
+        final Configuration conf = new Configuration();
+        MiniDFSCluster cluster = null;
+        try {
+            cluster = new MiniDFSCluster.Builder(conf).numDataNodes(DATANODE_NUM).build();
+            cluster.waitActive();
+
+            //test with a file
+            //which is larger than the servlet response buffer size
+            {
+                final long blocksize = 1L << 20; //
+                final long filesize = 2*blocksize + 100;
+                runTestHftpOpen(cluster, "/foo", blocksize, filesize);
+            }
+
+            //test with a small file
+            //which is smaller than the servlet response buffer size
+            {
+                final long blocksize = 1L << 10; //
+                final long filesize = 2*blocksize + 100;
+                runTestHftpOpen(cluster, "/small", blocksize, filesize);
+            }
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
+    }
+
+    /**
+     * A test with a 3GB file.
+     * It may take ~6 minutes.
+     */
+    void largeFileTest(final MiniDFSCluster cluster) throws IOException {
+        final long blocksize = 128L << 20;
+        final long filesize = 3L << 30;
+        runTestHftpOpen(cluster, "/large", blocksize, filesize);
+    }
+
+    /**
+     * @param blocksize
+     * @param filesize must be > block size
+     */
+    private void runTestHftpOpen(final MiniDFSCluster cluster, final String file,
+                                 final long blocksize, final long filesize) throws IOException {
+        //create a file
+        final DistributedFileSystem dfs = (DistributedFileSystem)cluster.getFileSystem();
+        final Path filepath = new Path(file);
+        final byte[] filemd5 = createFile(dfs, filepath, filesize, DATANODE_NUM,
+                                          blocksize);
+        DFSTestUtil.waitReplication(dfs, filepath, DATANODE_NUM);
+
+        //test hftp open and read
+        final HftpFileSystem hftpfs = cluster.getHftpFileSystem(0);
+        {
+            final FSDataInputStream in = hftpfs.open(filepath);
+            long bytesRead = 0;
+            try {
+                for(int r; (r = in.read(buffer)) != -1; ) {
+                    bytesRead += r;
+                    md5.update(buffer, 0, r);
+                }
+            } finally {
+                LOG.info("bytesRead=" + bytesRead);
+                in.close();
+            }
+            Assert.assertEquals(filesize, bytesRead);
+            Assert.assertArrayEquals(filemd5, md5.digest());
+        }
+
+        //delete the second block
+        final DFSClient client = dfs.getClient();
+        final LocatedBlocks locatedblocks = client.getNamenode().getBlockLocations(
+                                                file, 0, filesize);
+        Assert.assertEquals((filesize - 1)/blocksize + 1,
+                            locatedblocks.locatedBlockCount());
+        final LocatedBlock lb = locatedblocks.get(1);
+        final ExtendedBlock blk = lb.getBlock();
+        Assert.assertEquals(blocksize, lb.getBlockSize());
+        final DatanodeInfo[] datanodeinfos = lb.getLocations();
+        Assert.assertEquals(DATANODE_NUM, datanodeinfos.length);
+        final DataNode dn = cluster.getDataNode(datanodeinfos[0].getIpcPort());
+        LOG.info("dn=" + dn + ", blk=" + blk + " (length=" + blk.getNumBytes() + ")");
+        final FSDataset data = (FSDataset)dn.getFSDataset();
+        final File blkfile = data.getBlockFile(blk);
+        Assert.assertTrue(blkfile.delete());
+
+        //read again by hftp, should get an exception
+        LOG.info("hftpfs.getUri() = " + hftpfs.getUri());
+        final ContentSummary cs = hftpfs.getContentSummary(filepath);
+        LOG.info("hftpfs.getContentSummary = " + cs);
+        Assert.assertEquals(filesize, cs.getLength());
+
+        final FSDataInputStream in = hftpfs.open(hftpfs.makeQualified(filepath));
+        long bytesRead = 0;
+        try {
+            for(int r; (r = in.read(buffer)) != -1; ) {
+                bytesRead += r;
+            }
+            Assert.fail();
+        } catch(IOException ioe) {
+            LOG.info("GOOD: get an exception", ioe);
+        } finally {
+            LOG.info("bytesRead=" + bytesRead);
+            in.close();
+        }
+    }
 }

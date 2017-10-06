@@ -42,94 +42,94 @@ import java.io.IOException;
  */
 @InterfaceAudience.Private
 public class HttpFSServerWebApp extends ServerWebApp {
-  private static final Logger LOG =
-    LoggerFactory.getLogger(HttpFSServerWebApp.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(HttpFSServerWebApp.class);
 
-  /**
-   * Server name and prefix for all configuration properties.
-   */
-  public static final String NAME = "httpfs";
+    /**
+     * Server name and prefix for all configuration properties.
+     */
+    public static final String NAME = "httpfs";
 
-  /**
-   * Configuration property that defines HttpFSServer admin group.
-   */
-  public static final String CONF_ADMIN_GROUP = "admin.group";
+    /**
+     * Configuration property that defines HttpFSServer admin group.
+     */
+    public static final String CONF_ADMIN_GROUP = "admin.group";
 
-  private static HttpFSServerWebApp SERVER;
+    private static HttpFSServerWebApp SERVER;
 
-  private String adminGroup;
+    private String adminGroup;
 
-  /**
-   * Default constructor.
-   *
-   * @throws IOException thrown if the home/conf/log/temp directory paths
-   * could not be resolved.
-   */
-  public HttpFSServerWebApp() throws IOException {
-    super(NAME);
-  }
-
-  /**
-   * Constructor used for testing purposes.
-   */
-  public HttpFSServerWebApp(String homeDir, String configDir, String logDir,
-                               String tempDir, Configuration config) {
-    super(NAME, homeDir, configDir, logDir, tempDir, config);
-  }
-
-  /**
-   * Constructor used for testing purposes.
-   */
-  public HttpFSServerWebApp(String homeDir, Configuration config) {
-    super(NAME, homeDir, config);
-  }
-
-  /**
-   * Initializes the HttpFSServer server, loads configuration and required
-   * services.
-   *
-   * @throws ServerException thrown if HttpFSServer server could not be
-   * initialized.
-   */
-  @Override
-  public void init() throws ServerException {
-    if (SERVER != null) {
-      throw new RuntimeException("HttpFSServer server already initialized");
+    /**
+     * Default constructor.
+     *
+     * @throws IOException thrown if the home/conf/log/temp directory paths
+     * could not be resolved.
+     */
+    public HttpFSServerWebApp() throws IOException {
+        super(NAME);
     }
-    SERVER = this;
-    super.init();
-    adminGroup = getConfig().get(getPrefixedName(CONF_ADMIN_GROUP), "admin");
-    LOG.info("Connects to Namenode [{}]",
-             get().get(FileSystemAccess.class).getFileSystemConfiguration().
-               get(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY));
-  }
 
-  /**
-   * Shutdowns all running services.
-   */
-  @Override
-  public void destroy() {
-    SERVER = null;
-    super.destroy();
-  }
+    /**
+     * Constructor used for testing purposes.
+     */
+    public HttpFSServerWebApp(String homeDir, String configDir, String logDir,
+                              String tempDir, Configuration config) {
+        super(NAME, homeDir, configDir, logDir, tempDir, config);
+    }
 
-  /**
-   * Returns HttpFSServer server singleton, configuration and services are
-   * accessible through it.
-   *
-   * @return the HttpFSServer server singleton.
-   */
-  public static HttpFSServerWebApp get() {
-    return SERVER;
-  }
+    /**
+     * Constructor used for testing purposes.
+     */
+    public HttpFSServerWebApp(String homeDir, Configuration config) {
+        super(NAME, homeDir, config);
+    }
 
-  /**
-   * Returns HttpFSServer admin group.
-   *
-   * @return httpfs admin group.
-   */
-  public String getAdminGroup() {
-    return adminGroup;
-  }
+    /**
+     * Initializes the HttpFSServer server, loads configuration and required
+     * services.
+     *
+     * @throws ServerException thrown if HttpFSServer server could not be
+     * initialized.
+     */
+    @Override
+    public void init() throws ServerException {
+        if (SERVER != null) {
+            throw new RuntimeException("HttpFSServer server already initialized");
+        }
+        SERVER = this;
+        super.init();
+        adminGroup = getConfig().get(getPrefixedName(CONF_ADMIN_GROUP), "admin");
+        LOG.info("Connects to Namenode [{}]",
+                 get().get(FileSystemAccess.class).getFileSystemConfiguration().
+                 get(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY));
+    }
+
+    /**
+     * Shutdowns all running services.
+     */
+    @Override
+    public void destroy() {
+        SERVER = null;
+        super.destroy();
+    }
+
+    /**
+     * Returns HttpFSServer server singleton, configuration and services are
+     * accessible through it.
+     *
+     * @return the HttpFSServer server singleton.
+     */
+    public static HttpFSServerWebApp get() {
+        return SERVER;
+    }
+
+    /**
+     * Returns HttpFSServer admin group.
+     *
+     * @return httpfs admin group.
+     */
+    public String getAdminGroup() {
+        return adminGroup;
+    }
 
 }

@@ -28,14 +28,14 @@ import org.apache.hadoop.mapreduce.v2.api.HSClientProtocol;
 import org.apache.hadoop.mapreduce.v2.api.HSClientProtocolPB;
 
 public class HSClientProtocolPBClientImpl extends MRClientProtocolPBClientImpl
-  implements HSClientProtocol {
+    implements HSClientProtocol {
 
-  public HSClientProtocolPBClientImpl(long clientVersion,
-      InetSocketAddress addr, Configuration conf) throws IOException {
-    super();
-    RPC.setProtocolEngine(conf, HSClientProtocolPB.class,
-        ProtobufRpcEngine.class);
-    proxy = (HSClientProtocolPB)RPC.getProxy(
-        HSClientProtocolPB.class, clientVersion, addr, conf);
-  }
+    public HSClientProtocolPBClientImpl(long clientVersion,
+                                        InetSocketAddress addr, Configuration conf) throws IOException {
+        super();
+        RPC.setProtocolEngine(conf, HSClientProtocolPB.class,
+                              ProtobufRpcEngine.class);
+        proxy = (HSClientProtocolPB)RPC.getProxy(
+                    HSClientProtocolPB.class, clientVersion, addr, conf);
+    }
 }

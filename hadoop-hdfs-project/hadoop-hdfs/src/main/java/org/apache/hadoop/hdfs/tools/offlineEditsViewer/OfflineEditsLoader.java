@@ -34,31 +34,31 @@ import org.apache.hadoop.hdfs.server.namenode.EditLogInputStream;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 interface OfflineEditsLoader {
-  
-  abstract public void loadEdits() throws IOException;
-  
-  static class OfflineEditsLoaderFactory {
-    static OfflineEditsLoader createLoader(OfflineEditsVisitor visitor,
-        String inputFileName, boolean xmlInput,
-        OfflineEditsViewer.Flags flags) throws IOException {
-      if (xmlInput) {
-        return new OfflineEditsXmlLoader(visitor, new File(inputFileName), flags);
-      } else {
-        File file = null;
-        EditLogInputStream elis = null;
-        OfflineEditsLoader loader = null;
-        try {
-          file = new File(inputFileName);
-          elis = new EditLogFileInputStream(file, HdfsConstants.INVALID_TXID,
-              HdfsConstants.INVALID_TXID, false);
-          loader = new OfflineEditsBinaryLoader(visitor, elis, flags);
-        } finally {
-          if ((loader == null) && (elis != null)) {
-            elis.close();
-          }
+
+    abstract public void loadEdits() throws IOException;
+
+    static class OfflineEditsLoaderFactory {
+        static OfflineEditsLoader createLoader(OfflineEditsVisitor visitor,
+                                               String inputFileName, boolean xmlInput,
+                                               OfflineEditsViewer.Flags flags) throws IOException {
+            if (xmlInput) {
+                return new OfflineEditsXmlLoader(visitor, new File(inputFileName), flags);
+            } else {
+                File file = null;
+                EditLogInputStream elis = null;
+                OfflineEditsLoader loader = null;
+                try {
+                    file = new File(inputFileName);
+                    elis = new EditLogFileInputStream(file, HdfsConstants.INVALID_TXID,
+                                                      HdfsConstants.INVALID_TXID, false);
+                    loader = new OfflineEditsBinaryLoader(visitor, elis, flags);
+                } finally {
+                    if ((loader == null) && (elis != null)) {
+                        elis.close();
+                    }
+                }
+                return loader;
+            }
         }
-        return loader;
-      }
     }
-  }
 }

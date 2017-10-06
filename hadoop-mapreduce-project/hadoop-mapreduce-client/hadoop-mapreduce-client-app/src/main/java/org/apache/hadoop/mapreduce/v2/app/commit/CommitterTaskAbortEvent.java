@@ -23,21 +23,21 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class CommitterTaskAbortEvent extends CommitterEvent {
 
-  private final TaskAttemptId attemptID;
-  private final TaskAttemptContext attemptContext;
+    private final TaskAttemptId attemptID;
+    private final TaskAttemptContext attemptContext;
 
-  public CommitterTaskAbortEvent(TaskAttemptId attemptID,
-      TaskAttemptContext attemptContext) {
-    super(CommitterEventType.TASK_ABORT);
-    this.attemptID = attemptID;
-    this.attemptContext = attemptContext;
-  }
+    public CommitterTaskAbortEvent(TaskAttemptId attemptID,
+                                   TaskAttemptContext attemptContext) {
+        super(CommitterEventType.TASK_ABORT);
+        this.attemptID = attemptID;
+        this.attemptContext = attemptContext;
+    }
 
-  public TaskAttemptId getAttemptID() {
-    return attemptID;
-  }
+    public TaskAttemptId getAttemptID() {
+        return attemptID;
+    }
 
-  public TaskAttemptContext getAttemptContext() {
-    return attemptContext;
-  }
+    public TaskAttemptContext getAttemptContext() {
+        return attemptContext;
+    }
 }

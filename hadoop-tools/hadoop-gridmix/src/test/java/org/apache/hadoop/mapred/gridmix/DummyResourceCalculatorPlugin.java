@@ -31,78 +31,78 @@ import org.apache.hadoop.yarn.util.ResourceCalculatorPlugin;
 @InterfaceAudience.Private
 public class DummyResourceCalculatorPlugin extends ResourceCalculatorPlugin {
 
-  /** max vmem on the TT */
-  public static final String MAXVMEM_TESTING_PROPERTY =
-      "mapred.tasktracker.maxvmem.testing";
-  /** max pmem on the TT */
-  public static final String MAXPMEM_TESTING_PROPERTY =
-      "mapred.tasktracker.maxpmem.testing";
-  /** number of processors for testing */
-  public static final String NUM_PROCESSORS =
-      "mapred.tasktracker.numprocessors.testing";
-  /** CPU frequency for testing */
-  public static final String CPU_FREQUENCY =
-      "mapred.tasktracker.cpufrequency.testing";
-  /** cumulative CPU usage time for testing */
-  public static final String CUMULATIVE_CPU_TIME =
-      "mapred.tasktracker.cumulativecputime.testing";
-  /** CPU usage percentage for testing */
-  public static final String CPU_USAGE = "mapred.tasktracker.cpuusage.testing";
-  /** process cumulative CPU usage time for testing */
-  public static final String PROC_CUMULATIVE_CPU_TIME =
-      "mapred.tasktracker.proccumulativecputime.testing";
-  /** process pmem for testing */
-  public static final String PROC_PMEM_TESTING_PROPERTY =
-      "mapred.tasktracker.procpmem.testing";
-  /** process vmem for testing */
-  public static final String PROC_VMEM_TESTING_PROPERTY =
-      "mapred.tasktracker.procvmem.testing";
+    /** max vmem on the TT */
+    public static final String MAXVMEM_TESTING_PROPERTY =
+        "mapred.tasktracker.maxvmem.testing";
+    /** max pmem on the TT */
+    public static final String MAXPMEM_TESTING_PROPERTY =
+        "mapred.tasktracker.maxpmem.testing";
+    /** number of processors for testing */
+    public static final String NUM_PROCESSORS =
+        "mapred.tasktracker.numprocessors.testing";
+    /** CPU frequency for testing */
+    public static final String CPU_FREQUENCY =
+        "mapred.tasktracker.cpufrequency.testing";
+    /** cumulative CPU usage time for testing */
+    public static final String CUMULATIVE_CPU_TIME =
+        "mapred.tasktracker.cumulativecputime.testing";
+    /** CPU usage percentage for testing */
+    public static final String CPU_USAGE = "mapred.tasktracker.cpuusage.testing";
+    /** process cumulative CPU usage time for testing */
+    public static final String PROC_CUMULATIVE_CPU_TIME =
+        "mapred.tasktracker.proccumulativecputime.testing";
+    /** process pmem for testing */
+    public static final String PROC_PMEM_TESTING_PROPERTY =
+        "mapred.tasktracker.procpmem.testing";
+    /** process vmem for testing */
+    public static final String PROC_VMEM_TESTING_PROPERTY =
+        "mapred.tasktracker.procvmem.testing";
 
-  /** {@inheritDoc} */
-  @Override
-  public long getVirtualMemorySize() {
-    return getConf().getLong(MAXVMEM_TESTING_PROPERTY, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getVirtualMemorySize() {
+        return getConf().getLong(MAXVMEM_TESTING_PROPERTY, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getPhysicalMemorySize() {
-    return getConf().getLong(MAXPMEM_TESTING_PROPERTY, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getPhysicalMemorySize() {
+        return getConf().getLong(MAXPMEM_TESTING_PROPERTY, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getAvailableVirtualMemorySize() {
-    return getConf().getLong(MAXVMEM_TESTING_PROPERTY, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getAvailableVirtualMemorySize() {
+        return getConf().getLong(MAXVMEM_TESTING_PROPERTY, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getAvailablePhysicalMemorySize() {
-    return getConf().getLong(MAXPMEM_TESTING_PROPERTY, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getAvailablePhysicalMemorySize() {
+        return getConf().getLong(MAXPMEM_TESTING_PROPERTY, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public int getNumProcessors() {
-    return getConf().getInt(NUM_PROCESSORS, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public int getNumProcessors() {
+        return getConf().getInt(NUM_PROCESSORS, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getCpuFrequency() {
-    return getConf().getLong(CPU_FREQUENCY, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getCpuFrequency() {
+        return getConf().getLong(CPU_FREQUENCY, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public long getCumulativeCpuTime() {
-    return getConf().getLong(CUMULATIVE_CPU_TIME, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public long getCumulativeCpuTime() {
+        return getConf().getLong(CUMULATIVE_CPU_TIME, -1);
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  public float getCpuUsage() {
-    return getConf().getFloat(CPU_USAGE, -1);
-  }
+    /** {@inheritDoc} */
+    @Override
+    public float getCpuUsage() {
+        return getConf().getFloat(CPU_USAGE, -1);
+    }
 }

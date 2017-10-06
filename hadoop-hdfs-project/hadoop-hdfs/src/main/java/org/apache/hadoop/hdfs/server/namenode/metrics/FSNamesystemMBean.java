@@ -20,16 +20,16 @@ package org.apache.hadoop.hdfs.server.namenode.metrics;
 import org.apache.hadoop.classification.InterfaceAudience;
 
 /**
- * 
+ *
  * This Interface defines the methods to get the status of a the FSNamesystem of
  * a name node.
  * It is also used for publishing via JMX (hence we follow the JMX naming
  * convention.)
- * 
+ *
  * Note we have not used the MetricsDynamicMBeanBase to implement this
  * because the interface for the NameNodeStateMBean is stable and should
  * be published as an interface.
- * 
+ *
  * <p>
  * Name Node runtime activity statistic  info is reported in
  * @see org.apache.hadoop.hdfs.server.namenode.metrics.NameNodeMetrics
@@ -38,130 +38,130 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.Private
 public interface FSNamesystemMBean {
 
-  /**
-   * The state of the file system: Safemode or Operational
-   * @return the state
-   */
-  public String getFSState();
-  
-  
-  /**
-   * Number of allocated blocks in the system
-   * @return -  number of allocated blocks
-   */
-  public long getBlocksTotal();
-
-  /**
-   * Total storage capacity
-   * @return -  total capacity in bytes
-   */
-  public long getCapacityTotal();
+    /**
+     * The state of the file system: Safemode or Operational
+     * @return the state
+     */
+    public String getFSState();
 
 
-  /**
-   * Free (unused) storage capacity
-   * @return -  free capacity in bytes
-   */
-  public long getCapacityRemaining();
- 
-  /**
-   * Used storage capacity
-   * @return -  used capacity in bytes
-   */
-  public long getCapacityUsed();
- 
+    /**
+     * Number of allocated blocks in the system
+     * @return -  number of allocated blocks
+     */
+    public long getBlocksTotal();
 
-  /**
-   * Total number of files and directories
-   * @return -  num of files and directories
-   */
-  public long getFilesTotal();
- 
-  /**
-   * Blocks pending to be replicated
-   * @return -  num of blocks to be replicated
-   */
-  public long getPendingReplicationBlocks();
- 
-  /**
-   * Blocks under replicated 
-   * @return -  num of blocks under replicated
-   */
-  public long getUnderReplicatedBlocks();
- 
-  /**
-   * Blocks scheduled for replication
-   * @return -  num of blocks scheduled for replication
-   */
-  public long getScheduledReplicationBlocks();
+    /**
+     * Total storage capacity
+     * @return -  total capacity in bytes
+     */
+    public long getCapacityTotal();
 
-  /**
-   * Total Load on the FSNamesystem
-   * @return -  total load of FSNamesystem
-   */
-  public int getTotalLoad();
 
-  /**
-   * Number of Live data nodes
-   * @return number of live data nodes
-   */
-  public int getNumLiveDataNodes();
-  
-  /**
-   * Number of dead data nodes
-   * @return number of dead data nodes
-   */
-  public int getNumDeadDataNodes();
-  
-  /**
-   * Number of stale data nodes
-   * @return number of stale data nodes
-   */
-  public int getNumStaleDataNodes();
+    /**
+     * Free (unused) storage capacity
+     * @return -  free capacity in bytes
+     */
+    public long getCapacityRemaining();
 
-  /**
-   * Number of decommissioned Live data nodes
-   * @return number of decommissioned live data nodes
-   */
-  public int getNumDecomLiveDataNodes();
+    /**
+     * Used storage capacity
+     * @return -  used capacity in bytes
+     */
+    public long getCapacityUsed();
 
-  /**
-   * Number of decommissioned dead data nodes
-   * @return number of decommissioned dead data nodes
-   */
-  public int getNumDecomDeadDataNodes();
 
-  /**
-   * Number of data nodes that are in the decommissioning state
-   */
-  public int getNumDecommissioningDataNodes();
+    /**
+     * Total number of files and directories
+     * @return -  num of files and directories
+     */
+    public long getFilesTotal();
 
-  /**
-   * The statistics of snapshots
-   */
-  public String getSnapshotStats();
+    /**
+     * Blocks pending to be replicated
+     * @return -  num of blocks to be replicated
+     */
+    public long getPendingReplicationBlocks();
 
-  /**
-   * Return the maximum number of inodes in the file system
-   */
-  public long getMaxObjects();
+    /**
+     * Blocks under replicated
+     * @return -  num of blocks under replicated
+     */
+    public long getUnderReplicatedBlocks();
 
-  /**
-   * Number of blocks pending deletion
-   * @return number of blocks pending deletion
-   */
-  long getPendingDeletionBlocks();
+    /**
+     * Blocks scheduled for replication
+     * @return -  num of blocks scheduled for replication
+     */
+    public long getScheduledReplicationBlocks();
 
-  /**
-   * Time when block deletions will begin
-   * @return time when block deletions will begin
-   */
-  long getBlockDeletionStartTime();
+    /**
+     * Total Load on the FSNamesystem
+     * @return -  total load of FSNamesystem
+     */
+    public int getTotalLoad();
 
-  /**
-   * Number of content stale storages.
-   * @return number of content stale storages
-   */
-  public int getNumStaleStorages();
+    /**
+     * Number of Live data nodes
+     * @return number of live data nodes
+     */
+    public int getNumLiveDataNodes();
+
+    /**
+     * Number of dead data nodes
+     * @return number of dead data nodes
+     */
+    public int getNumDeadDataNodes();
+
+    /**
+     * Number of stale data nodes
+     * @return number of stale data nodes
+     */
+    public int getNumStaleDataNodes();
+
+    /**
+     * Number of decommissioned Live data nodes
+     * @return number of decommissioned live data nodes
+     */
+    public int getNumDecomLiveDataNodes();
+
+    /**
+     * Number of decommissioned dead data nodes
+     * @return number of decommissioned dead data nodes
+     */
+    public int getNumDecomDeadDataNodes();
+
+    /**
+     * Number of data nodes that are in the decommissioning state
+     */
+    public int getNumDecommissioningDataNodes();
+
+    /**
+     * The statistics of snapshots
+     */
+    public String getSnapshotStats();
+
+    /**
+     * Return the maximum number of inodes in the file system
+     */
+    public long getMaxObjects();
+
+    /**
+     * Number of blocks pending deletion
+     * @return number of blocks pending deletion
+     */
+    long getPendingDeletionBlocks();
+
+    /**
+     * Time when block deletions will begin
+     * @return time when block deletions will begin
+     */
+    long getBlockDeletionStartTime();
+
+    /**
+     * Number of content stale storages.
+     * @return number of content stale storages
+     */
+    public int getNumStaleStorages();
 
 }

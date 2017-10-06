@@ -43,174 +43,174 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 public class TestFSNamesystem {
 
-  @After
-  public void cleanUp() {
-    FileUtil.fullyDeleteContents(new File(MiniDFSCluster.getBaseDirectory()));
-  }
+    @After
+    public void cleanUp() {
+        FileUtil.fullyDeleteContents(new File(MiniDFSCluster.getBaseDirectory()));
+    }
 
-  /**
-   * Tests that the namenode edits dirs are gotten with duplicates removed
-   */
-  @Test
-  public void testUniqueEditDirs() throws IOException {
-    Configuration config = new Configuration();
+    /**
+     * Tests that the namenode edits dirs are gotten with duplicates removed
+     */
+    @Test
+    public void testUniqueEditDirs() throws IOException {
+        Configuration config = new Configuration();
 
-    config.set(DFS_NAMENODE_EDITS_DIR_KEY, "file://edits/dir, "
-        + "file://edits/dir1,file://edits/dir1"); // overlapping internally
+        config.set(DFS_NAMENODE_EDITS_DIR_KEY, "file://edits/dir, "
+                   + "file://edits/dir1,file://edits/dir1"); // overlapping internally
 
-    // getNamespaceEditsDirs removes duplicates
-    Collection<URI> editsDirs = FSNamesystem.getNamespaceEditsDirs(config);
-    assertEquals(2, editsDirs.size());
-  }
+        // getNamespaceEditsDirs removes duplicates
+        Collection<URI> editsDirs = FSNamesystem.getNamespaceEditsDirs(config);
+        assertEquals(2, editsDirs.size());
+    }
 
-  /**
-   * Test that FSNamesystem#clear clears all leases.
-   */
-  @Test
-  public void testFSNamespaceClearLeases() throws Exception {
-    Configuration conf = new HdfsConfiguration();
-    File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
-    conf.set(DFS_NAMENODE_NAME_DIR_KEY, nameDir.getAbsolutePath());
+    /**
+     * Test that FSNamesystem#clear clears all leases.
+     */
+    @Test
+    public void testFSNamespaceClearLeases() throws Exception {
+        Configuration conf = new HdfsConfiguration();
+        File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
+        conf.set(DFS_NAMENODE_NAME_DIR_KEY, nameDir.getAbsolutePath());
 
-    NameNode.initMetrics(conf, NamenodeRole.NAMENODE);
-    DFSTestUtil.formatNameNode(conf);
-    FSNamesystem fsn = FSNamesystem.loadFromDisk(conf);
-    LeaseManager leaseMan = fsn.getLeaseManager();
-    leaseMan.addLease("client1", "importantFile");
-    assertEquals(1, leaseMan.countLease());
-    fsn.clear();
-    leaseMan = fsn.getLeaseManager();
-    assertEquals(0, leaseMan.countLease());
-  }
+        NameNode.initMetrics(conf, NamenodeRole.NAMENODE);
+        DFSTestUtil.formatNameNode(conf);
+        FSNamesystem fsn = FSNamesystem.loadFromDisk(conf);
+        LeaseManager leaseMan = fsn.getLeaseManager();
+        leaseMan.addLease("client1", "importantFile");
+        assertEquals(1, leaseMan.countLease());
+        fsn.clear();
+        leaseMan = fsn.getLeaseManager();
+        assertEquals(0, leaseMan.countLease());
+    }
 
-  @Test
-  /**
-   * Test that isInStartupSafemode returns true only during startup safemode
-   * and not also during low-resource safemode
-   */
-  public void testStartupSafemode() throws IOException {
-    Configuration conf = new Configuration();
-    FSImage fsImage = Mockito.mock(FSImage.class);
-    FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
-    Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
-    FSNamesystem fsn = new FSNamesystem(conf, fsImage);
+    @Test
+    /**
+     * Test that isInStartupSafemode returns true only during startup safemode
+     * and not also during low-resource safemode
+     */
+    public void testStartupSafemode() throws IOException {
+        Configuration conf = new Configuration();
+        FSImage fsImage = Mockito.mock(FSImage.class);
+        FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
+        Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
+        FSNamesystem fsn = new FSNamesystem(conf, fsImage);
 
-    fsn.leaveSafeMode();
-    assertTrue("After leaving safemode FSNamesystem.isInStartupSafeMode still "
-      + "returned true", !fsn.isInStartupSafeMode());
-    assertTrue("After leaving safemode FSNamesystem.isInSafeMode still returned"
-      + " true", !fsn.isInSafeMode());
+        fsn.leaveSafeMode();
+        assertTrue("After leaving safemode FSNamesystem.isInStartupSafeMode still "
+                   + "returned true", !fsn.isInStartupSafeMode());
+        assertTrue("After leaving safemode FSNamesystem.isInSafeMode still returned"
+                   + " true", !fsn.isInSafeMode());
 
-    fsn.enterSafeMode(true);
-    assertTrue("After entering safemode due to low resources FSNamesystem."
-      + "isInStartupSafeMode still returned true", !fsn.isInStartupSafeMode());
-    assertTrue("After entering safemode due to low resources FSNamesystem."
-      + "isInSafeMode still returned false",  fsn.isInSafeMode());
-  }
+        fsn.enterSafeMode(true);
+        assertTrue("After entering safemode due to low resources FSNamesystem."
+                   + "isInStartupSafeMode still returned true", !fsn.isInStartupSafeMode());
+        assertTrue("After entering safemode due to low resources FSNamesystem."
+                   + "isInSafeMode still returned false",  fsn.isInSafeMode());
+    }
 
-  @Test
-  public void testReplQueuesActiveAfterStartupSafemode() throws IOException, InterruptedException{
-    Configuration conf = new Configuration();
+    @Test
+    public void testReplQueuesActiveAfterStartupSafemode() throws IOException, InterruptedException {
+        Configuration conf = new Configuration();
 
-    FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
-    FSImage fsImage = Mockito.mock(FSImage.class);
-    Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
+        FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
+        FSImage fsImage = Mockito.mock(FSImage.class);
+        Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
 
-    FSNamesystem fsNamesystem = new FSNamesystem(conf, fsImage);
-    FSNamesystem fsn = Mockito.spy(fsNamesystem);
+        FSNamesystem fsNamesystem = new FSNamesystem(conf, fsImage);
+        FSNamesystem fsn = Mockito.spy(fsNamesystem);
 
-    //Make shouldPopulaeReplQueues return true
-    HAContext haContext = Mockito.mock(HAContext.class);
-    HAState haState = Mockito.mock(HAState.class);
-    Mockito.when(haContext.getState()).thenReturn(haState);
-    Mockito.when(haState.shouldPopulateReplQueues()).thenReturn(true);
-    Whitebox.setInternalState(fsn, "haContext", haContext);
+        //Make shouldPopulaeReplQueues return true
+        HAContext haContext = Mockito.mock(HAContext.class);
+        HAState haState = Mockito.mock(HAState.class);
+        Mockito.when(haContext.getState()).thenReturn(haState);
+        Mockito.when(haState.shouldPopulateReplQueues()).thenReturn(true);
+        Whitebox.setInternalState(fsn, "haContext", haContext);
 
-    //Make NameNode.getNameNodeMetrics() not return null
-    NameNode.initMetrics(conf, NamenodeRole.NAMENODE);
+        //Make NameNode.getNameNodeMetrics() not return null
+        NameNode.initMetrics(conf, NamenodeRole.NAMENODE);
 
-    fsn.enterSafeMode(false);
-    assertTrue("FSNamesystem didn't enter safemode", fsn.isInSafeMode());
-    assertTrue("Replication queues were being populated during very first "
-        + "safemode", !fsn.isPopulatingReplQueues());
-    fsn.leaveSafeMode();
-    assertTrue("FSNamesystem didn't leave safemode", !fsn.isInSafeMode());
-    assertTrue("Replication queues weren't being populated even after leaving "
-      + "safemode", fsn.isPopulatingReplQueues());
-    fsn.enterSafeMode(false);
-    assertTrue("FSNamesystem didn't enter safemode", fsn.isInSafeMode());
-    assertTrue("Replication queues weren't being populated after entering "
-      + "safemode 2nd time", fsn.isPopulatingReplQueues());
-  }
-  
-  @Test
-  public void testFsLockFairness() throws IOException, InterruptedException{
-    Configuration conf = new Configuration();
+        fsn.enterSafeMode(false);
+        assertTrue("FSNamesystem didn't enter safemode", fsn.isInSafeMode());
+        assertTrue("Replication queues were being populated during very first "
+                   + "safemode", !fsn.isPopulatingReplQueues());
+        fsn.leaveSafeMode();
+        assertTrue("FSNamesystem didn't leave safemode", !fsn.isInSafeMode());
+        assertTrue("Replication queues weren't being populated even after leaving "
+                   + "safemode", fsn.isPopulatingReplQueues());
+        fsn.enterSafeMode(false);
+        assertTrue("FSNamesystem didn't enter safemode", fsn.isInSafeMode());
+        assertTrue("Replication queues weren't being populated after entering "
+                   + "safemode 2nd time", fsn.isPopulatingReplQueues());
+    }
 
-    FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
-    FSImage fsImage = Mockito.mock(FSImage.class);
-    Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
+    @Test
+    public void testFsLockFairness() throws IOException, InterruptedException {
+        Configuration conf = new Configuration();
 
-    conf.setBoolean("dfs.namenode.fslock.fair", true);
-    FSNamesystem fsNamesystem = new FSNamesystem(conf, fsImage);
-    assertTrue(fsNamesystem.getFsLockForTests().isFair());
-    
-    conf.setBoolean("dfs.namenode.fslock.fair", false);
-    fsNamesystem = new FSNamesystem(conf, fsImage);
-    assertFalse(fsNamesystem.getFsLockForTests().isFair());
-  }  
-  
-  @Test
-  public void testFSNamesystemLockCompatibility() {
-    FSNamesystemLock rwLock = new FSNamesystemLock(true);
+        FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
+        FSImage fsImage = Mockito.mock(FSImage.class);
+        Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
 
-    assertEquals(0, rwLock.getReadHoldCount());
-    rwLock.readLock().lock();
-    assertEquals(1, rwLock.getReadHoldCount());
+        conf.setBoolean("dfs.namenode.fslock.fair", true);
+        FSNamesystem fsNamesystem = new FSNamesystem(conf, fsImage);
+        assertTrue(fsNamesystem.getFsLockForTests().isFair());
 
-    rwLock.readLock().lock();
-    assertEquals(2, rwLock.getReadHoldCount());
+        conf.setBoolean("dfs.namenode.fslock.fair", false);
+        fsNamesystem = new FSNamesystem(conf, fsImage);
+        assertFalse(fsNamesystem.getFsLockForTests().isFair());
+    }
 
-    rwLock.readLock().unlock();
-    assertEquals(1, rwLock.getReadHoldCount());
+    @Test
+    public void testFSNamesystemLockCompatibility() {
+        FSNamesystemLock rwLock = new FSNamesystemLock(true);
 
-    rwLock.readLock().unlock();
-    assertEquals(0, rwLock.getReadHoldCount());
+        assertEquals(0, rwLock.getReadHoldCount());
+        rwLock.readLock().lock();
+        assertEquals(1, rwLock.getReadHoldCount());
 
-    assertFalse(rwLock.isWriteLockedByCurrentThread());
-    assertEquals(0, rwLock.getWriteHoldCount());
-    rwLock.writeLock().lock();
-    assertTrue(rwLock.isWriteLockedByCurrentThread());
-    assertEquals(1, rwLock.getWriteHoldCount());
-    
-    rwLock.writeLock().lock();
-    assertTrue(rwLock.isWriteLockedByCurrentThread());
-    assertEquals(2, rwLock.getWriteHoldCount());
+        rwLock.readLock().lock();
+        assertEquals(2, rwLock.getReadHoldCount());
 
-    rwLock.writeLock().unlock();
-    assertTrue(rwLock.isWriteLockedByCurrentThread());
-    assertEquals(1, rwLock.getWriteHoldCount());
+        rwLock.readLock().unlock();
+        assertEquals(1, rwLock.getReadHoldCount());
 
-    rwLock.writeLock().unlock();
-    assertFalse(rwLock.isWriteLockedByCurrentThread());
-    assertEquals(0, rwLock.getWriteHoldCount());
-  }
+        rwLock.readLock().unlock();
+        assertEquals(0, rwLock.getReadHoldCount());
 
-  @Test
-  public void testReset() throws Exception {
-    Configuration conf = new Configuration();
-    FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
-    FSImage fsImage = Mockito.mock(FSImage.class);
-    Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
-    FSNamesystem fsn = new FSNamesystem(conf, fsImage);
-    fsn.imageLoadComplete();
-    assertTrue(fsn.isImageLoaded());
-    fsn.clear();
-    assertFalse(fsn.isImageLoaded());
-    final INodeDirectory root = (INodeDirectory) fsn.getFSDirectory()
-            .getINode("/");
-    assertTrue(root.getChildrenList(Snapshot.CURRENT_STATE_ID).isEmpty());
-    fsn.imageLoadComplete();
-    assertTrue(fsn.isImageLoaded());
-  }
+        assertFalse(rwLock.isWriteLockedByCurrentThread());
+        assertEquals(0, rwLock.getWriteHoldCount());
+        rwLock.writeLock().lock();
+        assertTrue(rwLock.isWriteLockedByCurrentThread());
+        assertEquals(1, rwLock.getWriteHoldCount());
+
+        rwLock.writeLock().lock();
+        assertTrue(rwLock.isWriteLockedByCurrentThread());
+        assertEquals(2, rwLock.getWriteHoldCount());
+
+        rwLock.writeLock().unlock();
+        assertTrue(rwLock.isWriteLockedByCurrentThread());
+        assertEquals(1, rwLock.getWriteHoldCount());
+
+        rwLock.writeLock().unlock();
+        assertFalse(rwLock.isWriteLockedByCurrentThread());
+        assertEquals(0, rwLock.getWriteHoldCount());
+    }
+
+    @Test
+    public void testReset() throws Exception {
+        Configuration conf = new Configuration();
+        FSEditLog fsEditLog = Mockito.mock(FSEditLog.class);
+        FSImage fsImage = Mockito.mock(FSImage.class);
+        Mockito.when(fsImage.getEditLog()).thenReturn(fsEditLog);
+        FSNamesystem fsn = new FSNamesystem(conf, fsImage);
+        fsn.imageLoadComplete();
+        assertTrue(fsn.isImageLoaded());
+        fsn.clear();
+        assertFalse(fsn.isImageLoaded());
+        final INodeDirectory root = (INodeDirectory) fsn.getFSDirectory()
+                                    .getINode("/");
+        assertTrue(root.getChildrenList(Snapshot.CURRENT_STATE_ID).isEmpty());
+        fsn.imageLoadComplete();
+        assertTrue(fsn.isImageLoaded());
+    }
 }

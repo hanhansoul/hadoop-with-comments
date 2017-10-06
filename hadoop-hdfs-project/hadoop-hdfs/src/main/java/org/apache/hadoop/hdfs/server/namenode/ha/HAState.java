@@ -29,120 +29,120 @@ import org.apache.hadoop.ipc.StandbyException;
  */
 @InterfaceAudience.Private
 abstract public class HAState {
-  protected final HAServiceState state;
+    protected final HAServiceState state;
 
-  /**
-   * Constructor
-   * @param name Name of the state.
-   */
-  public HAState(HAServiceState state) {
-    this.state = state;
-  }
-
-  /**
-   * @return the generic service state
-   */
-  public HAServiceState getServiceState() {
-    return state;
-  }
-
-  /**
-   * Internal method to transition the state of a given namenode to a new state.
-   * @param nn Namenode
-   * @param s new state
-   * @throws ServiceFailedException on failure to transition to new state.
-   */
-  protected final void setStateInternal(final HAContext context, final HAState s)
-      throws ServiceFailedException {
-    prepareToExitState(context);
-    s.prepareToEnterState(context);
-    context.writeLock();
-    try {
-      exitState(context);
-      context.setState(s);
-      s.enterState(context);
-    } finally {
-      context.writeUnlock();
+    /**
+     * Constructor
+     * @param name Name of the state.
+     */
+    public HAState(HAServiceState state) {
+        this.state = state;
     }
-  }
 
-  /**
-   * Method to be overridden by subclasses to prepare to enter a state.
-   * This method is called <em>without</em> the context being locked,
-   * and after {@link #prepareToExitState(HAContext)} has been called
-   * for the previous state, but before {@link #exitState(HAContext)}
-   * has been called for the previous state.
-   * @param context HA context
-   * @throws ServiceFailedException on precondition failure
-   */
-  public void prepareToEnterState(final HAContext context)
-      throws ServiceFailedException {}
-
-  /**
-   * Method to be overridden by subclasses to perform steps necessary for
-   * entering a state.
-   * @param context HA context
-   * @throws ServiceFailedException on failure to enter the state.
-   */
-  public abstract void enterState(final HAContext context)
-      throws ServiceFailedException;
-
-  /**
-   * Method to be overridden by subclasses to prepare to exit a state.
-   * This method is called <em>without</em> the context being locked.
-   * This is used by the standby state to cancel any checkpoints
-   * that are going on. It can also be used to check any preconditions
-   * for the state transition.
-   * 
-   * This method should not make any destructuve changes to the state
-   * (eg stopping threads) since {@link #prepareToEnterState(HAContext)}
-   * may subsequently cancel the state transition.
-   * @param context HA context
-   * @throws ServiceFailedException on precondition failure
-   */
-  public void prepareToExitState(final HAContext context)
-      throws ServiceFailedException {}
-
-  /**
-   * Method to be overridden by subclasses to perform steps necessary for
-   * exiting a state.
-   * @param context HA context
-   * @throws ServiceFailedException on failure to enter the state.
-   */
-  public abstract void exitState(final HAContext context)
-      throws ServiceFailedException;
-
-  /**
-   * Move from the existing state to a new state
-   * @param context HA context
-   * @param s new state
-   * @throws ServiceFailedException on failure to transition to new state.
-   */
-  public void setState(HAContext context, HAState s) throws ServiceFailedException {
-    if (this == s) { // Aleady in the new state
-      return;
+    /**
+     * @return the generic service state
+     */
+    public HAServiceState getServiceState() {
+        return state;
     }
-    throw new ServiceFailedException("Transtion from state " + this + " to "
-        + s + " is not allowed.");
-  }
-  
-  /**
-   * Check if an operation is supported in a given state.
-   * @param context HA context
-   * @param op Type of the operation.
-   * @throws StandbyException if a given type of operation is not
-   *           supported in standby state
-   */
-  public abstract void checkOperation(final HAContext context, final OperationCategory op)
-      throws StandbyException;
 
-  public abstract boolean shouldPopulateReplQueues();
+    /**
+     * Internal method to transition the state of a given namenode to a new state.
+     * @param nn Namenode
+     * @param s new state
+     * @throws ServiceFailedException on failure to transition to new state.
+     */
+    protected final void setStateInternal(final HAContext context, final HAState s)
+    throws ServiceFailedException {
+        prepareToExitState(context);
+        s.prepareToEnterState(context);
+        context.writeLock();
+        try {
+            exitState(context);
+            context.setState(s);
+            s.enterState(context);
+        } finally {
+            context.writeUnlock();
+        }
+    }
 
-  /**
-   * @return String representation of the service state.
-   */
-  @Override
-  public String toString() {
-    return state.toString();
-  }
+    /**
+     * Method to be overridden by subclasses to prepare to enter a state.
+     * This method is called <em>without</em> the context being locked,
+     * and after {@link #prepareToExitState(HAContext)} has been called
+     * for the previous state, but before {@link #exitState(HAContext)}
+     * has been called for the previous state.
+     * @param context HA context
+     * @throws ServiceFailedException on precondition failure
+     */
+    public void prepareToEnterState(final HAContext context)
+    throws ServiceFailedException {}
+
+    /**
+     * Method to be overridden by subclasses to perform steps necessary for
+     * entering a state.
+     * @param context HA context
+     * @throws ServiceFailedException on failure to enter the state.
+     */
+    public abstract void enterState(final HAContext context)
+    throws ServiceFailedException;
+
+    /**
+     * Method to be overridden by subclasses to prepare to exit a state.
+     * This method is called <em>without</em> the context being locked.
+     * This is used by the standby state to cancel any checkpoints
+     * that are going on. It can also be used to check any preconditions
+     * for the state transition.
+     *
+     * This method should not make any destructuve changes to the state
+     * (eg stopping threads) since {@link #prepareToEnterState(HAContext)}
+     * may subsequently cancel the state transition.
+     * @param context HA context
+     * @throws ServiceFailedException on precondition failure
+     */
+    public void prepareToExitState(final HAContext context)
+    throws ServiceFailedException {}
+
+    /**
+     * Method to be overridden by subclasses to perform steps necessary for
+     * exiting a state.
+     * @param context HA context
+     * @throws ServiceFailedException on failure to enter the state.
+     */
+    public abstract void exitState(final HAContext context)
+    throws ServiceFailedException;
+
+    /**
+     * Move from the existing state to a new state
+     * @param context HA context
+     * @param s new state
+     * @throws ServiceFailedException on failure to transition to new state.
+     */
+    public void setState(HAContext context, HAState s) throws ServiceFailedException {
+        if (this == s) { // Aleady in the new state
+            return;
+        }
+        throw new ServiceFailedException("Transtion from state " + this + " to "
+                                         + s + " is not allowed.");
+    }
+
+    /**
+     * Check if an operation is supported in a given state.
+     * @param context HA context
+     * @param op Type of the operation.
+     * @throws StandbyException if a given type of operation is not
+     *           supported in standby state
+     */
+    public abstract void checkOperation(final HAContext context, final OperationCategory op)
+    throws StandbyException;
+
+    public abstract boolean shouldPopulateReplQueues();
+
+    /**
+     * @return String representation of the service state.
+     */
+    @Override
+    public String toString() {
+        return state.toString();
+    }
 }

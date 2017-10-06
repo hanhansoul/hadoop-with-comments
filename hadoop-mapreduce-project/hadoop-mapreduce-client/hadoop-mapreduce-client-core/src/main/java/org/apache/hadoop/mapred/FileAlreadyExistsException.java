@@ -24,21 +24,21 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * Used when target file already exists for any operation and 
- * is not configured to be overwritten.  
+ * Used when target file already exists for any operation and
+ * is not configured to be overwritten.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class FileAlreadyExistsException
     extends IOException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public FileAlreadyExistsException() {
-    super();
-  }
+    public FileAlreadyExistsException() {
+        super();
+    }
 
-  public FileAlreadyExistsException(String msg) {
-    super(msg);
-  }
+    public FileAlreadyExistsException(String msg) {
+        super(msg);
+    }
 }

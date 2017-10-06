@@ -34,28 +34,28 @@ import org.apache.hadoop.yarn.api.ApplicationMasterProtocolPB;
 @Stable
 public class SchedulerSecurityInfo extends SecurityInfo {
 
-  @Override
-  public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
-    return null;
-  }
-
-  @Override
-  public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol.equals(ApplicationMasterProtocolPB.class)) {
-      return null;
-    }
-    return new TokenInfo() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
+    @Override
+    public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
         return null;
-      }
+    }
 
-      @Override
-      public Class<? extends TokenSelector<? extends TokenIdentifier>>
-          value() {
-        return AMRMTokenSelector.class;
-      }
-    };
-  }
+    @Override
+    public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol.equals(ApplicationMasterProtocolPB.class)) {
+            return null;
+        }
+        return new TokenInfo() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public Class<? extends TokenSelector<? extends TokenIdentifier>>
+            value() {
+                return AMRMTokenSelector.class;
+            }
+        };
+    }
 }

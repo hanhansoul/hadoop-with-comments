@@ -28,30 +28,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class TestEmptyQueues {
-  private Collection<? extends Schedulable> schedulables;
+    private Collection<? extends Schedulable> schedulables;
 
-  @Before
-  public void setup() {
-    schedulables = new ArrayList<Schedulable>();
-  }
+    @Before
+    public void setup() {
+        schedulables = new ArrayList<Schedulable>();
+    }
 
-  private void testComputeShares(SchedulingPolicy policy) {
-    policy.computeShares(schedulables, Resources.none());
-  }
+    private void testComputeShares(SchedulingPolicy policy) {
+        policy.computeShares(schedulables, Resources.none());
+    }
 
-  @Test (timeout = 1000)
-  public void testFifoPolicy() {
-    testComputeShares(SchedulingPolicy.getInstance(FifoPolicy.class));
-  }
+    @Test (timeout = 1000)
+    public void testFifoPolicy() {
+        testComputeShares(SchedulingPolicy.getInstance(FifoPolicy.class));
+    }
 
-  @Test (timeout = 1000)
-  public void testFairSharePolicy() {
-    testComputeShares(SchedulingPolicy.getInstance(FairSharePolicy.class));
-  }
+    @Test (timeout = 1000)
+    public void testFairSharePolicy() {
+        testComputeShares(SchedulingPolicy.getInstance(FairSharePolicy.class));
+    }
 
-  @Test (timeout = 1000)
-  public void testDRFPolicy() {
-    testComputeShares(
-        SchedulingPolicy.getInstance(DominantResourceFairnessPolicy.class));
-  }
+    @Test (timeout = 1000)
+    public void testDRFPolicy() {
+        testComputeShares(
+            SchedulingPolicy.getInstance(DominantResourceFairnessPolicy.class));
+    }
 }

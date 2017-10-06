@@ -35,13 +35,13 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Deprecated
 public class ApplicationClassLoader extends
     org.apache.hadoop.util.ApplicationClassLoader {
-  public ApplicationClassLoader(URL[] urls, ClassLoader parent,
-      List<String> systemClasses) {
-    super(urls, parent, systemClasses);
-  }
+    public ApplicationClassLoader(URL[] urls, ClassLoader parent,
+                                  List<String> systemClasses) {
+        super(urls, parent, systemClasses);
+    }
 
-  public ApplicationClassLoader(String classpath, ClassLoader parent,
-      List<String> systemClasses) throws MalformedURLException {
-    super(classpath, parent, systemClasses);
-  }
+    public ApplicationClassLoader(String classpath, ClassLoader parent,
+                                  List<String> systemClasses) throws MalformedURLException {
+        super(classpath, parent, systemClasses);
+    }
 }

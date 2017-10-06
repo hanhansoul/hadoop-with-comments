@@ -36,21 +36,21 @@ import com.sun.jersey.api.json.JSONJAXBContext;
 @Provider
 public class MyTestJAXBContextResolver implements ContextResolver<JAXBContext> {
 
-  private JAXBContext context;
-  private final Set<Class> types;
+    private JAXBContext context;
+    private final Set<Class> types;
 
-  // you have to specify all the dao classes here
-  private final Class[] cTypes = { MyInfo.class };
+    // you have to specify all the dao classes here
+    private final Class[] cTypes = { MyInfo.class };
 
-  public MyTestJAXBContextResolver() throws Exception {
-    this.types = new HashSet<Class>(Arrays.asList(cTypes));
-    this.context =
-        new JSONJAXBContext(JSONConfiguration.natural().rootUnwrapping(false)
-          .build(), cTypes);
-  }
+    public MyTestJAXBContextResolver() throws Exception {
+        this.types = new HashSet<Class>(Arrays.asList(cTypes));
+        this.context =
+            new JSONJAXBContext(JSONConfiguration.natural().rootUnwrapping(false)
+                                .build(), cTypes);
+    }
 
-  @Override
-  public JAXBContext getContext(Class<?> objectType) {
-    return (types.contains(objectType)) ? context : null;
-  }
+    @Override
+    public JAXBContext getContext(Class<?> objectType) {
+        return (types.contains(objectType)) ? context : null;
+    }
 }

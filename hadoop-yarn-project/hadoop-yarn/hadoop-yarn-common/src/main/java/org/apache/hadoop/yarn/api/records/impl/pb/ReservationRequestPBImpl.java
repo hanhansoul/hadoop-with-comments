@@ -29,124 +29,124 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProto;
 @Private
 @Unstable
 public class ReservationRequestPBImpl extends ReservationRequest {
-  ReservationRequestProto proto = ReservationRequestProto.getDefaultInstance();
-  ReservationRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    ReservationRequestProto proto = ReservationRequestProto.getDefaultInstance();
+    ReservationRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private Resource capability = null;
+    private Resource capability = null;
 
-  public ReservationRequestPBImpl() {
-    builder = ReservationRequestProto.newBuilder();
-  }
-
-  public ReservationRequestPBImpl(ReservationRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public ReservationRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.capability != null) {
-      builder.setCapability(convertToProtoFormat(this.capability));
+    public ReservationRequestPBImpl() {
+        builder = ReservationRequestProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ReservationRequestProto.newBuilder(proto);
+    public ReservationRequestPBImpl(ReservationRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public Resource getCapability() {
-    ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.capability != null) {
-      return this.capability;
+    public ReservationRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasCapability()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.capability != null) {
+            builder.setCapability(convertToProtoFormat(this.capability));
+        }
     }
-    this.capability = convertFromProtoFormat(p.getCapability());
-    return this.capability;
-  }
 
-  @Override
-  public void setCapability(Resource capability) {
-    maybeInitBuilder();
-    if (capability == null)
-      builder.clearCapability();
-    this.capability = capability;
-  }
-
-  @Override
-  public int getNumContainers() {
-    ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getNumContainers());
-  }
-
-  @Override
-  public void setNumContainers(int numContainers) {
-    maybeInitBuilder();
-    builder.setNumContainers((numContainers));
-  }
-
-  @Override
-  public int getConcurrency() {
-    ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasConcurrency()) {
-      return 1;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return (p.getConcurrency());
-  }
 
-  @Override
-  public void setConcurrency(int numContainers) {
-    maybeInitBuilder();
-    builder.setConcurrency(numContainers);
-  }
-
-  @Override
-  public long getDuration() {
-    ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasDuration()) {
-      return 0;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ReservationRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    return (p.getDuration());
-  }
 
-  @Override
-  public void setDuration(long duration) {
-    maybeInitBuilder();
-    builder.setDuration(duration);
-  }
+    @Override
+    public Resource getCapability() {
+        ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.capability != null) {
+            return this.capability;
+        }
+        if (!p.hasCapability()) {
+            return null;
+        }
+        this.capability = convertFromProtoFormat(p.getCapability());
+        return this.capability;
+    }
 
-  private ResourcePBImpl convertFromProtoFormat(ResourceProto p) {
-    return new ResourcePBImpl(p);
-  }
+    @Override
+    public void setCapability(Resource capability) {
+        maybeInitBuilder();
+        if (capability == null)
+            builder.clearCapability();
+        this.capability = capability;
+    }
 
-  private ResourceProto convertToProtoFormat(Resource t) {
-    return ((ResourcePBImpl) t).getProto();
-  }
+    @Override
+    public int getNumContainers() {
+        ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getNumContainers());
+    }
 
-  @Override
-  public String toString() {
-    return "{Capability: " + getCapability() + ", # Containers: "
-        + getNumContainers() + ", Concurrency: " + getConcurrency()
-        + ", Lease Duration: " + getDuration() + "}";
-  }
+    @Override
+    public void setNumContainers(int numContainers) {
+        maybeInitBuilder();
+        builder.setNumContainers((numContainers));
+    }
+
+    @Override
+    public int getConcurrency() {
+        ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasConcurrency()) {
+            return 1;
+        }
+        return (p.getConcurrency());
+    }
+
+    @Override
+    public void setConcurrency(int numContainers) {
+        maybeInitBuilder();
+        builder.setConcurrency(numContainers);
+    }
+
+    @Override
+    public long getDuration() {
+        ReservationRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasDuration()) {
+            return 0;
+        }
+        return (p.getDuration());
+    }
+
+    @Override
+    public void setDuration(long duration) {
+        maybeInitBuilder();
+        builder.setDuration(duration);
+    }
+
+    private ResourcePBImpl convertFromProtoFormat(ResourceProto p) {
+        return new ResourcePBImpl(p);
+    }
+
+    private ResourceProto convertToProtoFormat(Resource t) {
+        return ((ResourcePBImpl) t).getProto();
+    }
+
+    @Override
+    public String toString() {
+        return "{Capability: " + getCapability() + ", # Containers: "
+               + getNumContainers() + ", Concurrency: " + getConcurrency()
+               + ", Lease Duration: " + getDuration() + "}";
+    }
 }

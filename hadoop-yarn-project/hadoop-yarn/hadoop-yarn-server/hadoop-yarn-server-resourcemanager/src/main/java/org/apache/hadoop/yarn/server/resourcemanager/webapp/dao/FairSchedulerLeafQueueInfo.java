@@ -29,23 +29,23 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FSLeafQueue;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FairSchedulerLeafQueueInfo extends FairSchedulerQueueInfo {
-  private int numPendingApps;
-  private int numActiveApps;
-  
-  public FairSchedulerLeafQueueInfo() {
-  }
-  
-  public FairSchedulerLeafQueueInfo(FSLeafQueue queue, FairScheduler scheduler) {
-    super(queue, scheduler);
-    numPendingApps = queue.getNumPendingApps();
-    numActiveApps = queue.getNumActiveApps();
-  }
-  
-  public int getNumActiveApplications() {
-    return numActiveApps;
-  }
-  
-  public int getNumPendingApplications() {
-    return numPendingApps;
-  }
+    private int numPendingApps;
+    private int numActiveApps;
+
+    public FairSchedulerLeafQueueInfo() {
+    }
+
+    public FairSchedulerLeafQueueInfo(FSLeafQueue queue, FairScheduler scheduler) {
+        super(queue, scheduler);
+        numPendingApps = queue.getNumPendingApps();
+        numActiveApps = queue.getNumActiveApps();
+    }
+
+    public int getNumActiveApplications() {
+        return numActiveApps;
+    }
+
+    public int getNumPendingApplications() {
+        return numPendingApps;
+    }
 }

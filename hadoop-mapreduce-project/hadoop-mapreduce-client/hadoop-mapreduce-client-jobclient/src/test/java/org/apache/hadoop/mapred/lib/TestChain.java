@@ -24,33 +24,33 @@ import org.apache.hadoop.mapred.Reducer;
 import org.junit.Test;
 
 public class TestChain {
-  @Test
-  public void testSetReducerWithReducerByValueAsTrue() throws Exception {
+    @Test
+    public void testSetReducerWithReducerByValueAsTrue() throws Exception {
 
-    JobConf jobConf = new JobConf();
-    JobConf reducerConf = new JobConf();
-    Chain.setReducer(jobConf, MyReducer.class, Object.class, Object.class,
-        Object.class, Object.class, true, reducerConf);
-    boolean reduceByValue = reducerConf.getBoolean("chain.reducer.byValue",
-        false);
-    Assert.assertEquals("It should set chain.reducer.byValue as true "
-        + "in reducerConf when we give value as true", true, reduceByValue);
-  }
+        JobConf jobConf = new JobConf();
+        JobConf reducerConf = new JobConf();
+        Chain.setReducer(jobConf, MyReducer.class, Object.class, Object.class,
+                         Object.class, Object.class, true, reducerConf);
+        boolean reduceByValue = reducerConf.getBoolean("chain.reducer.byValue",
+                                false);
+        Assert.assertEquals("It should set chain.reducer.byValue as true "
+                            + "in reducerConf when we give value as true", true, reduceByValue);
+    }
 
-  @Test
-  public void testSetReducerWithReducerByValueAsFalse() throws Exception {
+    @Test
+    public void testSetReducerWithReducerByValueAsFalse() throws Exception {
 
-    JobConf jobConf = new JobConf();
-    JobConf reducerConf = new JobConf();
-    Chain.setReducer(jobConf, MyReducer.class, Object.class, Object.class,
-        Object.class, Object.class, false, reducerConf);
-    boolean reduceByValue = reducerConf.getBoolean("chain.reducer.byValue",
-        true);
-    Assert.assertEquals("It should set chain.reducer.byValue as false "
-        + "in reducerConf when we give value as false", false, reduceByValue);
-  }
+        JobConf jobConf = new JobConf();
+        JobConf reducerConf = new JobConf();
+        Chain.setReducer(jobConf, MyReducer.class, Object.class, Object.class,
+                         Object.class, Object.class, false, reducerConf);
+        boolean reduceByValue = reducerConf.getBoolean("chain.reducer.byValue",
+                                true);
+        Assert.assertEquals("It should set chain.reducer.byValue as false "
+                            + "in reducerConf when we give value as false", false, reduceByValue);
+    }
 
-  interface MyReducer extends Reducer<Object, Object, Object, Object> {
+    interface MyReducer extends Reducer<Object, Object, Object, Object> {
 
-  }
+    }
 }

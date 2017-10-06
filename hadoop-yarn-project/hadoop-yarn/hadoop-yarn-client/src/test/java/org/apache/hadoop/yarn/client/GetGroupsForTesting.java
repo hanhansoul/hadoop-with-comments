@@ -30,48 +30,48 @@ import org.apache.hadoop.yarn.ipc.YarnRPC;
 import org.apache.hadoop.yarn.server.api.ResourceManagerAdministrationProtocol;
 
 public class GetGroupsForTesting extends GetGroupsBase {
-  
-  public GetGroupsForTesting(Configuration conf) {
-    super(conf);
-  }
 
-  public GetGroupsForTesting(Configuration conf, PrintStream out) {
-    super(conf, out);
-  }
-  
-  @Override
-  protected InetSocketAddress getProtocolAddress(Configuration conf)
-      throws IOException {
-    return conf.getSocketAddr(YarnConfiguration.RM_ADMIN_ADDRESS,
-        YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
-        YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
-  }
-  
-  @Override
-  public void setConf(Configuration conf) {
-    conf = new YarnConfiguration(conf);
-    super.setConf(conf);
-  }
-  
-  @Override
-  protected GetUserMappingsProtocol getUgmProtocol() throws IOException {
-    Configuration conf = getConf();
-    
-    final InetSocketAddress addr = conf.getSocketAddr(
-        YarnConfiguration.RM_ADMIN_ADDRESS,
-        YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
-        YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
-    final YarnRPC rpc = YarnRPC.create(conf);
-    
-    ResourceManagerAdministrationProtocol adminProtocol = (ResourceManagerAdministrationProtocol) rpc.getProxy(
-        ResourceManagerAdministrationProtocol.class, addr, getConf());
+    public GetGroupsForTesting(Configuration conf) {
+        super(conf);
+    }
 
-    return adminProtocol;
-  }
+    public GetGroupsForTesting(Configuration conf, PrintStream out) {
+        super(conf, out);
+    }
 
-  public static void main(String[] argv) throws Exception {
-    int res = ToolRunner.run(new GetGroupsForTesting(new YarnConfiguration()), argv);
-    System.exit(res);
-  }
+    @Override
+    protected InetSocketAddress getProtocolAddress(Configuration conf)
+    throws IOException {
+        return conf.getSocketAddr(YarnConfiguration.RM_ADMIN_ADDRESS,
+                                  YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
+                                  YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
+    }
+
+    @Override
+    public void setConf(Configuration conf) {
+        conf = new YarnConfiguration(conf);
+        super.setConf(conf);
+    }
+
+    @Override
+    protected GetUserMappingsProtocol getUgmProtocol() throws IOException {
+        Configuration conf = getConf();
+
+        final InetSocketAddress addr = conf.getSocketAddr(
+                                           YarnConfiguration.RM_ADMIN_ADDRESS,
+                                           YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
+                                           YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
+        final YarnRPC rpc = YarnRPC.create(conf);
+
+        ResourceManagerAdministrationProtocol adminProtocol = (ResourceManagerAdministrationProtocol) rpc.getProxy(
+                    ResourceManagerAdministrationProtocol.class, addr, getConf());
+
+        return adminProtocol;
+    }
+
+    public static void main(String[] argv) throws Exception {
+        int res = ToolRunner.run(new GetGroupsForTesting(new YarnConfiguration()), argv);
+        System.exit(res);
+    }
 
 }

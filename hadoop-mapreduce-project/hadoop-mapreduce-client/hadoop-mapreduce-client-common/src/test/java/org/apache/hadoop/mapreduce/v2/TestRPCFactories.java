@@ -62,158 +62,158 @@ import org.apache.hadoop.yarn.factories.impl.pb.RpcServerFactoryPBImpl;
 import org.junit.Test;
 
 public class TestRPCFactories {
-  
-  
-  
-  @Test
-  public void test() {
-    testPbServerFactory();
-    
-    testPbClientFactory();
-  }
-  
-  
-  
-  private void testPbServerFactory() {
-    InetSocketAddress addr = new InetSocketAddress(0);
-    Configuration conf = new Configuration();
-    MRClientProtocol instance = new MRClientProtocolTestImpl();
-    Server server = null;
-    try {
-      server = 
-        RpcServerFactoryPBImpl.get().getServer(
-          MRClientProtocol.class, instance, addr, conf, null, 1);
-      server.start();
-    } catch (YarnRuntimeException e) {
-      e.printStackTrace();
-      Assert.fail("Failed to crete server");
-    } finally {
-      server.stop();
+
+
+
+    @Test
+    public void test() {
+        testPbServerFactory();
+
+        testPbClientFactory();
     }
-  }
 
-  
-  private void testPbClientFactory() {
-    InetSocketAddress addr = new InetSocketAddress(0);
-    System.err.println(addr.getHostName() + addr.getPort());
-    Configuration conf = new Configuration();
-    MRClientProtocol instance = new MRClientProtocolTestImpl();
-    Server server = null;
-    try {
-      server = 
-        RpcServerFactoryPBImpl.get().getServer(
-            MRClientProtocol.class, instance, addr, conf, null, 1);
-      server.start();
-      System.err.println(server.getListenerAddress());
-      System.err.println(NetUtils.getConnectAddress(server));
 
-      MRClientProtocol client = null;
-      try {
-        client = (MRClientProtocol) RpcClientFactoryPBImpl.get().getClient(MRClientProtocol.class, 1, NetUtils.getConnectAddress(server), conf);
-      } catch (YarnRuntimeException e) {
-        e.printStackTrace();
-        Assert.fail("Failed to crete client");
-      }
-      
-    } catch (YarnRuntimeException e) {
-      e.printStackTrace();
-      Assert.fail("Failed to crete server");
-    } finally {
-      server.stop();
-    }     
-  }
 
-  
-  public class MRClientProtocolTestImpl implements MRClientProtocol {
-
-    @Override
-    public InetSocketAddress getConnectAddress() {
-      return null;
+    private void testPbServerFactory() {
+        InetSocketAddress addr = new InetSocketAddress(0);
+        Configuration conf = new Configuration();
+        MRClientProtocol instance = new MRClientProtocolTestImpl();
+        Server server = null;
+        try {
+            server =
+                RpcServerFactoryPBImpl.get().getServer(
+                    MRClientProtocol.class, instance, addr, conf, null, 1);
+            server.start();
+        } catch (YarnRuntimeException e) {
+            e.printStackTrace();
+            Assert.fail("Failed to crete server");
+        } finally {
+            server.stop();
+        }
     }
-    
-    @Override
-    public GetJobReportResponse getJobReport(GetJobReportRequest request)
+
+
+    private void testPbClientFactory() {
+        InetSocketAddress addr = new InetSocketAddress(0);
+        System.err.println(addr.getHostName() + addr.getPort());
+        Configuration conf = new Configuration();
+        MRClientProtocol instance = new MRClientProtocolTestImpl();
+        Server server = null;
+        try {
+            server =
+                RpcServerFactoryPBImpl.get().getServer(
+                    MRClientProtocol.class, instance, addr, conf, null, 1);
+            server.start();
+            System.err.println(server.getListenerAddress());
+            System.err.println(NetUtils.getConnectAddress(server));
+
+            MRClientProtocol client = null;
+            try {
+                client = (MRClientProtocol) RpcClientFactoryPBImpl.get().getClient(MRClientProtocol.class, 1, NetUtils.getConnectAddress(server), conf);
+            } catch (YarnRuntimeException e) {
+                e.printStackTrace();
+                Assert.fail("Failed to crete client");
+            }
+
+        } catch (YarnRuntimeException e) {
+            e.printStackTrace();
+            Assert.fail("Failed to crete server");
+        } finally {
+            server.stop();
+        }
+    }
+
+
+    public class MRClientProtocolTestImpl implements MRClientProtocol {
+
+        @Override
+        public InetSocketAddress getConnectAddress() {
+            return null;
+        }
+
+        @Override
+        public GetJobReportResponse getJobReport(GetJobReportRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public GetTaskReportResponse getTaskReport(GetTaskReportRequest request)
+        @Override
+        public GetTaskReportResponse getTaskReport(GetTaskReportRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public GetTaskAttemptReportResponse getTaskAttemptReport(
-        GetTaskAttemptReportRequest request) throws IOException {
-      return null;
-    }
+        @Override
+        public GetTaskAttemptReportResponse getTaskAttemptReport(
+            GetTaskAttemptReportRequest request) throws IOException {
+            return null;
+        }
 
-    @Override
-    public GetCountersResponse getCounters(GetCountersRequest request)
+        @Override
+        public GetCountersResponse getCounters(GetCountersRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public GetTaskAttemptCompletionEventsResponse getTaskAttemptCompletionEvents(
-        GetTaskAttemptCompletionEventsRequest request)
+        @Override
+        public GetTaskAttemptCompletionEventsResponse getTaskAttemptCompletionEvents(
+            GetTaskAttemptCompletionEventsRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public GetTaskReportsResponse getTaskReports(GetTaskReportsRequest request)
+        @Override
+        public GetTaskReportsResponse getTaskReports(GetTaskReportsRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public GetDiagnosticsResponse getDiagnostics(GetDiagnosticsRequest request)
+        @Override
+        public GetDiagnosticsResponse getDiagnostics(GetDiagnosticsRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public KillJobResponse killJob(KillJobRequest request)
+        @Override
+        public KillJobResponse killJob(KillJobRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public KillTaskResponse killTask(KillTaskRequest request)
+        @Override
+        public KillTaskResponse killTask(KillTaskRequest request)
         throws IOException {
-      return null;
-    }
+            return null;
+        }
 
-    @Override
-    public KillTaskAttemptResponse killTaskAttempt(
-        KillTaskAttemptRequest request) throws IOException {
-      return null;
-    }
+        @Override
+        public KillTaskAttemptResponse killTaskAttempt(
+            KillTaskAttemptRequest request) throws IOException {
+            return null;
+        }
 
-    @Override
-    public FailTaskAttemptResponse failTaskAttempt(
-        FailTaskAttemptRequest request) throws IOException {
-      return null;
-    }
+        @Override
+        public FailTaskAttemptResponse failTaskAttempt(
+            FailTaskAttemptRequest request) throws IOException {
+            return null;
+        }
 
-    @Override
-    public GetDelegationTokenResponse getDelegationToken(
-        GetDelegationTokenRequest request) throws IOException {
-      return null;
-    }
+        @Override
+        public GetDelegationTokenResponse getDelegationToken(
+            GetDelegationTokenRequest request) throws IOException {
+            return null;
+        }
 
-    @Override
-    public RenewDelegationTokenResponse renewDelegationToken(
-        RenewDelegationTokenRequest request) throws IOException {
-      return null;
-    }
+        @Override
+        public RenewDelegationTokenResponse renewDelegationToken(
+            RenewDelegationTokenRequest request) throws IOException {
+            return null;
+        }
 
-    @Override
-    public CancelDelegationTokenResponse cancelDelegationToken(
-        CancelDelegationTokenRequest request) throws IOException {
-      return null;
-    }   
-  }
+        @Override
+        public CancelDelegationTokenResponse cancelDelegationToken(
+            CancelDelegationTokenRequest request) throws IOException {
+            return null;
+        }
+    }
 }

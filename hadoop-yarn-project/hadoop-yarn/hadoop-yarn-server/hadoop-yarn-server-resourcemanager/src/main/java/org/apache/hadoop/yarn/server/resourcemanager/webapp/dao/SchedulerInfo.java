@@ -23,10 +23,11 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement
 @XmlSeeAlso({ CapacitySchedulerInfo.class, FairSchedulerInfo.class,
-  FifoSchedulerInfo.class })
+              FifoSchedulerInfo.class
+            })
 public class SchedulerInfo {
 
-  public SchedulerInfo() {
-  } // JAXB needs this
+    public SchedulerInfo() {
+    } // JAXB needs this
 
 }

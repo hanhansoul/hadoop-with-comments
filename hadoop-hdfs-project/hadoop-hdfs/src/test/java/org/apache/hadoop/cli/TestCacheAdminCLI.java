@@ -43,99 +43,99 @@ import org.xml.sax.SAXException;
 
 public class TestCacheAdminCLI extends CLITestHelper {
 
-  public static final Log LOG = LogFactory.getLog(TestCacheAdminCLI.class);
+    public static final Log LOG = LogFactory.getLog(TestCacheAdminCLI.class);
 
-  protected MiniDFSCluster dfsCluster = null;
-  protected FileSystem fs = null;
-  protected String namenode = null;
+    protected MiniDFSCluster dfsCluster = null;
+    protected FileSystem fs = null;
+    protected String namenode = null;
 
-  @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    conf.setClass(PolicyProvider.POLICY_PROVIDER_CONFIG,
-        HDFSPolicyProvider.class, PolicyProvider.class);
-
-    // Many of the tests expect a replication value of 1 in the output
-    conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 1);
-
-    dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(3).build();
-
-    dfsCluster.waitClusterUp();
-    namenode = conf.get(DFSConfigKeys.FS_DEFAULT_NAME_KEY, "file:///");
-    username = System.getProperty("user.name");
-
-    fs = dfsCluster.getFileSystem();
-    assertTrue("Not a HDFS: "+fs.getUri(),
-               fs instanceof DistributedFileSystem);
-  }
-
-  @After
-  @Override
-  public void tearDown() throws Exception {
-    if (fs != null) {
-      fs.close();
-    }
-    if (dfsCluster != null) {
-      dfsCluster.shutdown();
-    }
-    Thread.sleep(2000);
-    super.tearDown();
-  }
-
-  @Override
-  protected String getTestFile() {
-    return "testCacheAdminConf.xml";
-  }
-
-  @Override
-  protected TestConfigFileParser getConfigParser() {
-    return new TestConfigFileParserCacheAdmin();
-  }
-
-  private class TestConfigFileParserCacheAdmin extends
-      CLITestHelper.TestConfigFileParser {
+    @Before
     @Override
-    public void endElement(String uri, String localName, String qName)
-        throws SAXException {
-      if (qName.equals("cache-admin-command")) {
-        if (testCommands != null) {
-          testCommands.add(new CLITestCmdCacheAdmin(charString,
-              new CLICommandCacheAdmin()));
-        } else if (cleanupCommands != null) {
-          cleanupCommands.add(new CLITestCmdCacheAdmin(charString,
-              new CLICommandCacheAdmin()));
+    public void setUp() throws Exception {
+        super.setUp();
+        conf.setClass(PolicyProvider.POLICY_PROVIDER_CONFIG,
+                      HDFSPolicyProvider.class, PolicyProvider.class);
+
+        // Many of the tests expect a replication value of 1 in the output
+        conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 1);
+
+        dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(3).build();
+
+        dfsCluster.waitClusterUp();
+        namenode = conf.get(DFSConfigKeys.FS_DEFAULT_NAME_KEY, "file:///");
+        username = System.getProperty("user.name");
+
+        fs = dfsCluster.getFileSystem();
+        assertTrue("Not a HDFS: "+fs.getUri(),
+                   fs instanceof DistributedFileSystem);
+    }
+
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        if (fs != null) {
+            fs.close();
         }
-      } else {
-        super.endElement(uri, localName, qName);
-      }
-    }
-  }
-
-  private class CLITestCmdCacheAdmin extends CLITestCmd {
-
-    public CLITestCmdCacheAdmin(String str, CLICommandTypes type) {
-      super(str, type);
+        if (dfsCluster != null) {
+            dfsCluster.shutdown();
+        }
+        Thread.sleep(2000);
+        super.tearDown();
     }
 
     @Override
-    public CommandExecutor getExecutor(String tag)
-        throws IllegalArgumentException {
-      if (getType() instanceof CLICommandCacheAdmin) {
-        return new CacheAdminCmdExecutor(tag, new CacheAdmin(conf));
-      }
-      return super.getExecutor(tag);
+    protected String getTestFile() {
+        return "testCacheAdminConf.xml";
     }
-  }
 
-  @Override
-  protected Result execute(CLICommand cmd) throws Exception {
-    return cmd.getExecutor("").executeCommand(cmd.getCmd());
-  }
+    @Override
+    protected TestConfigFileParser getConfigParser() {
+        return new TestConfigFileParserCacheAdmin();
+    }
 
-  @Test
-  @Override
-  public void testAll () {
-    super.testAll();
-  }
+    private class TestConfigFileParserCacheAdmin extends
+        CLITestHelper.TestConfigFileParser {
+        @Override
+        public void endElement(String uri, String localName, String qName)
+        throws SAXException {
+            if (qName.equals("cache-admin-command")) {
+                if (testCommands != null) {
+                    testCommands.add(new CLITestCmdCacheAdmin(charString,
+                                     new CLICommandCacheAdmin()));
+                } else if (cleanupCommands != null) {
+                    cleanupCommands.add(new CLITestCmdCacheAdmin(charString,
+                                        new CLICommandCacheAdmin()));
+                }
+            } else {
+                super.endElement(uri, localName, qName);
+            }
+        }
+    }
+
+    private class CLITestCmdCacheAdmin extends CLITestCmd {
+
+        public CLITestCmdCacheAdmin(String str, CLICommandTypes type) {
+            super(str, type);
+        }
+
+        @Override
+        public CommandExecutor getExecutor(String tag)
+        throws IllegalArgumentException {
+            if (getType() instanceof CLICommandCacheAdmin) {
+                return new CacheAdminCmdExecutor(tag, new CacheAdmin(conf));
+            }
+            return super.getExecutor(tag);
+        }
+    }
+
+    @Override
+    protected Result execute(CLICommand cmd) throws Exception {
+        return cmd.getExecutor("").executeCommand(cmd.getCmd());
+    }
+
+    @Test
+    @Override
+    public void testAll () {
+        super.testAll();
+    }
 }

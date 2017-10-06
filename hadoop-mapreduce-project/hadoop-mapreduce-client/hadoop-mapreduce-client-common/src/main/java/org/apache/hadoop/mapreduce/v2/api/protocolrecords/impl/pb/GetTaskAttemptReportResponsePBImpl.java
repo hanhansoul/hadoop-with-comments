@@ -28,82 +28,82 @@ import org.apache.hadoop.mapreduce.v2.proto.MRServiceProtos.GetTaskAttemptReport
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class GetTaskAttemptReportResponsePBImpl extends ProtoBase<GetTaskAttemptReportResponseProto> implements GetTaskAttemptReportResponse {
-  GetTaskAttemptReportResponseProto proto = GetTaskAttemptReportResponseProto.getDefaultInstance();
-  GetTaskAttemptReportResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private TaskAttemptReport taskAttemptReport = null;
-  
-  
-  public GetTaskAttemptReportResponsePBImpl() {
-    builder = GetTaskAttemptReportResponseProto.newBuilder();
-  }
+    GetTaskAttemptReportResponseProto proto = GetTaskAttemptReportResponseProto.getDefaultInstance();
+    GetTaskAttemptReportResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetTaskAttemptReportResponsePBImpl(GetTaskAttemptReportResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public GetTaskAttemptReportResponseProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private TaskAttemptReport taskAttemptReport = null;
 
-  private void mergeLocalToBuilder() {
-    if (this.taskAttemptReport != null) {
-      builder.setTaskAttemptReport(convertToProtoFormat(this.taskAttemptReport));
+
+    public GetTaskAttemptReportResponsePBImpl() {
+        builder = GetTaskAttemptReportResponseProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetTaskAttemptReportResponseProto.newBuilder(proto);
+    public GetTaskAttemptReportResponsePBImpl(GetTaskAttemptReportResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public TaskAttemptReport getTaskAttemptReport() {
-    GetTaskAttemptReportResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.taskAttemptReport != null) {
-      return this.taskAttemptReport;
+
+    public GetTaskAttemptReportResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasTaskAttemptReport()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.taskAttemptReport != null) {
+            builder.setTaskAttemptReport(convertToProtoFormat(this.taskAttemptReport));
+        }
     }
-    this.taskAttemptReport =  convertFromProtoFormat(p.getTaskAttemptReport());
-    return this.taskAttemptReport;
-  }
 
-  @Override
-  public void setTaskAttemptReport(TaskAttemptReport taskAttemptReport) {
-    maybeInitBuilder();
-    if (taskAttemptReport == null) 
-      builder.clearTaskAttemptReport();
-    this.taskAttemptReport = taskAttemptReport;
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private TaskAttemptReportPBImpl convertFromProtoFormat(TaskAttemptReportProto p) {
-    return new TaskAttemptReportPBImpl(p);
-  }
-
-  private TaskAttemptReportProto convertToProtoFormat(TaskAttemptReport t) {
-    return ((TaskAttemptReportPBImpl)t).getProto();
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetTaskAttemptReportResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
 
+    @Override
+    public TaskAttemptReport getTaskAttemptReport() {
+        GetTaskAttemptReportResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.taskAttemptReport != null) {
+            return this.taskAttemptReport;
+        }
+        if (!p.hasTaskAttemptReport()) {
+            return null;
+        }
+        this.taskAttemptReport =  convertFromProtoFormat(p.getTaskAttemptReport());
+        return this.taskAttemptReport;
+    }
 
-}  
+    @Override
+    public void setTaskAttemptReport(TaskAttemptReport taskAttemptReport) {
+        maybeInitBuilder();
+        if (taskAttemptReport == null)
+            builder.clearTaskAttemptReport();
+        this.taskAttemptReport = taskAttemptReport;
+    }
+
+    private TaskAttemptReportPBImpl convertFromProtoFormat(TaskAttemptReportProto p) {
+        return new TaskAttemptReportPBImpl(p);
+    }
+
+    private TaskAttemptReportProto convertToProtoFormat(TaskAttemptReport t) {
+        return ((TaskAttemptReportPBImpl)t).getProto();
+    }
+
+
+
+}

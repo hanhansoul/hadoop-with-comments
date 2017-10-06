@@ -28,11 +28,11 @@ import org.apache.hadoop.io.Writable;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public interface ResetableIterator<T extends Writable> 
+public interface ResetableIterator<T extends Writable>
     extends org.apache.hadoop.mapreduce.lib.join.ResetableIterator<T> {
 
-  public static class EMPTY<U extends Writable>
-      extends org.apache.hadoop.mapreduce.lib.join.ResetableIterator.EMPTY<U>
-      implements ResetableIterator<U> {
-  }
+    public static class EMPTY<U extends Writable>
+        extends org.apache.hadoop.mapreduce.lib.join.ResetableIterator.EMPTY<U>
+        implements ResetableIterator<U> {
+    }
 }

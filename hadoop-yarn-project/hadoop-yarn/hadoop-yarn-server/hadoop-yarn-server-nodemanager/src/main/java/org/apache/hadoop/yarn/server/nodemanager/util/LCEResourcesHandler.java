@@ -27,23 +27,23 @@ import org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor;
 
 public interface LCEResourcesHandler extends Configurable {
 
-  void init(LinuxContainerExecutor lce) throws IOException;
+    void init(LinuxContainerExecutor lce) throws IOException;
 
-  /**
-   * Called by the LinuxContainerExecutor before launching the executable
-   * inside the container.
-   * @param containerId the id of the container being launched
-   * @param containerResource the node resources the container will be using
-   */
-  void preExecute(ContainerId containerId, Resource containerResource)
-       throws IOException;
+    /**
+     * Called by the LinuxContainerExecutor before launching the executable
+     * inside the container.
+     * @param containerId the id of the container being launched
+     * @param containerResource the node resources the container will be using
+     */
+    void preExecute(ContainerId containerId, Resource containerResource)
+    throws IOException;
 
-  /**
-   * Called by the LinuxContainerExecutor after the executable inside the
-   * container has exited (successfully or not).
-   * @param containerId the id of the container which was launched
-   */
-  void postExecute(ContainerId containerId);
-  
-  String getResourcesOption(ContainerId containerId);
+    /**
+     * Called by the LinuxContainerExecutor after the executable inside the
+     * container has exited (successfully or not).
+     * @param containerId the id of the container which was launched
+     */
+    void postExecute(ContainerId containerId);
+
+    String getResourcesOption(ContainerId containerId);
 }

@@ -25,5 +25,5 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public enum FileInputFormatCounter {
-  BYTES_READ
+    BYTES_READ
 }

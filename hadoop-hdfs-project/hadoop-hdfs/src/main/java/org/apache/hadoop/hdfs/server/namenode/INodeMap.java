@@ -33,115 +33,115 @@ import com.google.common.base.Preconditions;
 
 /**
  * Storing all the {@link INode}s and maintaining the mapping between INode ID
- * and INode.  
+ * and INode.
  */
 public class INodeMap {
-  
-  static INodeMap newInstance(INodeDirectory rootDir) {
-    // Compute the map capacity by allocating 1% of total memory
-    int capacity = LightWeightGSet.computeCapacity(1, "INodeMap");
-    GSet<INode, INodeWithAdditionalFields> map
-        = new LightWeightGSet<INode, INodeWithAdditionalFields>(capacity);
-    map.put(rootDir);
-    return new INodeMap(map);
-  }
-  
-  /** Synchronized by external lock. */
-  private final GSet<INode, INodeWithAdditionalFields> map;
-  
-  public Iterator<INodeWithAdditionalFields> getMapIterator() {
-    return map.iterator();
-  }
 
-  private INodeMap(GSet<INode, INodeWithAdditionalFields> map) {
-    Preconditions.checkArgument(map != null);
-    this.map = map;
-  }
-  
-  /**
-   * Add an {@link INode} into the {@link INode} map. Replace the old value if 
-   * necessary. 
-   * @param inode The {@link INode} to be added to the map.
-   */
-  public final void put(INode inode) {
-    if (inode instanceof INodeWithAdditionalFields) {
-      map.put((INodeWithAdditionalFields)inode);
+    static INodeMap newInstance(INodeDirectory rootDir) {
+        // Compute the map capacity by allocating 1% of total memory
+        int capacity = LightWeightGSet.computeCapacity(1, "INodeMap");
+        GSet<INode, INodeWithAdditionalFields> map
+            = new LightWeightGSet<INode, INodeWithAdditionalFields>(capacity);
+        map.put(rootDir);
+        return new INodeMap(map);
     }
-  }
-  
-  /**
-   * Remove a {@link INode} from the map.
-   * @param inode The {@link INode} to be removed.
-   */
-  public final void remove(INode inode) {
-    map.remove(inode);
-  }
-  
-  /**
-   * @return The size of the map.
-   */
-  public int size() {
-    return map.size();
-  }
-  
-  /**
-   * Get the {@link INode} with the given id from the map.
-   * @param id ID of the {@link INode}.
-   * @return The {@link INode} in the map with the given id. Return null if no 
-   *         such {@link INode} in the map.
-   */
-  public INode get(long id) {
-    INode inode = new INodeWithAdditionalFields(id, null, new PermissionStatus(
+
+    /** Synchronized by external lock. */
+    private final GSet<INode, INodeWithAdditionalFields> map;
+
+    public Iterator<INodeWithAdditionalFields> getMapIterator() {
+        return map.iterator();
+    }
+
+    private INodeMap(GSet<INode, INodeWithAdditionalFields> map) {
+        Preconditions.checkArgument(map != null);
+        this.map = map;
+    }
+
+    /**
+     * Add an {@link INode} into the {@link INode} map. Replace the old value if
+     * necessary.
+     * @param inode The {@link INode} to be added to the map.
+     */
+    public final void put(INode inode) {
+        if (inode instanceof INodeWithAdditionalFields) {
+            map.put((INodeWithAdditionalFields)inode);
+        }
+    }
+
+    /**
+     * Remove a {@link INode} from the map.
+     * @param inode The {@link INode} to be removed.
+     */
+    public final void remove(INode inode) {
+        map.remove(inode);
+    }
+
+    /**
+     * @return The size of the map.
+     */
+    public int size() {
+        return map.size();
+    }
+
+    /**
+     * Get the {@link INode} with the given id from the map.
+     * @param id ID of the {@link INode}.
+     * @return The {@link INode} in the map with the given id. Return null if no
+     *         such {@link INode} in the map.
+     */
+    public INode get(long id) {
+        INode inode = new INodeWithAdditionalFields(id, null, new PermissionStatus(
         "", "", new FsPermission((short) 0)), 0, 0) {
-      
-      @Override
-      void recordModification(int latestSnapshotId)
-          throws QuotaExceededException {
-      }
-      
-      @Override
-      public void destroyAndCollectBlocks(BlocksMapUpdateInfo collectedBlocks,
-          List<INode> removedINodes) {
-        // Nothing to do
-      }
-      
-      @Override
-      public Counts computeQuotaUsage(Counts counts, boolean useCache,
-          int lastSnapshotId) {
-        return null;
-      }
-      
-      @Override
-      public ContentSummaryComputationContext computeContentSummary(
-          ContentSummaryComputationContext summary) {
-        return null;
-      }
-      
-      @Override
-      public Counts cleanSubtree(int snapshotId, int priorSnapshotId,
-          BlocksMapUpdateInfo collectedBlocks, List<INode> removedINodes,
-          boolean countDiffChange) throws QuotaExceededException {
-        return null;
-      }
 
-      @Override
-      public byte getStoragePolicyID(){
-        return BlockStoragePolicySuite.ID_UNSPECIFIED;
-      }
+            @Override
+            void recordModification(int latestSnapshotId)
+            throws QuotaExceededException {
+            }
 
-      @Override
-      public byte getLocalStoragePolicyID() {
-        return BlockStoragePolicySuite.ID_UNSPECIFIED;
-      }
-    };
-      
-    return map.get(inode);
-  }
-  
-  /**
-   * Clear the {@link #map}
-   */
-  public void clear() {
-    map.clear();
-  }
+            @Override
+            public void destroyAndCollectBlocks(BlocksMapUpdateInfo collectedBlocks,
+                                                List<INode> removedINodes) {
+                // Nothing to do
+            }
+
+            @Override
+            public Counts computeQuotaUsage(Counts counts, boolean useCache,
+                                            int lastSnapshotId) {
+                return null;
+            }
+
+            @Override
+            public ContentSummaryComputationContext computeContentSummary(
+                ContentSummaryComputationContext summary) {
+                return null;
+            }
+
+            @Override
+            public Counts cleanSubtree(int snapshotId, int priorSnapshotId,
+                                       BlocksMapUpdateInfo collectedBlocks, List<INode> removedINodes,
+                                       boolean countDiffChange) throws QuotaExceededException {
+                return null;
+            }
+
+            @Override
+            public byte getStoragePolicyID() {
+                return BlockStoragePolicySuite.ID_UNSPECIFIED;
+            }
+
+            @Override
+            public byte getLocalStoragePolicyID() {
+                return BlockStoragePolicySuite.ID_UNSPECIFIED;
+            }
+        };
+
+        return map.get(inode);
+    }
+
+    /**
+     * Clear the {@link #map}
+     */
+    public void clear() {
+        map.clear();
+    }
 }

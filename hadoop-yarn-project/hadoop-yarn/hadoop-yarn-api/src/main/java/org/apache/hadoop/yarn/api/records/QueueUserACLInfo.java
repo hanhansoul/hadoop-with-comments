@@ -30,7 +30,7 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p><code>QueueUserACLInfo</code> provides information {@link QueueACL} for
  * the given user.</p>
- * 
+ *
  * @see QueueACL
  * @see ApplicationClientProtocol#getQueueUserAcls(org.apache.hadoop.yarn.api.protocolrecords.GetQueueUserAclsInfoRequest)
  */
@@ -38,37 +38,37 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class QueueUserACLInfo {
 
-  @Private
-  @Unstable
-  public static QueueUserACLInfo newInstance(String queueName,
-      List<QueueACL> acls) {
-    QueueUserACLInfo info = Records.newRecord(QueueUserACLInfo.class);
-    info.setQueueName(queueName);
-    info.setUserAcls(acls);
-    return info;
-  }
+    @Private
+    @Unstable
+    public static QueueUserACLInfo newInstance(String queueName,
+            List<QueueACL> acls) {
+        QueueUserACLInfo info = Records.newRecord(QueueUserACLInfo.class);
+        info.setQueueName(queueName);
+        info.setUserAcls(acls);
+        return info;
+    }
 
-  /**
-   * Get the <em>queue name</em> of the queue.
-   * @return <em>queue name</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract String getQueueName();
-  
-  @Private
-  @Unstable
-  public abstract void setQueueName(String queueName);
+    /**
+     * Get the <em>queue name</em> of the queue.
+     * @return <em>queue name</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract String getQueueName();
 
-  /**
-   * Get the list of <code>QueueACL</code> for the given user.
-   * @return list of <code>QueueACL</code> for the given user
-   */
-  @Public
-  @Stable
-  public abstract List<QueueACL> getUserAcls();
+    @Private
+    @Unstable
+    public abstract void setQueueName(String queueName);
 
-  @Private
-  @Unstable
-  public abstract void setUserAcls(List<QueueACL> acls);
+    /**
+     * Get the list of <code>QueueACL</code> for the given user.
+     * @return list of <code>QueueACL</code> for the given user
+     */
+    @Public
+    @Stable
+    public abstract List<QueueACL> getUserAcls();
+
+    @Private
+    @Unstable
+    public abstract void setUserAcls(List<QueueACL> acls);
 }

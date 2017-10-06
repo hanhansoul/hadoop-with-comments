@@ -28,25 +28,25 @@ package org.apache.hadoop.hdfs.server.protocol;
  * total for the current RPC.
  */
 public class BlockReportContext {
-  private final int totalRpcs;
-  private final int curRpc;
-  private final long reportId;
+    private final int totalRpcs;
+    private final int curRpc;
+    private final long reportId;
 
-  public BlockReportContext(int totalRpcs, int curRpc, long reportId) {
-    this.totalRpcs = totalRpcs;
-    this.curRpc = curRpc;
-    this.reportId = reportId;
-  }
+    public BlockReportContext(int totalRpcs, int curRpc, long reportId) {
+        this.totalRpcs = totalRpcs;
+        this.curRpc = curRpc;
+        this.reportId = reportId;
+    }
 
-  public int getTotalRpcs() {
-    return totalRpcs;
-  }
+    public int getTotalRpcs() {
+        return totalRpcs;
+    }
 
-  public int getCurRpc() {
-    return curRpc;
-  }
+    public int getCurRpc() {
+        return curRpc;
+    }
 
-  public long getReportId() {
-    return reportId;
-  }
+    public long getReportId() {
+        return reportId;
+    }
 }

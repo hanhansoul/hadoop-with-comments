@@ -28,62 +28,62 @@ import org.apache.hadoop.yarn.util.resource.Resources;
 @Private
 @Unstable
 public class CSAssignment {
-  final private Resource resource;
-  private NodeType type;
-  private final RMContainer excessReservation;
-  private final FiCaSchedulerApp application;
-  private final boolean skipped;
-  
-  public CSAssignment(Resource resource, NodeType type) {
-    this.resource = resource;
-    this.type = type;
-    this.application = null;
-    this.excessReservation = null;
-    this.skipped = false;
-  }
-  
-  public CSAssignment(FiCaSchedulerApp application, RMContainer excessReservation) {
-    this.resource = excessReservation.getContainer().getResource();
-    this.type = NodeType.NODE_LOCAL;
-    this.application = application;
-    this.excessReservation = excessReservation;
-    this.skipped = false;
-  }
-  
-  public CSAssignment(boolean skipped) {
-    this.resource = Resources.createResource(0, 0);
-    this.type = NodeType.NODE_LOCAL;
-    this.application = null;
-    this.excessReservation = null;
-    this.skipped = skipped;
-  }
+    final private Resource resource;
+    private NodeType type;
+    private final RMContainer excessReservation;
+    private final FiCaSchedulerApp application;
+    private final boolean skipped;
 
-  public Resource getResource() {
-    return resource;
-  }
+    public CSAssignment(Resource resource, NodeType type) {
+        this.resource = resource;
+        this.type = type;
+        this.application = null;
+        this.excessReservation = null;
+        this.skipped = false;
+    }
 
-  public NodeType getType() {
-    return type;
-  }
-  
-  public void setType(NodeType type) {
-    this.type = type;
-  }
-  
-  public FiCaSchedulerApp getApplication() {
-    return application;
-  }
+    public CSAssignment(FiCaSchedulerApp application, RMContainer excessReservation) {
+        this.resource = excessReservation.getContainer().getResource();
+        this.type = NodeType.NODE_LOCAL;
+        this.application = application;
+        this.excessReservation = excessReservation;
+        this.skipped = false;
+    }
 
-  public RMContainer getExcessReservation() {
-    return excessReservation;
-  }
+    public CSAssignment(boolean skipped) {
+        this.resource = Resources.createResource(0, 0);
+        this.type = NodeType.NODE_LOCAL;
+        this.application = null;
+        this.excessReservation = null;
+        this.skipped = skipped;
+    }
 
-  public boolean getSkipped() {
-    return skipped;
-  }
-  
-  @Override
-  public String toString() {
-    return resource.getMemory() + ":" + type;
-  }
+    public Resource getResource() {
+        return resource;
+    }
+
+    public NodeType getType() {
+        return type;
+    }
+
+    public void setType(NodeType type) {
+        this.type = type;
+    }
+
+    public FiCaSchedulerApp getApplication() {
+        return application;
+    }
+
+    public RMContainer getExcessReservation() {
+        return excessReservation;
+    }
+
+    public boolean getSkipped() {
+        return skipped;
+    }
+
+    @Override
+    public String toString() {
+        return resource.getMemory() + ":" + type;
+    }
 }

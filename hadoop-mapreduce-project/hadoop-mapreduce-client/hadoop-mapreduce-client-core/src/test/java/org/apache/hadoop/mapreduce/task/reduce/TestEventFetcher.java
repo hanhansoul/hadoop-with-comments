@@ -42,78 +42,78 @@ import org.mockito.InOrder;
 
 public class TestEventFetcher {
 
-  @Test
-  public void testConsecutiveFetch()
-      throws IOException, InterruptedException {
-    final int MAX_EVENTS_TO_FETCH = 100;
-    TaskAttemptID tid = new TaskAttemptID("12345", 1, TaskType.REDUCE, 1, 1);
+    @Test
+    public void testConsecutiveFetch()
+    throws IOException, InterruptedException {
+        final int MAX_EVENTS_TO_FETCH = 100;
+        TaskAttemptID tid = new TaskAttemptID("12345", 1, TaskType.REDUCE, 1, 1);
 
-    TaskUmbilicalProtocol umbilical = mock(TaskUmbilicalProtocol.class);
-    when(umbilical.getMapCompletionEvents(any(JobID.class),
-        anyInt(), anyInt(), any(TaskAttemptID.class)))
-      .thenReturn(getMockedCompletionEventsUpdate(0, 0));
-    when(umbilical.getMapCompletionEvents(any(JobID.class),
-        eq(0), eq(MAX_EVENTS_TO_FETCH), eq(tid)))
-      .thenReturn(getMockedCompletionEventsUpdate(0, MAX_EVENTS_TO_FETCH));
-    when(umbilical.getMapCompletionEvents(any(JobID.class),
-        eq(MAX_EVENTS_TO_FETCH), eq(MAX_EVENTS_TO_FETCH), eq(tid)))
-      .thenReturn(getMockedCompletionEventsUpdate(MAX_EVENTS_TO_FETCH,
-          MAX_EVENTS_TO_FETCH));
-    when(umbilical.getMapCompletionEvents(any(JobID.class),
-        eq(MAX_EVENTS_TO_FETCH*2), eq(MAX_EVENTS_TO_FETCH), eq(tid)))
-      .thenReturn(getMockedCompletionEventsUpdate(MAX_EVENTS_TO_FETCH*2, 3));
+        TaskUmbilicalProtocol umbilical = mock(TaskUmbilicalProtocol.class);
+        when(umbilical.getMapCompletionEvents(any(JobID.class),
+                                              anyInt(), anyInt(), any(TaskAttemptID.class)))
+        .thenReturn(getMockedCompletionEventsUpdate(0, 0));
+        when(umbilical.getMapCompletionEvents(any(JobID.class),
+                                              eq(0), eq(MAX_EVENTS_TO_FETCH), eq(tid)))
+        .thenReturn(getMockedCompletionEventsUpdate(0, MAX_EVENTS_TO_FETCH));
+        when(umbilical.getMapCompletionEvents(any(JobID.class),
+                                              eq(MAX_EVENTS_TO_FETCH), eq(MAX_EVENTS_TO_FETCH), eq(tid)))
+        .thenReturn(getMockedCompletionEventsUpdate(MAX_EVENTS_TO_FETCH,
+                    MAX_EVENTS_TO_FETCH));
+        when(umbilical.getMapCompletionEvents(any(JobID.class),
+                                              eq(MAX_EVENTS_TO_FETCH*2), eq(MAX_EVENTS_TO_FETCH), eq(tid)))
+        .thenReturn(getMockedCompletionEventsUpdate(MAX_EVENTS_TO_FETCH*2, 3));
 
-    @SuppressWarnings("unchecked")
-    ShuffleScheduler<String,String> scheduler =
-      mock(ShuffleScheduler.class);
-    ExceptionReporter reporter = mock(ExceptionReporter.class);
+        @SuppressWarnings("unchecked")
+        ShuffleScheduler<String,String> scheduler =
+            mock(ShuffleScheduler.class);
+        ExceptionReporter reporter = mock(ExceptionReporter.class);
 
-    EventFetcherForTest<String,String> ef =
-        new EventFetcherForTest<String,String>(tid, umbilical, scheduler,
-            reporter, MAX_EVENTS_TO_FETCH);
-    ef.getMapCompletionEvents();
+        EventFetcherForTest<String,String> ef =
+            new EventFetcherForTest<String,String>(tid, umbilical, scheduler,
+                    reporter, MAX_EVENTS_TO_FETCH);
+        ef.getMapCompletionEvents();
 
-    verify(reporter, never()).reportException(any(Throwable.class));
-    InOrder inOrder = inOrder(umbilical);
-    inOrder.verify(umbilical).getMapCompletionEvents(any(JobID.class),
-        eq(0), eq(MAX_EVENTS_TO_FETCH), eq(tid));
-    inOrder.verify(umbilical).getMapCompletionEvents(any(JobID.class),
-        eq(MAX_EVENTS_TO_FETCH), eq(MAX_EVENTS_TO_FETCH), eq(tid));
-    inOrder.verify(umbilical).getMapCompletionEvents(any(JobID.class),
-        eq(MAX_EVENTS_TO_FETCH*2), eq(MAX_EVENTS_TO_FETCH), eq(tid));
-    verify(scheduler, times(MAX_EVENTS_TO_FETCH*2 + 3)).resolve(
-        any(TaskCompletionEvent.class));
-  }
-
-  private MapTaskCompletionEventsUpdate getMockedCompletionEventsUpdate(
-      int startIdx, int numEvents) {
-    ArrayList<TaskCompletionEvent> tceList =
-        new ArrayList<TaskCompletionEvent>(numEvents);
-    for (int i = 0; i < numEvents; ++i) {
-      int eventIdx = startIdx + i;
-      TaskCompletionEvent tce = new TaskCompletionEvent(eventIdx,
-          new TaskAttemptID("12345", 1, TaskType.MAP, eventIdx, 0),
-          eventIdx, true, TaskCompletionEvent.Status.SUCCEEDED,
-          "http://somehost:8888");
-      tceList.add(tce);
-    }
-    TaskCompletionEvent[] events = {};
-    return new MapTaskCompletionEventsUpdate(tceList.toArray(events), false);
-  }
-
-  private static class EventFetcherForTest<K,V> extends EventFetcher<K,V> {
-
-    public EventFetcherForTest(TaskAttemptID reduce,
-        TaskUmbilicalProtocol umbilical, ShuffleScheduler<K,V> scheduler,
-        ExceptionReporter reporter, int maxEventsToFetch) {
-      super(reduce, umbilical, scheduler, reporter, maxEventsToFetch);
+        verify(reporter, never()).reportException(any(Throwable.class));
+        InOrder inOrder = inOrder(umbilical);
+        inOrder.verify(umbilical).getMapCompletionEvents(any(JobID.class),
+                eq(0), eq(MAX_EVENTS_TO_FETCH), eq(tid));
+        inOrder.verify(umbilical).getMapCompletionEvents(any(JobID.class),
+                eq(MAX_EVENTS_TO_FETCH), eq(MAX_EVENTS_TO_FETCH), eq(tid));
+        inOrder.verify(umbilical).getMapCompletionEvents(any(JobID.class),
+                eq(MAX_EVENTS_TO_FETCH*2), eq(MAX_EVENTS_TO_FETCH), eq(tid));
+        verify(scheduler, times(MAX_EVENTS_TO_FETCH*2 + 3)).resolve(
+            any(TaskCompletionEvent.class));
     }
 
-    @Override
-    public int getMapCompletionEvents()
+    private MapTaskCompletionEventsUpdate getMockedCompletionEventsUpdate(
+        int startIdx, int numEvents) {
+        ArrayList<TaskCompletionEvent> tceList =
+            new ArrayList<TaskCompletionEvent>(numEvents);
+        for (int i = 0; i < numEvents; ++i) {
+            int eventIdx = startIdx + i;
+            TaskCompletionEvent tce = new TaskCompletionEvent(eventIdx,
+                    new TaskAttemptID("12345", 1, TaskType.MAP, eventIdx, 0),
+                    eventIdx, true, TaskCompletionEvent.Status.SUCCEEDED,
+                    "http://somehost:8888");
+            tceList.add(tce);
+        }
+        TaskCompletionEvent[] events = {};
+        return new MapTaskCompletionEventsUpdate(tceList.toArray(events), false);
+    }
+
+    private static class EventFetcherForTest<K,V> extends EventFetcher<K,V> {
+
+        public EventFetcherForTest(TaskAttemptID reduce,
+                                   TaskUmbilicalProtocol umbilical, ShuffleScheduler<K,V> scheduler,
+                                   ExceptionReporter reporter, int maxEventsToFetch) {
+            super(reduce, umbilical, scheduler, reporter, maxEventsToFetch);
+        }
+
+        @Override
+        public int getMapCompletionEvents()
         throws IOException, InterruptedException {
-      return super.getMapCompletionEvents();
-    }
+            return super.getMapCompletionEvents();
+        }
 
-  }
+    }
 }

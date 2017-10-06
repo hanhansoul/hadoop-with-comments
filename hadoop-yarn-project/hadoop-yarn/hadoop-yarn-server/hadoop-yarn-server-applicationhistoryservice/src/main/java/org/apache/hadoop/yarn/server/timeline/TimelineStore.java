@@ -28,15 +28,15 @@ import org.apache.hadoop.yarn.api.records.timeline.TimelineEntity;
 public interface TimelineStore extends
     Service, TimelineReader, TimelineWriter {
 
-  /**
-   * The system filter which will be automatically added to a
-   * {@link TimelineEntity}'s primary filter section when storing the entity.
-   * The filter key is case sensitive. Users are supposed not to use the key
-   * reserved by the timeline system.
-   */
-  @Private
-  enum SystemFilter {
-    ENTITY_OWNER
-  }
+    /**
+     * The system filter which will be automatically added to a
+     * {@link TimelineEntity}'s primary filter section when storing the entity.
+     * The filter key is case sensitive. Users are supposed not to use the key
+     * reserved by the timeline system.
+     */
+    @Private
+    enum SystemFilter {
+        ENTITY_OWNER
+    }
 
 }

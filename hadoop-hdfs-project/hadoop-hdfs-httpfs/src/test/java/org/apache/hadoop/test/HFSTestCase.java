@@ -22,7 +22,7 @@ import org.junit.rules.MethodRule;
 
 public abstract class HFSTestCase extends HTestCase {
 
-  @Rule
-  public MethodRule hdfsTestHelper = new TestHdfsHelper();
+    @Rule
+    public MethodRule hdfsTestHelper = new TestHdfsHelper();
 
 }

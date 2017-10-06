@@ -26,23 +26,23 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class UniqValueCount 
-    extends org.apache.hadoop.mapreduce.lib.aggregate.UniqValueCount 
+public class UniqValueCount
+    extends org.apache.hadoop.mapreduce.lib.aggregate.UniqValueCount
     implements ValueAggregator<Object> {
-  /**
-   * the default constructor
-   * 
-   */
-  public UniqValueCount() {
-    super();
-  }
-  
-  /**
-   * constructor
-   * @param maxNum the limit in the number of unique values to keep.
-   *  
-   */
-  public UniqValueCount(long maxNum) {
-    super(maxNum);
-  }
+    /**
+     * the default constructor
+     *
+     */
+    public UniqValueCount() {
+        super();
+    }
+
+    /**
+     * constructor
+     * @param maxNum the limit in the number of unique values to keep.
+     *
+     */
+    public UniqValueCount(long maxNum) {
+        super(maxNum);
+    }
 }

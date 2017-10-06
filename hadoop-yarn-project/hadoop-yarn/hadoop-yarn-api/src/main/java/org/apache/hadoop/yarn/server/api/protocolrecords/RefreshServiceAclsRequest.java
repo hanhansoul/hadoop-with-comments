@@ -26,11 +26,11 @@ import org.apache.hadoop.yarn.util.Records;
 @Private
 @Stable
 public abstract class RefreshServiceAclsRequest {
-  @Public
-  @Stable
-  public static RefreshServiceAclsRequest newInstance() {
-    RefreshServiceAclsRequest request =
-        Records.newRecord(RefreshServiceAclsRequest.class);
-    return request;
-  }
+    @Public
+    @Stable
+    public static RefreshServiceAclsRequest newInstance() {
+        RefreshServiceAclsRequest request =
+            Records.newRecord(RefreshServiceAclsRequest.class);
+        return request;
+    }
 }

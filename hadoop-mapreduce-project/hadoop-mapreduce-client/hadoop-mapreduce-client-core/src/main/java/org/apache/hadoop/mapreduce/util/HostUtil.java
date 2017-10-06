@@ -25,42 +25,42 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class HostUtil {
 
-  /**
-   * Construct the taskLogUrl
-   * @param taskTrackerHostName
-   * @param httpPort
-   * @param taskAttemptID
-   * @return the taskLogUrl
-   */
-  public static String getTaskLogUrl(String scheme, String taskTrackerHostName,
-    String httpPort, String taskAttemptID) {
-    return (scheme + taskTrackerHostName + ":" +
-        httpPort + "/tasklog?attemptid=" + taskAttemptID);
-  }
+    /**
+     * Construct the taskLogUrl
+     * @param taskTrackerHostName
+     * @param httpPort
+     * @param taskAttemptID
+     * @return the taskLogUrl
+     */
+    public static String getTaskLogUrl(String scheme, String taskTrackerHostName,
+                                       String httpPort, String taskAttemptID) {
+        return (scheme + taskTrackerHostName + ":" +
+                httpPort + "/tasklog?attemptid=" + taskAttemptID);
+    }
 
-  /**
-   * Always throws {@link RuntimeException} because this method is not
-   * supposed to be called at runtime. This method is only for keeping
-   * binary compatibility with Hive 0.13. MAPREDUCE-5830 for the details.
-   * @deprecated Use {@link #getTaskLogUrl(String, String, String, String)}
-   * to construct the taskLogUrl.
-   */
-  @Deprecated
-  public static String getTaskLogUrl(String taskTrackerHostName,
-                                     String httpPort, String taskAttemptID) {
-    throw new RuntimeException(
-        "This method is not supposed to be called at runtime. " +
-        "Use HostUtil.getTaskLogUrl(String, String, String, String) instead.");
-  }
+    /**
+     * Always throws {@link RuntimeException} because this method is not
+     * supposed to be called at runtime. This method is only for keeping
+     * binary compatibility with Hive 0.13. MAPREDUCE-5830 for the details.
+     * @deprecated Use {@link #getTaskLogUrl(String, String, String, String)}
+     * to construct the taskLogUrl.
+     */
+    @Deprecated
+    public static String getTaskLogUrl(String taskTrackerHostName,
+                                       String httpPort, String taskAttemptID) {
+        throw new RuntimeException(
+            "This method is not supposed to be called at runtime. " +
+            "Use HostUtil.getTaskLogUrl(String, String, String, String) instead.");
+    }
 
-  public static String convertTrackerNameToHostName(String trackerName) {
-    // Ugly!
-    // Convert the trackerName to its host name
-    int indexOfColon = trackerName.indexOf(":");
-    String trackerHostName = (indexOfColon == -1) ? 
-      trackerName : 
-      trackerName.substring(0, indexOfColon);
-    return trackerHostName.substring("tracker_".length());
-  }
+    public static String convertTrackerNameToHostName(String trackerName) {
+        // Ugly!
+        // Convert the trackerName to its host name
+        int indexOfColon = trackerName.indexOf(":");
+        String trackerHostName = (indexOfColon == -1) ?
+                                 trackerName :
+                                 trackerName.substring(0, indexOfColon);
+        return trackerHostName.substring("tracker_".length());
+    }
 
 }

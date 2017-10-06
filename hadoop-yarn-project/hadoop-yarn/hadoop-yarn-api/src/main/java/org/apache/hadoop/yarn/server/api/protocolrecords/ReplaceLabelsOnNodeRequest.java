@@ -29,19 +29,19 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Evolving
 public abstract class ReplaceLabelsOnNodeRequest {
-  public static ReplaceLabelsOnNodeRequest newInstance(
-      Map<NodeId, Set<String>> map) {
-    ReplaceLabelsOnNodeRequest request =
-        Records.newRecord(ReplaceLabelsOnNodeRequest.class);
-    request.setNodeToLabels(map);
-    return request;
-  }
+    public static ReplaceLabelsOnNodeRequest newInstance(
+        Map<NodeId, Set<String>> map) {
+        ReplaceLabelsOnNodeRequest request =
+            Records.newRecord(ReplaceLabelsOnNodeRequest.class);
+        request.setNodeToLabels(map);
+        return request;
+    }
 
-  @Public
-  @Evolving
-  public abstract void setNodeToLabels(Map<NodeId, Set<String>> map);
+    @Public
+    @Evolving
+    public abstract void setNodeToLabels(Map<NodeId, Set<String>> map);
 
-  @Public
-  @Evolving
-  public abstract Map<NodeId, Set<String>> getNodeToLabels();
+    @Public
+    @Evolving
+    public abstract Map<NodeId, Set<String>> getNodeToLabels();
 }

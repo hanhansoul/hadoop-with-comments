@@ -43,61 +43,61 @@ import org.apache.hadoop.security.authorize.AccessControlList;
  */
 public interface Job {
 
-  JobId getID();
-  String getName();
-  JobState getState();
-  JobReport getReport();
+    JobId getID();
+    String getName();
+    JobState getState();
+    JobReport getReport();
 
-  /**
-   * Get all the counters of this job. This includes job-counters aggregated
-   * together with the counters of each task. This creates a clone of the
-   * Counters, so use this judiciously.  
-   * @return job-counters and aggregate task-counters
-   */
-  Counters getAllCounters();
+    /**
+     * Get all the counters of this job. This includes job-counters aggregated
+     * together with the counters of each task. This creates a clone of the
+     * Counters, so use this judiciously.
+     * @return job-counters and aggregate task-counters
+     */
+    Counters getAllCounters();
 
-  Map<TaskId,Task> getTasks();
-  Map<TaskId,Task> getTasks(TaskType taskType);
-  Task getTask(TaskId taskID);
-  List<String> getDiagnostics();
-  int getTotalMaps();
-  int getTotalReduces();
-  int getCompletedMaps();
-  int getCompletedReduces();
-  float getProgress();
-  boolean isUber();
-  String getUserName();
-  String getQueueName();
-  
-  /**
-   * @return a path to where the config file for this job is located.
-   */
-  Path getConfFile();
-  
-  /**
-   * @return a parsed version of the config files pointed to by 
-   * {@link #getConfFile()}.
-   * @throws IOException on any error trying to load the conf file. 
-   */
-  Configuration loadConfFile() throws IOException;
-  
-  /**
-   * @return the ACLs for this job for each type of JobACL given. 
-   */
-  Map<JobACL, AccessControlList> getJobACLs();
+    Map<TaskId,Task> getTasks();
+    Map<TaskId,Task> getTasks(TaskType taskType);
+    Task getTask(TaskId taskID);
+    List<String> getDiagnostics();
+    int getTotalMaps();
+    int getTotalReduces();
+    int getCompletedMaps();
+    int getCompletedReduces();
+    float getProgress();
+    boolean isUber();
+    String getUserName();
+    String getQueueName();
 
-  TaskAttemptCompletionEvent[]
-      getTaskAttemptCompletionEvents(int fromEventId, int maxEvents);
+    /**
+     * @return a path to where the config file for this job is located.
+     */
+    Path getConfFile();
 
-  TaskCompletionEvent[]
-      getMapAttemptCompletionEvents(int startIndex, int maxEvents);
+    /**
+     * @return a parsed version of the config files pointed to by
+     * {@link #getConfFile()}.
+     * @throws IOException on any error trying to load the conf file.
+     */
+    Configuration loadConfFile() throws IOException;
 
-  /**
-   * @return information for MR AppMasters (previously failed and current)
-   */
-  List<AMInfo> getAMInfos();
-  
-  boolean checkAccess(UserGroupInformation callerUGI, JobACL jobOperation);
-  
-  public void setQueueName(String queueName);
+    /**
+     * @return the ACLs for this job for each type of JobACL given.
+     */
+    Map<JobACL, AccessControlList> getJobACLs();
+
+    TaskAttemptCompletionEvent[]
+    getTaskAttemptCompletionEvents(int fromEventId, int maxEvents);
+
+    TaskCompletionEvent[]
+    getMapAttemptCompletionEvents(int startIndex, int maxEvents);
+
+    /**
+     * @return information for MR AppMasters (previously failed and current)
+     */
+    List<AMInfo> getAMInfos();
+
+    boolean checkAccess(UserGroupInformation callerUGI, JobACL jobOperation);
+
+    public void setQueueName(String queueName);
 }

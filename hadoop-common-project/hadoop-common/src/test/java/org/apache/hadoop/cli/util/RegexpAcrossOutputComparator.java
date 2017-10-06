@@ -31,9 +31,9 @@ import java.util.regex.Pattern;
  */
 public class RegexpAcrossOutputComparator extends ComparatorBase {
 
-  @Override
-  public boolean compare(String actual, String expected) {
-    return Pattern.compile(expected).matcher(actual).find();
-  }
+    @Override
+    public boolean compare(String actual, String expected) {
+        return Pattern.compile(expected).matcher(actual).find();
+    }
 
 }

@@ -29,58 +29,58 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.api.records.ResourceRequest;
 
 public class Allocation {
-  
-  final List<Container> containers;
-  final Set<ContainerId> strictContainers;
-  final Set<ContainerId> fungibleContainers;
-  final List<ResourceRequest> fungibleResources;
-  final List<NMToken> nmTokens;
-  private Resource resourceLimit;
 
-  public Allocation(List<Container> containers, Resource resourceLimit,
-      Set<ContainerId> strictContainers, Set<ContainerId> fungibleContainers,
-      List<ResourceRequest> fungibleResources) {
-    this(containers,  resourceLimit,strictContainers,  fungibleContainers,
-      fungibleResources, null);
-  }
+    final List<Container> containers;
+    final Set<ContainerId> strictContainers;
+    final Set<ContainerId> fungibleContainers;
+    final List<ResourceRequest> fungibleResources;
+    final List<NMToken> nmTokens;
+    private Resource resourceLimit;
 
-  public Allocation(List<Container> containers, Resource resourceLimit,
-      Set<ContainerId> strictContainers, Set<ContainerId> fungibleContainers,
-      List<ResourceRequest> fungibleResources, List<NMToken> nmTokens) {
-    this.containers = containers;
-    this.resourceLimit = resourceLimit;
-    this.strictContainers = strictContainers;
-    this.fungibleContainers = fungibleContainers;
-    this.fungibleResources = fungibleResources;
-    this.nmTokens = nmTokens;
-  }
+    public Allocation(List<Container> containers, Resource resourceLimit,
+                      Set<ContainerId> strictContainers, Set<ContainerId> fungibleContainers,
+                      List<ResourceRequest> fungibleResources) {
+        this(containers,  resourceLimit,strictContainers,  fungibleContainers,
+             fungibleResources, null);
+    }
 
-  public List<Container> getContainers() {
-    return containers;
-  }
+    public Allocation(List<Container> containers, Resource resourceLimit,
+                      Set<ContainerId> strictContainers, Set<ContainerId> fungibleContainers,
+                      List<ResourceRequest> fungibleResources, List<NMToken> nmTokens) {
+        this.containers = containers;
+        this.resourceLimit = resourceLimit;
+        this.strictContainers = strictContainers;
+        this.fungibleContainers = fungibleContainers;
+        this.fungibleResources = fungibleResources;
+        this.nmTokens = nmTokens;
+    }
 
-  public Resource getResourceLimit() {
-    return resourceLimit;
-  }
+    public List<Container> getContainers() {
+        return containers;
+    }
 
-  public Set<ContainerId> getStrictContainerPreemptions() {
-    return strictContainers;
-  }
+    public Resource getResourceLimit() {
+        return resourceLimit;
+    }
 
-  public Set<ContainerId> getContainerPreemptions() {
-    return fungibleContainers;
-  }
+    public Set<ContainerId> getStrictContainerPreemptions() {
+        return strictContainers;
+    }
 
-  public List<ResourceRequest> getResourcePreemptions() {
-    return fungibleResources;
-  }
-    
-  public List<NMToken> getNMTokens() {
-    return nmTokens;
-  }
+    public Set<ContainerId> getContainerPreemptions() {
+        return fungibleContainers;
+    }
 
-  @VisibleForTesting
-  public void setResourceLimit(Resource resource) {
-    this.resourceLimit = resource;
-  }
+    public List<ResourceRequest> getResourcePreemptions() {
+        return fungibleResources;
+    }
+
+    public List<NMToken> getNMTokens() {
+        return nmTokens;
+    }
+
+    @VisibleForTesting
+    public void setResourceLimit(Resource resource) {
+        this.resourceLimit = resource;
+    }
 }

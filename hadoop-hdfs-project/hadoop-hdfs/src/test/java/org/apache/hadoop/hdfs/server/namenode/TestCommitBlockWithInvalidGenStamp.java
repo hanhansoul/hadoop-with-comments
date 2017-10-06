@@ -36,63 +36,63 @@ import java.io.IOException;
 
 
 public class TestCommitBlockWithInvalidGenStamp {
-  private static final int BLOCK_SIZE = 1024;
-  private MiniDFSCluster cluster;
-  private FSDirectory dir;
-  private DistributedFileSystem dfs;
+    private static final int BLOCK_SIZE = 1024;
+    private MiniDFSCluster cluster;
+    private FSDirectory dir;
+    private DistributedFileSystem dfs;
 
-  @Before
-  public void setUp() throws IOException {
-    final Configuration conf = new Configuration();
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
-    cluster = new MiniDFSCluster.Builder(conf).build();
-    cluster.waitActive();
+    @Before
+    public void setUp() throws IOException {
+        final Configuration conf = new Configuration();
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
+        cluster = new MiniDFSCluster.Builder(conf).build();
+        cluster.waitActive();
 
-    dir = cluster.getNamesystem().getFSDirectory();
-    dfs = cluster.getFileSystem();
-  }
-
-  @After
-  public void tearDown() {
-    if (cluster != null) {
-      cluster.shutdown();
+        dir = cluster.getNamesystem().getFSDirectory();
+        dfs = cluster.getFileSystem();
     }
-  }
 
-  @Test
-  public void testCommitWithInvalidGenStamp() throws Exception {
-    final Path file = new Path("/file");
-    FSDataOutputStream out = null;
-
-    try {
-      out = dfs.create(file, (short) 1);
-      INodeFile fileNode = dir.getINode4Write(file.toString()).asFile();
-      ExtendedBlock previous = null;
-
-      Block newBlock = DFSTestUtil.addBlockToFile(cluster.getDataNodes(),
-          dfs, cluster.getNamesystem(), file.toString(), fileNode,
-          dfs.getClient().getClientName(), previous, 100);
-      Block newBlockClone = new Block(newBlock);
-      previous = new ExtendedBlock(cluster.getNamesystem().getBlockPoolId(),
-          newBlockClone);
-
-      previous.setGenerationStamp(123);
-      try{
-        dfs.getClient().getNamenode().complete(file.toString(),
-            dfs.getClient().getClientName(), previous, fileNode.getId());
-        Assert.fail("should throw exception because invalid genStamp");
-      } catch (IOException e) {
-        Assert.assertTrue(e.toString().contains(
-            "Commit block with mismatching GS. NN has " +
-            newBlock + ", client submits " + newBlockClone));
-      }
-      previous = new ExtendedBlock(cluster.getNamesystem().getBlockPoolId(),
-          newBlock);
-      boolean complete =  dfs.getClient().getNamenode().complete(file.toString(),
-      dfs.getClient().getClientName(), previous, fileNode.getId());
-      Assert.assertTrue("should complete successfully", complete);
-    } finally {
-      IOUtils.cleanup(null, out);
+    @After
+    public void tearDown() {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
     }
-  }
+
+    @Test
+    public void testCommitWithInvalidGenStamp() throws Exception {
+        final Path file = new Path("/file");
+        FSDataOutputStream out = null;
+
+        try {
+            out = dfs.create(file, (short) 1);
+            INodeFile fileNode = dir.getINode4Write(file.toString()).asFile();
+            ExtendedBlock previous = null;
+
+            Block newBlock = DFSTestUtil.addBlockToFile(cluster.getDataNodes(),
+                             dfs, cluster.getNamesystem(), file.toString(), fileNode,
+                             dfs.getClient().getClientName(), previous, 100);
+            Block newBlockClone = new Block(newBlock);
+            previous = new ExtendedBlock(cluster.getNamesystem().getBlockPoolId(),
+                                         newBlockClone);
+
+            previous.setGenerationStamp(123);
+            try {
+                dfs.getClient().getNamenode().complete(file.toString(),
+                                                       dfs.getClient().getClientName(), previous, fileNode.getId());
+                Assert.fail("should throw exception because invalid genStamp");
+            } catch (IOException e) {
+                Assert.assertTrue(e.toString().contains(
+                                      "Commit block with mismatching GS. NN has " +
+                                      newBlock + ", client submits " + newBlockClone));
+            }
+            previous = new ExtendedBlock(cluster.getNamesystem().getBlockPoolId(),
+                                         newBlock);
+            boolean complete =  dfs.getClient().getNamenode().complete(file.toString(),
+                                dfs.getClient().getClientName(), previous, fileNode.getId());
+            Assert.assertTrue("should complete successfully", complete);
+        } finally {
+            IOUtils.cleanup(null, out);
+        }
+    }
 }

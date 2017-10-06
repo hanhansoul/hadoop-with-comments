@@ -34,27 +34,27 @@ import org.apache.hadoop.security.token.TokenSelector;
 public class ContainerTokenSelector implements
     TokenSelector<ContainerTokenIdentifier> {
 
-  private static final Log LOG = LogFactory
-      .getLog(ContainerTokenSelector.class);
+    private static final Log LOG = LogFactory
+                                   .getLog(ContainerTokenSelector.class);
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Token<ContainerTokenIdentifier> selectToken(Text service,
-      Collection<Token<? extends TokenIdentifier>> tokens) {
-    if (service == null) {
-      return null;
+    @SuppressWarnings("unchecked")
+    @Override
+    public Token<ContainerTokenIdentifier> selectToken(Text service,
+            Collection<Token<? extends TokenIdentifier>> tokens) {
+        if (service == null) {
+            return null;
+        }
+        for (Token<? extends TokenIdentifier> token : tokens) {
+            if (LOG.isDebugEnabled()) {
+                LOG.info("Looking for service: " + service + ". Current token is "
+                         + token);
+            }
+            if (ContainerTokenIdentifier.KIND.equals(token.getKind()) &&
+                service.equals(token.getService())) {
+                return (Token<ContainerTokenIdentifier>) token;
+            }
+        }
+        return null;
     }
-    for (Token<? extends TokenIdentifier> token : tokens) {
-      if (LOG.isDebugEnabled()) {
-        LOG.info("Looking for service: " + service + ". Current token is "
-            + token);
-      }
-      if (ContainerTokenIdentifier.KIND.equals(token.getKind()) && 
-          service.equals(token.getService())) {
-        return (Token<ContainerTokenIdentifier>) token;
-      }
-    }
-    return null;
-  }
 
 }

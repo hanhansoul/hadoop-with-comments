@@ -37,97 +37,97 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.fifo.FifoSchedule
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FifoSchedulerInfo extends SchedulerInfo {
 
-  protected float capacity;
-  protected float usedCapacity;
-  protected QueueState qstate;
-  protected int minQueueMemoryCapacity;
-  protected int maxQueueMemoryCapacity;
-  protected int numNodes;
-  protected int usedNodeCapacity;
-  protected int availNodeCapacity;
-  protected int totalNodeCapacity;
-  protected int numContainers;
+    protected float capacity;
+    protected float usedCapacity;
+    protected QueueState qstate;
+    protected int minQueueMemoryCapacity;
+    protected int maxQueueMemoryCapacity;
+    protected int numNodes;
+    protected int usedNodeCapacity;
+    protected int availNodeCapacity;
+    protected int totalNodeCapacity;
+    protected int numContainers;
 
-  @XmlTransient
-  protected String qstateFormatted;
+    @XmlTransient
+    protected String qstateFormatted;
 
-  @XmlTransient
-  protected String qName;
+    @XmlTransient
+    protected String qName;
 
-  public FifoSchedulerInfo() {
-  } // JAXB needs this
+    public FifoSchedulerInfo() {
+    } // JAXB needs this
 
-  public FifoSchedulerInfo(final ResourceManager rm) {
+    public FifoSchedulerInfo(final ResourceManager rm) {
 
-    RMContext rmContext = rm.getRMContext();
+        RMContext rmContext = rm.getRMContext();
 
-    FifoScheduler fs = (FifoScheduler) rm.getResourceScheduler();
-    qName = fs.getQueueInfo("", false, false).getQueueName();
-    QueueInfo qInfo = fs.getQueueInfo(qName, true, true);
+        FifoScheduler fs = (FifoScheduler) rm.getResourceScheduler();
+        qName = fs.getQueueInfo("", false, false).getQueueName();
+        QueueInfo qInfo = fs.getQueueInfo(qName, true, true);
 
-    this.usedCapacity = qInfo.getCurrentCapacity();
-    this.capacity = qInfo.getCapacity();
-    this.minQueueMemoryCapacity = fs.getMinimumResourceCapability().getMemory();
-    this.maxQueueMemoryCapacity = fs.getMaximumResourceCapability().getMemory();
-    this.qstate = qInfo.getQueueState();
+        this.usedCapacity = qInfo.getCurrentCapacity();
+        this.capacity = qInfo.getCapacity();
+        this.minQueueMemoryCapacity = fs.getMinimumResourceCapability().getMemory();
+        this.maxQueueMemoryCapacity = fs.getMaximumResourceCapability().getMemory();
+        this.qstate = qInfo.getQueueState();
 
-    this.numNodes = rmContext.getRMNodes().size();
-    this.usedNodeCapacity = 0;
-    this.availNodeCapacity = 0;
-    this.totalNodeCapacity = 0;
-    this.numContainers = 0;
+        this.numNodes = rmContext.getRMNodes().size();
+        this.usedNodeCapacity = 0;
+        this.availNodeCapacity = 0;
+        this.totalNodeCapacity = 0;
+        this.numContainers = 0;
 
-    for (RMNode ni : rmContext.getRMNodes().values()) {
-      SchedulerNodeReport report = fs.getNodeReport(ni.getNodeID());
-      this.usedNodeCapacity += report.getUsedResource().getMemory();
-      this.availNodeCapacity += report.getAvailableResource().getMemory();
-      this.totalNodeCapacity += ni.getTotalCapability().getMemory();
-      this.numContainers += fs.getNodeReport(ni.getNodeID()).getNumContainers();
+        for (RMNode ni : rmContext.getRMNodes().values()) {
+            SchedulerNodeReport report = fs.getNodeReport(ni.getNodeID());
+            this.usedNodeCapacity += report.getUsedResource().getMemory();
+            this.availNodeCapacity += report.getAvailableResource().getMemory();
+            this.totalNodeCapacity += ni.getTotalCapability().getMemory();
+            this.numContainers += fs.getNodeReport(ni.getNodeID()).getNumContainers();
+        }
     }
-  }
 
-  public int getNumNodes() {
-    return this.numNodes;
-  }
+    public int getNumNodes() {
+        return this.numNodes;
+    }
 
-  public int getUsedNodeCapacity() {
-    return this.usedNodeCapacity;
-  }
+    public int getUsedNodeCapacity() {
+        return this.usedNodeCapacity;
+    }
 
-  public int getAvailNodeCapacity() {
-    return this.availNodeCapacity;
-  }
+    public int getAvailNodeCapacity() {
+        return this.availNodeCapacity;
+    }
 
-  public int getTotalNodeCapacity() {
-    return this.totalNodeCapacity;
-  }
+    public int getTotalNodeCapacity() {
+        return this.totalNodeCapacity;
+    }
 
-  public int getNumContainers() {
-    return this.numContainers;
-  }
+    public int getNumContainers() {
+        return this.numContainers;
+    }
 
-  public String getState() {
-    return this.qstate.toString();
-  }
+    public String getState() {
+        return this.qstate.toString();
+    }
 
-  public String getQueueName() {
-    return this.qName;
-  }
+    public String getQueueName() {
+        return this.qName;
+    }
 
-  public int getMinQueueMemoryCapacity() {
-    return this.minQueueMemoryCapacity;
-  }
+    public int getMinQueueMemoryCapacity() {
+        return this.minQueueMemoryCapacity;
+    }
 
-  public int getMaxQueueMemoryCapacity() {
-    return this.maxQueueMemoryCapacity;
-  }
+    public int getMaxQueueMemoryCapacity() {
+        return this.maxQueueMemoryCapacity;
+    }
 
-  public float getCapacity() {
-    return this.capacity;
-  }
+    public float getCapacity() {
+        return this.capacity;
+    }
 
-  public float getUsedCapacity() {
-    return this.usedCapacity;
-  }
+    public float getUsedCapacity() {
+        return this.usedCapacity;
+    }
 
 }

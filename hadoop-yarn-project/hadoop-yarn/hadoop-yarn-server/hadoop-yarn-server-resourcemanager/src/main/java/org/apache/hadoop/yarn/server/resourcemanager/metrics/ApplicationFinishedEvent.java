@@ -26,50 +26,50 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 public class ApplicationFinishedEvent extends
     SystemMetricsEvent {
 
-  private ApplicationId appId;;
-  private String diagnosticsInfo;
-  private FinalApplicationStatus appStatus;
-  private YarnApplicationState state;
-  private ApplicationAttemptId latestAppAttemptId;
+    private ApplicationId appId;;
+    private String diagnosticsInfo;
+    private FinalApplicationStatus appStatus;
+    private YarnApplicationState state;
+    private ApplicationAttemptId latestAppAttemptId;
 
-  public ApplicationFinishedEvent(
-      ApplicationId appId,
-      String diagnosticsInfo,
-      FinalApplicationStatus appStatus,
-      YarnApplicationState state,
-      ApplicationAttemptId latestAppAttemptId,
-      long finishedTime) {
-    super(SystemMetricsEventType.APP_FINISHED, finishedTime);
-    this.appId = appId;
-    this.diagnosticsInfo = diagnosticsInfo;
-    this.appStatus = appStatus;
-    this.latestAppAttemptId = latestAppAttemptId;
-    this.state = state;
-  }
+    public ApplicationFinishedEvent(
+        ApplicationId appId,
+        String diagnosticsInfo,
+        FinalApplicationStatus appStatus,
+        YarnApplicationState state,
+        ApplicationAttemptId latestAppAttemptId,
+        long finishedTime) {
+        super(SystemMetricsEventType.APP_FINISHED, finishedTime);
+        this.appId = appId;
+        this.diagnosticsInfo = diagnosticsInfo;
+        this.appStatus = appStatus;
+        this.latestAppAttemptId = latestAppAttemptId;
+        this.state = state;
+    }
 
-  @Override
-  public int hashCode() {
-    return appId.hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return appId.hashCode();
+    }
 
-  public ApplicationId getApplicationId() {
-    return appId;
-  }
+    public ApplicationId getApplicationId() {
+        return appId;
+    }
 
-  public String getDiagnosticsInfo() {
-    return diagnosticsInfo;
-  }
+    public String getDiagnosticsInfo() {
+        return diagnosticsInfo;
+    }
 
-  public FinalApplicationStatus getFinalApplicationStatus() {
-    return appStatus;
-  }
+    public FinalApplicationStatus getFinalApplicationStatus() {
+        return appStatus;
+    }
 
-  public YarnApplicationState getYarnApplicationState() {
-    return state;
-  }
+    public YarnApplicationState getYarnApplicationState() {
+        return state;
+    }
 
-  public ApplicationAttemptId getLatestApplicationAttemptId() {
-    return latestAppAttemptId;
-  }
+    public ApplicationAttemptId getLatestApplicationAttemptId() {
+        return latestAppAttemptId;
+    }
 
 }

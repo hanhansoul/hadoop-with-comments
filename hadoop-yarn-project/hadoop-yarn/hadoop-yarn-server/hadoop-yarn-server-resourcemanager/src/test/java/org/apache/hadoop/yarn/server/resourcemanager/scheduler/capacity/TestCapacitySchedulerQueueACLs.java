@@ -27,47 +27,48 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.apache.hadoop.yarn.server.resourcemanager.QueueACLsTestBase;
 
 public class TestCapacitySchedulerQueueACLs extends QueueACLsTestBase {
-  @Override
-  protected Configuration createConfiguration() {
-    CapacitySchedulerConfiguration csConf =
-        new CapacitySchedulerConfiguration();
-    csConf.setQueues(CapacitySchedulerConfiguration.ROOT, new String[] {
-        QUEUEA, QUEUEB });
+    @Override
+    protected Configuration createConfiguration() {
+        CapacitySchedulerConfiguration csConf =
+            new CapacitySchedulerConfiguration();
+        csConf.setQueues(CapacitySchedulerConfiguration.ROOT, new String[] {
+                             QUEUEA, QUEUEB
+                         });
 
-    csConf.setCapacity(CapacitySchedulerConfiguration.ROOT + "." + QUEUEA, 50f);
-    csConf.setCapacity(CapacitySchedulerConfiguration.ROOT + "." + QUEUEB, 50f);
+        csConf.setCapacity(CapacitySchedulerConfiguration.ROOT + "." + QUEUEA, 50f);
+        csConf.setCapacity(CapacitySchedulerConfiguration.ROOT + "." + QUEUEB, 50f);
 
-    Map<QueueACL, AccessControlList> aclsOnQueueA =
-        new HashMap<QueueACL, AccessControlList>();
-    AccessControlList submitACLonQueueA = new AccessControlList(QUEUE_A_USER);
-    submitACLonQueueA.addUser(COMMON_USER);
-    AccessControlList adminACLonQueueA = new AccessControlList(QUEUE_A_ADMIN);
-    aclsOnQueueA.put(QueueACL.SUBMIT_APPLICATIONS, submitACLonQueueA);
-    aclsOnQueueA.put(QueueACL.ADMINISTER_QUEUE, adminACLonQueueA);
-    csConf.setAcls(CapacitySchedulerConfiguration.ROOT + "." + QUEUEA,
-      aclsOnQueueA);
+        Map<QueueACL, AccessControlList> aclsOnQueueA =
+            new HashMap<QueueACL, AccessControlList>();
+        AccessControlList submitACLonQueueA = new AccessControlList(QUEUE_A_USER);
+        submitACLonQueueA.addUser(COMMON_USER);
+        AccessControlList adminACLonQueueA = new AccessControlList(QUEUE_A_ADMIN);
+        aclsOnQueueA.put(QueueACL.SUBMIT_APPLICATIONS, submitACLonQueueA);
+        aclsOnQueueA.put(QueueACL.ADMINISTER_QUEUE, adminACLonQueueA);
+        csConf.setAcls(CapacitySchedulerConfiguration.ROOT + "." + QUEUEA,
+                       aclsOnQueueA);
 
-    Map<QueueACL, AccessControlList> aclsOnQueueB =
-        new HashMap<QueueACL, AccessControlList>();
-    AccessControlList submitACLonQueueB = new AccessControlList(QUEUE_B_USER);
-    submitACLonQueueB.addUser(COMMON_USER);
-    AccessControlList adminACLonQueueB = new AccessControlList(QUEUE_B_ADMIN);
-    aclsOnQueueB.put(QueueACL.SUBMIT_APPLICATIONS, submitACLonQueueB);
-    aclsOnQueueB.put(QueueACL.ADMINISTER_QUEUE, adminACLonQueueB);
-    csConf.setAcls(CapacitySchedulerConfiguration.ROOT + "." + QUEUEB,
-      aclsOnQueueB);
+        Map<QueueACL, AccessControlList> aclsOnQueueB =
+            new HashMap<QueueACL, AccessControlList>();
+        AccessControlList submitACLonQueueB = new AccessControlList(QUEUE_B_USER);
+        submitACLonQueueB.addUser(COMMON_USER);
+        AccessControlList adminACLonQueueB = new AccessControlList(QUEUE_B_ADMIN);
+        aclsOnQueueB.put(QueueACL.SUBMIT_APPLICATIONS, submitACLonQueueB);
+        aclsOnQueueB.put(QueueACL.ADMINISTER_QUEUE, adminACLonQueueB);
+        csConf.setAcls(CapacitySchedulerConfiguration.ROOT + "." + QUEUEB,
+                       aclsOnQueueB);
 
-    Map<QueueACL, AccessControlList> aclsOnRootQueue =
-        new HashMap<QueueACL, AccessControlList>();
-    AccessControlList submitACLonRoot = new AccessControlList("");
-    AccessControlList adminACLonRoot = new AccessControlList(ROOT_ADMIN);
-    aclsOnRootQueue.put(QueueACL.SUBMIT_APPLICATIONS, submitACLonRoot);
-    aclsOnRootQueue.put(QueueACL.ADMINISTER_QUEUE, adminACLonRoot);
-    csConf.setAcls(CapacitySchedulerConfiguration.ROOT, aclsOnRootQueue);
+        Map<QueueACL, AccessControlList> aclsOnRootQueue =
+            new HashMap<QueueACL, AccessControlList>();
+        AccessControlList submitACLonRoot = new AccessControlList("");
+        AccessControlList adminACLonRoot = new AccessControlList(ROOT_ADMIN);
+        aclsOnRootQueue.put(QueueACL.SUBMIT_APPLICATIONS, submitACLonRoot);
+        aclsOnRootQueue.put(QueueACL.ADMINISTER_QUEUE, adminACLonRoot);
+        csConf.setAcls(CapacitySchedulerConfiguration.ROOT, aclsOnRootQueue);
 
-    csConf.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
-    csConf.set("yarn.resourcemanager.scheduler.class", CapacityScheduler.class.getName());
+        csConf.setBoolean(YarnConfiguration.YARN_ACL_ENABLE, true);
+        csConf.set("yarn.resourcemanager.scheduler.class", CapacityScheduler.class.getName());
 
-    return csConf;
-  }
+        return csConf;
+    }
 }

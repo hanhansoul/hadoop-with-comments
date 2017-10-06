@@ -27,34 +27,34 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.security.UserGroupInformation;
 
 public class TestHDFSFileSystemContract extends FileSystemContractBaseTest {
-  
-  private MiniDFSCluster cluster;
-  private String defaultWorkingDirectory;
 
-  @Override
-  protected void setUp() throws Exception {
-    Configuration conf = new HdfsConfiguration();
-    conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY,
-        FileSystemContractBaseTest.TEST_UMASK);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
-    fs = cluster.getFileSystem();
-    defaultWorkingDirectory = "/user/" + 
-           UserGroupInformation.getCurrentUser().getShortUserName();
-  }
-  
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
-    cluster.shutdown();
-    cluster = null;
-  }
+    private MiniDFSCluster cluster;
+    private String defaultWorkingDirectory;
 
-  @Override
-  protected String getDefaultWorkingDirectory() {
-    return defaultWorkingDirectory;
-  }
+    @Override
+    protected void setUp() throws Exception {
+        Configuration conf = new HdfsConfiguration();
+        conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY,
+                 FileSystemContractBaseTest.TEST_UMASK);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2).build();
+        fs = cluster.getFileSystem();
+        defaultWorkingDirectory = "/user/" +
+                                  UserGroupInformation.getCurrentUser().getShortUserName();
+    }
 
-  public void testAppend() throws IOException {
-    AppendTestUtil.testAppend(fs, new Path("/testAppend/f"));
-  }
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        cluster.shutdown();
+        cluster = null;
+    }
+
+    @Override
+    protected String getDefaultWorkingDirectory() {
+        return defaultWorkingDirectory;
+    }
+
+    public void testAppend() throws IOException {
+        AppendTestUtil.testAppend(fs, new Path("/testAppend/f"));
+    }
 }

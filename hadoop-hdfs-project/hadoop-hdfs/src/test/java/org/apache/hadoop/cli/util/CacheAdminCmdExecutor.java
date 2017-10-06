@@ -21,17 +21,17 @@ import org.apache.hadoop.hdfs.tools.CacheAdmin;
 import org.apache.hadoop.util.ToolRunner;
 
 public class CacheAdminCmdExecutor extends CommandExecutor {
-  protected String namenode = null;
-  protected CacheAdmin admin = null;
+    protected String namenode = null;
+    protected CacheAdmin admin = null;
 
-  public CacheAdminCmdExecutor(String namenode, CacheAdmin admin) {
-    this.namenode = namenode;
-    this.admin = admin;
-  }
+    public CacheAdminCmdExecutor(String namenode, CacheAdmin admin) {
+        this.namenode = namenode;
+        this.admin = admin;
+    }
 
-  @Override
-  protected void execute(final String cmd) throws Exception {
-    String[] args = getCommandAsArgs(cmd, "NAMENODE", this.namenode);
-    ToolRunner.run(admin, args);
-  }
+    @Override
+    protected void execute(final String cmd) throws Exception {
+        String[] args = getCommandAsArgs(cmd, "NAMENODE", this.namenode);
+        ToolRunner.run(admin, args);
+    }
 }

@@ -38,50 +38,50 @@ import org.apache.hadoop.yarn.util.Records;
 @Evolving
 public abstract class PreemptionContract {
 
-  @Private
-  @Unstable
-  public static PreemptionContract newInstance(
-      List<PreemptionResourceRequest> req, Set<PreemptionContainer> containers) {
-    PreemptionContract contract = Records.newRecord(PreemptionContract.class);
-    contract.setResourceRequest(req);
-    contract.setContainers(containers);
-    return contract;
-  }
+    @Private
+    @Unstable
+    public static PreemptionContract newInstance(
+        List<PreemptionResourceRequest> req, Set<PreemptionContainer> containers) {
+        PreemptionContract contract = Records.newRecord(PreemptionContract.class);
+        contract.setResourceRequest(req);
+        contract.setContainers(containers);
+        return contract;
+    }
 
-  /**
-   * If the AM releases resources matching these requests, then the {@link
-   * PreemptionContainer}s enumerated in {@link #getContainers()} should not be
-   * evicted from the cluster. Due to delays in propagating cluster state and
-   * sending these messages, there are conditions where satisfied contracts may
-   * not prevent the platform from killing containers.
-   * @return List of {@link PreemptionResourceRequest} to update the
-   * <code>ApplicationMaster</code> about resources requested back by the
-   * <code>ResourceManager</code>.
-   * @see AllocateRequest#setAskList(List)
-   */
-  @Public
-  @Evolving
-  public abstract List<PreemptionResourceRequest> getResourceRequest();
+    /**
+     * If the AM releases resources matching these requests, then the {@link
+     * PreemptionContainer}s enumerated in {@link #getContainers()} should not be
+     * evicted from the cluster. Due to delays in propagating cluster state and
+     * sending these messages, there are conditions where satisfied contracts may
+     * not prevent the platform from killing containers.
+     * @return List of {@link PreemptionResourceRequest} to update the
+     * <code>ApplicationMaster</code> about resources requested back by the
+     * <code>ResourceManager</code>.
+     * @see AllocateRequest#setAskList(List)
+     */
+    @Public
+    @Evolving
+    public abstract List<PreemptionResourceRequest> getResourceRequest();
 
-  @Private
-  @Unstable
-  public abstract void setResourceRequest(List<PreemptionResourceRequest> req);
+    @Private
+    @Unstable
+    public abstract void setResourceRequest(List<PreemptionResourceRequest> req);
 
-  /**
-   * Assign the set of {@link PreemptionContainer} specifying which containers
-   * owned by the <code>ApplicationMaster</code> that may be reclaimed by the
-   * <code>ResourceManager</code>. If the AM prefers a different set of
-   * containers, then it may checkpoint or kill containers matching the
-   * description in {@link #getResourceRequest}.
-   * @return Set of containers at risk if the contract is not met.
-   */
-  @Public
-  @Evolving
-  public abstract Set<PreemptionContainer> getContainers();
+    /**
+     * Assign the set of {@link PreemptionContainer} specifying which containers
+     * owned by the <code>ApplicationMaster</code> that may be reclaimed by the
+     * <code>ResourceManager</code>. If the AM prefers a different set of
+     * containers, then it may checkpoint or kill containers matching the
+     * description in {@link #getResourceRequest}.
+     * @return Set of containers at risk if the contract is not met.
+     */
+    @Public
+    @Evolving
+    public abstract Set<PreemptionContainer> getContainers();
 
 
-  @Private
-  @Unstable
-  public abstract void setContainers(Set<PreemptionContainer> containers);
+    @Private
+    @Unstable
+    public abstract void setContainers(Set<PreemptionContainer> containers);
 
 }

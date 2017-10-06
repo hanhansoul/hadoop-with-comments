@@ -48,95 +48,95 @@ import com.google.common.base.Preconditions;
  * </pre>
  */
 abstract class AbstractINodeDiff<N extends INode,
-                                 A extends INodeAttributes,
-                                 D extends AbstractINodeDiff<N, A, D>>
+    A extends INodeAttributes,
+    D extends AbstractINodeDiff<N, A, D>>
     implements Comparable<Integer> {
 
-  /** The id of the corresponding snapshot. */
-  private int snapshotId;
-  /** The snapshot inode data.  It is null when there is no change. */
-  A snapshotINode;
-  /**
-   * Posterior diff is the diff happened after this diff.
-   * The posterior diff should be first applied to obtain the posterior
-   * snapshot and then apply this diff in order to obtain this snapshot.
-   * If the posterior diff is null, the posterior state is the current state. 
-   */
-  private D posteriorDiff;
+    /** The id of the corresponding snapshot. */
+    private int snapshotId;
+    /** The snapshot inode data.  It is null when there is no change. */
+    A snapshotINode;
+    /**
+     * Posterior diff is the diff happened after this diff.
+     * The posterior diff should be first applied to obtain the posterior
+     * snapshot and then apply this diff in order to obtain this snapshot.
+     * If the posterior diff is null, the posterior state is the current state.
+     */
+    private D posteriorDiff;
 
-  AbstractINodeDiff(int snapshotId, A snapshotINode, D posteriorDiff) {
-    this.snapshotId = snapshotId;
-    this.snapshotINode = snapshotINode;
-    this.posteriorDiff = posteriorDiff;
-  }
-
-  /** Compare diffs with snapshot ID. */
-  @Override
-  public final int compareTo(final Integer that) {
-    return Snapshot.ID_INTEGER_COMPARATOR.compare(this.snapshotId, that);
-  }
-
-  /** @return the snapshot object of this diff. */
-  public final int getSnapshotId() {
-    return snapshotId;
-  }
-  
-  final void setSnapshotId(int snapshot) {
-    this.snapshotId = snapshot;
-  }
-
-  /** @return the posterior diff. */
-  final D getPosterior() {
-    return posteriorDiff;
-  }
-
-  final void setPosterior(D posterior) {
-    posteriorDiff = posterior;
-  }
-
-  /** Save the INode state to the snapshot if it is not done already. */
-  void saveSnapshotCopy(A snapshotCopy) {
-    Preconditions.checkState(snapshotINode == null, "Expected snapshotINode to be null");
-    snapshotINode = snapshotCopy;
-  }
-
-  /** @return the inode corresponding to the snapshot. */
-  A getSnapshotINode() {
-    // get from this diff, then the posterior diff
-    // and then null for the current inode
-    for(AbstractINodeDiff<N, A, D> d = this; ; d = d.posteriorDiff) {
-      if (d.snapshotINode != null) {
-        return d.snapshotINode;
-      } else if (d.posteriorDiff == null) {
-        return null;
-      }
+    AbstractINodeDiff(int snapshotId, A snapshotINode, D posteriorDiff) {
+        this.snapshotId = snapshotId;
+        this.snapshotINode = snapshotINode;
+        this.posteriorDiff = posteriorDiff;
     }
-  }
 
-  /** Combine the posterior diff and collect blocks for deletion. */
-  abstract Quota.Counts combinePosteriorAndCollectBlocks(final N currentINode,
-      final D posterior, final BlocksMapUpdateInfo collectedBlocks,
-      final List<INode> removedINodes);
-  
-  /**
-   * Delete and clear self.
-   * @param currentINode The inode where the deletion happens.
-   * @param collectedBlocks Used to collect blocks for deletion.
-   * @return quota usage delta
-   */
-  abstract Quota.Counts destroyDiffAndCollectBlocks(final N currentINode,
-      final BlocksMapUpdateInfo collectedBlocks, final List<INode> removedINodes);
+    /** Compare diffs with snapshot ID. */
+    @Override
+    public final int compareTo(final Integer that) {
+        return Snapshot.ID_INTEGER_COMPARATOR.compare(this.snapshotId, that);
+    }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName() + ": " + this.getSnapshotId() + " (post="
-        + (posteriorDiff == null? null: posteriorDiff.getSnapshotId()) + ")";
-  }
+    /** @return the snapshot object of this diff. */
+    public final int getSnapshotId() {
+        return snapshotId;
+    }
 
-  void writeSnapshot(DataOutput out) throws IOException {
-    out.writeInt(snapshotId);
-  }
+    final void setSnapshotId(int snapshot) {
+        this.snapshotId = snapshot;
+    }
 
-  abstract void write(DataOutput out, ReferenceMap referenceMap
-      ) throws IOException;
+    /** @return the posterior diff. */
+    final D getPosterior() {
+        return posteriorDiff;
+    }
+
+    final void setPosterior(D posterior) {
+        posteriorDiff = posterior;
+    }
+
+    /** Save the INode state to the snapshot if it is not done already. */
+    void saveSnapshotCopy(A snapshotCopy) {
+        Preconditions.checkState(snapshotINode == null, "Expected snapshotINode to be null");
+        snapshotINode = snapshotCopy;
+    }
+
+    /** @return the inode corresponding to the snapshot. */
+    A getSnapshotINode() {
+        // get from this diff, then the posterior diff
+        // and then null for the current inode
+        for(AbstractINodeDiff<N, A, D> d = this; ; d = d.posteriorDiff) {
+            if (d.snapshotINode != null) {
+                return d.snapshotINode;
+            } else if (d.posteriorDiff == null) {
+                return null;
+            }
+        }
+    }
+
+    /** Combine the posterior diff and collect blocks for deletion. */
+    abstract Quota.Counts combinePosteriorAndCollectBlocks(final N currentINode,
+            final D posterior, final BlocksMapUpdateInfo collectedBlocks,
+            final List<INode> removedINodes);
+
+    /**
+     * Delete and clear self.
+     * @param currentINode The inode where the deletion happens.
+     * @param collectedBlocks Used to collect blocks for deletion.
+     * @return quota usage delta
+     */
+    abstract Quota.Counts destroyDiffAndCollectBlocks(final N currentINode,
+            final BlocksMapUpdateInfo collectedBlocks, final List<INode> removedINodes);
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + ": " + this.getSnapshotId() + " (post="
+               + (posteriorDiff == null? null: posteriorDiff.getSnapshotId()) + ")";
+    }
+
+    void writeSnapshot(DataOutput out) throws IOException {
+        out.writeInt(snapshotId);
+    }
+
+    abstract void write(DataOutput out, ReferenceMap referenceMap
+                       ) throws IOException;
 }

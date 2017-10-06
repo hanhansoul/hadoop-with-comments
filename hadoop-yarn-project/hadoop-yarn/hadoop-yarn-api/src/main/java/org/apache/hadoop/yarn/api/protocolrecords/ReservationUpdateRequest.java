@@ -27,70 +27,70 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * {@link ReservationUpdateRequest} captures the set of requirements the user
  * has to update an existing reservation.
- * 
+ *
  * @see ReservationDefinition
- * 
+ *
  */
 @Public
 @Unstable
 public abstract class ReservationUpdateRequest {
 
-  @Public
-  @Unstable
-  public static ReservationUpdateRequest newInstance(
-      ReservationDefinition reservationDefinition, ReservationId reservationId) {
-    ReservationUpdateRequest request =
-        Records.newRecord(ReservationUpdateRequest.class);
-    request.setReservationDefinition(reservationDefinition);
-    request.setReservationId(reservationId);
-    return request;
-  }
+    @Public
+    @Unstable
+    public static ReservationUpdateRequest newInstance(
+        ReservationDefinition reservationDefinition, ReservationId reservationId) {
+        ReservationUpdateRequest request =
+            Records.newRecord(ReservationUpdateRequest.class);
+        request.setReservationDefinition(reservationDefinition);
+        request.setReservationId(reservationId);
+        return request;
+    }
 
-  /**
-   * Get the {@link ReservationDefinition} representing the updated user
-   * constraints for this reservation
-   * 
-   * @return the reservation definition representing user constraints
-   */
-  @Public
-  @Unstable
-  public abstract ReservationDefinition getReservationDefinition();
+    /**
+     * Get the {@link ReservationDefinition} representing the updated user
+     * constraints for this reservation
+     *
+     * @return the reservation definition representing user constraints
+     */
+    @Public
+    @Unstable
+    public abstract ReservationDefinition getReservationDefinition();
 
-  /**
-   * Set the {@link ReservationDefinition} representing the updated user
-   * constraints for this reservation
-   * 
-   * @param reservationDefinition the reservation request representing the
-   *          reservation
-   */
-  @Public
-  @Unstable
-  public abstract void setReservationDefinition(
-      ReservationDefinition reservationDefinition);
+    /**
+     * Set the {@link ReservationDefinition} representing the updated user
+     * constraints for this reservation
+     *
+     * @param reservationDefinition the reservation request representing the
+     *          reservation
+     */
+    @Public
+    @Unstable
+    public abstract void setReservationDefinition(
+        ReservationDefinition reservationDefinition);
 
-  /**
-   * Get the {@link ReservationId}, that corresponds to a valid resource
-   * allocation in the scheduler (between start and end time of this
-   * reservation)
-   * 
-   * @return the {@link ReservationId} representing the unique id of the
-   *         corresponding reserved resource allocation in the scheduler
-   */
-  @Public
-  @Unstable
-  public abstract ReservationId getReservationId();
+    /**
+     * Get the {@link ReservationId}, that corresponds to a valid resource
+     * allocation in the scheduler (between start and end time of this
+     * reservation)
+     *
+     * @return the {@link ReservationId} representing the unique id of the
+     *         corresponding reserved resource allocation in the scheduler
+     */
+    @Public
+    @Unstable
+    public abstract ReservationId getReservationId();
 
-  /**
-   * Set the {@link ReservationId}, that correspond to a valid resource
-   * allocation in the scheduler (between start and end time of this
-   * reservation)
-   * 
-   * @param reservationId the {@link ReservationId} representing the the unique
-   *          id of the corresponding reserved resource allocation in the
-   *          scheduler
-   */
-  @Public
-  @Unstable
-  public abstract void setReservationId(ReservationId reservationId);
+    /**
+     * Set the {@link ReservationId}, that correspond to a valid resource
+     * allocation in the scheduler (between start and end time of this
+     * reservation)
+     *
+     * @param reservationId the {@link ReservationId} representing the the unique
+     *          id of the corresponding reserved resource allocation in the
+     *          scheduler
+     */
+    @Public
+    @Unstable
+    public abstract void setReservationId(ReservationId reservationId);
 
 }

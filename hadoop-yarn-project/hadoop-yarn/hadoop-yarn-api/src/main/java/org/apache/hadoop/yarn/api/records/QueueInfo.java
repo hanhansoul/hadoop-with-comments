@@ -30,7 +30,7 @@ import org.apache.hadoop.yarn.util.Records;
 
 /**
  * <p>QueueInfo is a report of the runtime information of the queue.</p>
- * 
+ *
  * <p>It includes information such as:
  *   <ul>
  *     <li>Queue name.</li>
@@ -49,140 +49,140 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Stable
 public abstract class QueueInfo {
-  
-  @Private
-  @Unstable
-  public static QueueInfo newInstance(String queueName, float capacity,
-      float maximumCapacity, float currentCapacity,
-      List<QueueInfo> childQueues, List<ApplicationReport> applications,
-      QueueState queueState, Set<String> accessibleNodeLabels,
-      String defaultNodeLabelExpression) {
-    QueueInfo queueInfo = Records.newRecord(QueueInfo.class);
-    queueInfo.setQueueName(queueName);
-    queueInfo.setCapacity(capacity);
-    queueInfo.setMaximumCapacity(maximumCapacity);
-    queueInfo.setCurrentCapacity(currentCapacity);
-    queueInfo.setChildQueues(childQueues);
-    queueInfo.setApplications(applications);
-    queueInfo.setQueueState(queueState);
-    queueInfo.setAccessibleNodeLabels(accessibleNodeLabels);
-    queueInfo.setDefaultNodeLabelExpression(defaultNodeLabelExpression);
-    return queueInfo;
-  }
 
-  /**
-   * Get the <em>name</em> of the queue.
-   * @return <em>name</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract String getQueueName();
-  
-  @Private
-  @Unstable
-  public abstract void setQueueName(String queueName);
-  
-  /**
-   * Get the <em>configured capacity</em> of the queue.
-   * @return <em>configured capacity</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract float getCapacity();
-  
-  @Private
-  @Unstable
-  public abstract void setCapacity(float capacity);
-  
-  /**
-   * Get the <em>maximum capacity</em> of the queue.
-   * @return <em>maximum capacity</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract float getMaximumCapacity();
-  
-  @Private
-  @Unstable
-  public abstract void setMaximumCapacity(float maximumCapacity);
-  
-  /**
-   * Get the <em>current capacity</em> of the queue.
-   * @return <em>current capacity</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract float getCurrentCapacity();
-  
-  @Private
-  @Unstable
-  public abstract void setCurrentCapacity(float currentCapacity);
-  
-  /**
-   * Get the <em>child queues</em> of the queue.
-   * @return <em>child queues</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract List<QueueInfo> getChildQueues();
-  
-  @Private
-  @Unstable
-  public abstract void setChildQueues(List<QueueInfo> childQueues);
-  
-  /**
-   * Get the <em>running applications</em> of the queue.
-   * @return <em>running applications</em> of the queue
-   */
-  @Public
-  @Stable
-  public abstract List<ApplicationReport> getApplications();
-  
-  @Private
-  @Unstable
-  public abstract void setApplications(List<ApplicationReport> applications);
-  
-  /**
-   * Get the <code>QueueState</code> of the queue.
-   * @return <code>QueueState</code> of the queue
-   */
-  @Public
-  @Stable
-  public abstract QueueState getQueueState();
-  
-  @Private
-  @Unstable
-  public abstract void setQueueState(QueueState queueState);
-  
-  /**
-   * Get the <code>accessible node labels</code> of the queue.
-   * @return <code>accessible node labels</code> of the queue
-   */
-  @Public
-  @Stable
-  public abstract Set<String> getAccessibleNodeLabels();
-  
-  /**
-   * Set the <code>accessible node labels</code> of the queue.
-   */
-  @Private
-  @Unstable
-  public abstract void setAccessibleNodeLabels(Set<String> labels);
-  
-  /**
-   * Get the <code>default node label expression</code> of the queue, this takes
-   * affect only when the <code>ApplicationSubmissionContext</code> and
-   * <code>ResourceRequest</code> don't specify their
-   * <code>NodeLabelExpression</code>.
-   * 
-   * @return <code>default node label expression</code> of the queue
-   */
-  @Public
-  @Stable
-  public abstract String getDefaultNodeLabelExpression();
-  
-  @Public
-  @Stable
-  public abstract void setDefaultNodeLabelExpression(
-      String defaultLabelExpression);
+    @Private
+    @Unstable
+    public static QueueInfo newInstance(String queueName, float capacity,
+                                        float maximumCapacity, float currentCapacity,
+                                        List<QueueInfo> childQueues, List<ApplicationReport> applications,
+                                        QueueState queueState, Set<String> accessibleNodeLabels,
+                                        String defaultNodeLabelExpression) {
+        QueueInfo queueInfo = Records.newRecord(QueueInfo.class);
+        queueInfo.setQueueName(queueName);
+        queueInfo.setCapacity(capacity);
+        queueInfo.setMaximumCapacity(maximumCapacity);
+        queueInfo.setCurrentCapacity(currentCapacity);
+        queueInfo.setChildQueues(childQueues);
+        queueInfo.setApplications(applications);
+        queueInfo.setQueueState(queueState);
+        queueInfo.setAccessibleNodeLabels(accessibleNodeLabels);
+        queueInfo.setDefaultNodeLabelExpression(defaultNodeLabelExpression);
+        return queueInfo;
+    }
+
+    /**
+     * Get the <em>name</em> of the queue.
+     * @return <em>name</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract String getQueueName();
+
+    @Private
+    @Unstable
+    public abstract void setQueueName(String queueName);
+
+    /**
+     * Get the <em>configured capacity</em> of the queue.
+     * @return <em>configured capacity</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract float getCapacity();
+
+    @Private
+    @Unstable
+    public abstract void setCapacity(float capacity);
+
+    /**
+     * Get the <em>maximum capacity</em> of the queue.
+     * @return <em>maximum capacity</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract float getMaximumCapacity();
+
+    @Private
+    @Unstable
+    public abstract void setMaximumCapacity(float maximumCapacity);
+
+    /**
+     * Get the <em>current capacity</em> of the queue.
+     * @return <em>current capacity</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract float getCurrentCapacity();
+
+    @Private
+    @Unstable
+    public abstract void setCurrentCapacity(float currentCapacity);
+
+    /**
+     * Get the <em>child queues</em> of the queue.
+     * @return <em>child queues</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract List<QueueInfo> getChildQueues();
+
+    @Private
+    @Unstable
+    public abstract void setChildQueues(List<QueueInfo> childQueues);
+
+    /**
+     * Get the <em>running applications</em> of the queue.
+     * @return <em>running applications</em> of the queue
+     */
+    @Public
+    @Stable
+    public abstract List<ApplicationReport> getApplications();
+
+    @Private
+    @Unstable
+    public abstract void setApplications(List<ApplicationReport> applications);
+
+    /**
+     * Get the <code>QueueState</code> of the queue.
+     * @return <code>QueueState</code> of the queue
+     */
+    @Public
+    @Stable
+    public abstract QueueState getQueueState();
+
+    @Private
+    @Unstable
+    public abstract void setQueueState(QueueState queueState);
+
+    /**
+     * Get the <code>accessible node labels</code> of the queue.
+     * @return <code>accessible node labels</code> of the queue
+     */
+    @Public
+    @Stable
+    public abstract Set<String> getAccessibleNodeLabels();
+
+    /**
+     * Set the <code>accessible node labels</code> of the queue.
+     */
+    @Private
+    @Unstable
+    public abstract void setAccessibleNodeLabels(Set<String> labels);
+
+    /**
+     * Get the <code>default node label expression</code> of the queue, this takes
+     * affect only when the <code>ApplicationSubmissionContext</code> and
+     * <code>ResourceRequest</code> don't specify their
+     * <code>NodeLabelExpression</code>.
+     *
+     * @return <code>default node label expression</code> of the queue
+     */
+    @Public
+    @Stable
+    public abstract String getDefaultNodeLabelExpression();
+
+    @Public
+    @Stable
+    public abstract void setDefaultNodeLabelExpression(
+        String defaultLabelExpression);
 }

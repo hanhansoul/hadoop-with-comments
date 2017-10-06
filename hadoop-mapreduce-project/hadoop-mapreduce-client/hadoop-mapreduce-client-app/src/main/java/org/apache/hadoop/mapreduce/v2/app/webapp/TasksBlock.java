@@ -38,87 +38,85 @@ import org.apache.hadoop.yarn.webapp.view.HtmlBlock;
 import com.google.inject.Inject;
 
 public class TasksBlock extends HtmlBlock {
-  final App app;
+    final App app;
 
-  @Inject TasksBlock(App app) {
-    this.app = app;
-  }
-
-  @Override protected void render(Block html) {
-    if (app.getJob() == null) {
-      html.
-        h2($(TITLE));
-      return;
+    @Inject TasksBlock(App app) {
+        this.app = app;
     }
-    TaskType type = null;
-    String symbol = $(TASK_TYPE);
-    if (!symbol.isEmpty()) {
-      type = MRApps.taskType(symbol);
-    }
-    TBODY<TABLE<Hamlet>> tbody = html.
-      table("#tasks").
-        thead().
-          tr().
-            th("Task").
-            th("Progress").
-            th("Status").
-            th("State").
-            th("Start Time").
-            th("Finish Time").
-            th("Elapsed Time")._()._().
-        tbody();
-    StringBuilder tasksTableData = new StringBuilder("[\n");
 
-    for (Task task : app.getJob().getTasks().values()) {
-      if (type != null && task.getType() != type) {
-        continue;
-      }
-      String taskStateStr = $(TASK_STATE);
-      if (taskStateStr == null || taskStateStr.trim().equals("")) {
-        taskStateStr = "ALL";
-      }
-
-      if (!taskStateStr.equalsIgnoreCase("ALL"))
-      {
-        try {
-          // get stateUI enum
-          MRApps.TaskStateUI stateUI = MRApps.taskState(taskStateStr);
-          if (!stateUI.correspondsTo(task.getState()))
-          {
-            continue;
-          }
-        } catch (IllegalArgumentException e) {
-          continue; // not supported state, ignore
+    @Override protected void render(Block html) {
+        if (app.getJob() == null) {
+            html.
+            h2($(TITLE));
+            return;
         }
-      }
+        TaskType type = null;
+        String symbol = $(TASK_TYPE);
+        if (!symbol.isEmpty()) {
+            type = MRApps.taskType(symbol);
+        }
+        TBODY<TABLE<Hamlet>> tbody = html.
+                                     table("#tasks").
+                                     thead().
+                                     tr().
+                                     th("Task").
+                                     th("Progress").
+                                     th("Status").
+                                     th("State").
+                                     th("Start Time").
+                                     th("Finish Time").
+                                     th("Elapsed Time")._()._().
+                                     tbody();
+        StringBuilder tasksTableData = new StringBuilder("[\n");
 
-      TaskInfo info = new TaskInfo(task);
-      String tid = info.getId();
-      String pct = percent(info.getProgress() / 100);
-      tasksTableData.append("[\"<a href='").append(url("task", tid))
-      .append("'>").append(tid).append("</a>\",\"")
-      //Progress bar
-      .append("<br title='").append(pct)
-      .append("'> <div class='").append(C_PROGRESSBAR).append("' title='")
-      .append(join(pct, '%')).append("'> ").append("<div class='")
-      .append(C_PROGRESSBAR_VALUE).append("' style='")
-      .append(join("width:", pct, '%')).append("'> </div> </div>\",\"")
-      .append(StringEscapeUtils.escapeJavaScript(
-              StringEscapeUtils.escapeHtml(info.getStatus()))).append("\",\"")
+        for (Task task : app.getJob().getTasks().values()) {
+            if (type != null && task.getType() != type) {
+                continue;
+            }
+            String taskStateStr = $(TASK_STATE);
+            if (taskStateStr == null || taskStateStr.trim().equals("")) {
+                taskStateStr = "ALL";
+            }
 
-      .append(info.getState()).append("\",\"")
-      .append(info.getStartTime()).append("\",\"")
-      .append(info.getFinishTime()).append("\",\"")
-      .append(info.getElapsedTime()).append("\"],\n");
+            if (!taskStateStr.equalsIgnoreCase("ALL")) {
+                try {
+                    // get stateUI enum
+                    MRApps.TaskStateUI stateUI = MRApps.taskState(taskStateStr);
+                    if (!stateUI.correspondsTo(task.getState())) {
+                        continue;
+                    }
+                } catch (IllegalArgumentException e) {
+                    continue; // not supported state, ignore
+                }
+            }
+
+            TaskInfo info = new TaskInfo(task);
+            String tid = info.getId();
+            String pct = percent(info.getProgress() / 100);
+            tasksTableData.append("[\"<a href='").append(url("task", tid))
+            .append("'>").append(tid).append("</a>\",\"")
+            //Progress bar
+            .append("<br title='").append(pct)
+            .append("'> <div class='").append(C_PROGRESSBAR).append("' title='")
+            .append(join(pct, '%')).append("'> ").append("<div class='")
+            .append(C_PROGRESSBAR_VALUE).append("' style='")
+            .append(join("width:", pct, '%')).append("'> </div> </div>\",\"")
+            .append(StringEscapeUtils.escapeJavaScript(
+                        StringEscapeUtils.escapeHtml(info.getStatus()))).append("\",\"")
+
+            .append(info.getState()).append("\",\"")
+            .append(info.getStartTime()).append("\",\"")
+            .append(info.getFinishTime()).append("\",\"")
+            .append(info.getElapsedTime()).append("\"],\n");
+        }
+        //Remove the last comma and close off the array of arrays
+        if(tasksTableData.charAt(tasksTableData.length() - 2) == ',') {
+            tasksTableData.delete(tasksTableData.length()-2, tasksTableData.length()-1);
+        }
+        tasksTableData.append("]");
+        html.script().$type("text/javascript").
+        _("var tasksTableData=" + tasksTableData)._();
+
+        tbody._()._();
     }
-    //Remove the last comma and close off the array of arrays
-    if(tasksTableData.charAt(tasksTableData.length() - 2) == ',') {
-      tasksTableData.delete(tasksTableData.length()-2, tasksTableData.length()-1);
-    }
-    tasksTableData.append("]");
-    html.script().$type("text/javascript").
-    _("var tasksTableData=" + tasksTableData)._();
-
-    tbody._()._();
-  }
 }

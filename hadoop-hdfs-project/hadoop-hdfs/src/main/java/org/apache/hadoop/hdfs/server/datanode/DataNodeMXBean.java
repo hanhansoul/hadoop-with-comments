@@ -21,59 +21,59 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * 
+ *
  * This is the JMX management interface for data node information
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface DataNodeMXBean {
-  
-  /**
-   * Gets the version of Hadoop.
-   * 
-   * @return the version of Hadoop
-   */
-  public String getVersion();
-  
-  /**
-   * Gets the rpc port.
-   * 
-   * @return the rpc port
-   */
-  public String getRpcPort();
-  
-  /**
-   * Gets the http port.
-   * 
-   * @return the http port
-   */
-  public String getHttpPort();
-  
-  /**
-   * Gets the namenode IP addresses
-   * 
-   * @return the namenode IP addresses that the datanode is talking to
-   */
-  public String getNamenodeAddresses();
-  
-  /**
-   * Gets the information of each volume on the Datanode. Please
-   * see the implementation for the format of returned information.
-   * 
-   * @return the volume info
-   */
-  public String getVolumeInfo();
-  
-  /**
-   * Gets the cluster id.
-   * 
-   * @return the cluster id
-   */
-  public String getClusterId();
 
-  /**
-   * Returns an estimate of the number of Datanode threads
-   * actively transferring blocks.
-   */
-  public int getXceiverCount();
+    /**
+     * Gets the version of Hadoop.
+     *
+     * @return the version of Hadoop
+     */
+    public String getVersion();
+
+    /**
+     * Gets the rpc port.
+     *
+     * @return the rpc port
+     */
+    public String getRpcPort();
+
+    /**
+     * Gets the http port.
+     *
+     * @return the http port
+     */
+    public String getHttpPort();
+
+    /**
+     * Gets the namenode IP addresses
+     *
+     * @return the namenode IP addresses that the datanode is talking to
+     */
+    public String getNamenodeAddresses();
+
+    /**
+     * Gets the information of each volume on the Datanode. Please
+     * see the implementation for the format of returned information.
+     *
+     * @return the volume info
+     */
+    public String getVolumeInfo();
+
+    /**
+     * Gets the cluster id.
+     *
+     * @return the cluster id
+     */
+    public String getClusterId();
+
+    /**
+     * Returns an estimate of the number of Datanode threads
+     * actively transferring blocks.
+     */
+    public int getXceiverCount();
 }

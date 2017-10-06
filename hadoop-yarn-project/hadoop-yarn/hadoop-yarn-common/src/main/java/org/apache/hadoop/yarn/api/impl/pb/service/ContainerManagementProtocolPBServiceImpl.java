@@ -46,52 +46,52 @@ import com.google.protobuf.ServiceException;
 @Private
 public class ContainerManagementProtocolPBServiceImpl implements ContainerManagementProtocolPB  {
 
-  private ContainerManagementProtocol real;
-  
-  public ContainerManagementProtocolPBServiceImpl(ContainerManagementProtocol impl) {
-    this.real = impl;
-  }
+    private ContainerManagementProtocol real;
 
-  @Override
-  public StartContainersResponseProto startContainers(RpcController arg0,
-      StartContainersRequestProto proto) throws ServiceException {
-    StartContainersRequestPBImpl request = new StartContainersRequestPBImpl(proto);
-    try {
-      StartContainersResponse response = real.startContainers(request);
-      return ((StartContainersResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    public ContainerManagementProtocolPBServiceImpl(ContainerManagementProtocol impl) {
+        this.real = impl;
     }
-  }
 
-  @Override
-  public StopContainersResponseProto stopContainers(RpcController arg0,
-      StopContainersRequestProto proto) throws ServiceException {
-    StopContainersRequestPBImpl request = new StopContainersRequestPBImpl(proto);
-    try {
-      StopContainersResponse response = real.stopContainers(request);
-      return ((StopContainersResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public StartContainersResponseProto startContainers(RpcController arg0,
+            StartContainersRequestProto proto) throws ServiceException {
+        StartContainersRequestPBImpl request = new StartContainersRequestPBImpl(proto);
+        try {
+            StartContainersResponse response = real.startContainers(request);
+            return ((StartContainersResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public GetContainerStatusesResponseProto getContainerStatuses(
-      RpcController arg0, GetContainerStatusesRequestProto proto)
-      throws ServiceException {
-    GetContainerStatusesRequestPBImpl request = new GetContainerStatusesRequestPBImpl(proto);
-    try {
-      GetContainerStatusesResponse response = real.getContainerStatuses(request);
-      return ((GetContainerStatusesResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public StopContainersResponseProto stopContainers(RpcController arg0,
+            StopContainersRequestProto proto) throws ServiceException {
+        StopContainersRequestPBImpl request = new StopContainersRequestPBImpl(proto);
+        try {
+            StopContainersResponse response = real.stopContainers(request);
+            return ((StopContainersResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
+
+    @Override
+    public GetContainerStatusesResponseProto getContainerStatuses(
+        RpcController arg0, GetContainerStatusesRequestProto proto)
+    throws ServiceException {
+        GetContainerStatusesRequestPBImpl request = new GetContainerStatusesRequestPBImpl(proto);
+        try {
+            GetContainerStatusesResponse response = real.getContainerStatuses(request);
+            return ((GetContainerStatusesResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
 }

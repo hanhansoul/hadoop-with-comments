@@ -25,102 +25,102 @@ import org.apache.hadoop.yarn.server.api.records.MasterKey;
 import org.apache.hadoop.yarn.server.api.records.impl.pb.MasterKeyPBImpl;
 import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.AMRMTokenSecretManagerState;
 
-public class AMRMTokenSecretManagerStatePBImpl extends AMRMTokenSecretManagerState{
-  AMRMTokenSecretManagerStateProto proto =
-      AMRMTokenSecretManagerStateProto.getDefaultInstance();
-  AMRMTokenSecretManagerStateProto.Builder builder = null;
-  boolean viaProto = false;
+public class AMRMTokenSecretManagerStatePBImpl extends AMRMTokenSecretManagerState {
+    AMRMTokenSecretManagerStateProto proto =
+        AMRMTokenSecretManagerStateProto.getDefaultInstance();
+    AMRMTokenSecretManagerStateProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private MasterKey currentMasterKey = null;
-  private MasterKey nextMasterKey = null;
+    private MasterKey currentMasterKey = null;
+    private MasterKey nextMasterKey = null;
 
-  public AMRMTokenSecretManagerStatePBImpl() {
-    builder = AMRMTokenSecretManagerStateProto.newBuilder();
-  }
-
-  public AMRMTokenSecretManagerStatePBImpl(AMRMTokenSecretManagerStateProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public AMRMTokenSecretManagerStateProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.currentMasterKey != null) {
-      builder.setCurrentMasterKey(convertToProtoFormat(this.currentMasterKey));
+    public AMRMTokenSecretManagerStatePBImpl() {
+        builder = AMRMTokenSecretManagerStateProto.newBuilder();
     }
-    if (this.nextMasterKey != null) {
-      builder.setNextMasterKey(convertToProtoFormat(this.nextMasterKey));
+
+    public AMRMTokenSecretManagerStatePBImpl(AMRMTokenSecretManagerStateProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = AMRMTokenSecretManagerStateProto.newBuilder(proto);
+    public AMRMTokenSecretManagerStateProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public MasterKey getCurrentMasterKey() {
-    AMRMTokenSecretManagerStateProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.currentMasterKey != null) {
-      return this.currentMasterKey;
+    private void mergeLocalToBuilder() {
+        if (this.currentMasterKey != null) {
+            builder.setCurrentMasterKey(convertToProtoFormat(this.currentMasterKey));
+        }
+        if (this.nextMasterKey != null) {
+            builder.setNextMasterKey(convertToProtoFormat(this.nextMasterKey));
+        }
     }
-    if (!p.hasCurrentMasterKey()) {
-      return null;
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.currentMasterKey = convertFromProtoFormat(p.getCurrentMasterKey());
-    return this.currentMasterKey;
-  }
 
-  @Override
-  public void setCurrentMasterKey(MasterKey currentMasterKey) {
-    maybeInitBuilder();
-    if (currentMasterKey == null)
-      builder.clearCurrentMasterKey();
-    this.currentMasterKey = currentMasterKey;
-  }
-
-  @Override
-  public MasterKey getNextMasterKey() {
-    AMRMTokenSecretManagerStateProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.nextMasterKey != null) {
-      return this.nextMasterKey;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = AMRMTokenSecretManagerStateProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    if (!p.hasNextMasterKey()) {
-      return null;
+
+    @Override
+    public MasterKey getCurrentMasterKey() {
+        AMRMTokenSecretManagerStateProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.currentMasterKey != null) {
+            return this.currentMasterKey;
+        }
+        if (!p.hasCurrentMasterKey()) {
+            return null;
+        }
+        this.currentMasterKey = convertFromProtoFormat(p.getCurrentMasterKey());
+        return this.currentMasterKey;
     }
-    this.nextMasterKey = convertFromProtoFormat(p.getNextMasterKey());
-    return this.nextMasterKey;
-  }
 
-  @Override
-  public void setNextMasterKey(MasterKey nextMasterKey) {
-    maybeInitBuilder();
-    if (nextMasterKey == null)
-      builder.clearNextMasterKey();
-    this.nextMasterKey = nextMasterKey;
-  }
+    @Override
+    public void setCurrentMasterKey(MasterKey currentMasterKey) {
+        maybeInitBuilder();
+        if (currentMasterKey == null)
+            builder.clearCurrentMasterKey();
+        this.currentMasterKey = currentMasterKey;
+    }
 
-  private MasterKeyProto convertToProtoFormat(MasterKey t) {
-    return ((MasterKeyPBImpl) t).getProto();
-  }
+    @Override
+    public MasterKey getNextMasterKey() {
+        AMRMTokenSecretManagerStateProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.nextMasterKey != null) {
+            return this.nextMasterKey;
+        }
+        if (!p.hasNextMasterKey()) {
+            return null;
+        }
+        this.nextMasterKey = convertFromProtoFormat(p.getNextMasterKey());
+        return this.nextMasterKey;
+    }
 
-  private MasterKeyPBImpl convertFromProtoFormat(MasterKeyProto p) {
-    return new MasterKeyPBImpl(p);
-  }
+    @Override
+    public void setNextMasterKey(MasterKey nextMasterKey) {
+        maybeInitBuilder();
+        if (nextMasterKey == null)
+            builder.clearNextMasterKey();
+        this.nextMasterKey = nextMasterKey;
+    }
+
+    private MasterKeyProto convertToProtoFormat(MasterKey t) {
+        return ((MasterKeyPBImpl) t).getProto();
+    }
+
+    private MasterKeyPBImpl convertFromProtoFormat(MasterKeyProto p) {
+        return new MasterKeyPBImpl(p);
+    }
 }

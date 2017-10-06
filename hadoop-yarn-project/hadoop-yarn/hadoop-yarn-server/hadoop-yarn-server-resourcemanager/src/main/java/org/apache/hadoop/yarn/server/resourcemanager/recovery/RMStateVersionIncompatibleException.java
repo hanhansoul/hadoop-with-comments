@@ -26,17 +26,17 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
  */
 public class RMStateVersionIncompatibleException extends YarnException {
 
-  private static final long serialVersionUID = 1364408L;
+    private static final long serialVersionUID = 1364408L;
 
-  public RMStateVersionIncompatibleException(Throwable cause) {
-    super(cause);
-  }
+    public RMStateVersionIncompatibleException(Throwable cause) {
+        super(cause);
+    }
 
-  public RMStateVersionIncompatibleException(String message) {
-    super(message);
-  }
+    public RMStateVersionIncompatibleException(String message) {
+        super(message);
+    }
 
-  public RMStateVersionIncompatibleException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public RMStateVersionIncompatibleException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

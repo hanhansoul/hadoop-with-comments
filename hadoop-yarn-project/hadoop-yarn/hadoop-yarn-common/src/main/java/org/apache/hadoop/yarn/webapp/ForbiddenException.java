@@ -27,17 +27,17 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class ForbiddenException extends WebApplicationException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public ForbiddenException() {
-    super(Status.FORBIDDEN);
-  }
+    public ForbiddenException() {
+        super(Status.FORBIDDEN);
+    }
 
-  public ForbiddenException(java.lang.Throwable cause) {
-    super(cause, Status.FORBIDDEN);
-  }
+    public ForbiddenException(java.lang.Throwable cause) {
+        super(cause, Status.FORBIDDEN);
+    }
 
-  public ForbiddenException(String msg) {
-    super(new Exception(msg), Status.FORBIDDEN);
-  }
+    public ForbiddenException(String msg) {
+        super(new Exception(msg), Status.FORBIDDEN);
+    }
 }

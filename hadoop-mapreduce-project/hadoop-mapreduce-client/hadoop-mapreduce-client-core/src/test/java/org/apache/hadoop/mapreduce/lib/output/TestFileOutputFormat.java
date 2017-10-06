@@ -30,50 +30,47 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 public class TestFileOutputFormat extends TestCase {
 
-  public void testSetOutputPathException() throws Exception {
-    Job job = Job.getInstance();
-    try {
-      // Give it an invalid filesystem so it'll throw an exception
-      FileOutputFormat.setOutputPath(job, new Path("foo:///bar"));
-      fail("Should have thrown a RuntimeException with an IOException inside");
-    }
-    catch (RuntimeException re) {
-      assertTrue(re.getCause() instanceof IOException);
-    }
-  }
-
-  public void testCheckOutputSpecsException() throws Exception {
-    Job job = Job.getInstance();
-    Path outDir = new Path(System.getProperty("test.build.data", "/tmp"),
-            "output");
-    FileSystem fs = outDir.getFileSystem(new Configuration());
-    // Create the output dir so it already exists and set it for the job
-    fs.mkdirs(outDir);
-    FileOutputFormat.setOutputPath(job, outDir);
-    // We don't need a "full" implementation of FileOutputFormat for this test
-    FileOutputFormat fof = new FileOutputFormat() {
-      @Override
-        public RecordWriter getRecordWriter(TaskAttemptContext job)
-              throws IOException, InterruptedException {
-          return null;
+    public void testSetOutputPathException() throws Exception {
+        Job job = Job.getInstance();
+        try {
+            // Give it an invalid filesystem so it'll throw an exception
+            FileOutputFormat.setOutputPath(job, new Path("foo:///bar"));
+            fail("Should have thrown a RuntimeException with an IOException inside");
+        } catch (RuntimeException re) {
+            assertTrue(re.getCause() instanceof IOException);
         }
-    };
-    try {
-      try {
-        // This should throw a FileAlreadyExistsException because the outputDir
-        // already exists
-        fof.checkOutputSpecs(job);
-        fail("Should have thrown a FileAlreadyExistsException");
-      }
-      catch (FileAlreadyExistsException re) {
-        // correct behavior
-      }
     }
-    finally {
-      // Cleanup
-      if (fs.exists(outDir)) {
-        fs.delete(outDir, true);
-      }
+
+    public void testCheckOutputSpecsException() throws Exception {
+        Job job = Job.getInstance();
+        Path outDir = new Path(System.getProperty("test.build.data", "/tmp"),
+                               "output");
+        FileSystem fs = outDir.getFileSystem(new Configuration());
+        // Create the output dir so it already exists and set it for the job
+        fs.mkdirs(outDir);
+        FileOutputFormat.setOutputPath(job, outDir);
+        // We don't need a "full" implementation of FileOutputFormat for this test
+        FileOutputFormat fof = new FileOutputFormat() {
+            @Override
+            public RecordWriter getRecordWriter(TaskAttemptContext job)
+            throws IOException, InterruptedException {
+                return null;
+            }
+        };
+        try {
+            try {
+                // This should throw a FileAlreadyExistsException because the outputDir
+                // already exists
+                fof.checkOutputSpecs(job);
+                fail("Should have thrown a FileAlreadyExistsException");
+            } catch (FileAlreadyExistsException re) {
+                // correct behavior
+            }
+        } finally {
+            // Cleanup
+            if (fs.exists(outDir)) {
+                fs.delete(outDir, true);
+            }
+        }
     }
-  }
 }

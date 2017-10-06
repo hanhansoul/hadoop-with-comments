@@ -28,86 +28,86 @@ import com.google.common.base.Preconditions;
 
 public class ResourceOptionPBImpl extends ResourceOption {
 
-  ResourceOptionProto proto = ResourceOptionProto.getDefaultInstance();
-  ResourceOptionProto.Builder builder = null;
-  boolean viaProto = false;
+    ResourceOptionProto proto = ResourceOptionProto.getDefaultInstance();
+    ResourceOptionProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public ResourceOptionPBImpl() {
-    builder = ResourceOptionProto.newBuilder();
-  }
-
-  public ResourceOptionPBImpl(ResourceOptionProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public ResourceOptionProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-  
-  @Override
-  public Resource getResource() {
-    ResourceOptionProtoOrBuilder p = viaProto ? proto : builder;
-    return convertFromProtoFormat(p.getResource());
-  }
-
-  @Override
-  protected void setResource(Resource resource) {
-    maybeInitBuilder();
-    builder.setResource(convertToProtoFormat(resource));
-  }
-
-  @Override
-  public int getOverCommitTimeout() {
-    ResourceOptionProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getOverCommitTimeout();
-  }
-
-  @Override
-  protected void setOverCommitTimeout(int overCommitTimeout) {
-    maybeInitBuilder();
-    builder.setOverCommitTimeout(overCommitTimeout);
-  }
-  
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ResourceOptionProto.newBuilder(proto);
+    public ResourceOptionPBImpl() {
+        builder = ResourceOptionProto.newBuilder();
     }
-    viaProto = false;
-  }
-  
-  private ResourceProto convertToProtoFormat(
-      Resource resource) {
-    return ((ResourcePBImpl)resource).getProto();
-  }
-  
-  private ResourcePBImpl convertFromProtoFormat(
-      ResourceProto p) {
-    return new ResourcePBImpl(p);
-  }
-  
-  @Override
-  protected void build() {
-    proto = builder.build();
-    viaProto = true;
-    builder = null;
-  }
 
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public ResourceOptionPBImpl(ResourceOptionProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return false;
-  }
+
+    public ResourceOptionProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public Resource getResource() {
+        ResourceOptionProtoOrBuilder p = viaProto ? proto : builder;
+        return convertFromProtoFormat(p.getResource());
+    }
+
+    @Override
+    protected void setResource(Resource resource) {
+        maybeInitBuilder();
+        builder.setResource(convertToProtoFormat(resource));
+    }
+
+    @Override
+    public int getOverCommitTimeout() {
+        ResourceOptionProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getOverCommitTimeout();
+    }
+
+    @Override
+    protected void setOverCommitTimeout(int overCommitTimeout) {
+        maybeInitBuilder();
+        builder.setOverCommitTimeout(overCommitTimeout);
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ResourceOptionProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private ResourceProto convertToProtoFormat(
+        Resource resource) {
+        return ((ResourcePBImpl)resource).getProto();
+    }
+
+    private ResourcePBImpl convertFromProtoFormat(
+        ResourceProto p) {
+        return new ResourcePBImpl(p);
+    }
+
+    @Override
+    protected void build() {
+        proto = builder.build();
+        viaProto = true;
+        builder = null;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 
 }

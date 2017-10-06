@@ -26,33 +26,33 @@ import org.apache.hadoop.yarn.event.EventHandler;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class InlineDispatcher extends AsyncDispatcher {
-  private static final Log LOG = LogFactory.getLog(InlineDispatcher.class);
+    private static final Log LOG = LogFactory.getLog(InlineDispatcher.class);
 
-  private class TestEventHandler implements EventHandler {
-    @Override
-    public void handle(Event event) {
-      dispatch(event);
+    private class TestEventHandler implements EventHandler {
+        @Override
+        public void handle(Event event) {
+            dispatch(event);
+        }
     }
-  }
-  @Override
-  protected void dispatch(Event event) {
-      LOG.info("Dispatching the event " + event.getClass().getName() + "."
-        + event.toString());
+    @Override
+    protected void dispatch(Event event) {
+        LOG.info("Dispatching the event " + event.getClass().getName() + "."
+                 + event.toString());
 
-    Class<? extends Enum> type = event.getType().getDeclaringClass();
-    if (eventDispatchers.get(type) != null) {
-      eventDispatchers.get(type).handle(event);
+        Class<? extends Enum> type = event.getType().getDeclaringClass();
+        if (eventDispatchers.get(type) != null) {
+            eventDispatchers.get(type).handle(event);
+        }
     }
-  }
-  @Override
-  public EventHandler getEventHandler() {
-    return new TestEventHandler();
-  }
-  
-  public static class EmptyEventHandler implements EventHandler<Event> {
     @Override
-    public void handle(Event event) {
-      //do nothing      
-    }    
-  }
+    public EventHandler getEventHandler() {
+        return new TestEventHandler();
+    }
+
+    public static class EmptyEventHandler implements EventHandler<Event> {
+        @Override
+        public void handle(Event event) {
+            //do nothing
+        }
+    }
 }

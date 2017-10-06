@@ -29,7 +29,7 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The response sent by the <code>ResourceManager</code> to a client
  * requesting cluster metrics.<p>
- * 
+ *
  * @see YarnClusterMetrics
  * @see ApplicationClientProtocol#getClusterMetrics(GetClusterMetricsRequest)
  */
@@ -37,25 +37,25 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class GetClusterMetricsResponse {
 
-  @Private
-  @Unstable
-  public static GetClusterMetricsResponse
-      newInstance(YarnClusterMetrics metrics) {
-    GetClusterMetricsResponse response =
-        Records.newRecord(GetClusterMetricsResponse.class);
-    response.setClusterMetrics(metrics);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetClusterMetricsResponse
+    newInstance(YarnClusterMetrics metrics) {
+        GetClusterMetricsResponse response =
+            Records.newRecord(GetClusterMetricsResponse.class);
+        response.setClusterMetrics(metrics);
+        return response;
+    }
 
-  /**
-   * Get the <code>YarnClusterMetrics</code> for the cluster.
-   * @return <code>YarnClusterMetrics</code> for the cluster
-   */
-  @Public
-  @Stable
-  public abstract YarnClusterMetrics getClusterMetrics();
-  
-  @Private
-  @Unstable
-  public abstract void setClusterMetrics(YarnClusterMetrics metrics);
+    /**
+     * Get the <code>YarnClusterMetrics</code> for the cluster.
+     * @return <code>YarnClusterMetrics</code> for the cluster
+     */
+    @Public
+    @Stable
+    public abstract YarnClusterMetrics getClusterMetrics();
+
+    @Private
+    @Unstable
+    public abstract void setClusterMetrics(YarnClusterMetrics metrics);
 }

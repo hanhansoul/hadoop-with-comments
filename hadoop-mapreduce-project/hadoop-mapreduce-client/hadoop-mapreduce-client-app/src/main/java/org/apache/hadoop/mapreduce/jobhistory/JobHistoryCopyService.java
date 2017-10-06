@@ -40,85 +40,85 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
  */
 public class JobHistoryCopyService extends CompositeService implements HistoryEventHandler {
 
-  private static final Log LOG = LogFactory.getLog(JobHistoryCopyService.class);
+    private static final Log LOG = LogFactory.getLog(JobHistoryCopyService.class);
 
-  private final ApplicationAttemptId applicationAttemptId;
-  private final EventHandler handler;
-  private final JobId jobId;
+    private final ApplicationAttemptId applicationAttemptId;
+    private final EventHandler handler;
+    private final JobId jobId;
 
 
-  public JobHistoryCopyService(ApplicationAttemptId applicationAttemptId, 
-      EventHandler handler) {
-    super("JobHistoryCopyService");
-    this.applicationAttemptId = applicationAttemptId;
-    this.jobId =  TypeConverter.toYarn(
-        TypeConverter.fromYarn(applicationAttemptId.getApplicationId()));
-    this.handler = handler;
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    super.serviceInit(conf);
-  }
-  
-  @Override
-  public void handleEvent(HistoryEvent event) throws IOException {
-    //Skip over the AM Events this is handled elsewhere
-    if (!(event instanceof AMStartedEvent)) {
-      handler.handle(new JobHistoryEvent(jobId, event));
+    public JobHistoryCopyService(ApplicationAttemptId applicationAttemptId,
+                                 EventHandler handler) {
+        super("JobHistoryCopyService");
+        this.applicationAttemptId = applicationAttemptId;
+        this.jobId =  TypeConverter.toYarn(
+                          TypeConverter.fromYarn(applicationAttemptId.getApplicationId()));
+        this.handler = handler;
     }
-  }
-  
-  @Override
-  protected void serviceStart() throws Exception {
-    try {
-      //TODO should we parse on a background thread???
-      parse();
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
-    }
-    super.serviceStart();
-  }
-  
-  private void parse() throws IOException {
-    FSDataInputStream in = null;
-    try {
-      in =  getPreviousJobHistoryFileStream(getConfig(), applicationAttemptId);
-    } catch (IOException e) {
-      LOG.warn("error trying to open previous history file. No history data " +
-      		"will be copied over.", e);
-      return;
-    }
-    JobHistoryParser parser = new JobHistoryParser(in);
-    parser.parse(this);
-    Exception parseException = parser.getParseException();
-    if (parseException != null) {
-      LOG.info("Got an error parsing job-history file" + 
-          ", ignoring incomplete events.", parseException);
-    }
-  }
 
-  public static FSDataInputStream getPreviousJobHistoryFileStream(
-      Configuration conf, ApplicationAttemptId applicationAttemptId)
-      throws IOException {
-    FSDataInputStream in = null;
-    Path historyFile = null;
-    String jobId =
-        TypeConverter.fromYarn(applicationAttemptId.getApplicationId())
-          .toString();
-    String jobhistoryDir =
-        JobHistoryUtils.getConfiguredHistoryStagingDirPrefix(conf, jobId);
-    Path histDirPath =
-        FileContext.getFileContext(conf).makeQualified(new Path(jobhistoryDir));
-    FileContext fc = FileContext.getFileContext(histDirPath.toUri(), conf);
-    // read the previous history file
-    historyFile =
-        fc.makeQualified(JobHistoryUtils.getStagingJobHistoryFile(histDirPath,
-          jobId, (applicationAttemptId.getAttemptId() - 1)));
-    LOG.info("History file is at " + historyFile);
-    in = fc.open(historyFile);
-    return in;
-  }
-  
-  
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        super.serviceInit(conf);
+    }
+
+    @Override
+    public void handleEvent(HistoryEvent event) throws IOException {
+        //Skip over the AM Events this is handled elsewhere
+        if (!(event instanceof AMStartedEvent)) {
+            handler.handle(new JobHistoryEvent(jobId, event));
+        }
+    }
+
+    @Override
+    protected void serviceStart() throws Exception {
+        try {
+            //TODO should we parse on a background thread???
+            parse();
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
+        }
+        super.serviceStart();
+    }
+
+    private void parse() throws IOException {
+        FSDataInputStream in = null;
+        try {
+            in =  getPreviousJobHistoryFileStream(getConfig(), applicationAttemptId);
+        } catch (IOException e) {
+            LOG.warn("error trying to open previous history file. No history data " +
+                     "will be copied over.", e);
+            return;
+        }
+        JobHistoryParser parser = new JobHistoryParser(in);
+        parser.parse(this);
+        Exception parseException = parser.getParseException();
+        if (parseException != null) {
+            LOG.info("Got an error parsing job-history file" +
+                     ", ignoring incomplete events.", parseException);
+        }
+    }
+
+    public static FSDataInputStream getPreviousJobHistoryFileStream(
+        Configuration conf, ApplicationAttemptId applicationAttemptId)
+    throws IOException {
+        FSDataInputStream in = null;
+        Path historyFile = null;
+        String jobId =
+            TypeConverter.fromYarn(applicationAttemptId.getApplicationId())
+            .toString();
+        String jobhistoryDir =
+            JobHistoryUtils.getConfiguredHistoryStagingDirPrefix(conf, jobId);
+        Path histDirPath =
+            FileContext.getFileContext(conf).makeQualified(new Path(jobhistoryDir));
+        FileContext fc = FileContext.getFileContext(histDirPath.toUri(), conf);
+        // read the previous history file
+        historyFile =
+            fc.makeQualified(JobHistoryUtils.getStagingJobHistoryFile(histDirPath,
+                             jobId, (applicationAttemptId.getAttemptId() - 1)));
+        LOG.info("History file is at " + historyFile);
+        in = fc.open(historyFile);
+        return in;
+    }
+
+
 }

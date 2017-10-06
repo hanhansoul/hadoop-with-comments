@@ -34,16 +34,16 @@ import org.apache.hadoop.io.WritableComparator;
 public class OuterJoinRecordReader<K extends WritableComparable<?>>
     extends JoinRecordReader<K> {
 
-  OuterJoinRecordReader(int id, Configuration conf, int capacity,
-      Class<? extends WritableComparator> cmpcl) throws IOException {
-    super(id, conf, capacity, cmpcl);
-  }
+    OuterJoinRecordReader(int id, Configuration conf, int capacity,
+                          Class<? extends WritableComparator> cmpcl) throws IOException {
+        super(id, conf, capacity, cmpcl);
+    }
 
-  /**
-   * Emit everything from the collector.
-   */
-  protected boolean combine(Object[] srcs, TupleWritable dst) {
-    assert srcs.length == dst.size();
-    return true;
-  }
+    /**
+     * Emit everything from the collector.
+     */
+    protected boolean combine(Object[] srcs, TupleWritable dst) {
+        assert srcs.length == dst.size();
+        return true;
+    }
 }

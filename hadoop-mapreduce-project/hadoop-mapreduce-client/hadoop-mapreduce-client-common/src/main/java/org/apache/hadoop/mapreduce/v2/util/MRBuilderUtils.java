@@ -34,68 +34,68 @@ import org.apache.hadoop.yarn.util.Records;
 
 public class MRBuilderUtils {
 
-  public static JobId newJobId(ApplicationId appId, int id) {
-    JobId jobId = Records.newRecord(JobId.class);
-    jobId.setAppId(appId);
-    jobId.setId(id);
-    return jobId;
-  }
+    public static JobId newJobId(ApplicationId appId, int id) {
+        JobId jobId = Records.newRecord(JobId.class);
+        jobId.setAppId(appId);
+        jobId.setId(id);
+        return jobId;
+    }
 
-  public static JobId newJobId(long clusterTs, int appIdInt, int id) {
-    ApplicationId appId = ApplicationId.newInstance(clusterTs, appIdInt);
-    return MRBuilderUtils.newJobId(appId, id);
-  }
+    public static JobId newJobId(long clusterTs, int appIdInt, int id) {
+        ApplicationId appId = ApplicationId.newInstance(clusterTs, appIdInt);
+        return MRBuilderUtils.newJobId(appId, id);
+    }
 
-  public static TaskId newTaskId(JobId jobId, int id, TaskType taskType) {
-    TaskId taskId = Records.newRecord(TaskId.class);
-    taskId.setJobId(jobId);
-    taskId.setId(id);
-    taskId.setTaskType(taskType);
-    return taskId;
-  }
+    public static TaskId newTaskId(JobId jobId, int id, TaskType taskType) {
+        TaskId taskId = Records.newRecord(TaskId.class);
+        taskId.setJobId(jobId);
+        taskId.setId(id);
+        taskId.setTaskType(taskType);
+        return taskId;
+    }
 
-  public static TaskAttemptId newTaskAttemptId(TaskId taskId, int attemptId) {
-    TaskAttemptId taskAttemptId =
-        Records.newRecord(TaskAttemptId.class);
-    taskAttemptId.setTaskId(taskId);
-    taskAttemptId.setId(attemptId);
-    return taskAttemptId;
-  }
+    public static TaskAttemptId newTaskAttemptId(TaskId taskId, int attemptId) {
+        TaskAttemptId taskAttemptId =
+            Records.newRecord(TaskAttemptId.class);
+        taskAttemptId.setTaskId(taskId);
+        taskAttemptId.setId(attemptId);
+        return taskAttemptId;
+    }
 
-  public static JobReport newJobReport(JobId jobId, String jobName,
-      String userName, JobState state, long submitTime, long startTime, long finishTime,
-      float setupProgress, float mapProgress, float reduceProgress,
-      float cleanupProgress, String jobFile, List<AMInfo> amInfos,
-      boolean isUber, String diagnostics) {
-    JobReport report = Records.newRecord(JobReport.class);
-    report.setJobId(jobId);
-    report.setJobName(jobName);
-    report.setUser(userName);
-    report.setJobState(state);
-    report.setSubmitTime(submitTime);
-    report.setStartTime(startTime);
-    report.setFinishTime(finishTime);
-    report.setSetupProgress(setupProgress);
-    report.setCleanupProgress(cleanupProgress);
-    report.setMapProgress(mapProgress);
-    report.setReduceProgress(reduceProgress);
-    report.setJobFile(jobFile);
-    report.setAMInfos(amInfos);
-    report.setIsUber(isUber);
-    report.setDiagnostics(diagnostics);
-    return report;
-  }
+    public static JobReport newJobReport(JobId jobId, String jobName,
+                                         String userName, JobState state, long submitTime, long startTime, long finishTime,
+                                         float setupProgress, float mapProgress, float reduceProgress,
+                                         float cleanupProgress, String jobFile, List<AMInfo> amInfos,
+                                         boolean isUber, String diagnostics) {
+        JobReport report = Records.newRecord(JobReport.class);
+        report.setJobId(jobId);
+        report.setJobName(jobName);
+        report.setUser(userName);
+        report.setJobState(state);
+        report.setSubmitTime(submitTime);
+        report.setStartTime(startTime);
+        report.setFinishTime(finishTime);
+        report.setSetupProgress(setupProgress);
+        report.setCleanupProgress(cleanupProgress);
+        report.setMapProgress(mapProgress);
+        report.setReduceProgress(reduceProgress);
+        report.setJobFile(jobFile);
+        report.setAMInfos(amInfos);
+        report.setIsUber(isUber);
+        report.setDiagnostics(diagnostics);
+        return report;
+    }
 
-  public static AMInfo newAMInfo(ApplicationAttemptId appAttemptId,
-      long startTime, ContainerId containerId, String nmHost, int nmPort,
-      int nmHttpPort) {
-    AMInfo amInfo = Records.newRecord(AMInfo.class);
-    amInfo.setAppAttemptId(appAttemptId);
-    amInfo.setStartTime(startTime);
-    amInfo.setContainerId(containerId);
-    amInfo.setNodeManagerHost(nmHost);
-    amInfo.setNodeManagerPort(nmPort);
-    amInfo.setNodeManagerHttpPort(nmHttpPort);
-    return amInfo;
-  }
+    public static AMInfo newAMInfo(ApplicationAttemptId appAttemptId,
+                                   long startTime, ContainerId containerId, String nmHost, int nmPort,
+                                   int nmHttpPort) {
+        AMInfo amInfo = Records.newRecord(AMInfo.class);
+        amInfo.setAppAttemptId(appAttemptId);
+        amInfo.setStartTime(startTime);
+        amInfo.setContainerId(containerId);
+        amInfo.setNodeManagerHost(nmHost);
+        amInfo.setNodeManagerPort(nmPort);
+        amInfo.setNodeManagerHttpPort(nmHttpPort);
+        return amInfo;
+    }
 }

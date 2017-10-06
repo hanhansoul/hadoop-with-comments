@@ -33,110 +33,110 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 @Private
 public class AdminACLsManager {
 
-  /**
-   * Log object for this class
-   */
-  static Log LOG = LogFactory.getLog(AdminACLsManager.class);
+    /**
+     * Log object for this class
+     */
+    static Log LOG = LogFactory.getLog(AdminACLsManager.class);
 
-  /**
-   * The current user at the time of object creation
-   */
-  private final UserGroupInformation owner;
+    /**
+     * The current user at the time of object creation
+     */
+    private final UserGroupInformation owner;
 
-  /**
-   * Holds list of administrator users
-   */
-  private final AccessControlList adminAcl;
+    /**
+     * Holds list of administrator users
+     */
+    private final AccessControlList adminAcl;
 
-  /**
-   * True if ACLs are enabled
-   *
-   * @see YarnConfiguration#YARN_ACL_ENABLE
-   * @see YarnConfiguration#DEFAULT_YARN_ACL_ENABLE
-   */
-  private final boolean aclsEnabled;
+    /**
+     * True if ACLs are enabled
+     *
+     * @see YarnConfiguration#YARN_ACL_ENABLE
+     * @see YarnConfiguration#DEFAULT_YARN_ACL_ENABLE
+     */
+    private final boolean aclsEnabled;
 
-  /**
-   * Constructs and initializes this AdminACLsManager
-   *
-   * @param conf configuration for this object to use
-   */
-  public AdminACLsManager(Configuration conf) {
+    /**
+     * Constructs and initializes this AdminACLsManager
+     *
+     * @param conf configuration for this object to use
+     */
+    public AdminACLsManager(Configuration conf) {
 
-    this.adminAcl = new AccessControlList(conf.get(
-          YarnConfiguration.YARN_ADMIN_ACL,
-          YarnConfiguration.DEFAULT_YARN_ADMIN_ACL));
-    try {
-      owner = UserGroupInformation.getCurrentUser();
-      adminAcl.addUser(owner.getShortUserName());
-    } catch (IOException e){
-      LOG.warn("Could not add current user to admin:" + e);
-      throw new YarnRuntimeException(e);
+        this.adminAcl = new AccessControlList(conf.get(
+                YarnConfiguration.YARN_ADMIN_ACL,
+                YarnConfiguration.DEFAULT_YARN_ADMIN_ACL));
+        try {
+            owner = UserGroupInformation.getCurrentUser();
+            adminAcl.addUser(owner.getShortUserName());
+        } catch (IOException e) {
+            LOG.warn("Could not add current user to admin:" + e);
+            throw new YarnRuntimeException(e);
+        }
+
+        aclsEnabled = conf.getBoolean(YarnConfiguration.YARN_ACL_ENABLE,
+                                      YarnConfiguration.DEFAULT_YARN_ACL_ENABLE);
     }
 
-    aclsEnabled = conf.getBoolean(YarnConfiguration.YARN_ACL_ENABLE,
-        YarnConfiguration.DEFAULT_YARN_ACL_ENABLE);
-  }
-
-  /**
-   * Returns the owner
-   *
-   * @return Current user at the time of object creation
-   */
-  public UserGroupInformation getOwner() {
-    return owner;
-  }
-
-  /**
-   * Returns whether ACLs are enabled
-   *
-   * @see YarnConfiguration#YARN_ACL_ENABLE
-   * @see YarnConfiguration#DEFAULT_YARN_ACL_ENABLE
-   * @return <tt>true</tt> if ACLs are enabled
-   */
-  public boolean areACLsEnabled() {
-    return aclsEnabled;
-  }
-
-  /**
-   * Returns the internal structure used to maintain administrator ACLs
-   *
-   * @return Structure used to maintain administrator access
-   */
-  public AccessControlList getAdminAcl() {
-    return adminAcl;
-  }
-
-  /**
-   * Returns whether the specified user/group is an administrator
-   *
-   * @param callerUGI user/group to to check
-   * @return <tt>true</tt> if the UserGroupInformation specified
-   *         is a member of the access control list for administrators
-   */
-  public boolean isAdmin(UserGroupInformation callerUGI) {
-    return adminAcl.isUserAllowed(callerUGI);
-  }
-
-  /**
-   * Returns whether the specified user/group has administrator access
-   *
-   * @param callerUGI user/group to to check
-   * @return <tt>true</tt> if the UserGroupInformation specified
-   *         is a member of the access control list for administrators
-   *         and ACLs are enabled for this cluster
-   *
-   * @see #getAdminAcl
-   * @see #areACLsEnabled
-   */
-  public boolean checkAccess(UserGroupInformation callerUGI) {
-
-    // Any user may perform this operation if authorization is not enabled
-    if (!areACLsEnabled()) {
-      return true;
+    /**
+     * Returns the owner
+     *
+     * @return Current user at the time of object creation
+     */
+    public UserGroupInformation getOwner() {
+        return owner;
     }
 
-    // Administrators may perform any operation
-    return isAdmin(callerUGI);
-  }
+    /**
+     * Returns whether ACLs are enabled
+     *
+     * @see YarnConfiguration#YARN_ACL_ENABLE
+     * @see YarnConfiguration#DEFAULT_YARN_ACL_ENABLE
+     * @return <tt>true</tt> if ACLs are enabled
+     */
+    public boolean areACLsEnabled() {
+        return aclsEnabled;
+    }
+
+    /**
+     * Returns the internal structure used to maintain administrator ACLs
+     *
+     * @return Structure used to maintain administrator access
+     */
+    public AccessControlList getAdminAcl() {
+        return adminAcl;
+    }
+
+    /**
+     * Returns whether the specified user/group is an administrator
+     *
+     * @param callerUGI user/group to to check
+     * @return <tt>true</tt> if the UserGroupInformation specified
+     *         is a member of the access control list for administrators
+     */
+    public boolean isAdmin(UserGroupInformation callerUGI) {
+        return adminAcl.isUserAllowed(callerUGI);
+    }
+
+    /**
+     * Returns whether the specified user/group has administrator access
+     *
+     * @param callerUGI user/group to to check
+     * @return <tt>true</tt> if the UserGroupInformation specified
+     *         is a member of the access control list for administrators
+     *         and ACLs are enabled for this cluster
+     *
+     * @see #getAdminAcl
+     * @see #areACLsEnabled
+     */
+    public boolean checkAccess(UserGroupInformation callerUGI) {
+
+        // Any user may perform this operation if authorization is not enabled
+        if (!areACLsEnabled()) {
+            return true;
+        }
+
+        // Administrators may perform any operation
+        return isAdmin(callerUGI);
+    }
 }

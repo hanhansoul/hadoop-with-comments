@@ -30,93 +30,93 @@ import org.apache.hadoop.yarn.util.Times;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ContainerInfo {
 
-  protected String containerId;
-  protected int allocatedMB;
-  protected int allocatedVCores;
-  protected String assignedNodeId;
-  protected int priority;
-  protected long startedTime;
-  protected long finishedTime;
-  protected long elapsedTime;
-  protected String diagnosticsInfo;
-  protected String logUrl;
-  protected int containerExitStatus;
-  protected ContainerState containerState;
-  protected String nodeHttpAddress;
+    protected String containerId;
+    protected int allocatedMB;
+    protected int allocatedVCores;
+    protected String assignedNodeId;
+    protected int priority;
+    protected long startedTime;
+    protected long finishedTime;
+    protected long elapsedTime;
+    protected String diagnosticsInfo;
+    protected String logUrl;
+    protected int containerExitStatus;
+    protected ContainerState containerState;
+    protected String nodeHttpAddress;
 
-  public ContainerInfo() {
-    // JAXB needs this
-  }
-
-  public ContainerInfo(ContainerReport container) {
-    containerId = container.getContainerId().toString();
-    if (container.getAllocatedResource() != null) {
-      allocatedMB = container.getAllocatedResource().getMemory();
-      allocatedVCores = container.getAllocatedResource().getVirtualCores();
+    public ContainerInfo() {
+        // JAXB needs this
     }
-    if (container.getAssignedNode() != null) {
-      assignedNodeId = container.getAssignedNode().toString();
+
+    public ContainerInfo(ContainerReport container) {
+        containerId = container.getContainerId().toString();
+        if (container.getAllocatedResource() != null) {
+            allocatedMB = container.getAllocatedResource().getMemory();
+            allocatedVCores = container.getAllocatedResource().getVirtualCores();
+        }
+        if (container.getAssignedNode() != null) {
+            assignedNodeId = container.getAssignedNode().toString();
+        }
+        priority = container.getPriority().getPriority();
+        startedTime = container.getCreationTime();
+        finishedTime = container.getFinishTime();
+        elapsedTime = Times.elapsed(startedTime, finishedTime);
+        diagnosticsInfo = container.getDiagnosticsInfo();
+        logUrl = container.getLogUrl();
+        containerExitStatus = container.getContainerExitStatus();
+        containerState = container.getContainerState();
+        nodeHttpAddress = container.getNodeHttpAddress();
     }
-    priority = container.getPriority().getPriority();
-    startedTime = container.getCreationTime();
-    finishedTime = container.getFinishTime();
-    elapsedTime = Times.elapsed(startedTime, finishedTime);
-    diagnosticsInfo = container.getDiagnosticsInfo();
-    logUrl = container.getLogUrl();
-    containerExitStatus = container.getContainerExitStatus();
-    containerState = container.getContainerState();
-    nodeHttpAddress = container.getNodeHttpAddress();
-  }
 
-  public String getContainerId() {
-    return containerId;
-  }
+    public String getContainerId() {
+        return containerId;
+    }
 
-  public int getAllocatedMB() {
-    return allocatedMB;
-  }
+    public int getAllocatedMB() {
+        return allocatedMB;
+    }
 
-  public int getAllocatedVCores() {
-    return allocatedVCores;
-  }
+    public int getAllocatedVCores() {
+        return allocatedVCores;
+    }
 
-  public String getAssignedNodeId() {
-    return assignedNodeId;
-  }
+    public String getAssignedNodeId() {
+        return assignedNodeId;
+    }
 
-  public int getPriority() {
-    return priority;
-  }
+    public int getPriority() {
+        return priority;
+    }
 
-  public long getStartedTime() {
-    return startedTime;
-  }
+    public long getStartedTime() {
+        return startedTime;
+    }
 
-  public long getFinishedTime() {
-    return finishedTime;
-  }
+    public long getFinishedTime() {
+        return finishedTime;
+    }
 
-  public long getElapsedTime() {
-    return elapsedTime;
-  }
+    public long getElapsedTime() {
+        return elapsedTime;
+    }
 
-  public String getDiagnosticsInfo() {
-    return diagnosticsInfo;
-  }
+    public String getDiagnosticsInfo() {
+        return diagnosticsInfo;
+    }
 
-  public String getLogUrl() {
-    return logUrl;
-  }
+    public String getLogUrl() {
+        return logUrl;
+    }
 
-  public int getContainerExitStatus() {
-    return containerExitStatus;
-  }
+    public int getContainerExitStatus() {
+        return containerExitStatus;
+    }
 
-  public ContainerState getContainerState() {
-    return containerState;
-  }
+    public ContainerState getContainerState() {
+        return containerState;
+    }
 
-  public String getNodeHttpAddress() {
-    return nodeHttpAddress;
-  }
+    public String getNodeHttpAddress() {
+        return nodeHttpAddress;
+    }
 }

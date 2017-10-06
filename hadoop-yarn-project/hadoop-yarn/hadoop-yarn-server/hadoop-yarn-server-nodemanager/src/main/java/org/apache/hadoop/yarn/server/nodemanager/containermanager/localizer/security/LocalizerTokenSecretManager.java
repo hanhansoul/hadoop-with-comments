@@ -25,26 +25,26 @@ import org.apache.hadoop.security.token.SecretManager;
 public class LocalizerTokenSecretManager extends
     SecretManager<LocalizerTokenIdentifier> {
 
-  private final SecretKey secretKey;
-  
-  public LocalizerTokenSecretManager() {
-    this.secretKey = generateSecret();
-  }
-  
-  @Override
-  protected byte[] createPassword(LocalizerTokenIdentifier identifier) {
-    return createPassword(identifier.getBytes(), secretKey);
-  }
+    private final SecretKey secretKey;
 
-  @Override
-  public byte[] retrievePassword(LocalizerTokenIdentifier identifier)
-      throws org.apache.hadoop.security.token.SecretManager.InvalidToken {
-    return createPassword(identifier.getBytes(), secretKey);
-  }
+    public LocalizerTokenSecretManager() {
+        this.secretKey = generateSecret();
+    }
 
-  @Override
-  public LocalizerTokenIdentifier createIdentifier() {
-    return new LocalizerTokenIdentifier();
-  }
+    @Override
+    protected byte[] createPassword(LocalizerTokenIdentifier identifier) {
+        return createPassword(identifier.getBytes(), secretKey);
+    }
+
+    @Override
+    public byte[] retrievePassword(LocalizerTokenIdentifier identifier)
+    throws org.apache.hadoop.security.token.SecretManager.InvalidToken {
+        return createPassword(identifier.getBytes(), secretKey);
+    }
+
+    @Override
+    public LocalizerTokenIdentifier createIdentifier() {
+        return new LocalizerTokenIdentifier();
+    }
 
 }

@@ -23,15 +23,15 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptCompletionEvent;
 
 public class JobTaskAttemptCompletedEvent extends JobEvent {
 
-  private TaskAttemptCompletionEvent completionEvent;
+    private TaskAttemptCompletionEvent completionEvent;
 
-  public JobTaskAttemptCompletedEvent(TaskAttemptCompletionEvent completionEvent) {
-    super(completionEvent.getAttemptId().getTaskId().getJobId(), 
-        JobEventType.JOB_TASK_ATTEMPT_COMPLETED);
-    this.completionEvent = completionEvent;
-  }
+    public JobTaskAttemptCompletedEvent(TaskAttemptCompletionEvent completionEvent) {
+        super(completionEvent.getAttemptId().getTaskId().getJobId(),
+              JobEventType.JOB_TASK_ATTEMPT_COMPLETED);
+        this.completionEvent = completionEvent;
+    }
 
-  public TaskAttemptCompletionEvent getCompletionEvent() {
-    return completionEvent;
-  }
+    public TaskAttemptCompletionEvent getCompletionEvent() {
+        return completionEvent;
+    }
 }

@@ -30,110 +30,110 @@ import org.apache.hadoop.util.Time;
 
 public class TestMultithreadedTestUtil {
 
-  private static final String FAIL_MSG =
-    "Inner thread fails an assert";
+    private static final String FAIL_MSG =
+        "Inner thread fails an assert";
 
-  @Test
-  public void testNoErrors() throws Exception {
-    final AtomicInteger threadsRun = new AtomicInteger();
+    @Test
+    public void testNoErrors() throws Exception {
+        final AtomicInteger threadsRun = new AtomicInteger();
 
-    TestContext ctx = new TestContext();
-    for (int i = 0; i < 3; i++) {
-      ctx.addThread(new TestingThread(ctx) {
-        @Override
-        public void doWork() throws Exception {
-          threadsRun.incrementAndGet();
+        TestContext ctx = new TestContext();
+        for (int i = 0; i < 3; i++) {
+            ctx.addThread(new TestingThread(ctx) {
+                @Override
+                public void doWork() throws Exception {
+                    threadsRun.incrementAndGet();
+                }
+            });
         }
-      });
+        assertEquals(0, threadsRun.get());
+        ctx.startThreads();
+        long st = Time.now();
+        ctx.waitFor(30000);
+        long et = Time.now();
+
+        // All threads should have run
+        assertEquals(3, threadsRun.get());
+        // Test shouldn't have waited the full 30 seconds, since
+        // the threads exited faster than that.
+        assertTrue("Test took " + (et - st) + "ms",
+                   et - st < 5000);
     }
-    assertEquals(0, threadsRun.get());
-    ctx.startThreads();
-    long st = Time.now();
-    ctx.waitFor(30000);
-    long et = Time.now();
 
-    // All threads should have run
-    assertEquals(3, threadsRun.get());
-    // Test shouldn't have waited the full 30 seconds, since
-    // the threads exited faster than that.
-    assertTrue("Test took " + (et - st) + "ms",
-        et - st < 5000);
-  }
-
-  @Test
-  public void testThreadFails() throws Exception {
-    TestContext ctx = new TestContext();
-    ctx.addThread(new TestingThread(ctx) {
-      @Override
-      public void doWork() throws Exception {
-        fail(FAIL_MSG);
-      }
-    });
-    ctx.startThreads();
-    long st = Time.now();
-    try {
-      ctx.waitFor(30000);
-      fail("waitFor did not throw");
-    } catch (RuntimeException rte) {
-      // expected
-      assertEquals(FAIL_MSG, rte.getCause().getMessage());
+    @Test
+    public void testThreadFails() throws Exception {
+        TestContext ctx = new TestContext();
+        ctx.addThread(new TestingThread(ctx) {
+            @Override
+            public void doWork() throws Exception {
+                fail(FAIL_MSG);
+            }
+        });
+        ctx.startThreads();
+        long st = Time.now();
+        try {
+            ctx.waitFor(30000);
+            fail("waitFor did not throw");
+        } catch (RuntimeException rte) {
+            // expected
+            assertEquals(FAIL_MSG, rte.getCause().getMessage());
+        }
+        long et = Time.now();
+        // Test shouldn't have waited the full 30 seconds, since
+        // the thread throws faster than that
+        assertTrue("Test took " + (et - st) + "ms",
+                   et - st < 5000);
     }
-    long et = Time.now();
-    // Test shouldn't have waited the full 30 seconds, since
-    // the thread throws faster than that
-    assertTrue("Test took " + (et - st) + "ms",
-        et - st < 5000);
-  }
 
-  @Test
-  public void testThreadThrowsCheckedException() throws Exception {
-    TestContext ctx = new TestContext();
-    ctx.addThread(new TestingThread(ctx) {
-      @Override
-      public void doWork() throws Exception {
-        throw new IOException("my ioe");
-      }
-    });
-    ctx.startThreads();
-    long st = Time.now();
-    try {
-      ctx.waitFor(30000);
-      fail("waitFor did not throw");
-    } catch (RuntimeException rte) {
-      // expected
-      assertEquals("my ioe", rte.getCause().getMessage());
+    @Test
+    public void testThreadThrowsCheckedException() throws Exception {
+        TestContext ctx = new TestContext();
+        ctx.addThread(new TestingThread(ctx) {
+            @Override
+            public void doWork() throws Exception {
+                throw new IOException("my ioe");
+            }
+        });
+        ctx.startThreads();
+        long st = Time.now();
+        try {
+            ctx.waitFor(30000);
+            fail("waitFor did not throw");
+        } catch (RuntimeException rte) {
+            // expected
+            assertEquals("my ioe", rte.getCause().getMessage());
+        }
+        long et = Time.now();
+        // Test shouldn't have waited the full 30 seconds, since
+        // the thread throws faster than that
+        assertTrue("Test took " + (et - st) + "ms",
+                   et - st < 5000);
     }
-    long et = Time.now();
-    // Test shouldn't have waited the full 30 seconds, since
-    // the thread throws faster than that
-    assertTrue("Test took " + (et - st) + "ms",
-        et - st < 5000);
-  }
 
-  @Test
-  public void testRepeatingThread() throws Exception {
-    final AtomicInteger counter = new AtomicInteger();
+    @Test
+    public void testRepeatingThread() throws Exception {
+        final AtomicInteger counter = new AtomicInteger();
 
-    TestContext ctx = new TestContext();
-    ctx.addThread(new RepeatingTestThread(ctx) {
-      @Override
-      public void doAnAction() throws Exception {
-        counter.incrementAndGet();
-      }
-    });
-    ctx.startThreads();
-    long st = Time.now();
-    ctx.waitFor(3000);
-    ctx.stop();
-    long et = Time.now();
-    long elapsed = et - st;
+        TestContext ctx = new TestContext();
+        ctx.addThread(new RepeatingTestThread(ctx) {
+            @Override
+            public void doAnAction() throws Exception {
+                counter.incrementAndGet();
+            }
+        });
+        ctx.startThreads();
+        long st = Time.now();
+        ctx.waitFor(3000);
+        ctx.stop();
+        long et = Time.now();
+        long elapsed = et - st;
 
-    // Test should have waited just about 3 seconds
-    assertTrue("Test took " + (et - st) + "ms",
-        Math.abs(elapsed - 3000) < 500);
-    // Counter should have been incremented lots of times in 3 full seconds
-    assertTrue("Counter value = " + counter.get(),
-        counter.get() > 1000);
-  }
+        // Test should have waited just about 3 seconds
+        assertTrue("Test took " + (et - st) + "ms",
+                   Math.abs(elapsed - 3000) < 500);
+        // Counter should have been incremented lots of times in 3 full seconds
+        assertTrue("Counter value = " + counter.get(),
+                   counter.get() > 1000);
+    }
 
 }

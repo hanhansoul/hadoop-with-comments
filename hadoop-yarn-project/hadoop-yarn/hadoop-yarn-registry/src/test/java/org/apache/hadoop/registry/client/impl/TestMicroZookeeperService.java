@@ -35,26 +35,26 @@ import java.io.IOException;
  */
 public class TestMicroZookeeperService extends Assert {
 
-  private MicroZookeeperService zookeeper;
+    private MicroZookeeperService zookeeper;
 
-  @Rule
-  public final Timeout testTimeout = new Timeout(10000);
-  @Rule
-  public TestName methodName = new TestName();
+    @Rule
+    public final Timeout testTimeout = new Timeout(10000);
+    @Rule
+    public TestName methodName = new TestName();
 
-  @After
-  public void destroyZKServer() throws IOException {
+    @After
+    public void destroyZKServer() throws IOException {
 
-    ServiceOperations.stop(zookeeper);
-  }
+        ServiceOperations.stop(zookeeper);
+    }
 
-  @Test
-  public void testTempDirSupport() throws Throwable {
-    YarnConfiguration conf = new YarnConfiguration();
-    zookeeper = new MicroZookeeperService("t1");
-    zookeeper.init(conf);
-    zookeeper.start();
-    zookeeper.stop();
-  }
+    @Test
+    public void testTempDirSupport() throws Throwable {
+        YarnConfiguration conf = new YarnConfiguration();
+        zookeeper = new MicroZookeeperService("t1");
+        zookeeper.init(conf);
+        zookeeper.start();
+        zookeeper.stop();
+    }
 
 }

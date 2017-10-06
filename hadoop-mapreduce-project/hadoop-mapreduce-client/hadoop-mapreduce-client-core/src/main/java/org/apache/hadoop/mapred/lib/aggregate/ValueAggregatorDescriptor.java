@@ -36,21 +36,21 @@ import org.apache.hadoop.mapred.JobConf;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public interface ValueAggregatorDescriptor extends 
+public interface ValueAggregatorDescriptor extends
     org.apache.hadoop.mapreduce.lib.aggregate.ValueAggregatorDescriptor {
 
-  public static final String TYPE_SEPARATOR = org.apache.hadoop.mapreduce.
-      lib.aggregate.ValueAggregatorDescriptor.TYPE_SEPARATOR;
+    public static final String TYPE_SEPARATOR = org.apache.hadoop.mapreduce.
+            lib.aggregate.ValueAggregatorDescriptor.TYPE_SEPARATOR;
 
-  public static final Text ONE = org.apache.hadoop.mapreduce.
-      lib.aggregate.ValueAggregatorDescriptor.ONE;
+    public static final Text ONE = org.apache.hadoop.mapreduce.
+                                   lib.aggregate.ValueAggregatorDescriptor.ONE;
 
-  /**
-   * Configure the object
-   * 
-   * @param job
-   *          a JobConf object that may contain the information that can be used
-   *          to configure the object.
-   */
-  public void configure(JobConf job);
+    /**
+     * Configure the object
+     *
+     * @param job
+     *          a JobConf object that may contain the information that can be used
+     *          to configure the object.
+     */
+    public void configure(JobConf job);
 }

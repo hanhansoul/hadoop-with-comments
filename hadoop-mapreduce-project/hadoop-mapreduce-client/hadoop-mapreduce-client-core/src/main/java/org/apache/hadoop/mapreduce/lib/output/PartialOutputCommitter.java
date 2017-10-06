@@ -31,13 +31,13 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceStability.Evolving
 public interface PartialOutputCommitter {
 
-  /**
-   * Remove all previously committed outputs from prior executions of this task.
-   * @param context Context for cleaning up previously promoted output.
-   * @throws IOException If cleanup fails, then the state of the task my not be
-   *                     well defined.
-   */
-  public void cleanUpPartialOutputForTask(TaskAttemptContext context)
+    /**
+     * Remove all previously committed outputs from prior executions of this task.
+     * @param context Context for cleaning up previously promoted output.
+     * @throws IOException If cleanup fails, then the state of the task my not be
+     *                     well defined.
+     */
+    public void cleanUpPartialOutputForTask(TaskAttemptContext context)
     throws IOException;
 
 }

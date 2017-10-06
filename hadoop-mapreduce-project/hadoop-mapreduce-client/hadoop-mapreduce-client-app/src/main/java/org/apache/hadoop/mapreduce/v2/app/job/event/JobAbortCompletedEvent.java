@@ -23,14 +23,14 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class JobAbortCompletedEvent extends JobEvent {
 
-  private JobStatus.State finalState;
+    private JobStatus.State finalState;
 
-  public JobAbortCompletedEvent(JobId jobID, JobStatus.State finalState) {
-    super(jobID, JobEventType.JOB_ABORT_COMPLETED);
-    this.finalState = finalState;
-  }
+    public JobAbortCompletedEvent(JobId jobID, JobStatus.State finalState) {
+        super(jobID, JobEventType.JOB_ABORT_COMPLETED);
+        this.finalState = finalState;
+    }
 
-  public JobStatus.State getFinalState() {
-    return finalState;
-  }
+    public JobStatus.State getFinalState() {
+        return finalState;
+    }
 }

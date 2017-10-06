@@ -37,85 +37,85 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestLocalDirsHandlerService {
-  private static final File testDir = new File("target",
-      TestDirectoryCollection.class.getName()).getAbsoluteFile();
-  private static final File testFile = new File(testDir, "testfile");
+    private static final File testDir = new File("target",
+            TestDirectoryCollection.class.getName()).getAbsoluteFile();
+    private static final File testFile = new File(testDir, "testfile");
 
-  @BeforeClass
-  public static void setup() throws IOException {
-    testDir.mkdirs();
-    testFile.createNewFile();
-  }
-
-  @AfterClass
-  public static void teardown() {
-    FileUtil.fullyDelete(testDir);
-  }
-
-  @Test
-  public void testDirStructure() throws Exception {
-    Configuration conf = new YarnConfiguration();
-    String localDir1 = new File("file:///" + testDir, "localDir1").getPath();
-    conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir1);
-    String logDir1 = new File("file:///" + testDir, "logDir1").getPath();
-    conf.set(YarnConfiguration.NM_LOG_DIRS, logDir1);
-    LocalDirsHandlerService dirSvc = new LocalDirsHandlerService();
-    dirSvc.init(conf);
-    Assert.assertEquals(1, dirSvc.getLocalDirs().size());
-    dirSvc.close();
-  }
-
-  @Test
-  public void testValidPathsDirHandlerService() throws Exception {
-    Configuration conf = new YarnConfiguration();
-    String localDir1 = new File("file:///" + testDir, "localDir1").getPath();
-    String localDir2 = new File("hdfs:///" + testDir, "localDir2").getPath();
-    conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir1 + "," + localDir2);
-    String logDir1 = new File("file:///" + testDir, "logDir1").getPath();
-    conf.set(YarnConfiguration.NM_LOG_DIRS, logDir1);
-    LocalDirsHandlerService dirSvc = new LocalDirsHandlerService();
-    try {
-      dirSvc.init(conf);
-      Assert.fail("Service should have thrown an exception due to wrong URI");
-    } catch (YarnRuntimeException e) {
+    @BeforeClass
+    public static void setup() throws IOException {
+        testDir.mkdirs();
+        testFile.createNewFile();
     }
-    Assert.assertEquals("Service should not be inited",
-                        STATE.STOPPED,
-                        dirSvc.getServiceState());
-    dirSvc.close();
-  }
-  
-  @Test
-  public void testGetFullDirs() throws Exception {
-    Configuration conf = new YarnConfiguration();
 
-    conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "077");
-    FileContext localFs = FileContext.getLocalFSFileContext(conf);
+    @AfterClass
+    public static void teardown() {
+        FileUtil.fullyDelete(testDir);
+    }
 
-    String localDir1 = new File(testDir, "localDir1").getPath();
-    String localDir2 = new File(testDir, "localDir2").getPath();
-    String logDir1 = new File(testDir, "logDir1").getPath();
-    String logDir2 = new File(testDir, "logDir2").getPath();
-    Path localDir1Path = new Path(localDir1);
-    Path logDir1Path = new Path(logDir1);
-    FsPermission dirPermissions = new FsPermission((short) 0410);
-    localFs.mkdir(localDir1Path, dirPermissions, true);
-    localFs.mkdir(logDir1Path, dirPermissions, true);
+    @Test
+    public void testDirStructure() throws Exception {
+        Configuration conf = new YarnConfiguration();
+        String localDir1 = new File("file:///" + testDir, "localDir1").getPath();
+        conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir1);
+        String logDir1 = new File("file:///" + testDir, "logDir1").getPath();
+        conf.set(YarnConfiguration.NM_LOG_DIRS, logDir1);
+        LocalDirsHandlerService dirSvc = new LocalDirsHandlerService();
+        dirSvc.init(conf);
+        Assert.assertEquals(1, dirSvc.getLocalDirs().size());
+        dirSvc.close();
+    }
 
-    conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir1 + "," + localDir2);
-    conf.set(YarnConfiguration.NM_LOG_DIRS, logDir1 + "," + logDir2);
-    conf.setFloat(YarnConfiguration.NM_MAX_PER_DISK_UTILIZATION_PERCENTAGE,
-      0.0f);
-    LocalDirsHandlerService dirSvc = new LocalDirsHandlerService();
-    dirSvc.init(conf);
-    Assert.assertEquals(0, dirSvc.getLocalDirs().size());
-    Assert.assertEquals(0, dirSvc.getLogDirs().size());
-    Assert.assertEquals(1, dirSvc.getDiskFullLocalDirs().size());
-    Assert.assertEquals(1, dirSvc.getDiskFullLogDirs().size());
-    FileUtils.deleteDirectory(new File(localDir1));
-    FileUtils.deleteDirectory(new File(localDir2));
-    FileUtils.deleteDirectory(new File(logDir1));
-    FileUtils.deleteDirectory(new File(logDir1));
-    dirSvc.close();
-  }
+    @Test
+    public void testValidPathsDirHandlerService() throws Exception {
+        Configuration conf = new YarnConfiguration();
+        String localDir1 = new File("file:///" + testDir, "localDir1").getPath();
+        String localDir2 = new File("hdfs:///" + testDir, "localDir2").getPath();
+        conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir1 + "," + localDir2);
+        String logDir1 = new File("file:///" + testDir, "logDir1").getPath();
+        conf.set(YarnConfiguration.NM_LOG_DIRS, logDir1);
+        LocalDirsHandlerService dirSvc = new LocalDirsHandlerService();
+        try {
+            dirSvc.init(conf);
+            Assert.fail("Service should have thrown an exception due to wrong URI");
+        } catch (YarnRuntimeException e) {
+        }
+        Assert.assertEquals("Service should not be inited",
+                            STATE.STOPPED,
+                            dirSvc.getServiceState());
+        dirSvc.close();
+    }
+
+    @Test
+    public void testGetFullDirs() throws Exception {
+        Configuration conf = new YarnConfiguration();
+
+        conf.set(CommonConfigurationKeys.FS_PERMISSIONS_UMASK_KEY, "077");
+        FileContext localFs = FileContext.getLocalFSFileContext(conf);
+
+        String localDir1 = new File(testDir, "localDir1").getPath();
+        String localDir2 = new File(testDir, "localDir2").getPath();
+        String logDir1 = new File(testDir, "logDir1").getPath();
+        String logDir2 = new File(testDir, "logDir2").getPath();
+        Path localDir1Path = new Path(localDir1);
+        Path logDir1Path = new Path(logDir1);
+        FsPermission dirPermissions = new FsPermission((short) 0410);
+        localFs.mkdir(localDir1Path, dirPermissions, true);
+        localFs.mkdir(logDir1Path, dirPermissions, true);
+
+        conf.set(YarnConfiguration.NM_LOCAL_DIRS, localDir1 + "," + localDir2);
+        conf.set(YarnConfiguration.NM_LOG_DIRS, logDir1 + "," + logDir2);
+        conf.setFloat(YarnConfiguration.NM_MAX_PER_DISK_UTILIZATION_PERCENTAGE,
+                      0.0f);
+        LocalDirsHandlerService dirSvc = new LocalDirsHandlerService();
+        dirSvc.init(conf);
+        Assert.assertEquals(0, dirSvc.getLocalDirs().size());
+        Assert.assertEquals(0, dirSvc.getLogDirs().size());
+        Assert.assertEquals(1, dirSvc.getDiskFullLocalDirs().size());
+        Assert.assertEquals(1, dirSvc.getDiskFullLogDirs().size());
+        FileUtils.deleteDirectory(new File(localDir1));
+        FileUtils.deleteDirectory(new File(localDir2));
+        FileUtils.deleteDirectory(new File(logDir1));
+        FileUtils.deleteDirectory(new File(logDir1));
+        dirSvc.close();
+    }
 }

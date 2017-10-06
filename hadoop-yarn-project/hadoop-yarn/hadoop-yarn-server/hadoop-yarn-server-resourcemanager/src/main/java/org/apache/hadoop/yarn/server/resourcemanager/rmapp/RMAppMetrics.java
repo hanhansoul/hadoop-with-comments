@@ -21,39 +21,39 @@ package org.apache.hadoop.yarn.server.resourcemanager.rmapp;
 import org.apache.hadoop.yarn.api.records.Resource;
 
 public class RMAppMetrics {
-  final Resource resourcePreempted;
-  final int numNonAMContainersPreempted;
-  final int numAMContainersPreempted;
-  final long memorySeconds;
-  final long vcoreSeconds;
+    final Resource resourcePreempted;
+    final int numNonAMContainersPreempted;
+    final int numAMContainersPreempted;
+    final long memorySeconds;
+    final long vcoreSeconds;
 
-  public RMAppMetrics(Resource resourcePreempted,
-      int numNonAMContainersPreempted, int numAMContainersPreempted,
-      long memorySeconds, long vcoreSeconds) {
-    this.resourcePreempted = resourcePreempted;
-    this.numNonAMContainersPreempted = numNonAMContainersPreempted;
-    this.numAMContainersPreempted = numAMContainersPreempted;
-    this.memorySeconds = memorySeconds;
-    this.vcoreSeconds = vcoreSeconds;
-  }
+    public RMAppMetrics(Resource resourcePreempted,
+                        int numNonAMContainersPreempted, int numAMContainersPreempted,
+                        long memorySeconds, long vcoreSeconds) {
+        this.resourcePreempted = resourcePreempted;
+        this.numNonAMContainersPreempted = numNonAMContainersPreempted;
+        this.numAMContainersPreempted = numAMContainersPreempted;
+        this.memorySeconds = memorySeconds;
+        this.vcoreSeconds = vcoreSeconds;
+    }
 
-  public Resource getResourcePreempted() {
-    return resourcePreempted;
-  }
+    public Resource getResourcePreempted() {
+        return resourcePreempted;
+    }
 
-  public int getNumNonAMContainersPreempted() {
-    return numNonAMContainersPreempted;
-  }
+    public int getNumNonAMContainersPreempted() {
+        return numNonAMContainersPreempted;
+    }
 
-  public int getNumAMContainersPreempted() {
-    return numAMContainersPreempted;
-  }
+    public int getNumAMContainersPreempted() {
+        return numAMContainersPreempted;
+    }
 
-  public long getMemorySeconds() {
-    return memorySeconds;
-  }
+    public long getMemorySeconds() {
+        return memorySeconds;
+    }
 
-  public long getVcoreSeconds() {
-    return vcoreSeconds;
-  }
+    public long getVcoreSeconds() {
+        return vcoreSeconds;
+    }
 }

@@ -31,6 +31,6 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Evolving
 public interface EventHandler<T extends Event> {
 
-  void handle(T event);
+    void handle(T event);
 
 }

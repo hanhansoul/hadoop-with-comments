@@ -42,135 +42,135 @@ import org.apache.hadoop.yarn.util.Records;
 
 public class CompletedTask implements Task {
 
-  private static final Counters EMPTY_COUNTERS = new Counters();
+    private static final Counters EMPTY_COUNTERS = new Counters();
 
-  private final TaskId taskId;
-  private final TaskInfo taskInfo;
-  private TaskReport report;
-  private TaskAttemptId successfulAttempt;
-  private List<String> reportDiagnostics = new LinkedList<String>();
-  private Lock taskAttemptsLock = new ReentrantLock();
-  private AtomicBoolean taskAttemptsLoaded = new AtomicBoolean(false);
-  private final Map<TaskAttemptId, TaskAttempt> attempts =
-    new LinkedHashMap<TaskAttemptId, TaskAttempt>();
+    private final TaskId taskId;
+    private final TaskInfo taskInfo;
+    private TaskReport report;
+    private TaskAttemptId successfulAttempt;
+    private List<String> reportDiagnostics = new LinkedList<String>();
+    private Lock taskAttemptsLock = new ReentrantLock();
+    private AtomicBoolean taskAttemptsLoaded = new AtomicBoolean(false);
+    private final Map<TaskAttemptId, TaskAttempt> attempts =
+        new LinkedHashMap<TaskAttemptId, TaskAttempt>();
 
-  CompletedTask(TaskId taskId, TaskInfo taskInfo) {
-    //TODO JobHistoryParser.handleTaskFailedAttempt should use state from the event.
-    this.taskInfo = taskInfo;
-    this.taskId = taskId;
-  }
-
-  @Override
-  public boolean canCommit(TaskAttemptId taskAttemptID) {
-    return false;
-  }
-
-  @Override
-  public TaskAttempt getAttempt(TaskAttemptId attemptID) {
-    loadAllTaskAttempts();
-    return attempts.get(attemptID);
-  }
-
-  @Override
-  public Map<TaskAttemptId, TaskAttempt> getAttempts() {
-    loadAllTaskAttempts();
-    return attempts;
-  }
-
-  @Override
-  public Counters getCounters() {
-    return taskInfo.getCounters();
-  }
-
-  @Override
-  public TaskId getID() {
-    return taskId;
-  }
-
-  @Override
-  public float getProgress() {
-    return 1.0f;
-  }
-
-  @Override
-  public synchronized TaskReport getReport() {
-    if (report == null) {
-      constructTaskReport();
+    CompletedTask(TaskId taskId, TaskInfo taskInfo) {
+        //TODO JobHistoryParser.handleTaskFailedAttempt should use state from the event.
+        this.taskInfo = taskInfo;
+        this.taskId = taskId;
     }
-    return report;
-  }
-  
 
-  
-  @Override
-  public TaskType getType() {
-    return TypeConverter.toYarn(taskInfo.getTaskType());
-  }
-
-  @Override
-  public boolean isFinished() {
-    return true;
-  }
-
-  @Override
-  public TaskState getState() {
-    return taskInfo.getTaskStatus() == null ? TaskState.KILLED : TaskState
-        .valueOf(taskInfo.getTaskStatus());
-  }
-
-  private void constructTaskReport() {
-    loadAllTaskAttempts();
-    this.report = Records.newRecord(TaskReport.class);
-    report.setTaskId(taskId);
-    long minLaunchTime = Long.MAX_VALUE;
-    for(TaskAttempt attempt: attempts.values()) {
-      minLaunchTime = Math.min(minLaunchTime, attempt.getLaunchTime());
+    @Override
+    public boolean canCommit(TaskAttemptId taskAttemptID) {
+        return false;
     }
-    minLaunchTime = minLaunchTime == Long.MAX_VALUE ? -1 : minLaunchTime;
-    report.setStartTime(minLaunchTime);
-    report.setFinishTime(taskInfo.getFinishTime());
-    report.setTaskState(getState());
-    report.setProgress(getProgress());
-    Counters counters = getCounters();
-    if (counters == null) {
-      counters = EMPTY_COUNTERS;
-    }
-    report.setCounters(TypeConverter.toYarn(counters));
-    if (successfulAttempt != null) {
-      report.setSuccessfulAttempt(successfulAttempt);
-    }
-    report.addAllDiagnostics(reportDiagnostics);
-    report
-        .addAllRunningAttempts(new ArrayList<TaskAttemptId>(attempts.keySet()));
-  }
 
-  private void loadAllTaskAttempts() {
-    if (taskAttemptsLoaded.get()) {
-      return;
+    @Override
+    public TaskAttempt getAttempt(TaskAttemptId attemptID) {
+        loadAllTaskAttempts();
+        return attempts.get(attemptID);
     }
-    taskAttemptsLock.lock();
-    try {
-      if (taskAttemptsLoaded.get()) {
-        return;
-      }
 
-      for (TaskAttemptInfo attemptHistory : taskInfo.getAllTaskAttempts()
-          .values()) {
-        CompletedTaskAttempt attempt =
-            new CompletedTaskAttempt(taskId, attemptHistory);
-        reportDiagnostics.addAll(attempt.getDiagnostics());
-        attempts.put(attempt.getID(), attempt);
-        if (successfulAttempt == null
-            && attemptHistory.getTaskStatus() != null
-            && attemptHistory.getTaskStatus().equals(
-                TaskState.SUCCEEDED.toString())) {
-          successfulAttempt =
-              TypeConverter.toYarn(attemptHistory.getAttemptId());
+    @Override
+    public Map<TaskAttemptId, TaskAttempt> getAttempts() {
+        loadAllTaskAttempts();
+        return attempts;
+    }
+
+    @Override
+    public Counters getCounters() {
+        return taskInfo.getCounters();
+    }
+
+    @Override
+    public TaskId getID() {
+        return taskId;
+    }
+
+    @Override
+    public float getProgress() {
+        return 1.0f;
+    }
+
+    @Override
+    public synchronized TaskReport getReport() {
+        if (report == null) {
+            constructTaskReport();
         }
-      }
-      taskAttemptsLoaded.set(true);
-    } finally {
-      taskAttemptsLock.unlock();
+        return report;
     }
-  }
+
+
+
+    @Override
+    public TaskType getType() {
+        return TypeConverter.toYarn(taskInfo.getTaskType());
+    }
+
+    @Override
+    public boolean isFinished() {
+        return true;
+    }
+
+    @Override
+    public TaskState getState() {
+        return taskInfo.getTaskStatus() == null ? TaskState.KILLED : TaskState
+               .valueOf(taskInfo.getTaskStatus());
+    }
+
+    private void constructTaskReport() {
+        loadAllTaskAttempts();
+        this.report = Records.newRecord(TaskReport.class);
+        report.setTaskId(taskId);
+        long minLaunchTime = Long.MAX_VALUE;
+        for(TaskAttempt attempt: attempts.values()) {
+            minLaunchTime = Math.min(minLaunchTime, attempt.getLaunchTime());
+        }
+        minLaunchTime = minLaunchTime == Long.MAX_VALUE ? -1 : minLaunchTime;
+        report.setStartTime(minLaunchTime);
+        report.setFinishTime(taskInfo.getFinishTime());
+        report.setTaskState(getState());
+        report.setProgress(getProgress());
+        Counters counters = getCounters();
+        if (counters == null) {
+            counters = EMPTY_COUNTERS;
+        }
+        report.setCounters(TypeConverter.toYarn(counters));
+        if (successfulAttempt != null) {
+            report.setSuccessfulAttempt(successfulAttempt);
+        }
+        report.addAllDiagnostics(reportDiagnostics);
+        report
+        .addAllRunningAttempts(new ArrayList<TaskAttemptId>(attempts.keySet()));
+    }
+
+    private void loadAllTaskAttempts() {
+        if (taskAttemptsLoaded.get()) {
+            return;
+        }
+        taskAttemptsLock.lock();
+        try {
+            if (taskAttemptsLoaded.get()) {
+                return;
+            }
+
+            for (TaskAttemptInfo attemptHistory : taskInfo.getAllTaskAttempts()
+                 .values()) {
+                CompletedTaskAttempt attempt =
+                    new CompletedTaskAttempt(taskId, attemptHistory);
+                reportDiagnostics.addAll(attempt.getDiagnostics());
+                attempts.put(attempt.getID(), attempt);
+                if (successfulAttempt == null
+                    && attemptHistory.getTaskStatus() != null
+                    && attemptHistory.getTaskStatus().equals(
+                        TaskState.SUCCEEDED.toString())) {
+                    successfulAttempt =
+                        TypeConverter.toYarn(attemptHistory.getAttemptId());
+                }
+            }
+            taskAttemptsLoaded.set(true);
+        } finally {
+            taskAttemptsLock.unlock();
+        }
+    }
 }

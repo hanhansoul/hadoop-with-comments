@@ -22,20 +22,20 @@ package org.apache.hadoop.tools.rumen.datatypes;
  * Represents a job's name.
  */
 public class JobName extends DefaultAnonymizableDataType {
-  private final String jobName;
-  
-  public JobName(String jobName) {
-    super();
-    this.jobName = jobName;
-  }
-  
-  @Override
-  public String getValue() {
-    return jobName;
-  }
-  
-  @Override
-  protected String getPrefix() {
-    return "job";
-  }
+    private final String jobName;
+
+    public JobName(String jobName) {
+        super();
+        this.jobName = jobName;
+    }
+
+    @Override
+    public String getValue() {
+        return jobName;
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "job";
+    }
 }

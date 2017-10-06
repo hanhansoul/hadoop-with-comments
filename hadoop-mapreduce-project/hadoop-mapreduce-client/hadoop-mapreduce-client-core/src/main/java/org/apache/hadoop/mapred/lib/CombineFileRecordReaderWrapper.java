@@ -46,41 +46,41 @@ import org.apache.hadoop.mapred.Reporter;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public abstract class CombineFileRecordReaderWrapper<K,V>
-  implements RecordReader<K,V> {
-  private final RecordReader<K,V> delegate;
+    implements RecordReader<K,V> {
+    private final RecordReader<K,V> delegate;
 
-  protected CombineFileRecordReaderWrapper(FileInputFormat<K,V> inputFormat,
-    CombineFileSplit split, Configuration conf, Reporter reporter, Integer idx)
+    protected CombineFileRecordReaderWrapper(FileInputFormat<K,V> inputFormat,
+            CombineFileSplit split, Configuration conf, Reporter reporter, Integer idx)
     throws IOException {
-    FileSplit fileSplit = new FileSplit(split.getPath(idx),
-      split.getOffset(idx),
-      split.getLength(idx),
-      split.getLocations());
+        FileSplit fileSplit = new FileSplit(split.getPath(idx),
+                                            split.getOffset(idx),
+                                            split.getLength(idx),
+                                            split.getLocations());
 
-    delegate = inputFormat.getRecordReader(fileSplit, (JobConf)conf, reporter);
-  }
+        delegate = inputFormat.getRecordReader(fileSplit, (JobConf)conf, reporter);
+    }
 
-  public boolean next(K key, V value) throws IOException {
-    return delegate.next(key, value);
-  }
+    public boolean next(K key, V value) throws IOException {
+        return delegate.next(key, value);
+    }
 
-  public K createKey() {
-    return delegate.createKey();
-  }
+    public K createKey() {
+        return delegate.createKey();
+    }
 
-  public V createValue() {
-    return delegate.createValue();
-  }
+    public V createValue() {
+        return delegate.createValue();
+    }
 
-  public long getPos() throws IOException {
-    return delegate.getPos();
-  }
+    public long getPos() throws IOException {
+        return delegate.getPos();
+    }
 
-  public void close() throws IOException {
-    delegate.close();
-  }
+    public void close() throws IOException {
+        delegate.close();
+    }
 
-  public float getProgress() throws IOException {
-    return delegate.getProgress();
-  }
+    public float getProgress() throws IOException {
+        return delegate.getProgress();
+    }
 }

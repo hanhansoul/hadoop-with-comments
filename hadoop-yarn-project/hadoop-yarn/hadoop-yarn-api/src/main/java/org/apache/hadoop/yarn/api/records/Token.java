@@ -34,64 +34,64 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class Token {
 
-  @Private
-  @Unstable
-  public static Token newInstance(byte[] identifier, String kind, byte[] password,
-      String service) {
-    Token token = Records.newRecord(Token.class);
-    token.setIdentifier(ByteBuffer.wrap(identifier));
-    token.setKind(kind);
-    token.setPassword(ByteBuffer.wrap(password));
-    token.setService(service);
-    return token;
-  }
+    @Private
+    @Unstable
+    public static Token newInstance(byte[] identifier, String kind, byte[] password,
+                                    String service) {
+        Token token = Records.newRecord(Token.class);
+        token.setIdentifier(ByteBuffer.wrap(identifier));
+        token.setKind(kind);
+        token.setPassword(ByteBuffer.wrap(password));
+        token.setService(service);
+        return token;
+    }
 
-  /**
-   * Get the token identifier.
-   * @return token identifier
-   */
-  @Public
-  @Stable
-  public abstract ByteBuffer getIdentifier();
-  
-  @Private
-  @Unstable
-  public abstract void setIdentifier(ByteBuffer identifier);
+    /**
+     * Get the token identifier.
+     * @return token identifier
+     */
+    @Public
+    @Stable
+    public abstract ByteBuffer getIdentifier();
 
-  /**
-   * Get the token password
-   * @return token password
-   */
-  @Public
-  @Stable
-  public abstract ByteBuffer getPassword();
-  
-  @Private
-  @Unstable
-  public abstract void setPassword(ByteBuffer password);
+    @Private
+    @Unstable
+    public abstract void setIdentifier(ByteBuffer identifier);
 
-  /**
-   * Get the token kind.
-   * @return token kind
-   */
-  @Public
-  @Stable
-  public abstract String getKind();
-  
-  @Private
-  @Unstable
-  public abstract void setKind(String kind);
+    /**
+     * Get the token password
+     * @return token password
+     */
+    @Public
+    @Stable
+    public abstract ByteBuffer getPassword();
 
-  /**
-   * Get the service to which the token is allocated.
-   * @return service to which the token is allocated
-   */
-  @Public
-  @Stable
-  public abstract String getService();
+    @Private
+    @Unstable
+    public abstract void setPassword(ByteBuffer password);
 
-  @Private
-  @Unstable
-  public abstract void setService(String service);
+    /**
+     * Get the token kind.
+     * @return token kind
+     */
+    @Public
+    @Stable
+    public abstract String getKind();
+
+    @Private
+    @Unstable
+    public abstract void setKind(String kind);
+
+    /**
+     * Get the service to which the token is allocated.
+     * @return service to which the token is allocated
+     */
+    @Public
+    @Stable
+    public abstract String getService();
+
+    @Private
+    @Unstable
+    public abstract void setService(String service);
 
 }

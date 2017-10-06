@@ -32,61 +32,61 @@ import org.junit.Test;
  * correctly.
  */
 public class TestBalancerBandwidth {
-  final static private Configuration conf = new Configuration();
-  final static private int NUM_OF_DATANODES = 2;
-  final static private int DEFAULT_BANDWIDTH = 1024*1024;
-  public static final Log LOG = LogFactory.getLog(TestBalancerBandwidth.class);
+    final static private Configuration conf = new Configuration();
+    final static private int NUM_OF_DATANODES = 2;
+    final static private int DEFAULT_BANDWIDTH = 1024*1024;
+    public static final Log LOG = LogFactory.getLog(TestBalancerBandwidth.class);
 
-  @Test
-  public void testBalancerBandwidth() throws Exception {
-    /* Set bandwidthPerSec to a low value of 1M bps. */
-    conf.setLong(
-        DFSConfigKeys.DFS_DATANODE_BALANCE_BANDWIDTHPERSEC_KEY,
-        DEFAULT_BANDWIDTH);
+    @Test
+    public void testBalancerBandwidth() throws Exception {
+        /* Set bandwidthPerSec to a low value of 1M bps. */
+        conf.setLong(
+            DFSConfigKeys.DFS_DATANODE_BALANCE_BANDWIDTHPERSEC_KEY,
+            DEFAULT_BANDWIDTH);
 
-    /* Create and start cluster */
-    MiniDFSCluster cluster = 
-      new MiniDFSCluster.Builder(conf).numDataNodes(NUM_OF_DATANODES).build();
-    try {
-      cluster.waitActive();
+        /* Create and start cluster */
+        MiniDFSCluster cluster =
+            new MiniDFSCluster.Builder(conf).numDataNodes(NUM_OF_DATANODES).build();
+        try {
+            cluster.waitActive();
 
-      DistributedFileSystem fs = cluster.getFileSystem();
+            DistributedFileSystem fs = cluster.getFileSystem();
 
-      ArrayList<DataNode> datanodes = cluster.getDataNodes();
-      // Ensure value from the configuration is reflected in the datanodes.
-      assertEquals(DEFAULT_BANDWIDTH, (long) datanodes.get(0).getBalancerBandwidth());
-      assertEquals(DEFAULT_BANDWIDTH, (long) datanodes.get(1).getBalancerBandwidth());
+            ArrayList<DataNode> datanodes = cluster.getDataNodes();
+            // Ensure value from the configuration is reflected in the datanodes.
+            assertEquals(DEFAULT_BANDWIDTH, (long) datanodes.get(0).getBalancerBandwidth());
+            assertEquals(DEFAULT_BANDWIDTH, (long) datanodes.get(1).getBalancerBandwidth());
 
-      // Dynamically change balancer bandwidth and ensure the updated value
-      // is reflected on the datanodes.
-      long newBandwidth = 12 * DEFAULT_BANDWIDTH; // 12M bps
-      fs.setBalancerBandwidth(newBandwidth);
+            // Dynamically change balancer bandwidth and ensure the updated value
+            // is reflected on the datanodes.
+            long newBandwidth = 12 * DEFAULT_BANDWIDTH; // 12M bps
+            fs.setBalancerBandwidth(newBandwidth);
 
-      // Give it a few seconds to propogate new the value to the datanodes.
-      try {
-        Thread.sleep(5000);
-      } catch (Exception e) {}
+            // Give it a few seconds to propogate new the value to the datanodes.
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {}
 
-      assertEquals(newBandwidth, (long) datanodes.get(0).getBalancerBandwidth());
-      assertEquals(newBandwidth, (long) datanodes.get(1).getBalancerBandwidth());
+            assertEquals(newBandwidth, (long) datanodes.get(0).getBalancerBandwidth());
+            assertEquals(newBandwidth, (long) datanodes.get(1).getBalancerBandwidth());
 
-      // Dynamically change balancer bandwidth to 0. Balancer bandwidth on the
-      // datanodes should remain as it was.
-      fs.setBalancerBandwidth(0);
+            // Dynamically change balancer bandwidth to 0. Balancer bandwidth on the
+            // datanodes should remain as it was.
+            fs.setBalancerBandwidth(0);
 
-      // Give it a few seconds to propogate new the value to the datanodes.
-      try {
-        Thread.sleep(5000);
-      } catch (Exception e) {}
+            // Give it a few seconds to propogate new the value to the datanodes.
+            try {
+                Thread.sleep(5000);
+            } catch (Exception e) {}
 
-      assertEquals(newBandwidth, (long) datanodes.get(0).getBalancerBandwidth());
-      assertEquals(newBandwidth, (long) datanodes.get(1).getBalancerBandwidth());
-    }finally {
-      cluster.shutdown();
+            assertEquals(newBandwidth, (long) datanodes.get(0).getBalancerBandwidth());
+            assertEquals(newBandwidth, (long) datanodes.get(1).getBalancerBandwidth());
+        } finally {
+            cluster.shutdown();
+        }
     }
-  }
 
-  public static void main(String[] args) throws Exception {
-    new TestBalancerBandwidth().testBalancerBandwidth();
-  }
+    public static void main(String[] args) throws Exception {
+        new TestBalancerBandwidth().testBalancerBandwidth();
+    }
 }

@@ -33,34 +33,34 @@ import org.apache.hadoop.yarn.webapp.view.TwoColumnLayout;
 // Do NOT rename/refactor this to AHSView as it will wreak havoc
 // on Mac OS HFS
 public class AHSView extends TwoColumnLayout {
-  static final int MAX_DISPLAY_ROWS = 100; // direct table rendering
-  static final int MAX_FAST_ROWS = 1000; // inline js array
+    static final int MAX_DISPLAY_ROWS = 100; // direct table rendering
+    static final int MAX_FAST_ROWS = 1000; // inline js array
 
-  @Override
-  protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    set(DATATABLES_ID, "apps");
-    set(initID(DATATABLES, "apps"), WebPageUtils.appsTableInit());
-    setTableStyles(html, "apps", ".queue {width:6em}", ".ui {width:8em}");
+    @Override
+    protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        set(DATATABLES_ID, "apps");
+        set(initID(DATATABLES, "apps"), WebPageUtils.appsTableInit());
+        setTableStyles(html, "apps", ".queue {width:6em}", ".ui {width:8em}");
 
-    // Set the correct title.
-    String reqState = $(APP_STATE);
-    reqState = (reqState == null || reqState.isEmpty() ? "All" : reqState);
-    setTitle(sjoin(reqState, "Applications"));
-  }
+        // Set the correct title.
+        String reqState = $(APP_STATE);
+        reqState = (reqState == null || reqState.isEmpty() ? "All" : reqState);
+        setTitle(sjoin(reqState, "Applications"));
+    }
 
-  protected void commonPreHead(Page.HTML<_> html) {
-    set(ACCORDION_ID, "nav");
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:0}");
-  }
+    protected void commonPreHead(Page.HTML<_> html) {
+        set(ACCORDION_ID, "nav");
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:0}");
+    }
 
-  @Override
-  protected Class<? extends SubView> nav() {
-    return NavBlock.class;
-  }
+    @Override
+    protected Class<? extends SubView> nav() {
+        return NavBlock.class;
+    }
 
-  @Override
-  protected Class<? extends SubView> content() {
-    return AppsBlock.class;
-  }
+    @Override
+    protected Class<? extends SubView> content() {
+        return AppsBlock.class;
+    }
 }

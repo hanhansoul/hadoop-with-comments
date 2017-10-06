@@ -36,49 +36,49 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 @Evolving
 public class ClientToAMTokenSecretManager extends
     BaseClientToAMTokenSecretManager {
-  private static final int MASTER_KEY_WAIT_MSEC = 10 * 1000;
+    private static final int MASTER_KEY_WAIT_MSEC = 10 * 1000;
 
-  // Only one master-key for AM
-  private volatile SecretKey masterKey;
+    // Only one master-key for AM
+    private volatile SecretKey masterKey;
 
-  public ClientToAMTokenSecretManager(
-      ApplicationAttemptId applicationAttemptID, byte[] key) {
-    super();
-    if (key !=  null) {
-      this.masterKey = SecretManager.createSecretKey(key);
-    } else {
-      this.masterKey = null;
-    }
-    
-  }
-
-  @Override
-  public byte[] retrievePassword(ClientToAMTokenIdentifier identifier)
-      throws InvalidToken {
-    if (this.masterKey == null) {
-      synchronized (this) {
-        while (masterKey == null) {
-          try {
-            wait(MASTER_KEY_WAIT_MSEC);
-            break;
-          } catch (InterruptedException e) {
-          }
+    public ClientToAMTokenSecretManager(
+        ApplicationAttemptId applicationAttemptID, byte[] key) {
+        super();
+        if (key !=  null) {
+            this.masterKey = SecretManager.createSecretKey(key);
+        } else {
+            this.masterKey = null;
         }
-      }
-    }
-    return super.retrievePassword(identifier);
-  }
 
-  @Override
-  public SecretKey getMasterKey(ApplicationAttemptId applicationAttemptID) {
-    // Only one master-key for AM, just return that.
-    return this.masterKey;
-  }
-
-  public void setMasterKey(byte[] key) {
-    synchronized (this) {
-      this.masterKey = SecretManager.createSecretKey(key);
-      notifyAll();
     }
-  }
+
+    @Override
+    public byte[] retrievePassword(ClientToAMTokenIdentifier identifier)
+    throws InvalidToken {
+        if (this.masterKey == null) {
+            synchronized (this) {
+                while (masterKey == null) {
+                    try {
+                        wait(MASTER_KEY_WAIT_MSEC);
+                        break;
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        }
+        return super.retrievePassword(identifier);
+    }
+
+    @Override
+    public SecretKey getMasterKey(ApplicationAttemptId applicationAttemptID) {
+        // Only one master-key for AM, just return that.
+        return this.masterKey;
+    }
+
+    public void setMasterKey(byte[] key) {
+        synchronized (this) {
+            this.masterKey = SecretManager.createSecretKey(key);
+            notifyAll();
+        }
+    }
 }

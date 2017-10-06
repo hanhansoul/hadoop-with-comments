@@ -22,7 +22,7 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class JobSetupCompletedEvent extends JobEvent {
 
-  public JobSetupCompletedEvent(JobId jobID) {
-    super(jobID, JobEventType.JOB_SETUP_COMPLETED);
-  }
+    public JobSetupCompletedEvent(JobId jobID) {
+        super(jobID, JobEventType.JOB_SETUP_COMPLETED);
+    }
 }

@@ -25,12 +25,12 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class CapacitySchedulerMetrics extends SchedulerMetrics {
 
-  public CapacitySchedulerMetrics() {
-    super();
-  }
+    public CapacitySchedulerMetrics() {
+        super();
+    }
 
-  @Override
-  public void trackQueue(String queueName) {
-    trackedQueues.add(queueName);
-  }
+    @Override
+    public void trackQueue(String queueName) {
+        trackedQueues.add(queueName);
+    }
 }

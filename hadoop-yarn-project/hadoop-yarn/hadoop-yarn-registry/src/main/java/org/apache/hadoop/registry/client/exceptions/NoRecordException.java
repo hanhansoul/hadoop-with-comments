@@ -33,13 +33,13 @@ import org.apache.hadoop.registry.client.types.ServiceRecord;
 @InterfaceStability.Evolving
 public class NoRecordException extends RegistryIOException {
 
-  public NoRecordException(String path, String error) {
-    super(path, error);
-  }
+    public NoRecordException(String path, String error) {
+        super(path, error);
+    }
 
-  public NoRecordException(String path,
-      String error,
-      Throwable cause) {
-    super(path, error, cause);
-  }
+    public NoRecordException(String path,
+                             String error,
+                             Throwable cause) {
+        super(path, error, cause);
+    }
 }

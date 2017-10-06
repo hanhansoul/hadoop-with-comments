@@ -34,32 +34,32 @@ import org.apache.hadoop.security.token.TokenSelector;
 public class AMRMTokenSelector implements
     TokenSelector<AMRMTokenIdentifier> {
 
-  private static final Log LOG = LogFactory
-      .getLog(AMRMTokenSelector.class);
+    private static final Log LOG = LogFactory
+                                   .getLog(AMRMTokenSelector.class);
 
-  @SuppressWarnings("unchecked")
-  public Token<AMRMTokenIdentifier> selectToken(Text service,
-      Collection<Token<? extends TokenIdentifier>> tokens) {
-    if (service == null) {
-      return null;
+    @SuppressWarnings("unchecked")
+    public Token<AMRMTokenIdentifier> selectToken(Text service,
+            Collection<Token<? extends TokenIdentifier>> tokens) {
+        if (service == null) {
+            return null;
+        }
+        LOG.debug("Looking for a token with service " + service.toString());
+        for (Token<? extends TokenIdentifier> token : tokens) {
+            LOG.debug("Token kind is " + token.getKind().toString()
+                      + " and the token's service name is " + token.getService());
+            if (AMRMTokenIdentifier.KIND_NAME.equals(token.getKind())
+                && checkService(service, token)) {
+                return (Token<AMRMTokenIdentifier>) token;
+            }
+        }
+        return null;
     }
-    LOG.debug("Looking for a token with service " + service.toString());
-    for (Token<? extends TokenIdentifier> token : tokens) {
-      LOG.debug("Token kind is " + token.getKind().toString()
-          + " and the token's service name is " + token.getService());
-      if (AMRMTokenIdentifier.KIND_NAME.equals(token.getKind())
-          && checkService(service, token)) {
-        return (Token<AMRMTokenIdentifier>) token;
-      }
-    }
-    return null;
-  }
 
-  private boolean checkService(Text service,
-      Token<? extends TokenIdentifier> token) {
-    if (service == null || token.getService() == null) {
-      return false;
+    private boolean checkService(Text service,
+                                 Token<? extends TokenIdentifier> token) {
+        if (service == null || token.getService() == null) {
+            return false;
+        }
+        return token.getService().toString().contains(service.toString());
     }
-    return token.getService().toString().contains(service.toString());
-  }
 }

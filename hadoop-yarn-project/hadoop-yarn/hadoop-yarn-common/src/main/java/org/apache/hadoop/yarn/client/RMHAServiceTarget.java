@@ -28,42 +28,42 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 public class RMHAServiceTarget extends HAServiceTarget {
-  private final boolean autoFailoverEnabled;
-  private final InetSocketAddress haAdminServiceAddress;
+    private final boolean autoFailoverEnabled;
+    private final InetSocketAddress haAdminServiceAddress;
 
-  public RMHAServiceTarget(YarnConfiguration conf)
-      throws IOException {
-    autoFailoverEnabled = HAUtil.isAutomaticFailoverEnabled(conf);
-    haAdminServiceAddress = conf.getSocketAddr(
-        YarnConfiguration.RM_ADMIN_ADDRESS,
-        YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
-        YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
-  }
+    public RMHAServiceTarget(YarnConfiguration conf)
+    throws IOException {
+        autoFailoverEnabled = HAUtil.isAutomaticFailoverEnabled(conf);
+        haAdminServiceAddress = conf.getSocketAddr(
+                                    YarnConfiguration.RM_ADMIN_ADDRESS,
+                                    YarnConfiguration.DEFAULT_RM_ADMIN_ADDRESS,
+                                    YarnConfiguration.DEFAULT_RM_ADMIN_PORT);
+    }
 
-  @Override
-  public InetSocketAddress getAddress() {
-    return haAdminServiceAddress;
-  }
+    @Override
+    public InetSocketAddress getAddress() {
+        return haAdminServiceAddress;
+    }
 
-  @Override
-  public InetSocketAddress getZKFCAddress() {
-    // TODO (YARN-1177): ZKFC implementation
-    throw new UnsupportedOperationException("RMHAServiceTarget doesn't have " +
-        "a corresponding ZKFC address");
-  }
+    @Override
+    public InetSocketAddress getZKFCAddress() {
+        // TODO (YARN-1177): ZKFC implementation
+        throw new UnsupportedOperationException("RMHAServiceTarget doesn't have " +
+                                                "a corresponding ZKFC address");
+    }
 
-  @Override
-  public NodeFencer getFencer() {
-    return null;
-  }
+    @Override
+    public NodeFencer getFencer() {
+        return null;
+    }
 
-  @Override
-  public void checkFencingConfigured() throws BadFencingConfigurationException {
-    throw new BadFencingConfigurationException("Fencer not configured");
-  }
+    @Override
+    public void checkFencingConfigured() throws BadFencingConfigurationException {
+        throw new BadFencingConfigurationException("Fencer not configured");
+    }
 
-  @Override
-  public boolean isAutoFailoverEnabled() {
-    return autoFailoverEnabled;
-  }
+    @Override
+    public boolean isAutoFailoverEnabled() {
+        return autoFailoverEnabled;
+    }
 }

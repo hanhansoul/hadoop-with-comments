@@ -26,17 +26,17 @@ import org.junit.Assume;
 import org.junit.Test;
 
 public class TestSignalLogger {
-  public static final Log LOG = LogFactory.getLog(TestSignalLogger.class);
-  
-  @Test(timeout=60000)
-  public void testInstall() throws Exception {
-    Assume.assumeTrue(SystemUtils.IS_OS_UNIX);
-    SignalLogger.INSTANCE.register(LOG);
-    try {
-      SignalLogger.INSTANCE.register(LOG);
-      Assert.fail("expected IllegalStateException from double registration");
-    } catch (IllegalStateException e) {
-      // fall through
+    public static final Log LOG = LogFactory.getLog(TestSignalLogger.class);
+
+    @Test(timeout=60000)
+    public void testInstall() throws Exception {
+        Assume.assumeTrue(SystemUtils.IS_OS_UNIX);
+        SignalLogger.INSTANCE.register(LOG);
+        try {
+            SignalLogger.INSTANCE.register(LOG);
+            Assert.fail("expected IllegalStateException from double registration");
+        } catch (IllegalStateException e) {
+            // fall through
+        }
     }
-  }
 }

@@ -31,36 +31,36 @@ import org.junit.Test;
  * Tests resolution of AbstractFileSystems for a given path with symlinks.
  */
 public class TestFileContextResolveAfs {
-  static{
-    FileSystem.enableSymlinks();
-  }
-  private static String TEST_ROOT_DIR_LOCAL
-    = System.getProperty("test.build.data","/tmp");
-  
-  private FileContext fc;
-  private FileSystem localFs;
-  
-  @Before
-  public void setup() throws IOException {
-    fc = FileContext.getFileContext();
-  }
-  
-  @Test (timeout = 30000)
-  public void testFileContextResolveAfs() throws IOException {
-    Configuration conf = new Configuration();
-    localFs = FileSystem.get(conf);
-    
-    Path localPath = new Path(TEST_ROOT_DIR_LOCAL + "/TestFileContextResolveAfs1");
-    Path linkPath = localFs.makeQualified(new Path(TEST_ROOT_DIR_LOCAL,
-      "TestFileContextResolveAfs2"));
-    localFs.mkdirs(new Path(TEST_ROOT_DIR_LOCAL));
-    localFs.create(localPath);
-    
-    fc.createSymlink(localPath, linkPath, true);
-    Set<AbstractFileSystem> afsList = fc.resolveAbstractFileSystems(linkPath);
-    Assert.assertEquals(1, afsList.size());
-    localFs.deleteOnExit(localPath);
-    localFs.deleteOnExit(linkPath);
-    localFs.close();
-  }
+    static {
+        FileSystem.enableSymlinks();
+    }
+    private static String TEST_ROOT_DIR_LOCAL
+        = System.getProperty("test.build.data","/tmp");
+
+    private FileContext fc;
+    private FileSystem localFs;
+
+    @Before
+    public void setup() throws IOException {
+        fc = FileContext.getFileContext();
+    }
+
+    @Test (timeout = 30000)
+    public void testFileContextResolveAfs() throws IOException {
+        Configuration conf = new Configuration();
+        localFs = FileSystem.get(conf);
+
+        Path localPath = new Path(TEST_ROOT_DIR_LOCAL + "/TestFileContextResolveAfs1");
+        Path linkPath = localFs.makeQualified(new Path(TEST_ROOT_DIR_LOCAL,
+                                              "TestFileContextResolveAfs2"));
+        localFs.mkdirs(new Path(TEST_ROOT_DIR_LOCAL));
+        localFs.create(localPath);
+
+        fc.createSymlink(localPath, linkPath, true);
+        Set<AbstractFileSystem> afsList = fc.resolveAbstractFileSystems(linkPath);
+        Assert.assertEquals(1, afsList.size());
+        localFs.deleteOnExit(localPath);
+        localFs.deleteOnExit(linkPath);
+        localFs.close();
+    }
 }

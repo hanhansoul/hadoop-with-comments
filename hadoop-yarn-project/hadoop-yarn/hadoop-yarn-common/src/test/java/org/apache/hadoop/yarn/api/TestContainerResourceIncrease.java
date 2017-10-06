@@ -33,42 +33,42 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ContainerResourceIncreaseProto;
 import org.junit.Test;
 
 public class TestContainerResourceIncrease {
-  @Test
-  public void testResourceIncreaseContext() {
-    byte[] identifier = new byte[] { 1, 2, 3, 4 };
-    Token token = Token.newInstance(identifier, "", "".getBytes(), "");
-    ContainerId containerId = ContainerId
-        .newContainerId(ApplicationAttemptId.newInstance(
-            ApplicationId.newInstance(1234, 3), 3), 7);
-    Resource resource = Resource.newInstance(1023, 3);
-    ContainerResourceIncrease ctx = ContainerResourceIncrease.newInstance(
-        containerId, resource, token);
+    @Test
+    public void testResourceIncreaseContext() {
+        byte[] identifier = new byte[] { 1, 2, 3, 4 };
+        Token token = Token.newInstance(identifier, "", "".getBytes(), "");
+        ContainerId containerId = ContainerId
+                                  .newContainerId(ApplicationAttemptId.newInstance(
+                                              ApplicationId.newInstance(1234, 3), 3), 7);
+        Resource resource = Resource.newInstance(1023, 3);
+        ContainerResourceIncrease ctx = ContainerResourceIncrease.newInstance(
+                                            containerId, resource, token);
 
-    // get proto and recover to ctx
-    ContainerResourceIncreaseProto proto = 
-        ((ContainerResourceIncreasePBImpl) ctx).getProto();
-    ctx = new ContainerResourceIncreasePBImpl(proto);
+        // get proto and recover to ctx
+        ContainerResourceIncreaseProto proto =
+            ((ContainerResourceIncreasePBImpl) ctx).getProto();
+        ctx = new ContainerResourceIncreasePBImpl(proto);
 
-    // check values
-    Assert.assertEquals(ctx.getCapability(), resource);
-    Assert.assertEquals(ctx.getContainerId(), containerId);
-    Assert.assertTrue(Arrays.equals(ctx.getContainerToken().getIdentifier()
-        .array(), identifier));
-  }
-  
-  @Test
-  public void testResourceIncreaseContextWithNull() {
-    ContainerResourceIncrease ctx = ContainerResourceIncrease.newInstance(null,
-        null, null);
-    
-    // get proto and recover to ctx;
-    ContainerResourceIncreaseProto proto = 
-        ((ContainerResourceIncreasePBImpl) ctx).getProto();
-    ctx = new ContainerResourceIncreasePBImpl(proto);
+        // check values
+        Assert.assertEquals(ctx.getCapability(), resource);
+        Assert.assertEquals(ctx.getContainerId(), containerId);
+        Assert.assertTrue(Arrays.equals(ctx.getContainerToken().getIdentifier()
+                                        .array(), identifier));
+    }
 
-    // check values
-    Assert.assertNull(ctx.getContainerToken());
-    Assert.assertNull(ctx.getCapability());
-    Assert.assertNull(ctx.getContainerId());
-  }
+    @Test
+    public void testResourceIncreaseContextWithNull() {
+        ContainerResourceIncrease ctx = ContainerResourceIncrease.newInstance(null,
+                                        null, null);
+
+        // get proto and recover to ctx;
+        ContainerResourceIncreaseProto proto =
+            ((ContainerResourceIncreasePBImpl) ctx).getProto();
+        ctx = new ContainerResourceIncreasePBImpl(proto);
+
+        // check values
+        Assert.assertNull(ctx.getContainerToken());
+        Assert.assertNull(ctx.getCapability());
+        Assert.assertNull(ctx.getContainerId());
+    }
 }

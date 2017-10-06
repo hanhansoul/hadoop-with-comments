@@ -42,25 +42,25 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Stable
 public abstract class GetApplicationsResponse {
-  @Private
-  @Unstable
-  public static GetApplicationsResponse newInstance(
-      List<ApplicationReport> applications) {
-    GetApplicationsResponse response =
-        Records.newRecord(GetApplicationsResponse.class);
-    response.setApplicationList(applications);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetApplicationsResponse newInstance(
+        List<ApplicationReport> applications) {
+        GetApplicationsResponse response =
+            Records.newRecord(GetApplicationsResponse.class);
+        response.setApplicationList(applications);
+        return response;
+    }
 
-  /**
-   * Get <code>ApplicationReport</code> for applications.
-   * @return <code>ApplicationReport</code> for applications
-   */
-  @Public
-  @Stable
-  public abstract List<ApplicationReport> getApplicationList();
+    /**
+     * Get <code>ApplicationReport</code> for applications.
+     * @return <code>ApplicationReport</code> for applications
+     */
+    @Public
+    @Stable
+    public abstract List<ApplicationReport> getApplicationList();
 
-  @Private
-  @Unstable
-  public abstract void setApplicationList(List<ApplicationReport> applications);
+    @Private
+    @Unstable
+    public abstract void setApplicationList(List<ApplicationReport> applications);
 }

@@ -30,20 +30,20 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 /**
  * This class is similar to SequenceFileInputFormat, except it generates
  * SequenceFileAsTextRecordReader which converts the input keys and values
- * to their String forms by calling toString() method. 
+ * to their String forms by calling toString() method.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class SequenceFileAsTextInputFormat
-  extends SequenceFileInputFormat<Text, Text> {
+    extends SequenceFileInputFormat<Text, Text> {
 
-  public SequenceFileAsTextInputFormat() {
-    super();
-  }
+    public SequenceFileAsTextInputFormat() {
+        super();
+    }
 
-  public RecordReader<Text, Text> createRecordReader(InputSplit split,
-      TaskAttemptContext context) throws IOException {
-    context.setStatus(split.toString());
-    return new SequenceFileAsTextRecordReader();
-  }
+    public RecordReader<Text, Text> createRecordReader(InputSplit split,
+            TaskAttemptContext context) throws IOException {
+        context.setStatus(split.toString());
+        return new SequenceFileAsTextRecordReader();
+    }
 }

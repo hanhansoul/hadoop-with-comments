@@ -60,449 +60,449 @@ import org.apache.hadoop.util.ReflectionUtils;
 /**
  * This is a service provider interface for the underlying storage that
  * stores replicas for a data node.
- * The default implementation stores replicas on local drives. 
+ * The default implementation stores replicas on local drives.
  */
 @InterfaceAudience.Private
 public interface FsDatasetSpi<V extends FsVolumeSpi> extends FSDatasetMBean {
-  /**
-   * A factory for creating {@link FsDatasetSpi} objects.
-   */
-  public static abstract class Factory<D extends FsDatasetSpi<?>> {
-    /** @return the configured factory. */
-    public static Factory<?> getFactory(Configuration conf) {
-      @SuppressWarnings("rawtypes")
-      final Class<? extends Factory> clazz = conf.getClass(
-          DFSConfigKeys.DFS_DATANODE_FSDATASET_FACTORY_KEY,
-          FsDatasetFactory.class,
-          Factory.class);
-      return ReflectionUtils.newInstance(clazz, conf);
+    /**
+     * A factory for creating {@link FsDatasetSpi} objects.
+     */
+    public static abstract class Factory<D extends FsDatasetSpi<?>> {
+        /** @return the configured factory. */
+        public static Factory<?> getFactory(Configuration conf) {
+            @SuppressWarnings("rawtypes")
+            final Class<? extends Factory> clazz = conf.getClass(
+                    DFSConfigKeys.DFS_DATANODE_FSDATASET_FACTORY_KEY,
+                    FsDatasetFactory.class,
+                    Factory.class);
+            return ReflectionUtils.newInstance(clazz, conf);
+        }
+
+        /** Create a new object. */
+        public abstract D newInstance(DataNode datanode, DataStorage storage,
+                                      Configuration conf) throws IOException;
+
+        /** Does the factory create simulated objects? */
+        public boolean isSimulated() {
+            return false;
+        }
     }
 
-    /** Create a new object. */
-    public abstract D newInstance(DataNode datanode, DataStorage storage,
-        Configuration conf) throws IOException;
+    /**
+     * Create rolling logs.
+     *
+     * @param prefix the prefix of the log names.
+     * @return rolling logs
+     */
+    public RollingLogs createRollingLogs(String bpid, String prefix
+                                        ) throws IOException;
 
-    /** Does the factory create simulated objects? */
-    public boolean isSimulated() {
-      return false;
-    }
-  }
+    /** @return a list of volumes. */
+    public List<V> getVolumes();
 
-  /**
-   * Create rolling logs.
-   *
-   * @param prefix the prefix of the log names.
-   * @return rolling logs
-   */
-  public RollingLogs createRollingLogs(String bpid, String prefix
-      ) throws IOException;
+    /** Add an array of StorageLocation to FsDataset. */
+    public void addVolume(
+        final StorageLocation location,
+        final List<NamespaceInfo> nsInfos) throws IOException;
 
-  /** @return a list of volumes. */
-  public List<V> getVolumes();
+    /** Removes a collection of volumes from FsDataset. */
+    public void removeVolumes(Collection<StorageLocation> volumes);
 
-  /** Add an array of StorageLocation to FsDataset. */
-  public void addVolume(
-      final StorageLocation location,
-      final List<NamespaceInfo> nsInfos) throws IOException;
+    /** @return a storage with the given storage ID */
+    public DatanodeStorage getStorage(final String storageUuid);
 
-  /** Removes a collection of volumes from FsDataset. */
-  public void removeVolumes(Collection<StorageLocation> volumes);
+    /** @return one or more storage reports for attached volumes. */
+    public StorageReport[] getStorageReports(String bpid)
+    throws IOException;
 
-  /** @return a storage with the given storage ID */
-  public DatanodeStorage getStorage(final String storageUuid);
+    /** @return the volume that contains a replica of the block. */
+    public V getVolume(ExtendedBlock b);
 
-  /** @return one or more storage reports for attached volumes. */
-  public StorageReport[] getStorageReports(String bpid)
-      throws IOException;
+    /** @return a volume information map (name => info). */
+    public Map<String, Object> getVolumeInfoMap();
 
-  /** @return the volume that contains a replica of the block. */
-  public V getVolume(ExtendedBlock b);
+    /** @return a list of finalized blocks for the given block pool. */
+    public List<FinalizedReplica> getFinalizedBlocks(String bpid);
 
-  /** @return a volume information map (name => info). */
-  public Map<String, Object> getVolumeInfoMap();
+    /** @return a list of finalized blocks for the given block pool. */
+    public List<FinalizedReplica> getFinalizedBlocksOnPersistentStorage(String bpid);
 
-  /** @return a list of finalized blocks for the given block pool. */
-  public List<FinalizedReplica> getFinalizedBlocks(String bpid);
+    /**
+     * Check whether the in-memory block record matches the block on the disk,
+     * and, in case that they are not matched, update the record or mark it
+     * as corrupted.
+     */
+    public void checkAndUpdate(String bpid, long blockId, File diskFile,
+                               File diskMetaFile, FsVolumeSpi vol) throws IOException;
 
-  /** @return a list of finalized blocks for the given block pool. */
-  public List<FinalizedReplica> getFinalizedBlocksOnPersistentStorage(String bpid);
+    /**
+     * @param b - the block
+     * @return a stream if the meta-data of the block exists;
+     *         otherwise, return null.
+     * @throws IOException
+     */
+    public LengthInputStream getMetaDataInputStream(ExtendedBlock b
+                                                   ) throws IOException;
 
-  /**
-   * Check whether the in-memory block record matches the block on the disk,
-   * and, in case that they are not matched, update the record or mark it
-   * as corrupted.
-   */
-  public void checkAndUpdate(String bpid, long blockId, File diskFile,
-      File diskMetaFile, FsVolumeSpi vol) throws IOException;
+    /**
+     * Returns the specified block's on-disk length (excluding metadata)
+     * @return   the specified block's on-disk length (excluding metadta)
+     * @throws IOException on error
+     */
+    public long getLength(ExtendedBlock b) throws IOException;
 
-  /**
-   * @param b - the block
-   * @return a stream if the meta-data of the block exists;
-   *         otherwise, return null.
-   * @throws IOException
-   */
-  public LengthInputStream getMetaDataInputStream(ExtendedBlock b
-      ) throws IOException;
+    /**
+     * Get reference to the replica meta info in the replicasMap.
+     * To be called from methods that are synchronized on {@link FSDataset}
+     * @return replica from the replicas map
+     */
+    @Deprecated
+    public Replica getReplica(String bpid, long blockId);
 
-  /**
-   * Returns the specified block's on-disk length (excluding metadata)
-   * @return   the specified block's on-disk length (excluding metadta)
-   * @throws IOException on error
-   */
-  public long getLength(ExtendedBlock b) throws IOException;
+    /**
+     * @return replica meta information
+     */
+    public String getReplicaString(String bpid, long blockId);
 
-  /**
-   * Get reference to the replica meta info in the replicasMap. 
-   * To be called from methods that are synchronized on {@link FSDataset}
-   * @return replica from the replicas map
-   */
-  @Deprecated
-  public Replica getReplica(String bpid, long blockId);
+    /**
+     * @return the generation stamp stored with the block.
+     */
+    public Block getStoredBlock(String bpid, long blkid) throws IOException;
 
-  /**
-   * @return replica meta information
-   */
-  public String getReplicaString(String bpid, long blockId);
+    /**
+     * Returns an input stream at specified offset of the specified block
+     * @param b block
+     * @param seekOffset offset with in the block to seek to
+     * @return an input stream to read the contents of the specified block,
+     *  starting at the offset
+     * @throws IOException
+     */
+    public InputStream getBlockInputStream(ExtendedBlock b, long seekOffset)
+    throws IOException;
 
-  /**
-   * @return the generation stamp stored with the block.
-   */
-  public Block getStoredBlock(String bpid, long blkid) throws IOException;
-  
-  /**
-   * Returns an input stream at specified offset of the specified block
-   * @param b block
-   * @param seekOffset offset with in the block to seek to
-   * @return an input stream to read the contents of the specified block,
-   *  starting at the offset
-   * @throws IOException
-   */
-  public InputStream getBlockInputStream(ExtendedBlock b, long seekOffset)
-            throws IOException;
+    /**
+     * Returns an input stream at specified offset of the specified block
+     * The block is still in the tmp directory and is not finalized
+     * @return an input stream to read the contents of the specified block,
+     *  starting at the offset
+     * @throws IOException
+     */
+    public ReplicaInputStreams getTmpInputStreams(ExtendedBlock b, long blkoff,
+            long ckoff) throws IOException;
 
-  /**
-   * Returns an input stream at specified offset of the specified block
-   * The block is still in the tmp directory and is not finalized
-   * @return an input stream to read the contents of the specified block,
-   *  starting at the offset
-   * @throws IOException
-   */
-  public ReplicaInputStreams getTmpInputStreams(ExtendedBlock b, long blkoff,
-      long ckoff) throws IOException;
+    /**
+     * Creates a temporary replica and returns the meta information of the replica
+     *
+     * @param b block
+     * @return the meta info of the replica which is being written to
+     * @throws IOException if an error occurs
+     */
+    public ReplicaInPipelineInterface createTemporary(StorageType storageType,
+            ExtendedBlock b) throws IOException;
 
-  /**
-   * Creates a temporary replica and returns the meta information of the replica
-   * 
-   * @param b block
-   * @return the meta info of the replica which is being written to
-   * @throws IOException if an error occurs
-   */
-  public ReplicaInPipelineInterface createTemporary(StorageType storageType,
-      ExtendedBlock b) throws IOException;
+    /**
+     * Creates a RBW replica and returns the meta info of the replica
+     *
+     * @param b block
+     * @return the meta info of the replica which is being written to
+     * @throws IOException if an error occurs
+     */
+    public ReplicaInPipelineInterface createRbw(StorageType storageType,
+            ExtendedBlock b, boolean allowLazyPersist) throws IOException;
 
-  /**
-   * Creates a RBW replica and returns the meta info of the replica
-   * 
-   * @param b block
-   * @return the meta info of the replica which is being written to
-   * @throws IOException if an error occurs
-   */
-  public ReplicaInPipelineInterface createRbw(StorageType storageType,
-      ExtendedBlock b, boolean allowLazyPersist) throws IOException;
+    /**
+     * Recovers a RBW replica and returns the meta info of the replica
+     *
+     * @param b block
+     * @param newGS the new generation stamp for the replica
+     * @param minBytesRcvd the minimum number of bytes that the replica could have
+     * @param maxBytesRcvd the maximum number of bytes that the replica could have
+     * @return the meta info of the replica which is being written to
+     * @throws IOException if an error occurs
+     */
+    public ReplicaInPipelineInterface recoverRbw(ExtendedBlock b,
+            long newGS, long minBytesRcvd, long maxBytesRcvd) throws IOException;
 
-  /**
-   * Recovers a RBW replica and returns the meta info of the replica
-   * 
-   * @param b block
-   * @param newGS the new generation stamp for the replica
-   * @param minBytesRcvd the minimum number of bytes that the replica could have
-   * @param maxBytesRcvd the maximum number of bytes that the replica could have
-   * @return the meta info of the replica which is being written to
-   * @throws IOException if an error occurs
-   */
-  public ReplicaInPipelineInterface recoverRbw(ExtendedBlock b, 
-      long newGS, long minBytesRcvd, long maxBytesRcvd) throws IOException;
+    /**
+     * Covert a temporary replica to a RBW.
+     * @param temporary the temporary replica being converted
+     * @return the result RBW
+     */
+    public ReplicaInPipelineInterface convertTemporaryToRbw(
+        ExtendedBlock temporary) throws IOException;
 
-  /**
-   * Covert a temporary replica to a RBW.
-   * @param temporary the temporary replica being converted
-   * @return the result RBW
-   */
-  public ReplicaInPipelineInterface convertTemporaryToRbw(
-      ExtendedBlock temporary) throws IOException;
+    /**
+     * Append to a finalized replica and returns the meta info of the replica
+     *
+     * @param b block
+     * @param newGS the new generation stamp for the replica
+     * @param expectedBlockLen the number of bytes the replica is expected to have
+     * @return the meata info of the replica which is being written to
+     * @throws IOException
+     */
+    public ReplicaInPipelineInterface append(ExtendedBlock b, long newGS,
+            long expectedBlockLen) throws IOException;
 
-  /**
-   * Append to a finalized replica and returns the meta info of the replica
-   * 
-   * @param b block
-   * @param newGS the new generation stamp for the replica
-   * @param expectedBlockLen the number of bytes the replica is expected to have
-   * @return the meata info of the replica which is being written to
-   * @throws IOException
-   */
-  public ReplicaInPipelineInterface append(ExtendedBlock b, long newGS,
-      long expectedBlockLen) throws IOException;
+    /**
+     * Recover a failed append to a finalized replica
+     * and returns the meta info of the replica
+     *
+     * @param b block
+     * @param newGS the new generation stamp for the replica
+     * @param expectedBlockLen the number of bytes the replica is expected to have
+     * @return the meta info of the replica which is being written to
+     * @throws IOException
+     */
+    public ReplicaInPipelineInterface recoverAppend(ExtendedBlock b, long newGS,
+            long expectedBlockLen) throws IOException;
 
-  /**
-   * Recover a failed append to a finalized replica
-   * and returns the meta info of the replica
-   * 
-   * @param b block
-   * @param newGS the new generation stamp for the replica
-   * @param expectedBlockLen the number of bytes the replica is expected to have
-   * @return the meta info of the replica which is being written to
-   * @throws IOException
-   */
-  public ReplicaInPipelineInterface recoverAppend(ExtendedBlock b, long newGS,
-      long expectedBlockLen) throws IOException;
-  
-  /**
-   * Recover a failed pipeline close
-   * It bumps the replica's generation stamp and finalize it if RBW replica
-   * 
-   * @param b block
-   * @param newGS the new generation stamp for the replica
-   * @param expectedBlockLen the number of bytes the replica is expected to have
-   * @return the storage uuid of the replica.
-   * @throws IOException
-   */
-  public String recoverClose(ExtendedBlock b, long newGS, long expectedBlockLen
-      ) throws IOException;
-  
-  /**
-   * Finalizes the block previously opened for writing using writeToBlock.
-   * The block size is what is in the parameter b and it must match the amount
-   *  of data written
-   * @throws IOException
-   */
-  public void finalizeBlock(ExtendedBlock b) throws IOException;
+    /**
+     * Recover a failed pipeline close
+     * It bumps the replica's generation stamp and finalize it if RBW replica
+     *
+     * @param b block
+     * @param newGS the new generation stamp for the replica
+     * @param expectedBlockLen the number of bytes the replica is expected to have
+     * @return the storage uuid of the replica.
+     * @throws IOException
+     */
+    public String recoverClose(ExtendedBlock b, long newGS, long expectedBlockLen
+                              ) throws IOException;
 
-  /**
-   * Unfinalizes the block previously opened for writing using writeToBlock.
-   * The temporary file associated with this block is deleted.
-   * @throws IOException
-   */
-  public void unfinalizeBlock(ExtendedBlock b) throws IOException;
+    /**
+     * Finalizes the block previously opened for writing using writeToBlock.
+     * The block size is what is in the parameter b and it must match the amount
+     *  of data written
+     * @throws IOException
+     */
+    public void finalizeBlock(ExtendedBlock b) throws IOException;
 
-  /**
-   * Returns one block report per volume.
-   * @param bpid Block Pool Id
-   * @return - a map of DatanodeStorage to block report for the volume.
-   */
-  public Map<DatanodeStorage, BlockListAsLongs> getBlockReports(String bpid);
+    /**
+     * Unfinalizes the block previously opened for writing using writeToBlock.
+     * The temporary file associated with this block is deleted.
+     * @throws IOException
+     */
+    public void unfinalizeBlock(ExtendedBlock b) throws IOException;
 
-  /**
-   * Returns the cache report - the full list of cached block IDs of a
-   * block pool.
-   * @param   bpid Block Pool Id
-   * @return  the cache report - the full list of cached block IDs.
-   */
-  public List<Long> getCacheReport(String bpid);
+    /**
+     * Returns one block report per volume.
+     * @param bpid Block Pool Id
+     * @return - a map of DatanodeStorage to block report for the volume.
+     */
+    public Map<DatanodeStorage, BlockListAsLongs> getBlockReports(String bpid);
 
-  /** Does the dataset contain the block? */
-  public boolean contains(ExtendedBlock block);
+    /**
+     * Returns the cache report - the full list of cached block IDs of a
+     * block pool.
+     * @param   bpid Block Pool Id
+     * @return  the cache report - the full list of cached block IDs.
+     */
+    public List<Long> getCacheReport(String bpid);
 
-  /**
-   * Check if a block is valid.
-   *
-   * @param b           The block to check.
-   * @param minLength   The minimum length that the block must have.  May be 0.
-   * @param state       If this is null, it is ignored.  If it is non-null, we
-   *                        will check that the replica has this state.
-   *
-   * @throws ReplicaNotFoundException          If the replica is not found
-   *
-   * @throws UnexpectedReplicaStateException   If the replica is not in the 
-   *                                             expected state.
-   * @throws FileNotFoundException             If the block file is not found or there 
-   *                                              was an error locating it.
-   * @throws EOFException                      If the replica length is too short.
-   * 
-   * @throws IOException                       May be thrown from the methods called. 
-   */
-  public void checkBlock(ExtendedBlock b, long minLength, ReplicaState state)
-      throws ReplicaNotFoundException, UnexpectedReplicaStateException,
-      FileNotFoundException, EOFException, IOException;
-      
-  
-  /**
-   * Is the block valid?
-   * @return - true if the specified block is valid
-   */
-  public boolean isValidBlock(ExtendedBlock b);
+    /** Does the dataset contain the block? */
+    public boolean contains(ExtendedBlock block);
 
-  /**
-   * Is the block a valid RBW?
-   * @return - true if the specified block is a valid RBW
-   */
-  public boolean isValidRbw(ExtendedBlock b);
+    /**
+     * Check if a block is valid.
+     *
+     * @param b           The block to check.
+     * @param minLength   The minimum length that the block must have.  May be 0.
+     * @param state       If this is null, it is ignored.  If it is non-null, we
+     *                        will check that the replica has this state.
+     *
+     * @throws ReplicaNotFoundException          If the replica is not found
+     *
+     * @throws UnexpectedReplicaStateException   If the replica is not in the
+     *                                             expected state.
+     * @throws FileNotFoundException             If the block file is not found or there
+     *                                              was an error locating it.
+     * @throws EOFException                      If the replica length is too short.
+     *
+     * @throws IOException                       May be thrown from the methods called.
+     */
+    public void checkBlock(ExtendedBlock b, long minLength, ReplicaState state)
+    throws ReplicaNotFoundException, UnexpectedReplicaStateException,
+               FileNotFoundException, EOFException, IOException;
 
-  /**
-   * Invalidates the specified blocks
-   * @param bpid Block pool Id
-   * @param invalidBlks - the blocks to be invalidated
-   * @throws IOException
-   */
-  public void invalidate(String bpid, Block invalidBlks[]) throws IOException;
 
-  /**
-   * Caches the specified blocks
-   * @param bpid Block pool id
-   * @param blockIds - block ids to cache
-   */
-  public void cache(String bpid, long[] blockIds);
+    /**
+     * Is the block valid?
+     * @return - true if the specified block is valid
+     */
+    public boolean isValidBlock(ExtendedBlock b);
 
-  /**
-   * Uncaches the specified blocks
-   * @param bpid Block pool id
-   * @param blockIds - blocks ids to uncache
-   */
-  public void uncache(String bpid, long[] blockIds);
+    /**
+     * Is the block a valid RBW?
+     * @return - true if the specified block is a valid RBW
+     */
+    public boolean isValidRbw(ExtendedBlock b);
 
-  /**
-   * Determine if the specified block is cached.
-   * @param bpid Block pool id
-   * @param blockIds - block id
-   * @return true if the block is cached
-   */
-  public boolean isCached(String bpid, long blockId);
+    /**
+     * Invalidates the specified blocks
+     * @param bpid Block pool Id
+     * @param invalidBlks - the blocks to be invalidated
+     * @throws IOException
+     */
+    public void invalidate(String bpid, Block invalidBlks[]) throws IOException;
+
+    /**
+     * Caches the specified blocks
+     * @param bpid Block pool id
+     * @param blockIds - block ids to cache
+     */
+    public void cache(String bpid, long[] blockIds);
+
+    /**
+     * Uncaches the specified blocks
+     * @param bpid Block pool id
+     * @param blockIds - blocks ids to uncache
+     */
+    public void uncache(String bpid, long[] blockIds);
+
+    /**
+     * Determine if the specified block is cached.
+     * @param bpid Block pool id
+     * @param blockIds - block id
+     * @return true if the block is cached
+     */
+    public boolean isCached(String bpid, long blockId);
 
     /**
      * Check if all the data directories are healthy
      * @throws DiskErrorException
      */
-  public void checkDataDir() throws DiskErrorException;
+    public void checkDataDir() throws DiskErrorException;
 
-  /**
-   * Shutdown the FSDataset
-   */
-  public void shutdown();
+    /**
+     * Shutdown the FSDataset
+     */
+    public void shutdown();
 
-  /**
-   * Sets the file pointer of the checksum stream so that the last checksum
-   * will be overwritten
-   * @param b block
-   * @param outs The streams for the data file and checksum file
-   * @param checksumSize number of bytes each checksum has
-   * @throws IOException
-   */
-  public void adjustCrcChannelPosition(ExtendedBlock b,
-      ReplicaOutputStreams outs, int checksumSize) throws IOException;
+    /**
+     * Sets the file pointer of the checksum stream so that the last checksum
+     * will be overwritten
+     * @param b block
+     * @param outs The streams for the data file and checksum file
+     * @param checksumSize number of bytes each checksum has
+     * @throws IOException
+     */
+    public void adjustCrcChannelPosition(ExtendedBlock b,
+                                         ReplicaOutputStreams outs, int checksumSize) throws IOException;
 
-  /**
-   * Checks how many valid storage volumes there are in the DataNode.
-   * @return true if more than the minimum number of valid volumes are left 
-   * in the FSDataSet.
-   */
-  public boolean hasEnoughResource();
+    /**
+     * Checks how many valid storage volumes there are in the DataNode.
+     * @return true if more than the minimum number of valid volumes are left
+     * in the FSDataSet.
+     */
+    public boolean hasEnoughResource();
 
-  /**
-   * Get visible length of the specified replica.
-   */
-  long getReplicaVisibleLength(final ExtendedBlock block) throws IOException;
+    /**
+     * Get visible length of the specified replica.
+     */
+    long getReplicaVisibleLength(final ExtendedBlock block) throws IOException;
 
-  /**
-   * Initialize a replica recovery.
-   * @return actual state of the replica on this data-node or 
-   * null if data-node does not have the replica.
-   */
-  public ReplicaRecoveryInfo initReplicaRecovery(RecoveringBlock rBlock
-      ) throws IOException;
+    /**
+     * Initialize a replica recovery.
+     * @return actual state of the replica on this data-node or
+     * null if data-node does not have the replica.
+     */
+    public ReplicaRecoveryInfo initReplicaRecovery(RecoveringBlock rBlock
+                                                  ) throws IOException;
 
-  /**
-   * Update replica's generation stamp and length and finalize it.
-   * @return the ID of storage that stores the block
-   */
-  public String updateReplicaUnderRecovery(ExtendedBlock oldBlock,
-      long recoveryId, long newLength) throws IOException;
+    /**
+     * Update replica's generation stamp and length and finalize it.
+     * @return the ID of storage that stores the block
+     */
+    public String updateReplicaUnderRecovery(ExtendedBlock oldBlock,
+            long recoveryId, long newLength) throws IOException;
 
-  /**
-   * add new block pool ID
-   * @param bpid Block pool Id
-   * @param conf Configuration
-   */
-  public void addBlockPool(String bpid, Configuration conf) throws IOException;
-  
-  /**
-   * Shutdown and remove the block pool from underlying storage.
-   * @param bpid Block pool Id to be removed
-   */
-  public void shutdownBlockPool(String bpid) ;
-  
-  /**
-   * Deletes the block pool directories. If force is false, directories are 
-   * deleted only if no block files exist for the block pool. If force 
-   * is true entire directory for the blockpool is deleted along with its
-   * contents.
-   * @param bpid BlockPool Id to be deleted.
-   * @param force If force is false, directories are deleted only if no
-   *        block files exist for the block pool, otherwise entire 
-   *        directory for the blockpool is deleted along with its contents.
-   * @throws IOException
-   */
-  public void deleteBlockPool(String bpid, boolean force) throws IOException;
-  
-  /**
-   * Get {@link BlockLocalPathInfo} for the given block.
-   */
-  public BlockLocalPathInfo getBlockLocalPathInfo(ExtendedBlock b
-      ) throws IOException;
+    /**
+     * add new block pool ID
+     * @param bpid Block pool Id
+     * @param conf Configuration
+     */
+    public void addBlockPool(String bpid, Configuration conf) throws IOException;
 
-  /**
-   * Get a {@link HdfsBlocksMetadata} corresponding to the list of blocks in 
-   * <code>blocks</code>.
-   * 
-   * @param bpid pool to query
-   * @param blockIds List of block ids for which to return metadata
-   * @return metadata Metadata for the list of blocks
-   * @throws IOException
-   */
-  public HdfsBlocksMetadata getHdfsBlocksMetadata(String bpid,
-      long[] blockIds) throws IOException;
+    /**
+     * Shutdown and remove the block pool from underlying storage.
+     * @param bpid Block pool Id to be removed
+     */
+    public void shutdownBlockPool(String bpid) ;
 
-  /**
-   * Enable 'trash' for the given dataset. When trash is enabled, files are
-   * moved to a separate trash directory instead of being deleted immediately.
-   * This can be useful for example during rolling upgrades.
-   */
-  public void enableTrash(String bpid);
+    /**
+     * Deletes the block pool directories. If force is false, directories are
+     * deleted only if no block files exist for the block pool. If force
+     * is true entire directory for the blockpool is deleted along with its
+     * contents.
+     * @param bpid BlockPool Id to be deleted.
+     * @param force If force is false, directories are deleted only if no
+     *        block files exist for the block pool, otherwise entire
+     *        directory for the blockpool is deleted along with its contents.
+     * @throws IOException
+     */
+    public void deleteBlockPool(String bpid, boolean force) throws IOException;
 
-  /**
-   * Restore trash
-   */
-  public void restoreTrash(String bpid);
+    /**
+     * Get {@link BlockLocalPathInfo} for the given block.
+     */
+    public BlockLocalPathInfo getBlockLocalPathInfo(ExtendedBlock b
+                                                   ) throws IOException;
 
-  /**
-   * @return true when trash is enabled
-   */
-  public boolean trashEnabled(String bpid);
+    /**
+     * Get a {@link HdfsBlocksMetadata} corresponding to the list of blocks in
+     * <code>blocks</code>.
+     *
+     * @param bpid pool to query
+     * @param blockIds List of block ids for which to return metadata
+     * @return metadata Metadata for the list of blocks
+     * @throws IOException
+     */
+    public HdfsBlocksMetadata getHdfsBlocksMetadata(String bpid,
+            long[] blockIds) throws IOException;
 
-  /**
-   * Create a marker file indicating that a rolling upgrade is in progress.
-   */
-  public void setRollingUpgradeMarker(String bpid) throws IOException;
+    /**
+     * Enable 'trash' for the given dataset. When trash is enabled, files are
+     * moved to a separate trash directory instead of being deleted immediately.
+     * This can be useful for example during rolling upgrades.
+     */
+    public void enableTrash(String bpid);
 
-  /**
-   * Delete the rolling upgrade marker file if it exists.
-   * @param bpid
-   */
-  public void clearRollingUpgradeMarker(String bpid) throws IOException;
+    /**
+     * Restore trash
+     */
+    public void restoreTrash(String bpid);
 
-  /**
-   * submit a sync_file_range request to AsyncDiskService
-   */
-  public void submitBackgroundSyncFileRangeRequest(final ExtendedBlock block,
-      final FileDescriptor fd, final long offset, final long nbytes,
-      final int flags);
+    /**
+     * @return true when trash is enabled
+     */
+    public boolean trashEnabled(String bpid);
 
-  /**
-   * Callback from RamDiskAsyncLazyPersistService upon async lazy persist task end
-   */
-   public void onCompleteLazyPersist(String bpId, long blockId,
-      long creationTime, File[] savedFiles, FsVolumeImpl targetVolume);
+    /**
+     * Create a marker file indicating that a rolling upgrade is in progress.
+     */
+    public void setRollingUpgradeMarker(String bpid) throws IOException;
 
-   /**
-    * Callback from RamDiskAsyncLazyPersistService upon async lazy persist task fail
-    */
-   public void onFailLazyPersist(String bpId, long blockId);
+    /**
+     * Delete the rolling upgrade marker file if it exists.
+     * @param bpid
+     */
+    public void clearRollingUpgradeMarker(String bpid) throws IOException;
+
+    /**
+     * submit a sync_file_range request to AsyncDiskService
+     */
+    public void submitBackgroundSyncFileRangeRequest(final ExtendedBlock block,
+            final FileDescriptor fd, final long offset, final long nbytes,
+            final int flags);
+
+    /**
+     * Callback from RamDiskAsyncLazyPersistService upon async lazy persist task end
+     */
+    public void onCompleteLazyPersist(String bpId, long blockId,
+                                      long creationTime, File[] savedFiles, FsVolumeImpl targetVolume);
+
+    /**
+     * Callback from RamDiskAsyncLazyPersistService upon async lazy persist task fail
+     */
+    public void onFailLazyPersist(String bpId, long blockId);
 }

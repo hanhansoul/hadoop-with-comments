@@ -25,21 +25,21 @@ import org.apache.hadoop.security.token.Token;
 /** Utilities for security tests */
 public class SecurityTestUtil {
 
-  /**
-   * check if an access token is expired. return true when token is expired,
-   * false otherwise
-   */
-  public static boolean isBlockTokenExpired(Token<BlockTokenIdentifier> token)
-      throws IOException {
-    return BlockTokenSecretManager.isTokenExpired(token);
-  }
+    /**
+     * check if an access token is expired. return true when token is expired,
+     * false otherwise
+     */
+    public static boolean isBlockTokenExpired(Token<BlockTokenIdentifier> token)
+    throws IOException {
+        return BlockTokenSecretManager.isTokenExpired(token);
+    }
 
-  /**
-   * set access token lifetime.
-   */
-  public static void setBlockTokenLifetime(BlockTokenSecretManager handler,
-      long tokenLifetime) {
-    handler.setTokenLifetime(tokenLifetime);
-  }
+    /**
+     * set access token lifetime.
+     */
+    public static void setBlockTokenLifetime(BlockTokenSecretManager handler,
+            long tokenLifetime) {
+        handler.setTokenLifetime(tokenLifetime);
+    }
 
 }

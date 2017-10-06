@@ -44,117 +44,117 @@ import org.junit.Test;
  * Tests that read, update, clear api from CurrentInprogress
  */
 public class TestCurrentInprogress {
-  private static final Log LOG = LogFactory.getLog(TestCurrentInprogress.class);
-  private static final String CURRENT_NODE_PATH = "/test";
-  private static final String HOSTPORT = "127.0.0.1:2181";
-  private static final int CONNECTION_TIMEOUT = 30000;
-  private static NIOServerCnxnFactory serverFactory;
-  private static ZooKeeperServer zks;
-  private static ZooKeeper zkc;
-  private static int ZooKeeperDefaultPort = 2181;
-  private static File zkTmpDir;
+    private static final Log LOG = LogFactory.getLog(TestCurrentInprogress.class);
+    private static final String CURRENT_NODE_PATH = "/test";
+    private static final String HOSTPORT = "127.0.0.1:2181";
+    private static final int CONNECTION_TIMEOUT = 30000;
+    private static NIOServerCnxnFactory serverFactory;
+    private static ZooKeeperServer zks;
+    private static ZooKeeper zkc;
+    private static int ZooKeeperDefaultPort = 2181;
+    private static File zkTmpDir;
 
-  private static ZooKeeper connectZooKeeper(String ensemble)
-      throws IOException, KeeperException, InterruptedException {
-    final CountDownLatch latch = new CountDownLatch(1);
+    private static ZooKeeper connectZooKeeper(String ensemble)
+    throws IOException, KeeperException, InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
 
-    ZooKeeper zkc = new ZooKeeper(HOSTPORT, 3600, new Watcher() {
-      public void process(WatchedEvent event) {
-        if (event.getState() == Watcher.Event.KeeperState.SyncConnected) {
-          latch.countDown();
+        ZooKeeper zkc = new ZooKeeper(HOSTPORT, 3600, new Watcher() {
+            public void process(WatchedEvent event) {
+                if (event.getState() == Watcher.Event.KeeperState.SyncConnected) {
+                    latch.countDown();
+                }
+            }
+        });
+        if (!latch.await(10, TimeUnit.SECONDS)) {
+            throw new IOException("Zookeeper took too long to connect");
         }
-      }
-    });
-    if (!latch.await(10, TimeUnit.SECONDS)) {
-      throw new IOException("Zookeeper took too long to connect");
-    }
-    return zkc;
-  }
-
-  @BeforeClass
-  public static void setupZooKeeper() throws Exception {
-    LOG.info("Starting ZK server");
-    zkTmpDir = File.createTempFile("zookeeper", "test");
-    zkTmpDir.delete();
-    zkTmpDir.mkdir();
-    try {
-      zks = new ZooKeeperServer(zkTmpDir, zkTmpDir, ZooKeeperDefaultPort);
-      serverFactory = new NIOServerCnxnFactory();
-      serverFactory.configure(new InetSocketAddress(ZooKeeperDefaultPort), 10);
-      serverFactory.startup(zks);
-    } catch (Exception e) {
-      LOG.error("Exception while instantiating ZooKeeper", e);
-    }
-    boolean b = LocalBookKeeper.waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT);
-    LOG.debug("ZooKeeper server up: " + b);
-  }
-
-  @AfterClass
-  public static void shutDownServer() {
-    if (null != zks) {
-      zks.shutdown();
-    }
-    zkTmpDir.delete();
-  }
-
-  @Before
-  public void setup() throws Exception {
-    zkc = connectZooKeeper(HOSTPORT);
-  }
-
-  @After
-  public void teardown() throws Exception {
-    if (null != zkc) {
-      zkc.close();
+        return zkc;
     }
 
-  }
+    @BeforeClass
+    public static void setupZooKeeper() throws Exception {
+        LOG.info("Starting ZK server");
+        zkTmpDir = File.createTempFile("zookeeper", "test");
+        zkTmpDir.delete();
+        zkTmpDir.mkdir();
+        try {
+            zks = new ZooKeeperServer(zkTmpDir, zkTmpDir, ZooKeeperDefaultPort);
+            serverFactory = new NIOServerCnxnFactory();
+            serverFactory.configure(new InetSocketAddress(ZooKeeperDefaultPort), 10);
+            serverFactory.startup(zks);
+        } catch (Exception e) {
+            LOG.error("Exception while instantiating ZooKeeper", e);
+        }
+        boolean b = LocalBookKeeper.waitForServerUp(HOSTPORT, CONNECTION_TIMEOUT);
+        LOG.debug("ZooKeeper server up: " + b);
+    }
 
-  /**
-   * Tests that read should be able to read the data which updated with update
-   * api
-   */
-  @Test
-  public void testReadShouldReturnTheZnodePathAfterUpdate() throws Exception {
-    String data = "inprogressNode";
-    CurrentInprogress ci = new CurrentInprogress(zkc, CURRENT_NODE_PATH);
-    ci.init();
-    ci.update(data);
-    String inprogressNodePath = ci.read();
-    assertEquals("Not returning inprogressZnode", "inprogressNode",
-        inprogressNodePath);
-  }
+    @AfterClass
+    public static void shutDownServer() {
+        if (null != zks) {
+            zks.shutdown();
+        }
+        zkTmpDir.delete();
+    }
 
-  /**
-   * Tests that read should return null if we clear the updated data in
-   * CurrentInprogress node
-   */
-  @Test
-  public void testReadShouldReturnNullAfterClear() throws Exception {
-    CurrentInprogress ci = new CurrentInprogress(zkc, CURRENT_NODE_PATH);
-    ci.init();
-    ci.update("myInprogressZnode");
-    ci.read();
-    ci.clear();
-    String inprogressNodePath = ci.read();
-    assertEquals("Expecting null to be return", null, inprogressNodePath);
-  }
+    @Before
+    public void setup() throws Exception {
+        zkc = connectZooKeeper(HOSTPORT);
+    }
 
-  /**
-   * Tests that update should throw IOE, if version number modifies between read
-   * and update
-   */
-  @Test(expected = IOException.class)
-  public void testUpdateShouldFailWithIOEIfVersionNumberChangedAfterRead()
-      throws Exception {
-    CurrentInprogress ci = new CurrentInprogress(zkc, CURRENT_NODE_PATH);
-    ci.init();
-    ci.update("myInprogressZnode");
-    assertEquals("Not returning myInprogressZnode", "myInprogressZnode", ci
-        .read());
-    // Updating data in-between to change the data to change the version number
-    ci.update("YourInprogressZnode");
-    ci.update("myInprogressZnode");
-  }
+    @After
+    public void teardown() throws Exception {
+        if (null != zkc) {
+            zkc.close();
+        }
+
+    }
+
+    /**
+     * Tests that read should be able to read the data which updated with update
+     * api
+     */
+    @Test
+    public void testReadShouldReturnTheZnodePathAfterUpdate() throws Exception {
+        String data = "inprogressNode";
+        CurrentInprogress ci = new CurrentInprogress(zkc, CURRENT_NODE_PATH);
+        ci.init();
+        ci.update(data);
+        String inprogressNodePath = ci.read();
+        assertEquals("Not returning inprogressZnode", "inprogressNode",
+                     inprogressNodePath);
+    }
+
+    /**
+     * Tests that read should return null if we clear the updated data in
+     * CurrentInprogress node
+     */
+    @Test
+    public void testReadShouldReturnNullAfterClear() throws Exception {
+        CurrentInprogress ci = new CurrentInprogress(zkc, CURRENT_NODE_PATH);
+        ci.init();
+        ci.update("myInprogressZnode");
+        ci.read();
+        ci.clear();
+        String inprogressNodePath = ci.read();
+        assertEquals("Expecting null to be return", null, inprogressNodePath);
+    }
+
+    /**
+     * Tests that update should throw IOE, if version number modifies between read
+     * and update
+     */
+    @Test(expected = IOException.class)
+    public void testUpdateShouldFailWithIOEIfVersionNumberChangedAfterRead()
+    throws Exception {
+        CurrentInprogress ci = new CurrentInprogress(zkc, CURRENT_NODE_PATH);
+        ci.init();
+        ci.update("myInprogressZnode");
+        assertEquals("Not returning myInprogressZnode", "myInprogressZnode", ci
+                     .read());
+        // Updating data in-between to change the data to change the version number
+        ci.update("YourInprogressZnode");
+        ci.update("myInprogressZnode");
+    }
 
 }

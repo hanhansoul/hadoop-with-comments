@@ -26,27 +26,27 @@ import org.apache.hadoop.oncrpc.XDR;
  * RMDIR3 Request
  */
 public class RMDIR3Request extends RequestWithHandle {
-  private final String name;
+    private final String name;
 
-  public static RMDIR3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    return new RMDIR3Request(handle, name);
-  }
+    public static RMDIR3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        return new RMDIR3Request(handle, name);
+    }
 
-  public RMDIR3Request(FileHandle handle, String name) {
-    super(handle);
-    this.name = name;
-  }
-  
-  public String getName() {
-    return this.name;
-  }
+    public RMDIR3Request(FileHandle handle, String name) {
+        super(handle);
+        this.name = name;
+    }
 
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.getBytes().length);
-    xdr.writeFixedOpaque(name.getBytes());
-  }
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.getBytes().length);
+        xdr.writeFixedOpaque(name.getBytes());
+    }
 }

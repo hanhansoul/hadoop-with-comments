@@ -31,125 +31,125 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class ApplicationResourceUsageReport {
 
-  @Private
-  @Unstable
-  public static ApplicationResourceUsageReport newInstance(
-      int numUsedContainers, int numReservedContainers, Resource usedResources,
-      Resource reservedResources, Resource neededResources, long memorySeconds,
-      long vcoreSeconds) {
-    ApplicationResourceUsageReport report =
-        Records.newRecord(ApplicationResourceUsageReport.class);
-    report.setNumUsedContainers(numUsedContainers);
-    report.setNumReservedContainers(numReservedContainers);
-    report.setUsedResources(usedResources);
-    report.setReservedResources(reservedResources);
-    report.setNeededResources(neededResources);
-    report.setMemorySeconds(memorySeconds);
-    report.setVcoreSeconds(vcoreSeconds);
-    return report;
-  }
+    @Private
+    @Unstable
+    public static ApplicationResourceUsageReport newInstance(
+        int numUsedContainers, int numReservedContainers, Resource usedResources,
+        Resource reservedResources, Resource neededResources, long memorySeconds,
+        long vcoreSeconds) {
+        ApplicationResourceUsageReport report =
+            Records.newRecord(ApplicationResourceUsageReport.class);
+        report.setNumUsedContainers(numUsedContainers);
+        report.setNumReservedContainers(numReservedContainers);
+        report.setUsedResources(usedResources);
+        report.setReservedResources(reservedResources);
+        report.setNeededResources(neededResources);
+        report.setMemorySeconds(memorySeconds);
+        report.setVcoreSeconds(vcoreSeconds);
+        return report;
+    }
 
-  /**
-   * Get the number of used containers.  -1 for invalid/inaccessible reports.
-   * @return the number of used containers
-   */
-  @Public
-  @Stable
-  public abstract int getNumUsedContainers();
+    /**
+     * Get the number of used containers.  -1 for invalid/inaccessible reports.
+     * @return the number of used containers
+     */
+    @Public
+    @Stable
+    public abstract int getNumUsedContainers();
 
-  /**
-   * Set the number of used containers
-   * @param num_containers the number of used containers
-   */
-  @Private
-  @Unstable
-  public abstract void setNumUsedContainers(int num_containers);
+    /**
+     * Set the number of used containers
+     * @param num_containers the number of used containers
+     */
+    @Private
+    @Unstable
+    public abstract void setNumUsedContainers(int num_containers);
 
-  /**
-   * Get the number of reserved containers.  -1 for invalid/inaccessible reports.
-   * @return the number of reserved containers
-   */
-  @Private
-  @Unstable
-  public abstract int getNumReservedContainers();
+    /**
+     * Get the number of reserved containers.  -1 for invalid/inaccessible reports.
+     * @return the number of reserved containers
+     */
+    @Private
+    @Unstable
+    public abstract int getNumReservedContainers();
 
-  /**
-   * Set the number of reserved containers
-   * @param num_reserved_containers the number of reserved containers
-   */
-  @Private
-  @Unstable
-  public abstract void setNumReservedContainers(int num_reserved_containers);
+    /**
+     * Set the number of reserved containers
+     * @param num_reserved_containers the number of reserved containers
+     */
+    @Private
+    @Unstable
+    public abstract void setNumReservedContainers(int num_reserved_containers);
 
-  /**
-   * Get the used <code>Resource</code>.  -1 for invalid/inaccessible reports.
-   * @return the used <code>Resource</code>
-   */
-  @Public
-  @Stable
-  public abstract Resource getUsedResources();
+    /**
+     * Get the used <code>Resource</code>.  -1 for invalid/inaccessible reports.
+     * @return the used <code>Resource</code>
+     */
+    @Public
+    @Stable
+    public abstract Resource getUsedResources();
 
-  @Private
-  @Unstable
-  public abstract void setUsedResources(Resource resources);
+    @Private
+    @Unstable
+    public abstract void setUsedResources(Resource resources);
 
-  /**
-   * Get the reserved <code>Resource</code>.  -1 for invalid/inaccessible reports.
-   * @return the reserved <code>Resource</code>
-   */
-  @Public
-  @Stable
-  public abstract Resource getReservedResources();
+    /**
+     * Get the reserved <code>Resource</code>.  -1 for invalid/inaccessible reports.
+     * @return the reserved <code>Resource</code>
+     */
+    @Public
+    @Stable
+    public abstract Resource getReservedResources();
 
-  @Private
-  @Unstable
-  public abstract void setReservedResources(Resource reserved_resources);
+    @Private
+    @Unstable
+    public abstract void setReservedResources(Resource reserved_resources);
 
-  /**
-   * Get the needed <code>Resource</code>.  -1 for invalid/inaccessible reports.
-   * @return the needed <code>Resource</code>
-   */
-  @Public
-  @Stable
-  public abstract Resource getNeededResources();
+    /**
+     * Get the needed <code>Resource</code>.  -1 for invalid/inaccessible reports.
+     * @return the needed <code>Resource</code>
+     */
+    @Public
+    @Stable
+    public abstract Resource getNeededResources();
 
-  @Private
-  @Unstable
-  public abstract void setNeededResources(Resource needed_resources);
+    @Private
+    @Unstable
+    public abstract void setNeededResources(Resource needed_resources);
 
-  /**
-   * Set the aggregated amount of memory (in megabytes) the application has
-   * allocated times the number of seconds the application has been running.
-   * @param memory_seconds the aggregated amount of memory seconds
-   */
-  @Private
-  @Unstable
-  public abstract void setMemorySeconds(long memory_seconds);
+    /**
+     * Set the aggregated amount of memory (in megabytes) the application has
+     * allocated times the number of seconds the application has been running.
+     * @param memory_seconds the aggregated amount of memory seconds
+     */
+    @Private
+    @Unstable
+    public abstract void setMemorySeconds(long memory_seconds);
 
-  /**
-   * Get the aggregated amount of memory (in megabytes) the application has
-   * allocated times the number of seconds the application has been running.
-   * @return the aggregated amount of memory seconds
-   */
-  @Public
-  @Unstable
-  public abstract long getMemorySeconds();
+    /**
+     * Get the aggregated amount of memory (in megabytes) the application has
+     * allocated times the number of seconds the application has been running.
+     * @return the aggregated amount of memory seconds
+     */
+    @Public
+    @Unstable
+    public abstract long getMemorySeconds();
 
-  /**
-   * Set the aggregated number of vcores that the application has allocated
-   * times the number of seconds the application has been running.
-   * @param vcore_seconds the aggregated number of vcore seconds
-   */
-  @Private
-  @Unstable
-  public abstract void setVcoreSeconds(long vcore_seconds);
+    /**
+     * Set the aggregated number of vcores that the application has allocated
+     * times the number of seconds the application has been running.
+     * @param vcore_seconds the aggregated number of vcore seconds
+     */
+    @Private
+    @Unstable
+    public abstract void setVcoreSeconds(long vcore_seconds);
 
-  /**
-   * Get the aggregated number of vcores that the application has allocated
-   * times the number of seconds the application has been running.
-   * @return the aggregated number of vcore seconds
-   */
-  @Public
-  @Unstable
-  public abstract long getVcoreSeconds();
+    /**
+     * Get the aggregated number of vcores that the application has allocated
+     * times the number of seconds the application has been running.
+     * @return the aggregated number of vcore seconds
+     */
+    @Public
+    @Unstable
+    public abstract long getVcoreSeconds();
 }

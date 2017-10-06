@@ -30,24 +30,24 @@ import org.apache.hadoop.yarn.util.Records;
 @Private
 @Unstable
 public abstract class RenewDelegationTokenRequest {
-  @Private
-  @Unstable
-  public static RenewDelegationTokenRequest newInstance(Token dToken) {
-    RenewDelegationTokenRequest request =
-        Records.newRecord(RenewDelegationTokenRequest.class);
-    request.setDelegationToken(dToken);
-    return request;
-  }
+    @Private
+    @Unstable
+    public static RenewDelegationTokenRequest newInstance(Token dToken) {
+        RenewDelegationTokenRequest request =
+            Records.newRecord(RenewDelegationTokenRequest.class);
+        request.setDelegationToken(dToken);
+        return request;
+    }
 
-  /**
-   * Get the delegation token requested to be renewed by the client.
-   * @return the delegation token requested to be renewed by the client.
-   */
-  @Private
-  @Unstable
-  public abstract Token getDelegationToken();
+    /**
+     * Get the delegation token requested to be renewed by the client.
+     * @return the delegation token requested to be renewed by the client.
+     */
+    @Private
+    @Unstable
+    public abstract Token getDelegationToken();
 
-  @Private
-  @Unstable
-  public abstract void setDelegationToken(Token dToken);
+    @Private
+    @Unstable
+    public abstract void setDelegationToken(Token dToken);
 }

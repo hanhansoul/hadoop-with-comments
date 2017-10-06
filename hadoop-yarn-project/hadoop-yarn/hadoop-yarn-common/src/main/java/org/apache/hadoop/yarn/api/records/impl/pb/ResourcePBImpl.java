@@ -28,65 +28,65 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ResourceProtoOrBuilder;
 @Private
 @Unstable
 public class ResourcePBImpl extends Resource {
-  ResourceProto proto = ResourceProto.getDefaultInstance();
-  ResourceProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public ResourcePBImpl() {
-    builder = ResourceProto.newBuilder();
-  }
+    ResourceProto proto = ResourceProto.getDefaultInstance();
+    ResourceProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public ResourcePBImpl(ResourceProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public ResourceProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ResourceProto.newBuilder(proto);
+    public ResourcePBImpl() {
+        builder = ResourceProto.newBuilder();
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public int getMemory() {
-    ResourceProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getMemory());
-  }
 
-  @Override
-  public void setMemory(int memory) {
-    maybeInitBuilder();
-    builder.setMemory((memory));
-  }
-
-  @Override
-  public int getVirtualCores() {
-    ResourceProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getVirtualCores());
-  }
-
-  @Override
-  public void setVirtualCores(int vCores) {
-    maybeInitBuilder();
-    builder.setVirtualCores((vCores));
-  }
-
-  @Override
-  public int compareTo(Resource other) {
-    int diff = this.getMemory() - other.getMemory();
-    if (diff == 0) {
-      diff = this.getVirtualCores() - other.getVirtualCores();
+    public ResourcePBImpl(ResourceProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return diff;
-  }
-  
-  
-}  
+
+    public ResourceProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ResourceProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+
+    @Override
+    public int getMemory() {
+        ResourceProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getMemory());
+    }
+
+    @Override
+    public void setMemory(int memory) {
+        maybeInitBuilder();
+        builder.setMemory((memory));
+    }
+
+    @Override
+    public int getVirtualCores() {
+        ResourceProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getVirtualCores());
+    }
+
+    @Override
+    public void setVirtualCores(int vCores) {
+        maybeInitBuilder();
+        builder.setVirtualCores((vCores));
+    }
+
+    @Override
+    public int compareTo(Resource other) {
+        int diff = this.getMemory() - other.getMemory();
+        if (diff == 0) {
+            diff = this.getVirtualCores() - other.getVirtualCores();
+        }
+        return diff;
+    }
+
+
+}

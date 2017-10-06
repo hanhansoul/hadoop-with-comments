@@ -23,21 +23,21 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ResourceRecoveredEvent extends ResourceEvent {
 
-  private final Path localPath;
-  private final long size;
+    private final Path localPath;
+    private final long size;
 
-  public ResourceRecoveredEvent(LocalResourceRequest rsrc, Path localPath,
-      long size) {
-    super(rsrc, ResourceEventType.RECOVERED);
-    this.localPath = localPath;
-    this.size = size;
-  }
+    public ResourceRecoveredEvent(LocalResourceRequest rsrc, Path localPath,
+                                  long size) {
+        super(rsrc, ResourceEventType.RECOVERED);
+        this.localPath = localPath;
+        this.size = size;
+    }
 
-  public Path getLocalPath() {
-    return localPath;
-  }
+    public Path getLocalPath() {
+        return localPath;
+    }
 
-  public long getSize() {
-    return size;
-  }
+    public long getSize() {
+        return size;
+    }
 }

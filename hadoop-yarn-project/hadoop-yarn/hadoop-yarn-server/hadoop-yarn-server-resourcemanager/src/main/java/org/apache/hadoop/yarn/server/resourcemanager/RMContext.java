@@ -49,79 +49,79 @@ import org.apache.hadoop.yarn.server.resourcemanager.security.RMDelegationTokenS
  */
 public interface RMContext {
 
-  Dispatcher getDispatcher();
+    Dispatcher getDispatcher();
 
-  boolean isHAEnabled();
+    boolean isHAEnabled();
 
-  HAServiceState getHAServiceState();
+    HAServiceState getHAServiceState();
 
-  RMStateStore getStateStore();
+    RMStateStore getStateStore();
 
-  ConcurrentMap<ApplicationId, RMApp> getRMApps();
-  
-  ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps();
+    ConcurrentMap<ApplicationId, RMApp> getRMApps();
 
-  ConcurrentMap<String, RMNode> getInactiveRMNodes();
+    ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps();
 
-  ConcurrentMap<NodeId, RMNode> getRMNodes();
+    ConcurrentMap<String, RMNode> getInactiveRMNodes();
 
-  AMLivelinessMonitor getAMLivelinessMonitor();
+    ConcurrentMap<NodeId, RMNode> getRMNodes();
 
-  AMLivelinessMonitor getAMFinishingMonitor();
+    AMLivelinessMonitor getAMLivelinessMonitor();
 
-  ContainerAllocationExpirer getContainerAllocationExpirer();
-  
-  DelegationTokenRenewer getDelegationTokenRenewer();
+    AMLivelinessMonitor getAMFinishingMonitor();
 
-  AMRMTokenSecretManager getAMRMTokenSecretManager();
+    ContainerAllocationExpirer getContainerAllocationExpirer();
 
-  RMContainerTokenSecretManager getContainerTokenSecretManager();
-  
-  NMTokenSecretManagerInRM getNMTokenSecretManager();
+    DelegationTokenRenewer getDelegationTokenRenewer();
 
-  ResourceScheduler getScheduler();
+    AMRMTokenSecretManager getAMRMTokenSecretManager();
 
-  NodesListManager getNodesListManager();
+    RMContainerTokenSecretManager getContainerTokenSecretManager();
 
-  ClientToAMTokenSecretManagerInRM getClientToAMTokenSecretManager();
+    NMTokenSecretManagerInRM getNMTokenSecretManager();
 
-  AdminService getRMAdminService();
+    ResourceScheduler getScheduler();
 
-  ClientRMService getClientRMService();
+    NodesListManager getNodesListManager();
 
-  ApplicationMasterService getApplicationMasterService();
+    ClientToAMTokenSecretManagerInRM getClientToAMTokenSecretManager();
 
-  ResourceTrackerService getResourceTrackerService();
+    AdminService getRMAdminService();
 
-  void setClientRMService(ClientRMService clientRMService);
+    ClientRMService getClientRMService();
 
-  RMDelegationTokenSecretManager getRMDelegationTokenSecretManager();
+    ApplicationMasterService getApplicationMasterService();
 
-  void setRMDelegationTokenSecretManager(
-      RMDelegationTokenSecretManager delegationTokenSecretManager);
+    ResourceTrackerService getResourceTrackerService();
 
-  RMApplicationHistoryWriter getRMApplicationHistoryWriter();
+    void setClientRMService(ClientRMService clientRMService);
 
-  void setRMApplicationHistoryWriter(
-      RMApplicationHistoryWriter rmApplicationHistoryWriter);
+    RMDelegationTokenSecretManager getRMDelegationTokenSecretManager();
 
-  void setSystemMetricsPublisher(SystemMetricsPublisher systemMetricsPublisher);
+    void setRMDelegationTokenSecretManager(
+        RMDelegationTokenSecretManager delegationTokenSecretManager);
 
-  SystemMetricsPublisher getSystemMetricsPublisher();
+    RMApplicationHistoryWriter getRMApplicationHistoryWriter();
 
-  ConfigurationProvider getConfigurationProvider();
+    void setRMApplicationHistoryWriter(
+        RMApplicationHistoryWriter rmApplicationHistoryWriter);
 
-  boolean isWorkPreservingRecoveryEnabled();
-  
-  RMNodeLabelsManager getNodeLabelManager();
-  
-  public void setNodeLabelManager(RMNodeLabelsManager mgr);
+    void setSystemMetricsPublisher(SystemMetricsPublisher systemMetricsPublisher);
 
-  long getEpoch();
+    SystemMetricsPublisher getSystemMetricsPublisher();
 
-  ReservationSystem getReservationSystem();
+    ConfigurationProvider getConfigurationProvider();
 
-  boolean isSchedulerReadyForAllocatingContainers();
-  
-  Configuration getYarnConfiguration();
+    boolean isWorkPreservingRecoveryEnabled();
+
+    RMNodeLabelsManager getNodeLabelManager();
+
+    public void setNodeLabelManager(RMNodeLabelsManager mgr);
+
+    long getEpoch();
+
+    ReservationSystem getReservationSystem();
+
+    boolean isSchedulerReadyForAllocatingContainers();
+
+    Configuration getYarnConfiguration();
 }

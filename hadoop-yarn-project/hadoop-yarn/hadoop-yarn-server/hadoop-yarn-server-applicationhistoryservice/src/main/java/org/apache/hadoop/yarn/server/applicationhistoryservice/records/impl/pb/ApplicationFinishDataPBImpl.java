@@ -34,193 +34,193 @@ import com.google.protobuf.TextFormat;
 
 public class ApplicationFinishDataPBImpl extends ApplicationFinishData {
 
-  ApplicationFinishDataProto proto = ApplicationFinishDataProto
-    .getDefaultInstance();
-  ApplicationFinishDataProto.Builder builder = null;
-  boolean viaProto = false;
+    ApplicationFinishDataProto proto = ApplicationFinishDataProto
+                                       .getDefaultInstance();
+    ApplicationFinishDataProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ApplicationId applicationId;
+    private ApplicationId applicationId;
 
-  public ApplicationFinishDataPBImpl() {
-    builder = ApplicationFinishDataProto.newBuilder();
-  }
-
-  public ApplicationFinishDataPBImpl(ApplicationFinishDataProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  @Override
-  public ApplicationId getApplicationId() {
-    if (this.applicationId != null) {
-      return this.applicationId;
+    public ApplicationFinishDataPBImpl() {
+        builder = ApplicationFinishDataProto.newBuilder();
     }
-    ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasApplicationId()) {
-      return null;
+
+    public ApplicationFinishDataPBImpl(ApplicationFinishDataProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    this.applicationId = convertFromProtoFormat(p.getApplicationId());
-    return this.applicationId;
-  }
 
-  @Override
-  public void setApplicationId(ApplicationId applicationId) {
-    maybeInitBuilder();
-    if (applicationId == null) {
-      builder.clearApplicationId();
+    @Override
+    public ApplicationId getApplicationId() {
+        if (this.applicationId != null) {
+            return this.applicationId;
+        }
+        ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasApplicationId()) {
+            return null;
+        }
+        this.applicationId = convertFromProtoFormat(p.getApplicationId());
+        return this.applicationId;
     }
-    this.applicationId = applicationId;
-  }
 
-  @Override
-  public long getFinishTime() {
-    ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getFinishTime();
-  }
-
-  @Override
-  public void setFinishTime(long finishTime) {
-    maybeInitBuilder();
-    builder.setFinishTime(finishTime);
-  }
-
-  @Override
-  public String getDiagnosticsInfo() {
-    ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasDiagnosticsInfo()) {
-      return null;
+    @Override
+    public void setApplicationId(ApplicationId applicationId) {
+        maybeInitBuilder();
+        if (applicationId == null) {
+            builder.clearApplicationId();
+        }
+        this.applicationId = applicationId;
     }
-    return p.getDiagnosticsInfo();
-  }
 
-  @Override
-  public void setDiagnosticsInfo(String diagnosticsInfo) {
-    maybeInitBuilder();
-    if (diagnosticsInfo == null) {
-      builder.clearDiagnosticsInfo();
-      return;
+    @Override
+    public long getFinishTime() {
+        ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getFinishTime();
     }
-    builder.setDiagnosticsInfo(diagnosticsInfo);
-  }
 
-  @Override
-  public FinalApplicationStatus getFinalApplicationStatus() {
-    ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasFinalApplicationStatus()) {
-      return null;
+    @Override
+    public void setFinishTime(long finishTime) {
+        maybeInitBuilder();
+        builder.setFinishTime(finishTime);
     }
-    return convertFromProtoFormat(p.getFinalApplicationStatus());
-  }
 
-  @Override
-  public void setFinalApplicationStatus(
-      FinalApplicationStatus finalApplicationStatus) {
-    maybeInitBuilder();
-    if (finalApplicationStatus == null) {
-      builder.clearFinalApplicationStatus();
-      return;
+    @Override
+    public String getDiagnosticsInfo() {
+        ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasDiagnosticsInfo()) {
+            return null;
+        }
+        return p.getDiagnosticsInfo();
     }
-    builder
-      .setFinalApplicationStatus(convertToProtoFormat(finalApplicationStatus));
-  }
 
-  @Override
-  public YarnApplicationState getYarnApplicationState() {
-    ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasYarnApplicationState()) {
-      return null;
+    @Override
+    public void setDiagnosticsInfo(String diagnosticsInfo) {
+        maybeInitBuilder();
+        if (diagnosticsInfo == null) {
+            builder.clearDiagnosticsInfo();
+            return;
+        }
+        builder.setDiagnosticsInfo(diagnosticsInfo);
     }
-    return convertFromProtoFormat(p.getYarnApplicationState());
-  }
 
-  @Override
-  public void setYarnApplicationState(YarnApplicationState state) {
-    maybeInitBuilder();
-    if (state == null) {
-      builder.clearYarnApplicationState();
-      return;
+    @Override
+    public FinalApplicationStatus getFinalApplicationStatus() {
+        ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasFinalApplicationStatus()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getFinalApplicationStatus());
     }
-    builder.setYarnApplicationState(convertToProtoFormat(state));
-  }
 
-  public ApplicationFinishDataProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public void setFinalApplicationStatus(
+        FinalApplicationStatus finalApplicationStatus) {
+        maybeInitBuilder();
+        if (finalApplicationStatus == null) {
+            builder.clearFinalApplicationStatus();
+            return;
+        }
+        builder
+        .setFinalApplicationStatus(convertToProtoFormat(finalApplicationStatus));
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.applicationId != null
-        && !((ApplicationIdPBImpl) this.applicationId).getProto().equals(
-          builder.getApplicationId())) {
-      builder.setApplicationId(convertToProtoFormat(this.applicationId));
+    @Override
+    public YarnApplicationState getYarnApplicationState() {
+        ApplicationFinishDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasYarnApplicationState()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getYarnApplicationState());
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+    @Override
+    public void setYarnApplicationState(YarnApplicationState state) {
+        maybeInitBuilder();
+        if (state == null) {
+            builder.clearYarnApplicationState();
+            return;
+        }
+        builder.setYarnApplicationState(convertToProtoFormat(state));
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ApplicationFinishDataProto.newBuilder(proto);
+    public ApplicationFinishDataProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  private ApplicationIdProto convertToProtoFormat(ApplicationId applicationId) {
-    return ((ApplicationIdPBImpl) applicationId).getProto();
-  }
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
 
-  private ApplicationIdPBImpl convertFromProtoFormat(
-      ApplicationIdProto applicationId) {
-    return new ApplicationIdPBImpl(applicationId);
-  }
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 
-  private FinalApplicationStatus convertFromProtoFormat(
-      FinalApplicationStatusProto finalApplicationStatus) {
-    return ProtoUtils.convertFromProtoFormat(finalApplicationStatus);
-  }
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-  private FinalApplicationStatusProto convertToProtoFormat(
-      FinalApplicationStatus finalApplicationStatus) {
-    return ProtoUtils.convertToProtoFormat(finalApplicationStatus);
-  }
+    private void mergeLocalToBuilder() {
+        if (this.applicationId != null
+            && !((ApplicationIdPBImpl) this.applicationId).getProto().equals(
+                builder.getApplicationId())) {
+            builder.setApplicationId(convertToProtoFormat(this.applicationId));
+        }
+    }
 
-  private YarnApplicationStateProto convertToProtoFormat(
-      YarnApplicationState state) {
-    return ProtoUtils.convertToProtoFormat(state);
-  }
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private YarnApplicationState convertFromProtoFormat(
-      YarnApplicationStateProto yarnApplicationState) {
-    return ProtoUtils.convertFromProtoFormat(yarnApplicationState);
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ApplicationFinishDataProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private ApplicationIdProto convertToProtoFormat(ApplicationId applicationId) {
+        return ((ApplicationIdPBImpl) applicationId).getProto();
+    }
+
+    private ApplicationIdPBImpl convertFromProtoFormat(
+        ApplicationIdProto applicationId) {
+        return new ApplicationIdPBImpl(applicationId);
+    }
+
+    private FinalApplicationStatus convertFromProtoFormat(
+        FinalApplicationStatusProto finalApplicationStatus) {
+        return ProtoUtils.convertFromProtoFormat(finalApplicationStatus);
+    }
+
+    private FinalApplicationStatusProto convertToProtoFormat(
+        FinalApplicationStatus finalApplicationStatus) {
+        return ProtoUtils.convertToProtoFormat(finalApplicationStatus);
+    }
+
+    private YarnApplicationStateProto convertToProtoFormat(
+        YarnApplicationState state) {
+        return ProtoUtils.convertToProtoFormat(state);
+    }
+
+    private YarnApplicationState convertFromProtoFormat(
+        YarnApplicationStateProto yarnApplicationState) {
+        return ProtoUtils.convertFromProtoFormat(yarnApplicationState);
+    }
 
 }

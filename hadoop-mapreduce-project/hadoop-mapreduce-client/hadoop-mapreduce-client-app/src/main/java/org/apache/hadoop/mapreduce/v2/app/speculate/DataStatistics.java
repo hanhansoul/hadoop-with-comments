@@ -18,61 +18,61 @@
 package org.apache.hadoop.mapreduce.v2.app.speculate;
 
 public class DataStatistics {
-  private int count = 0;
-  private double sum = 0;
-  private double sumSquares = 0;
+    private int count = 0;
+    private double sum = 0;
+    private double sumSquares = 0;
 
-  public DataStatistics() {
-  }
-
-  public DataStatistics(double initNum) {
-    this.count = 1;
-    this.sum = initNum;
-    this.sumSquares = initNum * initNum;
-  }
-
-  public synchronized void add(double newNum) {
-    this.count++;
-    this.sum += newNum;
-    this.sumSquares += newNum * newNum;
-  }
-
-  public synchronized void updateStatistics(double old, double update) {
-	this.sum += update - old;
-	this.sumSquares += (update * update) - (old * old);
-  }
-
-  public synchronized double mean() {
-    return count == 0 ? 0.0 : sum/count;
-  }
-
-  public synchronized double var() {
-    // E(X^2) - E(X)^2
-    if (count <= 1) {
-      return 0.0;
-    }
-    double mean = mean();
-    return Math.max((sumSquares/count) - mean * mean, 0.0d);
-  }
-
-  public synchronized double std() {
-    return Math.sqrt(this.var());
-  }
-
-  public synchronized double outlier(float sigma) {
-    if (count != 0.0) {
-      return mean() + std() * sigma;
+    public DataStatistics() {
     }
 
-    return 0.0;
-  }
+    public DataStatistics(double initNum) {
+        this.count = 1;
+        this.sum = initNum;
+        this.sumSquares = initNum * initNum;
+    }
 
-  public synchronized double count() {
-    return count;
-  }
+    public synchronized void add(double newNum) {
+        this.count++;
+        this.sum += newNum;
+        this.sumSquares += newNum * newNum;
+    }
 
-  public String toString() {
-    return "DataStatistics: count is " + count + ", sum is " + sum +
-    ", sumSquares is " + sumSquares + " mean is " + mean() + " std() is " + std();
-  }
+    public synchronized void updateStatistics(double old, double update) {
+        this.sum += update - old;
+        this.sumSquares += (update * update) - (old * old);
+    }
+
+    public synchronized double mean() {
+        return count == 0 ? 0.0 : sum/count;
+    }
+
+    public synchronized double var() {
+        // E(X^2) - E(X)^2
+        if (count <= 1) {
+            return 0.0;
+        }
+        double mean = mean();
+        return Math.max((sumSquares/count) - mean * mean, 0.0d);
+    }
+
+    public synchronized double std() {
+        return Math.sqrt(this.var());
+    }
+
+    public synchronized double outlier(float sigma) {
+        if (count != 0.0) {
+            return mean() + std() * sigma;
+        }
+
+        return 0.0;
+    }
+
+    public synchronized double count() {
+        return count;
+    }
+
+    public String toString() {
+        return "DataStatistics: count is " + count + ", sum is " + sum +
+               ", sumSquares is " + sumSquares + " mean is " + mean() + " std() is " + std();
+    }
 }

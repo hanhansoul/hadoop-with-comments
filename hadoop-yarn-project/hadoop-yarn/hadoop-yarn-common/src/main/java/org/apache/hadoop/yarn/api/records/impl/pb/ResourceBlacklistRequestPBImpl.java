@@ -31,142 +31,142 @@ import org.apache.hadoop.yarn.proto.YarnProtos.ResourceBlacklistRequestProtoOrBu
 @Unstable
 public class ResourceBlacklistRequestPBImpl extends ResourceBlacklistRequest {
 
-  ResourceBlacklistRequestProto proto = null;
-  ResourceBlacklistRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    ResourceBlacklistRequestProto proto = null;
+    ResourceBlacklistRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  List<String> blacklistAdditions = null;
-  List<String> blacklistRemovals = null;
-  
-  public ResourceBlacklistRequestPBImpl() {
-    builder = ResourceBlacklistRequestProto.newBuilder();
-  }
-  
-  public ResourceBlacklistRequestPBImpl(ResourceBlacklistRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public ResourceBlacklistRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-  
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ResourceBlacklistRequestProto.newBuilder(proto);
-    }
-    viaProto = false;
-  }
-  
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
-    }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-  
-  private void mergeLocalToBuilder() {
-    if (this.blacklistAdditions != null) {
-      addBlacklistAdditionsToProto();
-    }
-    if (this.blacklistRemovals != null) {
-      addBlacklistRemovalsToProto();
-    }
-  }
-  
-  private void addBlacklistAdditionsToProto() {
-    maybeInitBuilder();
-    builder.clearBlacklistAdditions();
-    if (this.blacklistAdditions == null) { 
-      return;
-    }
-    builder.addAllBlacklistAdditions(this.blacklistAdditions);
-  }
+    List<String> blacklistAdditions = null;
+    List<String> blacklistRemovals = null;
 
-  private void addBlacklistRemovalsToProto() {
-    maybeInitBuilder();
-    builder.clearBlacklistRemovals();
-    if (this.blacklistRemovals == null) { 
-      return;
+    public ResourceBlacklistRequestPBImpl() {
+        builder = ResourceBlacklistRequestProto.newBuilder();
     }
-    builder.addAllBlacklistRemovals(this.blacklistRemovals);
-  }
 
-  private void initBlacklistAdditions() {
-    if (this.blacklistAdditions != null) {
-      return;
+    public ResourceBlacklistRequestPBImpl(ResourceBlacklistRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    ResourceBlacklistRequestProtoOrBuilder p = viaProto ? proto : builder;
-    List<String> list = p.getBlacklistAdditionsList();
-    this.blacklistAdditions = new ArrayList<String>();
-    this.blacklistAdditions.addAll(list);
-  }
-  
-  private void initBlacklistRemovals() {
-    if (this.blacklistRemovals != null) {
-      return;
-    }
-    ResourceBlacklistRequestProtoOrBuilder p = viaProto ? proto : builder;
-    List<String> list = p.getBlacklistRemovalsList();
-    this.blacklistRemovals = new ArrayList<String>();
-    this.blacklistRemovals.addAll(list);
-  }
-  
-  @Override
-  public List<String> getBlacklistAdditions() {
-    initBlacklistAdditions();
-    return this.blacklistAdditions;
-  }
 
-  @Override
-  public void setBlacklistAdditions(List<String> resourceNames) {
-    if (resourceNames == null || resourceNames.isEmpty()) {
-      if (this.blacklistAdditions != null) {
+    public ResourceBlacklistRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ResourceBlacklistRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void mergeLocalToBuilder() {
+        if (this.blacklistAdditions != null) {
+            addBlacklistAdditionsToProto();
+        }
+        if (this.blacklistRemovals != null) {
+            addBlacklistRemovalsToProto();
+        }
+    }
+
+    private void addBlacklistAdditionsToProto() {
+        maybeInitBuilder();
+        builder.clearBlacklistAdditions();
+        if (this.blacklistAdditions == null) {
+            return;
+        }
+        builder.addAllBlacklistAdditions(this.blacklistAdditions);
+    }
+
+    private void addBlacklistRemovalsToProto() {
+        maybeInitBuilder();
+        builder.clearBlacklistRemovals();
+        if (this.blacklistRemovals == null) {
+            return;
+        }
+        builder.addAllBlacklistRemovals(this.blacklistRemovals);
+    }
+
+    private void initBlacklistAdditions() {
+        if (this.blacklistAdditions != null) {
+            return;
+        }
+        ResourceBlacklistRequestProtoOrBuilder p = viaProto ? proto : builder;
+        List<String> list = p.getBlacklistAdditionsList();
+        this.blacklistAdditions = new ArrayList<String>();
+        this.blacklistAdditions.addAll(list);
+    }
+
+    private void initBlacklistRemovals() {
+        if (this.blacklistRemovals != null) {
+            return;
+        }
+        ResourceBlacklistRequestProtoOrBuilder p = viaProto ? proto : builder;
+        List<String> list = p.getBlacklistRemovalsList();
+        this.blacklistRemovals = new ArrayList<String>();
+        this.blacklistRemovals.addAll(list);
+    }
+
+    @Override
+    public List<String> getBlacklistAdditions() {
+        initBlacklistAdditions();
+        return this.blacklistAdditions;
+    }
+
+    @Override
+    public void setBlacklistAdditions(List<String> resourceNames) {
+        if (resourceNames == null || resourceNames.isEmpty()) {
+            if (this.blacklistAdditions != null) {
+                this.blacklistAdditions.clear();
+            }
+            return;
+        }
+        initBlacklistAdditions();
         this.blacklistAdditions.clear();
-      }
-      return;
+        this.blacklistAdditions.addAll(resourceNames);
     }
-    initBlacklistAdditions();
-    this.blacklistAdditions.clear();
-    this.blacklistAdditions.addAll(resourceNames);
-  }
 
-  @Override
-  public List<String> getBlacklistRemovals() {
-    initBlacklistRemovals();
-    return this.blacklistRemovals;
-  }
+    @Override
+    public List<String> getBlacklistRemovals() {
+        initBlacklistRemovals();
+        return this.blacklistRemovals;
+    }
 
-  @Override
-  public void setBlacklistRemovals(List<String> resourceNames) {
-    if (resourceNames == null || resourceNames.isEmpty()) {
-      if (this.blacklistRemovals != null) {
+    @Override
+    public void setBlacklistRemovals(List<String> resourceNames) {
+        if (resourceNames == null || resourceNames.isEmpty()) {
+            if (this.blacklistRemovals != null) {
+                this.blacklistRemovals.clear();
+            }
+            return;
+        }
+        initBlacklistRemovals();
         this.blacklistRemovals.clear();
-      }
-      return;
+        this.blacklistRemovals.addAll(resourceNames);
     }
-    initBlacklistRemovals();
-    this.blacklistRemovals.clear();
-    this.blacklistRemovals.addAll(resourceNames);
-  }
 
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    return false;
-  }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 }

@@ -35,34 +35,34 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
  */
 public abstract class ConfigurationProvider {
 
-  public void init(Configuration bootstrapConf) throws Exception {
-    initInternal(bootstrapConf);
-  }
+    public void init(Configuration bootstrapConf) throws Exception {
+        initInternal(bootstrapConf);
+    }
 
-  public void close() throws Exception {
-    closeInternal();
-  }
+    public void close() throws Exception {
+        closeInternal();
+    }
 
-  /**
-   * Opens an InputStream at the indicated file
-   * @param bootstrapConf Configuration
-   * @param name The configuration file name
-   * @return configuration
-   * @throws YarnException
-   * @throws IOException
-   */
-  public abstract InputStream getConfigurationInputStream(
-      Configuration bootstrapConf, String name) throws YarnException,
-      IOException;
+    /**
+     * Opens an InputStream at the indicated file
+     * @param bootstrapConf Configuration
+     * @param name The configuration file name
+     * @return configuration
+     * @throws YarnException
+     * @throws IOException
+     */
+    public abstract InputStream getConfigurationInputStream(
+        Configuration bootstrapConf, String name) throws YarnException,
+                          IOException;
 
-  /**
-   * Derived classes initialize themselves using this method.
-   */
-  public abstract void initInternal(Configuration bootstrapConf)
-      throws Exception;
+    /**
+     * Derived classes initialize themselves using this method.
+     */
+    public abstract void initInternal(Configuration bootstrapConf)
+    throws Exception;
 
-  /**
-   * Derived classes close themselves using this method.
-   */
-  public abstract void closeInternal() throws Exception;
+    /**
+     * Derived classes close themselves using this method.
+     */
+    public abstract void closeInternal() throws Exception;
 }

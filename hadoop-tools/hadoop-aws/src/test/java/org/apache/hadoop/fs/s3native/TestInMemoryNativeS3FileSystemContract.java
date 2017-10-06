@@ -21,10 +21,10 @@ package org.apache.hadoop.fs.s3native;
 import java.io.IOException;
 
 public class TestInMemoryNativeS3FileSystemContract
-  extends NativeS3FileSystemContractBaseTest {
+    extends NativeS3FileSystemContractBaseTest {
 
-  @Override
-  NativeFileSystemStore getNativeFileSystemStore() throws IOException {
-    return new InMemoryNativeFileSystemStore();
-  }
+    @Override
+    NativeFileSystemStore getNativeFileSystemStore() throws IOException {
+        return new InMemoryNativeFileSystemStore();
+    }
 }

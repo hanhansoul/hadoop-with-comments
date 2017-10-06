@@ -32,51 +32,51 @@ import java.io.IOException;
 import java.net.URI;
 
 public class TestHttpFSPorts {
-  private static final Configuration conf = new Configuration();
+    private static final Configuration conf = new Configuration();
 
-  @Before
-  public void setupConfig() {
-    conf.setInt(DFSConfigKeys.DFS_NAMENODE_HTTP_PORT_KEY, 123);
-    conf.setInt(DFSConfigKeys.DFS_NAMENODE_HTTPS_PORT_KEY, 456);
-  }
+    @Before
+    public void setupConfig() {
+        conf.setInt(DFSConfigKeys.DFS_NAMENODE_HTTP_PORT_KEY, 123);
+        conf.setInt(DFSConfigKeys.DFS_NAMENODE_HTTPS_PORT_KEY, 456);
+    }
 
-  @Test
-  public void testWebHdfsCustomDefaultPorts() throws IOException {
-    URI uri = URI.create("webhdfs://localhost");
-    WebHdfsFileSystem fs = (WebHdfsFileSystem) FileSystem.get(uri, conf);
+    @Test
+    public void testWebHdfsCustomDefaultPorts() throws IOException {
+        URI uri = URI.create("webhdfs://localhost");
+        WebHdfsFileSystem fs = (WebHdfsFileSystem) FileSystem.get(uri, conf);
 
-    assertEquals(123, fs.getDefaultPort());
-    assertEquals(uri, fs.getUri());
-    assertEquals("127.0.0.1:123", fs.getCanonicalServiceName());
-  }
+        assertEquals(123, fs.getDefaultPort());
+        assertEquals(uri, fs.getUri());
+        assertEquals("127.0.0.1:123", fs.getCanonicalServiceName());
+    }
 
-  @Test
-  public void testWebHdfsCustomUriPortWithCustomDefaultPorts() throws IOException {
-    URI uri = URI.create("webhdfs://localhost:789");
-    WebHdfsFileSystem fs = (WebHdfsFileSystem) FileSystem.get(uri, conf);
+    @Test
+    public void testWebHdfsCustomUriPortWithCustomDefaultPorts() throws IOException {
+        URI uri = URI.create("webhdfs://localhost:789");
+        WebHdfsFileSystem fs = (WebHdfsFileSystem) FileSystem.get(uri, conf);
 
-    assertEquals(123, fs.getDefaultPort());
-    assertEquals(uri, fs.getUri());
-    assertEquals("127.0.0.1:789", fs.getCanonicalServiceName());
-  }
+        assertEquals(123, fs.getDefaultPort());
+        assertEquals(uri, fs.getUri());
+        assertEquals("127.0.0.1:789", fs.getCanonicalServiceName());
+    }
 
-  @Test
-  public void testSWebHdfsCustomDefaultPorts() throws IOException {
-    URI uri = URI.create("swebhdfs://localhost");
-    SWebHdfsFileSystem fs = (SWebHdfsFileSystem) FileSystem.get(uri, conf);
+    @Test
+    public void testSWebHdfsCustomDefaultPorts() throws IOException {
+        URI uri = URI.create("swebhdfs://localhost");
+        SWebHdfsFileSystem fs = (SWebHdfsFileSystem) FileSystem.get(uri, conf);
 
-    assertEquals(456, fs.getDefaultPort());
-    assertEquals(uri, fs.getUri());
-    assertEquals("127.0.0.1:456", fs.getCanonicalServiceName());
-  }
+        assertEquals(456, fs.getDefaultPort());
+        assertEquals(uri, fs.getUri());
+        assertEquals("127.0.0.1:456", fs.getCanonicalServiceName());
+    }
 
-  @Test
-  public void testSwebHdfsCustomUriPortWithCustomDefaultPorts() throws IOException {
-    URI uri = URI.create("swebhdfs://localhost:789");
-    SWebHdfsFileSystem fs = (SWebHdfsFileSystem) FileSystem.get(uri, conf);
+    @Test
+    public void testSwebHdfsCustomUriPortWithCustomDefaultPorts() throws IOException {
+        URI uri = URI.create("swebhdfs://localhost:789");
+        SWebHdfsFileSystem fs = (SWebHdfsFileSystem) FileSystem.get(uri, conf);
 
-    assertEquals(456, fs.getDefaultPort());
-    assertEquals(uri, fs.getUri());
-    assertEquals("127.0.0.1:789", fs.getCanonicalServiceName());
-  }
+        assertEquals(456, fs.getDefaultPort());
+        assertEquals(uri, fs.getUri());
+        assertEquals("127.0.0.1:789", fs.getCanonicalServiceName());
+    }
 }

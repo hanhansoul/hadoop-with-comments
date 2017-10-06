@@ -36,170 +36,170 @@ import org.apache.hadoop.yarn.server.api.records.MasterKey;
 // The state store to use when state isn't being stored
 public class NMNullStateStoreService extends NMStateStoreService {
 
-  public NMNullStateStoreService() {
-    super(NMNullStateStoreService.class.getName());
-  }
+    public NMNullStateStoreService() {
+        super(NMNullStateStoreService.class.getName());
+    }
 
-  @Override
-  public boolean canRecover() {
-    return false;
-  }
+    @Override
+    public boolean canRecover() {
+        return false;
+    }
 
-  @Override
-  public RecoveredApplicationsState loadApplicationsState() throws IOException {
-    throw new UnsupportedOperationException(
-        "Recovery not supported by this state store");
-  }
+    @Override
+    public RecoveredApplicationsState loadApplicationsState() throws IOException {
+        throw new UnsupportedOperationException(
+            "Recovery not supported by this state store");
+    }
 
-  @Override
-  public void storeApplication(ApplicationId appId,
-      ContainerManagerApplicationProto p) throws IOException {
-  }
+    @Override
+    public void storeApplication(ApplicationId appId,
+                                 ContainerManagerApplicationProto p) throws IOException {
+    }
 
-  @Override
-  public void storeFinishedApplication(ApplicationId appId) {
-  }
+    @Override
+    public void storeFinishedApplication(ApplicationId appId) {
+    }
 
-  @Override
-  public void removeApplication(ApplicationId appId) throws IOException {
-  }
+    @Override
+    public void removeApplication(ApplicationId appId) throws IOException {
+    }
 
-  @Override
-  public List<RecoveredContainerState> loadContainersState()
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "Recovery not supported by this state store");
-  }
+    @Override
+    public List<RecoveredContainerState> loadContainersState()
+    throws IOException {
+        throw new UnsupportedOperationException(
+            "Recovery not supported by this state store");
+    }
 
-  @Override
-  public void storeContainer(ContainerId containerId,
-      StartContainerRequest startRequest) throws IOException {
-  }
+    @Override
+    public void storeContainer(ContainerId containerId,
+                               StartContainerRequest startRequest) throws IOException {
+    }
 
-  @Override
-  public void storeContainerDiagnostics(ContainerId containerId,
-      StringBuilder diagnostics) throws IOException {
-  }
+    @Override
+    public void storeContainerDiagnostics(ContainerId containerId,
+                                          StringBuilder diagnostics) throws IOException {
+    }
 
-  @Override
-  public void storeContainerLaunched(ContainerId containerId)
-      throws IOException {
-  }
+    @Override
+    public void storeContainerLaunched(ContainerId containerId)
+    throws IOException {
+    }
 
-  @Override
-  public void storeContainerKilled(ContainerId containerId)
-      throws IOException {
-  }
+    @Override
+    public void storeContainerKilled(ContainerId containerId)
+    throws IOException {
+    }
 
-  @Override
-  public void storeContainerCompleted(ContainerId containerId, int exitCode)
-      throws IOException {
-  }
+    @Override
+    public void storeContainerCompleted(ContainerId containerId, int exitCode)
+    throws IOException {
+    }
 
-  @Override
-  public void removeContainer(ContainerId containerId) throws IOException {
-  }
+    @Override
+    public void removeContainer(ContainerId containerId) throws IOException {
+    }
 
-  @Override
-  public RecoveredLocalizationState loadLocalizationState()
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "Recovery not supported by this state store");
-  }
+    @Override
+    public RecoveredLocalizationState loadLocalizationState()
+    throws IOException {
+        throw new UnsupportedOperationException(
+            "Recovery not supported by this state store");
+    }
 
-  @Override
-  public void startResourceLocalization(String user, ApplicationId appId,
-      LocalResourceProto proto, Path localPath) throws IOException {
-  }
+    @Override
+    public void startResourceLocalization(String user, ApplicationId appId,
+                                          LocalResourceProto proto, Path localPath) throws IOException {
+    }
 
-  @Override
-  public void finishResourceLocalization(String user, ApplicationId appId,
-      LocalizedResourceProto proto) throws IOException {
-  }
+    @Override
+    public void finishResourceLocalization(String user, ApplicationId appId,
+                                           LocalizedResourceProto proto) throws IOException {
+    }
 
-  @Override
-  public void removeLocalizedResource(String user, ApplicationId appId,
-      Path localPath) throws IOException {
-  }
+    @Override
+    public void removeLocalizedResource(String user, ApplicationId appId,
+                                        Path localPath) throws IOException {
+    }
 
-  @Override
-  public RecoveredDeletionServiceState loadDeletionServiceState()
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "Recovery not supported by this state store");
-  }
+    @Override
+    public RecoveredDeletionServiceState loadDeletionServiceState()
+    throws IOException {
+        throw new UnsupportedOperationException(
+            "Recovery not supported by this state store");
+    }
 
-  @Override
-  public void storeDeletionTask(int taskId,
-      DeletionServiceDeleteTaskProto taskProto) throws IOException {
-  }
+    @Override
+    public void storeDeletionTask(int taskId,
+                                  DeletionServiceDeleteTaskProto taskProto) throws IOException {
+    }
 
-  @Override
-  public void removeDeletionTask(int taskId) throws IOException {
-  }
+    @Override
+    public void removeDeletionTask(int taskId) throws IOException {
+    }
 
-  @Override
-  public RecoveredNMTokensState loadNMTokensState() throws IOException {
-    throw new UnsupportedOperationException(
-        "Recovery not supported by this state store");
-  }
+    @Override
+    public RecoveredNMTokensState loadNMTokensState() throws IOException {
+        throw new UnsupportedOperationException(
+            "Recovery not supported by this state store");
+    }
 
-  @Override
-  public void storeNMTokenCurrentMasterKey(MasterKey key)
-      throws IOException {
-  }
+    @Override
+    public void storeNMTokenCurrentMasterKey(MasterKey key)
+    throws IOException {
+    }
 
-  @Override
-  public void storeNMTokenPreviousMasterKey(MasterKey key)
-      throws IOException {
-  }
+    @Override
+    public void storeNMTokenPreviousMasterKey(MasterKey key)
+    throws IOException {
+    }
 
-  @Override
-  public void storeNMTokenApplicationMasterKey(ApplicationAttemptId attempt,
-      MasterKey key) throws IOException {
-  }
+    @Override
+    public void storeNMTokenApplicationMasterKey(ApplicationAttemptId attempt,
+            MasterKey key) throws IOException {
+    }
 
-  @Override
-  public void removeNMTokenApplicationMasterKey(ApplicationAttemptId attempt)
-      throws IOException {
-  }
+    @Override
+    public void removeNMTokenApplicationMasterKey(ApplicationAttemptId attempt)
+    throws IOException {
+    }
 
-  @Override
-  public RecoveredContainerTokensState loadContainerTokensState()
-      throws IOException {
-    throw new UnsupportedOperationException(
-        "Recovery not supported by this state store");
-  }
+    @Override
+    public RecoveredContainerTokensState loadContainerTokensState()
+    throws IOException {
+        throw new UnsupportedOperationException(
+            "Recovery not supported by this state store");
+    }
 
-  @Override
-  public void storeContainerTokenCurrentMasterKey(MasterKey key)
-      throws IOException {
-  }
+    @Override
+    public void storeContainerTokenCurrentMasterKey(MasterKey key)
+    throws IOException {
+    }
 
-  @Override
-  public void storeContainerTokenPreviousMasterKey(MasterKey key)
-      throws IOException {
-  }
+    @Override
+    public void storeContainerTokenPreviousMasterKey(MasterKey key)
+    throws IOException {
+    }
 
-  @Override
-  public void storeContainerToken(ContainerId containerId,
-      Long expirationTime) throws IOException {
-  }
+    @Override
+    public void storeContainerToken(ContainerId containerId,
+                                    Long expirationTime) throws IOException {
+    }
 
-  @Override
-  public void removeContainerToken(ContainerId containerId)
-      throws IOException {
-  }
+    @Override
+    public void removeContainerToken(ContainerId containerId)
+    throws IOException {
+    }
 
-  @Override
-  protected void initStorage(Configuration conf) throws IOException {
-  }
+    @Override
+    protected void initStorage(Configuration conf) throws IOException {
+    }
 
-  @Override
-  protected void startStorage() throws IOException {
-  }
+    @Override
+    protected void startStorage() throws IOException {
+    }
 
-  @Override
-  protected void closeStorage() throws IOException {
-  }
+    @Override
+    protected void closeStorage() throws IOException {
+    }
 }

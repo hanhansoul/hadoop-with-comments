@@ -36,135 +36,135 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class GetNewApplicationResponsePBImpl extends GetNewApplicationResponse {
-  GetNewApplicationResponseProto proto = GetNewApplicationResponseProto.getDefaultInstance();
-  GetNewApplicationResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private ApplicationId applicationId = null;
-  private Resource maximumResourceCapability = null;
-  
-  public GetNewApplicationResponsePBImpl() {
-    builder = GetNewApplicationResponseProto.newBuilder();
-  }
+    GetNewApplicationResponseProto proto = GetNewApplicationResponseProto.getDefaultInstance();
+    GetNewApplicationResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetNewApplicationResponsePBImpl(GetNewApplicationResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public GetNewApplicationResponseProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private ApplicationId applicationId = null;
+    private Resource maximumResourceCapability = null;
 
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public GetNewApplicationResponsePBImpl() {
+        builder = GetNewApplicationResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (applicationId != null) {
-      builder.setApplicationId(convertToProtoFormat(this.applicationId));
+    public GetNewApplicationResponsePBImpl(GetNewApplicationResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (maximumResourceCapability != null) {
-    	builder.setMaximumCapability(convertToProtoFormat(this.maximumResourceCapability));
+
+    public GetNewApplicationResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetNewApplicationResponseProto.newBuilder(proto);
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public ApplicationId getApplicationId() {
-    if (this.applicationId != null) {
-      return this.applicationId;
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    
-    GetNewApplicationResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasApplicationId()) {
-      return null;
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    
-    this.applicationId = convertFromProtoFormat(p.getApplicationId());
-    return this.applicationId;
-  }
 
-  @Override
-  public void setApplicationId(ApplicationId applicationId) {
-    maybeInitBuilder();
-    if (applicationId == null) 
-      builder.clearApplicationId();
-    this.applicationId = applicationId;
-  }
-
-  @Override
-  public Resource getMaximumResourceCapability() {
-    if (this.maximumResourceCapability != null) {
-      return this.maximumResourceCapability;
+    private void mergeLocalToBuilder() {
+        if (applicationId != null) {
+            builder.setApplicationId(convertToProtoFormat(this.applicationId));
+        }
+        if (maximumResourceCapability != null) {
+            builder.setMaximumCapability(convertToProtoFormat(this.maximumResourceCapability));
+        }
     }
- 
-    GetNewApplicationResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasMaximumCapability()) {
-      return null;
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    
-    this.maximumResourceCapability = convertFromProtoFormat(p.getMaximumCapability());
-    return this.maximumResourceCapability;
-  }
 
-  @Override
-  public void setMaximumResourceCapability(Resource capability) {
-    maybeInitBuilder();
-    if(maximumResourceCapability == null) {
-      builder.clearMaximumCapability();
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetNewApplicationResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    this.maximumResourceCapability = capability;
-  }
- 
-  private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
-    return new ApplicationIdPBImpl(p);
-  }
 
-  private ApplicationIdProto convertToProtoFormat(ApplicationId t) {
-    return ((ApplicationIdPBImpl)t).getProto();
-  }
-  
-  private Resource convertFromProtoFormat(ResourceProto resource) {
-	  return new ResourcePBImpl(resource);
-  }
 
-  private ResourceProto convertToProtoFormat(Resource resource) {
-	  return ((ResourcePBImpl)resource).getProto();
-  }
+    @Override
+    public ApplicationId getApplicationId() {
+        if (this.applicationId != null) {
+            return this.applicationId;
+        }
 
-}  
+        GetNewApplicationResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasApplicationId()) {
+            return null;
+        }
+
+        this.applicationId = convertFromProtoFormat(p.getApplicationId());
+        return this.applicationId;
+    }
+
+    @Override
+    public void setApplicationId(ApplicationId applicationId) {
+        maybeInitBuilder();
+        if (applicationId == null)
+            builder.clearApplicationId();
+        this.applicationId = applicationId;
+    }
+
+    @Override
+    public Resource getMaximumResourceCapability() {
+        if (this.maximumResourceCapability != null) {
+            return this.maximumResourceCapability;
+        }
+
+        GetNewApplicationResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasMaximumCapability()) {
+            return null;
+        }
+
+        this.maximumResourceCapability = convertFromProtoFormat(p.getMaximumCapability());
+        return this.maximumResourceCapability;
+    }
+
+    @Override
+    public void setMaximumResourceCapability(Resource capability) {
+        maybeInitBuilder();
+        if(maximumResourceCapability == null) {
+            builder.clearMaximumCapability();
+        }
+        this.maximumResourceCapability = capability;
+    }
+
+    private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
+        return new ApplicationIdPBImpl(p);
+    }
+
+    private ApplicationIdProto convertToProtoFormat(ApplicationId t) {
+        return ((ApplicationIdPBImpl)t).getProto();
+    }
+
+    private Resource convertFromProtoFormat(ResourceProto resource) {
+        return new ResourcePBImpl(resource);
+    }
+
+    private ResourceProto convertToProtoFormat(Resource resource) {
+        return ((ResourcePBImpl)resource).getProto();
+    }
+
+}

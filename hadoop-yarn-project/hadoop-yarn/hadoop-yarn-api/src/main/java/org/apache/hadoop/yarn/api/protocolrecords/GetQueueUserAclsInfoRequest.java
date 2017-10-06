@@ -24,21 +24,21 @@ import org.apache.hadoop.yarn.api.ApplicationClientProtocol;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * <p>The request sent by clients to the <code>ResourceManager</code> to 
+ * <p>The request sent by clients to the <code>ResourceManager</code> to
  * get queue acls for the <em>current user</em>.</p>
  *
  * <p>Currently, this is empty.</p>
- * 
+ *
  * @see ApplicationClientProtocol#getQueueUserAcls(GetQueueUserAclsInfoRequest)
  */
 @Public
 @Stable
 public abstract class GetQueueUserAclsInfoRequest {
-  @Public
-  @Stable
-  public static GetQueueUserAclsInfoRequest newInstance() {
-    GetQueueUserAclsInfoRequest request =
-        Records.newRecord(GetQueueUserAclsInfoRequest.class);
-    return request;
-  }
+    @Public
+    @Stable
+    public static GetQueueUserAclsInfoRequest newInstance() {
+        GetQueueUserAclsInfoRequest request =
+            Records.newRecord(GetQueueUserAclsInfoRequest.class);
+        return request;
+    }
 }

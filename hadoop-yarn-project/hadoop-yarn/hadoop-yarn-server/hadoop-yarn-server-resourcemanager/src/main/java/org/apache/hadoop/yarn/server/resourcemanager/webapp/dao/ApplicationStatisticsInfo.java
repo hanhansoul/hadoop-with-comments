@@ -27,18 +27,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ApplicationStatisticsInfo {
 
-  protected ArrayList<StatisticsItemInfo> statItem
-      = new ArrayList<StatisticsItemInfo>();
+    protected ArrayList<StatisticsItemInfo> statItem
+        = new ArrayList<StatisticsItemInfo>();
 
-  public ApplicationStatisticsInfo() {
-  } // JAXB needs this
+    public ApplicationStatisticsInfo() {
+    } // JAXB needs this
 
-  public void add(StatisticsItemInfo statItem) {
-    this.statItem.add(statItem);
-  }
+    public void add(StatisticsItemInfo statItem) {
+        this.statItem.add(statItem);
+    }
 
-  public ArrayList<StatisticsItemInfo> getStatItems() {
-    return statItem;
-  }
+    public ArrayList<StatisticsItemInfo> getStatItems() {
+        return statItem;
+    }
 
 }

@@ -22,20 +22,20 @@ import org.apache.hadoop.cli.util.CLITestCmd;
 import org.apache.hadoop.cli.util.CommandExecutor;
 
 public class CLITestCmdMR extends CLITestCmd {
-  public CLITestCmdMR(String str, CLICommandTypes type) {
-    super(str, type);
-  }
+    public CLITestCmdMR(String str, CLICommandTypes type) {
+        super(str, type);
+    }
 
-  /**
-   * This is not implemented because HadoopArchive constructor requires JobConf
-   * to create an archive object. Because TestMRCLI uses setup method from
-   * TestHDFSCLI the initialization of executor objects happens before a config
-   * is created and updated. Thus, actual calls to executors happen in the body
-   * of the test method.
-   */
-  @Override
-  public CommandExecutor getExecutor(String tag)
-      throws IllegalArgumentException {
-    throw new IllegalArgumentException("Method isn't supported");
-  }
+    /**
+     * This is not implemented because HadoopArchive constructor requires JobConf
+     * to create an archive object. Because TestMRCLI uses setup method from
+     * TestHDFSCLI the initialization of executor objects happens before a config
+     * is created and updated. Thus, actual calls to executors happen in the body
+     * of the test method.
+     */
+    @Override
+    public CommandExecutor getExecutor(String tag)
+    throws IllegalArgumentException {
+        throw new IllegalArgumentException("Method isn't supported");
+    }
 }

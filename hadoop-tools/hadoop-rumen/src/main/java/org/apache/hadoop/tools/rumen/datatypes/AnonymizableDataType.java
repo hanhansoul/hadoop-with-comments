@@ -24,5 +24,5 @@ import org.apache.hadoop.tools.rumen.state.StatePool;
  * An interface for data-types that can be anonymized.
  */
 public interface AnonymizableDataType<T> extends DataType<T> {
-  public T getAnonymizedValue(StatePool statePool, Configuration conf);
+    public T getAnonymizedValue(StatePool statePool, Configuration conf);
 }

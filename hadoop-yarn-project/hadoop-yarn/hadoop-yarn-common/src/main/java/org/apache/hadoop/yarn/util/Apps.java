@@ -42,102 +42,102 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
  */
 @Private
 public class Apps {
-  public static final String APP = "application";
-  public static final String ID = "ID";
+    public static final String APP = "application";
+    public static final String ID = "ID";
 
-  public static ApplicationId toAppID(String aid) {
-    Iterator<String> it = _split(aid).iterator();
-    return toAppID(APP, aid, it);
-  }
-
-  public static ApplicationId toAppID(String prefix, String s, Iterator<String> it) {
-    if (!it.hasNext() || !it.next().equals(prefix)) {
-      throwParseException(sjoin(prefix, ID), s);
+    public static ApplicationId toAppID(String aid) {
+        Iterator<String> it = _split(aid).iterator();
+        return toAppID(APP, aid, it);
     }
-    shouldHaveNext(prefix, s, it);
-    ApplicationId appId = ApplicationId.newInstance(Long.parseLong(it.next()),
-        Integer.parseInt(it.next()));
-    return appId;
-  }
 
-  public static void shouldHaveNext(String prefix, String s, Iterator<String> it) {
-    if (!it.hasNext()) {
-      throwParseException(sjoin(prefix, ID), s);
-    }
-  }
-
-  public static void throwParseException(String name, String s) {
-    throw new YarnRuntimeException(join("Error parsing ", name, ": ", s));
-  }
-
-  public static void setEnvFromInputString(Map<String, String> env,
-      String envString,  String classPathSeparator) {
-    if (envString != null && envString.length() > 0) {
-      String childEnvs[] = envString.split(",");
-      Pattern p = Pattern.compile(Shell.getEnvironmentVariableRegex());
-      for (String cEnv : childEnvs) {
-        String[] parts = cEnv.split("="); // split on '='
-        Matcher m = p.matcher(parts[1]);
-        StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-          String var = m.group(1);
-          // replace $env with the child's env constructed by tt's
-          String replace = env.get(var);
-          // if this key is not configured by the tt for the child .. get it
-          // from the tt's env
-          if (replace == null)
-            replace = System.getenv(var);
-          // the env key is note present anywhere .. simply set it
-          if (replace == null)
-            replace = "";
-          m.appendReplacement(sb, Matcher.quoteReplacement(replace));
+    public static ApplicationId toAppID(String prefix, String s, Iterator<String> it) {
+        if (!it.hasNext() || !it.next().equals(prefix)) {
+            throwParseException(sjoin(prefix, ID), s);
         }
-        m.appendTail(sb);
-        addToEnvironment(env, parts[0], sb.toString(), classPathSeparator);
-      }
+        shouldHaveNext(prefix, s, it);
+        ApplicationId appId = ApplicationId.newInstance(Long.parseLong(it.next()),
+                              Integer.parseInt(it.next()));
+        return appId;
     }
-  }
-  
-  /**
-   * This older version of this method is kept around for compatibility
-   * because downstream frameworks like Spark and Tez have been using it.
-   * Downstream frameworks are expected to move off of it.
-   */
-  @Deprecated
-  public static void setEnvFromInputString(Map<String, String> env,
-      String envString) {
-    setEnvFromInputString(env, envString, File.pathSeparator);
-  }
 
-  @Public
-  @Unstable
-  public static void addToEnvironment(
-      Map<String, String> environment,
-      String variable, String value, String classPathSeparator) {
-    String val = environment.get(variable);
-    if (val == null) {
-      val = value;
-    } else {
-      val = val + classPathSeparator + value;
+    public static void shouldHaveNext(String prefix, String s, Iterator<String> it) {
+        if (!it.hasNext()) {
+            throwParseException(sjoin(prefix, ID), s);
+        }
     }
-    environment.put(StringInterner.weakIntern(variable), 
-        StringInterner.weakIntern(val));
-  }
-  
-  /**
-   * This older version of this method is kept around for compatibility
-   * because downstream frameworks like Spark and Tez have been using it.
-   * Downstream frameworks are expected to move off of it.
-   */
-  @Deprecated
-  public static void addToEnvironment(
-      Map<String, String> environment,
-      String variable, String value) {
-    addToEnvironment(environment, variable, value, File.pathSeparator);
-  }
 
-  public static String crossPlatformify(String var) {
-    return ApplicationConstants.PARAMETER_EXPANSION_LEFT + var
-        + ApplicationConstants.PARAMETER_EXPANSION_RIGHT;
-  }
+    public static void throwParseException(String name, String s) {
+        throw new YarnRuntimeException(join("Error parsing ", name, ": ", s));
+    }
+
+    public static void setEnvFromInputString(Map<String, String> env,
+            String envString,  String classPathSeparator) {
+        if (envString != null && envString.length() > 0) {
+            String childEnvs[] = envString.split(",");
+            Pattern p = Pattern.compile(Shell.getEnvironmentVariableRegex());
+            for (String cEnv : childEnvs) {
+                String[] parts = cEnv.split("="); // split on '='
+                Matcher m = p.matcher(parts[1]);
+                StringBuffer sb = new StringBuffer();
+                while (m.find()) {
+                    String var = m.group(1);
+                    // replace $env with the child's env constructed by tt's
+                    String replace = env.get(var);
+                    // if this key is not configured by the tt for the child .. get it
+                    // from the tt's env
+                    if (replace == null)
+                        replace = System.getenv(var);
+                    // the env key is note present anywhere .. simply set it
+                    if (replace == null)
+                        replace = "";
+                    m.appendReplacement(sb, Matcher.quoteReplacement(replace));
+                }
+                m.appendTail(sb);
+                addToEnvironment(env, parts[0], sb.toString(), classPathSeparator);
+            }
+        }
+    }
+
+    /**
+     * This older version of this method is kept around for compatibility
+     * because downstream frameworks like Spark and Tez have been using it.
+     * Downstream frameworks are expected to move off of it.
+     */
+    @Deprecated
+    public static void setEnvFromInputString(Map<String, String> env,
+            String envString) {
+        setEnvFromInputString(env, envString, File.pathSeparator);
+    }
+
+    @Public
+    @Unstable
+    public static void addToEnvironment(
+        Map<String, String> environment,
+        String variable, String value, String classPathSeparator) {
+        String val = environment.get(variable);
+        if (val == null) {
+            val = value;
+        } else {
+            val = val + classPathSeparator + value;
+        }
+        environment.put(StringInterner.weakIntern(variable),
+                        StringInterner.weakIntern(val));
+    }
+
+    /**
+     * This older version of this method is kept around for compatibility
+     * because downstream frameworks like Spark and Tez have been using it.
+     * Downstream frameworks are expected to move off of it.
+     */
+    @Deprecated
+    public static void addToEnvironment(
+        Map<String, String> environment,
+        String variable, String value) {
+        addToEnvironment(environment, variable, value, File.pathSeparator);
+    }
+
+    public static String crossPlatformify(String var) {
+        return ApplicationConstants.PARAMETER_EXPANSION_LEFT + var
+               + ApplicationConstants.PARAMETER_EXPANSION_RIGHT;
+    }
 }

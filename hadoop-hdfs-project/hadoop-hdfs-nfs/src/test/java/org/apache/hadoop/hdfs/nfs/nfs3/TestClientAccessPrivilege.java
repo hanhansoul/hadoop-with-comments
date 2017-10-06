@@ -43,78 +43,78 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class TestClientAccessPrivilege {
-  static MiniDFSCluster cluster = null;
-  static NfsConfiguration config = new NfsConfiguration();
-  static DistributedFileSystem hdfs;
-  static NameNode nn;
-  static String testdir = "/tmp";
-  static SecurityHandler securityHandler;
+    static MiniDFSCluster cluster = null;
+    static NfsConfiguration config = new NfsConfiguration();
+    static DistributedFileSystem hdfs;
+    static NameNode nn;
+    static String testdir = "/tmp";
+    static SecurityHandler securityHandler;
 
-  @BeforeClass
-  public static void setup() throws Exception {
+    @BeforeClass
+    public static void setup() throws Exception {
 
-    String currentUser = System.getProperty("user.name");
-    config.set(DefaultImpersonationProvider.getTestProvider()
-        .getProxySuperuserGroupConfKey(currentUser), "*");
-    config.set(DefaultImpersonationProvider.getTestProvider()
-        .getProxySuperuserIpConfKey(currentUser), "*");
-    ProxyUsers.refreshSuperUserGroupsConfiguration(config);
-    cluster = new MiniDFSCluster.Builder(config).numDataNodes(1).build();
-    cluster.waitActive();
-    hdfs = cluster.getFileSystem();
-    nn = cluster.getNameNode();
+        String currentUser = System.getProperty("user.name");
+        config.set(DefaultImpersonationProvider.getTestProvider()
+                   .getProxySuperuserGroupConfKey(currentUser), "*");
+        config.set(DefaultImpersonationProvider.getTestProvider()
+                   .getProxySuperuserIpConfKey(currentUser), "*");
+        ProxyUsers.refreshSuperUserGroupsConfiguration(config);
+        cluster = new MiniDFSCluster.Builder(config).numDataNodes(1).build();
+        cluster.waitActive();
+        hdfs = cluster.getFileSystem();
+        nn = cluster.getNameNode();
 
-    // Use ephemeral port in case tests are running in parallel
-    config.setInt("nfs3.mountd.port", 0);
-    config.setInt("nfs3.server.port", 0);
+        // Use ephemeral port in case tests are running in parallel
+        config.setInt("nfs3.mountd.port", 0);
+        config.setInt("nfs3.server.port", 0);
 
-    securityHandler = Mockito.mock(SecurityHandler.class);
-    Mockito.when(securityHandler.getUser()).thenReturn(
-        System.getProperty("user.name"));
-  }
-
-  @AfterClass
-  public static void shutdown() throws Exception {
-    if (cluster != null) {
-      cluster.shutdown();
+        securityHandler = Mockito.mock(SecurityHandler.class);
+        Mockito.when(securityHandler.getUser()).thenReturn(
+            System.getProperty("user.name"));
     }
-  }
 
-  @Before
-  public void createFiles() throws IllegalArgumentException, IOException {
-    hdfs.delete(new Path(testdir), true);
-    hdfs.mkdirs(new Path(testdir));
-    DFSTestUtil.createFile(hdfs, new Path(testdir + "/f1"), 0, (short) 1, 0);
-  }
+    @AfterClass
+    public static void shutdown() throws Exception {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
 
-  @Test(timeout = 60000)
-  public void testClientAccessPrivilegeForRemove() throws Exception {
-    // Configure ro access for nfs1 service
-    config.set("dfs.nfs.exports.allowed.hosts", "* ro");
+    @Before
+    public void createFiles() throws IllegalArgumentException, IOException {
+        hdfs.delete(new Path(testdir), true);
+        hdfs.mkdirs(new Path(testdir));
+        DFSTestUtil.createFile(hdfs, new Path(testdir + "/f1"), 0, (short) 1, 0);
+    }
 
-    // Start nfs
-    Nfs3 nfs = new Nfs3(config);
-    nfs.startServiceInternal(false);
+    @Test(timeout = 60000)
+    public void testClientAccessPrivilegeForRemove() throws Exception {
+        // Configure ro access for nfs1 service
+        config.set("dfs.nfs.exports.allowed.hosts", "* ro");
 
-    RpcProgramNfs3 nfsd = (RpcProgramNfs3) nfs.getRpcProgram();
+        // Start nfs
+        Nfs3 nfs = new Nfs3(config);
+        nfs.startServiceInternal(false);
 
-    // Create a remove request
-    HdfsFileStatus status = nn.getRpcServer().getFileInfo(testdir);
-    long dirId = status.getFileId();
+        RpcProgramNfs3 nfsd = (RpcProgramNfs3) nfs.getRpcProgram();
 
-    XDR xdr_req = new XDR();
-    FileHandle handle = new FileHandle(dirId);
-    handle.serialize(xdr_req);
-    xdr_req.writeString("f1");
+        // Create a remove request
+        HdfsFileStatus status = nn.getRpcServer().getFileInfo(testdir);
+        long dirId = status.getFileId();
 
-    // Remove operation
-    REMOVE3Response response = nfsd.remove(xdr_req.asReadOnlyWrap(),
-        securityHandler, new InetSocketAddress("localhost", 1234));
+        XDR xdr_req = new XDR();
+        FileHandle handle = new FileHandle(dirId);
+        handle.serialize(xdr_req);
+        xdr_req.writeString("f1");
 
-    // Assert on return code
-    assertEquals("Incorrect return code", Nfs3Status.NFS3ERR_ACCES,
-        response.getStatus());
+        // Remove operation
+        REMOVE3Response response = nfsd.remove(xdr_req.asReadOnlyWrap(),
+                                               securityHandler, new InetSocketAddress("localhost", 1234));
 
-  }
+        // Assert on return code
+        assertEquals("Incorrect return code", Nfs3Status.NFS3ERR_ACCES,
+                     response.getStatus());
+
+    }
 
 }

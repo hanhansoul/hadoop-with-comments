@@ -37,69 +37,69 @@ import static org.apache.hadoop.util.ExitUtil.terminate;
  * handle for requested directory and returns it to the client.
  */
 abstract public class MountdBase {
-  public static final Log LOG = LogFactory.getLog(MountdBase.class);
-  private final RpcProgram rpcProgram;
-  private int udpBoundPort; // Will set after server starts
-  private int tcpBoundPort; // Will set after server starts
+    public static final Log LOG = LogFactory.getLog(MountdBase.class);
+    private final RpcProgram rpcProgram;
+    private int udpBoundPort; // Will set after server starts
+    private int tcpBoundPort; // Will set after server starts
 
-  public RpcProgram getRpcProgram() {
-    return rpcProgram;
-  }
-
-  /**
-   * Constructor
-   * @param program
-   * @throws IOException
-   */
-  public MountdBase(RpcProgram program) throws IOException {
-    rpcProgram = program;
-  }
-
-  /* Start UDP server */
-  private void startUDPServer() {
-    SimpleUdpServer udpServer = new SimpleUdpServer(rpcProgram.getPort(),
-        rpcProgram, 1);
-    rpcProgram.startDaemons();
-    udpServer.run();
-    udpBoundPort = udpServer.getBoundPort();
-  }
-
-  /* Start TCP server */
-  private void startTCPServer() {
-    SimpleTcpServer tcpServer = new SimpleTcpServer(rpcProgram.getPort(),
-        rpcProgram, 1);
-    rpcProgram.startDaemons();
-    tcpServer.run();
-    tcpBoundPort = tcpServer.getBoundPort();
-  }
-
-  public void start(boolean register) {
-    startUDPServer();
-    startTCPServer();
-    if (register) {
-      ShutdownHookManager.get().addShutdownHook(new Unregister(),
-          SHUTDOWN_HOOK_PRIORITY);
-      try {
-        rpcProgram.register(PortmapMapping.TRANSPORT_UDP, udpBoundPort);
-        rpcProgram.register(PortmapMapping.TRANSPORT_TCP, tcpBoundPort);
-      } catch (Throwable e) {
-        LOG.fatal("Failed to start the server. Cause:", e);
-        terminate(1, e);
-      }
+    public RpcProgram getRpcProgram() {
+        return rpcProgram;
     }
-  }
 
-  /**
-   * Priority of the mountd shutdown hook.
-   */
-  public static final int SHUTDOWN_HOOK_PRIORITY = 10;
-
-  private class Unregister implements Runnable {
-    @Override
-    public synchronized void run() {
-      rpcProgram.unregister(PortmapMapping.TRANSPORT_UDP, udpBoundPort);
-      rpcProgram.unregister(PortmapMapping.TRANSPORT_TCP, tcpBoundPort);
+    /**
+     * Constructor
+     * @param program
+     * @throws IOException
+     */
+    public MountdBase(RpcProgram program) throws IOException {
+        rpcProgram = program;
     }
-  }
+
+    /* Start UDP server */
+    private void startUDPServer() {
+        SimpleUdpServer udpServer = new SimpleUdpServer(rpcProgram.getPort(),
+                rpcProgram, 1);
+        rpcProgram.startDaemons();
+        udpServer.run();
+        udpBoundPort = udpServer.getBoundPort();
+    }
+
+    /* Start TCP server */
+    private void startTCPServer() {
+        SimpleTcpServer tcpServer = new SimpleTcpServer(rpcProgram.getPort(),
+                rpcProgram, 1);
+        rpcProgram.startDaemons();
+        tcpServer.run();
+        tcpBoundPort = tcpServer.getBoundPort();
+    }
+
+    public void start(boolean register) {
+        startUDPServer();
+        startTCPServer();
+        if (register) {
+            ShutdownHookManager.get().addShutdownHook(new Unregister(),
+                    SHUTDOWN_HOOK_PRIORITY);
+            try {
+                rpcProgram.register(PortmapMapping.TRANSPORT_UDP, udpBoundPort);
+                rpcProgram.register(PortmapMapping.TRANSPORT_TCP, tcpBoundPort);
+            } catch (Throwable e) {
+                LOG.fatal("Failed to start the server. Cause:", e);
+                terminate(1, e);
+            }
+        }
+    }
+
+    /**
+     * Priority of the mountd shutdown hook.
+     */
+    public static final int SHUTDOWN_HOOK_PRIORITY = 10;
+
+    private class Unregister implements Runnable {
+        @Override
+        public synchronized void run() {
+            rpcProgram.unregister(PortmapMapping.TRANSPORT_UDP, udpBoundPort);
+            rpcProgram.unregister(PortmapMapping.TRANSPORT_TCP, tcpBoundPort);
+        }
+    }
 
 }

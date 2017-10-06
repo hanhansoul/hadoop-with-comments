@@ -41,280 +41,280 @@ import org.apache.hadoop.hdfs.server.datanode.ReplicaInfo;
  *   the generation stamp;
  * - followed by the invalid replica represented with three -1s;
  * - followed by the under-construction replica list where each replica is
- *   represented by 4 longs: three for the block id, length, generation 
+ *   represented by 4 longs: three for the block id, length, generation
  *   stamp, and the fourth for the replica state.
  */
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class BlockListAsLongs implements Iterable<Block> {
-  /**
-   * A finalized block as 3 longs
-   *   block-id and block length and generation stamp
-   */
-  private static final int LONGS_PER_FINALIZED_BLOCK = 3;
+    /**
+     * A finalized block as 3 longs
+     *   block-id and block length and generation stamp
+     */
+    private static final int LONGS_PER_FINALIZED_BLOCK = 3;
 
-  /**
-   * An under-construction block as 4 longs
-   *   block-id and block length, generation stamp and replica state
-   */
-  private static final int LONGS_PER_UC_BLOCK = 4;
+    /**
+     * An under-construction block as 4 longs
+     *   block-id and block length, generation stamp and replica state
+     */
+    private static final int LONGS_PER_UC_BLOCK = 4;
 
-  /** Number of longs in the header */
-  private static final int HEADER_SIZE = 2;
+    /** Number of longs in the header */
+    private static final int HEADER_SIZE = 2;
 
-  /**
-   * Returns the index of the first long in blockList
-   * belonging to the specified block.
-   * The first long contains the block id.
-   */
-  private int index2BlockId(int blockIndex) {
-    if(blockIndex < 0 || blockIndex > getNumberOfBlocks())
-      return -1;
-    int finalizedSize = getNumberOfFinalizedReplicas();
-    if(blockIndex < finalizedSize)
-      return HEADER_SIZE + blockIndex * LONGS_PER_FINALIZED_BLOCK;
-    return HEADER_SIZE + (finalizedSize + 1) * LONGS_PER_FINALIZED_BLOCK
-            + (blockIndex - finalizedSize) * LONGS_PER_UC_BLOCK;
-  }
-
-  private final long[] blockList;
-  
-  /**
-   * Create block report from finalized and under construction lists of blocks.
-   * 
-   * @param finalized - list of finalized blocks
-   * @param uc - list of under construction blocks
-   */
-  public BlockListAsLongs(final List<? extends Block> finalized,
-                          final List<ReplicaInfo> uc) {
-    int finalizedSize = finalized == null ? 0 : finalized.size();
-    int ucSize = uc == null ? 0 : uc.size();
-    int len = HEADER_SIZE
-              + (finalizedSize + 1) * LONGS_PER_FINALIZED_BLOCK
-              + ucSize * LONGS_PER_UC_BLOCK;
-
-    blockList = new long[len];
-
-    // set the header
-    blockList[0] = finalizedSize;
-    blockList[1] = ucSize;
-
-    // set finalized blocks
-    for (int i = 0; i < finalizedSize; i++) {
-      setBlock(i, finalized.get(i));
+    /**
+     * Returns the index of the first long in blockList
+     * belonging to the specified block.
+     * The first long contains the block id.
+     */
+    private int index2BlockId(int blockIndex) {
+        if(blockIndex < 0 || blockIndex > getNumberOfBlocks())
+            return -1;
+        int finalizedSize = getNumberOfFinalizedReplicas();
+        if(blockIndex < finalizedSize)
+            return HEADER_SIZE + blockIndex * LONGS_PER_FINALIZED_BLOCK;
+        return HEADER_SIZE + (finalizedSize + 1) * LONGS_PER_FINALIZED_BLOCK
+               + (blockIndex - finalizedSize) * LONGS_PER_UC_BLOCK;
     }
 
-    // set invalid delimiting block
-    setDelimitingBlock(finalizedSize);
+    private final long[] blockList;
 
-    // set under construction blocks
-    for (int i = 0; i < ucSize; i++) {
-      setBlock(finalizedSize + i, uc.get(i));
-    }
-  }
+    /**
+     * Create block report from finalized and under construction lists of blocks.
+     *
+     * @param finalized - list of finalized blocks
+     * @param uc - list of under construction blocks
+     */
+    public BlockListAsLongs(final List<? extends Block> finalized,
+                            final List<ReplicaInfo> uc) {
+        int finalizedSize = finalized == null ? 0 : finalized.size();
+        int ucSize = uc == null ? 0 : uc.size();
+        int len = HEADER_SIZE
+                  + (finalizedSize + 1) * LONGS_PER_FINALIZED_BLOCK
+                  + ucSize * LONGS_PER_UC_BLOCK;
 
-  public BlockListAsLongs() {
-    this(null);
-  }
+        blockList = new long[len];
 
-  /**
-   * Constructor
-   * @param iBlockList - BlockListALongs create from this long[] parameter
-   */
-  public BlockListAsLongs(final long[] iBlockList) {
-    if (iBlockList == null) {
-      blockList = new long[HEADER_SIZE];
-      return;
-    }
-    blockList = iBlockList;
-  }
+        // set the header
+        blockList[0] = finalizedSize;
+        blockList[1] = ucSize;
 
-  public long[] getBlockListAsLongs() {
-    return blockList;
-  }
+        // set finalized blocks
+        for (int i = 0; i < finalizedSize; i++) {
+            setBlock(i, finalized.get(i));
+        }
 
-  /**
-   * Iterates over blocks in the block report.
-   * Avoids object allocation on each iteration.
-   */
-  @InterfaceAudience.Private
-  @InterfaceStability.Evolving
-  public class BlockReportIterator implements Iterator<Block> {
-    private int currentBlockIndex;
-    private final Block block;
-    private ReplicaState currentReplicaState;
+        // set invalid delimiting block
+        setDelimitingBlock(finalizedSize);
 
-    BlockReportIterator() {
-      this.currentBlockIndex = 0;
-      this.block = new Block();
-      this.currentReplicaState = null;
+        // set under construction blocks
+        for (int i = 0; i < ucSize; i++) {
+            setBlock(finalizedSize + i, uc.get(i));
+        }
     }
 
-    @Override
-    public boolean hasNext() {
-      return currentBlockIndex < getNumberOfBlocks();
-    }
-
-    @Override
-    public Block next() {
-      block.set(blockId(currentBlockIndex),
-                blockLength(currentBlockIndex),
-                blockGenerationStamp(currentBlockIndex));
-      currentReplicaState = blockReplicaState(currentBlockIndex);
-      currentBlockIndex++;
-      return block;
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException("Sorry. can't remove.");
+    public BlockListAsLongs() {
+        this(null);
     }
 
     /**
-     * Get the state of the current replica.
-     * The state corresponds to the replica returned
-     * by the latest {@link #next()}. 
+     * Constructor
+     * @param iBlockList - BlockListALongs create from this long[] parameter
      */
-    public ReplicaState getCurrentReplicaState() {
-      return currentReplicaState;
+    public BlockListAsLongs(final long[] iBlockList) {
+        if (iBlockList == null) {
+            blockList = new long[HEADER_SIZE];
+            return;
+        }
+        blockList = iBlockList;
     }
-  }
 
-  /**
-   * Returns an iterator over blocks in the block report. 
-   */
-  @Override
-  public Iterator<Block> iterator() {
-    return getBlockReportIterator();
-  }
-
-  /**
-   * Returns {@link BlockReportIterator}. 
-   */
-  public BlockReportIterator getBlockReportIterator() {
-    return new BlockReportIterator();
-  }
-
-  /**
-   * The number of blocks
-   * @return - the number of blocks
-   */
-  public int getNumberOfBlocks() {
-    assert blockList.length == HEADER_SIZE + 
-            (blockList[0] + 1) * LONGS_PER_FINALIZED_BLOCK +
-            blockList[1] * LONGS_PER_UC_BLOCK :
-              "Number of blocks is inconcistent with the array length";
-    return getNumberOfFinalizedReplicas() + getNumberOfUCReplicas();
-  }
-
-  /**
-   * Returns the number of finalized replicas in the block report.
-   */
-  private int getNumberOfFinalizedReplicas() {
-    return (int)blockList[0];
-  }
-
-  /**
-   * Returns the number of under construction replicas in the block report.
-   */
-  private int getNumberOfUCReplicas() {
-    return (int)blockList[1];
-  }
-
-  /**
-   * Returns the id of the specified replica of the block report.
-   */
-  private long blockId(int index) {
-    return blockList[index2BlockId(index)];
-  }
-
-  /**
-   * Returns the length of the specified replica of the block report.
-   */
-  private long blockLength(int index) {
-    return blockList[index2BlockId(index) + 1];
-  }
-
-  /**
-   * Returns the generation stamp of the specified replica of the block report.
-   */
-  private long blockGenerationStamp(int index) {
-    return blockList[index2BlockId(index) + 2];
-  }
-
-  /**
-   * Returns the state of the specified replica of the block report.
-   */
-  private ReplicaState blockReplicaState(int index) {
-    if(index < getNumberOfFinalizedReplicas())
-      return ReplicaState.FINALIZED;
-    return ReplicaState.getState((int)blockList[index2BlockId(index) + 3]);
-  }
-
-  /**
-   * Corrupt the generation stamp of the block with the given index.
-   * Not meant to be used outside of tests.
-   */
-  @VisibleForTesting
-  public long corruptBlockGSForTesting(final int blockIndex, Random rand) {
-    long oldGS = blockList[index2BlockId(blockIndex) + 2];
-    while (blockList[index2BlockId(blockIndex) + 2] == oldGS) {
-      blockList[index2BlockId(blockIndex) + 2] = rand.nextInt();
+    public long[] getBlockListAsLongs() {
+        return blockList;
     }
-    return oldGS;
-  }
 
-  /**
-   * Corrupt the length of the block with the given index by truncation.
-   * Not meant to be used outside of tests.
-   */
-  @VisibleForTesting
-  public long corruptBlockLengthForTesting(final int blockIndex, Random rand) {
-    long oldLength = blockList[index2BlockId(blockIndex) + 1];
-    blockList[index2BlockId(blockIndex) + 1] =
-        rand.nextInt((int) oldLength - 1);
-    return oldLength;
-  }
-  
-  /**
-   * Set the indexTh block
-   * @param index - the index of the block to set
-   * @param b - the block is set to the value of the this block
-   */
-  private <T extends Block> void setBlock(final int index, final T b) {
-    int pos = index2BlockId(index);
-    blockList[pos] = b.getBlockId();
-    blockList[pos + 1] = b.getNumBytes();
-    blockList[pos + 2] = b.getGenerationStamp();
-    if(index < getNumberOfFinalizedReplicas())
-      return;
-    assert ((ReplicaInfo)b).getState() != ReplicaState.FINALIZED :
-      "Must be under-construction replica.";
-    blockList[pos + 3] = ((ReplicaInfo)b).getState().getValue();
-  }
+    /**
+     * Iterates over blocks in the block report.
+     * Avoids object allocation on each iteration.
+     */
+    @InterfaceAudience.Private
+    @InterfaceStability.Evolving
+    public class BlockReportIterator implements Iterator<Block> {
+        private int currentBlockIndex;
+        private final Block block;
+        private ReplicaState currentReplicaState;
 
-  /**
-   * Set the invalid delimiting block between the finalized and
-   * the under-construction lists.
-   * The invalid block has all three fields set to -1.
-   * @param finalizedSzie - the size of the finalized list
-   */
-  private void setDelimitingBlock(final int finalizedSzie) {
-    int idx = HEADER_SIZE + finalizedSzie * LONGS_PER_FINALIZED_BLOCK;
-    blockList[idx] = -1;
-    blockList[idx+1] = -1;
-    blockList[idx+2] = -1;
-  }
+        BlockReportIterator() {
+            this.currentBlockIndex = 0;
+            this.block = new Block();
+            this.currentReplicaState = null;
+        }
 
-  public long getMaxGsInBlockList() {
-    long maxGs = -1;
-    Iterator<Block> iter = getBlockReportIterator();
-    while (iter.hasNext()) {
-      Block b = iter.next();
-      if (b.getGenerationStamp() > maxGs) {
-        maxGs = b.getGenerationStamp();
-      }
+        @Override
+        public boolean hasNext() {
+            return currentBlockIndex < getNumberOfBlocks();
+        }
+
+        @Override
+        public Block next() {
+            block.set(blockId(currentBlockIndex),
+                      blockLength(currentBlockIndex),
+                      blockGenerationStamp(currentBlockIndex));
+            currentReplicaState = blockReplicaState(currentBlockIndex);
+            currentBlockIndex++;
+            return block;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Sorry. can't remove.");
+        }
+
+        /**
+         * Get the state of the current replica.
+         * The state corresponds to the replica returned
+         * by the latest {@link #next()}.
+         */
+        public ReplicaState getCurrentReplicaState() {
+            return currentReplicaState;
+        }
     }
-    return maxGs;
-  }
+
+    /**
+     * Returns an iterator over blocks in the block report.
+     */
+    @Override
+    public Iterator<Block> iterator() {
+        return getBlockReportIterator();
+    }
+
+    /**
+     * Returns {@link BlockReportIterator}.
+     */
+    public BlockReportIterator getBlockReportIterator() {
+        return new BlockReportIterator();
+    }
+
+    /**
+     * The number of blocks
+     * @return - the number of blocks
+     */
+    public int getNumberOfBlocks() {
+        assert blockList.length == HEADER_SIZE +
+        (blockList[0] + 1) * LONGS_PER_FINALIZED_BLOCK +
+        blockList[1] * LONGS_PER_UC_BLOCK :
+        "Number of blocks is inconcistent with the array length";
+        return getNumberOfFinalizedReplicas() + getNumberOfUCReplicas();
+    }
+
+    /**
+     * Returns the number of finalized replicas in the block report.
+     */
+    private int getNumberOfFinalizedReplicas() {
+        return (int)blockList[0];
+    }
+
+    /**
+     * Returns the number of under construction replicas in the block report.
+     */
+    private int getNumberOfUCReplicas() {
+        return (int)blockList[1];
+    }
+
+    /**
+     * Returns the id of the specified replica of the block report.
+     */
+    private long blockId(int index) {
+        return blockList[index2BlockId(index)];
+    }
+
+    /**
+     * Returns the length of the specified replica of the block report.
+     */
+    private long blockLength(int index) {
+        return blockList[index2BlockId(index) + 1];
+    }
+
+    /**
+     * Returns the generation stamp of the specified replica of the block report.
+     */
+    private long blockGenerationStamp(int index) {
+        return blockList[index2BlockId(index) + 2];
+    }
+
+    /**
+     * Returns the state of the specified replica of the block report.
+     */
+    private ReplicaState blockReplicaState(int index) {
+        if(index < getNumberOfFinalizedReplicas())
+            return ReplicaState.FINALIZED;
+        return ReplicaState.getState((int)blockList[index2BlockId(index) + 3]);
+    }
+
+    /**
+     * Corrupt the generation stamp of the block with the given index.
+     * Not meant to be used outside of tests.
+     */
+    @VisibleForTesting
+    public long corruptBlockGSForTesting(final int blockIndex, Random rand) {
+        long oldGS = blockList[index2BlockId(blockIndex) + 2];
+        while (blockList[index2BlockId(blockIndex) + 2] == oldGS) {
+            blockList[index2BlockId(blockIndex) + 2] = rand.nextInt();
+        }
+        return oldGS;
+    }
+
+    /**
+     * Corrupt the length of the block with the given index by truncation.
+     * Not meant to be used outside of tests.
+     */
+    @VisibleForTesting
+    public long corruptBlockLengthForTesting(final int blockIndex, Random rand) {
+        long oldLength = blockList[index2BlockId(blockIndex) + 1];
+        blockList[index2BlockId(blockIndex) + 1] =
+            rand.nextInt((int) oldLength - 1);
+        return oldLength;
+    }
+
+    /**
+     * Set the indexTh block
+     * @param index - the index of the block to set
+     * @param b - the block is set to the value of the this block
+     */
+    private <T extends Block> void setBlock(final int index, final T b) {
+        int pos = index2BlockId(index);
+        blockList[pos] = b.getBlockId();
+        blockList[pos + 1] = b.getNumBytes();
+        blockList[pos + 2] = b.getGenerationStamp();
+        if(index < getNumberOfFinalizedReplicas())
+            return;
+        assert ((ReplicaInfo)b).getState() != ReplicaState.FINALIZED :
+        "Must be under-construction replica.";
+        blockList[pos + 3] = ((ReplicaInfo)b).getState().getValue();
+    }
+
+    /**
+     * Set the invalid delimiting block between the finalized and
+     * the under-construction lists.
+     * The invalid block has all three fields set to -1.
+     * @param finalizedSzie - the size of the finalized list
+     */
+    private void setDelimitingBlock(final int finalizedSzie) {
+        int idx = HEADER_SIZE + finalizedSzie * LONGS_PER_FINALIZED_BLOCK;
+        blockList[idx] = -1;
+        blockList[idx+1] = -1;
+        blockList[idx+2] = -1;
+    }
+
+    public long getMaxGsInBlockList() {
+        long maxGs = -1;
+        Iterator<Block> iter = getBlockReportIterator();
+        while (iter.hasNext()) {
+            Block b = iter.next();
+            if (b.getGenerationStamp() > maxGs) {
+                maxGs = b.getGenerationStamp();
+            }
+        }
+        return maxGs;
+    }
 }

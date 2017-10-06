@@ -22,22 +22,22 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ResourceLocalizedEvent extends ResourceEvent {
 
-  private final long size;
-  private final Path location;
+    private final long size;
+    private final Path location;
 
-  public ResourceLocalizedEvent(LocalResourceRequest rsrc, Path location,
-      long size) {
-    super(rsrc, ResourceEventType.LOCALIZED);
-    this.size = size;
-    this.location = location;
-  }
+    public ResourceLocalizedEvent(LocalResourceRequest rsrc, Path location,
+                                  long size) {
+        super(rsrc, ResourceEventType.LOCALIZED);
+        this.size = size;
+        this.location = location;
+    }
 
-  public Path getLocation() {
-    return location;
-  }
+    public Path getLocation() {
+        return location;
+    }
 
-  public long getSize() {
-    return size;
-  }
+    public long getSize() {
+        return size;
+    }
 
 }

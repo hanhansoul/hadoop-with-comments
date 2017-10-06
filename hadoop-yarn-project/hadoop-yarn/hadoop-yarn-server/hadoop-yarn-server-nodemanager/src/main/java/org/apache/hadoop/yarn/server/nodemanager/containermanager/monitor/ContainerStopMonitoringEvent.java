@@ -22,8 +22,8 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 
 public class ContainerStopMonitoringEvent extends ContainersMonitorEvent {
 
-  public ContainerStopMonitoringEvent(ContainerId containerId) {
-    super(containerId, ContainersMonitorEventType.STOP_MONITORING_CONTAINER);
-  }
+    public ContainerStopMonitoringEvent(ContainerId containerId) {
+        super(containerId, ContainersMonitorEventType.STOP_MONITORING_CONTAINER);
+    }
 
 }

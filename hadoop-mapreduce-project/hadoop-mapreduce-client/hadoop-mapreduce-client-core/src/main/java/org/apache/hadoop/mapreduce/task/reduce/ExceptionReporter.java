@@ -26,5 +26,5 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.LimitedPrivate({"MapReduce"})
 @InterfaceStability.Unstable
 public interface ExceptionReporter {
-  void reportException(Throwable t);
+    void reportException(Throwable t);
 }

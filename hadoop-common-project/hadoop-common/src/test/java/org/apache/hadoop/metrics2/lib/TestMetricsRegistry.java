@@ -32,63 +32,68 @@ import static org.apache.hadoop.test.MetricsAsserts.*;
  */
 public class TestMetricsRegistry {
 
-  /**
-   * Test various factory methods
-   */
-  @Test public void testNewMetrics() {
-    final MetricsRegistry r = new MetricsRegistry("test");
-    r.newCounter("c1", "c1 desc", 1);
-    r.newCounter("c2", "c2 desc", 2L);
-    r.newGauge("g1", "g1 desc", 3);
-    r.newGauge("g2", "g2 desc", 4L);
-    r.newStat("s1", "s1 desc", "ops", "time");
+    /**
+     * Test various factory methods
+     */
+    @Test public void testNewMetrics() {
+        final MetricsRegistry r = new MetricsRegistry("test");
+        r.newCounter("c1", "c1 desc", 1);
+        r.newCounter("c2", "c2 desc", 2L);
+        r.newGauge("g1", "g1 desc", 3);
+        r.newGauge("g2", "g2 desc", 4L);
+        r.newStat("s1", "s1 desc", "ops", "time");
 
-    assertEquals("num metrics in registry", 5, r.metrics().size());
-    assertTrue("c1 found", r.get("c1") instanceof MutableCounterInt);
-    assertTrue("c2 found", r.get("c2") instanceof MutableCounterLong);
-    assertTrue("g1 found", r.get("g1") instanceof MutableGaugeInt);
-    assertTrue("g2 found", r.get("g2") instanceof MutableGaugeLong);
-    assertTrue("s1 found", r.get("s1") instanceof MutableStat);
+        assertEquals("num metrics in registry", 5, r.metrics().size());
+        assertTrue("c1 found", r.get("c1") instanceof MutableCounterInt);
+        assertTrue("c2 found", r.get("c2") instanceof MutableCounterLong);
+        assertTrue("g1 found", r.get("g1") instanceof MutableGaugeInt);
+        assertTrue("g2 found", r.get("g2") instanceof MutableGaugeLong);
+        assertTrue("s1 found", r.get("s1") instanceof MutableStat);
 
-    expectMetricsException("Metric name c1 already exists", new Runnable() {
-      @Override
-      public void run() { r.newCounter("c1", "test dup", 0); }
-    });
-  }
-
-  /**
-   * Test the add by name method
-   */
-  @Test public void testAddByName() {
-    MetricsRecordBuilder rb = mockMetricsRecordBuilder();
-    final MetricsRegistry r = new MetricsRegistry("test");
-    r.add("s1", 42);
-    r.get("s1").snapshot(rb);
-    verify(rb).addCounter(info("S1NumOps", "Number of ops for s1"), 1L);
-    verify(rb).addGauge(info("S1AvgTime", "Average time for s1"), 42.0);
-
-    r.newCounter("c1", "test add", 1);
-    r.newGauge("g1", "test add", 1);
-
-    expectMetricsException("Unsupported add", new Runnable() {
-      @Override
-      public void run() { r.add("c1", 42); }
-    });
-
-    expectMetricsException("Unsupported add", new Runnable() {
-      @Override
-      public void run() { r.add("g1", 42); }
-    });
-  }
-
-  private void expectMetricsException(String prefix, Runnable fun) {
-    try {
-      fun.run();
+        expectMetricsException("Metric name c1 already exists", new Runnable() {
+            @Override
+            public void run() {
+                r.newCounter("c1", "test dup", 0);
+            }
+        });
     }
-    catch (MetricsException e) {
-      assertTrue("expected exception", e.getMessage().startsWith(prefix));
-      return;
+
+    /**
+     * Test the add by name method
+     */
+    @Test public void testAddByName() {
+        MetricsRecordBuilder rb = mockMetricsRecordBuilder();
+        final MetricsRegistry r = new MetricsRegistry("test");
+        r.add("s1", 42);
+        r.get("s1").snapshot(rb);
+        verify(rb).addCounter(info("S1NumOps", "Number of ops for s1"), 1L);
+        verify(rb).addGauge(info("S1AvgTime", "Average time for s1"), 42.0);
+
+        r.newCounter("c1", "test add", 1);
+        r.newGauge("g1", "test add", 1);
+
+        expectMetricsException("Unsupported add", new Runnable() {
+            @Override
+            public void run() {
+                r.add("c1", 42);
+            }
+        });
+
+        expectMetricsException("Unsupported add", new Runnable() {
+            @Override
+            public void run() {
+                r.add("g1", 42);
+            }
+        });
     }
-    fail("should've thrown '"+ prefix +"...'");
-  }
+
+    private void expectMetricsException(String prefix, Runnable fun) {
+        try {
+            fun.run();
+        } catch (MetricsException e) {
+            assertTrue("expected exception", e.getMessage().startsWith(prefix));
+            return;
+        }
+        fail("should've thrown '"+ prefix +"...'");
+    }
 }

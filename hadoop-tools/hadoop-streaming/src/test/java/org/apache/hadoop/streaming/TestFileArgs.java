@@ -36,82 +36,80 @@ import org.junit.Before;
  * This class tests that the '-file' argument to streaming results
  * in files being unpacked in the job working directory.
  */
-public class TestFileArgs extends TestStreaming
-{
-  private MiniDFSCluster dfs = null;
-  private MiniMRCluster mr = null;
-  private FileSystem fileSys = null;
-  private String namenode = null;
-  private Configuration conf = null;
+public class TestFileArgs extends TestStreaming {
+    private MiniDFSCluster dfs = null;
+    private MiniMRCluster mr = null;
+    private FileSystem fileSys = null;
+    private String namenode = null;
+    private Configuration conf = null;
 
-  private static final String EXPECTED_OUTPUT =
-    "job.jar\t\nsidefile\t\n";
+    private static final String EXPECTED_OUTPUT =
+        "job.jar\t\nsidefile\t\n";
 
-  private static final String LS_PATH = Shell.WINDOWS ? "cmd /c dir /B" :
-    "/bin/ls";
+    private static final String LS_PATH = Shell.WINDOWS ? "cmd /c dir /B" :
+                                          "/bin/ls";
 
-  public TestFileArgs() throws IOException
-  {
-    // Set up mini cluster
-    conf = new Configuration();
-    dfs = new MiniDFSCluster.Builder(conf).build();
-    fileSys = dfs.getFileSystem();
-    namenode = fileSys.getUri().getAuthority();
-    mr  = new MiniMRCluster(1, namenode, 1);
+    public TestFileArgs() throws IOException {
+        // Set up mini cluster
+        conf = new Configuration();
+        dfs = new MiniDFSCluster.Builder(conf).build();
+        fileSys = dfs.getFileSystem();
+        namenode = fileSys.getUri().getAuthority();
+        mr  = new MiniMRCluster(1, namenode, 1);
 
-    map = LS_PATH;
-    FileSystem.setDefaultUri(conf, "hdfs://" + namenode);
-    setTestDir(new File("/tmp/TestFileArgs"));
-  }
-
-  @Before
-  @Override
-  public void setUp() throws IOException {
-    // Set up side file
-    FileSystem localFs = FileSystem.getLocal(conf);
-    DataOutputStream dos = localFs.create(new Path("target/sidefile"));
-    dos.write("hello world\n".getBytes("UTF-8"));
-    dos.close();
-
-    // Since ls doesn't read stdin, we don't want to write anything
-    // to it, or else we risk Broken Pipe exceptions.
-    input = "";
-  }
-
-  @After
-  @Override
-  public void tearDown() {
-    if (mr != null) {
-      mr.shutdown();
+        map = LS_PATH;
+        FileSystem.setDefaultUri(conf, "hdfs://" + namenode);
+        setTestDir(new File("/tmp/TestFileArgs"));
     }
-    if (dfs != null) {
-      dfs.shutdown();
+
+    @Before
+    @Override
+    public void setUp() throws IOException {
+        // Set up side file
+        FileSystem localFs = FileSystem.getLocal(conf);
+        DataOutputStream dos = localFs.create(new Path("target/sidefile"));
+        dos.write("hello world\n".getBytes("UTF-8"));
+        dos.close();
+
+        // Since ls doesn't read stdin, we don't want to write anything
+        // to it, or else we risk Broken Pipe exceptions.
+        input = "";
     }
-  }
 
-  @Override
-  protected String getExpectedOutput() {
-    return EXPECTED_OUTPUT;
-  }
-
-  @Override
-  protected Configuration getConf() {
-    return conf;
-  }
-
-  @Override
-  protected String[] genArgs() {
-    for (Map.Entry<String, String> entry : mr.createJobConf()) {
-      args.add("-jobconf");
-      args.add(entry.getKey() + "=" + entry.getValue());
+    @After
+    @Override
+    public void tearDown() {
+        if (mr != null) {
+            mr.shutdown();
+        }
+        if (dfs != null) {
+            dfs.shutdown();
+        }
     }
-    args.add("-file");
-    args.add(new java.io.File("target/sidefile").getAbsolutePath());
-    args.add("-numReduceTasks");
-    args.add("0");
-    args.add("-jobconf");
-    args.add("mapred.jar=" + STREAMING_JAR);
-    args.add("-verbose");
-    return super.genArgs();
-  }
+
+    @Override
+    protected String getExpectedOutput() {
+        return EXPECTED_OUTPUT;
+    }
+
+    @Override
+    protected Configuration getConf() {
+        return conf;
+    }
+
+    @Override
+    protected String[] genArgs() {
+        for (Map.Entry<String, String> entry : mr.createJobConf()) {
+            args.add("-jobconf");
+            args.add(entry.getKey() + "=" + entry.getValue());
+        }
+        args.add("-file");
+        args.add(new java.io.File("target/sidefile").getAbsolutePath());
+        args.add("-numReduceTasks");
+        args.add("0");
+        args.add("-jobconf");
+        args.add("mapred.jar=" + STREAMING_JAR);
+        args.add("-verbose");
+        return super.genArgs();
+    }
 }

@@ -28,50 +28,50 @@ import static org.hamcrest.core.IsSame.*;
  */
 public class TestResourceCalculatorProcessTree {
 
-  public static class EmptyProcessTree extends ResourceCalculatorProcessTree {
+    public static class EmptyProcessTree extends ResourceCalculatorProcessTree {
 
-    public EmptyProcessTree(String pid) {
-      super(pid);
+        public EmptyProcessTree(String pid) {
+            super(pid);
+        }
+
+        public void updateProcessTree() {
+        }
+
+        public String getProcessTreeDump() {
+            return "Empty tree for testing";
+        }
+
+        public long getCumulativeRssmem(int age) {
+            return 0;
+        }
+
+        public long getCumulativeVmem(int age) {
+            return 0;
+        }
+
+        public long getCumulativeCpuTime() {
+            return 0;
+        }
+
+        public boolean checkPidPgrpidForMatch() {
+            return false;
+        }
     }
 
-    public void updateProcessTree() {
+    @Test
+    public void testCreateInstance() {
+        ResourceCalculatorProcessTree tree;
+        tree = ResourceCalculatorProcessTree.getResourceCalculatorProcessTree("1", EmptyProcessTree.class, new Configuration());
+        assertNotNull(tree);
+        assertThat(tree, instanceOf(EmptyProcessTree.class));
     }
 
-    public String getProcessTreeDump() {
-      return "Empty tree for testing";
+    @Test
+    public void testCreatedInstanceConfigured() {
+        ResourceCalculatorProcessTree tree;
+        Configuration conf = new Configuration();
+        tree = ResourceCalculatorProcessTree.getResourceCalculatorProcessTree("1", EmptyProcessTree.class, conf);
+        assertNotNull(tree);
+        assertThat(tree.getConf(), sameInstance(conf));
     }
-
-    public long getCumulativeRssmem(int age) {
-      return 0;
-    }
-
-    public long getCumulativeVmem(int age) {
-      return 0;
-    }
-
-    public long getCumulativeCpuTime() {
-      return 0;
-    }
-
-    public boolean checkPidPgrpidForMatch() {
-      return false;
-    }
-  }
-
-  @Test
-  public void testCreateInstance() {
-    ResourceCalculatorProcessTree tree;
-    tree = ResourceCalculatorProcessTree.getResourceCalculatorProcessTree("1", EmptyProcessTree.class, new Configuration());
-    assertNotNull(tree);
-    assertThat(tree, instanceOf(EmptyProcessTree.class));
-  }
-
-  @Test
-  public void testCreatedInstanceConfigured() {
-    ResourceCalculatorProcessTree tree;
-    Configuration conf = new Configuration();
-    tree = ResourceCalculatorProcessTree.getResourceCalculatorProcessTree("1", EmptyProcessTree.class, conf);
-    assertNotNull(tree);
-    assertThat(tree.getConf(), sameInstance(conf));
-  } 
 }

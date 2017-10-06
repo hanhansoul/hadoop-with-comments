@@ -23,27 +23,27 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 
 public class RMAppNodeUpdateEvent extends RMAppEvent {
 
-  public enum RMAppNodeUpdateType {
-    NODE_USABLE, 
-    NODE_UNUSABLE
-  }
+    public enum RMAppNodeUpdateType {
+        NODE_USABLE,
+        NODE_UNUSABLE
+    }
 
-  private final RMNode node;
-  private final RMAppNodeUpdateType updateType;
+    private final RMNode node;
+    private final RMAppNodeUpdateType updateType;
 
-  public RMAppNodeUpdateEvent(ApplicationId appId, RMNode node,
-      RMAppNodeUpdateType updateType) {
-    super(appId, RMAppEventType.NODE_UPDATE);
-    this.node = node;
-    this.updateType = updateType;
-  }
+    public RMAppNodeUpdateEvent(ApplicationId appId, RMNode node,
+                                RMAppNodeUpdateType updateType) {
+        super(appId, RMAppEventType.NODE_UPDATE);
+        this.node = node;
+        this.updateType = updateType;
+    }
 
-  public RMNode getNode() {
-    return node;
-  }
+    public RMNode getNode() {
+        return node;
+    }
 
-  public RMAppNodeUpdateType getUpdateType() {
-    return updateType;
-  }
+    public RMAppNodeUpdateType getUpdateType() {
+        return updateType;
+    }
 
 }

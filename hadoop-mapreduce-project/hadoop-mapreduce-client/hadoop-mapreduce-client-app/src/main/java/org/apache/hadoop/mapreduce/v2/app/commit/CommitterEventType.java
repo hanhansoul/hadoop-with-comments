@@ -19,8 +19,8 @@
 package org.apache.hadoop.mapreduce.v2.app.commit;
 
 public enum CommitterEventType {
-  JOB_SETUP,
-  JOB_COMMIT,
-  JOB_ABORT,
-  TASK_ABORT
+    JOB_SETUP,
+    JOB_COMMIT,
+    JOB_ABORT,
+    TASK_ABORT
 }

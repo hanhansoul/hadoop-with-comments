@@ -37,334 +37,334 @@ import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 import org.apache.hadoop.yarn.proto.YarnProtos.ContainerIdProto;
 
 
-    
+
 public class TaskAttemptReportPBImpl extends ProtoBase<TaskAttemptReportProto> implements TaskAttemptReport {
-  TaskAttemptReportProto proto = TaskAttemptReportProto.getDefaultInstance();
-  TaskAttemptReportProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private TaskAttemptId taskAttemptId = null;
-  private Counters counters = null;
-  private ContainerId containerId = null;
-  
-  
-  public TaskAttemptReportPBImpl() {
-    builder = TaskAttemptReportProto.newBuilder();
-  }
+    TaskAttemptReportProto proto = TaskAttemptReportProto.getDefaultInstance();
+    TaskAttemptReportProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public TaskAttemptReportPBImpl(TaskAttemptReportProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public TaskAttemptReportProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private TaskAttemptId taskAttemptId = null;
+    private Counters counters = null;
+    private ContainerId containerId = null;
 
-  private void mergeLocalToBuilder() {
-    if (this.taskAttemptId != null) {
-      builder.setTaskAttemptId(convertToProtoFormat(this.taskAttemptId));
+
+    public TaskAttemptReportPBImpl() {
+        builder = TaskAttemptReportProto.newBuilder();
     }
-    if (this.counters != null) {
-      builder.setCounters(convertToProtoFormat(this.counters));
+
+    public TaskAttemptReportPBImpl(TaskAttemptReportProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (this.containerId != null) {
-      builder.setContainerId(convertToProtoFormat(this.containerId));
+
+    public TaskAttemptReportProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = TaskAttemptReportProto.newBuilder(proto);
+    private void mergeLocalToBuilder() {
+        if (this.taskAttemptId != null) {
+            builder.setTaskAttemptId(convertToProtoFormat(this.taskAttemptId));
+        }
+        if (this.counters != null) {
+            builder.setCounters(convertToProtoFormat(this.counters));
+        }
+        if (this.containerId != null) {
+            builder.setContainerId(convertToProtoFormat(this.containerId));
+        }
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public Counters getCounters() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.counters != null) {
-      return this.counters;
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    if (!p.hasCounters()) {
-      return null;
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = TaskAttemptReportProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    this.counters = convertFromProtoFormat(p.getCounters());
-    return this.counters;
-  }
 
-  @Override
-  public void setCounters(Counters counters) {
-    maybeInitBuilder();
-    if (counters == null) 
-      builder.clearCounters();
-    this.counters = counters;
-  }
-  @Override
-  public long getStartTime() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getStartTime());
-  }
 
-  @Override
-  public void setStartTime(long startTime) {
-    maybeInitBuilder();
-    builder.setStartTime((startTime));
-  }
-  @Override
-  public long getFinishTime() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getFinishTime());
-  }
-
-  @Override
-  public void setFinishTime(long finishTime) {
-    maybeInitBuilder();
-    builder.setFinishTime((finishTime));
-  }
-  
-  @Override
-  public long getShuffleFinishTime() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getShuffleFinishTime());
-  }
-
-  @Override
-  public void setShuffleFinishTime(long time) {
-    maybeInitBuilder();
-    builder.setShuffleFinishTime(time);
-  }
-
-  @Override
-  public long getSortFinishTime() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getSortFinishTime());
-  }
-
-  @Override
-  public void setSortFinishTime(long time) {
-    maybeInitBuilder();
-    builder.setSortFinishTime(time);
-  }
-
-  @Override
-  public TaskAttemptId getTaskAttemptId() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.taskAttemptId != null) {
-      return this.taskAttemptId;
+    @Override
+    public Counters getCounters() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.counters != null) {
+            return this.counters;
+        }
+        if (!p.hasCounters()) {
+            return null;
+        }
+        this.counters = convertFromProtoFormat(p.getCounters());
+        return this.counters;
     }
-    if (!p.hasTaskAttemptId()) {
-      return null;
+
+    @Override
+    public void setCounters(Counters counters) {
+        maybeInitBuilder();
+        if (counters == null)
+            builder.clearCounters();
+        this.counters = counters;
     }
-    this.taskAttemptId = convertFromProtoFormat(p.getTaskAttemptId());
-    return this.taskAttemptId;
-  }
-
-  @Override
-  public void setTaskAttemptId(TaskAttemptId taskAttemptId) {
-    maybeInitBuilder();
-    if (taskAttemptId == null) 
-      builder.clearTaskAttemptId();
-    this.taskAttemptId = taskAttemptId;
-  }
-  @Override
-  public TaskAttemptState getTaskAttemptState() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasTaskAttemptState()) {
-      return null;
+    @Override
+    public long getStartTime() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getStartTime());
     }
-    return convertFromProtoFormat(p.getTaskAttemptState());
-  }
 
-  @Override
-  public void setTaskAttemptState(TaskAttemptState taskAttemptState) {
-    maybeInitBuilder();
-    if (taskAttemptState == null) {
-      builder.clearTaskAttemptState();
-      return;
+    @Override
+    public void setStartTime(long startTime) {
+        maybeInitBuilder();
+        builder.setStartTime((startTime));
     }
-    builder.setTaskAttemptState(convertToProtoFormat(taskAttemptState));
-  }
-  @Override
-  public float getProgress() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getProgress());
-  }
-
-  @Override
-  public void setProgress(float progress) {
-    maybeInitBuilder();
-    builder.setProgress((progress));
-  }
-  @Override
-  public String getDiagnosticInfo() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasDiagnosticInfo()) {
-      return null;
+    @Override
+    public long getFinishTime() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getFinishTime());
     }
-    return (p.getDiagnosticInfo());
-  }
 
-  @Override
-  public void setDiagnosticInfo(String diagnosticInfo) {
-    maybeInitBuilder();
-    if (diagnosticInfo == null) {
-      builder.clearDiagnosticInfo();
-      return;
+    @Override
+    public void setFinishTime(long finishTime) {
+        maybeInitBuilder();
+        builder.setFinishTime((finishTime));
     }
-    builder.setDiagnosticInfo((diagnosticInfo));
-  }
-  @Override
-  public String getStateString() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasStateString()) {
-      return null;
+
+    @Override
+    public long getShuffleFinishTime() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getShuffleFinishTime());
     }
-    return (p.getStateString());
-  }
 
-  @Override
-  public void setStateString(String stateString) {
-    maybeInitBuilder();
-    if (stateString == null) {
-      builder.clearStateString();
-      return;
+    @Override
+    public void setShuffleFinishTime(long time) {
+        maybeInitBuilder();
+        builder.setShuffleFinishTime(time);
     }
-    builder.setStateString((stateString));
-  }
-  @Override
-  public Phase getPhase() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasPhase()) {
-      return null;
+
+    @Override
+    public long getSortFinishTime() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getSortFinishTime());
     }
-    return convertFromProtoFormat(p.getPhase());
-  }
 
-  @Override
-  public void setPhase(Phase phase) {
-    maybeInitBuilder();
-    if (phase == null) {
-      builder.clearPhase();
-      return;
+    @Override
+    public void setSortFinishTime(long time) {
+        maybeInitBuilder();
+        builder.setSortFinishTime(time);
     }
-    builder.setPhase(convertToProtoFormat(phase));
-  }
-  
-  @Override
-  public String getNodeManagerHost() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasNodeManagerHost()) {
-      return null;
+
+    @Override
+    public TaskAttemptId getTaskAttemptId() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.taskAttemptId != null) {
+            return this.taskAttemptId;
+        }
+        if (!p.hasTaskAttemptId()) {
+            return null;
+        }
+        this.taskAttemptId = convertFromProtoFormat(p.getTaskAttemptId());
+        return this.taskAttemptId;
     }
-    return p.getNodeManagerHost();
-  }
-  
-  @Override
-  public void setNodeManagerHost(String nmHost) {
-    maybeInitBuilder();
-    if (nmHost == null) {
-      builder.clearNodeManagerHost();
-      return;
+
+    @Override
+    public void setTaskAttemptId(TaskAttemptId taskAttemptId) {
+        maybeInitBuilder();
+        if (taskAttemptId == null)
+            builder.clearTaskAttemptId();
+        this.taskAttemptId = taskAttemptId;
     }
-    builder.setNodeManagerHost(nmHost);
-  }
-  
-  @Override
-  public int getNodeManagerPort() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getNodeManagerPort());
-  }
-  
-  @Override
-  public void setNodeManagerPort(int nmPort) {
-    maybeInitBuilder();
-    builder.setNodeManagerPort(nmPort);
-  }
-  
-  @Override
-  public int getNodeManagerHttpPort() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getNodeManagerHttpPort());
-  }
-  
-  @Override
-  public void setNodeManagerHttpPort(int nmHttpPort) {
-    maybeInitBuilder();
-    builder.setNodeManagerHttpPort(nmHttpPort);
-  }
-  
-  @Override
-  public ContainerId getContainerId() {
-    TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
-    if (containerId != null) {
-      return containerId;
-    } // Else via proto
-    if (!p.hasContainerId()) {
-      return null;
+    @Override
+    public TaskAttemptState getTaskAttemptState() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasTaskAttemptState()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getTaskAttemptState());
     }
-    containerId = convertFromProtoFormat(p.getContainerId());
-    return containerId;
-  }
 
-  @Override
-  public void setContainerId(ContainerId containerId) {
-    maybeInitBuilder();
-    if (containerId == null) {
-      builder.clearContainerId();
+    @Override
+    public void setTaskAttemptState(TaskAttemptState taskAttemptState) {
+        maybeInitBuilder();
+        if (taskAttemptState == null) {
+            builder.clearTaskAttemptState();
+            return;
+        }
+        builder.setTaskAttemptState(convertToProtoFormat(taskAttemptState));
     }
-    this.containerId = containerId;
-  }
+    @Override
+    public float getProgress() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getProgress());
+    }
 
-  private ContainerIdProto convertToProtoFormat(ContainerId t) {
-    return ((ContainerIdPBImpl)t).getProto();
-  }
-  
-  private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
-    return new ContainerIdPBImpl(p);
-  }
-  
-  private CountersPBImpl convertFromProtoFormat(CountersProto p) {
-    return new CountersPBImpl(p);
-  }
+    @Override
+    public void setProgress(float progress) {
+        maybeInitBuilder();
+        builder.setProgress((progress));
+    }
+    @Override
+    public String getDiagnosticInfo() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasDiagnosticInfo()) {
+            return null;
+        }
+        return (p.getDiagnosticInfo());
+    }
 
-  private CountersProto convertToProtoFormat(Counters t) {
-    return ((CountersPBImpl)t).getProto();
-  }
+    @Override
+    public void setDiagnosticInfo(String diagnosticInfo) {
+        maybeInitBuilder();
+        if (diagnosticInfo == null) {
+            builder.clearDiagnosticInfo();
+            return;
+        }
+        builder.setDiagnosticInfo((diagnosticInfo));
+    }
+    @Override
+    public String getStateString() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasStateString()) {
+            return null;
+        }
+        return (p.getStateString());
+    }
 
-  private TaskAttemptIdPBImpl convertFromProtoFormat(TaskAttemptIdProto p) {
-    return new TaskAttemptIdPBImpl(p);
-  }
+    @Override
+    public void setStateString(String stateString) {
+        maybeInitBuilder();
+        if (stateString == null) {
+            builder.clearStateString();
+            return;
+        }
+        builder.setStateString((stateString));
+    }
+    @Override
+    public Phase getPhase() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasPhase()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getPhase());
+    }
 
-  private TaskAttemptIdProto convertToProtoFormat(TaskAttemptId t) {
-    return ((TaskAttemptIdPBImpl)t).getProto();
-  }
+    @Override
+    public void setPhase(Phase phase) {
+        maybeInitBuilder();
+        if (phase == null) {
+            builder.clearPhase();
+            return;
+        }
+        builder.setPhase(convertToProtoFormat(phase));
+    }
 
-  private TaskAttemptStateProto convertToProtoFormat(TaskAttemptState e) {
-    return MRProtoUtils.convertToProtoFormat(e);
-  }
+    @Override
+    public String getNodeManagerHost() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasNodeManagerHost()) {
+            return null;
+        }
+        return p.getNodeManagerHost();
+    }
 
-  private TaskAttemptState convertFromProtoFormat(TaskAttemptStateProto e) {
-    return MRProtoUtils.convertFromProtoFormat(e);
-  }
+    @Override
+    public void setNodeManagerHost(String nmHost) {
+        maybeInitBuilder();
+        if (nmHost == null) {
+            builder.clearNodeManagerHost();
+            return;
+        }
+        builder.setNodeManagerHost(nmHost);
+    }
 
-  private PhaseProto convertToProtoFormat(Phase e) {
-    return MRProtoUtils.convertToProtoFormat(e);
-  }
+    @Override
+    public int getNodeManagerPort() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getNodeManagerPort());
+    }
 
-  private Phase convertFromProtoFormat(PhaseProto e) {
-    return MRProtoUtils.convertFromProtoFormat(e);
-  }
-}  
+    @Override
+    public void setNodeManagerPort(int nmPort) {
+        maybeInitBuilder();
+        builder.setNodeManagerPort(nmPort);
+    }
+
+    @Override
+    public int getNodeManagerHttpPort() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getNodeManagerHttpPort());
+    }
+
+    @Override
+    public void setNodeManagerHttpPort(int nmHttpPort) {
+        maybeInitBuilder();
+        builder.setNodeManagerHttpPort(nmHttpPort);
+    }
+
+    @Override
+    public ContainerId getContainerId() {
+        TaskAttemptReportProtoOrBuilder p = viaProto ? proto : builder;
+        if (containerId != null) {
+            return containerId;
+        } // Else via proto
+        if (!p.hasContainerId()) {
+            return null;
+        }
+        containerId = convertFromProtoFormat(p.getContainerId());
+        return containerId;
+    }
+
+    @Override
+    public void setContainerId(ContainerId containerId) {
+        maybeInitBuilder();
+        if (containerId == null) {
+            builder.clearContainerId();
+        }
+        this.containerId = containerId;
+    }
+
+    private ContainerIdProto convertToProtoFormat(ContainerId t) {
+        return ((ContainerIdPBImpl)t).getProto();
+    }
+
+    private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
+        return new ContainerIdPBImpl(p);
+    }
+
+    private CountersPBImpl convertFromProtoFormat(CountersProto p) {
+        return new CountersPBImpl(p);
+    }
+
+    private CountersProto convertToProtoFormat(Counters t) {
+        return ((CountersPBImpl)t).getProto();
+    }
+
+    private TaskAttemptIdPBImpl convertFromProtoFormat(TaskAttemptIdProto p) {
+        return new TaskAttemptIdPBImpl(p);
+    }
+
+    private TaskAttemptIdProto convertToProtoFormat(TaskAttemptId t) {
+        return ((TaskAttemptIdPBImpl)t).getProto();
+    }
+
+    private TaskAttemptStateProto convertToProtoFormat(TaskAttemptState e) {
+        return MRProtoUtils.convertToProtoFormat(e);
+    }
+
+    private TaskAttemptState convertFromProtoFormat(TaskAttemptStateProto e) {
+        return MRProtoUtils.convertFromProtoFormat(e);
+    }
+
+    private PhaseProto convertToProtoFormat(Phase e) {
+        return MRProtoUtils.convertToProtoFormat(e);
+    }
+
+    private Phase convertFromProtoFormat(PhaseProto e) {
+        return MRProtoUtils.convertFromProtoFormat(e);
+    }
+}

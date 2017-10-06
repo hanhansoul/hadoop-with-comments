@@ -44,117 +44,117 @@ import org.junit.Test;
 import com.google.common.base.Supplier;
 
 public class TestEditLogTailer {
-  
-  private static final String DIR_PREFIX = "/dir";
-  private static final int DIRS_TO_MAKE = 20;
-  static final long SLEEP_TIME = 1000;
-  static final long NN_LAG_TIMEOUT = 10 * 1000;
-  
-  static {
-    ((Log4JLogger)FSImage.LOG).getLogger().setLevel(Level.ALL);
-    ((Log4JLogger)EditLogTailer.LOG).getLogger().setLevel(Level.ALL);
-  }
-  
-  @Test
-  public void testTailer() throws IOException, InterruptedException,
-      ServiceFailedException {
-    Configuration conf = new HdfsConfiguration();
-    conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
 
-    HAUtil.setAllowStandbyReads(conf, true);
-    
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
-      .nnTopology(MiniDFSNNTopology.simpleHATopology())
-      .numDataNodes(0)
-      .build();
-    cluster.waitActive();
-    
-    cluster.transitionToActive(0);
-    
-    NameNode nn1 = cluster.getNameNode(0);
-    NameNode nn2 = cluster.getNameNode(1);
-    try {
-      for (int i = 0; i < DIRS_TO_MAKE / 2; i++) {
-        NameNodeAdapter.mkdirs(nn1, getDirPath(i),
-            new PermissionStatus("test","test", new FsPermission((short)00755)),
-            true);
-      }
-      
-      HATestUtil.waitForStandbyToCatchUp(nn1, nn2);
-      
-      for (int i = 0; i < DIRS_TO_MAKE / 2; i++) {
-        assertTrue(NameNodeAdapter.getFileInfo(nn2,
-            getDirPath(i), false).isDir());
-      }
-      
-      for (int i = DIRS_TO_MAKE / 2; i < DIRS_TO_MAKE; i++) {
-        NameNodeAdapter.mkdirs(nn1, getDirPath(i),
-            new PermissionStatus("test","test", new FsPermission((short)00755)),
-            true);
-      }
-      
-      HATestUtil.waitForStandbyToCatchUp(nn1, nn2);
-      
-      for (int i = DIRS_TO_MAKE / 2; i < DIRS_TO_MAKE; i++) {
-        assertTrue(NameNodeAdapter.getFileInfo(nn2,
-            getDirPath(i), false).isDir());
-      }
-    } finally {
-      cluster.shutdown();
-    }
-  }
-  
-  @Test
-  public void testNN0TriggersLogRolls() throws Exception {
-    testStandbyTriggersLogRolls(0);
-  }
-  
-  @Test
-  public void testNN1TriggersLogRolls() throws Exception {
-    testStandbyTriggersLogRolls(1);
-  }
-  
-  private static void testStandbyTriggersLogRolls(int activeIndex)
-      throws Exception {
-    Configuration conf = new Configuration();
-    // Roll every 1s
-    conf.setInt(DFSConfigKeys.DFS_HA_LOGROLL_PERIOD_KEY, 1);
-    conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
-    
-    // Have to specify IPC ports so the NNs can talk to each other.
-    MiniDFSNNTopology topology = new MiniDFSNNTopology()
-      .addNameservice(new MiniDFSNNTopology.NSConf("ns1")
-        .addNN(new MiniDFSNNTopology.NNConf("nn1").setIpcPort(10031))
-        .addNN(new MiniDFSNNTopology.NNConf("nn2").setIpcPort(10032)));
+    private static final String DIR_PREFIX = "/dir";
+    private static final int DIRS_TO_MAKE = 20;
+    static final long SLEEP_TIME = 1000;
+    static final long NN_LAG_TIMEOUT = 10 * 1000;
 
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
-      .nnTopology(topology)
-      .numDataNodes(0)
-      .build();
-    try {
-      cluster.transitionToActive(activeIndex);
-      waitForLogRollInSharedDir(cluster, 3);
-    } finally {
-      cluster.shutdown();
+    static {
+        ((Log4JLogger)FSImage.LOG).getLogger().setLevel(Level.ALL);
+        ((Log4JLogger)EditLogTailer.LOG).getLogger().setLevel(Level.ALL);
     }
-  }
-  
-  private static String getDirPath(int suffix) {
-    return DIR_PREFIX + suffix;
-  }
-  
-  private static void waitForLogRollInSharedDir(MiniDFSCluster cluster,
-      long startTxId) throws Exception {
-    URI sharedUri = cluster.getSharedEditsDir(0, 1);
-    File sharedDir = new File(sharedUri.getPath(), "current");
-    final File expectedLog = new File(sharedDir,
-        NNStorage.getInProgressEditsFileName(startTxId));
-    
-    GenericTestUtils.waitFor(new Supplier<Boolean>() {
-      @Override
-      public Boolean get() {
-        return expectedLog.exists();
-      }
-    }, 100, 10000);
-  }
+
+    @Test
+    public void testTailer() throws IOException, InterruptedException,
+        ServiceFailedException {
+        Configuration conf = new HdfsConfiguration();
+        conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
+
+        HAUtil.setAllowStandbyReads(conf, true);
+
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+        .nnTopology(MiniDFSNNTopology.simpleHATopology())
+        .numDataNodes(0)
+        .build();
+        cluster.waitActive();
+
+        cluster.transitionToActive(0);
+
+        NameNode nn1 = cluster.getNameNode(0);
+        NameNode nn2 = cluster.getNameNode(1);
+        try {
+            for (int i = 0; i < DIRS_TO_MAKE / 2; i++) {
+                NameNodeAdapter.mkdirs(nn1, getDirPath(i),
+                                       new PermissionStatus("test","test", new FsPermission((short)00755)),
+                                       true);
+            }
+
+            HATestUtil.waitForStandbyToCatchUp(nn1, nn2);
+
+            for (int i = 0; i < DIRS_TO_MAKE / 2; i++) {
+                assertTrue(NameNodeAdapter.getFileInfo(nn2,
+                                                       getDirPath(i), false).isDir());
+            }
+
+            for (int i = DIRS_TO_MAKE / 2; i < DIRS_TO_MAKE; i++) {
+                NameNodeAdapter.mkdirs(nn1, getDirPath(i),
+                                       new PermissionStatus("test","test", new FsPermission((short)00755)),
+                                       true);
+            }
+
+            HATestUtil.waitForStandbyToCatchUp(nn1, nn2);
+
+            for (int i = DIRS_TO_MAKE / 2; i < DIRS_TO_MAKE; i++) {
+                assertTrue(NameNodeAdapter.getFileInfo(nn2,
+                                                       getDirPath(i), false).isDir());
+            }
+        } finally {
+            cluster.shutdown();
+        }
+    }
+
+    @Test
+    public void testNN0TriggersLogRolls() throws Exception {
+        testStandbyTriggersLogRolls(0);
+    }
+
+    @Test
+    public void testNN1TriggersLogRolls() throws Exception {
+        testStandbyTriggersLogRolls(1);
+    }
+
+    private static void testStandbyTriggersLogRolls(int activeIndex)
+    throws Exception {
+        Configuration conf = new Configuration();
+        // Roll every 1s
+        conf.setInt(DFSConfigKeys.DFS_HA_LOGROLL_PERIOD_KEY, 1);
+        conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
+
+        // Have to specify IPC ports so the NNs can talk to each other.
+        MiniDFSNNTopology topology = new MiniDFSNNTopology()
+        .addNameservice(new MiniDFSNNTopology.NSConf("ns1")
+                        .addNN(new MiniDFSNNTopology.NNConf("nn1").setIpcPort(10031))
+                        .addNN(new MiniDFSNNTopology.NNConf("nn2").setIpcPort(10032)));
+
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+        .nnTopology(topology)
+        .numDataNodes(0)
+        .build();
+        try {
+            cluster.transitionToActive(activeIndex);
+            waitForLogRollInSharedDir(cluster, 3);
+        } finally {
+            cluster.shutdown();
+        }
+    }
+
+    private static String getDirPath(int suffix) {
+        return DIR_PREFIX + suffix;
+    }
+
+    private static void waitForLogRollInSharedDir(MiniDFSCluster cluster,
+            long startTxId) throws Exception {
+        URI sharedUri = cluster.getSharedEditsDir(0, 1);
+        File sharedDir = new File(sharedUri.getPath(), "current");
+        final File expectedLog = new File(sharedDir,
+                                          NNStorage.getInProgressEditsFileName(startTxId));
+
+        GenericTestUtils.waitFor(new Supplier<Boolean>() {
+            @Override
+            public Boolean get() {
+                return expectedLog.exists();
+            }
+        }, 100, 10000);
+    }
 }

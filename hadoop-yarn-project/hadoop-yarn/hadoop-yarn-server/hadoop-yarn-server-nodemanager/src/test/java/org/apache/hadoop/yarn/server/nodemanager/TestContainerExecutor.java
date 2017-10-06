@@ -27,46 +27,46 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestContainerExecutor {
-  
-  private ContainerExecutor containerExecutor = new DefaultContainerExecutor();
 
-  @Test (timeout = 5000)
-  public void testRunCommandNoPriority() throws Exception {
-    Configuration conf = new Configuration();
-    String[] command = containerExecutor.getRunCommand("echo", "group1", "user", null, conf);
-    assertTrue("first command should be the run command for the platform", 
-               command[0].equals(Shell.WINUTILS) || command[0].equals("bash"));  
-  }
+    private ContainerExecutor containerExecutor = new DefaultContainerExecutor();
 
-  @Test (timeout = 5000)
-  public void testRunCommandwithPriority() throws Exception {
-    Configuration conf = new Configuration();
-    conf.setInt(YarnConfiguration.NM_CONTAINER_EXECUTOR_SCHED_PRIORITY, 2);
-    String[] command = containerExecutor.getRunCommand("echo", "group1", "user", null, conf);
-    if (Shell.WINDOWS) {
-      // windows doesn't currently support
-      assertEquals("first command should be the run command for the platform", 
-               Shell.WINUTILS, command[0]); 
-    } else {
-      assertEquals("first command should be nice", "nice", command[0]); 
-      assertEquals("second command should be -n", "-n", command[1]); 
-      assertEquals("third command should be the priority", Integer.toString(2),
-                   command[2]); 
+    @Test (timeout = 5000)
+    public void testRunCommandNoPriority() throws Exception {
+        Configuration conf = new Configuration();
+        String[] command = containerExecutor.getRunCommand("echo", "group1", "user", null, conf);
+        assertTrue("first command should be the run command for the platform",
+                   command[0].equals(Shell.WINUTILS) || command[0].equals("bash"));
     }
 
-    // test with negative number
-    conf.setInt(YarnConfiguration.NM_CONTAINER_EXECUTOR_SCHED_PRIORITY, -5);
-    command = containerExecutor.getRunCommand("echo", "group1", "user", null, conf);
-    if (Shell.WINDOWS) {
-      // windows doesn't currently support
-      assertEquals("first command should be the run command for the platform", 
-               Shell.WINUTILS, command[0]); 
-    } else {
-      assertEquals("first command should be nice", "nice", command[0]); 
-      assertEquals("second command should be -n", "-n", command[1]); 
-      assertEquals("third command should be the priority", Integer.toString(-5),
-                    command[2]); 
+    @Test (timeout = 5000)
+    public void testRunCommandwithPriority() throws Exception {
+        Configuration conf = new Configuration();
+        conf.setInt(YarnConfiguration.NM_CONTAINER_EXECUTOR_SCHED_PRIORITY, 2);
+        String[] command = containerExecutor.getRunCommand("echo", "group1", "user", null, conf);
+        if (Shell.WINDOWS) {
+            // windows doesn't currently support
+            assertEquals("first command should be the run command for the platform",
+                         Shell.WINUTILS, command[0]);
+        } else {
+            assertEquals("first command should be nice", "nice", command[0]);
+            assertEquals("second command should be -n", "-n", command[1]);
+            assertEquals("third command should be the priority", Integer.toString(2),
+                         command[2]);
+        }
+
+        // test with negative number
+        conf.setInt(YarnConfiguration.NM_CONTAINER_EXECUTOR_SCHED_PRIORITY, -5);
+        command = containerExecutor.getRunCommand("echo", "group1", "user", null, conf);
+        if (Shell.WINDOWS) {
+            // windows doesn't currently support
+            assertEquals("first command should be the run command for the platform",
+                         Shell.WINUTILS, command[0]);
+        } else {
+            assertEquals("first command should be nice", "nice", command[0]);
+            assertEquals("second command should be -n", "-n", command[1]);
+            assertEquals("third command should be the priority", Integer.toString(-5),
+                         command[2]);
+        }
     }
-  }
 
 }

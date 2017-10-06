@@ -27,26 +27,26 @@ import org.apache.hadoop.http.FilterInitializer;
 
 public class CrossOriginFilterInitializer extends FilterInitializer {
 
-  public static final String PREFIX =
-      "yarn.timeline-service.http-cross-origin.";
+    public static final String PREFIX =
+        "yarn.timeline-service.http-cross-origin.";
 
-  @Override
-  public void initFilter(FilterContainer container, Configuration conf) {
+    @Override
+    public void initFilter(FilterContainer container, Configuration conf) {
 
-    container.addGlobalFilter("Cross Origin Filter",
-        CrossOriginFilter.class.getName(), getFilterParameters(conf));
-  }
-
-  static Map<String, String> getFilterParameters(Configuration conf) {
-    Map<String, String> filterParams =
-        new HashMap<String, String>();
-    for (Map.Entry<String, String> entry : conf.getValByRegex(PREFIX)
-        .entrySet()) {
-      String name = entry.getKey();
-      String value = entry.getValue();
-      name = name.substring(PREFIX.length());
-      filterParams.put(name, value);
+        container.addGlobalFilter("Cross Origin Filter",
+                                  CrossOriginFilter.class.getName(), getFilterParameters(conf));
     }
-    return filterParams;
-  }
+
+    static Map<String, String> getFilterParameters(Configuration conf) {
+        Map<String, String> filterParams =
+            new HashMap<String, String>();
+        for (Map.Entry<String, String> entry : conf.getValByRegex(PREFIX)
+             .entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
+            name = name.substring(PREFIX.length());
+            filterParams.put(name, value);
+        }
+        return filterParams;
+    }
 }

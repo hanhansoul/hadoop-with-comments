@@ -33,26 +33,26 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NMContainerStatus;
 
 public interface Container extends EventHandler<ContainerEvent> {
 
-  ContainerId getContainerId();
+    ContainerId getContainerId();
 
-  Resource getResource();
+    Resource getResource();
 
-  ContainerTokenIdentifier getContainerTokenIdentifier();
+    ContainerTokenIdentifier getContainerTokenIdentifier();
 
-  String getUser();
-  
-  ContainerState getContainerState();
+    String getUser();
 
-  ContainerLaunchContext getLaunchContext();
+    ContainerState getContainerState();
 
-  Credentials getCredentials();
+    ContainerLaunchContext getLaunchContext();
 
-  Map<Path,List<String>> getLocalizedResources();
+    Credentials getCredentials();
 
-  ContainerStatus cloneAndGetContainerStatus();
+    Map<Path,List<String>> getLocalizedResources();
 
-  NMContainerStatus getNMContainerStatus();
+    ContainerStatus cloneAndGetContainerStatus();
 
-  String toString();
+    NMContainerStatus getNMContainerStatus();
+
+    String toString();
 
 }

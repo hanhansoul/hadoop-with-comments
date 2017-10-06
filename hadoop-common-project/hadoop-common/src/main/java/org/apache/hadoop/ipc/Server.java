@@ -2093,10 +2093,10 @@ public abstract class Server {
                         // responder.doResponse() since setupResponse may use
                         // SASL to encrypt response data and SASL enforces
                         // its own message ordering.
-						
-						// ByteArrayOutputStream buf = new ByteArrayOutputStream(INITIAL_RESP_BUF_SIZE);
-						// final Call call = callQueue.take();
-						// Writable value = call(...)
+
+                        // ByteArrayOutputStream buf = new ByteArrayOutputStream(INITIAL_RESP_BUF_SIZE);
+                        // final Call call = callQueue.take();
+                        // Writable value = call(...)
                         setupResponse(buf, call, returnStatus, detailedErr,
                                       value, errorClass, error);
 
@@ -2325,7 +2325,7 @@ public abstract class Server {
                     ProtobufRpcEngine.RpcWrapper resWrapper =
                         (ProtobufRpcEngine.RpcWrapper) rv;
                     fullLength += resWrapper.getLength();
-					// 获取数据长度后序列化
+                    // 获取数据长度后序列化
                     out.writeInt(fullLength);
                     header.writeDelimitedTo(out);
                     rv.write(out);
@@ -2334,7 +2334,7 @@ public abstract class Server {
                     rv.write(buf);
                     byte[] data = buf.getData();
                     fullLength += buf.getLength();
-					// 获取数据长度后序列化
+                    // 获取数据长度后序列化
                     out.writeInt(fullLength);
                     header.writeDelimitedTo(out);
                     out.write(data, 0, buf.getLength());

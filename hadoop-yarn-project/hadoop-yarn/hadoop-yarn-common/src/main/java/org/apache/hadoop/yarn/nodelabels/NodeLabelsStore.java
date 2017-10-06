@@ -28,42 +28,42 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.yarn.api.records.NodeId;
 
 public abstract class NodeLabelsStore implements Closeable {
-  protected final CommonNodeLabelsManager mgr;
-  protected Configuration conf;
-  
-  public NodeLabelsStore(CommonNodeLabelsManager mgr) {
-    this.mgr = mgr;
-  }
-  
-  /**
-   * Store node -> label
-   */
-  public abstract void updateNodeToLabelsMappings(
-      Map<NodeId, Set<String>> nodeToLabels) throws IOException;
+    protected final CommonNodeLabelsManager mgr;
+    protected Configuration conf;
 
-  /**
-   * Store new labels
-   */
-  public abstract void storeNewClusterNodeLabels(Set<String> label)
-      throws IOException;
+    public NodeLabelsStore(CommonNodeLabelsManager mgr) {
+        this.mgr = mgr;
+    }
 
-  /**
-   * Remove labels
-   */
-  public abstract void removeClusterNodeLabels(Collection<String> labels)
-      throws IOException;
-  
-  /**
-   * Recover labels and node to labels mappings from store
-   * @param conf
-   */
-  public abstract void recover() throws IOException;
-  
-  public void init(Configuration conf) throws Exception {
-    this.conf = conf;
-  }
-  
-  public CommonNodeLabelsManager getNodeLabelsManager() {
-    return mgr;
-  }
+    /**
+     * Store node -> label
+     */
+    public abstract void updateNodeToLabelsMappings(
+        Map<NodeId, Set<String>> nodeToLabels) throws IOException;
+
+    /**
+     * Store new labels
+     */
+    public abstract void storeNewClusterNodeLabels(Set<String> label)
+    throws IOException;
+
+    /**
+     * Remove labels
+     */
+    public abstract void removeClusterNodeLabels(Collection<String> labels)
+    throws IOException;
+
+    /**
+     * Recover labels and node to labels mappings from store
+     * @param conf
+     */
+    public abstract void recover() throws IOException;
+
+    public void init(Configuration conf) throws Exception {
+        this.conf = conf;
+    }
+
+    public CommonNodeLabelsManager getNodeLabelsManager() {
+        return mgr;
+    }
 }

@@ -41,119 +41,119 @@ import java.util.Map;
 @InterfaceAudience.Private
 public abstract class ConfigurationUtils {
 
-  /**
-   * Copy configuration key/value pairs from one configuration to another if a property exists in the target, it gets
-   * replaced.
-   *
-   * @param source source configuration.
-   * @param target target configuration.
-   */
-  public static void copy(Configuration source, Configuration target) {
-    Check.notNull(source, "source");
-    Check.notNull(target, "target");
-    for (Map.Entry<String, String> entry : source) {
-      target.set(entry.getKey(), entry.getValue());
-    }
-  }
-
-  /**
-   * Injects configuration key/value pairs from one configuration to another if the key does not exist in the target
-   * configuration.
-   *
-   * @param source source configuration.
-   * @param target target configuration.
-   */
-  public static void injectDefaults(Configuration source, Configuration target) {
-    Check.notNull(source, "source");
-    Check.notNull(target, "target");
-    for (Map.Entry<String, String> entry : source) {
-      if (target.get(entry.getKey()) == null) {
-        target.set(entry.getKey(), entry.getValue());
-      }
-    }
-  }
-
-  /**
-   * Returns a new ConfigurationUtils instance with all inline values resolved.
-   *
-   * @return a new ConfigurationUtils instance with all inline values resolved.
-   */
-  public static Configuration resolve(Configuration conf) {
-    Configuration resolved = new Configuration(false);
-    for (Map.Entry<String, String> entry : conf) {
-      resolved.set(entry.getKey(), conf.get(entry.getKey()));
-    }
-    return resolved;
-  }
-
-  // Canibalized from FileSystemAccess <code>Configuration.loadResource()</code>.
-
-  /**
-   * Create a configuration from an InputStream.
-   * <p/>
-   * ERROR canibalized from <code>Configuration.loadResource()</code>.
-   *
-   * @param is inputstream to read the configuration from.
-   *
-   * @throws IOException thrown if the configuration could not be read.
-   */
-  public static void load(Configuration conf, InputStream is) throws IOException {
-    try {
-      DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-      // ignore all comments inside the xml file
-      docBuilderFactory.setIgnoringComments(true);
-      DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
-      Document doc = builder.parse(is);
-      parseDocument(conf, doc);
-    } catch (SAXException e) {
-      throw new IOException(e);
-    } catch (ParserConfigurationException e) {
-      throw new IOException(e);
-    }
-  }
-
-  // Canibalized from FileSystemAccess <code>Configuration.loadResource()</code>.
-  private static void parseDocument(Configuration conf, Document doc) throws IOException {
-    try {
-      Element root = doc.getDocumentElement();
-      if (!"configuration".equals(root.getTagName())) {
-        throw new IOException("bad conf file: top-level element not <configuration>");
-      }
-      NodeList props = root.getChildNodes();
-      for (int i = 0; i < props.getLength(); i++) {
-        Node propNode = props.item(i);
-        if (!(propNode instanceof Element)) {
-          continue;
+    /**
+     * Copy configuration key/value pairs from one configuration to another if a property exists in the target, it gets
+     * replaced.
+     *
+     * @param source source configuration.
+     * @param target target configuration.
+     */
+    public static void copy(Configuration source, Configuration target) {
+        Check.notNull(source, "source");
+        Check.notNull(target, "target");
+        for (Map.Entry<String, String> entry : source) {
+            target.set(entry.getKey(), entry.getValue());
         }
-        Element prop = (Element) propNode;
-        if (!"property".equals(prop.getTagName())) {
-          throw new IOException("bad conf file: element not <property>");
-        }
-        NodeList fields = prop.getChildNodes();
-        String attr = null;
-        String value = null;
-        for (int j = 0; j < fields.getLength(); j++) {
-          Node fieldNode = fields.item(j);
-          if (!(fieldNode instanceof Element)) {
-            continue;
-          }
-          Element field = (Element) fieldNode;
-          if ("name".equals(field.getTagName()) && field.hasChildNodes()) {
-            attr = ((Text) field.getFirstChild()).getData().trim();
-          }
-          if ("value".equals(field.getTagName()) && field.hasChildNodes()) {
-            value = ((Text) field.getFirstChild()).getData();
-          }
-        }
-
-        if (attr != null && value != null) {
-          conf.set(attr, value);
-        }
-      }
-
-    } catch (DOMException e) {
-      throw new IOException(e);
     }
-  }
+
+    /**
+     * Injects configuration key/value pairs from one configuration to another if the key does not exist in the target
+     * configuration.
+     *
+     * @param source source configuration.
+     * @param target target configuration.
+     */
+    public static void injectDefaults(Configuration source, Configuration target) {
+        Check.notNull(source, "source");
+        Check.notNull(target, "target");
+        for (Map.Entry<String, String> entry : source) {
+            if (target.get(entry.getKey()) == null) {
+                target.set(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * Returns a new ConfigurationUtils instance with all inline values resolved.
+     *
+     * @return a new ConfigurationUtils instance with all inline values resolved.
+     */
+    public static Configuration resolve(Configuration conf) {
+        Configuration resolved = new Configuration(false);
+        for (Map.Entry<String, String> entry : conf) {
+            resolved.set(entry.getKey(), conf.get(entry.getKey()));
+        }
+        return resolved;
+    }
+
+    // Canibalized from FileSystemAccess <code>Configuration.loadResource()</code>.
+
+    /**
+     * Create a configuration from an InputStream.
+     * <p/>
+     * ERROR canibalized from <code>Configuration.loadResource()</code>.
+     *
+     * @param is inputstream to read the configuration from.
+     *
+     * @throws IOException thrown if the configuration could not be read.
+     */
+    public static void load(Configuration conf, InputStream is) throws IOException {
+        try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            // ignore all comments inside the xml file
+            docBuilderFactory.setIgnoringComments(true);
+            DocumentBuilder builder = docBuilderFactory.newDocumentBuilder();
+            Document doc = builder.parse(is);
+            parseDocument(conf, doc);
+        } catch (SAXException e) {
+            throw new IOException(e);
+        } catch (ParserConfigurationException e) {
+            throw new IOException(e);
+        }
+    }
+
+    // Canibalized from FileSystemAccess <code>Configuration.loadResource()</code>.
+    private static void parseDocument(Configuration conf, Document doc) throws IOException {
+        try {
+            Element root = doc.getDocumentElement();
+            if (!"configuration".equals(root.getTagName())) {
+                throw new IOException("bad conf file: top-level element not <configuration>");
+            }
+            NodeList props = root.getChildNodes();
+            for (int i = 0; i < props.getLength(); i++) {
+                Node propNode = props.item(i);
+                if (!(propNode instanceof Element)) {
+                    continue;
+                }
+                Element prop = (Element) propNode;
+                if (!"property".equals(prop.getTagName())) {
+                    throw new IOException("bad conf file: element not <property>");
+                }
+                NodeList fields = prop.getChildNodes();
+                String attr = null;
+                String value = null;
+                for (int j = 0; j < fields.getLength(); j++) {
+                    Node fieldNode = fields.item(j);
+                    if (!(fieldNode instanceof Element)) {
+                        continue;
+                    }
+                    Element field = (Element) fieldNode;
+                    if ("name".equals(field.getTagName()) && field.hasChildNodes()) {
+                        attr = ((Text) field.getFirstChild()).getData().trim();
+                    }
+                    if ("value".equals(field.getTagName()) && field.hasChildNodes()) {
+                        value = ((Text) field.getFirstChild()).getData();
+                    }
+                }
+
+                if (attr != null && value != null) {
+                    conf.set(attr, value);
+                }
+            }
+
+        } catch (DOMException e) {
+            throw new IOException(e);
+        }
+    }
 
 }

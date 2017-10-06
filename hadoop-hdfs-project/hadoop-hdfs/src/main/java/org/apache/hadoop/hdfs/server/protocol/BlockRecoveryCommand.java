@@ -41,77 +41,77 @@ import com.google.common.base.Joiner;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class BlockRecoveryCommand extends DatanodeCommand {
-  final Collection<RecoveringBlock> recoveringBlocks;
-
-  /**
-   * This is a block with locations from which it should be recovered
-   * and the new generation stamp, which the block will have after 
-   * successful recovery.
-   * 
-   * The new generation stamp of the block, also plays role of the recovery id.
-   */
-  @InterfaceAudience.Private
-  @InterfaceStability.Evolving
-  public static class RecoveringBlock extends LocatedBlock {
-    private final long newGenerationStamp;
+    final Collection<RecoveringBlock> recoveringBlocks;
 
     /**
-     * Create RecoveringBlock.
+     * This is a block with locations from which it should be recovered
+     * and the new generation stamp, which the block will have after
+     * successful recovery.
+     *
+     * The new generation stamp of the block, also plays role of the recovery id.
      */
-    public RecoveringBlock(ExtendedBlock b, DatanodeInfo[] locs, long newGS) {
-      super(b, locs, -1, false); // startOffset is unknown
-      this.newGenerationStamp = newGS;
+    @InterfaceAudience.Private
+    @InterfaceStability.Evolving
+    public static class RecoveringBlock extends LocatedBlock {
+        private final long newGenerationStamp;
+
+        /**
+         * Create RecoveringBlock.
+         */
+        public RecoveringBlock(ExtendedBlock b, DatanodeInfo[] locs, long newGS) {
+            super(b, locs, -1, false); // startOffset is unknown
+            this.newGenerationStamp = newGS;
+        }
+
+        /**
+         * Return the new generation stamp of the block,
+         * which also plays role of the recovery id.
+         */
+        public long getNewGenerationStamp() {
+            return newGenerationStamp;
+        }
     }
 
     /**
-     * Return the new generation stamp of the block,
-     * which also plays role of the recovery id.
+     * Create empty BlockRecoveryCommand.
      */
-    public long getNewGenerationStamp() {
-      return newGenerationStamp;
+    public BlockRecoveryCommand() {
+        this(0);
     }
-  }
 
-  /**
-   * Create empty BlockRecoveryCommand.
-   */
-  public BlockRecoveryCommand() {
-    this(0);
-  }
+    /**
+     * Create BlockRecoveryCommand with
+     * the specified capacity for recovering blocks.
+     */
+    public BlockRecoveryCommand(int capacity) {
+        this(new ArrayList<RecoveringBlock>(capacity));
+    }
 
-  /**
-   * Create BlockRecoveryCommand with
-   * the specified capacity for recovering blocks.
-   */
-  public BlockRecoveryCommand(int capacity) {
-    this(new ArrayList<RecoveringBlock>(capacity));
-  }
-  
-  public BlockRecoveryCommand(Collection<RecoveringBlock> blocks) {
-    super(DatanodeProtocol.DNA_RECOVERBLOCK);
-    recoveringBlocks = blocks;
-  }
+    public BlockRecoveryCommand(Collection<RecoveringBlock> blocks) {
+        super(DatanodeProtocol.DNA_RECOVERBLOCK);
+        recoveringBlocks = blocks;
+    }
 
-  /**
-   * Return the list of recovering blocks.
-   */
-  public Collection<RecoveringBlock> getRecoveringBlocks() {
-    return recoveringBlocks;
-  }
+    /**
+     * Return the list of recovering blocks.
+     */
+    public Collection<RecoveringBlock> getRecoveringBlocks() {
+        return recoveringBlocks;
+    }
 
-  /**
-   * Add recovering block to the command.
-   */
-  public void add(RecoveringBlock block) {
-    recoveringBlocks.add(block);
-  }
-  
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("BlockRecoveryCommand(\n  ");
-    Joiner.on("\n  ").appendTo(sb, recoveringBlocks);
-    sb.append("\n)");
-    return sb.toString();
-  }
+    /**
+     * Add recovering block to the command.
+     */
+    public void add(RecoveringBlock block) {
+        recoveringBlocks.add(block);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("BlockRecoveryCommand(\n  ");
+        Joiner.on("\n  ").appendTo(sb, recoveringBlocks);
+        sb.append("\n)");
+        return sb.toString();
+    }
 }

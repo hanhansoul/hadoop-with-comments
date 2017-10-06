@@ -22,20 +22,20 @@ import org.junit.Test;
 
 public class TestBalancerWithSaslDataTransfer extends SaslDataTransferTestCase {
 
-  private static final TestBalancer TEST_BALANCER = new TestBalancer();
+    private static final TestBalancer TEST_BALANCER = new TestBalancer();
 
-  @Test
-  public void testBalancer0Authentication() throws Exception {
-    TEST_BALANCER.testBalancer0Internal(createSecureConfig("authentication"));
-  }
+    @Test
+    public void testBalancer0Authentication() throws Exception {
+        TEST_BALANCER.testBalancer0Internal(createSecureConfig("authentication"));
+    }
 
-  @Test
-  public void testBalancer0Integrity() throws Exception {
-    TEST_BALANCER.testBalancer0Internal(createSecureConfig("integrity"));
-  }
+    @Test
+    public void testBalancer0Integrity() throws Exception {
+        TEST_BALANCER.testBalancer0Internal(createSecureConfig("integrity"));
+    }
 
-  @Test
-  public void testBalancer0Privacy() throws Exception {
-    TEST_BALANCER.testBalancer0Internal(createSecureConfig("privacy"));
-  }
+    @Test
+    public void testBalancer0Privacy() throws Exception {
+        TEST_BALANCER.testBalancer0Internal(createSecureConfig("privacy"));
+    }
 }

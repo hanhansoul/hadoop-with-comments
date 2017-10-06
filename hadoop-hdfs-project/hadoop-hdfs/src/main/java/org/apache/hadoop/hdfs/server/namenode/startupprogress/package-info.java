@@ -24,15 +24,15 @@
  * the NameNode codebase (example: loading fsimage).  Steps are more granular and
  * typically only known at runtime after startup begins (example: loading a
  * specific fsimage file with a known length from a particular location).
- * 
+ *
  * {@link StartupProgress} provides a thread-safe data structure for
  * recording status information and counters.  Various parts of the NameNode
  * codebase use this to describe the NameNode's activities during startup.
- * 
+ *
  * {@link StartupProgressView} provides an immutable, consistent view of the
  * current state of NameNode startup progress.  This can be used to present the
  * data to a user.
- * 
+ *
  * {@link StartupProgressMetrics} exposes startup progress information via JMX
  * through the standard metrics system.
  */

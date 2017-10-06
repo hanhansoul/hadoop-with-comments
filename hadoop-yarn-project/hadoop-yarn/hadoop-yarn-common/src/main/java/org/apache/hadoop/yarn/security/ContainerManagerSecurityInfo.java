@@ -34,31 +34,31 @@ import org.apache.hadoop.yarn.api.ContainerManagementProtocolPB;
 @Stable
 public class ContainerManagerSecurityInfo extends SecurityInfo {
 
-  @Override
-  public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
-    return null;
-  }
-
-  @Override
-  public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol
-        .equals(ContainerManagementProtocolPB.class)) {
-      return null;
-    }
-    return new TokenInfo() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
+    @Override
+    public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
         return null;
-      }
+    }
 
-      @Override
-      public Class<? extends TokenSelector<? extends TokenIdentifier>>
-          value() {
-        return NMTokenSelector.class;
-      }
-    };
+    @Override
+    public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol
+            .equals(ContainerManagementProtocolPB.class)) {
+            return null;
+        }
+        return new TokenInfo() {
 
-  }
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public Class<? extends TokenSelector<? extends TokenIdentifier>>
+            value() {
+                return NMTokenSelector.class;
+            }
+        };
+
+    }
 
 }

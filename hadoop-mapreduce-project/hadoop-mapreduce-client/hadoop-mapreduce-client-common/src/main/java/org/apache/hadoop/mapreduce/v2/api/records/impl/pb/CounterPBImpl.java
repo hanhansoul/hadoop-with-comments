@@ -25,83 +25,83 @@ import org.apache.hadoop.mapreduce.v2.proto.MRProtos.CounterProtoOrBuilder;
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class CounterPBImpl extends ProtoBase<CounterProto> implements Counter {
-  CounterProto proto = CounterProto.getDefaultInstance();
-  CounterProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public CounterPBImpl() {
-    builder = CounterProto.newBuilder();
-  }
+    CounterProto proto = CounterProto.getDefaultInstance();
+    CounterProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public CounterPBImpl(CounterProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public CounterProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = CounterProto.newBuilder(proto);
+    public CounterPBImpl() {
+        builder = CounterProto.newBuilder();
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public String getName() {
-    CounterProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasName()) {
-      return null;
+
+    public CounterPBImpl(CounterProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return (p.getName());
-  }
 
-  @Override
-  public void setName(String name) {
-    maybeInitBuilder();
-    if (name == null) {
-      builder.clearName();
-      return;
+    public CounterProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    builder.setName((name));
-  }
-  @Override
-  public long getValue() {
-    CounterProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getValue());
-  }
 
-  @Override
-  public void setValue(long value) {
-    maybeInitBuilder();
-    builder.setValue((value));
-  }
-  @Override
-  public String getDisplayName() {
-    CounterProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasDisplayName()) {
-      return null;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = CounterProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    return (p.getDisplayName());
-  }
 
-  @Override
-  public void setDisplayName(String displayName) {
-    maybeInitBuilder();
-    if (displayName == null) {
-      builder.clearDisplayName();
-      return;
+
+    @Override
+    public String getName() {
+        CounterProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasName()) {
+            return null;
+        }
+        return (p.getName());
     }
-    builder.setDisplayName((displayName));
-  }
+
+    @Override
+    public void setName(String name) {
+        maybeInitBuilder();
+        if (name == null) {
+            builder.clearName();
+            return;
+        }
+        builder.setName((name));
+    }
+    @Override
+    public long getValue() {
+        CounterProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getValue());
+    }
+
+    @Override
+    public void setValue(long value) {
+        maybeInitBuilder();
+        builder.setValue((value));
+    }
+    @Override
+    public String getDisplayName() {
+        CounterProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasDisplayName()) {
+            return null;
+        }
+        return (p.getDisplayName());
+    }
+
+    @Override
+    public void setDisplayName(String displayName) {
+        maybeInitBuilder();
+        if (displayName == null) {
+            builder.clearDisplayName();
+            return;
+        }
+        builder.setDisplayName((displayName));
+    }
 
 
 
-}  
+}

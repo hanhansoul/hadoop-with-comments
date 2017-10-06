@@ -26,47 +26,47 @@ import org.apache.hadoop.mapred.TaskStatus.State;
  * map task attempt.
  */
 public class MapTaskAttemptInfo extends TaskAttemptInfo {
-  private long runtime;
+    private long runtime;
 
-  public MapTaskAttemptInfo(State state, TaskInfo taskInfo,
-                            long runtime, List<List<Integer>> allSplits) {
-    super(state, taskInfo,
-          allSplits == null
-            ? LoggedTaskAttempt.SplitVectorKind.getNullSplitsVector()
-           : allSplits);
-    this.runtime = runtime;
-  }
+    public MapTaskAttemptInfo(State state, TaskInfo taskInfo,
+                              long runtime, List<List<Integer>> allSplits) {
+        super(state, taskInfo,
+              allSplits == null
+              ? LoggedTaskAttempt.SplitVectorKind.getNullSplitsVector()
+              : allSplits);
+        this.runtime = runtime;
+    }
 
-  /**
-   *
-   * @deprecated please use the constructor with 
-   *               {@code (state, taskInfo, runtime,
-   *                  List<List<Integer>> allSplits)}
-   *             instead.  
-   *
-   * see {@link LoggedTaskAttempt} for an explanation of
-   *        {@code allSplits}.
-   *
-   * If there are no known splits, use {@code null}.
-   */
-  @Deprecated
-  public MapTaskAttemptInfo(State state, TaskInfo taskInfo,
-                            long runtime) {
-    this(state, taskInfo, runtime, null);
-  }
+    /**
+     *
+     * @deprecated please use the constructor with
+     *               {@code (state, taskInfo, runtime,
+     *                  List<List<Integer>> allSplits)}
+     *             instead.
+     *
+     * see {@link LoggedTaskAttempt} for an explanation of
+     *        {@code allSplits}.
+     *
+     * If there are no known splits, use {@code null}.
+     */
+    @Deprecated
+    public MapTaskAttemptInfo(State state, TaskInfo taskInfo,
+                              long runtime) {
+        this(state, taskInfo, runtime, null);
+    }
 
-  @Override
-  public long getRuntime() {
-    return getMapRuntime();
-  }
+    @Override
+    public long getRuntime() {
+        return getMapRuntime();
+    }
 
-  /**
-   * Get the runtime for the <b>map</b> phase of the map-task attempt.
-   * 
-   * @return the runtime for the <b>map</b> phase of the map-task attempt
-   */
-  public long getMapRuntime() {
-    return runtime;
-  }
+    /**
+     * Get the runtime for the <b>map</b> phase of the map-task attempt.
+     *
+     * @return the runtime for the <b>map</b> phase of the map-task attempt
+     */
+    public long getMapRuntime() {
+        return runtime;
+    }
 
 }

@@ -28,43 +28,43 @@ import org.apache.hadoop.yarn.server.api.records.MasterKey;
 import org.apache.hadoop.yarn.server.api.records.NodeAction;
 
 public interface NodeHeartbeatResponse {
-  int getResponseId();
-  NodeAction getNodeAction();
+    int getResponseId();
+    NodeAction getNodeAction();
 
-  List<ContainerId> getContainersToCleanup();
-  List<ContainerId> getContainersToBeRemovedFromNM();
+    List<ContainerId> getContainersToCleanup();
+    List<ContainerId> getContainersToBeRemovedFromNM();
 
-  List<ApplicationId> getApplicationsToCleanup();
+    List<ApplicationId> getApplicationsToCleanup();
 
-  void setResponseId(int responseId);
-  void setNodeAction(NodeAction action);
+    void setResponseId(int responseId);
+    void setNodeAction(NodeAction action);
 
-  MasterKey getContainerTokenMasterKey();
-  void setContainerTokenMasterKey(MasterKey secretKey);
-  
-  MasterKey getNMTokenMasterKey();
-  void setNMTokenMasterKey(MasterKey secretKey);
+    MasterKey getContainerTokenMasterKey();
+    void setContainerTokenMasterKey(MasterKey secretKey);
 
-  void addAllContainersToCleanup(List<ContainerId> containers);
+    MasterKey getNMTokenMasterKey();
+    void setNMTokenMasterKey(MasterKey secretKey);
 
-  // This tells NM to remove finished containers from its context. Currently, NM
-  // will remove finished containers from its context only after AM has actually
-  // received the finished containers in a previous allocate response
-  void addContainersToBeRemovedFromNM(List<ContainerId> containers);
-  
-  void addAllApplicationsToCleanup(List<ApplicationId> applications);
+    void addAllContainersToCleanup(List<ContainerId> containers);
 
-  long getNextHeartBeatInterval();
-  void setNextHeartBeatInterval(long nextHeartBeatInterval);
-  
-  String getDiagnosticsMessage();
+    // This tells NM to remove finished containers from its context. Currently, NM
+    // will remove finished containers from its context only after AM has actually
+    // received the finished containers in a previous allocate response
+    void addContainersToBeRemovedFromNM(List<ContainerId> containers);
 
-  void setDiagnosticsMessage(String diagnosticsMessage);
+    void addAllApplicationsToCleanup(List<ApplicationId> applications);
 
-  // Credentials (i.e. hdfs tokens) needed by NodeManagers for application
-  // localizations and logAggreations.
-  Map<ApplicationId, ByteBuffer> getSystemCredentialsForApps();
+    long getNextHeartBeatInterval();
+    void setNextHeartBeatInterval(long nextHeartBeatInterval);
 
-  void setSystemCredentialsForApps(
-      Map<ApplicationId, ByteBuffer> systemCredentials);
+    String getDiagnosticsMessage();
+
+    void setDiagnosticsMessage(String diagnosticsMessage);
+
+    // Credentials (i.e. hdfs tokens) needed by NodeManagers for application
+    // localizations and logAggreations.
+    Map<ApplicationId, ByteBuffer> getSystemCredentialsForApps();
+
+    void setSystemCredentialsForApps(
+        Map<ApplicationId, ByteBuffer> systemCredentials);
 }

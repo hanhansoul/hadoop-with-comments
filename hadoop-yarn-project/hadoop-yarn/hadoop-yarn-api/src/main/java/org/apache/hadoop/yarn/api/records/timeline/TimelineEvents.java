@@ -39,151 +39,151 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class TimelineEvents {
 
-  private List<EventsOfOneEntity> allEvents =
-      new ArrayList<EventsOfOneEntity>();
+    private List<EventsOfOneEntity> allEvents =
+        new ArrayList<EventsOfOneEntity>();
 
-  public TimelineEvents() {
-
-  }
-
-  /**
-   * Get a list of {@link EventsOfOneEntity} instances
-   * 
-   * @return a list of {@link EventsOfOneEntity} instances
-   */
-  @XmlElement(name = "events")
-  public List<EventsOfOneEntity> getAllEvents() {
-    return allEvents;
-  }
-
-  /**
-   * Add a single {@link EventsOfOneEntity} instance into the existing list
-   * 
-   * @param eventsOfOneEntity
-   *          a single {@link EventsOfOneEntity} instance
-   */
-  public void addEvent(EventsOfOneEntity eventsOfOneEntity) {
-    allEvents.add(eventsOfOneEntity);
-  }
-
-  /**
-   * Add a list of {@link EventsOfOneEntity} instances into the existing list
-   * 
-   * @param allEvents
-   *          a list of {@link EventsOfOneEntity} instances
-   */
-  public void addEvents(List<EventsOfOneEntity> allEvents) {
-    this.allEvents.addAll(allEvents);
-  }
-
-  /**
-   * Set the list to the given list of {@link EventsOfOneEntity} instances
-   * 
-   * @param allEvents
-   *          a list of {@link EventsOfOneEntity} instances
-   */
-  public void setEvents(List<EventsOfOneEntity> allEvents) {
-    this.allEvents.clear();
-    this.allEvents.addAll(allEvents);
-  }
-
-  /**
-   * The class that hosts a list of events that are only related to one entity.
-   */
-  @XmlRootElement(name = "events")
-  @XmlAccessorType(XmlAccessType.NONE)
-  @Public
-  @Unstable
-  public static class EventsOfOneEntity {
-
-    private String entityId;
-    private String entityType;
-    private List<TimelineEvent> events = new ArrayList<TimelineEvent>();
-
-    public EventsOfOneEntity() {
+    public TimelineEvents() {
 
     }
 
     /**
-     * Get the entity Id
-     * 
-     * @return the entity Id
-     */
-    @XmlElement(name = "entity")
-    public String getEntityId() {
-      return entityId;
-    }
-
-    /**
-     * Set the entity Id
-     * 
-     * @param entityId
-     *          the entity Id
-     */
-    public void setEntityId(String entityId) {
-      this.entityId = entityId;
-    }
-
-    /**
-     * Get the entity type
-     * 
-     * @return the entity type
-     */
-    @XmlElement(name = "entitytype")
-    public String getEntityType() {
-      return entityType;
-    }
-
-    /**
-     * Set the entity type
-     * 
-     * @param entityType
-     *          the entity type
-     */
-    public void setEntityType(String entityType) {
-      this.entityType = entityType;
-    }
-
-    /**
-     * Get a list of events
-     * 
-     * @return a list of events
+     * Get a list of {@link EventsOfOneEntity} instances
+     *
+     * @return a list of {@link EventsOfOneEntity} instances
      */
     @XmlElement(name = "events")
-    public List<TimelineEvent> getEvents() {
-      return events;
+    public List<EventsOfOneEntity> getAllEvents() {
+        return allEvents;
     }
 
     /**
-     * Add a single event to the existing event list
-     * 
-     * @param event
-     *          a single event
+     * Add a single {@link EventsOfOneEntity} instance into the existing list
+     *
+     * @param eventsOfOneEntity
+     *          a single {@link EventsOfOneEntity} instance
      */
-    public void addEvent(TimelineEvent event) {
-      events.add(event);
+    public void addEvent(EventsOfOneEntity eventsOfOneEntity) {
+        allEvents.add(eventsOfOneEntity);
     }
 
     /**
-     * Add a list of event to the existing event list
-     * 
-     * @param events
-     *          a list of events
+     * Add a list of {@link EventsOfOneEntity} instances into the existing list
+     *
+     * @param allEvents
+     *          a list of {@link EventsOfOneEntity} instances
      */
-    public void addEvents(List<TimelineEvent> events) {
-      this.events.addAll(events);
+    public void addEvents(List<EventsOfOneEntity> allEvents) {
+        this.allEvents.addAll(allEvents);
     }
 
     /**
-     * Set the event list to the given list of events
-     * 
-     * @param events
-     *          a list of events
+     * Set the list to the given list of {@link EventsOfOneEntity} instances
+     *
+     * @param allEvents
+     *          a list of {@link EventsOfOneEntity} instances
      */
-    public void setEvents(List<TimelineEvent> events) {
-      this.events = events;
+    public void setEvents(List<EventsOfOneEntity> allEvents) {
+        this.allEvents.clear();
+        this.allEvents.addAll(allEvents);
     }
 
-  }
+    /**
+     * The class that hosts a list of events that are only related to one entity.
+     */
+    @XmlRootElement(name = "events")
+    @XmlAccessorType(XmlAccessType.NONE)
+    @Public
+    @Unstable
+    public static class EventsOfOneEntity {
+
+        private String entityId;
+        private String entityType;
+        private List<TimelineEvent> events = new ArrayList<TimelineEvent>();
+
+        public EventsOfOneEntity() {
+
+        }
+
+        /**
+         * Get the entity Id
+         *
+         * @return the entity Id
+         */
+        @XmlElement(name = "entity")
+        public String getEntityId() {
+            return entityId;
+        }
+
+        /**
+         * Set the entity Id
+         *
+         * @param entityId
+         *          the entity Id
+         */
+        public void setEntityId(String entityId) {
+            this.entityId = entityId;
+        }
+
+        /**
+         * Get the entity type
+         *
+         * @return the entity type
+         */
+        @XmlElement(name = "entitytype")
+        public String getEntityType() {
+            return entityType;
+        }
+
+        /**
+         * Set the entity type
+         *
+         * @param entityType
+         *          the entity type
+         */
+        public void setEntityType(String entityType) {
+            this.entityType = entityType;
+        }
+
+        /**
+         * Get a list of events
+         *
+         * @return a list of events
+         */
+        @XmlElement(name = "events")
+        public List<TimelineEvent> getEvents() {
+            return events;
+        }
+
+        /**
+         * Add a single event to the existing event list
+         *
+         * @param event
+         *          a single event
+         */
+        public void addEvent(TimelineEvent event) {
+            events.add(event);
+        }
+
+        /**
+         * Add a list of event to the existing event list
+         *
+         * @param events
+         *          a list of events
+         */
+        public void addEvents(List<TimelineEvent> events) {
+            this.events.addAll(events);
+        }
+
+        /**
+         * Set the event list to the given list of events
+         *
+         * @param events
+         *          a list of events
+         */
+        public void setEvents(List<TimelineEvent> events) {
+            this.events = events;
+        }
+
+    }
 
 }

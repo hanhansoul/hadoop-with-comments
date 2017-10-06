@@ -25,11 +25,11 @@ import org.apache.hadoop.fs.FsConstants;
 import org.junit.Test;
 
 public class TestViewFsURIs {
-  @Test
-  public void testURIEmptyPath() throws Exception {
-    Configuration conf = new Configuration();
-    ConfigUtil.addLink(conf, "/user", new URI("file://foo"));
+    @Test
+    public void testURIEmptyPath() throws Exception {
+        Configuration conf = new Configuration();
+        ConfigUtil.addLink(conf, "/user", new URI("file://foo"));
 
-    FileContext.getFileContext(FsConstants.VIEWFS_URI, conf);
-  }
+        FileContext.getFileContext(FsConstants.VIEWFS_URI, conf);
+    }
 }

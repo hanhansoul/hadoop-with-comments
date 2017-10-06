@@ -63,108 +63,108 @@ import org.junit.Test;
  */
 public class TestContainerLaunchRPC {
 
-  static final Log LOG = LogFactory.getLog(TestContainerLaunchRPC.class);
+    static final Log LOG = LogFactory.getLog(TestContainerLaunchRPC.class);
 
-  private static final RecordFactory recordFactory = RecordFactoryProvider
-      .getRecordFactory(null);
+    private static final RecordFactory recordFactory = RecordFactoryProvider
+            .getRecordFactory(null);
 
-  @Test
-  public void testHadoopProtoRPCTimeout() throws Exception {
-    testRPCTimeout(HadoopYarnProtoRPC.class.getName());
-  }
-
-  private void testRPCTimeout(String rpcClass) throws Exception {
-    Configuration conf = new Configuration();
-    // set timeout low for the test
-    conf.setInt("yarn.rpc.nm-command-timeout", 3000);
-
-    conf.set(YarnConfiguration.IPC_RPC_IMPL, rpcClass);
-    YarnRPC rpc = YarnRPC.create(conf);
-    String bindAddr = "localhost:0";
-    InetSocketAddress addr = NetUtils.createSocketAddr(bindAddr);
-    Server server = rpc.getServer(ContainerManagementProtocol.class,
-        new DummyContainerManager(), addr, conf, null, 1);
-    server.start();
-    try {
-
-      ContainerManagementProtocol proxy = (ContainerManagementProtocol) rpc.getProxy(
-          ContainerManagementProtocol.class,
-          server.getListenerAddress(), conf);
-      ContainerLaunchContext containerLaunchContext = recordFactory
-          .newRecordInstance(ContainerLaunchContext.class);
-
-      ApplicationId applicationId = ApplicationId.newInstance(0, 0);
-      ApplicationAttemptId applicationAttemptId =
-          ApplicationAttemptId.newInstance(applicationId, 0);
-      ContainerId containerId =
-          ContainerId.newContainerId(applicationAttemptId, 100);
-      NodeId nodeId = NodeId.newInstance("localhost", 1234);
-      Resource resource = Resource.newInstance(1234, 2);
-      ContainerTokenIdentifier containerTokenIdentifier =
-          new ContainerTokenIdentifier(containerId, "localhost", "user",
-            resource, System.currentTimeMillis() + 10000, 42, 42,
-            Priority.newInstance(0), 0);
-      Token containerToken =
-          TestRPC.newContainerToken(nodeId, "password".getBytes(),
-            containerTokenIdentifier);
-
-      StartContainerRequest scRequest =
-          StartContainerRequest.newInstance(containerLaunchContext,
-            containerToken);
-      List<StartContainerRequest> list = new ArrayList<StartContainerRequest>();
-      list.add(scRequest);
-      StartContainersRequest allRequests =
-          StartContainersRequest.newInstance(list);
-      try {
-        proxy.startContainers(allRequests);
-      } catch (Exception e) {
-        LOG.info(StringUtils.stringifyException(e));
-        Assert.assertEquals("Error, exception is not: "
-            + SocketTimeoutException.class.getName(),
-            SocketTimeoutException.class.getName(), e.getClass().getName());
-        return;
-      }
-    } finally {
-      server.stop();
+    @Test
+    public void testHadoopProtoRPCTimeout() throws Exception {
+        testRPCTimeout(HadoopYarnProtoRPC.class.getName());
     }
 
-    Assert.fail("timeout exception should have occurred!");
-  }
+    private void testRPCTimeout(String rpcClass) throws Exception {
+        Configuration conf = new Configuration();
+        // set timeout low for the test
+        conf.setInt("yarn.rpc.nm-command-timeout", 3000);
 
-  public class DummyContainerManager implements ContainerManagementProtocol {
+        conf.set(YarnConfiguration.IPC_RPC_IMPL, rpcClass);
+        YarnRPC rpc = YarnRPC.create(conf);
+        String bindAddr = "localhost:0";
+        InetSocketAddress addr = NetUtils.createSocketAddr(bindAddr);
+        Server server = rpc.getServer(ContainerManagementProtocol.class,
+                                      new DummyContainerManager(), addr, conf, null, 1);
+        server.start();
+        try {
 
-    private ContainerStatus status = null;
+            ContainerManagementProtocol proxy = (ContainerManagementProtocol) rpc.getProxy(
+                                                    ContainerManagementProtocol.class,
+                                                    server.getListenerAddress(), conf);
+            ContainerLaunchContext containerLaunchContext = recordFactory
+                    .newRecordInstance(ContainerLaunchContext.class);
 
-    @Override
-    public StartContainersResponse startContainers(
-        StartContainersRequest requests) throws YarnException, IOException {
-      try {
-        // make the thread sleep to look like its not going to respond
-        Thread.sleep(10000);
-      } catch (Exception e) {
-        LOG.error(e);
-        throw new YarnException(e);
-      }
-      throw new YarnException("Shouldn't happen!!");
+            ApplicationId applicationId = ApplicationId.newInstance(0, 0);
+            ApplicationAttemptId applicationAttemptId =
+                ApplicationAttemptId.newInstance(applicationId, 0);
+            ContainerId containerId =
+                ContainerId.newContainerId(applicationAttemptId, 100);
+            NodeId nodeId = NodeId.newInstance("localhost", 1234);
+            Resource resource = Resource.newInstance(1234, 2);
+            ContainerTokenIdentifier containerTokenIdentifier =
+                new ContainerTokenIdentifier(containerId, "localhost", "user",
+                                             resource, System.currentTimeMillis() + 10000, 42, 42,
+                                             Priority.newInstance(0), 0);
+            Token containerToken =
+                TestRPC.newContainerToken(nodeId, "password".getBytes(),
+                                          containerTokenIdentifier);
+
+            StartContainerRequest scRequest =
+                StartContainerRequest.newInstance(containerLaunchContext,
+                                                  containerToken);
+            List<StartContainerRequest> list = new ArrayList<StartContainerRequest>();
+            list.add(scRequest);
+            StartContainersRequest allRequests =
+                StartContainersRequest.newInstance(list);
+            try {
+                proxy.startContainers(allRequests);
+            } catch (Exception e) {
+                LOG.info(StringUtils.stringifyException(e));
+                Assert.assertEquals("Error, exception is not: "
+                                    + SocketTimeoutException.class.getName(),
+                                    SocketTimeoutException.class.getName(), e.getClass().getName());
+                return;
+            }
+        } finally {
+            server.stop();
+        }
+
+        Assert.fail("timeout exception should have occurred!");
     }
 
-    @Override
-    public StopContainersResponse
+    public class DummyContainerManager implements ContainerManagementProtocol {
+
+        private ContainerStatus status = null;
+
+        @Override
+        public StartContainersResponse startContainers(
+            StartContainersRequest requests) throws YarnException, IOException {
+            try {
+                // make the thread sleep to look like its not going to respond
+                Thread.sleep(10000);
+            } catch (Exception e) {
+                LOG.error(e);
+                throw new YarnException(e);
+            }
+            throw new YarnException("Shouldn't happen!!");
+        }
+
+        @Override
+        public StopContainersResponse
         stopContainers(StopContainersRequest requests) throws YarnException,
             IOException {
-      Exception e = new Exception("Dummy function", new Exception(
-          "Dummy function cause"));
-      throw new YarnException(e);
-    }
+            Exception e = new Exception("Dummy function", new Exception(
+                                            "Dummy function cause"));
+            throw new YarnException(e);
+        }
 
-    @Override
-    public GetContainerStatusesResponse getContainerStatuses(
-        GetContainerStatusesRequest request) throws YarnException, IOException {
-      List<ContainerStatus> list = new ArrayList<ContainerStatus>();
-      list.add(status);
-      GetContainerStatusesResponse response =
-          GetContainerStatusesResponse.newInstance(list, null);
-      return null;
+        @Override
+        public GetContainerStatusesResponse getContainerStatuses(
+            GetContainerStatusesRequest request) throws YarnException, IOException {
+            List<ContainerStatus> list = new ArrayList<ContainerStatus>();
+            list.add(status);
+            GetContainerStatusesResponse response =
+                GetContainerStatusesResponse.newInstance(list, null);
+            return null;
+        }
     }
-  }
 }

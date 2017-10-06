@@ -41,62 +41,62 @@ import com.google.inject.Inject;
 
 public class AllApplicationsPage extends NMView {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    setTitle("Applications running on this node");
-    set(DATATABLES_ID, "applications");
-    set(initID(DATATABLES, "applications"), appsTableInit());
-    setTableStyles(html, "applications");
-  }
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        setTitle("Applications running on this node");
+        set(DATATABLES_ID, "applications");
+        set(initID(DATATABLES, "applications"), appsTableInit());
+        setTableStyles(html, "applications");
+    }
 
-  private String appsTableInit() {
-    return tableInit().
-        // Sort by id upon page load
-        append(", aaSorting: [[0, 'asc']]").
-        // applicationid, applicationstate
-        append(", aoColumns:[null, null]} ").toString();
-  }
-
-  @Override
-  protected Class<? extends SubView> content() {
-    return AllApplicationsBlock.class;
-  }
-
-  public static class AllApplicationsBlock extends HtmlBlock implements
-      YarnWebParams {
-
-    private final Context nmContext;
-
-    @Inject
-    public AllApplicationsBlock(Context nmContext) {
-      this.nmContext = nmContext;
+    private String appsTableInit() {
+        return tableInit().
+               // Sort by id upon page load
+               append(", aaSorting: [[0, 'asc']]").
+               // applicationid, applicationstate
+               append(", aoColumns:[null, null]} ").toString();
     }
 
     @Override
-    protected void render(Block html) {
-
-      TBODY<TABLE<BODY<Hamlet>>> tableBody =
-        html
-          .body()
-            .table("#applications")
-              .thead()
-                .tr()
-                  .td()._("ApplicationId")._()
-                  .td()._("ApplicationState")._()
-                ._()
-               ._()
-               .tbody();
-      for (Entry<ApplicationId, Application> entry : this.nmContext
-          .getApplications().entrySet()) {
-        AppInfo info = new AppInfo(entry.getValue());
-        tableBody
-          .tr()
-            .td().a(url("application", info.getId()), info.getId())._()
-            .td()._(info.getState())
-            ._()
-          ._();
-      }
-      tableBody._()._()._();
+    protected Class<? extends SubView> content() {
+        return AllApplicationsBlock.class;
     }
-  }
+
+    public static class AllApplicationsBlock extends HtmlBlock implements
+        YarnWebParams {
+
+        private final Context nmContext;
+
+        @Inject
+        public AllApplicationsBlock(Context nmContext) {
+            this.nmContext = nmContext;
+        }
+
+        @Override
+        protected void render(Block html) {
+
+            TBODY<TABLE<BODY<Hamlet>>> tableBody =
+                html
+                .body()
+                .table("#applications")
+                .thead()
+                .tr()
+                .td()._("ApplicationId")._()
+                .td()._("ApplicationState")._()
+                ._()
+                ._()
+                .tbody();
+            for (Entry<ApplicationId, Application> entry : this.nmContext
+                 .getApplications().entrySet()) {
+                AppInfo info = new AppInfo(entry.getValue());
+                tableBody
+                .tr()
+                .td().a(url("application", info.getId()), info.getId())._()
+                .td()._(info.getState())
+                ._()
+                ._();
+            }
+            tableBody._()._()._();
+        }
+    }
 }

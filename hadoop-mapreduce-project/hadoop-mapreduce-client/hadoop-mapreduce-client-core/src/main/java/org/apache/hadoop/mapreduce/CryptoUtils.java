@@ -48,151 +48,151 @@ import org.apache.hadoop.util.LimitInputStream;
 @InterfaceStability.Unstable
 public class CryptoUtils {
 
-  private static final Log LOG = LogFactory.getLog(CryptoUtils.class);
+    private static final Log LOG = LogFactory.getLog(CryptoUtils.class);
 
-  public static boolean isShuffleEncrypted(Configuration conf) {
-    return conf.getBoolean(MRJobConfig.MR_ENCRYPTED_INTERMEDIATE_DATA,
-        MRJobConfig.DEFAULT_MR_ENCRYPTED_INTERMEDIATE_DATA);
-  }
-
-  /**
-   * This method creates and initializes an IV (Initialization Vector)
-   * 
-   * @param conf
-   * @return byte[]
-   * @throws IOException
-   */
-  public static byte[] createIV(Configuration conf) throws IOException {
-    CryptoCodec cryptoCodec = CryptoCodec.getInstance(conf);
-    if (isShuffleEncrypted(conf)) {
-      byte[] iv = new byte[cryptoCodec.getCipherSuite().getAlgorithmBlockSize()];
-      cryptoCodec.generateSecureRandom(iv);
-      return iv;
-    } else {
-      return null;
+    public static boolean isShuffleEncrypted(Configuration conf) {
+        return conf.getBoolean(MRJobConfig.MR_ENCRYPTED_INTERMEDIATE_DATA,
+                               MRJobConfig.DEFAULT_MR_ENCRYPTED_INTERMEDIATE_DATA);
     }
-  }
 
-  public static int cryptoPadding(Configuration conf) {
-    // Sizeof(IV) + long(start-offset)
-    return isShuffleEncrypted(conf) ? CryptoCodec.getInstance(conf)
-        .getCipherSuite().getAlgorithmBlockSize() + 8 : 0;
-  }
-
-  private static byte[] getEncryptionKey() throws IOException {
-    return TokenCache.getShuffleSecretKey(UserGroupInformation.getCurrentUser()
-        .getCredentials());
-  }
-
-  private static int getBufferSize(Configuration conf) {
-    return conf.getInt(MRJobConfig.MR_ENCRYPTED_INTERMEDIATE_DATA_BUFFER_KB,
-        MRJobConfig.DEFAULT_MR_ENCRYPTED_INTERMEDIATE_DATA_BUFFER_KB) * 1024;
-  }
-
-  /**
-   * Wraps a given FSDataOutputStream with a CryptoOutputStream. The size of the
-   * data buffer required for the stream is specified by the
-   * "mapreduce.job.encrypted-intermediate-data.buffer.kb" Job configuration
-   * variable.
-   * 
-   * @param conf
-   * @param out
-   * @return FSDataOutputStream
-   * @throws IOException
-   */
-  public static FSDataOutputStream wrapIfNecessary(Configuration conf,
-      FSDataOutputStream out) throws IOException {
-    if (isShuffleEncrypted(conf)) {
-      out.write(ByteBuffer.allocate(8).putLong(out.getPos()).array());
-      byte[] iv = createIV(conf);
-      out.write(iv);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("IV written to Stream ["
-            + Base64.encodeBase64URLSafeString(iv) + "]");
-      }
-      return new CryptoFSDataOutputStream(out, CryptoCodec.getInstance(conf),
-          getBufferSize(conf), getEncryptionKey(), iv);
-    } else {
-      return out;
+    /**
+     * This method creates and initializes an IV (Initialization Vector)
+     *
+     * @param conf
+     * @return byte[]
+     * @throws IOException
+     */
+    public static byte[] createIV(Configuration conf) throws IOException {
+        CryptoCodec cryptoCodec = CryptoCodec.getInstance(conf);
+        if (isShuffleEncrypted(conf)) {
+            byte[] iv = new byte[cryptoCodec.getCipherSuite().getAlgorithmBlockSize()];
+            cryptoCodec.generateSecureRandom(iv);
+            return iv;
+        } else {
+            return null;
+        }
     }
-  }
 
-  /**
-   * Wraps a given InputStream with a CryptoInputStream. The size of the data
-   * buffer required for the stream is specified by the
-   * "mapreduce.job.encrypted-intermediate-data.buffer.kb" Job configuration
-   * variable.
-   * 
-   * If the value of 'length' is > -1, The InputStream is additionally wrapped
-   * in a LimitInputStream. CryptoStreams are late buffering in nature. This
-   * means they will always try to read ahead if they can. The LimitInputStream
-   * will ensure that the CryptoStream does not read past the provided length
-   * from the given Input Stream.
-   * 
-   * @param conf
-   * @param in
-   * @param length
-   * @return InputStream
-   * @throws IOException
-   */
-  public static InputStream wrapIfNecessary(Configuration conf, InputStream in,
-      long length) throws IOException {
-    if (isShuffleEncrypted(conf)) {
-      int bufferSize = getBufferSize(conf);
-      if (length > -1) {
-        in = new LimitInputStream(in, length);
-      }
-      byte[] offsetArray = new byte[8];
-      IOUtils.readFully(in, offsetArray, 0, 8);
-      long offset = ByteBuffer.wrap(offsetArray).getLong();
-      CryptoCodec cryptoCodec = CryptoCodec.getInstance(conf);
-      byte[] iv = 
-          new byte[cryptoCodec.getCipherSuite().getAlgorithmBlockSize()];
-      IOUtils.readFully(in, iv, 0, 
-          cryptoCodec.getCipherSuite().getAlgorithmBlockSize());
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("IV read from ["
-            + Base64.encodeBase64URLSafeString(iv) + "]");
-      }
-      return new CryptoInputStream(in, cryptoCodec, bufferSize,
-          getEncryptionKey(), iv, offset + cryptoPadding(conf));
-    } else {
-      return in;
+    public static int cryptoPadding(Configuration conf) {
+        // Sizeof(IV) + long(start-offset)
+        return isShuffleEncrypted(conf) ? CryptoCodec.getInstance(conf)
+               .getCipherSuite().getAlgorithmBlockSize() + 8 : 0;
     }
-  }
 
-  /**
-   * Wraps a given FSDataInputStream with a CryptoInputStream. The size of the
-   * data buffer required for the stream is specified by the
-   * "mapreduce.job.encrypted-intermediate-data.buffer.kb" Job configuration
-   * variable.
-   * 
-   * @param conf
-   * @param in
-   * @return FSDataInputStream
-   * @throws IOException
-   */
-  public static FSDataInputStream wrapIfNecessary(Configuration conf,
-      FSDataInputStream in) throws IOException {
-    if (isShuffleEncrypted(conf)) {
-      CryptoCodec cryptoCodec = CryptoCodec.getInstance(conf);
-      int bufferSize = getBufferSize(conf);
-      // Not going to be used... but still has to be read...
-      // Since the O/P stream always writes it..
-      IOUtils.readFully(in, new byte[8], 0, 8);
-      byte[] iv = 
-          new byte[cryptoCodec.getCipherSuite().getAlgorithmBlockSize()];
-      IOUtils.readFully(in, iv, 0, 
-          cryptoCodec.getCipherSuite().getAlgorithmBlockSize());
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("IV read from Stream ["
-            + Base64.encodeBase64URLSafeString(iv) + "]");
-      }
-      return new CryptoFSDataInputStream(in, cryptoCodec, bufferSize,
-          getEncryptionKey(), iv);
-    } else {
-      return in;
+    private static byte[] getEncryptionKey() throws IOException {
+        return TokenCache.getShuffleSecretKey(UserGroupInformation.getCurrentUser()
+                                              .getCredentials());
     }
-  }
+
+    private static int getBufferSize(Configuration conf) {
+        return conf.getInt(MRJobConfig.MR_ENCRYPTED_INTERMEDIATE_DATA_BUFFER_KB,
+                           MRJobConfig.DEFAULT_MR_ENCRYPTED_INTERMEDIATE_DATA_BUFFER_KB) * 1024;
+    }
+
+    /**
+     * Wraps a given FSDataOutputStream with a CryptoOutputStream. The size of the
+     * data buffer required for the stream is specified by the
+     * "mapreduce.job.encrypted-intermediate-data.buffer.kb" Job configuration
+     * variable.
+     *
+     * @param conf
+     * @param out
+     * @return FSDataOutputStream
+     * @throws IOException
+     */
+    public static FSDataOutputStream wrapIfNecessary(Configuration conf,
+            FSDataOutputStream out) throws IOException {
+        if (isShuffleEncrypted(conf)) {
+            out.write(ByteBuffer.allocate(8).putLong(out.getPos()).array());
+            byte[] iv = createIV(conf);
+            out.write(iv);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("IV written to Stream ["
+                          + Base64.encodeBase64URLSafeString(iv) + "]");
+            }
+            return new CryptoFSDataOutputStream(out, CryptoCodec.getInstance(conf),
+                                                getBufferSize(conf), getEncryptionKey(), iv);
+        } else {
+            return out;
+        }
+    }
+
+    /**
+     * Wraps a given InputStream with a CryptoInputStream. The size of the data
+     * buffer required for the stream is specified by the
+     * "mapreduce.job.encrypted-intermediate-data.buffer.kb" Job configuration
+     * variable.
+     *
+     * If the value of 'length' is > -1, The InputStream is additionally wrapped
+     * in a LimitInputStream. CryptoStreams are late buffering in nature. This
+     * means they will always try to read ahead if they can. The LimitInputStream
+     * will ensure that the CryptoStream does not read past the provided length
+     * from the given Input Stream.
+     *
+     * @param conf
+     * @param in
+     * @param length
+     * @return InputStream
+     * @throws IOException
+     */
+    public static InputStream wrapIfNecessary(Configuration conf, InputStream in,
+            long length) throws IOException {
+        if (isShuffleEncrypted(conf)) {
+            int bufferSize = getBufferSize(conf);
+            if (length > -1) {
+                in = new LimitInputStream(in, length);
+            }
+            byte[] offsetArray = new byte[8];
+            IOUtils.readFully(in, offsetArray, 0, 8);
+            long offset = ByteBuffer.wrap(offsetArray).getLong();
+            CryptoCodec cryptoCodec = CryptoCodec.getInstance(conf);
+            byte[] iv =
+                new byte[cryptoCodec.getCipherSuite().getAlgorithmBlockSize()];
+            IOUtils.readFully(in, iv, 0,
+                              cryptoCodec.getCipherSuite().getAlgorithmBlockSize());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("IV read from ["
+                          + Base64.encodeBase64URLSafeString(iv) + "]");
+            }
+            return new CryptoInputStream(in, cryptoCodec, bufferSize,
+                                         getEncryptionKey(), iv, offset + cryptoPadding(conf));
+        } else {
+            return in;
+        }
+    }
+
+    /**
+     * Wraps a given FSDataInputStream with a CryptoInputStream. The size of the
+     * data buffer required for the stream is specified by the
+     * "mapreduce.job.encrypted-intermediate-data.buffer.kb" Job configuration
+     * variable.
+     *
+     * @param conf
+     * @param in
+     * @return FSDataInputStream
+     * @throws IOException
+     */
+    public static FSDataInputStream wrapIfNecessary(Configuration conf,
+            FSDataInputStream in) throws IOException {
+        if (isShuffleEncrypted(conf)) {
+            CryptoCodec cryptoCodec = CryptoCodec.getInstance(conf);
+            int bufferSize = getBufferSize(conf);
+            // Not going to be used... but still has to be read...
+            // Since the O/P stream always writes it..
+            IOUtils.readFully(in, new byte[8], 0, 8);
+            byte[] iv =
+                new byte[cryptoCodec.getCipherSuite().getAlgorithmBlockSize()];
+            IOUtils.readFully(in, iv, 0,
+                              cryptoCodec.getCipherSuite().getAlgorithmBlockSize());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("IV read from Stream ["
+                          + Base64.encodeBase64URLSafeString(iv) + "]");
+            }
+            return new CryptoFSDataInputStream(in, cryptoCodec, bufferSize,
+                                               getEncryptionKey(), iv);
+        } else {
+            return in;
+        }
+    }
 
 }

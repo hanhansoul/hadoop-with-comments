@@ -22,7 +22,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public interface DBWritable 
+public interface DBWritable
     extends org.apache.hadoop.mapreduce.lib.db.DBWritable {
-	
+
 }

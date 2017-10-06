@@ -38,39 +38,39 @@ import org.apache.hadoop.yarn.webapp.SubView;
 import com.google.inject.Inject;
 
 public class AttemptsPage extends TaskPage {
-  static class FewAttemptsBlock extends TaskPage.AttemptsBlock {
-    @Inject
-    FewAttemptsBlock(App ctx) {
-      super(ctx);
-    }
-
-    @Override
-    protected boolean isValidRequest() {
-      return true;
-    }
-
-    @Override
-    protected Collection<TaskAttempt> getTaskAttempts() {
-      List<TaskAttempt> fewTaskAttemps = new ArrayList<TaskAttempt>();
-      String taskTypeStr = $(TASK_TYPE);
-      TaskType taskType = MRApps.taskType(taskTypeStr);
-      String attemptStateStr = $(ATTEMPT_STATE);
-      TaskAttemptStateUI neededState = MRApps
-          .taskAttemptState(attemptStateStr);
-      for (Task task : super.app.getJob().getTasks(taskType).values()) {
-        Map<TaskAttemptId, TaskAttempt> attempts = task.getAttempts();
-        for (TaskAttempt attempt : attempts.values()) {
-          if (neededState.correspondsTo(attempt.getState())) {
-            fewTaskAttemps.add(attempt);
-          }
+    static class FewAttemptsBlock extends TaskPage.AttemptsBlock {
+        @Inject
+        FewAttemptsBlock(App ctx) {
+            super(ctx);
         }
-      }
-      return fewTaskAttemps;
-    }
-  }
 
-  @Override
-  protected Class<? extends SubView> content() {
-    return FewAttemptsBlock.class;
-  }
+        @Override
+        protected boolean isValidRequest() {
+            return true;
+        }
+
+        @Override
+        protected Collection<TaskAttempt> getTaskAttempts() {
+            List<TaskAttempt> fewTaskAttemps = new ArrayList<TaskAttempt>();
+            String taskTypeStr = $(TASK_TYPE);
+            TaskType taskType = MRApps.taskType(taskTypeStr);
+            String attemptStateStr = $(ATTEMPT_STATE);
+            TaskAttemptStateUI neededState = MRApps
+                                             .taskAttemptState(attemptStateStr);
+            for (Task task : super.app.getJob().getTasks(taskType).values()) {
+                Map<TaskAttemptId, TaskAttempt> attempts = task.getAttempts();
+                for (TaskAttempt attempt : attempts.values()) {
+                    if (neededState.correspondsTo(attempt.getState())) {
+                        fewTaskAttemps.add(attempt);
+                    }
+                }
+            }
+            return fewTaskAttemps;
+        }
+    }
+
+    @Override
+    protected Class<? extends SubView> content() {
+        return FewAttemptsBlock.class;
+    }
 }

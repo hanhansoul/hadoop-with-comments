@@ -28,82 +28,82 @@ import org.apache.hadoop.mapreduce.v2.proto.MRServiceProtos.GetJobReportResponse
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class GetJobReportResponsePBImpl extends ProtoBase<GetJobReportResponseProto> implements GetJobReportResponse {
-  GetJobReportResponseProto proto = GetJobReportResponseProto.getDefaultInstance();
-  GetJobReportResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private JobReport jobReport = null;
-  
-  
-  public GetJobReportResponsePBImpl() {
-    builder = GetJobReportResponseProto.newBuilder();
-  }
+    GetJobReportResponseProto proto = GetJobReportResponseProto.getDefaultInstance();
+    GetJobReportResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetJobReportResponsePBImpl(GetJobReportResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public GetJobReportResponseProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private JobReport jobReport = null;
 
-  private void mergeLocalToBuilder() {
-    if (this.jobReport != null) {
-      builder.setJobReport(convertToProtoFormat(this.jobReport));
+
+    public GetJobReportResponsePBImpl() {
+        builder = GetJobReportResponseProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetJobReportResponseProto.newBuilder(proto);
+    public GetJobReportResponsePBImpl(GetJobReportResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public JobReport getJobReport() {
-    GetJobReportResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.jobReport != null) {
-      return this.jobReport;
+
+    public GetJobReportResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasJobReport()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.jobReport != null) {
+            builder.setJobReport(convertToProtoFormat(this.jobReport));
+        }
     }
-    this.jobReport = convertFromProtoFormat(p.getJobReport());
-    return this.jobReport;
-  }
 
-  @Override
-  public void setJobReport(JobReport jobReport) {
-    maybeInitBuilder();
-    if (jobReport == null) 
-      builder.clearJobReport();
-    this.jobReport = jobReport;
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private JobReportPBImpl convertFromProtoFormat(JobReportProto p) {
-    return new JobReportPBImpl(p);
-  }
-
-  private JobReportProto convertToProtoFormat(JobReport t) {
-    return ((JobReportPBImpl)t).getProto();
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetJobReportResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
 
+    @Override
+    public JobReport getJobReport() {
+        GetJobReportResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.jobReport != null) {
+            return this.jobReport;
+        }
+        if (!p.hasJobReport()) {
+            return null;
+        }
+        this.jobReport = convertFromProtoFormat(p.getJobReport());
+        return this.jobReport;
+    }
 
-}  
+    @Override
+    public void setJobReport(JobReport jobReport) {
+        maybeInitBuilder();
+        if (jobReport == null)
+            builder.clearJobReport();
+        this.jobReport = jobReport;
+    }
+
+    private JobReportPBImpl convertFromProtoFormat(JobReportProto p) {
+        return new JobReportPBImpl(p);
+    }
+
+    private JobReportProto convertToProtoFormat(JobReport t) {
+        return ((JobReportPBImpl)t).getProto();
+    }
+
+
+
+}

@@ -20,42 +20,42 @@ package org.apache.hadoop.tools.rumen;
 /**
  * We use this exception class in the unit test, and we do a deep comparison
  * when we run the
- * 
+ *
  */
 public class DeepInequalityException extends Exception {
 
-  static final long serialVersionUID = 1352469876;
+    static final long serialVersionUID = 1352469876;
 
-  final TreePath path;
+    final TreePath path;
 
-  /**
-   * @param message
-   *          an exception message
-   * @param path
-   *          the path that gets from the root to the inequality
-   * 
-   *          This is the constructor that I intend to have used for this
-   *          exception.
-   */
-  public DeepInequalityException(String message, TreePath path,
-      Throwable chainee) {
-    super(message, chainee);
+    /**
+     * @param message
+     *          an exception message
+     * @param path
+     *          the path that gets from the root to the inequality
+     *
+     *          This is the constructor that I intend to have used for this
+     *          exception.
+     */
+    public DeepInequalityException(String message, TreePath path,
+                                   Throwable chainee) {
+        super(message, chainee);
 
-    this.path = path;
-  }
+        this.path = path;
+    }
 
-  /**
-   * @param message
-   *          an exception message
-   * @param path
-   *          the path that gets from the root to the inequality
-   * 
-   *          This is the constructor that I intend to have used for this
-   *          exception.
-   */
-  public DeepInequalityException(String message, TreePath path) {
-    super(message);
+    /**
+     * @param message
+     *          an exception message
+     * @param path
+     *          the path that gets from the root to the inequality
+     *
+     *          This is the constructor that I intend to have used for this
+     *          exception.
+     */
+    public DeepInequalityException(String message, TreePath path) {
+        super(message);
 
-    this.path = path;
-  }
+        this.path = path;
+    }
 }

@@ -29,31 +29,31 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CredentialsInfo {
 
-  @XmlElementWrapper(name = "tokens")
-  HashMap<String, String> tokens;
+    @XmlElementWrapper(name = "tokens")
+    HashMap<String, String> tokens;
 
-  @XmlElementWrapper(name = "secrets")
-  HashMap<String, String> secrets;
+    @XmlElementWrapper(name = "secrets")
+    HashMap<String, String> secrets;
 
-  public CredentialsInfo() {
-    tokens = new HashMap<String, String>();
-    secrets = new HashMap<String, String>();
-  }
+    public CredentialsInfo() {
+        tokens = new HashMap<String, String>();
+        secrets = new HashMap<String, String>();
+    }
 
-  public HashMap<String, String> getTokens() {
-    return tokens;
-  }
+    public HashMap<String, String> getTokens() {
+        return tokens;
+    }
 
-  public HashMap<String, String> getSecrets() {
-    return secrets;
-  }
+    public HashMap<String, String> getSecrets() {
+        return secrets;
+    }
 
-  public void setTokens(HashMap<String, String> tokens) {
-    this.tokens = tokens;
-  }
+    public void setTokens(HashMap<String, String> tokens) {
+        this.tokens = tokens;
+    }
 
-  public void setSecrets(HashMap<String, String> secrets) {
-    this.secrets = secrets;
-  }
+    public void setSecrets(HashMap<String, String> secrets) {
+        this.secrets = secrets;
+    }
 
 }

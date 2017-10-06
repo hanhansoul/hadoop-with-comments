@@ -32,24 +32,24 @@ import org.junit.Test;
 
 public class TestNNThroughputBenchmark {
 
-  @After
-  public void cleanUp() {
-    FileUtil.fullyDeleteContents(new File(MiniDFSCluster.getBaseDirectory()));
-  }
+    @After
+    public void cleanUp() {
+        FileUtil.fullyDeleteContents(new File(MiniDFSCluster.getBaseDirectory()));
+    }
 
-  /**
-   * This test runs all benchmarks defined in {@link NNThroughputBenchmark}.
-   */
-  @Test
-  public void testNNThroughput() throws Exception {
-    Configuration conf = new HdfsConfiguration();
-    File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
-    conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
-        nameDir.getAbsolutePath());
-    FileSystem.setDefaultUri(conf, "hdfs://localhost:" + 0);
-    conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY, "0.0.0.0:0");
-    DFSTestUtil.formatNameNode(conf);
-    String[] args = new String[] {"-op", "all"};
-    NNThroughputBenchmark.runBenchmark(conf, Arrays.asList(args));
-  }
+    /**
+     * This test runs all benchmarks defined in {@link NNThroughputBenchmark}.
+     */
+    @Test
+    public void testNNThroughput() throws Exception {
+        Configuration conf = new HdfsConfiguration();
+        File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
+        conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
+                 nameDir.getAbsolutePath());
+        FileSystem.setDefaultUri(conf, "hdfs://localhost:" + 0);
+        conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY, "0.0.0.0:0");
+        DFSTestUtil.formatNameNode(conf);
+        String[] args = new String[] {"-op", "all"};
+        NNThroughputBenchmark.runBenchmark(conf, Arrays.asList(args));
+    }
 }

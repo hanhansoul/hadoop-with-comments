@@ -31,82 +31,82 @@ import org.junit.Test;
 
 public class TestGetApplicationsRequest {
 
-  @Test
-  public void testGetApplicationsRequest(){
-    GetApplicationsRequest request = GetApplicationsRequest.newInstance();
-    
-    EnumSet<YarnApplicationState> appStates = 
-      EnumSet.of(YarnApplicationState.ACCEPTED);
-    request.setApplicationStates(appStates);
-    
-    Set<String> tags = new HashSet<String>();
-    tags.add("tag1");
-    request.setApplicationTags(tags);
-    
-    Set<String> types = new HashSet<String>();
-    types.add("type1");
-    request.setApplicationTypes(types);
-    
-    long startBegin = System.currentTimeMillis();
-    long startEnd = System.currentTimeMillis() + 1;
-    request.setStartRange(startBegin, startEnd);
-    long finishBegin = System.currentTimeMillis() + 2;
-    long finishEnd = System.currentTimeMillis() + 3;
-    request.setFinishRange(finishBegin, finishEnd);
-    
-    long limit = 100L;
-    request.setLimit(limit);
-    
-    Set<String> queues = new HashSet<String>();
-    queues.add("queue1");
-    request.setQueues(queues);
-    
-    
-    Set<String> users = new HashSet<String>();
-    users.add("user1");
-    request.setUsers(users);
-    
-    ApplicationsRequestScope scope = ApplicationsRequestScope.ALL;
-    request.setScope(scope);
-    
-    GetApplicationsRequest requestFromProto = new GetApplicationsRequestPBImpl(
-        ((GetApplicationsRequestPBImpl)request).getProto());
-    
-    // verify the whole record equals with original record
-    Assert.assertEquals(requestFromProto, request);
+    @Test
+    public void testGetApplicationsRequest() {
+        GetApplicationsRequest request = GetApplicationsRequest.newInstance();
 
-    // verify all properties are the same as original request
-    Assert.assertEquals(
-        "ApplicationStates from proto is not the same with original request",
-        requestFromProto.getApplicationStates(), appStates);
-    
-    Assert.assertEquals(
-        "ApplicationTags from proto is not the same with original request",
-        requestFromProto.getApplicationTags(), tags);
-    
-    Assert.assertEquals(
-        "ApplicationTypes from proto is not the same with original request",
-        requestFromProto.getApplicationTypes(), types);
-    
-    Assert.assertEquals(
-        "StartRange from proto is not the same with original request",
-        requestFromProto.getStartRange(), new LongRange(startBegin, startEnd));
-    
-    Assert.assertEquals(
-        "FinishRange from proto is not the same with original request",
-        requestFromProto.getFinishRange(), new LongRange(finishBegin, finishEnd));
-    
-    Assert.assertEquals(
-        "Limit from proto is not the same with original request",
-        requestFromProto.getLimit(), limit);
-    
-    Assert.assertEquals(
-        "Queues from proto is not the same with original request",
-        requestFromProto.getQueues(), queues);
-    
-    Assert.assertEquals(
-        "Users from proto is not the same with original request",
-        requestFromProto.getUsers(), users);
-  }
+        EnumSet<YarnApplicationState> appStates =
+            EnumSet.of(YarnApplicationState.ACCEPTED);
+        request.setApplicationStates(appStates);
+
+        Set<String> tags = new HashSet<String>();
+        tags.add("tag1");
+        request.setApplicationTags(tags);
+
+        Set<String> types = new HashSet<String>();
+        types.add("type1");
+        request.setApplicationTypes(types);
+
+        long startBegin = System.currentTimeMillis();
+        long startEnd = System.currentTimeMillis() + 1;
+        request.setStartRange(startBegin, startEnd);
+        long finishBegin = System.currentTimeMillis() + 2;
+        long finishEnd = System.currentTimeMillis() + 3;
+        request.setFinishRange(finishBegin, finishEnd);
+
+        long limit = 100L;
+        request.setLimit(limit);
+
+        Set<String> queues = new HashSet<String>();
+        queues.add("queue1");
+        request.setQueues(queues);
+
+
+        Set<String> users = new HashSet<String>();
+        users.add("user1");
+        request.setUsers(users);
+
+        ApplicationsRequestScope scope = ApplicationsRequestScope.ALL;
+        request.setScope(scope);
+
+        GetApplicationsRequest requestFromProto = new GetApplicationsRequestPBImpl(
+            ((GetApplicationsRequestPBImpl)request).getProto());
+
+        // verify the whole record equals with original record
+        Assert.assertEquals(requestFromProto, request);
+
+        // verify all properties are the same as original request
+        Assert.assertEquals(
+            "ApplicationStates from proto is not the same with original request",
+            requestFromProto.getApplicationStates(), appStates);
+
+        Assert.assertEquals(
+            "ApplicationTags from proto is not the same with original request",
+            requestFromProto.getApplicationTags(), tags);
+
+        Assert.assertEquals(
+            "ApplicationTypes from proto is not the same with original request",
+            requestFromProto.getApplicationTypes(), types);
+
+        Assert.assertEquals(
+            "StartRange from proto is not the same with original request",
+            requestFromProto.getStartRange(), new LongRange(startBegin, startEnd));
+
+        Assert.assertEquals(
+            "FinishRange from proto is not the same with original request",
+            requestFromProto.getFinishRange(), new LongRange(finishBegin, finishEnd));
+
+        Assert.assertEquals(
+            "Limit from proto is not the same with original request",
+            requestFromProto.getLimit(), limit);
+
+        Assert.assertEquals(
+            "Queues from proto is not the same with original request",
+            requestFromProto.getQueues(), queues);
+
+        Assert.assertEquals(
+            "Users from proto is not the same with original request",
+            requestFromProto.getUsers(), users);
+    }
 
 }

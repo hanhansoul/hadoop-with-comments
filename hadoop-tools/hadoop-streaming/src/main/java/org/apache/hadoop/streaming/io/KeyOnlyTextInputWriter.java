@@ -23,13 +23,13 @@ import java.io.IOException;
 
 public class KeyOnlyTextInputWriter extends TextInputWriter {
 
-  @Override
-  public void writeKey(Object key) throws IOException {
-    writeUTF8(key);
-    clientOut.write('\n');
-  }
+    @Override
+    public void writeKey(Object key) throws IOException {
+        writeUTF8(key);
+        clientOut.write('\n');
+    }
 
-  @Override
-  public void writeValue(Object value) throws IOException {}
+    @Override
+    public void writeValue(Object value) throws IOException {}
 
 }

@@ -39,132 +39,132 @@ import com.google.common.annotations.VisibleForTesting;
  * <br>
  * A request is identified by the client ID (address of the client) and
  * transaction ID (xid) from the Rpc call.
- * 
+ *
  */
 public class RpcCallCache {
-  
-  public static class CacheEntry {
-    private RpcResponse response; // null if no response has been sent
-    
-    public CacheEntry() {
-      response = null;
-    }
-      
-    public boolean isInProgress() {
-      return response == null;
-    }
-    
-    public boolean isCompleted() {
-      return response != null;
-    }
-    
-    public RpcResponse getResponse() {
-      return response;
-    }
-    
-    public void setResponse(RpcResponse response) {
-      this.response = response;
-    }
-  }
-  
-  /**
-   * Call that is used to track a client in the {@link RpcCallCache}
-   */
-  public static class ClientRequest {
-    protected final InetAddress clientId;
-    protected final int xid;
 
-    public InetAddress getClientId() {
-      return clientId;
+    public static class CacheEntry {
+        private RpcResponse response; // null if no response has been sent
+
+        public CacheEntry() {
+            response = null;
+        }
+
+        public boolean isInProgress() {
+            return response == null;
+        }
+
+        public boolean isCompleted() {
+            return response != null;
+        }
+
+        public RpcResponse getResponse() {
+            return response;
+        }
+
+        public void setResponse(RpcResponse response) {
+            this.response = response;
+        }
     }
 
-    public ClientRequest(InetAddress clientId, int xid) {
-      this.clientId = clientId;
-      this.xid = xid;
+    /**
+     * Call that is used to track a client in the {@link RpcCallCache}
+     */
+    public static class ClientRequest {
+        protected final InetAddress clientId;
+        protected final int xid;
+
+        public InetAddress getClientId() {
+            return clientId;
+        }
+
+        public ClientRequest(InetAddress clientId, int xid) {
+            this.clientId = clientId;
+            this.xid = xid;
+        }
+
+        @Override
+        public int hashCode() {
+            return xid + clientId.hashCode() * 31;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || !(obj instanceof ClientRequest)) {
+                return false;
+            }
+            ClientRequest other = (ClientRequest) obj;
+            return clientId.equals(other.clientId) && (xid == other.xid);
+        }
     }
 
-    @Override
-    public int hashCode() {
-	  return xid + clientId.hashCode() * 31;
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || !(obj instanceof ClientRequest)) {
-        return false;
-      }
-      ClientRequest other = (ClientRequest) obj;
-      return clientId.equals(other.clientId) && (xid == other.xid);
-    }
-  }
-  
-  private final String program;
-  
-  private final Map<ClientRequest, CacheEntry> map;
-  
-  public RpcCallCache(final String program, final int maxEntries) {
-    if (maxEntries <= 0) {
-      throw new IllegalArgumentException("Cache size is " + maxEntries
-          + ". Should be > 0");
-    }
-    this.program = program;
-    map = new LinkedHashMap<ClientRequest, CacheEntry>() {
-      private static final long serialVersionUID = 1L;
+    private final String program;
 
-      @Override
-      protected boolean removeEldestEntry(
-          java.util.Map.Entry<ClientRequest, CacheEntry> eldest) {
-        return RpcCallCache.this.size() > maxEntries;
-      }
-    };
-  }
-  
-  /** Return the program name */
-  public String getProgram() {
-    return program;
-  }
+    private final Map<ClientRequest, CacheEntry> map;
 
-  /** Mark a request as completed and add corresponding response to the cache */
-  public void callCompleted(InetAddress clientId, int xid, RpcResponse response) {
-    ClientRequest req = new ClientRequest(clientId, xid);
-    CacheEntry e;
-    synchronized(map) {
-      e = map.get(req);
+    public RpcCallCache(final String program, final int maxEntries) {
+        if (maxEntries <= 0) {
+            throw new IllegalArgumentException("Cache size is " + maxEntries
+                                               + ". Should be > 0");
+        }
+        this.program = program;
+        map = new LinkedHashMap<ClientRequest, CacheEntry>() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected boolean removeEldestEntry(
+                java.util.Map.Entry<ClientRequest, CacheEntry> eldest) {
+                return RpcCallCache.this.size() > maxEntries;
+            }
+        };
     }
-    e.response = response;
-  }
-  
-  /**
-   * Check the cache for an entry. If it does not exist, add the request
-   * as in progress.
-   */
-  public CacheEntry checkOrAddToCache(InetAddress clientId, int xid) {
-    ClientRequest req = new ClientRequest(clientId, xid);
-    CacheEntry e;
-    synchronized(map) {
-      e = map.get(req);
-      if (e == null) {
-        // Add an inprogress cache entry
-        map.put(req, new CacheEntry());
-      }
+
+    /** Return the program name */
+    public String getProgram() {
+        return program;
     }
-    return e;
-  }
-  
-  /** Return number of cached entries */
-  public int size() {
-    return map.size();
-  }
-  
-  /** 
-   * Iterator to the cache entries 
-   * @return iterator
-   */
-  @VisibleForTesting
-  public Iterator<Entry<ClientRequest, CacheEntry>> iterator() {
-    return map.entrySet().iterator();
-  }
+
+    /** Mark a request as completed and add corresponding response to the cache */
+    public void callCompleted(InetAddress clientId, int xid, RpcResponse response) {
+        ClientRequest req = new ClientRequest(clientId, xid);
+        CacheEntry e;
+        synchronized(map) {
+            e = map.get(req);
+        }
+        e.response = response;
+    }
+
+    /**
+     * Check the cache for an entry. If it does not exist, add the request
+     * as in progress.
+     */
+    public CacheEntry checkOrAddToCache(InetAddress clientId, int xid) {
+        ClientRequest req = new ClientRequest(clientId, xid);
+        CacheEntry e;
+        synchronized(map) {
+            e = map.get(req);
+            if (e == null) {
+                // Add an inprogress cache entry
+                map.put(req, new CacheEntry());
+            }
+        }
+        return e;
+    }
+
+    /** Return number of cached entries */
+    public int size() {
+        return map.size();
+    }
+
+    /**
+     * Iterator to the cache entries
+     * @return iterator
+     */
+    @VisibleForTesting
+    public Iterator<Entry<ClientRequest, CacheEntry>> iterator() {
+        return map.entrySet().iterator();
+    }
 }

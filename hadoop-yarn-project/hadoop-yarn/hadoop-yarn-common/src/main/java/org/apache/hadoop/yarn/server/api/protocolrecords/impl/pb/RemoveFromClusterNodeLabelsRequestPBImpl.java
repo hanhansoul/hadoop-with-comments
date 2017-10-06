@@ -27,89 +27,89 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.RemoveFromClusterNodeLa
 
 public class RemoveFromClusterNodeLabelsRequestPBImpl extends
     RemoveFromClusterNodeLabelsRequest {
-  Set<String> labels;
-  RemoveFromClusterNodeLabelsRequestProto proto =
-      RemoveFromClusterNodeLabelsRequestProto.getDefaultInstance();
-  RemoveFromClusterNodeLabelsRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    Set<String> labels;
+    RemoveFromClusterNodeLabelsRequestProto proto =
+        RemoveFromClusterNodeLabelsRequestProto.getDefaultInstance();
+    RemoveFromClusterNodeLabelsRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public RemoveFromClusterNodeLabelsRequestPBImpl() {
-    this.builder = RemoveFromClusterNodeLabelsRequestProto.newBuilder();
-  }
-
-  public RemoveFromClusterNodeLabelsRequestPBImpl(
-      RemoveFromClusterNodeLabelsRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = RemoveFromClusterNodeLabelsRequestProto.newBuilder(proto);
+    public RemoveFromClusterNodeLabelsRequestPBImpl() {
+        this.builder = RemoveFromClusterNodeLabelsRequestProto.newBuilder();
     }
-    viaProto = false;
-  }
 
-  private void mergeLocalToBuilder() {
-    if (this.labels != null && !this.labels.isEmpty()) {
-      builder.clearNodeLabels();
-      builder.addAllNodeLabels(this.labels);
+    public RemoveFromClusterNodeLabelsRequestPBImpl(
+        RemoveFromClusterNodeLabelsRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  public RemoveFromClusterNodeLabelsRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void initNodeLabels() {
-    if (this.labels != null) {
-      return;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = RemoveFromClusterNodeLabelsRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    RemoveFromClusterNodeLabelsRequestProtoOrBuilder p =
-        viaProto ? proto : builder;
-    this.labels = new HashSet<String>();
-    this.labels.addAll(p.getNodeLabelsList());
-  }
 
-  @Override
-  public void setNodeLabels(Set<String> labels) {
-    maybeInitBuilder();
-    if (labels == null || labels.isEmpty()) {
-      builder.clearNodeLabels();
+    private void mergeLocalToBuilder() {
+        if (this.labels != null && !this.labels.isEmpty()) {
+            builder.clearNodeLabels();
+            builder.addAllNodeLabels(this.labels);
+        }
     }
-    this.labels = labels;
-  }
 
-  @Override
-  public Set<String> getNodeLabels() {
-    initNodeLabels();
-    return this.labels;
-  }
-
-  @Override
-  public int hashCode() {
-    assert false : "hashCode not designed";
-    return 0;
-  }
-  
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    return false;
-  }
+
+    public RemoveFromClusterNodeLabelsRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    private void initNodeLabels() {
+        if (this.labels != null) {
+            return;
+        }
+        RemoveFromClusterNodeLabelsRequestProtoOrBuilder p =
+            viaProto ? proto : builder;
+        this.labels = new HashSet<String>();
+        this.labels.addAll(p.getNodeLabelsList());
+    }
+
+    @Override
+    public void setNodeLabels(Set<String> labels) {
+        maybeInitBuilder();
+        if (labels == null || labels.isEmpty()) {
+            builder.clearNodeLabels();
+        }
+        this.labels = labels;
+    }
+
+    @Override
+    public Set<String> getNodeLabels() {
+        initNodeLabels();
+        return this.labels;
+    }
+
+    @Override
+    public int hashCode() {
+        assert false : "hashCode not designed";
+        return 0;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 }

@@ -26,18 +26,18 @@ import org.junit.Before;
 
 public class TestViewFsLocalFs extends ViewFsBaseTest {
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    // create the test root on local_fs
-    fcTarget = FileContext.getLocalFSFileContext();
-    super.setUp();
-    
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        // create the test root on local_fs
+        fcTarget = FileContext.getLocalFSFileContext();
+        super.setUp();
 
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
 }

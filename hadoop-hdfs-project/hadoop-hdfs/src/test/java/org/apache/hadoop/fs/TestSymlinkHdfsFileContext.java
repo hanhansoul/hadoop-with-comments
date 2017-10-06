@@ -26,27 +26,27 @@ import org.junit.Test;
 
 public class TestSymlinkHdfsFileContext extends TestSymlinkHdfs {
 
-  private static FileContext fc;
+    private static FileContext fc;
 
-  @BeforeClass
-  public static void testSetup() throws Exception {
-    fc = FileContext.getFileContext(cluster.getURI(0));
-    wrapper = new FileContextTestWrapper(fc, "/tmp/TestSymlinkHdfsFileContext");
-  }
-
-  @Test(timeout=1000)
-  /** Test access a symlink using AbstractFileSystem */
-  public void testAccessLinkFromAbstractFileSystem() throws IOException {
-    Path file = new Path(testBaseDir1(), "file");
-    Path link = new Path(testBaseDir1(), "linkToFile");
-    createAndWriteFile(file);
-    wrapper.createSymlink(file, link, false);
-    try {
-      AbstractFileSystem afs = fc.getDefaultFileSystem();
-      afs.open(link);
-      fail("Opened a link using AFS");
-    } catch (UnresolvedLinkException x) {
-      // Expected
+    @BeforeClass
+    public static void testSetup() throws Exception {
+        fc = FileContext.getFileContext(cluster.getURI(0));
+        wrapper = new FileContextTestWrapper(fc, "/tmp/TestSymlinkHdfsFileContext");
     }
-  }
+
+    @Test(timeout=1000)
+    /** Test access a symlink using AbstractFileSystem */
+    public void testAccessLinkFromAbstractFileSystem() throws IOException {
+        Path file = new Path(testBaseDir1(), "file");
+        Path link = new Path(testBaseDir1(), "linkToFile");
+        createAndWriteFile(file);
+        wrapper.createSymlink(file, link, false);
+        try {
+            AbstractFileSystem afs = fc.getDefaultFileSystem();
+            afs.open(link);
+            fail("Opened a link using AFS");
+        } catch (UnresolvedLinkException x) {
+            // Expected
+        }
+    }
 }

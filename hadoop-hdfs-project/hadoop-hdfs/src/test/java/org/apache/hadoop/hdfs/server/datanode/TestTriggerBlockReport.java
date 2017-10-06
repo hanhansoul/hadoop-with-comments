@@ -45,90 +45,90 @@ import org.mockito.Mockito;
  * Test manually requesting that the DataNode send a block report.
  */
 public final class TestTriggerBlockReport {
-  private void testTriggerBlockReport(boolean incremental) throws Exception {
-    Configuration conf = new HdfsConfiguration();
+    private void testTriggerBlockReport(boolean incremental) throws Exception {
+        Configuration conf = new HdfsConfiguration();
 
-    // Set a really long value for dfs.blockreport.intervalMsec and
-    // dfs.heartbeat.interval, so that incremental block reports and heartbeats
-    // won't be sent during this test unless they're triggered
-    // manually.
-    conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 10800000L);
-    conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1080L);
+        // Set a really long value for dfs.blockreport.intervalMsec and
+        // dfs.heartbeat.interval, so that incremental block reports and heartbeats
+        // won't be sent during this test unless they're triggered
+        // manually.
+        conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 10800000L);
+        conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1080L);
 
-    final MiniDFSCluster cluster =
-        new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
-    cluster.waitActive();
-    FileSystem fs = cluster.getFileSystem();
-    DatanodeProtocolClientSideTranslatorPB spy =
-        DataNodeTestUtils.spyOnBposToNN(
-            cluster.getDataNodes().get(0), cluster.getNameNode());
-    DFSTestUtil.createFile(fs, new Path("/abc"), 16, (short) 1, 1L);
+        final MiniDFSCluster cluster =
+            new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        cluster.waitActive();
+        FileSystem fs = cluster.getFileSystem();
+        DatanodeProtocolClientSideTranslatorPB spy =
+            DataNodeTestUtils.spyOnBposToNN(
+                cluster.getDataNodes().get(0), cluster.getNameNode());
+        DFSTestUtil.createFile(fs, new Path("/abc"), 16, (short) 1, 1L);
 
-    // We should get 1 incremental block report.
-    Mockito.verify(spy, timeout(60000).times(1)).blockReceivedAndDeleted(
-        any(DatanodeRegistration.class),
-        anyString(),
-        any(StorageReceivedDeletedBlocks[].class));
+        // We should get 1 incremental block report.
+        Mockito.verify(spy, timeout(60000).times(1)).blockReceivedAndDeleted(
+            any(DatanodeRegistration.class),
+            anyString(),
+            any(StorageReceivedDeletedBlocks[].class));
 
-    // We should not receive any more incremental or incremental block reports,
-    // since the interval we configured is so long.
-    for (int i = 0; i < 3; i++) {
-      Thread.sleep(10);
-      Mockito.verify(spy, times(0)).blockReport(
-          any(DatanodeRegistration.class),
-          anyString(),
-          any(StorageBlockReport[].class),
-          Mockito.<BlockReportContext>anyObject());
-      Mockito.verify(spy, times(1)).blockReceivedAndDeleted(
-          any(DatanodeRegistration.class),
-          anyString(),
-          any(StorageReceivedDeletedBlocks[].class));
-    }
+        // We should not receive any more incremental or incremental block reports,
+        // since the interval we configured is so long.
+        for (int i = 0; i < 3; i++) {
+            Thread.sleep(10);
+            Mockito.verify(spy, times(0)).blockReport(
+                any(DatanodeRegistration.class),
+                anyString(),
+                any(StorageBlockReport[].class),
+                Mockito.<BlockReportContext>anyObject());
+            Mockito.verify(spy, times(1)).blockReceivedAndDeleted(
+                any(DatanodeRegistration.class),
+                anyString(),
+                any(StorageReceivedDeletedBlocks[].class));
+        }
 
-    // Create a fake block deletion notification on the DataNode.
-    // This will be sent with the next incremental block report.
-    ReceivedDeletedBlockInfo rdbi = new ReceivedDeletedBlockInfo(
-        new Block(5678, 512, 1000),  BlockStatus.DELETED_BLOCK, null);
-    DataNode datanode = cluster.getDataNodes().get(0);
-    BPServiceActor actor =
-        datanode.getAllBpOs()[0].getBPServiceActors().get(0);
-    String storageUuid =
-        datanode.getFSDataset().getVolumes().get(0).getStorageID();
-    actor.notifyNamenodeDeletedBlock(rdbi, storageUuid);
+        // Create a fake block deletion notification on the DataNode.
+        // This will be sent with the next incremental block report.
+        ReceivedDeletedBlockInfo rdbi = new ReceivedDeletedBlockInfo(
+            new Block(5678, 512, 1000),  BlockStatus.DELETED_BLOCK, null);
+        DataNode datanode = cluster.getDataNodes().get(0);
+        BPServiceActor actor =
+            datanode.getAllBpOs()[0].getBPServiceActors().get(0);
+        String storageUuid =
+            datanode.getFSDataset().getVolumes().get(0).getStorageID();
+        actor.notifyNamenodeDeletedBlock(rdbi, storageUuid);
 
-    // Manually trigger a block report.
-    datanode.triggerBlockReport(
-        new BlockReportOptions.Factory().
+        // Manually trigger a block report.
+        datanode.triggerBlockReport(
+            new BlockReportOptions.Factory().
             setIncremental(incremental).
             build()
-    );
+        );
 
-    // triggerBlockReport returns before the block report is
-    // actually sent.  Wait for it to be sent here.
-    if (incremental) {
-      Mockito.verify(spy, timeout(60000).times(2)).
-          blockReceivedAndDeleted(
-              any(DatanodeRegistration.class),
-              anyString(),
-              any(StorageReceivedDeletedBlocks[].class));
-    } else {
-      Mockito.verify(spy, timeout(60000)).blockReport(
-          any(DatanodeRegistration.class),
-          anyString(),
-          any(StorageBlockReport[].class),
-          Mockito.<BlockReportContext>anyObject());
+        // triggerBlockReport returns before the block report is
+        // actually sent.  Wait for it to be sent here.
+        if (incremental) {
+            Mockito.verify(spy, timeout(60000).times(2)).
+            blockReceivedAndDeleted(
+                any(DatanodeRegistration.class),
+                anyString(),
+                any(StorageReceivedDeletedBlocks[].class));
+        } else {
+            Mockito.verify(spy, timeout(60000)).blockReport(
+                any(DatanodeRegistration.class),
+                anyString(),
+                any(StorageBlockReport[].class),
+                Mockito.<BlockReportContext>anyObject());
+        }
+
+        cluster.shutdown();
     }
 
-    cluster.shutdown();
-  }
+    @Test
+    public void testTriggerFullBlockReport() throws Exception {
+        testTriggerBlockReport(false);
+    }
 
-  @Test
-  public void testTriggerFullBlockReport() throws Exception {
-    testTriggerBlockReport(false);
-  }
-
-  @Test
-  public void testTriggerIncrementalBlockReport() throws Exception {
-    testTriggerBlockReport(true);
-  }
+    @Test
+    public void testTriggerIncrementalBlockReport() throws Exception {
+        testTriggerBlockReport(true);
+    }
 }

@@ -31,12 +31,12 @@ import org.apache.hadoop.yarn.util.Records;
  * The response sent by the <code>ResourceManager</code> to a client requesting
  * a list of {@link ApplicationAttemptReport} for application attempts.
  * </p>
- * 
+ *
  * <p>
  * The <code>ApplicationAttemptReport</code> for each application includes the
  * details of an application attempt.
  * </p>
- * 
+ *
  * @see ApplicationAttemptReport
  * @see ApplicationHistoryProtocol#getApplicationAttempts(GetApplicationAttemptsRequest)
  */
@@ -44,33 +44,33 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class GetApplicationAttemptsResponse {
 
-  @Public
-  @Unstable
-  public static GetApplicationAttemptsResponse newInstance(
-      List<ApplicationAttemptReport> applicationAttempts) {
-    GetApplicationAttemptsResponse response =
-        Records.newRecord(GetApplicationAttemptsResponse.class);
-    response.setApplicationAttemptList(applicationAttempts);
-    return response;
-  }
+    @Public
+    @Unstable
+    public static GetApplicationAttemptsResponse newInstance(
+        List<ApplicationAttemptReport> applicationAttempts) {
+        GetApplicationAttemptsResponse response =
+            Records.newRecord(GetApplicationAttemptsResponse.class);
+        response.setApplicationAttemptList(applicationAttempts);
+        return response;
+    }
 
-  /**
-   * Get a list of <code>ApplicationReport</code> of an application.
-   * 
-   * @return a list of <code>ApplicationReport</code> of an application
-   */
-  @Public
-  @Unstable
-  public abstract List<ApplicationAttemptReport> getApplicationAttemptList();
+    /**
+     * Get a list of <code>ApplicationReport</code> of an application.
+     *
+     * @return a list of <code>ApplicationReport</code> of an application
+     */
+    @Public
+    @Unstable
+    public abstract List<ApplicationAttemptReport> getApplicationAttemptList();
 
-  /**
-   * Get a list of <code>ApplicationReport</code> of an application.
-   * 
-   * @param applicationAttempts
-   *          a list of <code>ApplicationReport</code> of an application
-   */
-  @Public
-  @Unstable
-  public abstract void setApplicationAttemptList(
-      List<ApplicationAttemptReport> applicationAttempts);
+    /**
+     * Get a list of <code>ApplicationReport</code> of an application.
+     *
+     * @param applicationAttempts
+     *          a list of <code>ApplicationReport</code> of an application
+     */
+    @Public
+    @Unstable
+    public abstract void setApplicationAttemptList(
+        List<ApplicationAttemptReport> applicationAttempts);
 }

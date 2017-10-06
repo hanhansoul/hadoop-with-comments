@@ -30,26 +30,26 @@ import org.apache.hadoop.mapreduce.protocol.ClientProtocolProvider;
 @InterfaceAudience.Private
 public class LocalClientProtocolProvider extends ClientProtocolProvider {
 
-  @Override
-  public ClientProtocol create(Configuration conf) throws IOException {
-    String framework =
-        conf.get(MRConfig.FRAMEWORK_NAME, MRConfig.LOCAL_FRAMEWORK_NAME);
-    if (!MRConfig.LOCAL_FRAMEWORK_NAME.equals(framework)) {
-      return null;
+    @Override
+    public ClientProtocol create(Configuration conf) throws IOException {
+        String framework =
+            conf.get(MRConfig.FRAMEWORK_NAME, MRConfig.LOCAL_FRAMEWORK_NAME);
+        if (!MRConfig.LOCAL_FRAMEWORK_NAME.equals(framework)) {
+            return null;
+        }
+        conf.setInt(JobContext.NUM_MAPS, 1);
+
+        return new LocalJobRunner(conf);
     }
-    conf.setInt(JobContext.NUM_MAPS, 1);
 
-    return new LocalJobRunner(conf);
-  }
+    @Override
+    public ClientProtocol create(InetSocketAddress addr, Configuration conf) {
+        return null; // LocalJobRunner doesn't use a socket
+    }
 
-  @Override
-  public ClientProtocol create(InetSocketAddress addr, Configuration conf) {
-    return null; // LocalJobRunner doesn't use a socket
-  }
-
-  @Override
-  public void close(ClientProtocol clientProtocol) {
-    // no clean up required
-  }
+    @Override
+    public void close(ClientProtocol clientProtocol) {
+        // no clean up required
+    }
 
 }

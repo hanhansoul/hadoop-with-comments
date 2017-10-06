@@ -26,14 +26,14 @@ import org.apache.hadoop.yarn.util.Records;
 
 public class NodeManagerBuilderUtils {
 
-  public static ResourceLocalizationSpec newResourceLocalizationSpec(
-      LocalResource rsrc, Path path) {
-    URL local = ConverterUtils.getYarnUrlFromPath(path);
-    ResourceLocalizationSpec resourceLocalizationSpec =
-        Records.newRecord(ResourceLocalizationSpec.class);
-    resourceLocalizationSpec.setDestinationDirectory(local);
-    resourceLocalizationSpec.setResource(rsrc);
-    return resourceLocalizationSpec;
-  }
+    public static ResourceLocalizationSpec newResourceLocalizationSpec(
+        LocalResource rsrc, Path path) {
+        URL local = ConverterUtils.getYarnUrlFromPath(path);
+        ResourceLocalizationSpec resourceLocalizationSpec =
+            Records.newRecord(ResourceLocalizationSpec.class);
+        resourceLocalizationSpec.setDestinationDirectory(local);
+        resourceLocalizationSpec.setResource(rsrc);
+        return resourceLocalizationSpec;
+    }
 
 }

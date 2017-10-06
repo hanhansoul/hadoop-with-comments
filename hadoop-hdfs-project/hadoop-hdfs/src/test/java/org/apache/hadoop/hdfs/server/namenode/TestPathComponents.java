@@ -29,31 +29,31 @@ import com.google.common.base.Charsets;
 
 
 /**
- * 
+ *
  */
 public class TestPathComponents {
 
-  @Test
-  public void testBytes2ByteArray() throws Exception {
-    testString("/");
-    testString("/file");
-    testString("/directory/");
-    testString("//");
-    testString("/dir//file");
-    testString("/dir/dir1//");
-  }
-
-  public void testString(String str) throws Exception {
-    String pathString = str;
-    byte[][] oldPathComponents = INode.getPathComponents(pathString);
-    byte[][] newPathComponents = 
-                DFSUtil.bytes2byteArray(pathString.getBytes(Charsets.UTF_8),
-                                        (byte) Path.SEPARATOR_CHAR);
-    if (oldPathComponents[0] == null) {
-      assertTrue(oldPathComponents[0] == newPathComponents[0]);
-    } else {
-      assertTrue("Path components do not match for " + pathString,
-                  Arrays.deepEquals(oldPathComponents, newPathComponents));
+    @Test
+    public void testBytes2ByteArray() throws Exception {
+        testString("/");
+        testString("/file");
+        testString("/directory/");
+        testString("//");
+        testString("/dir//file");
+        testString("/dir/dir1//");
     }
-  }
+
+    public void testString(String str) throws Exception {
+        String pathString = str;
+        byte[][] oldPathComponents = INode.getPathComponents(pathString);
+        byte[][] newPathComponents =
+            DFSUtil.bytes2byteArray(pathString.getBytes(Charsets.UTF_8),
+                                    (byte) Path.SEPARATOR_CHAR);
+        if (oldPathComponents[0] == null) {
+            assertTrue(oldPathComponents[0] == newPathComponents[0]);
+        } else {
+            assertTrue("Path components do not match for " + pathString,
+                       Arrays.deepEquals(oldPathComponents, newPathComponents));
+        }
+    }
 }

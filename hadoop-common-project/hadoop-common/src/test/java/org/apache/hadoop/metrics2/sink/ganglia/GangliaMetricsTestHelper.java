@@ -25,15 +25,15 @@ import java.net.DatagramSocket;
  */
 public class GangliaMetricsTestHelper {
 
-  /**
-   * Helper method to access package private method to set DatagramSocket
-   * needed for Unit test
-   * @param gangliaSink
-   * @param datagramSocket
-   */
-  public static void setDatagramSocket(AbstractGangliaSink gangliaSink,
-      DatagramSocket datagramSocket) {
+    /**
+     * Helper method to access package private method to set DatagramSocket
+     * needed for Unit test
+     * @param gangliaSink
+     * @param datagramSocket
+     */
+    public static void setDatagramSocket(AbstractGangliaSink gangliaSink,
+                                         DatagramSocket datagramSocket) {
 
-    gangliaSink.setDatagramSocket(datagramSocket);
-  }
+        gangliaSink.setDatagramSocket(datagramSocket);
+    }
 }

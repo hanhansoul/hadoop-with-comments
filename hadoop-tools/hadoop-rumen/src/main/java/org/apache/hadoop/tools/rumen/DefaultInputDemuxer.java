@@ -29,42 +29,42 @@ import org.apache.hadoop.fs.Path;
  * would return a decompression stream.
  */
 public class DefaultInputDemuxer implements InputDemuxer {
-  String name;
-  InputStream input;
+    String name;
+    InputStream input;
 
-  @Override
-  public void bindTo(Path path, Configuration conf) throws IOException {
-    if (name != null) { // re-binding before the previous one was consumed.
-      close();
+    @Override
+    public void bindTo(Path path, Configuration conf) throws IOException {
+        if (name != null) { // re-binding before the previous one was consumed.
+            close();
+        }
+        name = path.getName();
+
+        input = new PossiblyDecompressedInputStream(path, conf);
+
+        return;
     }
-    name = path.getName();
 
-    input = new PossiblyDecompressedInputStream(path, conf);
-
-    return;
-  }
-
-  @Override
-  public Pair<String, InputStream> getNext() throws IOException {
-    if (name != null) {
-      Pair<String, InputStream> ret =
-          new Pair<String, InputStream>(name, input);
-      name = null;
-      input = null;
-      return ret;
+    @Override
+    public Pair<String, InputStream> getNext() throws IOException {
+        if (name != null) {
+            Pair<String, InputStream> ret =
+                new Pair<String, InputStream>(name, input);
+            name = null;
+            input = null;
+            return ret;
+        }
+        return null;
     }
-    return null;
-  }
 
-  @Override
-  public void close() throws IOException {
-    try {
-      if (input != null) {
-        input.close();
-      }
-    } finally {
-      name = null;
-      input = null;
+    @Override
+    public void close() throws IOException {
+        try {
+            if (input != null) {
+                input.close();
+            }
+        } finally {
+            name = null;
+            input = null;
+        }
     }
-  }
 }

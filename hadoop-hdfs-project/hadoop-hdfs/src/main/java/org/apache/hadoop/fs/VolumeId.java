@@ -28,13 +28,13 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Public
 public interface VolumeId extends Comparable<VolumeId> {
 
-  @Override
-  abstract public int compareTo(VolumeId arg0);
+    @Override
+    abstract public int compareTo(VolumeId arg0);
 
-  @Override
-  abstract public int hashCode();
+    @Override
+    abstract public int hashCode();
 
-  @Override
-  abstract public boolean equals(Object obj);
+    @Override
+    abstract public boolean equals(Object obj);
 
 }

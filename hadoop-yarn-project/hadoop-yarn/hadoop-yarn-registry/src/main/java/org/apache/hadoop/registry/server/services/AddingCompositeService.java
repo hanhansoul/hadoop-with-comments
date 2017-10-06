@@ -40,17 +40,17 @@ import org.apache.hadoop.service.Service;
 public class AddingCompositeService extends CompositeService {
 
 
-  public AddingCompositeService(String name) {
-    super(name);
-  }
+    public AddingCompositeService(String name) {
+        super(name);
+    }
 
-  @Override
-  public void addService(Service service) {
-    super.addService(service);
-  }
+    @Override
+    public void addService(Service service) {
+        super.addService(service);
+    }
 
-  @Override
-  public boolean removeService(Service service) {
-    return super.removeService(service);
-  }
+    @Override
+    public boolean removeService(Service service) {
+        return super.removeService(service);
+    }
 }

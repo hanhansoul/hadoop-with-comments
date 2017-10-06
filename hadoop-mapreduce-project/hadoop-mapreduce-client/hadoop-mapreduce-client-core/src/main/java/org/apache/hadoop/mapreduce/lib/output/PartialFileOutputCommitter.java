@@ -45,62 +45,62 @@ import com.google.common.annotations.VisibleForTesting;
 public class PartialFileOutputCommitter
     extends FileOutputCommitter implements PartialOutputCommitter {
 
-  private static final Log LOG =
-    LogFactory.getLog(PartialFileOutputCommitter.class);
+    private static final Log LOG =
+        LogFactory.getLog(PartialFileOutputCommitter.class);
 
 
-  public PartialFileOutputCommitter(Path outputPath,
-                             TaskAttemptContext context) throws IOException {
-    super(outputPath, context);
-  }
-
-  public PartialFileOutputCommitter(Path outputPath,
-                             JobContext context) throws IOException {
-    super(outputPath, context);
-  }
-
-  @Override
-  public Path getCommittedTaskPath(int appAttemptId, TaskAttemptContext context) {
-    return new Path(getJobAttemptPath(appAttemptId),
-        String.valueOf(context.getTaskAttemptID()));
-  }
-
-  @VisibleForTesting
-  FileSystem fsFor(Path p, Configuration conf) throws IOException {
-    return p.getFileSystem(conf);
-  }
-
-  @Override
-  public void cleanUpPartialOutputForTask(TaskAttemptContext context)
-      throws IOException {
-
-    // we double check this is never invoked from a non-preemptable subclass.
-    // This should never happen, since the invoking codes is checking it too,
-    // but it is safer to double check. Errors handling this would produce
-    // inconsistent output.
-
-    if (!this.getClass().isAnnotationPresent(Checkpointable.class)) {
-      throw new IllegalStateException("Invoking cleanUpPartialOutputForTask() " +
-          "from non @Preemptable class");
+    public PartialFileOutputCommitter(Path outputPath,
+                                      TaskAttemptContext context) throws IOException {
+        super(outputPath, context);
     }
-    FileSystem fs =
-      fsFor(getTaskAttemptPath(context), context.getConfiguration());
 
-    LOG.info("cleanUpPartialOutputForTask: removing everything belonging to " +
-        context.getTaskAttemptID().getTaskID() + " in: " +
-        getCommittedTaskPath(context).getParent());
-
-    final TaskAttemptID taid = context.getTaskAttemptID();
-    final TaskID tid = taid.getTaskID();
-    Path pCommit = getCommittedTaskPath(context).getParent();
-    // remove any committed output
-    for (int i = 0; i < taid.getId(); ++i) {
-      TaskAttemptID oldId = new TaskAttemptID(tid, i);
-      Path pTask = new Path(pCommit, oldId.toString());
-      if (fs.exists(pTask) && !fs.delete(pTask, true)) {
-        throw new IOException("Failed to delete " + pTask);
-      }
+    public PartialFileOutputCommitter(Path outputPath,
+                                      JobContext context) throws IOException {
+        super(outputPath, context);
     }
-  }
+
+    @Override
+    public Path getCommittedTaskPath(int appAttemptId, TaskAttemptContext context) {
+        return new Path(getJobAttemptPath(appAttemptId),
+                        String.valueOf(context.getTaskAttemptID()));
+    }
+
+    @VisibleForTesting
+    FileSystem fsFor(Path p, Configuration conf) throws IOException {
+        return p.getFileSystem(conf);
+    }
+
+    @Override
+    public void cleanUpPartialOutputForTask(TaskAttemptContext context)
+    throws IOException {
+
+        // we double check this is never invoked from a non-preemptable subclass.
+        // This should never happen, since the invoking codes is checking it too,
+        // but it is safer to double check. Errors handling this would produce
+        // inconsistent output.
+
+        if (!this.getClass().isAnnotationPresent(Checkpointable.class)) {
+            throw new IllegalStateException("Invoking cleanUpPartialOutputForTask() " +
+                                            "from non @Preemptable class");
+        }
+        FileSystem fs =
+            fsFor(getTaskAttemptPath(context), context.getConfiguration());
+
+        LOG.info("cleanUpPartialOutputForTask: removing everything belonging to " +
+                 context.getTaskAttemptID().getTaskID() + " in: " +
+                 getCommittedTaskPath(context).getParent());
+
+        final TaskAttemptID taid = context.getTaskAttemptID();
+        final TaskID tid = taid.getTaskID();
+        Path pCommit = getCommittedTaskPath(context).getParent();
+        // remove any committed output
+        for (int i = 0; i < taid.getId(); ++i) {
+            TaskAttemptID oldId = new TaskAttemptID(tid, i);
+            Path pTask = new Path(pCommit, oldId.toString());
+            if (fs.exists(pTask) && !fs.delete(pTask, true)) {
+                throw new IOException("Failed to delete " + pTask);
+            }
+        }
+    }
 
 }

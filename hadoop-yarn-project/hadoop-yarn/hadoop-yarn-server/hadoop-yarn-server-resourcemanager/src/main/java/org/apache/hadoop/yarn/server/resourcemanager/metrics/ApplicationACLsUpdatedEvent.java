@@ -23,23 +23,23 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 public class ApplicationACLsUpdatedEvent extends SystemMetricsEvent {
 
-  private ApplicationId appId;
-  private String viewAppACLs;
+    private ApplicationId appId;
+    private String viewAppACLs;
 
-  public ApplicationACLsUpdatedEvent(ApplicationId appId,
-      String viewAppACLs,
-      long updatedTime) {
-    super(SystemMetricsEventType.APP_ACLS_UPDATED, updatedTime);
-    this.appId = appId;
-    this.viewAppACLs = viewAppACLs;
-  }
+    public ApplicationACLsUpdatedEvent(ApplicationId appId,
+                                       String viewAppACLs,
+                                       long updatedTime) {
+        super(SystemMetricsEventType.APP_ACLS_UPDATED, updatedTime);
+        this.appId = appId;
+        this.viewAppACLs = viewAppACLs;
+    }
 
-  public ApplicationId getApplicationId() {
-    return appId;
-  }
+    public ApplicationId getApplicationId() {
+        return appId;
+    }
 
-  public String getViewAppACLs() {
-    return viewAppACLs;
-  }
+    public String getViewAppACLs() {
+        return viewAppACLs;
+    }
 
 }

@@ -31,27 +31,27 @@ import org.apache.hadoop.util.ToolRunner;
  */
 public class GetGroups extends GetGroupsBase {
 
-  static {
-    Configuration.addDefaultResource("mapred-default.xml");
-    Configuration.addDefaultResource("mapred-site.xml");
-  }
-  
-  GetGroups(Configuration conf) {
-    super(conf);
-  }
-  
-  GetGroups(Configuration conf, PrintStream out) {
-    super(conf, out);
-  }
+    static {
+        Configuration.addDefaultResource("mapred-default.xml");
+        Configuration.addDefaultResource("mapred-site.xml");
+    }
 
-  @Override
-  protected InetSocketAddress getProtocolAddress(Configuration conf)
-      throws IOException {
-    throw new UnsupportedOperationException();
-  }
+    GetGroups(Configuration conf) {
+        super(conf);
+    }
 
-  public static void main(String[] argv) throws Exception {
-    int res = ToolRunner.run(new GetGroups(new Configuration()), argv);
-    System.exit(res);
-  }
+    GetGroups(Configuration conf, PrintStream out) {
+        super(conf, out);
+    }
+
+    @Override
+    protected InetSocketAddress getProtocolAddress(Configuration conf)
+    throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    public static void main(String[] argv) throws Exception {
+        int res = ToolRunner.run(new GetGroups(new Configuration()), argv);
+        System.exit(res);
+    }
 }

@@ -25,110 +25,110 @@ import java.util.regex.Matcher;
 import org.apache.hadoop.tools.rumen.datatypes.NodeName;
 
 public class ParsedHost {
-  private final String rackName;
-  private final String nodeName;
+    private final String rackName;
+    private final String nodeName;
 
-  /**
-   * TODO the following only works for /rack/host format. Change to support
-   * arbitrary level of network names.
-   */
-  private static final Pattern splitPattern = Pattern
-      .compile("/([^/]+)/([^/]+)");
+    /**
+     * TODO the following only works for /rack/host format. Change to support
+     * arbitrary level of network names.
+     */
+    private static final Pattern splitPattern = Pattern
+            .compile("/([^/]+)/([^/]+)");
 
-  /**
-   * TODO handle arbitrary level of network names.
-   */
-  static int numberOfDistances() {
-    return 3;
-  }
-
-  String nameComponent(int i) throws IllegalArgumentException {
-    switch (i) {
-    case 0:
-      return rackName;
-
-    case 1:
-      return nodeName;
-
-    default:
-      throw new IllegalArgumentException(
-          "Host location component index out of range.");
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return rackName.hashCode() * 17 + nodeName.hashCode();
-  }
-
-  public static ParsedHost parse(String name) {
-    // separate out the node name
-    Matcher matcher = splitPattern.matcher(name);
-
-    if (!matcher.matches())
-      return null;
-
-    return new ParsedHost(matcher.group(1), matcher.group(2));
-  }
-
-  private String process(String name) {
-    return name == null 
-           ? null 
-           : name.startsWith("/") ? name.substring(1) : name;
-  }
-  
-  public ParsedHost(LoggedLocation loc) {
-    List<NodeName> coordinates = loc.getLayers();
-
-    rackName = process(coordinates.get(0).getRackName());
-    nodeName = process(coordinates.get(1).getHostName());
-  }
-
-  LoggedLocation makeLoggedLocation() {
-    LoggedLocation result = new LoggedLocation();
-
-    List<String> coordinates = new ArrayList<String>();
-
-    coordinates.add(rackName);
-    coordinates.add(nodeName);
-
-    result.setLayers(coordinates);
-
-    return result;
-  }
-  
-  public String getNodeName() {
-    return nodeName;
-  }
-  
-  public String getRackName() {
-    return rackName;
-  }
-
-  // expects the broadest name first
-  ParsedHost(String rackName, String nodeName) {
-    this.rackName = process(rackName);
-    this.nodeName = process(nodeName);
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (!(other instanceof ParsedHost)) {
-      return false;
-    }
-    ParsedHost host = (ParsedHost) other;
-    return (nodeName.equals(host.nodeName) && rackName.equals(host.rackName));
-  }
-
-  int distance(ParsedHost other) {
-    if (nodeName.equals(other.nodeName)) {
-      return 0;
+    /**
+     * TODO handle arbitrary level of network names.
+     */
+    static int numberOfDistances() {
+        return 3;
     }
 
-    if (rackName.equals(other.rackName)) {
-      return 1;
+    String nameComponent(int i) throws IllegalArgumentException {
+        switch (i) {
+            case 0:
+                return rackName;
+
+            case 1:
+                return nodeName;
+
+            default:
+                throw new IllegalArgumentException(
+                    "Host location component index out of range.");
+        }
     }
 
-    return 2;
-  }
+    @Override
+    public int hashCode() {
+        return rackName.hashCode() * 17 + nodeName.hashCode();
+    }
+
+    public static ParsedHost parse(String name) {
+        // separate out the node name
+        Matcher matcher = splitPattern.matcher(name);
+
+        if (!matcher.matches())
+            return null;
+
+        return new ParsedHost(matcher.group(1), matcher.group(2));
+    }
+
+    private String process(String name) {
+        return name == null
+               ? null
+               : name.startsWith("/") ? name.substring(1) : name;
+    }
+
+    public ParsedHost(LoggedLocation loc) {
+        List<NodeName> coordinates = loc.getLayers();
+
+        rackName = process(coordinates.get(0).getRackName());
+        nodeName = process(coordinates.get(1).getHostName());
+    }
+
+    LoggedLocation makeLoggedLocation() {
+        LoggedLocation result = new LoggedLocation();
+
+        List<String> coordinates = new ArrayList<String>();
+
+        coordinates.add(rackName);
+        coordinates.add(nodeName);
+
+        result.setLayers(coordinates);
+
+        return result;
+    }
+
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public String getRackName() {
+        return rackName;
+    }
+
+    // expects the broadest name first
+    ParsedHost(String rackName, String nodeName) {
+        this.rackName = process(rackName);
+        this.nodeName = process(nodeName);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof ParsedHost)) {
+            return false;
+        }
+        ParsedHost host = (ParsedHost) other;
+        return (nodeName.equals(host.nodeName) && rackName.equals(host.rackName));
+    }
+
+    int distance(ParsedHost other) {
+        if (nodeName.equals(other.nodeName)) {
+            return 0;
+        }
+
+        if (rackName.equals(other.rackName)) {
+            return 1;
+        }
+
+        return 2;
+    }
 }

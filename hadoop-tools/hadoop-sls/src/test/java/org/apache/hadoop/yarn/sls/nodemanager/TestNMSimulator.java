@@ -30,81 +30,81 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestNMSimulator {
-  private final int GB = 1024;
-  private ResourceManager rm;
-  private YarnConfiguration conf;
+    private final int GB = 1024;
+    private ResourceManager rm;
+    private YarnConfiguration conf;
 
-  @Before
-  public void setup() {
-    conf = new YarnConfiguration();
-    conf.set(YarnConfiguration.RM_SCHEDULER,
-        "org.apache.hadoop.yarn.sls.scheduler.ResourceSchedulerWrapper");
-    conf.set(SLSConfiguration.RM_SCHEDULER,
-        "org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler");
-    conf.setBoolean(SLSConfiguration.METRICS_SWITCH, false);
-    rm = new ResourceManager();
-    rm.init(conf);
-    rm.start();
-  }
-
-  @Test
-  public void testNMSimulator() throws Exception {
-    // Register one node
-    NMSimulator node1 = new NMSimulator();
-    node1.init("rack1/node1", GB * 10, 10, 0, 1000, rm);
-    node1.middleStep();
-
-    int numClusterNodes = rm.getResourceScheduler().getNumClusterNodes();
-    int cumulativeSleepTime = 0;
-    int sleepInterval = 100;
-
-    while(numClusterNodes != 1 && cumulativeSleepTime < 5000) {
-      Thread.sleep(sleepInterval);
-      cumulativeSleepTime = cumulativeSleepTime + sleepInterval;
-      numClusterNodes = rm.getResourceScheduler().getNumClusterNodes();
+    @Before
+    public void setup() {
+        conf = new YarnConfiguration();
+        conf.set(YarnConfiguration.RM_SCHEDULER,
+                 "org.apache.hadoop.yarn.sls.scheduler.ResourceSchedulerWrapper");
+        conf.set(SLSConfiguration.RM_SCHEDULER,
+                 "org.apache.hadoop.yarn.server.resourcemanager.scheduler.fair.FairScheduler");
+        conf.setBoolean(SLSConfiguration.METRICS_SWITCH, false);
+        rm = new ResourceManager();
+        rm.init(conf);
+        rm.start();
     }
 
-    Assert.assertEquals(1, rm.getResourceScheduler().getNumClusterNodes());
-    Assert.assertEquals(GB * 10,
-        rm.getResourceScheduler().getRootQueueMetrics().getAvailableMB());
-    Assert.assertEquals(10,
-        rm.getResourceScheduler().getRootQueueMetrics()
-            .getAvailableVirtualCores());
+    @Test
+    public void testNMSimulator() throws Exception {
+        // Register one node
+        NMSimulator node1 = new NMSimulator();
+        node1.init("rack1/node1", GB * 10, 10, 0, 1000, rm);
+        node1.middleStep();
 
-    // Allocate one container on node1
-    ContainerId cId1 = newContainerId(1, 1, 1);
-    Container container1 = Container.newInstance(cId1, null, null,
-        Resources.createResource(GB, 1), null, null);
-    node1.addNewContainer(container1, 100000l);
-    Assert.assertTrue("Node1 should have one running container.",
-        node1.getRunningContainers().containsKey(cId1));
+        int numClusterNodes = rm.getResourceScheduler().getNumClusterNodes();
+        int cumulativeSleepTime = 0;
+        int sleepInterval = 100;
 
-    // Allocate one AM container on node1
-    ContainerId cId2 = newContainerId(2, 1, 1);
-    Container container2 = Container.newInstance(cId2, null, null,
-        Resources.createResource(GB, 1), null, null);
-    node1.addNewContainer(container2, -1l);
-    Assert.assertTrue("Node1 should have one running AM container",
-        node1.getAMContainers().contains(cId2));
+        while(numClusterNodes != 1 && cumulativeSleepTime < 5000) {
+            Thread.sleep(sleepInterval);
+            cumulativeSleepTime = cumulativeSleepTime + sleepInterval;
+            numClusterNodes = rm.getResourceScheduler().getNumClusterNodes();
+        }
 
-    // Remove containers
-    node1.cleanupContainer(cId1);
-    Assert.assertTrue("Container1 should be removed from Node1.",
-        node1.getCompletedContainers().contains(cId1));
-    node1.cleanupContainer(cId2);
-    Assert.assertFalse("Container2 should be removed from Node1.",
-        node1.getAMContainers().contains(cId2));
-  }
+        Assert.assertEquals(1, rm.getResourceScheduler().getNumClusterNodes());
+        Assert.assertEquals(GB * 10,
+                            rm.getResourceScheduler().getRootQueueMetrics().getAvailableMB());
+        Assert.assertEquals(10,
+                            rm.getResourceScheduler().getRootQueueMetrics()
+                            .getAvailableVirtualCores());
 
-  private ContainerId newContainerId(int appId, int appAttemptId, int cId) {
-    return BuilderUtils.newContainerId(
-        BuilderUtils.newApplicationAttemptId(
-            BuilderUtils.newApplicationId(System.currentTimeMillis(), appId),
-            appAttemptId), cId);
-  }
+        // Allocate one container on node1
+        ContainerId cId1 = newContainerId(1, 1, 1);
+        Container container1 = Container.newInstance(cId1, null, null,
+                               Resources.createResource(GB, 1), null, null);
+        node1.addNewContainer(container1, 100000l);
+        Assert.assertTrue("Node1 should have one running container.",
+                          node1.getRunningContainers().containsKey(cId1));
 
-  @After
-  public void tearDown() throws Exception {
-    rm.stop();
-  }
+        // Allocate one AM container on node1
+        ContainerId cId2 = newContainerId(2, 1, 1);
+        Container container2 = Container.newInstance(cId2, null, null,
+                               Resources.createResource(GB, 1), null, null);
+        node1.addNewContainer(container2, -1l);
+        Assert.assertTrue("Node1 should have one running AM container",
+                          node1.getAMContainers().contains(cId2));
+
+        // Remove containers
+        node1.cleanupContainer(cId1);
+        Assert.assertTrue("Container1 should be removed from Node1.",
+                          node1.getCompletedContainers().contains(cId1));
+        node1.cleanupContainer(cId2);
+        Assert.assertFalse("Container2 should be removed from Node1.",
+                           node1.getAMContainers().contains(cId2));
+    }
+
+    private ContainerId newContainerId(int appId, int appAttemptId, int cId) {
+        return BuilderUtils.newContainerId(
+                   BuilderUtils.newApplicationAttemptId(
+                       BuilderUtils.newApplicationId(System.currentTimeMillis(), appId),
+                       appAttemptId), cId);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        rm.stop();
+    }
 }

@@ -29,54 +29,54 @@ import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.server.ZooKeeperServer;
 
 public abstract class ActiveStandbyElectorTestUtil {
-  
-  private static final Log LOG = LogFactory.getLog(
-      ActiveStandbyElectorTestUtil.class);
-  private static final long LOG_INTERVAL_MS = 500;
 
-  public static void waitForActiveLockData(TestContext ctx,
-      ZooKeeperServer zks, String parentDir, byte[] activeData)
-      throws Exception {
-    long st = Time.now();
-    long lastPrint = st;
-    while (true) {
-      if (ctx != null) {
-        ctx.checkException();
-      }
-      try {
-        Stat stat = new Stat();
-        byte[] data = zks.getZKDatabase().getData(
-          parentDir + "/" +
-          ActiveStandbyElector.LOCK_FILENAME, stat, null);
-        if (activeData != null &&
-            Arrays.equals(activeData, data)) {
-          return;
-        }
-        if (Time.now() > lastPrint + LOG_INTERVAL_MS) {
-          LOG.info("Cur data: " + StringUtils.byteToHexString(data));
-          lastPrint = Time.now();
-        }
-      } catch (NoNodeException nne) {
-        if (activeData == null) {
-          return;
-        }
-        if (Time.now() > lastPrint + LOG_INTERVAL_MS) {
-          LOG.info("Cur data: no node");
-          lastPrint = Time.now();
-        }
-      }
-      Thread.sleep(50);
-    }
-  }
+    private static final Log LOG = LogFactory.getLog(
+                                       ActiveStandbyElectorTestUtil.class);
+    private static final long LOG_INTERVAL_MS = 500;
 
-  public static void waitForElectorState(TestContext ctx,
-      ActiveStandbyElector elector,
-      ActiveStandbyElector.State state) throws Exception { 
-    while (elector.getStateForTests() != state) {
-      if (ctx != null) {
-        ctx.checkException();
-      }
-      Thread.sleep(50);
+    public static void waitForActiveLockData(TestContext ctx,
+            ZooKeeperServer zks, String parentDir, byte[] activeData)
+    throws Exception {
+        long st = Time.now();
+        long lastPrint = st;
+        while (true) {
+            if (ctx != null) {
+                ctx.checkException();
+            }
+            try {
+                Stat stat = new Stat();
+                byte[] data = zks.getZKDatabase().getData(
+                                  parentDir + "/" +
+                                  ActiveStandbyElector.LOCK_FILENAME, stat, null);
+                if (activeData != null &&
+                    Arrays.equals(activeData, data)) {
+                    return;
+                }
+                if (Time.now() > lastPrint + LOG_INTERVAL_MS) {
+                    LOG.info("Cur data: " + StringUtils.byteToHexString(data));
+                    lastPrint = Time.now();
+                }
+            } catch (NoNodeException nne) {
+                if (activeData == null) {
+                    return;
+                }
+                if (Time.now() > lastPrint + LOG_INTERVAL_MS) {
+                    LOG.info("Cur data: no node");
+                    lastPrint = Time.now();
+                }
+            }
+            Thread.sleep(50);
+        }
     }
-  }
+
+    public static void waitForElectorState(TestContext ctx,
+                                           ActiveStandbyElector elector,
+                                           ActiveStandbyElector.State state) throws Exception {
+        while (elector.getStateForTests() != state) {
+            if (ctx != null) {
+                ctx.checkException();
+            }
+            Thread.sleep(50);
+        }
+    }
 }

@@ -22,16 +22,16 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
 
 public class ResourceReleaseEvent extends ResourceEvent {
 
-  private final ContainerId container;
+    private final ContainerId container;
 
-  public ResourceReleaseEvent(LocalResourceRequest rsrc, 
-      ContainerId container) {
-    super(rsrc, ResourceEventType.RELEASE);
-    this.container = container;
-  }
+    public ResourceReleaseEvent(LocalResourceRequest rsrc,
+                                ContainerId container) {
+        super(rsrc, ResourceEventType.RELEASE);
+        this.container = container;
+    }
 
-  public ContainerId getContainer() {
-    return container;
-  }
+    public ContainerId getContainer() {
+        return container;
+    }
 
 }

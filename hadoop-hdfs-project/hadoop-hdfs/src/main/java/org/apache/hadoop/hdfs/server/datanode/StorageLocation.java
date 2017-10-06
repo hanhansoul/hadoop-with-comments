@@ -37,66 +37,66 @@ import org.apache.hadoop.hdfs.server.common.Util;
  */
 @InterfaceAudience.Private
 public class StorageLocation {
-  final StorageType storageType;
-  final File file;
+    final StorageType storageType;
+    final File file;
 
-  /** Regular expression that describes a storage uri with a storage type.
-   *  e.g. [Disk]/storages/storage1/
-   */
-  private static final Pattern regex = Pattern.compile("^\\[(\\w*)\\](.+)$");
+    /** Regular expression that describes a storage uri with a storage type.
+     *  e.g. [Disk]/storages/storage1/
+     */
+    private static final Pattern regex = Pattern.compile("^\\[(\\w*)\\](.+)$");
 
-  private StorageLocation(StorageType storageType, URI uri) {
-    this.storageType = storageType;
+    private StorageLocation(StorageType storageType, URI uri) {
+        this.storageType = storageType;
 
-    if (uri.getScheme() == null ||
-        "file".equalsIgnoreCase(uri.getScheme())) {
-      // drop any (illegal) authority in the URI for backwards compatibility
-      this.file = new File(uri.getPath());
-    } else {
-      throw new IllegalArgumentException("Unsupported URI schema in " + uri);
-    }
-  }
-
-  public StorageType getStorageType() {
-    return this.storageType;
-  }
-
-  URI getUri() {
-    return file.toURI();
-  }
-
-  public File getFile() {
-    return this.file;
-  }
-
-  /**
-   * Attempt to parse a storage uri with storage class and URI. The storage
-   * class component of the uri is case-insensitive.
-   *
-   * @param rawLocation Location string of the format [type]uri, where [type] is
-   *                    optional.
-   * @return A StorageLocation object if successfully parsed, null otherwise.
-   *         Does not throw any exceptions.
-   */
-  public static StorageLocation parse(String rawLocation)
-      throws IOException, SecurityException {
-    Matcher matcher = regex.matcher(rawLocation);
-    StorageType storageType = StorageType.DEFAULT;
-    String location = rawLocation;
-
-    if (matcher.matches()) {
-      String classString = matcher.group(1);
-      location = matcher.group(2);
-      if (!classString.isEmpty()) {
-        storageType = StorageType.valueOf(classString.toUpperCase());
-      }
+        if (uri.getScheme() == null ||
+            "file".equalsIgnoreCase(uri.getScheme())) {
+            // drop any (illegal) authority in the URI for backwards compatibility
+            this.file = new File(uri.getPath());
+        } else {
+            throw new IllegalArgumentException("Unsupported URI schema in " + uri);
+        }
     }
 
-    return new StorageLocation(storageType, Util.stringAsURI(location));
-  }
+    public StorageType getStorageType() {
+        return this.storageType;
+    }
 
-  @Override
-  public String toString() {
-    return "[" + storageType + "]" + file.toURI();
-  }
+    URI getUri() {
+        return file.toURI();
+    }
+
+    public File getFile() {
+        return this.file;
+    }
+
+    /**
+     * Attempt to parse a storage uri with storage class and URI. The storage
+     * class component of the uri is case-insensitive.
+     *
+     * @param rawLocation Location string of the format [type]uri, where [type] is
+     *                    optional.
+     * @return A StorageLocation object if successfully parsed, null otherwise.
+     *         Does not throw any exceptions.
+     */
+    public static StorageLocation parse(String rawLocation)
+    throws IOException, SecurityException {
+        Matcher matcher = regex.matcher(rawLocation);
+        StorageType storageType = StorageType.DEFAULT;
+        String location = rawLocation;
+
+        if (matcher.matches()) {
+            String classString = matcher.group(1);
+            location = matcher.group(2);
+            if (!classString.isEmpty()) {
+                storageType = StorageType.valueOf(classString.toUpperCase());
+            }
+        }
+
+        return new StorageLocation(storageType, Util.stringAsURI(location));
+    }
+
+    @Override
+    public String toString() {
+        return "[" + storageType + "]" + file.toURI();
+    }
 }

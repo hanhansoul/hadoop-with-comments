@@ -31,52 +31,52 @@ import org.apache.hadoop.security.token.delegation.DelegationKey;
 public class HistoryServerNullStateStoreService
     extends HistoryServerStateStoreService {
 
-  @Override
-  protected void initStorage(Configuration conf) throws IOException {
-    // Do nothing
-  }
+    @Override
+    protected void initStorage(Configuration conf) throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  protected void startStorage() throws IOException {
-    // Do nothing
-  }
+    @Override
+    protected void startStorage() throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  protected void closeStorage() throws IOException {
-    // Do nothing
-  }
+    @Override
+    protected void closeStorage() throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  public HistoryServerState loadState() throws IOException {
-    throw new UnsupportedOperationException(
-        "Cannot load state from null store");
-  }
+    @Override
+    public HistoryServerState loadState() throws IOException {
+        throw new UnsupportedOperationException(
+            "Cannot load state from null store");
+    }
 
-  @Override
-  public void storeToken(MRDelegationTokenIdentifier tokenId, Long renewDate)
-      throws IOException {
-    // Do nothing
-  }
+    @Override
+    public void storeToken(MRDelegationTokenIdentifier tokenId, Long renewDate)
+    throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  public void updateToken(MRDelegationTokenIdentifier tokenId, Long renewDate)
-      throws IOException {
-    // Do nothing
-  }
+    @Override
+    public void updateToken(MRDelegationTokenIdentifier tokenId, Long renewDate)
+    throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  public void removeToken(MRDelegationTokenIdentifier tokenId)
-      throws IOException {
-    // Do nothing
-  }
+    @Override
+    public void removeToken(MRDelegationTokenIdentifier tokenId)
+    throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  public void storeTokenMasterKey(DelegationKey key) throws IOException {
-    // Do nothing
-  }
+    @Override
+    public void storeTokenMasterKey(DelegationKey key) throws IOException {
+        // Do nothing
+    }
 
-  @Override
-  public void removeTokenMasterKey(DelegationKey key) throws IOException {
-    // Do nothing
-  }
+    @Override
+    public void removeTokenMasterKey(DelegationKey key) throws IOException {
+        // Do nothing
+    }
 }

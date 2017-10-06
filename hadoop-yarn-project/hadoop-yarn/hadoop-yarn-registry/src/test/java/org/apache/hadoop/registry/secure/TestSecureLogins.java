@@ -53,162 +53,162 @@ import java.util.Set;
  * Verify that logins work
  */
 public class TestSecureLogins extends AbstractSecureRegistryTest {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(TestSecureLogins.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(TestSecureLogins.class);
 
-  @Test
-  public void testHasRealm() throws Throwable {
-    assertNotNull(getRealm());
-    LOG.info("ZK principal = {}", getPrincipalAndRealm(ZOOKEEPER_LOCALHOST));
-  }
-
-  @Test
-  public void testJaasFileSetup() throws Throwable {
-    // the JVM has seemed inconsistent on setting up here
-    assertNotNull("jaasFile", jaasFile);
-    String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
-    assertEquals(jaasFile.getAbsolutePath(), confFilename);
-  }
-
-  @Test
-  public void testJaasFileBinding() throws Throwable {
-    // the JVM has seemed inconsistent on setting up here
-    assertNotNull("jaasFile", jaasFile);
-    RegistrySecurity.bindJVMtoJAASFile(jaasFile);
-    String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
-    assertEquals(jaasFile.getAbsolutePath(), confFilename);
-  }
-
-
-  @Test
-  public void testClientLogin() throws Throwable {
-    LoginContext client = login(ALICE_LOCALHOST,
-                                ALICE_CLIENT_CONTEXT,
-                                keytab_alice);
-
-    try {
-      logLoginDetails(ALICE_LOCALHOST, client);
-      String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
-      assertNotNull("Unset: "+ Environment.JAAS_CONF_KEY, confFilename);
-      String config = FileUtils.readFileToString(new File(confFilename));
-      LOG.info("{}=\n{}", confFilename, config);
-      RegistrySecurity.setZKSaslClientProperties(ALICE, ALICE_CLIENT_CONTEXT);
-    } finally {
-      client.logout();
+    @Test
+    public void testHasRealm() throws Throwable {
+        assertNotNull(getRealm());
+        LOG.info("ZK principal = {}", getPrincipalAndRealm(ZOOKEEPER_LOCALHOST));
     }
-  }
 
-  @Test
-  public void testZKServerContextLogin() throws Throwable {
-    LoginContext client = login(ZOOKEEPER_LOCALHOST,
-                                ZOOKEEPER_SERVER_CONTEXT,
-                                keytab_zk);
-    logLoginDetails(ZOOKEEPER_LOCALHOST, client);
+    @Test
+    public void testJaasFileSetup() throws Throwable {
+        // the JVM has seemed inconsistent on setting up here
+        assertNotNull("jaasFile", jaasFile);
+        String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
+        assertEquals(jaasFile.getAbsolutePath(), confFilename);
+    }
 
-    client.logout();
-  }
-
-
-  @Test
-  public void testServerLogin() throws Throwable {
-    LoginContext loginContext = createLoginContextZookeeperLocalhost();
-    loginContext.login();
-    loginContext.logout();
-  }
-
-  public LoginContext createLoginContextZookeeperLocalhost() throws
-      LoginException {
-    String principalAndRealm = getPrincipalAndRealm(ZOOKEEPER_LOCALHOST);
-    Set<Principal> principals = new HashSet<Principal>();
-    principals.add(new KerberosPrincipal(ZOOKEEPER_LOCALHOST));
-    Subject subject = new Subject(false, principals, new HashSet<Object>(),
-        new HashSet<Object>());
-    return new LoginContext("", subject, null,
-        KerberosConfiguration.createServerConfig(ZOOKEEPER_LOCALHOST, keytab_zk));
-  }
+    @Test
+    public void testJaasFileBinding() throws Throwable {
+        // the JVM has seemed inconsistent on setting up here
+        assertNotNull("jaasFile", jaasFile);
+        RegistrySecurity.bindJVMtoJAASFile(jaasFile);
+        String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
+        assertEquals(jaasFile.getAbsolutePath(), confFilename);
+    }
 
 
-  @Test
-  public void testKerberosAuth() throws Throwable {
-    File krb5conf = getKdc().getKrb5conf();
-    String krbConfig = FileUtils.readFileToString(krb5conf);
-    LOG.info("krb5.conf at {}:\n{}", krb5conf, krbConfig);
-    Subject subject = new Subject();
+    @Test
+    public void testClientLogin() throws Throwable {
+        LoginContext client = login(ALICE_LOCALHOST,
+                                    ALICE_CLIENT_CONTEXT,
+                                    keytab_alice);
 
-    final Krb5LoginModule krb5LoginModule = new Krb5LoginModule();
-    final Map<String, String> options = new HashMap<String, String>();
-    options.put("keyTab", keytab_alice.getAbsolutePath());
-    options.put("principal", ALICE_LOCALHOST);
-    options.put("debug", "true");
-    options.put("doNotPrompt", "true");
-    options.put("isInitiator", "true");
-    options.put("refreshKrb5Config", "true");
-    options.put("renewTGT", "true");
-    options.put("storeKey", "true");
-    options.put("useKeyTab", "true");
-    options.put("useTicketCache", "true");
+        try {
+            logLoginDetails(ALICE_LOCALHOST, client);
+            String confFilename = System.getProperty(Environment.JAAS_CONF_KEY);
+            assertNotNull("Unset: "+ Environment.JAAS_CONF_KEY, confFilename);
+            String config = FileUtils.readFileToString(new File(confFilename));
+            LOG.info("{}=\n{}", confFilename, config);
+            RegistrySecurity.setZKSaslClientProperties(ALICE, ALICE_CLIENT_CONTEXT);
+        } finally {
+            client.logout();
+        }
+    }
 
-    krb5LoginModule.initialize(subject, null,
-        new HashMap<String, String>(),
-        options);
+    @Test
+    public void testZKServerContextLogin() throws Throwable {
+        LoginContext client = login(ZOOKEEPER_LOCALHOST,
+                                    ZOOKEEPER_SERVER_CONTEXT,
+                                    keytab_zk);
+        logLoginDetails(ZOOKEEPER_LOCALHOST, client);
 
-    boolean loginOk = krb5LoginModule.login();
-    assertTrue("Failed to login", loginOk);
-    boolean commitOk = krb5LoginModule.commit();
-    assertTrue("Failed to Commit", commitOk);
-  }
-
-  @Test
-  public void testDefaultRealmValid() throws Throwable {
-    String defaultRealm = KerberosUtil.getDefaultRealm();
-    assertNotEmpty("No default Kerberos Realm",
-        defaultRealm);
-    LOG.info("Default Realm '{}'", defaultRealm);
-  }
-
-  @Test
-  public void testKerberosRulesValid() throws Throwable {
-    assertTrue("!KerberosName.hasRulesBeenSet()",
-        KerberosName.hasRulesBeenSet());
-    String rules = KerberosName.getRules();
-    assertEquals(kerberosRule, rules);
-    LOG.info(rules);
-  }
-
-  @Test
-  public void testValidKerberosName() throws Throwable {
-
-    new HadoopKerberosName(ZOOKEEPER).getShortName();
-    new HadoopKerberosName(ZOOKEEPER_LOCALHOST).getShortName();
-    new HadoopKerberosName(ZOOKEEPER_REALM).getShortName();
-    // standard rules don't pick this up
-    // new HadoopKerberosName(ZOOKEEPER_LOCALHOST_REALM).getShortName();
-  }
+        client.logout();
+    }
 
 
-  @Test
-  public void testUGILogin() throws Throwable {
+    @Test
+    public void testServerLogin() throws Throwable {
+        LoginContext loginContext = createLoginContextZookeeperLocalhost();
+        loginContext.login();
+        loginContext.logout();
+    }
 
-    UserGroupInformation ugi = loginUGI(ZOOKEEPER, keytab_zk);
-    RegistrySecurity.UgiInfo ugiInfo =
-        new RegistrySecurity.UgiInfo(ugi);
-    LOG.info("logged in as: {}", ugiInfo);
-    assertTrue("security is not enabled: " + ugiInfo,
-        UserGroupInformation.isSecurityEnabled());
-    assertTrue("login is keytab based: " + ugiInfo,
-        ugi.isFromKeytab());
+    public LoginContext createLoginContextZookeeperLocalhost() throws
+        LoginException {
+        String principalAndRealm = getPrincipalAndRealm(ZOOKEEPER_LOCALHOST);
+        Set<Principal> principals = new HashSet<Principal>();
+        principals.add(new KerberosPrincipal(ZOOKEEPER_LOCALHOST));
+        Subject subject = new Subject(false, principals, new HashSet<Object>(),
+                                      new HashSet<Object>());
+        return new LoginContext("", subject, null,
+                                KerberosConfiguration.createServerConfig(ZOOKEEPER_LOCALHOST, keytab_zk));
+    }
 
-    // now we are here, build a SASL ACL
-    ACL acl = ugi.doAs(new PrivilegedExceptionAction<ACL>() {
-      @Override
-      public ACL run() throws Exception {
-        return registrySecurity.createSaslACLFromCurrentUser(0);
-      }
-    });
-    assertEquals(ZOOKEEPER_REALM, acl.getId().getId());
-    assertEquals(ZookeeperConfigOptions.SCHEME_SASL, acl.getId().getScheme());
-    registrySecurity.addSystemACL(acl);
 
-  }
+    @Test
+    public void testKerberosAuth() throws Throwable {
+        File krb5conf = getKdc().getKrb5conf();
+        String krbConfig = FileUtils.readFileToString(krb5conf);
+        LOG.info("krb5.conf at {}:\n{}", krb5conf, krbConfig);
+        Subject subject = new Subject();
+
+        final Krb5LoginModule krb5LoginModule = new Krb5LoginModule();
+        final Map<String, String> options = new HashMap<String, String>();
+        options.put("keyTab", keytab_alice.getAbsolutePath());
+        options.put("principal", ALICE_LOCALHOST);
+        options.put("debug", "true");
+        options.put("doNotPrompt", "true");
+        options.put("isInitiator", "true");
+        options.put("refreshKrb5Config", "true");
+        options.put("renewTGT", "true");
+        options.put("storeKey", "true");
+        options.put("useKeyTab", "true");
+        options.put("useTicketCache", "true");
+
+        krb5LoginModule.initialize(subject, null,
+                                   new HashMap<String, String>(),
+                                   options);
+
+        boolean loginOk = krb5LoginModule.login();
+        assertTrue("Failed to login", loginOk);
+        boolean commitOk = krb5LoginModule.commit();
+        assertTrue("Failed to Commit", commitOk);
+    }
+
+    @Test
+    public void testDefaultRealmValid() throws Throwable {
+        String defaultRealm = KerberosUtil.getDefaultRealm();
+        assertNotEmpty("No default Kerberos Realm",
+                       defaultRealm);
+        LOG.info("Default Realm '{}'", defaultRealm);
+    }
+
+    @Test
+    public void testKerberosRulesValid() throws Throwable {
+        assertTrue("!KerberosName.hasRulesBeenSet()",
+                   KerberosName.hasRulesBeenSet());
+        String rules = KerberosName.getRules();
+        assertEquals(kerberosRule, rules);
+        LOG.info(rules);
+    }
+
+    @Test
+    public void testValidKerberosName() throws Throwable {
+
+        new HadoopKerberosName(ZOOKEEPER).getShortName();
+        new HadoopKerberosName(ZOOKEEPER_LOCALHOST).getShortName();
+        new HadoopKerberosName(ZOOKEEPER_REALM).getShortName();
+        // standard rules don't pick this up
+        // new HadoopKerberosName(ZOOKEEPER_LOCALHOST_REALM).getShortName();
+    }
+
+
+    @Test
+    public void testUGILogin() throws Throwable {
+
+        UserGroupInformation ugi = loginUGI(ZOOKEEPER, keytab_zk);
+        RegistrySecurity.UgiInfo ugiInfo =
+            new RegistrySecurity.UgiInfo(ugi);
+        LOG.info("logged in as: {}", ugiInfo);
+        assertTrue("security is not enabled: " + ugiInfo,
+                   UserGroupInformation.isSecurityEnabled());
+        assertTrue("login is keytab based: " + ugiInfo,
+                   ugi.isFromKeytab());
+
+        // now we are here, build a SASL ACL
+        ACL acl = ugi.doAs(new PrivilegedExceptionAction<ACL>() {
+            @Override
+            public ACL run() throws Exception {
+                return registrySecurity.createSaslACLFromCurrentUser(0);
+            }
+        });
+        assertEquals(ZOOKEEPER_REALM, acl.getId().getId());
+        assertEquals(ZookeeperConfigOptions.SCHEME_SASL, acl.getId().getScheme());
+        registrySecurity.addSystemACL(acl);
+
+    }
 
 }

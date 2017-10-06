@@ -27,39 +27,39 @@ import org.apache.hadoop.classification.InterfaceAudience;
 
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class DefaultPage extends TextPage {
-  static final Joiner valJoiner = Joiner.on(", ");
+    static final Joiner valJoiner = Joiner.on(", ");
 
-  @Override
-  public void render() {
-    puts("Request URI: ", request().getRequestURI());
-    puts("Query parameters:");
-    @SuppressWarnings("unchecked")
-    Map<String, String[]> params = request().getParameterMap();
-    for (Map.Entry<String, String[]> e : params.entrySet()) {
-      puts("  ", e.getKey(), "=", valJoiner.join(e.getValue()));
+    @Override
+    public void render() {
+        puts("Request URI: ", request().getRequestURI());
+        puts("Query parameters:");
+        @SuppressWarnings("unchecked")
+        Map<String, String[]> params = request().getParameterMap();
+        for (Map.Entry<String, String[]> e : params.entrySet()) {
+            puts("  ", e.getKey(), "=", valJoiner.join(e.getValue()));
+        }
+        puts("More parameters:");
+        for (Map.Entry<String, String> e : moreParams().entrySet()) {
+            puts("  ", e.getKey(), "=", e.getValue());
+        }
+        puts("Path info: ", request().getPathInfo());
+        puts("Path translated: ", request().getPathTranslated());
+        puts("Auth type: ", request().getAuthType());
+        puts("Remote address: "+ request().getRemoteAddr());
+        puts("Remote user: ", request().getRemoteUser());
+        puts("Servlet attributes:");
+        @SuppressWarnings("unchecked")
+        Enumeration<String> attrNames = request().getAttributeNames();
+        while (attrNames.hasMoreElements()) {
+            String key = attrNames.nextElement();
+            puts("  ", key, "=", request().getAttribute(key));
+        }
+        puts("Headers:");
+        @SuppressWarnings("unchecked")
+        Enumeration<String> headerNames = request().getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String key = headerNames.nextElement();
+            puts("  ", key, "=", request().getHeader(key));
+        }
     }
-    puts("More parameters:");
-    for (Map.Entry<String, String> e : moreParams().entrySet()) {
-      puts("  ", e.getKey(), "=", e.getValue());
-    }
-    puts("Path info: ", request().getPathInfo());
-    puts("Path translated: ", request().getPathTranslated());
-    puts("Auth type: ", request().getAuthType());
-    puts("Remote address: "+ request().getRemoteAddr());
-    puts("Remote user: ", request().getRemoteUser());
-    puts("Servlet attributes:");
-    @SuppressWarnings("unchecked")
-    Enumeration<String> attrNames = request().getAttributeNames();
-    while (attrNames.hasMoreElements()) {
-      String key = attrNames.nextElement();
-      puts("  ", key, "=", request().getAttribute(key));
-    }
-    puts("Headers:");
-    @SuppressWarnings("unchecked")
-    Enumeration<String> headerNames = request().getHeaderNames();
-    while (headerNames.hasMoreElements()) {
-      String key = headerNames.nextElement();
-      puts("  ", key, "=", request().getHeader(key));
-    }
-  }
 }

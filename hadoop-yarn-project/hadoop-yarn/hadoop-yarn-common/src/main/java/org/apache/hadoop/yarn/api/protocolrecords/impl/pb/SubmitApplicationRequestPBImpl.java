@@ -33,100 +33,100 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class SubmitApplicationRequestPBImpl extends SubmitApplicationRequest {
-  SubmitApplicationRequestProto proto = SubmitApplicationRequestProto.getDefaultInstance();
-  SubmitApplicationRequestProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private ApplicationSubmissionContext applicationSubmissionContext = null;
-  
-  
-  public SubmitApplicationRequestPBImpl() {
-    builder = SubmitApplicationRequestProto.newBuilder();
-  }
+    SubmitApplicationRequestProto proto = SubmitApplicationRequestProto.getDefaultInstance();
+    SubmitApplicationRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public SubmitApplicationRequestPBImpl(SubmitApplicationRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public SubmitApplicationRequestProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-  
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-  
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    private ApplicationSubmissionContext applicationSubmissionContext = null;
+
+
+    public SubmitApplicationRequestPBImpl() {
+        builder = SubmitApplicationRequestProto.newBuilder();
     }
-    return false;
-  }
-  
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
 
-  private void mergeLocalToBuilder() {
-    if (this.applicationSubmissionContext != null) {
-      builder.setApplicationSubmissionContext(convertToProtoFormat(this.applicationSubmissionContext));
+    public SubmitApplicationRequestPBImpl(SubmitApplicationRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = SubmitApplicationRequestProto.newBuilder(proto);
+    public SubmitApplicationRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public ApplicationSubmissionContext getApplicationSubmissionContext() {
-    SubmitApplicationRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.applicationSubmissionContext != null) {
-      return this.applicationSubmissionContext;
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    if (!p.hasApplicationSubmissionContext()) {
-      return null;
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    this.applicationSubmissionContext = convertFromProtoFormat(p.getApplicationSubmissionContext());
-    return this.applicationSubmissionContext;
-  }
 
-  @Override
-  public void setApplicationSubmissionContext(ApplicationSubmissionContext applicationSubmissionContext) {
-    maybeInitBuilder();
-    if (applicationSubmissionContext == null) 
-      builder.clearApplicationSubmissionContext();
-    this.applicationSubmissionContext = applicationSubmissionContext;
-  }
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-  private ApplicationSubmissionContextPBImpl convertFromProtoFormat(ApplicationSubmissionContextProto p) {
-    return new ApplicationSubmissionContextPBImpl(p);
-  }
+    private void mergeLocalToBuilder() {
+        if (this.applicationSubmissionContext != null) {
+            builder.setApplicationSubmissionContext(convertToProtoFormat(this.applicationSubmissionContext));
+        }
+    }
 
-  private ApplicationSubmissionContextProto convertToProtoFormat(ApplicationSubmissionContext t) {
-    return ((ApplicationSubmissionContextPBImpl)t).getProto();
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = SubmitApplicationRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+
+    @Override
+    public ApplicationSubmissionContext getApplicationSubmissionContext() {
+        SubmitApplicationRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.applicationSubmissionContext != null) {
+            return this.applicationSubmissionContext;
+        }
+        if (!p.hasApplicationSubmissionContext()) {
+            return null;
+        }
+        this.applicationSubmissionContext = convertFromProtoFormat(p.getApplicationSubmissionContext());
+        return this.applicationSubmissionContext;
+    }
+
+    @Override
+    public void setApplicationSubmissionContext(ApplicationSubmissionContext applicationSubmissionContext) {
+        maybeInitBuilder();
+        if (applicationSubmissionContext == null)
+            builder.clearApplicationSubmissionContext();
+        this.applicationSubmissionContext = applicationSubmissionContext;
+    }
+
+    private ApplicationSubmissionContextPBImpl convertFromProtoFormat(ApplicationSubmissionContextProto p) {
+        return new ApplicationSubmissionContextPBImpl(p);
+    }
+
+    private ApplicationSubmissionContextProto convertToProtoFormat(ApplicationSubmissionContext t) {
+        return ((ApplicationSubmissionContextPBImpl)t).getProto();
+    }
 
 
 
-}  
+}

@@ -52,256 +52,256 @@ import org.junit.Test;
 public class TestFileSystemApplicationHistoryStore extends
     ApplicationHistoryStoreTestUtils {
 
-  private static Log LOG = LogFactory
-    .getLog(TestFileSystemApplicationHistoryStore.class.getName());
+    private static Log LOG = LogFactory
+                             .getLog(TestFileSystemApplicationHistoryStore.class.getName());
 
-  private FileSystem fs;
-  private Path fsWorkingPath;
+    private FileSystem fs;
+    private Path fsWorkingPath;
 
-  @Before
-  public void setup() throws Exception {
-    fs = new RawLocalFileSystem();
-    initAndStartStore(fs);
-  }
+    @Before
+    public void setup() throws Exception {
+        fs = new RawLocalFileSystem();
+        initAndStartStore(fs);
+    }
 
-  private void initAndStartStore(final FileSystem fs) throws IOException,
-      URISyntaxException {
-    Configuration conf = new Configuration();
-    fs.initialize(new URI("/"), conf);
-    fsWorkingPath =
-        new Path("target",
-          TestFileSystemApplicationHistoryStore.class.getSimpleName());
-    fs.delete(fsWorkingPath, true);
-    conf.set(YarnConfiguration.FS_APPLICATION_HISTORY_STORE_URI,
-      fsWorkingPath.toString());
-    store = new FileSystemApplicationHistoryStore() {
-      @Override
-      protected FileSystem getFileSystem(Path path, Configuration conf) {
-        return fs;
-      }
-    };
-    store.init(conf);
-    store.start();
-  }
+    private void initAndStartStore(final FileSystem fs) throws IOException,
+        URISyntaxException {
+        Configuration conf = new Configuration();
+        fs.initialize(new URI("/"), conf);
+        fsWorkingPath =
+            new Path("target",
+                     TestFileSystemApplicationHistoryStore.class.getSimpleName());
+        fs.delete(fsWorkingPath, true);
+        conf.set(YarnConfiguration.FS_APPLICATION_HISTORY_STORE_URI,
+                 fsWorkingPath.toString());
+        store = new FileSystemApplicationHistoryStore() {
+            @Override
+            protected FileSystem getFileSystem(Path path, Configuration conf) {
+                return fs;
+            }
+        };
+        store.init(conf);
+        store.start();
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    store.stop();
-    fs.delete(fsWorkingPath, true);
-    fs.close();
-  }
+    @After
+    public void tearDown() throws Exception {
+        store.stop();
+        fs.delete(fsWorkingPath, true);
+        fs.close();
+    }
 
-  @Test
-  public void testReadWriteHistoryData() throws IOException {
-    LOG.info("Starting testReadWriteHistoryData");
-    testWriteHistoryData(5);
-    testReadHistoryData(5);
-  }
+    @Test
+    public void testReadWriteHistoryData() throws IOException {
+        LOG.info("Starting testReadWriteHistoryData");
+        testWriteHistoryData(5);
+        testReadHistoryData(5);
+    }
 
-  private void testWriteHistoryData(int num) throws IOException {
-    testWriteHistoryData(num, false, false);
-  }
-  
-  private void testWriteHistoryData(
-      int num, boolean missingContainer, boolean missingApplicationAttempt)
-          throws IOException {
-    // write application history data
-    for (int i = 1; i <= num; ++i) {
-      ApplicationId appId = ApplicationId.newInstance(0, i);
-      writeApplicationStartData(appId);
+    private void testWriteHistoryData(int num) throws IOException {
+        testWriteHistoryData(num, false, false);
+    }
 
-      // write application attempt history data
-      for (int j = 1; j <= num; ++j) {
+    private void testWriteHistoryData(
+        int num, boolean missingContainer, boolean missingApplicationAttempt)
+    throws IOException {
+        // write application history data
+        for (int i = 1; i <= num; ++i) {
+            ApplicationId appId = ApplicationId.newInstance(0, i);
+            writeApplicationStartData(appId);
+
+            // write application attempt history data
+            for (int j = 1; j <= num; ++j) {
+                ApplicationAttemptId appAttemptId =
+                    ApplicationAttemptId.newInstance(appId, j);
+                writeApplicationAttemptStartData(appAttemptId);
+
+                if (missingApplicationAttempt && j == num) {
+                    continue;
+                }
+                // write container history data
+                for (int k = 1; k <= num; ++k) {
+                    ContainerId containerId = ContainerId.newContainerId(appAttemptId, k);
+                    writeContainerStartData(containerId);
+                    if (missingContainer && k == num) {
+                        continue;
+                    }
+                    writeContainerFinishData(containerId);
+                }
+                writeApplicationAttemptFinishData(appAttemptId);
+            }
+            writeApplicationFinishData(appId);
+        }
+    }
+
+    private void testReadHistoryData(int num) throws IOException {
+        testReadHistoryData(num, false, false);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void testReadHistoryData(
+        int num, boolean missingContainer, boolean missingApplicationAttempt)
+    throws IOException {
+        // read application history data
+        Assert.assertEquals(num, store.getAllApplications().size());
+        for (int i = 1; i <= num; ++i) {
+            ApplicationId appId = ApplicationId.newInstance(0, i);
+            ApplicationHistoryData appData = store.getApplication(appId);
+            Assert.assertNotNull(appData);
+            Assert.assertEquals(appId.toString(), appData.getApplicationName());
+            Assert.assertEquals(appId.toString(), appData.getDiagnosticsInfo());
+
+            // read application attempt history data
+            Assert.assertEquals(num, store.getApplicationAttempts(appId).size());
+            for (int j = 1; j <= num; ++j) {
+                ApplicationAttemptId appAttemptId =
+                    ApplicationAttemptId.newInstance(appId, j);
+                ApplicationAttemptHistoryData attemptData =
+                    store.getApplicationAttempt(appAttemptId);
+                Assert.assertNotNull(attemptData);
+                Assert.assertEquals(appAttemptId.toString(), attemptData.getHost());
+
+                if (missingApplicationAttempt && j == num) {
+                    Assert.assertNull(attemptData.getDiagnosticsInfo());
+                    continue;
+                } else {
+                    Assert.assertEquals(appAttemptId.toString(),
+                                        attemptData.getDiagnosticsInfo());
+                }
+
+                // read container history data
+                Assert.assertEquals(num, store.getContainers(appAttemptId).size());
+                for (int k = 1; k <= num; ++k) {
+                    ContainerId containerId = ContainerId.newContainerId(appAttemptId, k);
+                    ContainerHistoryData containerData = store.getContainer(containerId);
+                    Assert.assertNotNull(containerData);
+                    Assert.assertEquals(Priority.newInstance(containerId.getId()),
+                                        containerData.getPriority());
+                    if (missingContainer && k == num) {
+                        Assert.assertNull(containerData.getDiagnosticsInfo());
+                    } else {
+                        Assert.assertEquals(containerId.toString(),
+                                            containerData.getDiagnosticsInfo());
+                    }
+                }
+                ContainerHistoryData masterContainer =
+                    store.getAMContainer(appAttemptId);
+                Assert.assertNotNull(masterContainer);
+                Assert.assertEquals(ContainerId.newContainerId(appAttemptId, 1),
+                                    masterContainer.getContainerId());
+            }
+        }
+    }
+
+    @Test
+    public void testWriteAfterApplicationFinish() throws IOException {
+        LOG.info("Starting testWriteAfterApplicationFinish");
+        ApplicationId appId = ApplicationId.newInstance(0, 1);
+        writeApplicationStartData(appId);
+        writeApplicationFinishData(appId);
+        // write application attempt history data
         ApplicationAttemptId appAttemptId =
-            ApplicationAttemptId.newInstance(appId, j);
-        writeApplicationAttemptStartData(appAttemptId);
-
-        if (missingApplicationAttempt && j == num) {
-          continue;
+            ApplicationAttemptId.newInstance(appId, 1);
+        try {
+            writeApplicationAttemptStartData(appAttemptId);
+            Assert.fail();
+        } catch (IOException e) {
+            Assert.assertTrue(e.getMessage().contains("is not opened"));
+        }
+        try {
+            writeApplicationAttemptFinishData(appAttemptId);
+            Assert.fail();
+        } catch (IOException e) {
+            Assert.assertTrue(e.getMessage().contains("is not opened"));
         }
         // write container history data
-        for (int k = 1; k <= num; ++k) {
-          ContainerId containerId = ContainerId.newContainerId(appAttemptId, k);
-          writeContainerStartData(containerId);
-          if (missingContainer && k == num) {
-            continue;
-          }
-          writeContainerFinishData(containerId);
+        ContainerId containerId = ContainerId.newContainerId(appAttemptId, 1);
+        try {
+            writeContainerStartData(containerId);
+            Assert.fail();
+        } catch (IOException e) {
+            Assert.assertTrue(e.getMessage().contains("is not opened"));
         }
-        writeApplicationAttemptFinishData(appAttemptId);
-      }
-      writeApplicationFinishData(appId);
+        try {
+            writeContainerFinishData(containerId);
+            Assert.fail();
+        } catch (IOException e) {
+            Assert.assertTrue(e.getMessage().contains("is not opened"));
+        }
     }
-  }
 
-  private void testReadHistoryData(int num) throws IOException {
-    testReadHistoryData(num, false, false);
-  }
-
-  @SuppressWarnings("deprecation")
-  private void testReadHistoryData(
-      int num, boolean missingContainer, boolean missingApplicationAttempt)
-          throws IOException {
-    // read application history data
-    Assert.assertEquals(num, store.getAllApplications().size());
-    for (int i = 1; i <= num; ++i) {
-      ApplicationId appId = ApplicationId.newInstance(0, i);
-      ApplicationHistoryData appData = store.getApplication(appId);
-      Assert.assertNotNull(appData);
-      Assert.assertEquals(appId.toString(), appData.getApplicationName());
-      Assert.assertEquals(appId.toString(), appData.getDiagnosticsInfo());
-
-      // read application attempt history data
-      Assert.assertEquals(num, store.getApplicationAttempts(appId).size());
-      for (int j = 1; j <= num; ++j) {
+    @Test
+    public void testMassiveWriteContainerHistoryData() throws IOException {
+        LOG.info("Starting testMassiveWriteContainerHistoryData");
+        long mb = 1024 * 1024;
+        long usedDiskBefore = fs.getContentSummary(fsWorkingPath).getLength() / mb;
+        ApplicationId appId = ApplicationId.newInstance(0, 1);
+        writeApplicationStartData(appId);
         ApplicationAttemptId appAttemptId =
-            ApplicationAttemptId.newInstance(appId, j);
-        ApplicationAttemptHistoryData attemptData =
-            store.getApplicationAttempt(appAttemptId);
-        Assert.assertNotNull(attemptData);
-        Assert.assertEquals(appAttemptId.toString(), attemptData.getHost());
-        
-        if (missingApplicationAttempt && j == num) {
-          Assert.assertNull(attemptData.getDiagnosticsInfo());
-          continue;
-        } else {
-          Assert.assertEquals(appAttemptId.toString(),
-              attemptData.getDiagnosticsInfo());
+            ApplicationAttemptId.newInstance(appId, 1);
+        for (int i = 1; i <= 100000; ++i) {
+            ContainerId containerId = ContainerId.newContainerId(appAttemptId, i);
+            writeContainerStartData(containerId);
+            writeContainerFinishData(containerId);
+        }
+        writeApplicationFinishData(appId);
+        long usedDiskAfter = fs.getContentSummary(fsWorkingPath).getLength() / mb;
+        Assert.assertTrue((usedDiskAfter - usedDiskBefore) < 20);
+    }
+
+    @Test
+    public void testMissingContainerHistoryData() throws IOException {
+        LOG.info("Starting testMissingContainerHistoryData");
+        testWriteHistoryData(3, true, false);
+        testReadHistoryData(3, true, false);
+    }
+
+    @Test
+    public void testMissingApplicationAttemptHistoryData() throws IOException {
+        LOG.info("Starting testMissingApplicationAttemptHistoryData");
+        testWriteHistoryData(3, false, true);
+        testReadHistoryData(3, false, true);
+    }
+
+    @Test
+    public void testInitExistingWorkingDirectoryInSafeMode() throws Exception {
+        LOG.info("Starting testInitExistingWorkingDirectoryInSafeMode");
+        tearDown();
+
+        // Setup file system to inject startup conditions
+        FileSystem fs = spy(new RawLocalFileSystem());
+        doReturn(true).when(fs).isDirectory(any(Path.class));
+
+        try {
+            initAndStartStore(fs);
+        } catch (Exception e) {
+            Assert.fail("Exception should not be thrown: " + e);
         }
 
-        // read container history data
-        Assert.assertEquals(num, store.getContainers(appAttemptId).size());
-        for (int k = 1; k <= num; ++k) {
-          ContainerId containerId = ContainerId.newContainerId(appAttemptId, k);
-          ContainerHistoryData containerData = store.getContainer(containerId);
-          Assert.assertNotNull(containerData);
-          Assert.assertEquals(Priority.newInstance(containerId.getId()),
-            containerData.getPriority());
-          if (missingContainer && k == num) {
-            Assert.assertNull(containerData.getDiagnosticsInfo());
-          } else {
-            Assert.assertEquals(containerId.toString(),
-                containerData.getDiagnosticsInfo());
-          }
+        // Make sure that directory creation was not attempted
+        verify(fs, times(1)).isDirectory(any(Path.class));
+        verify(fs, times(0)).mkdirs(any(Path.class));
+    }
+
+    @Test
+    public void testInitNonExistingWorkingDirectoryInSafeMode() throws Exception {
+        LOG.info("Starting testInitNonExistingWorkingDirectoryInSafeMode");
+        tearDown();
+
+        // Setup file system to inject startup conditions
+        FileSystem fs = spy(new RawLocalFileSystem());
+        doReturn(false).when(fs).isDirectory(any(Path.class));
+        doThrow(new IOException()).when(fs).mkdirs(any(Path.class));
+
+        try {
+            initAndStartStore(fs);
+            Assert.fail("Exception should have been thrown");
+        } catch (Exception e) {
+            // Expected failure
         }
-        ContainerHistoryData masterContainer =
-            store.getAMContainer(appAttemptId);
-        Assert.assertNotNull(masterContainer);
-        Assert.assertEquals(ContainerId.newContainerId(appAttemptId, 1),
-          masterContainer.getContainerId());
-      }
+
+        // Make sure that directory creation was attempted
+        verify(fs, times(1)).isDirectory(any(Path.class));
+        verify(fs, times(1)).mkdirs(any(Path.class));
     }
-  }
-
-  @Test
-  public void testWriteAfterApplicationFinish() throws IOException {
-    LOG.info("Starting testWriteAfterApplicationFinish");
-    ApplicationId appId = ApplicationId.newInstance(0, 1);
-    writeApplicationStartData(appId);
-    writeApplicationFinishData(appId);
-    // write application attempt history data
-    ApplicationAttemptId appAttemptId =
-        ApplicationAttemptId.newInstance(appId, 1);
-    try {
-      writeApplicationAttemptStartData(appAttemptId);
-      Assert.fail();
-    } catch (IOException e) {
-      Assert.assertTrue(e.getMessage().contains("is not opened"));
-    }
-    try {
-      writeApplicationAttemptFinishData(appAttemptId);
-      Assert.fail();
-    } catch (IOException e) {
-      Assert.assertTrue(e.getMessage().contains("is not opened"));
-    }
-    // write container history data
-    ContainerId containerId = ContainerId.newContainerId(appAttemptId, 1);
-    try {
-      writeContainerStartData(containerId);
-      Assert.fail();
-    } catch (IOException e) {
-      Assert.assertTrue(e.getMessage().contains("is not opened"));
-    }
-    try {
-      writeContainerFinishData(containerId);
-      Assert.fail();
-    } catch (IOException e) {
-      Assert.assertTrue(e.getMessage().contains("is not opened"));
-    }
-  }
-
-  @Test
-  public void testMassiveWriteContainerHistoryData() throws IOException {
-    LOG.info("Starting testMassiveWriteContainerHistoryData");
-    long mb = 1024 * 1024;
-    long usedDiskBefore = fs.getContentSummary(fsWorkingPath).getLength() / mb;
-    ApplicationId appId = ApplicationId.newInstance(0, 1);
-    writeApplicationStartData(appId);
-    ApplicationAttemptId appAttemptId =
-        ApplicationAttemptId.newInstance(appId, 1);
-    for (int i = 1; i <= 100000; ++i) {
-      ContainerId containerId = ContainerId.newContainerId(appAttemptId, i);
-      writeContainerStartData(containerId);
-      writeContainerFinishData(containerId);
-    }
-    writeApplicationFinishData(appId);
-    long usedDiskAfter = fs.getContentSummary(fsWorkingPath).getLength() / mb;
-    Assert.assertTrue((usedDiskAfter - usedDiskBefore) < 20);
-  }
-
-  @Test
-  public void testMissingContainerHistoryData() throws IOException {
-    LOG.info("Starting testMissingContainerHistoryData");
-    testWriteHistoryData(3, true, false);
-    testReadHistoryData(3, true, false);
-  }
-  
-  @Test
-  public void testMissingApplicationAttemptHistoryData() throws IOException {
-    LOG.info("Starting testMissingApplicationAttemptHistoryData");
-    testWriteHistoryData(3, false, true);
-    testReadHistoryData(3, false, true);
-  }
-
-  @Test
-  public void testInitExistingWorkingDirectoryInSafeMode() throws Exception {
-    LOG.info("Starting testInitExistingWorkingDirectoryInSafeMode");
-    tearDown();
-
-    // Setup file system to inject startup conditions
-    FileSystem fs = spy(new RawLocalFileSystem());
-    doReturn(true).when(fs).isDirectory(any(Path.class));
-
-    try {
-      initAndStartStore(fs);
-    } catch (Exception e) {
-      Assert.fail("Exception should not be thrown: " + e);
-    }
-
-    // Make sure that directory creation was not attempted
-    verify(fs, times(1)).isDirectory(any(Path.class));
-    verify(fs, times(0)).mkdirs(any(Path.class));
-  }
-
-  @Test
-  public void testInitNonExistingWorkingDirectoryInSafeMode() throws Exception {
-    LOG.info("Starting testInitNonExistingWorkingDirectoryInSafeMode");
-    tearDown();
-
-    // Setup file system to inject startup conditions
-    FileSystem fs = spy(new RawLocalFileSystem());
-    doReturn(false).when(fs).isDirectory(any(Path.class));
-    doThrow(new IOException()).when(fs).mkdirs(any(Path.class));
-
-    try {
-      initAndStartStore(fs);
-      Assert.fail("Exception should have been thrown");
-    } catch (Exception e) {
-      // Expected failure
-    }
-
-    // Make sure that directory creation was attempted
-    verify(fs, times(1)).isDirectory(any(Path.class));
-    verify(fs, times(1)).mkdirs(any(Path.class));
-  }
 }

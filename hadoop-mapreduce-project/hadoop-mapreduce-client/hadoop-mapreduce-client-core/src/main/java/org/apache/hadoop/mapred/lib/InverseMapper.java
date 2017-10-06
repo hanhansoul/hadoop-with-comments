@@ -27,19 +27,19 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 
-/** 
- * A {@link Mapper} that swaps keys and values. 
+/**
+ * A {@link Mapper} that swaps keys and values.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class InverseMapper<K, V>
     extends MapReduceBase implements Mapper<K, V, V, K> {
 
-  /** The inverse function.  Input keys and values are swapped.*/
-  public void map(K key, V value,
-                  OutputCollector<V, K> output, Reporter reporter)
+    /** The inverse function.  Input keys and values are swapped.*/
+    public void map(K key, V value,
+                    OutputCollector<V, K> output, Reporter reporter)
     throws IOException {
-    output.collect(value, key);
-  }
-  
+        output.collect(value, key);
+    }
+
 }

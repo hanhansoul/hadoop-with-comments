@@ -20,16 +20,16 @@ package org.apache.hadoop.yarn.server.resourcemanager.metrics;
 
 
 public enum SystemMetricsEventType {
-  // app events
-  APP_CREATED,
-  APP_FINISHED,
-  APP_ACLS_UPDATED,
+    // app events
+    APP_CREATED,
+    APP_FINISHED,
+    APP_ACLS_UPDATED,
 
-  // app attempt events
-  APP_ATTEMPT_REGISTERED,
-  APP_ATTEMPT_FINISHED,
+    // app attempt events
+    APP_ATTEMPT_REGISTERED,
+    APP_ATTEMPT_FINISHED,
 
-  // container events
-  CONTAINER_CREATED,
-  CONTAINER_FINISHED
+    // container events
+    CONTAINER_CREATED,
+    CONTAINER_FINISHED
 }

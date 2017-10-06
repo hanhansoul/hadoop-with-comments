@@ -31,36 +31,36 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestFSMainOperationsLocalFileSystem extends FSMainOperationsBaseTest {
-  FileSystem fcTarget;
-   
-  @Override
-  protected FileSystem createFileSystem() throws Exception {
-      return ViewFileSystemTestSetup.setupForViewFileSystem(
-              ViewFileSystemTestSetup.createConfig(), this, fcTarget);
-  }
-   
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    Configuration conf = new Configuration();
-    fcTarget = FileSystem.getLocal(conf);
-    super.setUp();
-  }
-  
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    ViewFileSystemTestSetup.tearDown(this, fcTarget);
-  }
-  
-  @Test
-  @Override
-  public void testWDAbsolute() throws IOException {
-    Path absoluteDir = getTestRootPath(fSys, "test/existingDir");
-    fSys.mkdirs(absoluteDir);
-    fSys.setWorkingDirectory(absoluteDir);
-    Assert.assertEquals(absoluteDir, fSys.getWorkingDirectory());
+    FileSystem fcTarget;
 
-  }
+    @Override
+    protected FileSystem createFileSystem() throws Exception {
+        return ViewFileSystemTestSetup.setupForViewFileSystem(
+                   ViewFileSystemTestSetup.createConfig(), this, fcTarget);
+    }
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        Configuration conf = new Configuration();
+        fcTarget = FileSystem.getLocal(conf);
+        super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        ViewFileSystemTestSetup.tearDown(this, fcTarget);
+    }
+
+    @Test
+    @Override
+    public void testWDAbsolute() throws IOException {
+        Path absoluteDir = getTestRootPath(fSys, "test/existingDir");
+        fSys.mkdirs(absoluteDir);
+        fSys.setWorkingDirectory(absoluteDir);
+        Assert.assertEquals(absoluteDir, fSys.getWorkingDirectory());
+
+    }
 }

@@ -35,59 +35,59 @@ import org.apache.hadoop.io.IOUtils;
  * A response entity for a HdfsDataInputStream.
  */
 public class OpenEntity {
-  private final HdfsDataInputStream in;
-  private final long length;
-  private final int outBufferSize;
-  private final DFSClient dfsclient;
-  
-  OpenEntity(final HdfsDataInputStream in, final long length,
-      final int outBufferSize, final DFSClient dfsclient) {
-    this.in = in;
-    this.length = length;
-    this.outBufferSize = outBufferSize;
-    this.dfsclient = dfsclient;
-  }
-  
-  /**
-   * A {@link MessageBodyWriter} for {@link OpenEntity}.
-   */
-  @Provider
-  public static class Writer implements MessageBodyWriter<OpenEntity> {
+    private final HdfsDataInputStream in;
+    private final long length;
+    private final int outBufferSize;
+    private final DFSClient dfsclient;
 
-    @Override
-    public boolean isWriteable(Class<?> clazz, Type genericType,
-        Annotation[] annotations, MediaType mediaType) {
-      return clazz == OpenEntity.class
-          && MediaType.APPLICATION_OCTET_STREAM_TYPE.isCompatible(mediaType);
+    OpenEntity(final HdfsDataInputStream in, final long length,
+               final int outBufferSize, final DFSClient dfsclient) {
+        this.in = in;
+        this.length = length;
+        this.outBufferSize = outBufferSize;
+        this.dfsclient = dfsclient;
     }
 
-    @Override
-    public long getSize(OpenEntity e, Class<?> type, Type genericType,
-        Annotation[] annotations, MediaType mediaType) {
-      return e.length;
-    }
+    /**
+     * A {@link MessageBodyWriter} for {@link OpenEntity}.
+     */
+    @Provider
+    public static class Writer implements MessageBodyWriter<OpenEntity> {
 
-    @Override
-    public void writeTo(OpenEntity e, Class<?> type, Type genericType,
-        Annotation[] annotations, MediaType mediaType,
-        MultivaluedMap<String, Object> httpHeaders, OutputStream out
-        ) throws IOException {
-      try {
-        byte[] buf = new byte[e.outBufferSize];
-        long remaining = e.length;
-        while (remaining > 0) {
-          int read = e.in.read(buf, 0, (int)Math.min(buf.length, remaining));
-          if (read == -1) { // EOF
-            break;
-          }
-          out.write(buf, 0, read);
-          out.flush();
-          remaining -= read;
+        @Override
+        public boolean isWriteable(Class<?> clazz, Type genericType,
+                                   Annotation[] annotations, MediaType mediaType) {
+            return clazz == OpenEntity.class
+                   && MediaType.APPLICATION_OCTET_STREAM_TYPE.isCompatible(mediaType);
         }
-      } finally {
-        IOUtils.cleanup(DatanodeWebHdfsMethods.LOG, e.in);
-        IOUtils.cleanup(DatanodeWebHdfsMethods.LOG, e.dfsclient);
-      }
+
+        @Override
+        public long getSize(OpenEntity e, Class<?> type, Type genericType,
+                            Annotation[] annotations, MediaType mediaType) {
+            return e.length;
+        }
+
+        @Override
+        public void writeTo(OpenEntity e, Class<?> type, Type genericType,
+                            Annotation[] annotations, MediaType mediaType,
+                            MultivaluedMap<String, Object> httpHeaders, OutputStream out
+                           ) throws IOException {
+            try {
+                byte[] buf = new byte[e.outBufferSize];
+                long remaining = e.length;
+                while (remaining > 0) {
+                    int read = e.in.read(buf, 0, (int)Math.min(buf.length, remaining));
+                    if (read == -1) { // EOF
+                        break;
+                    }
+                    out.write(buf, 0, read);
+                    out.flush();
+                    remaining -= read;
+                }
+            } finally {
+                IOUtils.cleanup(DatanodeWebHdfsMethods.LOG, e.in);
+                IOUtils.cleanup(DatanodeWebHdfsMethods.LOG, e.dfsclient);
+            }
+        }
     }
-  }
 }

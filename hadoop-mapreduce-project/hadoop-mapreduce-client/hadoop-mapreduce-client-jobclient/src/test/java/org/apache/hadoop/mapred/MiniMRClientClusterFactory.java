@@ -36,50 +36,50 @@ import org.apache.hadoop.util.JarFinder;
  */
 public class MiniMRClientClusterFactory {
 
-  public static MiniMRClientCluster create(Class<?> caller, int noOfNMs,
-      Configuration conf) throws IOException {
-    return create(caller, caller.getSimpleName(), noOfNMs, conf);
-  }
-
-  public static MiniMRClientCluster create(Class<?> caller, String identifier,
-      int noOfNMs, Configuration conf) throws IOException {
-
-    if (conf == null) {
-      conf = new Configuration();
+    public static MiniMRClientCluster create(Class<?> caller, int noOfNMs,
+            Configuration conf) throws IOException {
+        return create(caller, caller.getSimpleName(), noOfNMs, conf);
     }
 
-    FileSystem fs = FileSystem.get(conf);
+    public static MiniMRClientCluster create(Class<?> caller, String identifier,
+            int noOfNMs, Configuration conf) throws IOException {
 
-    Path testRootDir = new Path("target", identifier + "-tmpDir")
+        if (conf == null) {
+            conf = new Configuration();
+        }
+
+        FileSystem fs = FileSystem.get(conf);
+
+        Path testRootDir = new Path("target", identifier + "-tmpDir")
         .makeQualified(fs);
-    Path appJar = new Path(testRootDir, "MRAppJar.jar");
+        Path appJar = new Path(testRootDir, "MRAppJar.jar");
 
-    // Copy MRAppJar and make it private.
-    Path appMasterJar = new Path(MiniMRYarnCluster.APPJAR);
+        // Copy MRAppJar and make it private.
+        Path appMasterJar = new Path(MiniMRYarnCluster.APPJAR);
 
-    fs.copyFromLocalFile(appMasterJar, appJar);
-    fs.setPermission(appJar, new FsPermission("744"));
+        fs.copyFromLocalFile(appMasterJar, appJar);
+        fs.setPermission(appJar, new FsPermission("744"));
 
-    Job job = Job.getInstance(conf);
+        Job job = Job.getInstance(conf);
 
-    job.addFileToClassPath(appJar);
+        job.addFileToClassPath(appJar);
 
-    Path callerJar = new Path(JarFinder.getJar(caller));
-    Path remoteCallerJar = new Path(testRootDir, callerJar.getName());
-    fs.copyFromLocalFile(callerJar, remoteCallerJar);
-    fs.setPermission(remoteCallerJar, new FsPermission("744"));
-    job.addFileToClassPath(remoteCallerJar);
+        Path callerJar = new Path(JarFinder.getJar(caller));
+        Path remoteCallerJar = new Path(testRootDir, callerJar.getName());
+        fs.copyFromLocalFile(callerJar, remoteCallerJar);
+        fs.setPermission(remoteCallerJar, new FsPermission("744"));
+        job.addFileToClassPath(remoteCallerJar);
 
-    MiniMRYarnCluster miniMRYarnCluster = new MiniMRYarnCluster(identifier,
-        noOfNMs);
-    job.getConfiguration().set("minimrclientcluster.caller.name",
-        identifier);
-    job.getConfiguration().setInt("minimrclientcluster.nodemanagers.number",
-        noOfNMs);
-    miniMRYarnCluster.init(job.getConfiguration());
-    miniMRYarnCluster.start();
+        MiniMRYarnCluster miniMRYarnCluster = new MiniMRYarnCluster(identifier,
+                noOfNMs);
+        job.getConfiguration().set("minimrclientcluster.caller.name",
+                                   identifier);
+        job.getConfiguration().setInt("minimrclientcluster.nodemanagers.number",
+                                      noOfNMs);
+        miniMRYarnCluster.init(job.getConfiguration());
+        miniMRYarnCluster.start();
 
-    return new MiniMRYarnClusterAdapter(miniMRYarnCluster);
-  }
+        return new MiniMRYarnClusterAdapter(miniMRYarnCluster);
+    }
 
 }

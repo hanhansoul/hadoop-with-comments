@@ -27,18 +27,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ContainersInfo {
 
-  protected ArrayList<ContainerInfo> container = new ArrayList<ContainerInfo>();
+    protected ArrayList<ContainerInfo> container = new ArrayList<ContainerInfo>();
 
-  public ContainersInfo() {
-    // JAXB needs this
-  }
+    public ContainersInfo() {
+        // JAXB needs this
+    }
 
-  public void add(ContainerInfo containerInfo) {
-    container.add(containerInfo);
-  }
+    public void add(ContainerInfo containerInfo) {
+        container.add(containerInfo);
+    }
 
-  public ArrayList<ContainerInfo> getContainers() {
-    return container;
-  }
+    public ArrayList<ContainerInfo> getContainers() {
+        return container;
+    }
 
 }

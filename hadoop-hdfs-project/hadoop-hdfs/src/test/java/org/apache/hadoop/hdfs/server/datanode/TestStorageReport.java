@@ -43,71 +43,71 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 
 public class TestStorageReport {
-  public static final Log LOG = LogFactory.getLog(TestStorageReport.class);
+    public static final Log LOG = LogFactory.getLog(TestStorageReport.class);
 
-  private static final short REPL_FACTOR = 1;
-  private static final StorageType storageType = StorageType.SSD; // pick non-default.
+    private static final short REPL_FACTOR = 1;
+    private static final StorageType storageType = StorageType.SSD; // pick non-default.
 
-  private static Configuration conf;
-  private MiniDFSCluster cluster;
-  private DistributedFileSystem fs;
-  static String bpid;
+    private static Configuration conf;
+    private MiniDFSCluster cluster;
+    private DistributedFileSystem fs;
+    static String bpid;
 
-  @Before
-  public void startUpCluster() throws IOException {
-    conf = new HdfsConfiguration();
-    cluster = new MiniDFSCluster.Builder(conf)
+    @Before
+    public void startUpCluster() throws IOException {
+        conf = new HdfsConfiguration();
+        cluster = new MiniDFSCluster.Builder(conf)
         .numDataNodes(REPL_FACTOR)
         .storageTypes(new StorageType[] { storageType, storageType } )
         .build();
-    fs = cluster.getFileSystem();
-    bpid = cluster.getNamesystem().getBlockPoolId();
-  }
-
-  @After
-  public void shutDownCluster() throws IOException {
-    if (cluster != null) {
-      fs.close();
-      cluster.shutdown();
-      cluster = null;
+        fs = cluster.getFileSystem();
+        bpid = cluster.getNamesystem().getBlockPoolId();
     }
-  }
 
-  /**
-   * Ensure that storage type and storage state are propagated
-   * in Storage Reports.
-   */
-  @Test
-  public void testStorageReportHasStorageTypeAndState() throws IOException {
-
-    // Make sure we are not testing with the default type, that would not
-    // be a very good test.
-    assertNotSame(storageType, StorageType.DEFAULT);
-    NameNode nn = cluster.getNameNode();
-    DataNode dn = cluster.getDataNodes().get(0);
-
-    // Insert a spy object for the NN RPC.
-    DatanodeProtocolClientSideTranslatorPB nnSpy =
-        DataNodeTestUtils.spyOnBposToNN(dn, nn);
-
-    // Trigger a heartbeat so there is an interaction with the spy
-    // object.
-    DataNodeTestUtils.triggerHeartbeat(dn);
-
-    // Verify that the callback passed in the expected parameters.
-    ArgumentCaptor<StorageReport[]> captor =
-        ArgumentCaptor.forClass(StorageReport[].class);
-
-    Mockito.verify(nnSpy).sendHeartbeat(
-        any(DatanodeRegistration.class),
-        captor.capture(),
-        anyLong(), anyLong(), anyInt(), anyInt(), anyInt());
-
-    StorageReport[] reports = captor.getValue();
-
-    for (StorageReport report: reports) {
-      assertThat(report.getStorage().getStorageType(), is(storageType));
-      assertThat(report.getStorage().getState(), is(DatanodeStorage.State.NORMAL));
+    @After
+    public void shutDownCluster() throws IOException {
+        if (cluster != null) {
+            fs.close();
+            cluster.shutdown();
+            cluster = null;
+        }
     }
-  }
+
+    /**
+     * Ensure that storage type and storage state are propagated
+     * in Storage Reports.
+     */
+    @Test
+    public void testStorageReportHasStorageTypeAndState() throws IOException {
+
+        // Make sure we are not testing with the default type, that would not
+        // be a very good test.
+        assertNotSame(storageType, StorageType.DEFAULT);
+        NameNode nn = cluster.getNameNode();
+        DataNode dn = cluster.getDataNodes().get(0);
+
+        // Insert a spy object for the NN RPC.
+        DatanodeProtocolClientSideTranslatorPB nnSpy =
+            DataNodeTestUtils.spyOnBposToNN(dn, nn);
+
+        // Trigger a heartbeat so there is an interaction with the spy
+        // object.
+        DataNodeTestUtils.triggerHeartbeat(dn);
+
+        // Verify that the callback passed in the expected parameters.
+        ArgumentCaptor<StorageReport[]> captor =
+            ArgumentCaptor.forClass(StorageReport[].class);
+
+        Mockito.verify(nnSpy).sendHeartbeat(
+            any(DatanodeRegistration.class),
+            captor.capture(),
+            anyLong(), anyLong(), anyInt(), anyInt(), anyInt());
+
+        StorageReport[] reports = captor.getValue();
+
+        for (StorageReport report: reports) {
+            assertThat(report.getStorage().getStorageType(), is(storageType));
+            assertThat(report.getStorage().getState(), is(DatanodeStorage.State.NORMAL));
+        }
+    }
 }

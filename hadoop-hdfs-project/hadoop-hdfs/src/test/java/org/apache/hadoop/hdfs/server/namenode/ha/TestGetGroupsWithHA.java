@@ -30,28 +30,28 @@ import org.junit.After;
 import org.junit.Before;
 
 public class TestGetGroupsWithHA extends GetGroupsTestBase {
-  
-  private MiniDFSCluster cluster;
-  
-  @Before
-  public void setUpNameNode() throws IOException {
-    conf = new HdfsConfiguration();
-    cluster = new MiniDFSCluster.Builder(conf)
+
+    private MiniDFSCluster cluster;
+
+    @Before
+    public void setUpNameNode() throws IOException {
+        conf = new HdfsConfiguration();
+        cluster = new MiniDFSCluster.Builder(conf)
         .nnTopology(MiniDFSNNTopology.simpleHATopology())
         .numDataNodes(0).build();
-    HATestUtil.setFailoverConfigurations(cluster, conf);
-  }
-  
-  @After
-  public void tearDownNameNode() {
-    if (cluster != null) {
-      cluster.shutdown();
+        HATestUtil.setFailoverConfigurations(cluster, conf);
     }
-  }
 
-  @Override
-  protected Tool getTool(PrintStream o) {
-    return new GetGroups(conf, o);
-  }
+    @After
+    public void tearDownNameNode() {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
+
+    @Override
+    protected Tool getTool(PrintStream o) {
+        return new GetGroups(conf, o);
+    }
 
 }

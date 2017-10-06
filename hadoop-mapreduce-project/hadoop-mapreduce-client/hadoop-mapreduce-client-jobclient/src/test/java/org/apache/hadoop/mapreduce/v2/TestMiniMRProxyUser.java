@@ -40,125 +40,123 @@ import java.security.PrivilegedExceptionAction;
 
 public class TestMiniMRProxyUser extends TestCase {
 
-  private MiniDFSCluster dfsCluster = null;
-  private MiniMRCluster mrCluster = null;
-    
-  protected void setUp() throws Exception {
-    super.setUp();
-    if (System.getProperty("hadoop.log.dir") == null) {
-      System.setProperty("hadoop.log.dir", "/tmp");
-    }
-    int taskTrackers = 2;
-    int dataNodes = 2;
-    String proxyUser = System.getProperty("user.name");
-    String proxyGroup = "g";
-    StringBuilder sb = new StringBuilder();
-    sb.append("127.0.0.1,localhost");
-    for (InetAddress i : InetAddress.getAllByName(InetAddress.getLocalHost().getHostName())) {
-      sb.append(",").append(i.getCanonicalHostName());
-    }
+    private MiniDFSCluster dfsCluster = null;
+    private MiniMRCluster mrCluster = null;
 
-    JobConf conf = new JobConf();
-    conf.set("dfs.block.access.token.enable", "false");
-    conf.set("dfs.permissions", "true");
-    conf.set("hadoop.security.authentication", "simple");
-    conf.set("hadoop.proxyuser." + proxyUser + ".hosts", sb.toString());
-    conf.set("hadoop.proxyuser." + proxyUser + ".groups", proxyGroup);
+    protected void setUp() throws Exception {
+        super.setUp();
+        if (System.getProperty("hadoop.log.dir") == null) {
+            System.setProperty("hadoop.log.dir", "/tmp");
+        }
+        int taskTrackers = 2;
+        int dataNodes = 2;
+        String proxyUser = System.getProperty("user.name");
+        String proxyGroup = "g";
+        StringBuilder sb = new StringBuilder();
+        sb.append("127.0.0.1,localhost");
+        for (InetAddress i : InetAddress.getAllByName(InetAddress.getLocalHost().getHostName())) {
+            sb.append(",").append(i.getCanonicalHostName());
+        }
 
-    String[] userGroups = new String[]{proxyGroup};
-    UserGroupInformation.createUserForTesting(proxyUser, userGroups);
-    UserGroupInformation.createUserForTesting("u1", userGroups);
-    UserGroupInformation.createUserForTesting("u2", new String[]{"gg"});
+        JobConf conf = new JobConf();
+        conf.set("dfs.block.access.token.enable", "false");
+        conf.set("dfs.permissions", "true");
+        conf.set("hadoop.security.authentication", "simple");
+        conf.set("hadoop.proxyuser." + proxyUser + ".hosts", sb.toString());
+        conf.set("hadoop.proxyuser." + proxyUser + ".groups", proxyGroup);
 
-    dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(dataNodes)
+        String[] userGroups = new String[] {proxyGroup};
+        UserGroupInformation.createUserForTesting(proxyUser, userGroups);
+        UserGroupInformation.createUserForTesting("u1", userGroups);
+        UserGroupInformation.createUserForTesting("u2", new String[] {"gg"});
+
+        dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(dataNodes)
         .build();
-    FileSystem fileSystem = dfsCluster.getFileSystem();
-    fileSystem.mkdirs(new Path("/tmp"));
-    fileSystem.mkdirs(new Path("/user"));
-    fileSystem.mkdirs(new Path("/hadoop/mapred/system"));
-    fileSystem.setPermission(new Path("/tmp"), FsPermission.valueOf("-rwxrwxrwx"));
-    fileSystem.setPermission(new Path("/user"), FsPermission.valueOf("-rwxrwxrwx"));
-    fileSystem.setPermission(new Path("/hadoop/mapred/system"), FsPermission.valueOf("-rwx------"));
-    String nnURI = fileSystem.getUri().toString();
-    int numDirs = 1;
-    String[] racks = null;
-    String[] hosts = null;
-    mrCluster = new MiniMRCluster(0, 0, taskTrackers, nnURI, numDirs, racks, hosts, null, conf);
-    ProxyUsers.refreshSuperUserGroupsConfiguration(conf);
-  }
-
-  protected JobConf getJobConf() {
-    return mrCluster.createJobConf();
-  }
-  
-  @Override
-  protected void tearDown() throws Exception {
-    if (mrCluster != null) {
-      mrCluster.shutdown();
+        FileSystem fileSystem = dfsCluster.getFileSystem();
+        fileSystem.mkdirs(new Path("/tmp"));
+        fileSystem.mkdirs(new Path("/user"));
+        fileSystem.mkdirs(new Path("/hadoop/mapred/system"));
+        fileSystem.setPermission(new Path("/tmp"), FsPermission.valueOf("-rwxrwxrwx"));
+        fileSystem.setPermission(new Path("/user"), FsPermission.valueOf("-rwxrwxrwx"));
+        fileSystem.setPermission(new Path("/hadoop/mapred/system"), FsPermission.valueOf("-rwx------"));
+        String nnURI = fileSystem.getUri().toString();
+        int numDirs = 1;
+        String[] racks = null;
+        String[] hosts = null;
+        mrCluster = new MiniMRCluster(0, 0, taskTrackers, nnURI, numDirs, racks, hosts, null, conf);
+        ProxyUsers.refreshSuperUserGroupsConfiguration(conf);
     }
-    if (dfsCluster != null) {
-      dfsCluster.shutdown();
+
+    protected JobConf getJobConf() {
+        return mrCluster.createJobConf();
     }
-    super.tearDown();
-  }
 
-  private void mrRun() throws Exception {
-    FileSystem fs = FileSystem.get(getJobConf());
-    Path inputDir = new Path("input");
-    fs.mkdirs(inputDir);
-    Writer writer = new OutputStreamWriter(fs.create(new Path(inputDir, "data.txt")));
-    writer.write("hello");
-    writer.close();
-
-    Path outputDir = new Path("output", "output");
-
-    JobConf jobConf = new JobConf(getJobConf());
-    jobConf.setInt("mapred.map.tasks", 1);
-    jobConf.setInt("mapred.map.max.attempts", 1);
-    jobConf.setInt("mapred.reduce.max.attempts", 1);
-    jobConf.set("mapred.input.dir", inputDir.toString());
-    jobConf.set("mapred.output.dir", outputDir.toString());
-
-    JobClient jobClient = new JobClient(jobConf);
-    RunningJob runJob = jobClient.submitJob(jobConf);
-    runJob.waitForCompletion();
-    assertTrue(runJob.isComplete());
-    assertTrue(runJob.isSuccessful());
-  }
-    
-  public void __testCurrentUser() throws Exception {
-   mrRun();
-  }  
-
-  public void testValidProxyUser() throws Exception {
-    UserGroupInformation ugi = UserGroupInformation.createProxyUser("u1", UserGroupInformation.getLoginUser());
-    ugi.doAs(new PrivilegedExceptionAction<Void>() {
-        public Void run() throws Exception {
-          mrRun();
-          return null;
+    @Override
+    protected void tearDown() throws Exception {
+        if (mrCluster != null) {
+            mrCluster.shutdown();
         }
-
- 
-    });
-  }
-
-  public void ___testInvalidProxyUser() throws Exception {
-    UserGroupInformation ugi = UserGroupInformation.createProxyUser("u2", UserGroupInformation.getLoginUser());
-    ugi.doAs(new PrivilegedExceptionAction<Void>() {
-        public Void run() throws Exception {
-          try {
-            mrRun();
-            fail();
-          }
-          catch (RemoteException ex) {
-            //nop
-          }
-          catch (Exception ex) {
-            fail();
-          }
-          return null;
+        if (dfsCluster != null) {
+            dfsCluster.shutdown();
         }
-    });
-  }
+        super.tearDown();
+    }
+
+    private void mrRun() throws Exception {
+        FileSystem fs = FileSystem.get(getJobConf());
+        Path inputDir = new Path("input");
+        fs.mkdirs(inputDir);
+        Writer writer = new OutputStreamWriter(fs.create(new Path(inputDir, "data.txt")));
+        writer.write("hello");
+        writer.close();
+
+        Path outputDir = new Path("output", "output");
+
+        JobConf jobConf = new JobConf(getJobConf());
+        jobConf.setInt("mapred.map.tasks", 1);
+        jobConf.setInt("mapred.map.max.attempts", 1);
+        jobConf.setInt("mapred.reduce.max.attempts", 1);
+        jobConf.set("mapred.input.dir", inputDir.toString());
+        jobConf.set("mapred.output.dir", outputDir.toString());
+
+        JobClient jobClient = new JobClient(jobConf);
+        RunningJob runJob = jobClient.submitJob(jobConf);
+        runJob.waitForCompletion();
+        assertTrue(runJob.isComplete());
+        assertTrue(runJob.isSuccessful());
+    }
+
+    public void __testCurrentUser() throws Exception {
+        mrRun();
+    }
+
+    public void testValidProxyUser() throws Exception {
+        UserGroupInformation ugi = UserGroupInformation.createProxyUser("u1", UserGroupInformation.getLoginUser());
+        ugi.doAs(new PrivilegedExceptionAction<Void>() {
+            public Void run() throws Exception {
+                mrRun();
+                return null;
+            }
+
+
+        });
+    }
+
+    public void ___testInvalidProxyUser() throws Exception {
+        UserGroupInformation ugi = UserGroupInformation.createProxyUser("u2", UserGroupInformation.getLoginUser());
+        ugi.doAs(new PrivilegedExceptionAction<Void>() {
+            public Void run() throws Exception {
+                try {
+                    mrRun();
+                    fail();
+                } catch (RemoteException ex) {
+                    //nop
+                } catch (Exception ex) {
+                    fail();
+                }
+                return null;
+            }
+        });
+    }
 }
 

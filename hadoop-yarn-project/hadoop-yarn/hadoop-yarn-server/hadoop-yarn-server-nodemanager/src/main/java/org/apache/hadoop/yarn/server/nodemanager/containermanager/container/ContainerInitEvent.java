@@ -21,8 +21,8 @@ import org.apache.hadoop.yarn.api.records.ContainerId;
 
 public class ContainerInitEvent extends ContainerEvent {
 
-  public ContainerInitEvent(ContainerId c) {
-    super(c, ContainerEventType.INIT_CONTAINER);
-  }
+    public ContainerInitEvent(ContainerId c) {
+        super(c, ContainerEventType.INIT_CONTAINER);
+    }
 
 }

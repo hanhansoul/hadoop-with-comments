@@ -26,27 +26,27 @@ import org.apache.hadoop.yarn.api.records.LogAggregationContext;
 
 public class ApplicationInitEvent extends ApplicationEvent {
 
-  private final Map<ApplicationAccessType, String> applicationACLs;
-  private final LogAggregationContext logAggregationContext;  
+    private final Map<ApplicationAccessType, String> applicationACLs;
+    private final LogAggregationContext logAggregationContext;
 
-  public ApplicationInitEvent(ApplicationId appId,
-      Map<ApplicationAccessType, String> acls) {
-    this(appId, acls, null);
-  }
+    public ApplicationInitEvent(ApplicationId appId,
+                                Map<ApplicationAccessType, String> acls) {
+        this(appId, acls, null);
+    }
 
-  public ApplicationInitEvent(ApplicationId appId,
-      Map<ApplicationAccessType, String> acls,
-      LogAggregationContext logAggregationContext) {
-    super(appId, ApplicationEventType.INIT_APPLICATION);
-    this.applicationACLs = acls;
-    this.logAggregationContext = logAggregationContext;
-  }
+    public ApplicationInitEvent(ApplicationId appId,
+                                Map<ApplicationAccessType, String> acls,
+                                LogAggregationContext logAggregationContext) {
+        super(appId, ApplicationEventType.INIT_APPLICATION);
+        this.applicationACLs = acls;
+        this.logAggregationContext = logAggregationContext;
+    }
 
-  public Map<ApplicationAccessType, String> getApplicationACLs() {
-    return this.applicationACLs;
-  }
+    public Map<ApplicationAccessType, String> getApplicationACLs() {
+        return this.applicationACLs;
+    }
 
-  public LogAggregationContext getLogAggregationContext() {
-    return this.logAggregationContext;
-  }
+    public LogAggregationContext getLogAggregationContext() {
+        return this.logAggregationContext;
+    }
 }

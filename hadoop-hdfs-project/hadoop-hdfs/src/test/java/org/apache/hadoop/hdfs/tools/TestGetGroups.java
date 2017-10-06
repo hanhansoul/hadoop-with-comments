@@ -31,23 +31,23 @@ import org.junit.Before;
  * Tests for the HDFS implementation of {@link GetGroups}
  */
 public class TestGetGroups extends GetGroupsTestBase {
-  
-  private MiniDFSCluster cluster;
 
-  @Before
-  public void setUpNameNode() throws IOException {
-    conf = new HdfsConfiguration();
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
-  }
-  
-  @After
-  public void tearDownNameNode() {
-    cluster.shutdown();
-  }
+    private MiniDFSCluster cluster;
 
-  @Override
-  protected Tool getTool(PrintStream o) {
-    return new GetGroups(conf, o);
-  }
+    @Before
+    public void setUpNameNode() throws IOException {
+        conf = new HdfsConfiguration();
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(0).build();
+    }
+
+    @After
+    public void tearDownNameNode() {
+        cluster.shutdown();
+    }
+
+    @Override
+    protected Tool getTool(PrintStream o) {
+        return new GetGroups(conf, o);
+    }
 
 }

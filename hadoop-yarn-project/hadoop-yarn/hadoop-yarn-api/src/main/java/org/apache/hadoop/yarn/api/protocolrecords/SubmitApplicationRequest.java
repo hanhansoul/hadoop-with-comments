@@ -27,46 +27,46 @@ import org.apache.hadoop.yarn.api.records.Resource;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * <p>The request sent by a client to <em>submit an application</em> to the 
+ * <p>The request sent by a client to <em>submit an application</em> to the
  * <code>ResourceManager</code>.</p>
- * 
+ *
  * <p>The request, via {@link ApplicationSubmissionContext}, contains
- * details such as queue, {@link Resource} required to run the 
- * <code>ApplicationMaster</code>, the equivalent of 
- * {@link ContainerLaunchContext} for launching the 
+ * details such as queue, {@link Resource} required to run the
+ * <code>ApplicationMaster</code>, the equivalent of
+ * {@link ContainerLaunchContext} for launching the
  * <code>ApplicationMaster</code> etc.
- * 
+ *
  * @see ApplicationClientProtocol#submitApplication(SubmitApplicationRequest)
  */
 @Public
 @Stable
 public abstract class SubmitApplicationRequest {
 
-  @Public
-  @Stable
-  public static SubmitApplicationRequest newInstance(
-      ApplicationSubmissionContext context) {
-    SubmitApplicationRequest request =
-        Records.newRecord(SubmitApplicationRequest.class);
-    request.setApplicationSubmissionContext(context);
-    return request;
-  }
+    @Public
+    @Stable
+    public static SubmitApplicationRequest newInstance(
+        ApplicationSubmissionContext context) {
+        SubmitApplicationRequest request =
+            Records.newRecord(SubmitApplicationRequest.class);
+        request.setApplicationSubmissionContext(context);
+        return request;
+    }
 
-  /**
-   * Get the <code>ApplicationSubmissionContext</code> for the application.
-   * @return <code>ApplicationSubmissionContext</code> for the application
-   */
-  @Public
-  @Stable
-  public abstract ApplicationSubmissionContext getApplicationSubmissionContext();
+    /**
+     * Get the <code>ApplicationSubmissionContext</code> for the application.
+     * @return <code>ApplicationSubmissionContext</code> for the application
+     */
+    @Public
+    @Stable
+    public abstract ApplicationSubmissionContext getApplicationSubmissionContext();
 
-  /**
-   * Set the <code>ApplicationSubmissionContext</code> for the application.
-   * @param context <code>ApplicationSubmissionContext</code> for the 
-   *                application
-   */
-  @Public
-  @Stable
-  public abstract void setApplicationSubmissionContext(
-      ApplicationSubmissionContext context);
+    /**
+     * Set the <code>ApplicationSubmissionContext</code> for the application.
+     * @param context <code>ApplicationSubmissionContext</code> for the
+     *                application
+     */
+    @Public
+    @Stable
+    public abstract void setApplicationSubmissionContext(
+        ApplicationSubmissionContext context);
 }

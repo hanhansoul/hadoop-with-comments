@@ -39,84 +39,81 @@ import org.apache.xml.serialize.XMLSerializer;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class XmlEditsVisitor implements OfflineEditsVisitor {
-  private final OutputStream out;
-  private ContentHandler contentHandler;
+    private final OutputStream out;
+    private ContentHandler contentHandler;
 
-  /**
-   * Create a processor that writes to the file named and may or may not
-   * also output to the screen, as specified.
-   *
-   * @param filename Name of file to write output to
-   * @param printToScreen Mirror output to screen?
-   */
-  public XmlEditsVisitor(OutputStream out)
-      throws IOException {
-    this.out = out;
-    OutputFormat outFormat = new OutputFormat("XML", "UTF-8", true);
-    outFormat.setIndenting(true);
-    outFormat.setIndent(2);
-    outFormat.setDoctype(null, null);
-    XMLSerializer serializer = new XMLSerializer(out, outFormat);
-    contentHandler = serializer.asContentHandler();
-    try {
-      contentHandler.startDocument();
-      contentHandler.startElement("", "", "EDITS", new AttributesImpl());
-    } catch (SAXException e) {
-      throw new IOException("SAX error: " + e.getMessage());
+    /**
+     * Create a processor that writes to the file named and may or may not
+     * also output to the screen, as specified.
+     *
+     * @param filename Name of file to write output to
+     * @param printToScreen Mirror output to screen?
+     */
+    public XmlEditsVisitor(OutputStream out)
+    throws IOException {
+        this.out = out;
+        OutputFormat outFormat = new OutputFormat("XML", "UTF-8", true);
+        outFormat.setIndenting(true);
+        outFormat.setIndent(2);
+        outFormat.setDoctype(null, null);
+        XMLSerializer serializer = new XMLSerializer(out, outFormat);
+        contentHandler = serializer.asContentHandler();
+        try {
+            contentHandler.startDocument();
+            contentHandler.startElement("", "", "EDITS", new AttributesImpl());
+        } catch (SAXException e) {
+            throw new IOException("SAX error: " + e.getMessage());
+        }
     }
-  }
 
-  /**
-   * Start visitor (initialization)
-   */
-  @Override
-  public void start(int version) throws IOException {
-    try {
-      contentHandler.startElement("", "", "EDITS_VERSION", new AttributesImpl());
-      StringBuilder bld = new StringBuilder();
-      bld.append(version);
-      addString(bld.toString());
-      contentHandler.endElement("", "", "EDITS_VERSION");
+    /**
+     * Start visitor (initialization)
+     */
+    @Override
+    public void start(int version) throws IOException {
+        try {
+            contentHandler.startElement("", "", "EDITS_VERSION", new AttributesImpl());
+            StringBuilder bld = new StringBuilder();
+            bld.append(version);
+            addString(bld.toString());
+            contentHandler.endElement("", "", "EDITS_VERSION");
+        } catch (SAXException e) {
+            throw new IOException("SAX error: " + e.getMessage());
+        }
     }
-    catch (SAXException e) {
-      throw new IOException("SAX error: " + e.getMessage());
-    }
-  }
 
-  public void addString(String str) throws SAXException {
-    int slen = str.length();
-    char arr[] = new char[slen];
-    str.getChars(0, slen, arr, 0);
-    contentHandler.characters(arr, 0, slen);
-  }
-  
-  /**
-   * Finish visitor
-   */
-  @Override
-  public void close(Throwable error) throws IOException {
-    try {
-      contentHandler.endElement("", "", "EDITS");
-      if (error != null) {
-        String msg = error.getMessage();
-        XMLUtils.addSaxString(contentHandler, "ERROR",
-            (msg == null) ? "null" : msg);
-      }
-      contentHandler.endDocument();
+    public void addString(String str) throws SAXException {
+        int slen = str.length();
+        char arr[] = new char[slen];
+        str.getChars(0, slen, arr, 0);
+        contentHandler.characters(arr, 0, slen);
     }
-    catch (SAXException e) {
-      throw new IOException("SAX error: " + e.getMessage());
-    }
-    out.close();
-  }
 
-  @Override
-  public void visitOp(FSEditLogOp op) throws IOException {
-    try {
-      op.outputToXml(contentHandler);
+    /**
+     * Finish visitor
+     */
+    @Override
+    public void close(Throwable error) throws IOException {
+        try {
+            contentHandler.endElement("", "", "EDITS");
+            if (error != null) {
+                String msg = error.getMessage();
+                XMLUtils.addSaxString(contentHandler, "ERROR",
+                                      (msg == null) ? "null" : msg);
+            }
+            contentHandler.endDocument();
+        } catch (SAXException e) {
+            throw new IOException("SAX error: " + e.getMessage());
+        }
+        out.close();
     }
-    catch (SAXException e) {
-      throw new IOException("SAX error: " + e.getMessage());
+
+    @Override
+    public void visitOp(FSEditLogOp op) throws IOException {
+        try {
+            op.outputToXml(contentHandler);
+        } catch (SAXException e) {
+            throw new IOException("SAX error: " + e.getMessage());
+        }
     }
-  }
 }

@@ -29,40 +29,40 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.MapFile;
 
-/** 
- * An {@link InputFormat} for {@link SequenceFile}s. 
+/**
+ * An {@link InputFormat} for {@link SequenceFile}s.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class SequenceFileInputFormat<K, V> extends FileInputFormat<K, V> {
 
-  public SequenceFileInputFormat() {
-    setMinSplitSize(SequenceFile.SYNC_INTERVAL);
-  }
-  
-  @Override
-  protected FileStatus[] listStatus(JobConf job) throws IOException {
-    FileStatus[] files = super.listStatus(job);
-    for (int i = 0; i < files.length; i++) {
-      FileStatus file = files[i];
-      if (file.isDirectory()) {     // it's a MapFile
-        Path dataFile = new Path(file.getPath(), MapFile.DATA_FILE_NAME);
-        FileSystem fs = file.getPath().getFileSystem(job);
-        // use the data file
-        files[i] = fs.getFileStatus(dataFile);
-      }
+    public SequenceFileInputFormat() {
+        setMinSplitSize(SequenceFile.SYNC_INTERVAL);
     }
-    return files;
-  }
 
-  public RecordReader<K, V> getRecordReader(InputSplit split,
-                                      JobConf job, Reporter reporter)
+    @Override
+    protected FileStatus[] listStatus(JobConf job) throws IOException {
+        FileStatus[] files = super.listStatus(job);
+        for (int i = 0; i < files.length; i++) {
+            FileStatus file = files[i];
+            if (file.isDirectory()) {     // it's a MapFile
+                Path dataFile = new Path(file.getPath(), MapFile.DATA_FILE_NAME);
+                FileSystem fs = file.getPath().getFileSystem(job);
+                // use the data file
+                files[i] = fs.getFileStatus(dataFile);
+            }
+        }
+        return files;
+    }
+
+    public RecordReader<K, V> getRecordReader(InputSplit split,
+            JobConf job, Reporter reporter)
     throws IOException {
 
-    reporter.setStatus(split.toString());
+        reporter.setStatus(split.toString());
 
-    return new SequenceFileRecordReader<K, V>(job, (FileSplit) split);
-  }
+        return new SequenceFileRecordReader<K, V>(job, (FileSplit) split);
+    }
 
 }
 

@@ -34,86 +34,93 @@ import org.apache.hadoop.mapreduce.TaskType;
 @InterfaceStability.Unstable
 public class TaskFinishedEvent implements HistoryEvent {
 
-  private TaskFinished datum = null;
+    private TaskFinished datum = null;
 
-  private TaskID taskid;
-  private TaskAttemptID successfulAttemptId;
-  private long finishTime;
-  private TaskType taskType;
-  private String status;
-  private Counters counters;
-  
-  /**
-   * Create an event to record the successful completion of a task
-   * @param id Task ID
-   * @param attemptId Task Attempt ID of the successful attempt for this task
-   * @param finishTime Finish time of the task
-   * @param taskType Type of the task
-   * @param status Status string
-   * @param counters Counters for the task
-   */
-  public TaskFinishedEvent(TaskID id, TaskAttemptID attemptId, long finishTime,
-                           TaskType taskType,
-                           String status, Counters counters) {
-    this.taskid = id;
-    this.successfulAttemptId = attemptId;
-    this.finishTime = finishTime;
-    this.taskType = taskType;
-    this.status = status;
-    this.counters = counters;
-  }
-  
-  TaskFinishedEvent() {}
+    private TaskID taskid;
+    private TaskAttemptID successfulAttemptId;
+    private long finishTime;
+    private TaskType taskType;
+    private String status;
+    private Counters counters;
 
-  public Object getDatum() {
-    if (datum == null) {
-      datum = new TaskFinished();
-      datum.taskid = new Utf8(taskid.toString());
-      if(successfulAttemptId != null)
-      {
-        datum.successfulAttemptId = new Utf8(successfulAttemptId.toString());
-      }
-      datum.finishTime = finishTime;
-      datum.counters = EventWriter.toAvro(counters);
-      datum.taskType = new Utf8(taskType.name());
-      datum.status = new Utf8(status);
+    /**
+     * Create an event to record the successful completion of a task
+     * @param id Task ID
+     * @param attemptId Task Attempt ID of the successful attempt for this task
+     * @param finishTime Finish time of the task
+     * @param taskType Type of the task
+     * @param status Status string
+     * @param counters Counters for the task
+     */
+    public TaskFinishedEvent(TaskID id, TaskAttemptID attemptId, long finishTime,
+                             TaskType taskType,
+                             String status, Counters counters) {
+        this.taskid = id;
+        this.successfulAttemptId = attemptId;
+        this.finishTime = finishTime;
+        this.taskType = taskType;
+        this.status = status;
+        this.counters = counters;
     }
-    return datum;
-  }
 
-  public void setDatum(Object oDatum) {
-    this.datum = (TaskFinished)oDatum;
-    this.taskid = TaskID.forName(datum.taskid.toString());
-    if (datum.successfulAttemptId != null) {
-      this.successfulAttemptId = TaskAttemptID
-          .forName(datum.successfulAttemptId.toString());
+    TaskFinishedEvent() {}
+
+    public Object getDatum() {
+        if (datum == null) {
+            datum = new TaskFinished();
+            datum.taskid = new Utf8(taskid.toString());
+            if(successfulAttemptId != null) {
+                datum.successfulAttemptId = new Utf8(successfulAttemptId.toString());
+            }
+            datum.finishTime = finishTime;
+            datum.counters = EventWriter.toAvro(counters);
+            datum.taskType = new Utf8(taskType.name());
+            datum.status = new Utf8(status);
+        }
+        return datum;
     }
-    this.finishTime = datum.finishTime;
-    this.taskType = TaskType.valueOf(datum.taskType.toString());
-    this.status = datum.status.toString();
-    this.counters = EventReader.fromAvro(datum.counters);
-  }
 
-  /** Get task id */
-  public TaskID getTaskId() { return taskid; }
-  /** Get successful task attempt id */
-  public TaskAttemptID getSuccessfulTaskAttemptId() {
-    return successfulAttemptId;
-  }
-  /** Get the task finish time */
-  public long getFinishTime() { return finishTime; }
-  /** Get task counters */
-  public Counters getCounters() { return counters; }
-  /** Get task type */
-  public TaskType getTaskType() {
-    return taskType;
-  }
-  /** Get task status */
-  public String getTaskStatus() { return status.toString(); }
-  /** Get event type */
-  public EventType getEventType() {
-    return EventType.TASK_FINISHED;
-  }
+    public void setDatum(Object oDatum) {
+        this.datum = (TaskFinished)oDatum;
+        this.taskid = TaskID.forName(datum.taskid.toString());
+        if (datum.successfulAttemptId != null) {
+            this.successfulAttemptId = TaskAttemptID
+                                       .forName(datum.successfulAttemptId.toString());
+        }
+        this.finishTime = datum.finishTime;
+        this.taskType = TaskType.valueOf(datum.taskType.toString());
+        this.status = datum.status.toString();
+        this.counters = EventReader.fromAvro(datum.counters);
+    }
 
-  
+    /** Get task id */
+    public TaskID getTaskId() {
+        return taskid;
+    }
+    /** Get successful task attempt id */
+    public TaskAttemptID getSuccessfulTaskAttemptId() {
+        return successfulAttemptId;
+    }
+    /** Get the task finish time */
+    public long getFinishTime() {
+        return finishTime;
+    }
+    /** Get task counters */
+    public Counters getCounters() {
+        return counters;
+    }
+    /** Get task type */
+    public TaskType getTaskType() {
+        return taskType;
+    }
+    /** Get task status */
+    public String getTaskStatus() {
+        return status.toString();
+    }
+    /** Get event type */
+    public EventType getEventType() {
+        return EventType.TASK_FINISHED;
+    }
+
+
 }

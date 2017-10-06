@@ -23,35 +23,35 @@ import org.apache.hadoop.conf.Configuration;
  * Represents a class name.
  */
 public class ClassName extends DefaultAnonymizableDataType {
-  public static final String CLASSNAME_PRESERVE_CONFIG = "rumen.data-types.classname.preserve";
-  private final String className;
-  
-  public ClassName(String className) {
-    super();
-    this.className = className;
-  }
-  
-  @Override
-  public String getValue() {
-    return className;
-  }
-  
-  @Override
-  protected String getPrefix() {
-    return "class";
-  }
-  
-  @Override
-  protected boolean needsAnonymization(Configuration conf) {
-    String[] preserves = conf.getStrings(CLASSNAME_PRESERVE_CONFIG);
-    if (preserves != null) {
-      // do a simple starts with check
-      for (String p : preserves) {
-        if (className.startsWith(p)) {
-          return false;
-        }
-      }
+    public static final String CLASSNAME_PRESERVE_CONFIG = "rumen.data-types.classname.preserve";
+    private final String className;
+
+    public ClassName(String className) {
+        super();
+        this.className = className;
     }
-    return true;
-  }
+
+    @Override
+    public String getValue() {
+        return className;
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "class";
+    }
+
+    @Override
+    protected boolean needsAnonymization(Configuration conf) {
+        String[] preserves = conf.getStrings(CLASSNAME_PRESERVE_CONFIG);
+        if (preserves != null) {
+            // do a simple starts with check
+            for (String p : preserves) {
+                if (className.startsWith(p)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

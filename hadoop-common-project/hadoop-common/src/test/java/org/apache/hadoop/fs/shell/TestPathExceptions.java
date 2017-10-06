@@ -30,49 +30,49 @@ import org.junit.Test;
 
 public class TestPathExceptions {
 
-  protected String path = "some/file";
-  protected String error = "KABOOM";
+    protected String path = "some/file";
+    protected String error = "KABOOM";
 
-  @Test
-  public void testWithDefaultString() throws Exception {
-    PathIOException pe = new PathIOException(path);
-    assertEquals(new Path(path), pe.getPath());
-    assertEquals("`" + path + "': Input/output error", pe.getMessage());
-  }
+    @Test
+    public void testWithDefaultString() throws Exception {
+        PathIOException pe = new PathIOException(path);
+        assertEquals(new Path(path), pe.getPath());
+        assertEquals("`" + path + "': Input/output error", pe.getMessage());
+    }
 
-  @Test
-  public void testWithThrowable() throws Exception {
-    IOException ioe = new IOException("KABOOM");    
-    PathIOException pe = new PathIOException(path, ioe);
-    assertEquals(new Path(path), pe.getPath());
-    assertEquals("`" + path + "': Input/output error: " + error, pe.getMessage());
-  }
+    @Test
+    public void testWithThrowable() throws Exception {
+        IOException ioe = new IOException("KABOOM");
+        PathIOException pe = new PathIOException(path, ioe);
+        assertEquals(new Path(path), pe.getPath());
+        assertEquals("`" + path + "': Input/output error: " + error, pe.getMessage());
+    }
 
-  @Test
-  public void testWithCustomString() throws Exception {
-    PathIOException pe = new PathIOException(path, error);
-    assertEquals(new Path(path), pe.getPath());
-    assertEquals("`" + path + "': " + error, pe.getMessage());
-  }
+    @Test
+    public void testWithCustomString() throws Exception {
+        PathIOException pe = new PathIOException(path, error);
+        assertEquals(new Path(path), pe.getPath());
+        assertEquals("`" + path + "': " + error, pe.getMessage());
+    }
 
-  @Test
-  public void testRemoteExceptionUnwrap() throws Exception {
-    PathIOException pe;
-    RemoteException re;
-    IOException ie;
-    
-    pe = new PathIOException(path);
-    re = new RemoteException(PathIOException.class.getName(), "test constructor1");
-    ie = re.unwrapRemoteException();
-    assertTrue(ie instanceof PathIOException);
-    ie = re.unwrapRemoteException(PathIOException.class);
-    assertTrue(ie instanceof PathIOException);
+    @Test
+    public void testRemoteExceptionUnwrap() throws Exception {
+        PathIOException pe;
+        RemoteException re;
+        IOException ie;
 
-    pe = new PathIOException(path, "constructor2");
-    re = new RemoteException(PathIOException.class.getName(), "test constructor2");
-    ie = re.unwrapRemoteException();
-    assertTrue(ie instanceof PathIOException);
-    ie = re.unwrapRemoteException(PathIOException.class);
-    assertTrue(ie instanceof PathIOException);    
-  }
+        pe = new PathIOException(path);
+        re = new RemoteException(PathIOException.class.getName(), "test constructor1");
+        ie = re.unwrapRemoteException();
+        assertTrue(ie instanceof PathIOException);
+        ie = re.unwrapRemoteException(PathIOException.class);
+        assertTrue(ie instanceof PathIOException);
+
+        pe = new PathIOException(path, "constructor2");
+        re = new RemoteException(PathIOException.class.getName(), "test constructor2");
+        ie = re.unwrapRemoteException();
+        assertTrue(ie instanceof PathIOException);
+        ie = re.unwrapRemoteException(PathIOException.class);
+        assertTrue(ie instanceof PathIOException);
+    }
 }

@@ -27,20 +27,20 @@ import java.util.Random;
  */
 class DataHasher {
 
-  private Random rnd;
+    private Random rnd;
 
-  DataHasher(long mixIn) {
-    this.rnd = new Random(mixIn);
-  }
+    DataHasher(long mixIn) {
+        this.rnd = new Random(mixIn);
+    }
 
-  /**
-   * @param offSet
-   *          the byte offset into the file
-   * 
-   * @return the data to be expected at that offset
-   */
-  long generate(long offSet) {
-    return ((offSet * 47) ^ (rnd.nextLong() * 97)) * 37;
-  }
+    /**
+     * @param offSet
+     *          the byte offset into the file
+     *
+     * @return the data to be expected at that offset
+     */
+    long generate(long offSet) {
+        return ((offSet * 47) ^ (rnd.nextLong() * 97)) * 37;
+    }
 
 }

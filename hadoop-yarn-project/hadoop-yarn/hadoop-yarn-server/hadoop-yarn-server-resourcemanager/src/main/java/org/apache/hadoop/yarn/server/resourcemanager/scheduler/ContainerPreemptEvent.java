@@ -28,30 +28,30 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 public class ContainerPreemptEvent
     extends AbstractEvent<ContainerPreemptEventType> {
 
-  private final ApplicationAttemptId aid;
-  private final RMContainer container;
+    private final ApplicationAttemptId aid;
+    private final RMContainer container;
 
-  public ContainerPreemptEvent(ApplicationAttemptId aid, RMContainer container,
-      ContainerPreemptEventType type) {
-    super(type);
-    this.aid = aid;
-    this.container = container;
-  }
+    public ContainerPreemptEvent(ApplicationAttemptId aid, RMContainer container,
+                                 ContainerPreemptEventType type) {
+        super(type);
+        this.aid = aid;
+        this.container = container;
+    }
 
-  public RMContainer getContainer(){
-    return this.container;
-  }
+    public RMContainer getContainer() {
+        return this.container;
+    }
 
-  public ApplicationAttemptId getAppId() {
-    return aid;
-  }
+    public ApplicationAttemptId getAppId() {
+        return aid;
+    }
 
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder(super.toString());
-    sb.append(" ").append(getAppId());
-    sb.append(" ").append(getContainer().getContainerId());
-    return sb.toString();
-  }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(super.toString());
+        sb.append(" ").append(getAppId());
+        sb.append(" ").append(getContainer().getContainerId());
+        return sb.toString();
+    }
 
 }

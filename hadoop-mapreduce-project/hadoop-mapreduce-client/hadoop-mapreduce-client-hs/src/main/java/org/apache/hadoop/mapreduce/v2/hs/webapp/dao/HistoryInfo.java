@@ -29,32 +29,32 @@ import org.apache.hadoop.util.VersionInfo;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HistoryInfo {
 
-  protected long startedOn;
-  protected String hadoopVersion;
-  protected String hadoopBuildVersion;
-  protected String hadoopVersionBuiltOn;
+    protected long startedOn;
+    protected String hadoopVersion;
+    protected String hadoopBuildVersion;
+    protected String hadoopVersionBuiltOn;
 
-  public HistoryInfo() {
-    this.startedOn = JobHistoryServer.historyServerTimeStamp;
-    this.hadoopVersion = VersionInfo.getVersion();
-    this.hadoopBuildVersion = VersionInfo.getBuildVersion();
-    this.hadoopVersionBuiltOn = VersionInfo.getDate();
-  }
+    public HistoryInfo() {
+        this.startedOn = JobHistoryServer.historyServerTimeStamp;
+        this.hadoopVersion = VersionInfo.getVersion();
+        this.hadoopBuildVersion = VersionInfo.getBuildVersion();
+        this.hadoopVersionBuiltOn = VersionInfo.getDate();
+    }
 
-  public String getHadoopVersion() {
-    return this.hadoopVersion;
-  }
+    public String getHadoopVersion() {
+        return this.hadoopVersion;
+    }
 
-  public String getHadoopBuildVersion() {
-    return this.hadoopBuildVersion;
-  }
+    public String getHadoopBuildVersion() {
+        return this.hadoopBuildVersion;
+    }
 
-  public String getHadoopVersionBuiltOn() {
-    return this.hadoopVersionBuiltOn;
-  }
+    public String getHadoopVersionBuiltOn() {
+        return this.hadoopVersionBuiltOn;
+    }
 
-  public long getStartedOn() {
-    return this.startedOn;
-  }
+    public long getStartedOn() {
+        return this.startedOn;
+    }
 
 }

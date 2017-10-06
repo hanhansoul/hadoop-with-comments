@@ -55,26 +55,27 @@ import org.apache.hadoop.yarn.webapp.RemoteExceptionData;
 @Provider
 public class JAXBContextResolver implements ContextResolver<JAXBContext> {
 
-  private JAXBContext context;
-  private final Set<Class> types;
+    private JAXBContext context;
+    private final Set<Class> types;
 
-  // you have to specify all the dao classes here
-  private final Class[] cTypes = {AMAttemptInfo.class, AMAttemptsInfo.class,
-    AppInfo.class, CounterInfo.class, JobTaskAttemptCounterInfo.class,
-    JobTaskCounterInfo.class, TaskCounterGroupInfo.class, ConfInfo.class,
-    JobCounterInfo.class, TaskCounterInfo.class, CounterGroupInfo.class,
-    JobInfo.class, JobsInfo.class, ReduceTaskAttemptInfo.class,
-    TaskAttemptInfo.class, TaskInfo.class, TasksInfo.class,
-    TaskAttemptsInfo.class, ConfEntryInfo.class, RemoteExceptionData.class};
+    // you have to specify all the dao classes here
+    private final Class[] cTypes = {AMAttemptInfo.class, AMAttemptsInfo.class,
+                                    AppInfo.class, CounterInfo.class, JobTaskAttemptCounterInfo.class,
+                                    JobTaskCounterInfo.class, TaskCounterGroupInfo.class, ConfInfo.class,
+                                    JobCounterInfo.class, TaskCounterInfo.class, CounterGroupInfo.class,
+                                    JobInfo.class, JobsInfo.class, ReduceTaskAttemptInfo.class,
+                                    TaskAttemptInfo.class, TaskInfo.class, TasksInfo.class,
+                                    TaskAttemptsInfo.class, ConfEntryInfo.class, RemoteExceptionData.class
+                                   };
 
-  public JAXBContextResolver() throws Exception {
-    this.types = new HashSet<Class>(Arrays.asList(cTypes));
-    this.context = new JSONJAXBContext(JSONConfiguration.natural().
-        rootUnwrapping(false).build(), cTypes);
-  }
+    public JAXBContextResolver() throws Exception {
+        this.types = new HashSet<Class>(Arrays.asList(cTypes));
+        this.context = new JSONJAXBContext(JSONConfiguration.natural().
+                                           rootUnwrapping(false).build(), cTypes);
+    }
 
-  @Override
-  public JAXBContext getContext(Class<?> objectType) {
-    return (types.contains(objectType)) ? context : null;
-  }
+    @Override
+    public JAXBContext getContext(Class<?> objectType) {
+        return (types.contains(objectType)) ? context : null;
+    }
 }

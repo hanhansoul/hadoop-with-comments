@@ -47,92 +47,92 @@ import org.junit.Test;
 
 public class TestMRCredentials {
 
-  static final int NUM_OF_KEYS = 10;
-  private static MiniMRClientCluster mrCluster;
-  private static MiniDFSCluster dfsCluster;
-  private static int numSlaves = 1;
-  private static JobConf jConf;
+    static final int NUM_OF_KEYS = 10;
+    private static MiniMRClientCluster mrCluster;
+    private static MiniDFSCluster dfsCluster;
+    private static int numSlaves = 1;
+    private static JobConf jConf;
 
-  @SuppressWarnings("deprecation")
-  @BeforeClass
-  public static void setUp() throws Exception {
-    System.setProperty("hadoop.log.dir", "logs");
-    Configuration conf = new Configuration();
-    dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(numSlaves)
+    @SuppressWarnings("deprecation")
+    @BeforeClass
+    public static void setUp() throws Exception {
+        System.setProperty("hadoop.log.dir", "logs");
+        Configuration conf = new Configuration();
+        dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(numSlaves)
         .build();
-    jConf = new JobConf(conf);
-    FileSystem.setDefaultUri(conf, dfsCluster.getFileSystem().getUri().toString());
-    mrCluster = MiniMRClientClusterFactory.create(TestMRCredentials.class, 1, jConf);
-    createKeysAsJson("keys.json");
-  }
+        jConf = new JobConf(conf);
+        FileSystem.setDefaultUri(conf, dfsCluster.getFileSystem().getUri().toString());
+        mrCluster = MiniMRClientClusterFactory.create(TestMRCredentials.class, 1, jConf);
+        createKeysAsJson("keys.json");
+    }
 
-  @AfterClass
-  public static void tearDown() throws Exception {
-    if(mrCluster != null)
-      mrCluster.stop();
-    mrCluster = null;
-    if(dfsCluster != null)
-      dfsCluster.shutdown();
-    dfsCluster = null;
+    @AfterClass
+    public static void tearDown() throws Exception {
+        if(mrCluster != null)
+            mrCluster.stop();
+        mrCluster = null;
+        if(dfsCluster != null)
+            dfsCluster.shutdown();
+        dfsCluster = null;
 
-    new File("keys.json").delete();
-
-  }
-
-  public static void createKeysAsJson (String fileName) 
-  throws FileNotFoundException, IOException{
-    StringBuilder jsonString = new StringBuilder();
-    jsonString.append("{");
-    for(int i=0; i<NUM_OF_KEYS; i++) {
-      String keyName = "alias"+i;
-      String password = "password"+i;
-      jsonString.append("\""+ keyName +"\":"+ "\""+password+"\"" );
-      if (i < (NUM_OF_KEYS-1)){
-        jsonString.append(",");
-      }
+        new File("keys.json").delete();
 
     }
-    jsonString.append("}");
 
-    FileOutputStream fos= new FileOutputStream (fileName);
-    fos.write(jsonString.toString().getBytes());
-    fos.close();
-  }
+    public static void createKeysAsJson (String fileName)
+    throws FileNotFoundException, IOException {
+        StringBuilder jsonString = new StringBuilder();
+        jsonString.append("{");
+        for(int i=0; i<NUM_OF_KEYS; i++) {
+            String keyName = "alias"+i;
+            String password = "password"+i;
+            jsonString.append("\""+ keyName +"\":"+ "\""+password+"\"" );
+            if (i < (NUM_OF_KEYS-1)) {
+                jsonString.append(",");
+            }
 
+        }
+        jsonString.append("}");
 
-  /**
-   * run a distributed job and verify that TokenCache is available
-   * @throws IOException
-   */
-  @Test
-  public void test () throws IOException {
-
-    // make sure JT starts
-    Configuration jobConf =  new JobConf(mrCluster.getConfig());
-
-    // provide namenodes names for the job to get the delegation tokens for
-    //String nnUri = dfsCluster.getNameNode().getUri(namenode).toString();
-    NameNode nn = dfsCluster.getNameNode();
-    URI nnUri = NameNode.getUri(nn.getNameNodeAddress());
-    jobConf.set(JobContext.JOB_NAMENODES, nnUri + "," + nnUri.toString());
-
-
-    jobConf.set("mapreduce.job.credentials.json" , "keys.json");
-
-    // using argument to pass the file name
-    String[] args = {
-        "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"
-    };
-
-    int res = -1;
-    try {
-      res = ToolRunner.run(jobConf, new CredentialsTestJob(), args);
-    } catch (Exception e) {
-      System.out.println("Job failed with" + e.getLocalizedMessage());
-      e.printStackTrace(System.out);
-      fail("Job failed");
+        FileOutputStream fos= new FileOutputStream (fileName);
+        fos.write(jsonString.toString().getBytes());
+        fos.close();
     }
-    assertEquals("dist job res is not 0", res, 0);
 
-  }
+
+    /**
+     * run a distributed job and verify that TokenCache is available
+     * @throws IOException
+     */
+    @Test
+    public void test () throws IOException {
+
+        // make sure JT starts
+        Configuration jobConf =  new JobConf(mrCluster.getConfig());
+
+        // provide namenodes names for the job to get the delegation tokens for
+        //String nnUri = dfsCluster.getNameNode().getUri(namenode).toString();
+        NameNode nn = dfsCluster.getNameNode();
+        URI nnUri = NameNode.getUri(nn.getNameNodeAddress());
+        jobConf.set(JobContext.JOB_NAMENODES, nnUri + "," + nnUri.toString());
+
+
+        jobConf.set("mapreduce.job.credentials.json", "keys.json");
+
+        // using argument to pass the file name
+        String[] args = {
+            "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"
+        };
+
+        int res = -1;
+        try {
+            res = ToolRunner.run(jobConf, new CredentialsTestJob(), args);
+        } catch (Exception e) {
+            System.out.println("Job failed with" + e.getLocalizedMessage());
+            e.printStackTrace(System.out);
+            fail("Job failed");
+        }
+        assertEquals("dist job res is not 0", res, 0);
+
+    }
 }

@@ -21,14 +21,14 @@ package org.apache.hadoop.mapreduce.v2.app.job.event;
 import org.apache.hadoop.mapreduce.v2.api.records.JobId;
 
 public class JobCommitFailedEvent extends JobEvent {
-  private String message;
+    private String message;
 
-  public JobCommitFailedEvent(JobId jobID, String message) {
-    super(jobID, JobEventType.JOB_COMMIT_FAILED);
-    this.message = message;
-  }
+    public JobCommitFailedEvent(JobId jobID, String message) {
+        super(jobID, JobEventType.JOB_COMMIT_FAILED);
+        this.message = message;
+    }
 
-  public String getMessage() {
-    return this.message;
-  }
+    public String getMessage() {
+        return this.message;
+    }
 }

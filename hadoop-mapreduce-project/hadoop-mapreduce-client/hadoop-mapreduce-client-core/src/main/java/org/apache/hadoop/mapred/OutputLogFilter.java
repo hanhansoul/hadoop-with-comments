@@ -33,9 +33,9 @@ import org.apache.hadoop.fs.PathFilter;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class OutputLogFilter implements PathFilter {
-  private static final PathFilter LOG_FILTER = 
-    new Utils.OutputFileUtils.OutputLogFilter();
-  public boolean accept(Path path) {
-    return LOG_FILTER.accept(path);
-  }
+    private static final PathFilter LOG_FILTER =
+        new Utils.OutputFileUtils.OutputLogFilter();
+    public boolean accept(Path path) {
+        return LOG_FILTER.accept(path);
+    }
 }

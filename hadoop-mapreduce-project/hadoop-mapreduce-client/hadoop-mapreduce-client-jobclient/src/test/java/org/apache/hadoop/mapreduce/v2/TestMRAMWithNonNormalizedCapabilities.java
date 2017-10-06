@@ -39,83 +39,83 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestMRAMWithNonNormalizedCapabilities {
-  private static final Log LOG = LogFactory.getLog(TestMRAMWithNonNormalizedCapabilities.class);
-  private static FileSystem localFs;
-  protected static MiniMRYarnCluster mrCluster = null;
+    private static final Log LOG = LogFactory.getLog(TestMRAMWithNonNormalizedCapabilities.class);
+    private static FileSystem localFs;
+    protected static MiniMRYarnCluster mrCluster = null;
 
-  private static Configuration conf = new Configuration();
+    private static Configuration conf = new Configuration();
 
-  static {
-    try {
-      localFs = FileSystem.getLocal(conf);
-    } catch (IOException io) {
-      throw new RuntimeException("problem getting local fs", io);
-    }
-  }
-
-  private static Path TEST_ROOT_DIR = new Path("target",
-          TestMRAMWithNonNormalizedCapabilities.class.getName() + "-tmpDir")
-          .makeQualified(localFs.getUri(), localFs.getWorkingDirectory());
-  static Path APP_JAR = new Path(TEST_ROOT_DIR, "MRAppJar.jar");
-
-  @Before
-  public void setup() throws Exception {
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-        + " not found. Not running test.");
-      return;
+    static {
+        try {
+            localFs = FileSystem.getLocal(conf);
+        } catch (IOException io) {
+            throw new RuntimeException("problem getting local fs", io);
+        }
     }
 
-    if (mrCluster == null) {
-      mrCluster = new MiniMRYarnCluster(getClass().getSimpleName());
-      mrCluster.init(new Configuration());
-      mrCluster.start();
-    }
-    // Copy MRAppJar and make it private. TODO: FIXME. This is a hack to
-    // workaround the absent public discache.
-    localFs.copyFromLocalFile(new Path(MiniMRYarnCluster.APPJAR), APP_JAR);
-    localFs.setPermission(APP_JAR, new FsPermission("700"));
-  }
+    private static Path TEST_ROOT_DIR = new Path("target",
+            TestMRAMWithNonNormalizedCapabilities.class.getName() + "-tmpDir")
+    .makeQualified(localFs.getUri(), localFs.getWorkingDirectory());
+    static Path APP_JAR = new Path(TEST_ROOT_DIR, "MRAppJar.jar");
 
-  /**
-   * To ensure nothing broken after we removed normalization 
-   * from the MRAM side
-   * @throws Exception
-   */
-  @Test
-  public void testJobWithNonNormalizedCapabilities() throws Exception {
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-                + " not found. Not running test.");
-      return;
-    }
+    @Before
+    public void setup() throws Exception {
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
 
-    JobConf jobConf = new JobConf(mrCluster.getConfig());
-    jobConf.setInt("mapreduce.map.memory.mb", 700);
-    jobConf.setInt("mapred.reduce.memory.mb", 1500);
-
-    SleepJob sleepJob = new SleepJob();
-    sleepJob.setConf(jobConf);
-    Job job = sleepJob.createJob(3, 2, 1000, 1, 500, 1);
-    job.setJarByClass(SleepJob.class);
-    job.addFileToClassPath(APP_JAR); // The AppMaster jar itself.
-    job.submit();
-    boolean completed = job.waitForCompletion(true);
-    Assert.assertTrue("Job should be completed", completed);
-    Assert.assertEquals("Job should be finished successfully", 
-                    JobStatus.State.SUCCEEDED, job.getJobState());
-  }
-
-  @After
-  public void tearDown() {
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-          + " not found. Not running test.");
-      return;
+        if (mrCluster == null) {
+            mrCluster = new MiniMRYarnCluster(getClass().getSimpleName());
+            mrCluster.init(new Configuration());
+            mrCluster.start();
+        }
+        // Copy MRAppJar and make it private. TODO: FIXME. This is a hack to
+        // workaround the absent public discache.
+        localFs.copyFromLocalFile(new Path(MiniMRYarnCluster.APPJAR), APP_JAR);
+        localFs.setPermission(APP_JAR, new FsPermission("700"));
     }
 
-    if (mrCluster != null) {
-      mrCluster.stop();
+    /**
+     * To ensure nothing broken after we removed normalization
+     * from the MRAM side
+     * @throws Exception
+     */
+    @Test
+    public void testJobWithNonNormalizedCapabilities() throws Exception {
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
+
+        JobConf jobConf = new JobConf(mrCluster.getConfig());
+        jobConf.setInt("mapreduce.map.memory.mb", 700);
+        jobConf.setInt("mapred.reduce.memory.mb", 1500);
+
+        SleepJob sleepJob = new SleepJob();
+        sleepJob.setConf(jobConf);
+        Job job = sleepJob.createJob(3, 2, 1000, 1, 500, 1);
+        job.setJarByClass(SleepJob.class);
+        job.addFileToClassPath(APP_JAR); // The AppMaster jar itself.
+        job.submit();
+        boolean completed = job.waitForCompletion(true);
+        Assert.assertTrue("Job should be completed", completed);
+        Assert.assertEquals("Job should be finished successfully",
+                            JobStatus.State.SUCCEEDED, job.getJobState());
     }
-  }
+
+    @After
+    public void tearDown() {
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
+
+        if (mrCluster != null) {
+            mrCluster.stop();
+        }
+    }
 }

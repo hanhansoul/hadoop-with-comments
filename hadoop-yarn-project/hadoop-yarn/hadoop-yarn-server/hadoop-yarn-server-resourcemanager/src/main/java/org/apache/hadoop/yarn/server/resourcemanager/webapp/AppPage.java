@@ -29,26 +29,26 @@ import org.apache.hadoop.yarn.webapp.YarnWebParams;
 
 public class AppPage extends RmView {
 
-  @Override 
-  protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    @Override
+    protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
 
-    String appId = $(YarnWebParams.APPLICATION_ID);
-    set(
-      TITLE,
-      appId.isEmpty() ? "Bad request: missing application ID" : join(
-        "Application ", $(YarnWebParams.APPLICATION_ID)));
-    set(DATATABLES_ID, "attempts ResourceRequests");
-    set(initID(DATATABLES, "attempts"), WebPageUtils.attemptsTableInit());
-    setTableStyles(html, "attempts", ".queue {width:6em}", ".ui {width:8em}");
+        String appId = $(YarnWebParams.APPLICATION_ID);
+        set(
+            TITLE,
+            appId.isEmpty() ? "Bad request: missing application ID" : join(
+                "Application ", $(YarnWebParams.APPLICATION_ID)));
+        set(DATATABLES_ID, "attempts ResourceRequests");
+        set(initID(DATATABLES, "attempts"), WebPageUtils.attemptsTableInit());
+        setTableStyles(html, "attempts", ".queue {width:6em}", ".ui {width:8em}");
 
-    setTableStyles(html, "ResourceRequests");
+        setTableStyles(html, "ResourceRequests");
 
-    set(YarnWebParams.WEB_UI_TYPE, YarnWebParams.RM_WEB_UI);
-  }
+        set(YarnWebParams.WEB_UI_TYPE, YarnWebParams.RM_WEB_UI);
+    }
 
-  @Override 
-  protected Class<? extends SubView> content() {
-    return RMAppBlock.class;
-  }
+    @Override
+    protected Class<? extends SubView> content() {
+        return RMAppBlock.class;
+    }
 }

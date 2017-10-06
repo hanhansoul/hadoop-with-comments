@@ -25,20 +25,20 @@ import org.junit.Test;
 
 public class TestTwoColumnLayout {
 
-  public static class TestController extends Controller {
-    @Override
-    public void index() {
-      setTitle("Test the two column table layout");
-      set("ui.accordion.id", "nav");
-      render(TwoColumnLayout.class);
+    public static class TestController extends Controller {
+        @Override
+        public void index() {
+            setTitle("Test the two column table layout");
+            set("ui.accordion.id", "nav");
+            render(TwoColumnLayout.class);
+        }
     }
-  }
 
-  @Test public void shouldNotThrow() {
-    WebAppTests.testPage(TwoColumnLayout.class);
-  }
+    @Test public void shouldNotThrow() {
+        WebAppTests.testPage(TwoColumnLayout.class);
+    }
 
-  public static void main(String[] args) {
-    WebApps.$for("test").at(8888).inDevMode().start().joinThread();
-  }
+    public static void main(String[] args) {
+        WebApps.$for("test").at(8888).inDevMode().start().joinThread();
+    }
 }

@@ -25,50 +25,50 @@ import java.io.IOException;
 import org.apache.hadoop.io.IntWritable;
 
 public class RawBytesReduceApp {
-  private DataInputStream dis;
+    private DataInputStream dis;
 
-  public RawBytesReduceApp() {
-    dis = new DataInputStream(System.in);
-  }
-  
-  public void go() throws IOException {
-    String prevKey = null;
-    int sum = 0;
-    String key = readString();
-    while (key != null) {
-      if (prevKey != null && !key.equals(prevKey)) {
+    public RawBytesReduceApp() {
+        dis = new DataInputStream(System.in);
+    }
+
+    public void go() throws IOException {
+        String prevKey = null;
+        int sum = 0;
+        String key = readString();
+        while (key != null) {
+            if (prevKey != null && !key.equals(prevKey)) {
+                System.out.println(prevKey + "\t" + sum);
+                sum = 0;
+            }
+            sum += readInt();
+            prevKey = key;
+            key = readString();
+        }
         System.out.println(prevKey + "\t" + sum);
-        sum = 0;
-      }
-      sum += readInt();
-      prevKey = key;
-      key = readString();
+        System.out.flush();
     }
-    System.out.println(prevKey + "\t" + sum);
-    System.out.flush();
-  }
 
-  public static void main(String[] args) throws IOException {
-    RawBytesReduceApp app = new RawBytesReduceApp();
-    app.go();
-  }
-  
-  private String readString() throws IOException {
-    int length;
-    try {
-      length = dis.readInt();
-    } catch (EOFException eof) {
-      return null;
+    public static void main(String[] args) throws IOException {
+        RawBytesReduceApp app = new RawBytesReduceApp();
+        app.go();
     }
-    byte[] bytes = new byte[length];
-    dis.readFully(bytes);
-    return new String(bytes, "UTF-8");
-  }
-  
-  private int readInt() throws IOException {
-    dis.readInt(); // ignore (we know it's 4)
-    IntWritable iw = new IntWritable();
-    iw.readFields(dis);
-    return iw.get();
-  }
+
+    private String readString() throws IOException {
+        int length;
+        try {
+            length = dis.readInt();
+        } catch (EOFException eof) {
+            return null;
+        }
+        byte[] bytes = new byte[length];
+        dis.readFully(bytes);
+        return new String(bytes, "UTF-8");
+    }
+
+    private int readInt() throws IOException {
+        dis.readInt(); // ignore (we know it's 4)
+        IntWritable iw = new IntWritable();
+        iw.readFields(dis);
+        return iw.get();
+    }
 }

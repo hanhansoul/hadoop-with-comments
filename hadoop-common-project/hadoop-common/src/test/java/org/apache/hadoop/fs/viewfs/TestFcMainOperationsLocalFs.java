@@ -26,28 +26,28 @@ import org.junit.After;
 import org.junit.Before;
 
 
-public class TestFcMainOperationsLocalFs  extends 
-  FileContextMainOperationsBaseTest {
+public class TestFcMainOperationsLocalFs  extends
+    FileContextMainOperationsBaseTest {
 
-  FileContext fclocal;
-  Path targetOfTests;
+    FileContext fclocal;
+    Path targetOfTests;
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    fc = ViewFsTestSetup.setupForViewFsLocalFs(fileContextTestHelper);
-    super.setUp();
-  }
-  
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-    ViewFsTestSetup.tearDownForViewFsLocalFs(fileContextTestHelper);
-  }
-  
-  @Override
-  protected boolean listCorruptedBlocksSupported() {
-    return false;
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        fc = ViewFsTestSetup.setupForViewFsLocalFs(fileContextTestHelper);
+        super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        ViewFsTestSetup.tearDownForViewFsLocalFs(fileContextTestHelper);
+    }
+
+    @Override
+    protected boolean listCorruptedBlocksSupported() {
+        return false;
+    }
 }

@@ -28,82 +28,82 @@ import org.apache.hadoop.mapreduce.v2.proto.MRServiceProtos.GetDiagnosticsReques
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class GetDiagnosticsRequestPBImpl extends ProtoBase<GetDiagnosticsRequestProto> implements GetDiagnosticsRequest {
-  GetDiagnosticsRequestProto proto = GetDiagnosticsRequestProto.getDefaultInstance();
-  GetDiagnosticsRequestProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private TaskAttemptId taskAttemptId = null;
-  
-  
-  public GetDiagnosticsRequestPBImpl() {
-    builder = GetDiagnosticsRequestProto.newBuilder();
-  }
+    GetDiagnosticsRequestProto proto = GetDiagnosticsRequestProto.getDefaultInstance();
+    GetDiagnosticsRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetDiagnosticsRequestPBImpl(GetDiagnosticsRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public GetDiagnosticsRequestProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private TaskAttemptId taskAttemptId = null;
 
-  private void mergeLocalToBuilder() {
-    if (this.taskAttemptId != null) {
-      builder.setTaskAttemptId(convertToProtoFormat(this.taskAttemptId));
+
+    public GetDiagnosticsRequestPBImpl() {
+        builder = GetDiagnosticsRequestProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetDiagnosticsRequestProto.newBuilder(proto);
+    public GetDiagnosticsRequestPBImpl(GetDiagnosticsRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public TaskAttemptId getTaskAttemptId() {
-    GetDiagnosticsRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.taskAttemptId != null) {
-      return this.taskAttemptId;
+
+    public GetDiagnosticsRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasTaskAttemptId()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.taskAttemptId != null) {
+            builder.setTaskAttemptId(convertToProtoFormat(this.taskAttemptId));
+        }
     }
-    this.taskAttemptId = convertFromProtoFormat(p.getTaskAttemptId());
-    return this.taskAttemptId;
-  }
 
-  @Override
-  public void setTaskAttemptId(TaskAttemptId taskAttemptId) {
-    maybeInitBuilder();
-    if (taskAttemptId == null) 
-      builder.clearTaskAttemptId();
-    this.taskAttemptId = taskAttemptId;
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private TaskAttemptIdPBImpl convertFromProtoFormat(TaskAttemptIdProto p) {
-    return new TaskAttemptIdPBImpl(p);
-  }
-
-  private TaskAttemptIdProto convertToProtoFormat(TaskAttemptId t) {
-    return ((TaskAttemptIdPBImpl)t).getProto();
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetDiagnosticsRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
 
+    @Override
+    public TaskAttemptId getTaskAttemptId() {
+        GetDiagnosticsRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.taskAttemptId != null) {
+            return this.taskAttemptId;
+        }
+        if (!p.hasTaskAttemptId()) {
+            return null;
+        }
+        this.taskAttemptId = convertFromProtoFormat(p.getTaskAttemptId());
+        return this.taskAttemptId;
+    }
 
-}  
+    @Override
+    public void setTaskAttemptId(TaskAttemptId taskAttemptId) {
+        maybeInitBuilder();
+        if (taskAttemptId == null)
+            builder.clearTaskAttemptId();
+        this.taskAttemptId = taskAttemptId;
+    }
+
+    private TaskAttemptIdPBImpl convertFromProtoFormat(TaskAttemptIdProto p) {
+        return new TaskAttemptIdPBImpl(p);
+    }
+
+    private TaskAttemptIdProto convertToProtoFormat(TaskAttemptId t) {
+        return ((TaskAttemptIdPBImpl)t).getProto();
+    }
+
+
+
+}

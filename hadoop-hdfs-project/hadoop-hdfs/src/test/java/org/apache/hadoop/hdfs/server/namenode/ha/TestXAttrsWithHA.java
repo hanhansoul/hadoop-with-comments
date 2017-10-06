@@ -43,72 +43,72 @@ import org.junit.Test;
  * Tests interaction of XAttrs with HA failover.
  */
 public class TestXAttrsWithHA {
-  private static final Path path = new Path("/file");
-  
-  // XAttrs
-  protected static final String name1 = "user.a1";
-  protected static final byte[] value1 = {0x31, 0x32, 0x33};
-  protected static final byte[] newValue1 = {0x31, 0x31, 0x31};
-  protected static final String name2 = "user.a2";
-  protected static final byte[] value2 = {0x37, 0x38, 0x39};
-  protected static final String name3 = "user.a3";
-  
-  private MiniDFSCluster cluster;
-  private NameNode nn0;
-  private NameNode nn1;
-  private FileSystem fs;
+    private static final Path path = new Path("/file");
 
-  @Before
-  public void setupCluster() throws Exception {
-    Configuration conf = new Configuration();
-    conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
-    HAUtil.setAllowStandbyReads(conf, true);
-    
-    cluster = new MiniDFSCluster.Builder(conf)
-      .nnTopology(MiniDFSNNTopology.simpleHATopology())
-      .numDataNodes(1)
-      .waitSafeMode(false)
-      .build();
-    cluster.waitActive();
-    
-    nn0 = cluster.getNameNode(0);
-    nn1 = cluster.getNameNode(1);
-    fs = HATestUtil.configureFailoverFs(cluster, conf);
-    
-    cluster.transitionToActive(0);
-  }
-  
-  @After
-  public void shutdownCluster() throws IOException {
-    if (cluster != null) {
-      cluster.shutdown();
+    // XAttrs
+    protected static final String name1 = "user.a1";
+    protected static final byte[] value1 = {0x31, 0x32, 0x33};
+    protected static final byte[] newValue1 = {0x31, 0x31, 0x31};
+    protected static final String name2 = "user.a2";
+    protected static final byte[] value2 = {0x37, 0x38, 0x39};
+    protected static final String name3 = "user.a3";
+
+    private MiniDFSCluster cluster;
+    private NameNode nn0;
+    private NameNode nn1;
+    private FileSystem fs;
+
+    @Before
+    public void setupCluster() throws Exception {
+        Configuration conf = new Configuration();
+        conf.setInt(DFSConfigKeys.DFS_HA_TAILEDITS_PERIOD_KEY, 1);
+        HAUtil.setAllowStandbyReads(conf, true);
+
+        cluster = new MiniDFSCluster.Builder(conf)
+        .nnTopology(MiniDFSNNTopology.simpleHATopology())
+        .numDataNodes(1)
+        .waitSafeMode(false)
+        .build();
+        cluster.waitActive();
+
+        nn0 = cluster.getNameNode(0);
+        nn1 = cluster.getNameNode(1);
+        fs = HATestUtil.configureFailoverFs(cluster, conf);
+
+        cluster.transitionToActive(0);
     }
-  }
 
-  /**
-   * Test that xattrs are properly tracked by the standby
-   */
-  @Test(timeout = 60000)
-  public void testXAttrsTrackedOnStandby() throws Exception {
-    fs.create(path).close();
-    fs.setXAttr(path, name1, value1, EnumSet.of(XAttrSetFlag.CREATE));
-    fs.setXAttr(path, name2, value2, EnumSet.of(XAttrSetFlag.CREATE));
+    @After
+    public void shutdownCluster() throws IOException {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
 
-    HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
-    List<XAttr> xAttrs = nn1.getRpcServer().getXAttrs("/file", null);
-    assertEquals(2, xAttrs.size());
-    cluster.shutdownNameNode(0);
-    
-    // Failover the current standby to active.
-    cluster.shutdownNameNode(0);
-    cluster.transitionToActive(1);
-    
-    Map<String, byte[]> xattrs = fs.getXAttrs(path);
-    Assert.assertEquals(xattrs.size(), 2);
-    Assert.assertArrayEquals(value1, xattrs.get(name1));
-    Assert.assertArrayEquals(value2, xattrs.get(name2));
-    
-    fs.delete(path, true);
-  }
+    /**
+     * Test that xattrs are properly tracked by the standby
+     */
+    @Test(timeout = 60000)
+    public void testXAttrsTrackedOnStandby() throws Exception {
+        fs.create(path).close();
+        fs.setXAttr(path, name1, value1, EnumSet.of(XAttrSetFlag.CREATE));
+        fs.setXAttr(path, name2, value2, EnumSet.of(XAttrSetFlag.CREATE));
+
+        HATestUtil.waitForStandbyToCatchUp(nn0, nn1);
+        List<XAttr> xAttrs = nn1.getRpcServer().getXAttrs("/file", null);
+        assertEquals(2, xAttrs.size());
+        cluster.shutdownNameNode(0);
+
+        // Failover the current standby to active.
+        cluster.shutdownNameNode(0);
+        cluster.transitionToActive(1);
+
+        Map<String, byte[]> xattrs = fs.getXAttrs(path);
+        Assert.assertEquals(xattrs.size(), 2);
+        Assert.assertArrayEquals(value1, xattrs.get(name1));
+        Assert.assertArrayEquals(value2, xattrs.get(name2));
+
+        fs.delete(path, true);
+    }
 
 }

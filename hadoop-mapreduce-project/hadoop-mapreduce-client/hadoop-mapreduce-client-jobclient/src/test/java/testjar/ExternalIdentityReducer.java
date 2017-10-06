@@ -28,25 +28,25 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 
-public class ExternalIdentityReducer implements 
-             Reducer<WritableComparable, Writable,
-                     WritableComparable, Writable> {
+public class ExternalIdentityReducer implements
+    Reducer<WritableComparable, Writable,
+    WritableComparable, Writable> {
 
-  public void configure(JobConf job) {
+    public void configure(JobConf job) {
 
-  }
-
-  public void close()
-    throws IOException {
-  }
-
-  public void reduce(WritableComparable key, Iterator<Writable> values,
-                     OutputCollector<WritableComparable, Writable> output,
-                     Reporter reporter)
-    throws IOException {
-    
-    while (values.hasNext()) {
-      output.collect(key, values.next());
     }
-  }
+
+    public void close()
+    throws IOException {
+    }
+
+    public void reduce(WritableComparable key, Iterator<Writable> values,
+                       OutputCollector<WritableComparable, Writable> output,
+                       Reporter reporter)
+    throws IOException {
+
+        while (values.hasNext()) {
+            output.collect(key, values.next());
+        }
+    }
 }

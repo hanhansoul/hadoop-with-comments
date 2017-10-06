@@ -34,27 +34,27 @@ import org.apache.hadoop.contrib.utils.join.TaggedMapOutput;
  */
 public class SampleTaggedMapOutput extends TaggedMapOutput {
 
-  private Text data;
+    private Text data;
 
-  public SampleTaggedMapOutput() {
-    this.data = new Text("");
-  }
+    public SampleTaggedMapOutput() {
+        this.data = new Text("");
+    }
 
-  public SampleTaggedMapOutput(Text data) {
-    this.data = data;
-  }
+    public SampleTaggedMapOutput(Text data) {
+        this.data = data;
+    }
 
-  public Writable getData() {
-    return data;
-  }
+    public Writable getData() {
+        return data;
+    }
 
-  public void write(DataOutput out) throws IOException {
-    this.tag.write(out);
-    this.data.write(out);
-  }
+    public void write(DataOutput out) throws IOException {
+        this.tag.write(out);
+        this.data.write(out);
+    }
 
-  public void readFields(DataInput in) throws IOException {
-    this.tag.readFields(in);
-    this.data.readFields(in);
-  }
+    public void readFields(DataInput in) throws IOException {
+        this.tag.readFields(in);
+        this.data.readFields(in);
+    }
 }

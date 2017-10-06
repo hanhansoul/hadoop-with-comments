@@ -23,24 +23,24 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.Private
 public abstract class ShortParam extends Param<Short> {
 
-  private int radix;
+    private int radix;
 
-  public ShortParam(String name, Short defaultValue, int radix) {
-    super(name, defaultValue);
-    this.radix = radix;
-  }
+    public ShortParam(String name, Short defaultValue, int radix) {
+        super(name, defaultValue);
+        this.radix = radix;
+    }
 
-  public ShortParam(String name, Short defaultValue) {
-    this(name, defaultValue, 10);
-  }
+    public ShortParam(String name, Short defaultValue) {
+        this(name, defaultValue, 10);
+    }
 
-  @Override
-  protected Short parse(String str) throws Exception {
-    return Short.parseShort(str, radix);
-  }
+    @Override
+    protected Short parse(String str) throws Exception {
+        return Short.parseShort(str, radix);
+    }
 
-  @Override
-  protected String getDomain() {
-    return "a short";
-  }
+    @Override
+    protected String getDomain() {
+        return "a short";
+    }
 }

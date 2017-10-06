@@ -24,11 +24,11 @@ import org.apache.hadoop.yarn.webapp.MimeType;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public abstract class TextPage extends TextView {
 
-  protected TextPage() {
-    super(null, MimeType.TEXT);
-  }
+    protected TextPage() {
+        super(null, MimeType.TEXT);
+    }
 
-  protected TextPage(ViewContext ctx) {
-    super(ctx, MimeType.TEXT);
-  }
+    protected TextPage(ViewContext ctx) {
+        super(ctx, MimeType.TEXT);
+    }
 }

@@ -29,42 +29,42 @@ import org.apache.hadoop.io.compress.*;
 
 import com.google.common.base.Charsets;
 
-/** 
+/**
  * An {@link InputFormat} for plain text files.  Files are broken into lines.
  * Either linefeed or carriage-return are used to signal end of line.  Keys are
- * the position in the file, and values are the line of text.. 
+ * the position in the file, and values are the line of text..
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class TextInputFormat extends FileInputFormat<LongWritable, Text>
-  implements JobConfigurable {
+    implements JobConfigurable {
 
-  private CompressionCodecFactory compressionCodecs = null;
-  
-  public void configure(JobConf conf) {
-    compressionCodecs = new CompressionCodecFactory(conf);
-  }
-  
-  protected boolean isSplitable(FileSystem fs, Path file) {
-    final CompressionCodec codec = compressionCodecs.getCodec(file);
-    if (null == codec) {
-      return true;
+    private CompressionCodecFactory compressionCodecs = null;
+
+    public void configure(JobConf conf) {
+        compressionCodecs = new CompressionCodecFactory(conf);
     }
-    return codec instanceof SplittableCompressionCodec;
-  }
 
-  public RecordReader<LongWritable, Text> getRecordReader(
-                                          InputSplit genericSplit, JobConf job,
-                                          Reporter reporter)
+    protected boolean isSplitable(FileSystem fs, Path file) {
+        final CompressionCodec codec = compressionCodecs.getCodec(file);
+        if (null == codec) {
+            return true;
+        }
+        return codec instanceof SplittableCompressionCodec;
+    }
+
+    public RecordReader<LongWritable, Text> getRecordReader(
+        InputSplit genericSplit, JobConf job,
+        Reporter reporter)
     throws IOException {
-    
-    reporter.setStatus(genericSplit.toString());
-    String delimiter = job.get("textinputformat.record.delimiter");
-    byte[] recordDelimiterBytes = null;
-    if (null != delimiter) {
-      recordDelimiterBytes = delimiter.getBytes(Charsets.UTF_8);
+
+        reporter.setStatus(genericSplit.toString());
+        String delimiter = job.get("textinputformat.record.delimiter");
+        byte[] recordDelimiterBytes = null;
+        if (null != delimiter) {
+            recordDelimiterBytes = delimiter.getBytes(Charsets.UTF_8);
+        }
+        return new LineRecordReader(job, (FileSplit) genericSplit,
+                                    recordDelimiterBytes);
     }
-    return new LineRecordReader(job, (FileSplit) genericSplit,
-        recordDelimiterBytes);
-  }
 }

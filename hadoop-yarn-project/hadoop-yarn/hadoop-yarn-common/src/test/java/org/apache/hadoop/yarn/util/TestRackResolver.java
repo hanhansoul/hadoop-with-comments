@@ -35,71 +35,71 @@ import org.junit.Test;
 
 public class TestRackResolver {
 
-  private static Log LOG = LogFactory.getLog(TestRackResolver.class);
-  private static final String invalidHost = "invalidHost";
+    private static Log LOG = LogFactory.getLog(TestRackResolver.class);
+    private static final String invalidHost = "invalidHost";
 
 
-  public static final class MyResolver implements DNSToSwitchMapping {
+    public static final class MyResolver implements DNSToSwitchMapping {
 
-    int numHost1 = 0;
-    public static String resolvedHost1 = "host1";
+        int numHost1 = 0;
+        public static String resolvedHost1 = "host1";
 
-    @Override
-    public List<String> resolve(List<String> hostList) {
-      // Only one host at a time
-      Assert.assertTrue("hostList size is " + hostList.size(),
-        hostList.size() <= 1);
-      List<String> returnList = new ArrayList<String>();
-      if (hostList.isEmpty()) {
-        return returnList;
-      }
-      if (hostList.get(0).equals(invalidHost)) {
-        // Simulate condition where resolving host returns null
-        return null; 
-      }
-        
-      LOG.info("Received resolve request for "
-          + hostList.get(0));
-      if (hostList.get(0).equals("host1")
-          || hostList.get(0).equals(resolvedHost1)) {
-        numHost1++;
-        returnList.add("/rack1");
-      }
-      // I should not be reached again as RackResolver is supposed to do
-      // caching.
-      Assert.assertTrue(numHost1 <= 1);
-      return returnList;
+        @Override
+        public List<String> resolve(List<String> hostList) {
+            // Only one host at a time
+            Assert.assertTrue("hostList size is " + hostList.size(),
+                              hostList.size() <= 1);
+            List<String> returnList = new ArrayList<String>();
+            if (hostList.isEmpty()) {
+                return returnList;
+            }
+            if (hostList.get(0).equals(invalidHost)) {
+                // Simulate condition where resolving host returns null
+                return null;
+            }
+
+            LOG.info("Received resolve request for "
+                     + hostList.get(0));
+            if (hostList.get(0).equals("host1")
+                || hostList.get(0).equals(resolvedHost1)) {
+                numHost1++;
+                returnList.add("/rack1");
+            }
+            // I should not be reached again as RackResolver is supposed to do
+            // caching.
+            Assert.assertTrue(numHost1 <= 1);
+            return returnList;
+        }
+
+        @Override
+        public void reloadCachedMappings() {
+            // nothing to do here, since RawScriptBasedMapping has no cache.
+        }
+
+        @Override
+        public void reloadCachedMappings(List<String> names) {
+        }
     }
 
-    @Override
-    public void reloadCachedMappings() {
-      // nothing to do here, since RawScriptBasedMapping has no cache.
+    @Test
+    public void testCaching() {
+        Configuration conf = new Configuration();
+        conf.setClass(
+            CommonConfigurationKeysPublic.NET_TOPOLOGY_NODE_SWITCH_MAPPING_IMPL_KEY,
+            MyResolver.class, DNSToSwitchMapping.class);
+        RackResolver.init(conf);
+        try {
+            InetAddress iaddr = InetAddress.getByName("host1");
+            MyResolver.resolvedHost1 = iaddr.getHostAddress();
+        } catch (UnknownHostException e) {
+            // Ignore if not found
+        }
+        Node node = RackResolver.resolve("host1");
+        Assert.assertEquals("/rack1", node.getNetworkLocation());
+        node = RackResolver.resolve("host1");
+        Assert.assertEquals("/rack1", node.getNetworkLocation());
+        node = RackResolver.resolve(invalidHost);
+        Assert.assertEquals(NetworkTopology.DEFAULT_RACK, node.getNetworkLocation());
     }
-
-    @Override
-    public void reloadCachedMappings(List<String> names) {
-    }
-  }
-
-  @Test
-  public void testCaching() {
-    Configuration conf = new Configuration();
-    conf.setClass(
-      CommonConfigurationKeysPublic.NET_TOPOLOGY_NODE_SWITCH_MAPPING_IMPL_KEY,
-      MyResolver.class, DNSToSwitchMapping.class);
-    RackResolver.init(conf);
-    try {
-      InetAddress iaddr = InetAddress.getByName("host1");
-      MyResolver.resolvedHost1 = iaddr.getHostAddress();
-    } catch (UnknownHostException e) {
-      // Ignore if not found
-    }
-    Node node = RackResolver.resolve("host1");
-    Assert.assertEquals("/rack1", node.getNetworkLocation());
-    node = RackResolver.resolve("host1");
-    Assert.assertEquals("/rack1", node.getNetworkLocation());
-    node = RackResolver.resolve(invalidHost);
-    Assert.assertEquals(NetworkTopology.DEFAULT_RACK, node.getNetworkLocation());
-  }
 
 }

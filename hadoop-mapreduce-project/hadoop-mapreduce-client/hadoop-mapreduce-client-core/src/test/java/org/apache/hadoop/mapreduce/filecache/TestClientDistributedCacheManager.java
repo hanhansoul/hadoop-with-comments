@@ -40,75 +40,75 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestClientDistributedCacheManager {
-  private static final Log LOG = LogFactory.getLog(
-      TestClientDistributedCacheManager.class);
-  
-  private static final String TEST_ROOT_DIR = 
-      new File(System.getProperty("test.build.data", "/tmp")).toURI()
-      .toString().replace(' ', '+');
-  
-  private FileSystem fs;
-  private Path firstCacheFile;
-  private Path secondCacheFile;
-  private Configuration conf;
-  
-  @Before
-  public void setup() throws IOException {
-    conf = new Configuration();
-    fs = FileSystem.get(conf);
-    firstCacheFile = new Path(TEST_ROOT_DIR, "firstcachefile");
-    secondCacheFile = new Path(TEST_ROOT_DIR, "secondcachefile");
-    createTempFile(firstCacheFile, conf);
-    createTempFile(secondCacheFile, conf);
-  }
-  
-  @After
-  public void tearDown() throws IOException {
-    if (!fs.delete(firstCacheFile, false)) {
-      LOG.warn("Failed to delete firstcachefile");
+    private static final Log LOG = LogFactory.getLog(
+                                       TestClientDistributedCacheManager.class);
+
+    private static final String TEST_ROOT_DIR =
+        new File(System.getProperty("test.build.data", "/tmp")).toURI()
+    .toString().replace(' ', '+');
+
+    private FileSystem fs;
+    private Path firstCacheFile;
+    private Path secondCacheFile;
+    private Configuration conf;
+
+    @Before
+    public void setup() throws IOException {
+        conf = new Configuration();
+        fs = FileSystem.get(conf);
+        firstCacheFile = new Path(TEST_ROOT_DIR, "firstcachefile");
+        secondCacheFile = new Path(TEST_ROOT_DIR, "secondcachefile");
+        createTempFile(firstCacheFile, conf);
+        createTempFile(secondCacheFile, conf);
     }
-    if (!fs.delete(secondCacheFile, false)) {
-      LOG.warn("Failed to delete secondcachefile");
+
+    @After
+    public void tearDown() throws IOException {
+        if (!fs.delete(firstCacheFile, false)) {
+            LOG.warn("Failed to delete firstcachefile");
+        }
+        if (!fs.delete(secondCacheFile, false)) {
+            LOG.warn("Failed to delete secondcachefile");
+        }
     }
-  }
-  
-  @Test
-  public void testDetermineTimestamps() throws IOException {
-    Job job = Job.getInstance(conf);
-    job.addCacheFile(firstCacheFile.toUri());
-    job.addCacheFile(secondCacheFile.toUri());
-    Configuration jobConf = job.getConfiguration();
-    
-    Map<URI, FileStatus> statCache = new HashMap<URI, FileStatus>();
-    ClientDistributedCacheManager.determineTimestamps(jobConf, statCache);
-    
-    FileStatus firstStatus = statCache.get(firstCacheFile.toUri());
-    FileStatus secondStatus = statCache.get(secondCacheFile.toUri());
-    
-    Assert.assertNotNull(firstStatus);
-    Assert.assertNotNull(secondStatus);
-    Assert.assertEquals(2, statCache.size());
-    String expected = firstStatus.getModificationTime() + ","
-        + secondStatus.getModificationTime();
-    Assert.assertEquals(expected, jobConf.get(MRJobConfig.CACHE_FILE_TIMESTAMPS));
-  }
-  
-  @SuppressWarnings("deprecation")
-  void createTempFile(Path p, Configuration conf) throws IOException {
-    SequenceFile.Writer writer = null;
-    try {
-      writer = SequenceFile.createWriter(fs, conf, p,
-                                         Text.class, Text.class,
-                                         CompressionType.NONE);
-      writer.append(new Text("text"), new Text("moretext"));
-    } catch(Exception e) {
-      throw new IOException(e.getLocalizedMessage());
-    } finally {
-      if (writer != null) {
-        writer.close();
-      }
-      writer = null;
+
+    @Test
+    public void testDetermineTimestamps() throws IOException {
+        Job job = Job.getInstance(conf);
+        job.addCacheFile(firstCacheFile.toUri());
+        job.addCacheFile(secondCacheFile.toUri());
+        Configuration jobConf = job.getConfiguration();
+
+        Map<URI, FileStatus> statCache = new HashMap<URI, FileStatus>();
+        ClientDistributedCacheManager.determineTimestamps(jobConf, statCache);
+
+        FileStatus firstStatus = statCache.get(firstCacheFile.toUri());
+        FileStatus secondStatus = statCache.get(secondCacheFile.toUri());
+
+        Assert.assertNotNull(firstStatus);
+        Assert.assertNotNull(secondStatus);
+        Assert.assertEquals(2, statCache.size());
+        String expected = firstStatus.getModificationTime() + ","
+                          + secondStatus.getModificationTime();
+        Assert.assertEquals(expected, jobConf.get(MRJobConfig.CACHE_FILE_TIMESTAMPS));
     }
-    LOG.info("created: " + p);
-  }
+
+    @SuppressWarnings("deprecation")
+    void createTempFile(Path p, Configuration conf) throws IOException {
+        SequenceFile.Writer writer = null;
+        try {
+            writer = SequenceFile.createWriter(fs, conf, p,
+                                               Text.class, Text.class,
+                                               CompressionType.NONE);
+            writer.append(new Text("text"), new Text("moretext"));
+        } catch(Exception e) {
+            throw new IOException(e.getLocalizedMessage());
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+            writer = null;
+        }
+        LOG.info("created: " + p);
+    }
 }

@@ -22,20 +22,20 @@ package org.apache.hadoop.tools.rumen.datatypes;
  * Represents a queue name.
  */
 public class QueueName extends DefaultAnonymizableDataType {
-  private final String queueName;
-  
-  public QueueName(String queueName) {
-    super();
-    this.queueName = queueName;
-  }
-  
-  @Override
-  public String getValue() {
-    return queueName;
-  }
-  
-  @Override
-  protected String getPrefix() {
-    return "queue";
-  };
+    private final String queueName;
+
+    public QueueName(String queueName) {
+        super();
+        this.queueName = queueName;
+    }
+
+    @Override
+    public String getValue() {
+        return queueName;
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "queue";
+    };
 }

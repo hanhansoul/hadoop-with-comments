@@ -21,13 +21,13 @@ import java.util.List;
 
 public interface LocalizerStatus {
 
-  String getLocalizerId();
-  void setLocalizerId(String id);
+    String getLocalizerId();
+    void setLocalizerId(String id);
 
-  List<LocalResourceStatus> getResources();
-  void addAllResources(List<LocalResourceStatus> resources);
-  void addResourceStatus(LocalResourceStatus resource);
-  LocalResourceStatus getResourceStatus(int index);
-  void removeResource(int index);
-  void clearResources();
+    List<LocalResourceStatus> getResources();
+    void addAllResources(List<LocalResourceStatus> resources);
+    void addResourceStatus(LocalResourceStatus resource);
+    LocalResourceStatus getResourceStatus(int index);
+    void removeResource(int index);
+    void clearResources();
 }

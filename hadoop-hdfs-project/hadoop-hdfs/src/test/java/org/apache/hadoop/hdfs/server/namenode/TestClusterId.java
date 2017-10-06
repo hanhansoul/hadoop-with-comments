@@ -50,400 +50,400 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestClusterId {
-  private static final Log LOG = LogFactory.getLog(TestClusterId.class);
-  File hdfsDir;
-  Configuration config;
+    private static final Log LOG = LogFactory.getLog(TestClusterId.class);
+    File hdfsDir;
+    Configuration config;
 
-  private String getClusterId(Configuration config) throws IOException {
-    // see if cluster id not empty.
-    Collection<URI> dirsToFormat = FSNamesystem.getNamespaceDirs(config);
-    List<URI> editsToFormat = FSNamesystem.getNamespaceEditsDirs(config);
-    FSImage fsImage = new FSImage(config, dirsToFormat, editsToFormat);
-    
-    Iterator<StorageDirectory> sdit = 
-      fsImage.getStorage().dirIterator(NNStorage.NameNodeDirType.IMAGE);
-    StorageDirectory sd = sdit.next();
-    Properties props = Storage.readPropertiesFile(sd.getVersionFile());
-    String cid = props.getProperty("clusterID");
-    LOG.info("successfully formated : sd="+sd.getCurrentDir() + ";cid="+cid);
-    return cid;
-  }
+    private String getClusterId(Configuration config) throws IOException {
+        // see if cluster id not empty.
+        Collection<URI> dirsToFormat = FSNamesystem.getNamespaceDirs(config);
+        List<URI> editsToFormat = FSNamesystem.getNamespaceEditsDirs(config);
+        FSImage fsImage = new FSImage(config, dirsToFormat, editsToFormat);
 
-  @Before
-  public void setUp() throws IOException {
-    ExitUtil.disableSystemExit();
-
-    String baseDir = PathUtils.getTestDirName(getClass());
-
-    hdfsDir = new File(baseDir, "dfs/name");
-    if (hdfsDir.exists() && !FileUtil.fullyDelete(hdfsDir)) {
-      throw new IOException("Could not delete test directory '" + hdfsDir + "'");
-    }
-    LOG.info("hdfsdir is " + hdfsDir.getAbsolutePath());
-
-    // as some tests might change these values we reset them to defaults before
-    // every test
-    StartupOption.FORMAT.setForceFormat(false);
-    StartupOption.FORMAT.setInteractiveFormat(true);
-    
-    config = new Configuration();
-    config.set(DFS_NAMENODE_NAME_DIR_KEY, hdfsDir.getPath());
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    if (hdfsDir.exists() && !FileUtil.fullyDelete(hdfsDir)) {
-      throw new IOException("Could not tearDown test directory '" + hdfsDir
-          + "'");
-    }
-  }
-
-  @Test
-  public void testFormatClusterIdOption() throws IOException {
-    
-    // 1. should format without cluster id
-    //StartupOption.FORMAT.setClusterId("");
-    NameNode.format(config);
-    // see if cluster id not empty.
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")) );
-
-    // 2. successful format with given clusterid
-    StartupOption.FORMAT.setClusterId("mycluster");
-    NameNode.format(config);
-    // see if cluster id matches with given clusterid.
-    cid = getClusterId(config);
-    assertTrue("ClusterId didn't match", cid.equals("mycluster"));
-
-    // 3. format without any clusterid again. It should generate new
-    //clusterid.
-    StartupOption.FORMAT.setClusterId("");
-    NameNode.format(config);
-    String newCid = getClusterId(config);
-    assertFalse("ClusterId should not be the same", newCid.equals(cid));
-  }
-
-  /**
-   * Test namenode format with -format option. Format should succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormat() throws IOException {
-    String[] argv = { "-format" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+        Iterator<StorageDirectory> sdit =
+            fsImage.getStorage().dirIterator(NNStorage.NameNodeDirType.IMAGE);
+        StorageDirectory sd = sdit.next();
+        Properties props = Storage.readPropertiesFile(sd.getVersionFile());
+        String cid = props.getProperty("clusterID");
+        LOG.info("successfully formated : sd="+sd.getCurrentDir() + ";cid="+cid);
+        return cid;
     }
 
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
-  }
+    @Before
+    public void setUp() throws IOException {
+        ExitUtil.disableSystemExit();
 
-  /**
-   * Test namenode format with -format option when an empty name directory
-   * exists. Format should succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithEmptyDir() throws IOException {
+        String baseDir = PathUtils.getTestDirName(getClass());
 
-    if (!hdfsDir.mkdirs()) {
-      fail("Failed to create dir " + hdfsDir.getPath());
+        hdfsDir = new File(baseDir, "dfs/name");
+        if (hdfsDir.exists() && !FileUtil.fullyDelete(hdfsDir)) {
+            throw new IOException("Could not delete test directory '" + hdfsDir + "'");
+        }
+        LOG.info("hdfsdir is " + hdfsDir.getAbsolutePath());
+
+        // as some tests might change these values we reset them to defaults before
+        // every test
+        StartupOption.FORMAT.setForceFormat(false);
+        StartupOption.FORMAT.setInteractiveFormat(true);
+
+        config = new Configuration();
+        config.set(DFS_NAMENODE_NAME_DIR_KEY, hdfsDir.getPath());
     }
 
-    String[] argv = { "-format" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+    @After
+    public void tearDown() throws IOException {
+        if (hdfsDir.exists() && !FileUtil.fullyDelete(hdfsDir)) {
+            throw new IOException("Could not tearDown test directory '" + hdfsDir
+                                  + "'");
+        }
     }
 
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
-  }
+    @Test
+    public void testFormatClusterIdOption() throws IOException {
 
-  /**
-   * Test namenode format with -format -force options when name directory
-   * exists. Format should succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithForce() throws IOException {
+        // 1. should format without cluster id
+        //StartupOption.FORMAT.setClusterId("");
+        NameNode.format(config);
+        // see if cluster id not empty.
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")) );
 
-    if (!hdfsDir.mkdirs()) {
-      fail("Failed to create dir " + hdfsDir.getPath());
+        // 2. successful format with given clusterid
+        StartupOption.FORMAT.setClusterId("mycluster");
+        NameNode.format(config);
+        // see if cluster id matches with given clusterid.
+        cid = getClusterId(config);
+        assertTrue("ClusterId didn't match", cid.equals("mycluster"));
+
+        // 3. format without any clusterid again. It should generate new
+        //clusterid.
+        StartupOption.FORMAT.setClusterId("");
+        NameNode.format(config);
+        String newCid = getClusterId(config);
+        assertFalse("ClusterId should not be the same", newCid.equals(cid));
     }
 
-    String[] argv = { "-format", "-force" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+    /**
+     * Test namenode format with -format option. Format should succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormat() throws IOException {
+        String[] argv = { "-format" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
+
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
     }
 
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
-  }
+    /**
+     * Test namenode format with -format option when an empty name directory
+     * exists. Format should succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithEmptyDir() throws IOException {
 
-  /**
-   * Test namenode format with -format -force -clusterid option when name
-   * directory exists. Format should succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithForceAndClusterId() throws IOException {
+        if (!hdfsDir.mkdirs()) {
+            fail("Failed to create dir " + hdfsDir.getPath());
+        }
 
-    if (!hdfsDir.mkdirs()) {
-      fail("Failed to create dir " + hdfsDir.getPath());
+        String[] argv = { "-format" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
+
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
     }
 
-    String myId = "testFormatWithForceAndClusterId";
-    String[] argv = { "-format", "-force", "-clusterid", myId };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+    /**
+     * Test namenode format with -format -force options when name directory
+     * exists. Format should succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithForce() throws IOException {
+
+        if (!hdfsDir.mkdirs()) {
+            fail("Failed to create dir " + hdfsDir.getPath());
+        }
+
+        String[] argv = { "-format", "-force" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
+
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
     }
 
-    String cId = getClusterId(config);
-    assertEquals("ClusterIds do not match", myId, cId);
-  }
+    /**
+     * Test namenode format with -format -force -clusterid option when name
+     * directory exists. Format should succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithForceAndClusterId() throws IOException {
 
-  /**
-   * Test namenode format with -clusterid -force option. Format command should
-   * fail as no cluster id was provided.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithInvalidClusterIdOption() throws IOException {
+        if (!hdfsDir.mkdirs()) {
+            fail("Failed to create dir " + hdfsDir.getPath());
+        }
 
-    String[] argv = { "-format", "-clusterid", "-force" };
-    PrintStream origErr = System.err;
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream stdErr = new PrintStream(baos);
-    System.setErr(stdErr);
+        String myId = "testFormatWithForceAndClusterId";
+        String[] argv = { "-format", "-force", "-clusterid", myId };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
 
-    NameNode.createNameNode(argv, config);
-
-    // Check if usage is printed
-    assertTrue(baos.toString("UTF-8").contains("Usage: java NameNode"));
-    System.setErr(origErr);
-
-    // check if the version file does not exists.
-    File version = new File(hdfsDir, "current/VERSION");
-    assertFalse("Check version should not exist", version.exists());
-  }
-
-  /**
-   * Test namenode format with -format -clusterid options. Format should fail
-   * was no clusterid was sent.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithNoClusterIdOption() throws IOException {
-
-    String[] argv = { "-format", "-clusterid" };
-    PrintStream origErr = System.err;
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream stdErr = new PrintStream(baos);
-    System.setErr(stdErr);
-
-    NameNode.createNameNode(argv, config);
-
-    // Check if usage is printed
-    assertTrue(baos.toString("UTF-8").contains("Usage: java NameNode"));
-    System.setErr(origErr);
-
-    // check if the version file does not exists.
-    File version = new File(hdfsDir, "current/VERSION");
-    assertFalse("Check version should not exist", version.exists());
-  }
-
-  /**
-   * Test namenode format with -format -clusterid and empty clusterid. Format
-   * should fail as no valid if was provided.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithEmptyClusterIdOption() throws IOException {
-
-    String[] argv = { "-format", "-clusterid", "" };
-
-    PrintStream origErr = System.err;
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream stdErr = new PrintStream(baos);
-    System.setErr(stdErr);
-
-    NameNode.createNameNode(argv, config);
-
-    // Check if usage is printed
-    assertTrue(baos.toString("UTF-8").contains("Usage: java NameNode"));
-    System.setErr(origErr);
-
-    // check if the version file does not exists.
-    File version = new File(hdfsDir, "current/VERSION");
-    assertFalse("Check version should not exist", version.exists());
-  }
-
-  /**
-   * Test namenode format with -format -nonInteractive options when a non empty
-   * name directory exists. Format should not succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithNonInteractive() throws IOException {
-
-    // we check for a non empty dir, so create a child path
-    File data = new File(hdfsDir, "file");
-    if (!data.mkdirs()) {
-      fail("Failed to create dir " + data.getPath());
+        String cId = getClusterId(config);
+        assertEquals("ClusterIds do not match", myId, cId);
     }
 
-    String[] argv = { "-format", "-nonInteractive" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have been aborted with exit code 1", 1,
-          e.status);
+    /**
+     * Test namenode format with -clusterid -force option. Format command should
+     * fail as no cluster id was provided.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithInvalidClusterIdOption() throws IOException {
+
+        String[] argv = { "-format", "-clusterid", "-force" };
+        PrintStream origErr = System.err;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream stdErr = new PrintStream(baos);
+        System.setErr(stdErr);
+
+        NameNode.createNameNode(argv, config);
+
+        // Check if usage is printed
+        assertTrue(baos.toString("UTF-8").contains("Usage: java NameNode"));
+        System.setErr(origErr);
+
+        // check if the version file does not exists.
+        File version = new File(hdfsDir, "current/VERSION");
+        assertFalse("Check version should not exist", version.exists());
     }
 
-    // check if the version file does not exists.
-    File version = new File(hdfsDir, "current/VERSION");
-    assertFalse("Check version should not exist", version.exists());
-  }
+    /**
+     * Test namenode format with -format -clusterid options. Format should fail
+     * was no clusterid was sent.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithNoClusterIdOption() throws IOException {
 
-  /**
-   * Test namenode format with -format -nonInteractive options when name
-   * directory does not exist. Format should succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithNonInteractiveNameDirDoesNotExit()
-      throws IOException {
+        String[] argv = { "-format", "-clusterid" };
+        PrintStream origErr = System.err;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream stdErr = new PrintStream(baos);
+        System.setErr(stdErr);
 
-    String[] argv = { "-format", "-nonInteractive" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+        NameNode.createNameNode(argv, config);
+
+        // Check if usage is printed
+        assertTrue(baos.toString("UTF-8").contains("Usage: java NameNode"));
+        System.setErr(origErr);
+
+        // check if the version file does not exists.
+        File version = new File(hdfsDir, "current/VERSION");
+        assertFalse("Check version should not exist", version.exists());
     }
 
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
-  }
+    /**
+     * Test namenode format with -format -clusterid and empty clusterid. Format
+     * should fail as no valid if was provided.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithEmptyClusterIdOption() throws IOException {
 
-  /**
-   * Test namenode format with -force -nonInteractive -force option. Format
-   * should succeed.
-   * 
-   * @throws IOException
-   */
-  @Test
-  public void testFormatWithNonInteractiveAndForce() throws IOException {
+        String[] argv = { "-format", "-clusterid", "" };
 
-    if (!hdfsDir.mkdirs()) {
-      fail("Failed to create dir " + hdfsDir.getPath());
+        PrintStream origErr = System.err;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream stdErr = new PrintStream(baos);
+        System.setErr(stdErr);
+
+        NameNode.createNameNode(argv, config);
+
+        // Check if usage is printed
+        assertTrue(baos.toString("UTF-8").contains("Usage: java NameNode"));
+        System.setErr(origErr);
+
+        // check if the version file does not exists.
+        File version = new File(hdfsDir, "current/VERSION");
+        assertFalse("Check version should not exist", version.exists());
     }
 
-    String[] argv = { "-format", "-nonInteractive", "-force" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+    /**
+     * Test namenode format with -format -nonInteractive options when a non empty
+     * name directory exists. Format should not succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithNonInteractive() throws IOException {
+
+        // we check for a non empty dir, so create a child path
+        File data = new File(hdfsDir, "file");
+        if (!data.mkdirs()) {
+            fail("Failed to create dir " + data.getPath());
+        }
+
+        String[] argv = { "-format", "-nonInteractive" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have been aborted with exit code 1", 1,
+                         e.status);
+        }
+
+        // check if the version file does not exists.
+        File version = new File(hdfsDir, "current/VERSION");
+        assertFalse("Check version should not exist", version.exists());
     }
 
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
-  }
+    /**
+     * Test namenode format with -format -nonInteractive options when name
+     * directory does not exist. Format should succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithNonInteractiveNameDirDoesNotExit()
+    throws IOException {
 
-  /**
-   * Test namenode format with -format option when a non empty name directory
-   * exists. Enter Y when prompted and the format should succeed.
-   * 
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  @Test
-  public void testFormatWithoutForceEnterYes() throws IOException,
-      InterruptedException {
+        String[] argv = { "-format", "-nonInteractive" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
 
-    // we check for a non empty dir, so create a child path
-    File data = new File(hdfsDir, "file");
-    if (!data.mkdirs()) {
-      fail("Failed to create dir " + data.getPath());
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
     }
 
-    // capture the input stream
-    InputStream origIn = System.in;
-    ByteArrayInputStream bins = new ByteArrayInputStream("Y\n".getBytes());
-    System.setIn(bins);
+    /**
+     * Test namenode format with -force -nonInteractive -force option. Format
+     * should succeed.
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testFormatWithNonInteractiveAndForce() throws IOException {
 
-    String[] argv = { "-format" };
+        if (!hdfsDir.mkdirs()) {
+            fail("Failed to create dir " + hdfsDir.getPath());
+        }
 
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should have succeeded", 0, e.status);
+        String[] argv = { "-format", "-nonInteractive", "-force" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
+
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
     }
 
-    System.setIn(origIn);
+    /**
+     * Test namenode format with -format option when a non empty name directory
+     * exists. Enter Y when prompted and the format should succeed.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    @Test
+    public void testFormatWithoutForceEnterYes() throws IOException,
+        InterruptedException {
 
-    String cid = getClusterId(config);
-    assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
-  }
+        // we check for a non empty dir, so create a child path
+        File data = new File(hdfsDir, "file");
+        if (!data.mkdirs()) {
+            fail("Failed to create dir " + data.getPath());
+        }
 
-  /**
-   * Test namenode format with -format option when a non empty name directory
-   * exists. Enter N when prompted and format should be aborted.
-   * 
-   * @throws IOException
-   * @throws InterruptedException
-   */
-  @Test
-  public void testFormatWithoutForceEnterNo() throws IOException,
-      InterruptedException {
+        // capture the input stream
+        InputStream origIn = System.in;
+        ByteArrayInputStream bins = new ByteArrayInputStream("Y\n".getBytes());
+        System.setIn(bins);
 
-    // we check for a non empty dir, so create a child path
-    File data = new File(hdfsDir, "file");
-    if (!data.mkdirs()) {
-      fail("Failed to create dir " + data.getPath());
+        String[] argv = { "-format" };
+
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should have succeeded", 0, e.status);
+        }
+
+        System.setIn(origIn);
+
+        String cid = getClusterId(config);
+        assertTrue("Didn't get new ClusterId", (cid != null && !cid.equals("")));
     }
 
-    // capture the input stream
-    InputStream origIn = System.in;
-    ByteArrayInputStream bins = new ByteArrayInputStream("N\n".getBytes());
-    System.setIn(bins);
+    /**
+     * Test namenode format with -format option when a non empty name directory
+     * exists. Enter N when prompted and format should be aborted.
+     *
+     * @throws IOException
+     * @throws InterruptedException
+     */
+    @Test
+    public void testFormatWithoutForceEnterNo() throws IOException,
+        InterruptedException {
 
-    String[] argv = { "-format" };
-    try {
-      NameNode.createNameNode(argv, config);
-      fail("createNameNode() did not call System.exit()");
-    } catch (ExitException e) {
-      assertEquals("Format should not have succeeded", 1, e.status);
+        // we check for a non empty dir, so create a child path
+        File data = new File(hdfsDir, "file");
+        if (!data.mkdirs()) {
+            fail("Failed to create dir " + data.getPath());
+        }
+
+        // capture the input stream
+        InputStream origIn = System.in;
+        ByteArrayInputStream bins = new ByteArrayInputStream("N\n".getBytes());
+        System.setIn(bins);
+
+        String[] argv = { "-format" };
+        try {
+            NameNode.createNameNode(argv, config);
+            fail("createNameNode() did not call System.exit()");
+        } catch (ExitException e) {
+            assertEquals("Format should not have succeeded", 1, e.status);
+        }
+
+        System.setIn(origIn);
+
+        // check if the version file does not exists.
+        File version = new File(hdfsDir, "current/VERSION");
+        assertFalse("Check version should not exist", version.exists());
     }
-
-    System.setIn(origIn);
-
-    // check if the version file does not exists.
-    File version = new File(hdfsDir, "current/VERSION");
-    assertFalse("Check version should not exist", version.exists());
-  }
 }

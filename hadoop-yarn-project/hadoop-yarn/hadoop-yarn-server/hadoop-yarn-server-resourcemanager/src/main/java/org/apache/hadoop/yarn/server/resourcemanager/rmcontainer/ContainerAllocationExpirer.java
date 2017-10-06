@@ -31,24 +31,24 @@ import org.apache.hadoop.yarn.util.SystemClock;
 public class ContainerAllocationExpirer extends
     AbstractLivelinessMonitor<ContainerId> {
 
-  private EventHandler dispatcher;
+    private EventHandler dispatcher;
 
-  public ContainerAllocationExpirer(Dispatcher d) {
-    super(ContainerAllocationExpirer.class.getName(), new SystemClock());
-    this.dispatcher = d.getEventHandler();
-  }
+    public ContainerAllocationExpirer(Dispatcher d) {
+        super(ContainerAllocationExpirer.class.getName(), new SystemClock());
+        this.dispatcher = d.getEventHandler();
+    }
 
-  public void serviceInit(Configuration conf) throws Exception {
-    int expireIntvl = conf.getInt(
-            YarnConfiguration.RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS,
-            YarnConfiguration.DEFAULT_RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS);
-    setExpireInterval(expireIntvl);
-    setMonitorInterval(expireIntvl/3);
-    super.serviceInit(conf);
-  }
+    public void serviceInit(Configuration conf) throws Exception {
+        int expireIntvl = conf.getInt(
+                              YarnConfiguration.RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS,
+                              YarnConfiguration.DEFAULT_RM_CONTAINER_ALLOC_EXPIRY_INTERVAL_MS);
+        setExpireInterval(expireIntvl);
+        setMonitorInterval(expireIntvl/3);
+        super.serviceInit(conf);
+    }
 
-  @Override
-  protected void expire(ContainerId containerId) {
-    dispatcher.handle(new ContainerExpiredSchedulerEvent(containerId));
-  }
+    @Override
+    protected void expire(ContainerId containerId) {
+        dispatcher.handle(new ContainerExpiredSchedulerEvent(containerId));
+    }
 }

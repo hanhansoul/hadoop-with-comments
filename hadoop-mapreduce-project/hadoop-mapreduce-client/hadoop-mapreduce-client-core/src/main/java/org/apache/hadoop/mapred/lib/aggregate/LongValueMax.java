@@ -23,12 +23,12 @@ import org.apache.hadoop.classification.InterfaceStability;
 
 
 /**
- * This class implements a value aggregator that maintain the maximum of 
+ * This class implements a value aggregator that maintain the maximum of
  * a sequence of long values.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class LongValueMax 
+public class LongValueMax
     extends org.apache.hadoop.mapreduce.lib.aggregate.LongValueMax
     implements ValueAggregator<String> {
 }

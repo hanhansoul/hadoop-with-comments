@@ -29,153 +29,153 @@ import org.apache.hadoop.yarn.server.api.records.impl.pb.MasterKeyPBImpl;
 import org.apache.hadoop.yarn.server.api.records.impl.pb.NodeStatusPBImpl;
 
 public class NodeHeartbeatRequestPBImpl extends NodeHeartbeatRequest {
-  NodeHeartbeatRequestProto proto = NodeHeartbeatRequestProto.getDefaultInstance();
-  NodeHeartbeatRequestProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private NodeStatus nodeStatus = null;
-  private MasterKey lastKnownContainerTokenMasterKey = null;
-  private MasterKey lastKnownNMTokenMasterKey = null;
-  
-  public NodeHeartbeatRequestPBImpl() {
-    builder = NodeHeartbeatRequestProto.newBuilder();
-  }
+    NodeHeartbeatRequestProto proto = NodeHeartbeatRequestProto.getDefaultInstance();
+    NodeHeartbeatRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public NodeHeartbeatRequestPBImpl(NodeHeartbeatRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public NodeHeartbeatRequestProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private NodeStatus nodeStatus = null;
+    private MasterKey lastKnownContainerTokenMasterKey = null;
+    private MasterKey lastKnownNMTokenMasterKey = null;
 
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-  
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public NodeHeartbeatRequestPBImpl() {
+        builder = NodeHeartbeatRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  private void mergeLocalToBuilder() {
-    if (this.nodeStatus != null) {
-      builder.setNodeStatus(convertToProtoFormat(this.nodeStatus));
+    public NodeHeartbeatRequestPBImpl(NodeHeartbeatRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (this.lastKnownContainerTokenMasterKey != null) {
-      builder.setLastKnownContainerTokenMasterKey(
-          convertToProtoFormat(this.lastKnownContainerTokenMasterKey));
+
+    public NodeHeartbeatRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (this.lastKnownNMTokenMasterKey != null) {
-      builder.setLastKnownNmTokenMasterKey(
-          convertToProtoFormat(this.lastKnownNMTokenMasterKey));
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = NodeHeartbeatRequestProto.newBuilder(proto);
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public NodeStatus getNodeStatus() {
-    NodeHeartbeatRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.nodeStatus != null) {
-      return this.nodeStatus;
+
+    private void mergeLocalToBuilder() {
+        if (this.nodeStatus != null) {
+            builder.setNodeStatus(convertToProtoFormat(this.nodeStatus));
+        }
+        if (this.lastKnownContainerTokenMasterKey != null) {
+            builder.setLastKnownContainerTokenMasterKey(
+                convertToProtoFormat(this.lastKnownContainerTokenMasterKey));
+        }
+        if (this.lastKnownNMTokenMasterKey != null) {
+            builder.setLastKnownNmTokenMasterKey(
+                convertToProtoFormat(this.lastKnownNMTokenMasterKey));
+        }
     }
-    if (!p.hasNodeStatus()) {
-      return null;
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.nodeStatus = convertFromProtoFormat(p.getNodeStatus());
-    return this.nodeStatus;
-  }
 
-  @Override
-  public void setNodeStatus(NodeStatus nodeStatus) {
-    maybeInitBuilder();
-    if (nodeStatus == null) 
-      builder.clearNodeStatus();
-    this.nodeStatus = nodeStatus;
-  }
-
-  @Override
-  public MasterKey getLastKnownContainerTokenMasterKey() {
-    NodeHeartbeatRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.lastKnownContainerTokenMasterKey != null) {
-      return this.lastKnownContainerTokenMasterKey;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = NodeHeartbeatRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    if (!p.hasLastKnownContainerTokenMasterKey()) {
-      return null;
+
+
+    @Override
+    public NodeStatus getNodeStatus() {
+        NodeHeartbeatRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.nodeStatus != null) {
+            return this.nodeStatus;
+        }
+        if (!p.hasNodeStatus()) {
+            return null;
+        }
+        this.nodeStatus = convertFromProtoFormat(p.getNodeStatus());
+        return this.nodeStatus;
     }
-    this.lastKnownContainerTokenMasterKey =
-        convertFromProtoFormat(p.getLastKnownContainerTokenMasterKey());
-    return this.lastKnownContainerTokenMasterKey;
-  }
 
-  @Override
-  public void setLastKnownContainerTokenMasterKey(MasterKey masterKey) {
-    maybeInitBuilder();
-    if (masterKey == null) 
-      builder.clearLastKnownContainerTokenMasterKey();
-    this.lastKnownContainerTokenMasterKey = masterKey;
-  }
-
-  @Override
-  public MasterKey getLastKnownNMTokenMasterKey() {
-    NodeHeartbeatRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.lastKnownNMTokenMasterKey != null) {
-      return this.lastKnownNMTokenMasterKey;
+    @Override
+    public void setNodeStatus(NodeStatus nodeStatus) {
+        maybeInitBuilder();
+        if (nodeStatus == null)
+            builder.clearNodeStatus();
+        this.nodeStatus = nodeStatus;
     }
-    if (!p.hasLastKnownNmTokenMasterKey()) {
-      return null;
+
+    @Override
+    public MasterKey getLastKnownContainerTokenMasterKey() {
+        NodeHeartbeatRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.lastKnownContainerTokenMasterKey != null) {
+            return this.lastKnownContainerTokenMasterKey;
+        }
+        if (!p.hasLastKnownContainerTokenMasterKey()) {
+            return null;
+        }
+        this.lastKnownContainerTokenMasterKey =
+            convertFromProtoFormat(p.getLastKnownContainerTokenMasterKey());
+        return this.lastKnownContainerTokenMasterKey;
     }
-    this.lastKnownNMTokenMasterKey =
-        convertFromProtoFormat(p.getLastKnownNmTokenMasterKey());
-    return this.lastKnownNMTokenMasterKey;
-  }
 
-  @Override
-  public void setLastKnownNMTokenMasterKey(MasterKey masterKey) {
-    maybeInitBuilder();
-    if (masterKey == null) 
-      builder.clearLastKnownNmTokenMasterKey();
-    this.lastKnownNMTokenMasterKey = masterKey;
-  }
+    @Override
+    public void setLastKnownContainerTokenMasterKey(MasterKey masterKey) {
+        maybeInitBuilder();
+        if (masterKey == null)
+            builder.clearLastKnownContainerTokenMasterKey();
+        this.lastKnownContainerTokenMasterKey = masterKey;
+    }
 
-  private NodeStatusPBImpl convertFromProtoFormat(NodeStatusProto p) {
-    return new NodeStatusPBImpl(p);
-  }
+    @Override
+    public MasterKey getLastKnownNMTokenMasterKey() {
+        NodeHeartbeatRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.lastKnownNMTokenMasterKey != null) {
+            return this.lastKnownNMTokenMasterKey;
+        }
+        if (!p.hasLastKnownNmTokenMasterKey()) {
+            return null;
+        }
+        this.lastKnownNMTokenMasterKey =
+            convertFromProtoFormat(p.getLastKnownNmTokenMasterKey());
+        return this.lastKnownNMTokenMasterKey;
+    }
 
-  private NodeStatusProto convertToProtoFormat(NodeStatus t) {
-    return ((NodeStatusPBImpl)t).getProto();
-  }
+    @Override
+    public void setLastKnownNMTokenMasterKey(MasterKey masterKey) {
+        maybeInitBuilder();
+        if (masterKey == null)
+            builder.clearLastKnownNmTokenMasterKey();
+        this.lastKnownNMTokenMasterKey = masterKey;
+    }
 
-  private MasterKeyPBImpl convertFromProtoFormat(MasterKeyProto p) {
-    return new MasterKeyPBImpl(p);
-  }
+    private NodeStatusPBImpl convertFromProtoFormat(NodeStatusProto p) {
+        return new NodeStatusPBImpl(p);
+    }
 
-  private MasterKeyProto convertToProtoFormat(MasterKey t) {
-    return ((MasterKeyPBImpl)t).getProto();
-  }
-}  
+    private NodeStatusProto convertToProtoFormat(NodeStatus t) {
+        return ((NodeStatusPBImpl)t).getProto();
+    }
+
+    private MasterKeyPBImpl convertFromProtoFormat(MasterKeyProto p) {
+        return new MasterKeyPBImpl(p);
+    }
+
+    private MasterKeyProto convertToProtoFormat(MasterKey t) {
+        return ((MasterKeyPBImpl)t).getProto();
+    }
+}

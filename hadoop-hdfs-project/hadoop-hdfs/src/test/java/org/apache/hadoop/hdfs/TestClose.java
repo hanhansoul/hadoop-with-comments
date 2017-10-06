@@ -31,34 +31,34 @@ import org.junit.Test;
 
 public class TestClose {
 
-  @Test
-  public void testWriteAfterClose() throws IOException {
-    Configuration conf = new Configuration();
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
+    @Test
+    public void testWriteAfterClose() throws IOException {
+        Configuration conf = new Configuration();
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf)
         .build();
-    
-    try {
-      final byte[] data = "foo".getBytes();
-      
-      FileSystem fs = FileSystem.get(conf);
-      OutputStream out = fs.create(new Path("/test"));
-      
-      out.write(data);
-      out.close();
-      try {
-        // Should fail.
-        out.write(data);
-        fail("Should not have been able to write more data after file is closed.");
-      } catch (ClosedChannelException cce) {
-        // We got the correct exception. Ignoring.
-      }
-      // Should succeed. Double closes are OK.
-      out.close();
-    } finally {
-      if (cluster != null) {
-        cluster.shutdown();
-      }
+
+        try {
+            final byte[] data = "foo".getBytes();
+
+            FileSystem fs = FileSystem.get(conf);
+            OutputStream out = fs.create(new Path("/test"));
+
+            out.write(data);
+            out.close();
+            try {
+                // Should fail.
+                out.write(data);
+                fail("Should not have been able to write more data after file is closed.");
+            } catch (ClosedChannelException cce) {
+                // We got the correct exception. Ignoring.
+            }
+            // Should succeed. Double closes are OK.
+            out.close();
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
+        }
     }
-  }
-  
+
 }

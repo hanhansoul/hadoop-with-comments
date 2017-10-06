@@ -24,28 +24,30 @@ import org.junit.Test;
 
 public class TestStreamingOutputOnlyKeys extends TestStreaming {
 
-  public TestStreamingOutputOnlyKeys() throws IOException {
-    super();
-  }
-  
-  @Test
-  public void testOutputOnlyKeys() throws Exception {
-    args.add("-jobconf"); args.add("stream.reduce.input" +
-        "=keyonlytext");
-    args.add("-jobconf"); args.add("stream.reduce.output" +
-        "=keyonlytext");
-    super.testCommandLine();
-  }
-  
-  @Override
-  public String getExpectedOutput() {
-    return outputExpect.replaceAll("\t", "");
-  }
-  
-  @Override
-  @Test
-  public void testCommandLine() {
-    // Do nothing
-  }
+    public TestStreamingOutputOnlyKeys() throws IOException {
+        super();
+    }
+
+    @Test
+    public void testOutputOnlyKeys() throws Exception {
+        args.add("-jobconf");
+        args.add("stream.reduce.input" +
+                 "=keyonlytext");
+        args.add("-jobconf");
+        args.add("stream.reduce.output" +
+                 "=keyonlytext");
+        super.testCommandLine();
+    }
+
+    @Override
+    public String getExpectedOutput() {
+        return outputExpect.replaceAll("\t", "");
+    }
+
+    @Override
+    @Test
+    public void testCommandLine() {
+        // Do nothing
+    }
 
 }

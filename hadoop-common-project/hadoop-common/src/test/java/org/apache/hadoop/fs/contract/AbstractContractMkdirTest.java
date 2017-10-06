@@ -34,82 +34,82 @@ import static org.apache.hadoop.fs.contract.ContractTestUtils.dataset;
  */
 public abstract class AbstractContractMkdirTest extends AbstractFSContractTestBase {
 
-  @Test
-  public void testMkDirRmDir() throws Throwable {
-    FileSystem fs = getFileSystem();
+    @Test
+    public void testMkDirRmDir() throws Throwable {
+        FileSystem fs = getFileSystem();
 
-    Path dir = path("testMkDirRmDir");
-    assertPathDoesNotExist("directory already exists", dir);
-    fs.mkdirs(dir);
-    assertPathExists("mkdir failed", dir);
-    assertDeleted(dir, false);
-  }
-
-  @Test
-  public void testMkDirRmRfDir() throws Throwable {
-    describe("create a directory then recursive delete it");
-    FileSystem fs = getFileSystem();
-    Path dir = path("testMkDirRmRfDir");
-    assertPathDoesNotExist("directory already exists", dir);
-    fs.mkdirs(dir);
-    assertPathExists("mkdir failed", dir);
-    assertDeleted(dir, true);
-  }
-
-  @Test
-  public void testNoMkdirOverFile() throws Throwable {
-    describe("try to mkdir over a file");
-    FileSystem fs = getFileSystem();
-    Path path = path("testNoMkdirOverFile");
-    byte[] dataset = dataset(1024, ' ', 'z');
-    createFile(getFileSystem(), path, false, dataset);
-    try {
-      boolean made = fs.mkdirs(path);
-      fail("mkdirs did not fail over a file but returned " + made
-            + "; " + ls(path));
-    } catch (ParentNotDirectoryException e) {
-      //parent is a directory
-      handleExpectedException(e);
-    } catch (FileAlreadyExistsException e) {
-      //also allowed as an exception (HDFS)
-      handleExpectedException(e);;
-    } catch (IOException e) {
-      //here the FS says "no create"
-      handleRelaxedException("mkdirs", "FileAlreadyExistsException", e);
+        Path dir = path("testMkDirRmDir");
+        assertPathDoesNotExist("directory already exists", dir);
+        fs.mkdirs(dir);
+        assertPathExists("mkdir failed", dir);
+        assertDeleted(dir, false);
     }
-    assertIsFile(path);
-    byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), path,
-                                                 dataset.length);
-    ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
-    assertPathExists("mkdir failed", path);
-    assertDeleted(path, true);
-  }
 
-  @Test
-  public void testMkdirOverParentFile() throws Throwable {
-    describe("try to mkdir where a parent is a file");
-    FileSystem fs = getFileSystem();
-    Path path = path("testMkdirOverParentFile");
-    byte[] dataset = dataset(1024, ' ', 'z');
-    createFile(getFileSystem(), path, false, dataset);
-    Path child = new Path(path,"child-to-mkdir");
-    try {
-      boolean made = fs.mkdirs(child);
-      fail("mkdirs did not fail over a file but returned " + made
-           + "; " + ls(path));
-    } catch (ParentNotDirectoryException e) {
-      //parent is a directory
-      handleExpectedException(e);
-    } catch (FileAlreadyExistsException e) {
-      handleExpectedException(e);
-    } catch (IOException e) {
-      handleRelaxedException("mkdirs", "ParentNotDirectoryException", e);
+    @Test
+    public void testMkDirRmRfDir() throws Throwable {
+        describe("create a directory then recursive delete it");
+        FileSystem fs = getFileSystem();
+        Path dir = path("testMkDirRmRfDir");
+        assertPathDoesNotExist("directory already exists", dir);
+        fs.mkdirs(dir);
+        assertPathExists("mkdir failed", dir);
+        assertDeleted(dir, true);
     }
-    assertIsFile(path);
-    byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), path,
-                                                 dataset.length);
-    ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
-    assertPathExists("mkdir failed", path);
-    assertDeleted(path, true);
-  }
+
+    @Test
+    public void testNoMkdirOverFile() throws Throwable {
+        describe("try to mkdir over a file");
+        FileSystem fs = getFileSystem();
+        Path path = path("testNoMkdirOverFile");
+        byte[] dataset = dataset(1024, ' ', 'z');
+        createFile(getFileSystem(), path, false, dataset);
+        try {
+            boolean made = fs.mkdirs(path);
+            fail("mkdirs did not fail over a file but returned " + made
+                 + "; " + ls(path));
+        } catch (ParentNotDirectoryException e) {
+            //parent is a directory
+            handleExpectedException(e);
+        } catch (FileAlreadyExistsException e) {
+            //also allowed as an exception (HDFS)
+            handleExpectedException(e);;
+        } catch (IOException e) {
+            //here the FS says "no create"
+            handleRelaxedException("mkdirs", "FileAlreadyExistsException", e);
+        }
+        assertIsFile(path);
+        byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), path,
+                       dataset.length);
+        ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
+        assertPathExists("mkdir failed", path);
+        assertDeleted(path, true);
+    }
+
+    @Test
+    public void testMkdirOverParentFile() throws Throwable {
+        describe("try to mkdir where a parent is a file");
+        FileSystem fs = getFileSystem();
+        Path path = path("testMkdirOverParentFile");
+        byte[] dataset = dataset(1024, ' ', 'z');
+        createFile(getFileSystem(), path, false, dataset);
+        Path child = new Path(path,"child-to-mkdir");
+        try {
+            boolean made = fs.mkdirs(child);
+            fail("mkdirs did not fail over a file but returned " + made
+                 + "; " + ls(path));
+        } catch (ParentNotDirectoryException e) {
+            //parent is a directory
+            handleExpectedException(e);
+        } catch (FileAlreadyExistsException e) {
+            handleExpectedException(e);
+        } catch (IOException e) {
+            handleRelaxedException("mkdirs", "ParentNotDirectoryException", e);
+        }
+        assertIsFile(path);
+        byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), path,
+                       dataset.length);
+        ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
+        assertPathExists("mkdir failed", path);
+        assertDeleted(path, true);
+    }
 }

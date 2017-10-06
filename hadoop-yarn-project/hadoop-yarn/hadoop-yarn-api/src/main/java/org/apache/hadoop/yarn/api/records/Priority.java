@@ -23,69 +23,69 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * The priority assigned to a ResourceRequest or Application or Container 
- * allocation 
+ * The priority assigned to a ResourceRequest or Application or Container
+ * allocation
  *
  */
 @Public
 @Stable
 public abstract class Priority implements Comparable<Priority> {
 
-  public static final Priority UNDEFINED = newInstance(-1);
+    public static final Priority UNDEFINED = newInstance(-1);
 
-  @Public
-  @Stable
-  public static Priority newInstance(int p) {
-    Priority priority = Records.newRecord(Priority.class);
-    priority.setPriority(p);
-    return priority;
-  }
+    @Public
+    @Stable
+    public static Priority newInstance(int p) {
+        Priority priority = Records.newRecord(Priority.class);
+        priority.setPriority(p);
+        return priority;
+    }
 
-  /**
-   * Get the assigned priority
-   * @return the assigned priority
-   */
-  @Public
-  @Stable
-  public abstract int getPriority();
-  
-  /**
-   * Set the assigned priority
-   * @param priority the assigned priority
-   */
-  @Public
-  @Stable
-  public abstract void setPriority(int priority);
-  
-  @Override
-  public int hashCode() {
-    final int prime = 517861;
-    int result = 9511;
-    result = prime * result + getPriority();
-    return result;
-  }
+    /**
+     * Get the assigned priority
+     * @return the assigned priority
+     */
+    @Public
+    @Stable
+    public abstract int getPriority();
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    Priority other = (Priority) obj;
-    if (getPriority() != other.getPriority())
-      return false;
-    return true;
-  }
+    /**
+     * Set the assigned priority
+     * @param priority the assigned priority
+     */
+    @Public
+    @Stable
+    public abstract void setPriority(int priority);
 
-  @Override
-  public int compareTo(Priority other) {
-    return other.getPriority() - this.getPriority();
-  }
+    @Override
+    public int hashCode() {
+        final int prime = 517861;
+        int result = 9511;
+        result = prime * result + getPriority();
+        return result;
+    }
 
-  @Override
-  public String toString() {
-    return "{Priority: " + getPriority() + "}";
-  }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Priority other = (Priority) obj;
+        if (getPriority() != other.getPriority())
+            return false;
+        return true;
+    }
+
+    @Override
+    public int compareTo(Priority other) {
+        return other.getPriority() - this.getPriority();
+    }
+
+    @Override
+    public String toString() {
+        return "{Priority: " + getPriority() + "}";
+    }
 }

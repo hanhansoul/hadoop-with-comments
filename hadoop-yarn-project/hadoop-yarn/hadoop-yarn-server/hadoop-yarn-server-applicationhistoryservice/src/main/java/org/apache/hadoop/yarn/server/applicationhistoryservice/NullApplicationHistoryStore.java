@@ -41,87 +41,87 @@ import org.apache.hadoop.yarn.server.applicationhistoryservice.records.Container
 /**
  * Dummy implementation of {@link ApplicationHistoryStore}. If this
  * implementation is used, no history data will be persisted.
- * 
+ *
  */
 @Unstable
 @Private
 public class NullApplicationHistoryStore extends AbstractService implements
     ApplicationHistoryStore {
 
-  public NullApplicationHistoryStore() {
-    super(NullApplicationHistoryStore.class.getName());
-  }
+    public NullApplicationHistoryStore() {
+        super(NullApplicationHistoryStore.class.getName());
+    }
 
-  @Override
-  public void applicationStarted(ApplicationStartData appStart)
-      throws IOException {
-  }
+    @Override
+    public void applicationStarted(ApplicationStartData appStart)
+    throws IOException {
+    }
 
-  @Override
-  public void applicationFinished(ApplicationFinishData appFinish)
-      throws IOException {
-  }
+    @Override
+    public void applicationFinished(ApplicationFinishData appFinish)
+    throws IOException {
+    }
 
-  @Override
-  public void applicationAttemptStarted(
-      ApplicationAttemptStartData appAttemptStart) throws IOException {
-  }
+    @Override
+    public void applicationAttemptStarted(
+        ApplicationAttemptStartData appAttemptStart) throws IOException {
+    }
 
-  @Override
-  public void applicationAttemptFinished(
-      ApplicationAttemptFinishData appAttemptFinish) throws IOException {
-  }
+    @Override
+    public void applicationAttemptFinished(
+        ApplicationAttemptFinishData appAttemptFinish) throws IOException {
+    }
 
-  @Override
-  public void containerStarted(ContainerStartData containerStart)
-      throws IOException {
-  }
+    @Override
+    public void containerStarted(ContainerStartData containerStart)
+    throws IOException {
+    }
 
-  @Override
-  public void containerFinished(ContainerFinishData containerFinish)
-      throws IOException {
-  }
+    @Override
+    public void containerFinished(ContainerFinishData containerFinish)
+    throws IOException {
+    }
 
-  @Override
-  public ApplicationHistoryData getApplication(ApplicationId appId)
-      throws IOException {
-    return null;
-  }
+    @Override
+    public ApplicationHistoryData getApplication(ApplicationId appId)
+    throws IOException {
+        return null;
+    }
 
-  @Override
-  public Map<ApplicationId, ApplicationHistoryData> getAllApplications()
-      throws IOException {
-    return Collections.emptyMap();
-  }
+    @Override
+    public Map<ApplicationId, ApplicationHistoryData> getAllApplications()
+    throws IOException {
+        return Collections.emptyMap();
+    }
 
-  @Override
-  public Map<ApplicationAttemptId, ApplicationAttemptHistoryData>
-      getApplicationAttempts(ApplicationId appId) throws IOException {
-    return Collections.emptyMap();
-  }
+    @Override
+    public Map<ApplicationAttemptId, ApplicationAttemptHistoryData>
+    getApplicationAttempts(ApplicationId appId) throws IOException {
+        return Collections.emptyMap();
+    }
 
-  @Override
-  public ApplicationAttemptHistoryData getApplicationAttempt(
-      ApplicationAttemptId appAttemptId) throws IOException {
-    return null;
-  }
+    @Override
+    public ApplicationAttemptHistoryData getApplicationAttempt(
+        ApplicationAttemptId appAttemptId) throws IOException {
+        return null;
+    }
 
-  @Override
-  public ContainerHistoryData getContainer(ContainerId containerId)
-      throws IOException {
-    return null;
-  }
+    @Override
+    public ContainerHistoryData getContainer(ContainerId containerId)
+    throws IOException {
+        return null;
+    }
 
-  @Override
-  public ContainerHistoryData getAMContainer(ApplicationAttemptId appAttemptId)
-      throws IOException {
-    return null;
-  }
+    @Override
+    public ContainerHistoryData getAMContainer(ApplicationAttemptId appAttemptId)
+    throws IOException {
+        return null;
+    }
 
-  @Override
-  public Map<ContainerId, ContainerHistoryData> getContainers(
-      ApplicationAttemptId appAttemptId) throws IOException {
-    return Collections.emptyMap();
-  }
+    @Override
+    public Map<ContainerId, ContainerHistoryData> getContainers(
+        ApplicationAttemptId appAttemptId) throws IOException {
+        return Collections.emptyMap();
+    }
 
 }

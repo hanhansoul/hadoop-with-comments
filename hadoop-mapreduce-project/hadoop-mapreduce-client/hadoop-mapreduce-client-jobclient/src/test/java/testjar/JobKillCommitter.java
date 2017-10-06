@@ -29,91 +29,91 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 public class JobKillCommitter {
-  /**
-   * The class provides a overrided implementation of output committer
-   * set up method, which causes the job to fail during set up.
-   */
-  public static class CommitterWithFailSetup extends FileOutputCommitter {
-    @Override
-    public void setupJob(JobContext context) throws IOException {
-      throw new IOException();
-    }
-  }
-
-  /**
-   * The class provides a dummy implementation of outputcommitter
-   * which does nothing
-   */
-  public static class CommitterWithNoError extends FileOutputCommitter {
-    @Override
-    public void setupJob(JobContext context) throws IOException {
+    /**
+     * The class provides a overrided implementation of output committer
+     * set up method, which causes the job to fail during set up.
+     */
+    public static class CommitterWithFailSetup extends FileOutputCommitter {
+        @Override
+        public void setupJob(JobContext context) throws IOException {
+            throw new IOException();
+        }
     }
 
-    @Override
-    public void commitJob(JobContext context) throws IOException {
-    }
-  }
+    /**
+     * The class provides a dummy implementation of outputcommitter
+     * which does nothing
+     */
+    public static class CommitterWithNoError extends FileOutputCommitter {
+        @Override
+        public void setupJob(JobContext context) throws IOException {
+        }
 
-  /**
-   * The class provides a overrided implementation of commitJob which
-   * causes the clean up method to fail.
-   */
-  public static class CommitterWithFailCleanup extends FileOutputCommitter {
-    @Override
-    public void commitJob(JobContext context) throws IOException {
-      throw new IOException();
+        @Override
+        public void commitJob(JobContext context) throws IOException {
+        }
     }
-  }
 
-  /**
-   * The class is used provides a dummy implementation for mapper method which
-   * does nothing.
-   */
-  public static class MapperPass extends Mapper<LongWritable, Text, Text, Text> {
-    public void map(LongWritable key, Text value, Context context)
+    /**
+     * The class provides a overrided implementation of commitJob which
+     * causes the clean up method to fail.
+     */
+    public static class CommitterWithFailCleanup extends FileOutputCommitter {
+        @Override
+        public void commitJob(JobContext context) throws IOException {
+            throw new IOException();
+        }
+    }
+
+    /**
+     * The class is used provides a dummy implementation for mapper method which
+     * does nothing.
+     */
+    public static class MapperPass extends Mapper<LongWritable, Text, Text, Text> {
+        public void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
+        }
     }
-  }
-  /**
-  * The class provides a sleep implementation for mapper method.
-  */
- public static class MapperPassSleep extends 
-     Mapper<LongWritable, Text, Text, Text> {
-   public void map(LongWritable key, Text value, Context context)
-       throws IOException, InterruptedException {
-     Thread.sleep(10000);
-   }
- }
-
-  /**
-   * The class  provides a way for the mapper function to fail by
-   * intentionally throwing an IOException
-   */
-  public static class MapperFail extends Mapper<LongWritable, Text, Text, Text> {
-    public void map(LongWritable key, Text value, Context context)
+    /**
+    * The class provides a sleep implementation for mapper method.
+    */
+    public static class MapperPassSleep extends
+        Mapper<LongWritable, Text, Text, Text> {
+        public void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
-      throw new IOException();
+            Thread.sleep(10000);
+        }
     }
-  }
 
-  /**
-   * The class provides a way for the reduce function to fail by
-   * intentionally throwing an IOException
-   */
-  public static class ReducerFail extends Reducer<Text, Text, Text, Text> {
-    public void reduce(Text key, Iterator<Text> values, Context context)
+    /**
+     * The class  provides a way for the mapper function to fail by
+     * intentionally throwing an IOException
+     */
+    public static class MapperFail extends Mapper<LongWritable, Text, Text, Text> {
+        public void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
-      throw new IOException();
+            throw new IOException();
+        }
     }
-  }
 
-  /**
-   * The class provides a empty implementation of reducer method that
-   * does nothing
-   */
-  public static class ReducerPass extends Reducer<Text, Text, Text, Text> {
-    public void reduce(Text key, Iterator<Text> values, Context context)
+    /**
+     * The class provides a way for the reduce function to fail by
+     * intentionally throwing an IOException
+     */
+    public static class ReducerFail extends Reducer<Text, Text, Text, Text> {
+        public void reduce(Text key, Iterator<Text> values, Context context)
         throws IOException, InterruptedException {
+            throw new IOException();
+        }
     }
-  }
+
+    /**
+     * The class provides a empty implementation of reducer method that
+     * does nothing
+     */
+    public static class ReducerPass extends Reducer<Text, Text, Text, Text> {
+        public void reduce(Text key, Iterator<Text> values, Context context)
+        throws IOException, InterruptedException {
+        }
+    }
 }

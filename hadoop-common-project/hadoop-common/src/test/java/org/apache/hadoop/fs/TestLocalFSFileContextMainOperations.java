@@ -29,39 +29,39 @@ import org.apache.hadoop.fs.permission.FsPermission;
 
 public class TestLocalFSFileContextMainOperations extends FileContextMainOperationsBaseTest {
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    fc = FileContext.getLocalFSFileContext();
-    super.setUp();
-  }
-  
-  static Path wd = null;
-  @Override
-  protected Path getDefaultWorkingDirectory() throws IOException {
-    if (wd == null)
-      wd = FileSystem.getLocal(new Configuration()).getWorkingDirectory();
-    return wd;
-  }
-  
-  @Test
-  public void testFileContextNoCache() throws UnsupportedFileSystemException {
-    FileContext fc1 = FileContext.getLocalFSFileContext();
-    Assert.assertTrue(fc1 != fc);
-  }
-  
-  @Override
-  protected boolean listCorruptedBlocksSupported() {
-    return false;
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        fc = FileContext.getLocalFSFileContext();
+        super.setUp();
+    }
 
-  @Test
-  public void testDefaultFilePermission() throws IOException {
-    Path file = fileContextTestHelper.getTestRootPath(fc,
-        "testDefaultFilePermission");
-    FileContextTestHelper.createFile(fc, file);
-    FsPermission expect = FileContext.FILE_DEFAULT_PERM.applyUMask(fc.getUMask());
-    Assert.assertEquals(expect, fc.getFileStatus(file)
-        .getPermission());
-  }
+    static Path wd = null;
+    @Override
+    protected Path getDefaultWorkingDirectory() throws IOException {
+        if (wd == null)
+            wd = FileSystem.getLocal(new Configuration()).getWorkingDirectory();
+        return wd;
+    }
+
+    @Test
+    public void testFileContextNoCache() throws UnsupportedFileSystemException {
+        FileContext fc1 = FileContext.getLocalFSFileContext();
+        Assert.assertTrue(fc1 != fc);
+    }
+
+    @Override
+    protected boolean listCorruptedBlocksSupported() {
+        return false;
+    }
+
+    @Test
+    public void testDefaultFilePermission() throws IOException {
+        Path file = fileContextTestHelper.getTestRootPath(fc,
+                    "testDefaultFilePermission");
+        FileContextTestHelper.createFile(fc, file);
+        FsPermission expect = FileContext.FILE_DEFAULT_PERM.applyUMask(fc.getUMask());
+        Assert.assertEquals(expect, fc.getFileStatus(file)
+                            .getPermission());
+    }
 }

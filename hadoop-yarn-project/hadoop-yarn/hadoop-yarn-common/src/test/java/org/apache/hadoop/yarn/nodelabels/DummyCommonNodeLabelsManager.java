@@ -28,59 +28,59 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 import org.apache.hadoop.yarn.event.InlineDispatcher;
 
 public class DummyCommonNodeLabelsManager extends CommonNodeLabelsManager {
-  Map<NodeId, Set<String>> lastNodeToLabels = null;
-  Collection<String> lastAddedlabels = null;
-  Collection<String> lastRemovedlabels = null;
+    Map<NodeId, Set<String>> lastNodeToLabels = null;
+    Collection<String> lastAddedlabels = null;
+    Collection<String> lastRemovedlabels = null;
 
-  @Override
-  public void initNodeLabelStore(Configuration conf) {
-    this.store = new NodeLabelsStore(this) {
+    @Override
+    public void initNodeLabelStore(Configuration conf) {
+        this.store = new NodeLabelsStore(this) {
 
-      @Override
-      public void recover() throws IOException {
-      }
+            @Override
+            public void recover() throws IOException {
+            }
 
-      @Override
-      public void removeClusterNodeLabels(Collection<String> labels)
-          throws IOException {
-        lastRemovedlabels = labels;
-      }
+            @Override
+            public void removeClusterNodeLabels(Collection<String> labels)
+            throws IOException {
+                lastRemovedlabels = labels;
+            }
 
-      @Override
-      public void updateNodeToLabelsMappings(
-          Map<NodeId, Set<String>> nodeToLabels) throws IOException {
-        lastNodeToLabels = nodeToLabels;
-      }
+            @Override
+            public void updateNodeToLabelsMappings(
+                Map<NodeId, Set<String>> nodeToLabels) throws IOException {
+                lastNodeToLabels = nodeToLabels;
+            }
 
-      @Override
-      public void storeNewClusterNodeLabels(Set<String> label) throws IOException {
-        lastAddedlabels = label;
-      }
+            @Override
+            public void storeNewClusterNodeLabels(Set<String> label) throws IOException {
+                lastAddedlabels = label;
+            }
 
-      @Override
-      public void close() throws IOException {
-        // do nothing 
-      }
-    };
-  }
+            @Override
+            public void close() throws IOException {
+                // do nothing
+            }
+        };
+    }
 
-  @Override
-  protected void initDispatcher(Configuration conf) {
-    super.dispatcher = new InlineDispatcher();
-  }
+    @Override
+    protected void initDispatcher(Configuration conf) {
+        super.dispatcher = new InlineDispatcher();
+    }
 
-  @Override
-  protected void startDispatcher() {
-    // do nothing
-  }
-  
-  @Override
-  protected void stopDispatcher() {
-    // do nothing
-  }
-  
-  @Override
-  protected void serviceStop() throws Exception {
-    super.serviceStop();
-  }
+    @Override
+    protected void startDispatcher() {
+        // do nothing
+    }
+
+    @Override
+    protected void stopDispatcher() {
+        // do nothing
+    }
+
+    @Override
+    protected void serviceStop() throws Exception {
+        super.serviceStop();
+    }
 }

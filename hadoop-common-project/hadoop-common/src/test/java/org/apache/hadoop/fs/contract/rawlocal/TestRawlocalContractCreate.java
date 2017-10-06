@@ -24,9 +24,9 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
 
 public class TestRawlocalContractCreate extends AbstractContractCreateTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new RawlocalFSContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new RawlocalFSContract(conf);
+    }
 
 }

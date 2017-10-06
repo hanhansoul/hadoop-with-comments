@@ -22,14 +22,14 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 
 public class NodeUpdateSchedulerEvent extends SchedulerEvent {
 
-  private final RMNode rmNode;
+    private final RMNode rmNode;
 
-  public NodeUpdateSchedulerEvent(RMNode rmNode) {
-    super(SchedulerEventType.NODE_UPDATE);
-    this.rmNode = rmNode;
-  }
+    public NodeUpdateSchedulerEvent(RMNode rmNode) {
+        super(SchedulerEventType.NODE_UPDATE);
+        this.rmNode = rmNode;
+    }
 
-  public RMNode getRMNode() {
-    return rmNode;
-  }
+    public RMNode getRMNode() {
+        return rmNode;
+    }
 }

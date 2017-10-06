@@ -36,107 +36,107 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.SchedulerNodeRepo
 @XmlAccessorType(XmlAccessType.FIELD)
 public class NodeInfo {
 
-  protected String rack;
-  protected NodeState state;
-  protected String id;
-  protected String nodeHostName;
-  protected String nodeHTTPAddress;
-  protected long lastHealthUpdate;
-  protected String version;
-  protected String healthReport;
-  protected int numContainers;
-  protected long usedMemoryMB;
-  protected long availMemoryMB;
-  protected long usedVirtualCores;
-  protected long availableVirtualCores;
-  protected ArrayList<String> nodeLabels = new ArrayList<String>();
+    protected String rack;
+    protected NodeState state;
+    protected String id;
+    protected String nodeHostName;
+    protected String nodeHTTPAddress;
+    protected long lastHealthUpdate;
+    protected String version;
+    protected String healthReport;
+    protected int numContainers;
+    protected long usedMemoryMB;
+    protected long availMemoryMB;
+    protected long usedVirtualCores;
+    protected long availableVirtualCores;
+    protected ArrayList<String> nodeLabels = new ArrayList<String>();
 
-  public NodeInfo() {
-  } // JAXB needs this
+    public NodeInfo() {
+    } // JAXB needs this
 
-  public NodeInfo(RMNode ni, ResourceScheduler sched) {
-    NodeId id = ni.getNodeID();
-    SchedulerNodeReport report = sched.getNodeReport(id);
-    this.numContainers = 0;
-    this.usedMemoryMB = 0;
-    this.availMemoryMB = 0;
-    if (report != null) {
-      this.numContainers = report.getNumContainers();
-      this.usedMemoryMB = report.getUsedResource().getMemory();
-      this.availMemoryMB = report.getAvailableResource().getMemory();
-      this.usedVirtualCores = report.getUsedResource().getVirtualCores();
-      this.availableVirtualCores = report.getAvailableResource().getVirtualCores();
+    public NodeInfo(RMNode ni, ResourceScheduler sched) {
+        NodeId id = ni.getNodeID();
+        SchedulerNodeReport report = sched.getNodeReport(id);
+        this.numContainers = 0;
+        this.usedMemoryMB = 0;
+        this.availMemoryMB = 0;
+        if (report != null) {
+            this.numContainers = report.getNumContainers();
+            this.usedMemoryMB = report.getUsedResource().getMemory();
+            this.availMemoryMB = report.getAvailableResource().getMemory();
+            this.usedVirtualCores = report.getUsedResource().getVirtualCores();
+            this.availableVirtualCores = report.getAvailableResource().getVirtualCores();
+        }
+        this.id = id.toString();
+        this.rack = ni.getRackName();
+        this.nodeHostName = ni.getHostName();
+        this.state = ni.getState();
+        this.nodeHTTPAddress = ni.getHttpAddress();
+        this.lastHealthUpdate = ni.getLastHealthReportTime();
+        this.healthReport = String.valueOf(ni.getHealthReport());
+        this.version = ni.getNodeManagerVersion();
+
+        // add labels
+        Set<String> labelSet = ni.getNodeLabels();
+        if (labelSet != null) {
+            nodeLabels.addAll(labelSet);
+            Collections.sort(nodeLabels);
+        }
     }
-    this.id = id.toString();
-    this.rack = ni.getRackName();
-    this.nodeHostName = ni.getHostName();
-    this.state = ni.getState();
-    this.nodeHTTPAddress = ni.getHttpAddress();
-    this.lastHealthUpdate = ni.getLastHealthReportTime();
-    this.healthReport = String.valueOf(ni.getHealthReport());
-    this.version = ni.getNodeManagerVersion();
-    
-    // add labels
-    Set<String> labelSet = ni.getNodeLabels();
-    if (labelSet != null) {
-      nodeLabels.addAll(labelSet);
-      Collections.sort(nodeLabels);
+
+    public String getRack() {
+        return this.rack;
     }
-  }
 
-  public String getRack() {
-    return this.rack;
-  }
+    public String getState() {
+        return String.valueOf(this.state);
+    }
 
-  public String getState() {
-    return String.valueOf(this.state);
-  }
+    public String getNodeId() {
+        return this.id;
+    }
 
-  public String getNodeId() {
-    return this.id;
-  }
+    public String getNodeHTTPAddress() {
+        return this.nodeHTTPAddress;
+    }
 
-  public String getNodeHTTPAddress() {
-    return this.nodeHTTPAddress;
-  }
+    public void setNodeHTTPAddress(String nodeHTTPAddress) {
+        this.nodeHTTPAddress = nodeHTTPAddress;
+    }
 
-  public void setNodeHTTPAddress(String nodeHTTPAddress) {
-    this.nodeHTTPAddress = nodeHTTPAddress;
-  }
+    public long getLastHealthUpdate() {
+        return this.lastHealthUpdate;
+    }
 
-  public long getLastHealthUpdate() {
-    return this.lastHealthUpdate;
-  }
+    public String getVersion() {
+        return this.version;
+    }
 
-  public String getVersion() {
-    return this.version;
-  }
+    public String getHealthReport() {
+        return this.healthReport;
+    }
 
-  public String getHealthReport() {
-    return this.healthReport;
-  }
+    public int getNumContainers() {
+        return this.numContainers;
+    }
 
-  public int getNumContainers() {
-    return this.numContainers;
-  }
+    public long getUsedMemory() {
+        return this.usedMemoryMB;
+    }
 
-  public long getUsedMemory() {
-    return this.usedMemoryMB;
-  }
+    public long getAvailableMemory() {
+        return this.availMemoryMB;
+    }
 
-  public long getAvailableMemory() {
-    return this.availMemoryMB;
-  }
+    public long getUsedVirtualCores() {
+        return this.usedVirtualCores;
+    }
 
-  public long getUsedVirtualCores() {
-    return this.usedVirtualCores;
-  }
+    public long getAvailableVirtualCores() {
+        return this.availableVirtualCores;
+    }
 
-  public long getAvailableVirtualCores() {
-    return this.availableVirtualCores;
-  }
-
-  public ArrayList<String> getNodeLabels() {
-    return this.nodeLabels;
-  }
+    public ArrayList<String> getNodeLabels() {
+        return this.nodeLabels;
+    }
 }

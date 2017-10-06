@@ -26,34 +26,34 @@ import org.apache.hadoop.streaming.PipeMapRed;
  * Abstract base for classes that read the client's output.
  */
 public abstract class OutputReader<K, V> {
-  
-  /**
-   * Initializes the OutputReader. This method has to be called before
-   * calling any of the other methods.
-   */
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    // nothing here yet, but that might change in the future
-  }
-  
-  /**
-   * Read the next key/value pair outputted by the client.
-   * @return true iff a key/value pair was read
-   */
-  public abstract boolean readKeyValue() throws IOException;
-  
-  /**
-   * Returns the current key.
-   */
-  public abstract K getCurrentKey() throws IOException;
-  
-  /**
-   * Returns the current value.
-   */
-  public abstract V getCurrentValue() throws IOException;
-  
-  /**
-   * Returns the last output from the client as a String.
-   */
-  public abstract String getLastOutput();
-  
+
+    /**
+     * Initializes the OutputReader. This method has to be called before
+     * calling any of the other methods.
+     */
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        // nothing here yet, but that might change in the future
+    }
+
+    /**
+     * Read the next key/value pair outputted by the client.
+     * @return true iff a key/value pair was read
+     */
+    public abstract boolean readKeyValue() throws IOException;
+
+    /**
+     * Returns the current key.
+     */
+    public abstract K getCurrentKey() throws IOException;
+
+    /**
+     * Returns the current value.
+     */
+    public abstract V getCurrentValue() throws IOException;
+
+    /**
+     * Returns the last output from the client as a String.
+     */
+    public abstract String getLastOutput();
+
 }

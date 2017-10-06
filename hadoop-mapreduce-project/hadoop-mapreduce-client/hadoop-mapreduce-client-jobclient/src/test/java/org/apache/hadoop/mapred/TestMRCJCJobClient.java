@@ -32,59 +32,59 @@ import org.apache.hadoop.util.Tool;
 import org.junit.Ignore;
 @Ignore
 public class TestMRCJCJobClient extends TestMRJobClient {
-  
-  private String runJob() throws Exception {
-    OutputStream os = getFileSystem().create(new Path(getInputDir(),
-                        "text.txt"));
-    Writer wr = new OutputStreamWriter(os);
-    wr.write("hello1\n");
-    wr.write("hello2\n");
-    wr.write("hello3\n");
-    wr.close();
 
-    JobConf conf = createJobConf();
-    conf.setJobName("mr");
-    conf.setJobPriority(JobPriority.HIGH);
-    
-    conf.setInputFormat(TextInputFormat.class);
+    private String runJob() throws Exception {
+        OutputStream os = getFileSystem().create(new Path(getInputDir(),
+                          "text.txt"));
+        Writer wr = new OutputStreamWriter(os);
+        wr.write("hello1\n");
+        wr.write("hello2\n");
+        wr.write("hello3\n");
+        wr.close();
 
-    conf.setMapOutputKeyClass(LongWritable.class);
-    conf.setMapOutputValueClass(Text.class);
+        JobConf conf = createJobConf();
+        conf.setJobName("mr");
+        conf.setJobPriority(JobPriority.HIGH);
 
-    conf.setOutputFormat(TextOutputFormat.class);
-    conf.setOutputKeyClass(LongWritable.class);
-    conf.setOutputValueClass(Text.class);
+        conf.setInputFormat(TextInputFormat.class);
 
-    conf.setMapperClass(org.apache.hadoop.mapred.lib.IdentityMapper.class);
-    conf.setReducerClass(org.apache.hadoop.mapred.lib.IdentityReducer.class);
+        conf.setMapOutputKeyClass(LongWritable.class);
+        conf.setMapOutputValueClass(Text.class);
 
-    FileInputFormat.setInputPaths(conf, getInputDir());
-    FileOutputFormat.setOutputPath(conf, getOutputDir());
+        conf.setOutputFormat(TextOutputFormat.class);
+        conf.setOutputKeyClass(LongWritable.class);
+        conf.setOutputValueClass(Text.class);
 
-    return JobClient.runJob(conf).getID().toString();
-  }
-  
-  public static int runTool(Configuration conf, Tool tool, String[] args,
-      OutputStream out) throws Exception {
-    return TestMRJobClient.runTool(conf, tool, args, out);
-  }
-  
-  static void verifyJobPriority(String jobId, String priority,
-      JobConf conf)  throws Exception {
-    TestMRCJCJobClient test = new TestMRCJCJobClient();
-    test.verifyJobPriority(jobId, priority, conf, test.createJobClient());
-  }
-  
-  public void testJobClient() throws Exception {
-    Configuration conf = createJobConf();
-    String jobId = runJob();
-    testGetCounter(jobId, conf);
-    testAllJobList(jobId, conf);
-    testChangingJobPriority(jobId, conf);
-  }
-  
-  protected CLI createJobClient() 
-      throws IOException {
-    return new JobClient();
-  }
+        conf.setMapperClass(org.apache.hadoop.mapred.lib.IdentityMapper.class);
+        conf.setReducerClass(org.apache.hadoop.mapred.lib.IdentityReducer.class);
+
+        FileInputFormat.setInputPaths(conf, getInputDir());
+        FileOutputFormat.setOutputPath(conf, getOutputDir());
+
+        return JobClient.runJob(conf).getID().toString();
+    }
+
+    public static int runTool(Configuration conf, Tool tool, String[] args,
+                              OutputStream out) throws Exception {
+        return TestMRJobClient.runTool(conf, tool, args, out);
+    }
+
+    static void verifyJobPriority(String jobId, String priority,
+                                  JobConf conf)  throws Exception {
+        TestMRCJCJobClient test = new TestMRCJCJobClient();
+        test.verifyJobPriority(jobId, priority, conf, test.createJobClient());
+    }
+
+    public void testJobClient() throws Exception {
+        Configuration conf = createJobConf();
+        String jobId = runJob();
+        testGetCounter(jobId, conf);
+        testAllJobList(jobId, conf);
+        testChangingJobPriority(jobId, conf);
+    }
+
+    protected CLI createJobClient()
+    throws IOException {
+        return new JobClient();
+    }
 }

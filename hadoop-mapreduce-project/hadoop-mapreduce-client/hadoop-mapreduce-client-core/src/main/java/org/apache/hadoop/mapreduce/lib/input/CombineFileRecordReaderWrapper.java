@@ -45,64 +45,64 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public abstract class CombineFileRecordReaderWrapper<K,V>
-  extends RecordReader<K,V> {
-  private final FileSplit fileSplit;
-  private final RecordReader<K,V> delegate;
+    extends RecordReader<K,V> {
+    private final FileSplit fileSplit;
+    private final RecordReader<K,V> delegate;
 
-  protected CombineFileRecordReaderWrapper(FileInputFormat<K,V> inputFormat,
-    CombineFileSplit split, TaskAttemptContext context, Integer idx)
+    protected CombineFileRecordReaderWrapper(FileInputFormat<K,V> inputFormat,
+            CombineFileSplit split, TaskAttemptContext context, Integer idx)
     throws IOException, InterruptedException {
-    fileSplit = new FileSplit(split.getPath(idx),
-      split.getOffset(idx),
-      split.getLength(idx),
-      split.getLocations());
+        fileSplit = new FileSplit(split.getPath(idx),
+                                  split.getOffset(idx),
+                                  split.getLength(idx),
+                                  split.getLocations());
 
-    delegate = inputFormat.createRecordReader(fileSplit, context);
-  }
+        delegate = inputFormat.createRecordReader(fileSplit, context);
+    }
 
-  public void initialize(InputSplit split, TaskAttemptContext context)
+    public void initialize(InputSplit split, TaskAttemptContext context)
     throws IOException, InterruptedException {
-    // it really should be the same file split at the time the wrapper instance
-    // was created
-    assert fileSplitIsValid(context);
+        // it really should be the same file split at the time the wrapper instance
+        // was created
+        assert fileSplitIsValid(context);
 
-    delegate.initialize(fileSplit, context);
-  }
-
-  private boolean fileSplitIsValid(TaskAttemptContext context) {
-    Configuration conf = context.getConfiguration();
-    long offset = conf.getLong(MRJobConfig.MAP_INPUT_START, 0L);
-    if (fileSplit.getStart() != offset) {
-      return false;
+        delegate.initialize(fileSplit, context);
     }
-    long length = conf.getLong(MRJobConfig.MAP_INPUT_PATH, 0L);
-    if (fileSplit.getLength() != length) {
-      return false;
+
+    private boolean fileSplitIsValid(TaskAttemptContext context) {
+        Configuration conf = context.getConfiguration();
+        long offset = conf.getLong(MRJobConfig.MAP_INPUT_START, 0L);
+        if (fileSplit.getStart() != offset) {
+            return false;
+        }
+        long length = conf.getLong(MRJobConfig.MAP_INPUT_PATH, 0L);
+        if (fileSplit.getLength() != length) {
+            return false;
+        }
+        String path = conf.get(MRJobConfig.MAP_INPUT_FILE);
+        if (!fileSplit.getPath().toString().equals(path)) {
+            return false;
+        }
+        return true;
     }
-    String path = conf.get(MRJobConfig.MAP_INPUT_FILE);
-    if (!fileSplit.getPath().toString().equals(path)) {
-      return false;
+
+    public boolean nextKeyValue() throws IOException, InterruptedException {
+        return delegate.nextKeyValue();
     }
-    return true;
-  }
 
-  public boolean nextKeyValue() throws IOException, InterruptedException {
-    return delegate.nextKeyValue();
-  }
+    public K getCurrentKey() throws IOException, InterruptedException {
+        return delegate.getCurrentKey();
+    }
 
-  public K getCurrentKey() throws IOException, InterruptedException {
-    return delegate.getCurrentKey();
-  }
+    public V getCurrentValue() throws IOException, InterruptedException {
+        return delegate.getCurrentValue();
+    }
 
-  public V getCurrentValue() throws IOException, InterruptedException {
-    return delegate.getCurrentValue();
-  }
+    public float getProgress() throws IOException, InterruptedException {
+        return delegate.getProgress();
+    }
 
-  public float getProgress() throws IOException, InterruptedException {
-    return delegate.getProgress();
-  }
-
-  public void close() throws IOException {
-    delegate.close();
-  }
+    public void close() throws IOException {
+        delegate.close();
+    }
 }

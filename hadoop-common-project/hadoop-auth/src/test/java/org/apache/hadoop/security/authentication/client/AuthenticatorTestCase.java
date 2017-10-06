@@ -56,242 +56,242 @@ import java.util.Properties;
 import org.junit.Assert;
 
 public class AuthenticatorTestCase {
-  private Server server;
-  private String host = null;
-  private int port = -1;
-  private boolean useTomcat = false;
-  private Tomcat tomcat = null;
-  Context context;
+    private Server server;
+    private String host = null;
+    private int port = -1;
+    private boolean useTomcat = false;
+    private Tomcat tomcat = null;
+    Context context;
 
-  private static Properties authenticatorConfig;
+    private static Properties authenticatorConfig;
 
-  public AuthenticatorTestCase() {}
+    public AuthenticatorTestCase() {}
 
-  public AuthenticatorTestCase(boolean useTomcat) {
-    this.useTomcat = useTomcat;
-  }
-
-  protected static void setAuthenticationHandlerConfig(Properties config) {
-    authenticatorConfig = config;
-  }
-
-  public static class TestFilter extends AuthenticationFilter {
-
-    @Override
-    protected Properties getConfiguration(String configPrefix, FilterConfig filterConfig) throws ServletException {
-      return authenticatorConfig;
-    }
-  }
-
-  @SuppressWarnings("serial")
-  public static class TestServlet extends HttpServlet {
-
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-      resp.setStatus(HttpServletResponse.SC_OK);
+    public AuthenticatorTestCase(boolean useTomcat) {
+        this.useTomcat = useTomcat;
     }
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-      InputStream is = req.getInputStream();
-      OutputStream os = resp.getOutputStream();
-      int c = is.read();
-      while (c > -1) {
-        os.write(c);
-        c = is.read();
-      }
-      is.close();
-      os.close();
-      resp.setStatus(HttpServletResponse.SC_OK);
-    }
-  }
-
-  protected int getLocalPort() throws Exception {
-    ServerSocket ss = new ServerSocket(0);
-    int ret = ss.getLocalPort();
-    ss.close();
-    return ret;
-  }
-
-  protected void start() throws Exception {
-    if (useTomcat) startTomcat();
-    else startJetty();
-  }
-
-  protected void startJetty() throws Exception {
-    server = new Server(0);
-    context = new Context();
-    context.setContextPath("/foo");
-    server.setHandler(context);
-    context.addFilter(new FilterHolder(TestFilter.class), "/*", 0);
-    context.addServlet(new ServletHolder(TestServlet.class), "/bar");
-    host = "localhost";
-    port = getLocalPort();
-    server.getConnectors()[0].setHost(host);
-    server.getConnectors()[0].setPort(port);
-    server.start();
-    System.out.println("Running embedded servlet container at: http://" + host + ":" + port);
-  }
-
-  protected void startTomcat() throws Exception {
-    tomcat = new Tomcat();
-    File base = new File(System.getProperty("java.io.tmpdir"));
-    org.apache.catalina.Context ctx =
-      tomcat.addContext("/foo",base.getAbsolutePath());
-    FilterDef fd = new FilterDef();
-    fd.setFilterClass(TestFilter.class.getName());
-    fd.setFilterName("TestFilter");
-    FilterMap fm = new FilterMap();
-    fm.setFilterName("TestFilter");
-    fm.addURLPattern("/*");
-    fm.addServletName("/bar");
-    ctx.addFilterDef(fd);
-    ctx.addFilterMap(fm);
-    tomcat.addServlet(ctx, "/bar", TestServlet.class.getName());
-    ctx.addServletMapping("/bar", "/bar");
-    host = "localhost";
-    port = getLocalPort();
-    tomcat.setHostname(host);
-    tomcat.setPort(port);
-    tomcat.start();
-  }
-
-  protected void stop() throws Exception {
-    if (useTomcat) stopTomcat();
-    else stopJetty();
-  }
-
-  protected void stopJetty() throws Exception {
-    try {
-      server.stop();
-    } catch (Exception e) {
+    protected static void setAuthenticationHandlerConfig(Properties config) {
+        authenticatorConfig = config;
     }
 
-    try {
-      server.destroy();
-    } catch (Exception e) {
-    }
-  }
+    public static class TestFilter extends AuthenticationFilter {
 
-  protected void stopTomcat() throws Exception {
-    try {
-      tomcat.stop();
-    } catch (Exception e) {
+        @Override
+        protected Properties getConfiguration(String configPrefix, FilterConfig filterConfig) throws ServletException {
+            return authenticatorConfig;
+        }
     }
 
-    try {
-      tomcat.destroy();
-    } catch (Exception e) {
+    @SuppressWarnings("serial")
+    public static class TestServlet extends HttpServlet {
+
+        @Override
+        protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            InputStream is = req.getInputStream();
+            OutputStream os = resp.getOutputStream();
+            int c = is.read();
+            while (c > -1) {
+                os.write(c);
+                c = is.read();
+            }
+            is.close();
+            os.close();
+            resp.setStatus(HttpServletResponse.SC_OK);
+        }
     }
-  }
 
-  protected String getBaseURL() {
-    return "http://" + host + ":" + port + "/foo/bar";
-  }
+    protected int getLocalPort() throws Exception {
+        ServerSocket ss = new ServerSocket(0);
+        int ret = ss.getLocalPort();
+        ss.close();
+        return ret;
+    }
 
-  private static class TestConnectionConfigurator
-      implements ConnectionConfigurator {
-    boolean invoked;
+    protected void start() throws Exception {
+        if (useTomcat) startTomcat();
+        else startJetty();
+    }
 
-    @Override
-    public HttpURLConnection configure(HttpURLConnection conn)
+    protected void startJetty() throws Exception {
+        server = new Server(0);
+        context = new Context();
+        context.setContextPath("/foo");
+        server.setHandler(context);
+        context.addFilter(new FilterHolder(TestFilter.class), "/*", 0);
+        context.addServlet(new ServletHolder(TestServlet.class), "/bar");
+        host = "localhost";
+        port = getLocalPort();
+        server.getConnectors()[0].setHost(host);
+        server.getConnectors()[0].setPort(port);
+        server.start();
+        System.out.println("Running embedded servlet container at: http://" + host + ":" + port);
+    }
+
+    protected void startTomcat() throws Exception {
+        tomcat = new Tomcat();
+        File base = new File(System.getProperty("java.io.tmpdir"));
+        org.apache.catalina.Context ctx =
+            tomcat.addContext("/foo",base.getAbsolutePath());
+        FilterDef fd = new FilterDef();
+        fd.setFilterClass(TestFilter.class.getName());
+        fd.setFilterName("TestFilter");
+        FilterMap fm = new FilterMap();
+        fm.setFilterName("TestFilter");
+        fm.addURLPattern("/*");
+        fm.addServletName("/bar");
+        ctx.addFilterDef(fd);
+        ctx.addFilterMap(fm);
+        tomcat.addServlet(ctx, "/bar", TestServlet.class.getName());
+        ctx.addServletMapping("/bar", "/bar");
+        host = "localhost";
+        port = getLocalPort();
+        tomcat.setHostname(host);
+        tomcat.setPort(port);
+        tomcat.start();
+    }
+
+    protected void stop() throws Exception {
+        if (useTomcat) stopTomcat();
+        else stopJetty();
+    }
+
+    protected void stopJetty() throws Exception {
+        try {
+            server.stop();
+        } catch (Exception e) {
+        }
+
+        try {
+            server.destroy();
+        } catch (Exception e) {
+        }
+    }
+
+    protected void stopTomcat() throws Exception {
+        try {
+            tomcat.stop();
+        } catch (Exception e) {
+        }
+
+        try {
+            tomcat.destroy();
+        } catch (Exception e) {
+        }
+    }
+
+    protected String getBaseURL() {
+        return "http://" + host + ":" + port + "/foo/bar";
+    }
+
+    private static class TestConnectionConfigurator
+        implements ConnectionConfigurator {
+        boolean invoked;
+
+        @Override
+        public HttpURLConnection configure(HttpURLConnection conn)
         throws IOException {
-      invoked = true;
-      return conn;
+            invoked = true;
+            return conn;
+        }
     }
-  }
 
-  private String POST = "test";
+    private String POST = "test";
 
-  protected void _testAuthentication(Authenticator authenticator, boolean doPost) throws Exception {
-    start();
-    try {
-      URL url = new URL(getBaseURL());
-      AuthenticatedURL.Token token = new AuthenticatedURL.Token();
-      Assert.assertFalse(token.isSet());
-      TestConnectionConfigurator connConf = new TestConnectionConfigurator();
-      AuthenticatedURL aUrl = new AuthenticatedURL(authenticator, connConf);
-      HttpURLConnection conn = aUrl.openConnection(url, token);
-      Assert.assertTrue(connConf.invoked);
-      String tokenStr = token.toString();
-      if (doPost) {
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-      }
-      conn.connect();
-      if (doPost) {
-        Writer writer = new OutputStreamWriter(conn.getOutputStream());
-        writer.write(POST);
-        writer.close();
-      }
-      Assert.assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
-      if (doPost) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String echo = reader.readLine();
-        Assert.assertEquals(POST, echo);
-        Assert.assertNull(reader.readLine());
-      }
-      aUrl = new AuthenticatedURL();
-      conn = aUrl.openConnection(url, token);
-      conn.connect();
-      Assert.assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
-      Assert.assertEquals(tokenStr, token.toString());
-    } finally {
-      stop();
+    protected void _testAuthentication(Authenticator authenticator, boolean doPost) throws Exception {
+        start();
+        try {
+            URL url = new URL(getBaseURL());
+            AuthenticatedURL.Token token = new AuthenticatedURL.Token();
+            Assert.assertFalse(token.isSet());
+            TestConnectionConfigurator connConf = new TestConnectionConfigurator();
+            AuthenticatedURL aUrl = new AuthenticatedURL(authenticator, connConf);
+            HttpURLConnection conn = aUrl.openConnection(url, token);
+            Assert.assertTrue(connConf.invoked);
+            String tokenStr = token.toString();
+            if (doPost) {
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+            }
+            conn.connect();
+            if (doPost) {
+                Writer writer = new OutputStreamWriter(conn.getOutputStream());
+                writer.write(POST);
+                writer.close();
+            }
+            Assert.assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
+            if (doPost) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String echo = reader.readLine();
+                Assert.assertEquals(POST, echo);
+                Assert.assertNull(reader.readLine());
+            }
+            aUrl = new AuthenticatedURL();
+            conn = aUrl.openConnection(url, token);
+            conn.connect();
+            Assert.assertEquals(HttpURLConnection.HTTP_OK, conn.getResponseCode());
+            Assert.assertEquals(tokenStr, token.toString());
+        } finally {
+            stop();
+        }
     }
-  }
 
-  private SystemDefaultHttpClient getHttpClient() {
-    final SystemDefaultHttpClient httpClient = new SystemDefaultHttpClient();
-    httpClient.getAuthSchemes().register(AuthPolicy.SPNEGO, new SPNegoSchemeFactory(true));
-     Credentials use_jaas_creds = new Credentials() {
-       public String getPassword() {
-         return null;
-       }
+    private SystemDefaultHttpClient getHttpClient() {
+        final SystemDefaultHttpClient httpClient = new SystemDefaultHttpClient();
+        httpClient.getAuthSchemes().register(AuthPolicy.SPNEGO, new SPNegoSchemeFactory(true));
+        Credentials use_jaas_creds = new Credentials() {
+            public String getPassword() {
+                return null;
+            }
 
-       public Principal getUserPrincipal() {
-         return null;
-       }
-     };
+            public Principal getUserPrincipal() {
+                return null;
+            }
+        };
 
-     httpClient.getCredentialsProvider().setCredentials(
-       AuthScope.ANY, use_jaas_creds);
-     return httpClient;
-  }
-
-  private void doHttpClientRequest(HttpClient httpClient, HttpUriRequest request) throws Exception {
-    HttpResponse response = null;
-    try {
-      response = httpClient.execute(request);
-      final int httpStatus = response.getStatusLine().getStatusCode();
-      Assert.assertEquals(HttpURLConnection.HTTP_OK, httpStatus);
-    } finally {
-      if (response != null) EntityUtils.consumeQuietly(response.getEntity());
+        httpClient.getCredentialsProvider().setCredentials(
+            AuthScope.ANY, use_jaas_creds);
+        return httpClient;
     }
-  }
 
-  protected void _testAuthenticationHttpClient(Authenticator authenticator, boolean doPost) throws Exception {
-    start();
-    try {
-      SystemDefaultHttpClient httpClient = getHttpClient();
-      doHttpClientRequest(httpClient, new HttpGet(getBaseURL()));
-
-      // Always do a GET before POST to trigger the SPNego negotiation
-      if (doPost) {
-        HttpPost post = new HttpPost(getBaseURL());
-        byte [] postBytes = POST.getBytes();
-        ByteArrayInputStream bis = new ByteArrayInputStream(postBytes);
-        InputStreamEntity entity = new InputStreamEntity(bis, postBytes.length);
-
-        // Important that the entity is not repeatable -- this means if
-        // we have to renegotiate (e.g. b/c the cookie wasn't handled properly)
-        // the test will fail.
-        Assert.assertFalse(entity.isRepeatable());
-        post.setEntity(entity);
-        doHttpClientRequest(httpClient, post);
-      }
-    } finally {
-      stop();
+    private void doHttpClientRequest(HttpClient httpClient, HttpUriRequest request) throws Exception {
+        HttpResponse response = null;
+        try {
+            response = httpClient.execute(request);
+            final int httpStatus = response.getStatusLine().getStatusCode();
+            Assert.assertEquals(HttpURLConnection.HTTP_OK, httpStatus);
+        } finally {
+            if (response != null) EntityUtils.consumeQuietly(response.getEntity());
+        }
     }
-  }
+
+    protected void _testAuthenticationHttpClient(Authenticator authenticator, boolean doPost) throws Exception {
+        start();
+        try {
+            SystemDefaultHttpClient httpClient = getHttpClient();
+            doHttpClientRequest(httpClient, new HttpGet(getBaseURL()));
+
+            // Always do a GET before POST to trigger the SPNego negotiation
+            if (doPost) {
+                HttpPost post = new HttpPost(getBaseURL());
+                byte [] postBytes = POST.getBytes();
+                ByteArrayInputStream bis = new ByteArrayInputStream(postBytes);
+                InputStreamEntity entity = new InputStreamEntity(bis, postBytes.length);
+
+                // Important that the entity is not repeatable -- this means if
+                // we have to renegotiate (e.g. b/c the cookie wasn't handled properly)
+                // the test will fail.
+                Assert.assertFalse(entity.isRepeatable());
+                post.setEntity(entity);
+                doHttpClientRequest(httpClient, post);
+            }
+        } finally {
+            stop();
+        }
+    }
 }

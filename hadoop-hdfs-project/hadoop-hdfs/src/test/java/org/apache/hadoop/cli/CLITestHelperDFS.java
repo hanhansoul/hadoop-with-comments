@@ -22,26 +22,26 @@ import org.xml.sax.SAXException;
 
 public class CLITestHelperDFS extends CLITestHelper {
 
-  @Override
-  protected TestConfigFileParser getConfigParser() {
-    return new TestConfigFileParserDFS();
-  }
-
-  class TestConfigFileParserDFS extends CLITestHelper.TestConfigFileParser {
     @Override
-    public void endElement(String uri, String localName, String qName)
-        throws SAXException {
-      if (qName.equals("dfs-admin-command")) {
-        if (testCommands != null) {
-          testCommands.add(new CLITestCmdDFS(charString,
-              new CLICommandDFSAdmin()));
-        } else if (cleanupCommands != null) {
-          cleanupCommands.add(new CLITestCmdDFS(charString,
-              new CLICommandDFSAdmin()));
-        }
-      } else {
-        super.endElement(uri, localName, qName);
-      }
+    protected TestConfigFileParser getConfigParser() {
+        return new TestConfigFileParserDFS();
     }
-  }
+
+    class TestConfigFileParserDFS extends CLITestHelper.TestConfigFileParser {
+        @Override
+        public void endElement(String uri, String localName, String qName)
+        throws SAXException {
+            if (qName.equals("dfs-admin-command")) {
+                if (testCommands != null) {
+                    testCommands.add(new CLITestCmdDFS(charString,
+                                                       new CLICommandDFSAdmin()));
+                } else if (cleanupCommands != null) {
+                    cleanupCommands.add(new CLITestCmdDFS(charString,
+                                                          new CLICommandDFSAdmin()));
+                }
+            } else {
+                super.endElement(uri, localName, qName);
+            }
+        }
+    }
 }

@@ -23,15 +23,15 @@ import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.AWSCredentials;
 
 public class AnonymousAWSCredentialsProvider implements AWSCredentialsProvider {
-  public AWSCredentials getCredentials() {
-    return new AnonymousAWSCredentials();
-  }
+    public AWSCredentials getCredentials() {
+        return new AnonymousAWSCredentials();
+    }
 
-  public void refresh() {}
+    public void refresh() {}
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
 }

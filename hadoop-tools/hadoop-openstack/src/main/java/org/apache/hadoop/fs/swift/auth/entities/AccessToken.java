@@ -41,67 +41,67 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class AccessToken {
-  /**
-   * token expiration time
-   */
-  private String expires;
-  /**
-   * token id
-   */
-  private String id;
-  /**
-   * tenant name for whom id is attached
-   */
-  private Tenant tenant;
+    /**
+     * token expiration time
+     */
+    private String expires;
+    /**
+     * token id
+     */
+    private String id;
+    /**
+     * tenant name for whom id is attached
+     */
+    private Tenant tenant;
 
-  /**
-   * @return token expiration time
-   */
-  public String getExpires() {
-    return expires;
-  }
+    /**
+     * @return token expiration time
+     */
+    public String getExpires() {
+        return expires;
+    }
 
-  /**
-   * @param expires the token expiration time
-   */
-  public void setExpires(String expires) {
-    this.expires = expires;
-  }
+    /**
+     * @param expires the token expiration time
+     */
+    public void setExpires(String expires) {
+        this.expires = expires;
+    }
 
-  /**
-   * @return token value
-   */
-  public String getId() {
-    return id;
-  }
+    /**
+     * @return token value
+     */
+    public String getId() {
+        return id;
+    }
 
-  /**
-   * @param id token value
-   */
-  public void setId(String id) {
-    this.id = id;
-  }
+    /**
+     * @param id token value
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
 
-  /**
-   * @return tenant authenticated in Openstack Keystone
-   */
-  public Tenant getTenant() {
-    return tenant;
-  }
+    /**
+     * @return tenant authenticated in Openstack Keystone
+     */
+    public Tenant getTenant() {
+        return tenant;
+    }
 
-  /**
-   * @param tenant tenant authenticated in Openstack Keystone
-   */
-  public void setTenant(Tenant tenant) {
-    this.tenant = tenant;
-  }
+    /**
+     * @param tenant tenant authenticated in Openstack Keystone
+     */
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
+    }
 
-  @Override
-  public String toString() {
-    return "AccessToken{" +
-            "id='" + id + '\'' +
-            ", tenant=" + tenant +
-            ", expires='" + expires + '\'' +
-            '}';
-  }
+    @Override
+    public String toString() {
+        return "AccessToken{" +
+               "id='" + id + '\'' +
+               ", tenant=" + tenant +
+               ", expires='" + expires + '\'' +
+               '}';
+    }
 }

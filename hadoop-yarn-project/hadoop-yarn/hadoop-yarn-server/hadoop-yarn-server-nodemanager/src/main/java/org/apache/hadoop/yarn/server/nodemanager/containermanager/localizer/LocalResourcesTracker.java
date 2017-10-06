@@ -26,17 +26,17 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.even
 
 /**
  * Component tracking resources all of the same {@link LocalResourceVisibility}
- * 
+ *
  */
 interface LocalResourcesTracker
     extends EventHandler<ResourceEvent>, Iterable<LocalizedResource> {
 
-  boolean remove(LocalizedResource req, DeletionService delService);
+    boolean remove(LocalizedResource req, DeletionService delService);
 
-  Path getPathForLocalization(LocalResourceRequest req, Path localDirPath,
-      DeletionService delService);
+    Path getPathForLocalization(LocalResourceRequest req, Path localDirPath,
+                                DeletionService delService);
 
-  String getUser();
+    String getUser();
 
-  LocalizedResource getLocalizedResource(LocalResourceRequest request);
+    LocalizedResource getLocalizedResource(LocalResourceRequest request);
 }

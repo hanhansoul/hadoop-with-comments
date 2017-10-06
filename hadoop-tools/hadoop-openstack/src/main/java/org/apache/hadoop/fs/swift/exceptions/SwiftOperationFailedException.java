@@ -25,11 +25,11 @@ package org.apache.hadoop.fs.swift.exceptions;
  */
 public class SwiftOperationFailedException extends SwiftException {
 
-  public SwiftOperationFailedException(String message) {
-    super(message);
-  }
+    public SwiftOperationFailedException(String message) {
+        super(message);
+    }
 
-  public SwiftOperationFailedException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public SwiftOperationFailedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

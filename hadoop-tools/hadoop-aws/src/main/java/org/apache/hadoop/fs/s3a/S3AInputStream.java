@@ -33,175 +33,175 @@ import java.net.SocketTimeoutException;
 import java.net.SocketException;
 
 public class S3AInputStream extends FSInputStream {
-  private long pos;
-  private boolean closed;
-  private S3ObjectInputStream wrappedStream;
-  private S3Object wrappedObject;
-  private FileSystem.Statistics stats;
-  private AmazonS3Client client;
-  private String bucket;
-  private String key;
-  private long contentLength;
-  public static final Logger LOG = S3AFileSystem.LOG;
+    private long pos;
+    private boolean closed;
+    private S3ObjectInputStream wrappedStream;
+    private S3Object wrappedObject;
+    private FileSystem.Statistics stats;
+    private AmazonS3Client client;
+    private String bucket;
+    private String key;
+    private long contentLength;
+    public static final Logger LOG = S3AFileSystem.LOG;
 
 
-  public S3AInputStream(String bucket, String key, long contentLength, AmazonS3Client client,
-                        FileSystem.Statistics stats) {
-    this.bucket = bucket;
-    this.key = key;
-    this.contentLength = contentLength;
-    this.client = client;
-    this.stats = stats;
-    this.pos = 0;
-    this.closed = false;
-    this.wrappedObject = null;
-    this.wrappedStream = null;
-  }
-
-  private void openIfNeeded() throws IOException {
-    if (wrappedObject == null) {
-      reopen(0);
-    }
-  }
-
-  private synchronized void reopen(long pos) throws IOException {
-    if (wrappedStream != null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Aborting old stream to open at pos " + pos);
-      }
-      wrappedStream.abort();
+    public S3AInputStream(String bucket, String key, long contentLength, AmazonS3Client client,
+                          FileSystem.Statistics stats) {
+        this.bucket = bucket;
+        this.key = key;
+        this.contentLength = contentLength;
+        this.client = client;
+        this.stats = stats;
+        this.pos = 0;
+        this.closed = false;
+        this.wrappedObject = null;
+        this.wrappedStream = null;
     }
 
-    if (pos < 0) {
-      throw new EOFException("Trying to seek to a negative offset " + pos);
+    private void openIfNeeded() throws IOException {
+        if (wrappedObject == null) {
+            reopen(0);
+        }
     }
 
-    if (contentLength > 0 && pos > contentLength-1) {
-      throw new EOFException("Trying to seek to an offset " + pos + 
-                             " past the end of the file");
+    private synchronized void reopen(long pos) throws IOException {
+        if (wrappedStream != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Aborting old stream to open at pos " + pos);
+            }
+            wrappedStream.abort();
+        }
+
+        if (pos < 0) {
+            throw new EOFException("Trying to seek to a negative offset " + pos);
+        }
+
+        if (contentLength > 0 && pos > contentLength-1) {
+            throw new EOFException("Trying to seek to an offset " + pos +
+                                   " past the end of the file");
+        }
+
+        LOG.info("Actually opening file " + key + " at pos " + pos);
+
+        GetObjectRequest request = new GetObjectRequest(bucket, key);
+        request.setRange(pos, contentLength-1);
+
+        wrappedObject = client.getObject(request);
+        wrappedStream = wrappedObject.getObjectContent();
+
+        if (wrappedStream == null) {
+            throw new IOException("Null IO stream");
+        }
+
+        this.pos = pos;
     }
 
-    LOG.info("Actually opening file " + key + " at pos " + pos);
-
-    GetObjectRequest request = new GetObjectRequest(bucket, key);
-    request.setRange(pos, contentLength-1);
-
-    wrappedObject = client.getObject(request);
-    wrappedStream = wrappedObject.getObjectContent();
-
-    if (wrappedStream == null) {
-      throw new IOException("Null IO stream");
+    @Override
+    public synchronized long getPos() throws IOException {
+        return pos;
     }
 
-    this.pos = pos;
-  }
+    @Override
+    public synchronized void seek(long pos) throws IOException {
+        if (this.pos == pos) {
+            return;
+        }
 
-  @Override
-  public synchronized long getPos() throws IOException {
-    return pos;
-  }
-
-  @Override
-  public synchronized void seek(long pos) throws IOException {
-    if (this.pos == pos) {
-      return;
+        LOG.info("Reopening " + this.key + " to seek to new offset " + (pos - this.pos));
+        reopen(pos);
     }
 
-    LOG.info("Reopening " + this.key + " to seek to new offset " + (pos - this.pos));
-    reopen(pos);
-  }
-
-  @Override
-  public boolean seekToNewSource(long targetPos) throws IOException {
-    return false;
-  }
-
-  @Override
-  public synchronized int read() throws IOException {
-    if (closed) {
-      throw new IOException("Stream closed");
+    @Override
+    public boolean seekToNewSource(long targetPos) throws IOException {
+        return false;
     }
 
-    openIfNeeded();
+    @Override
+    public synchronized int read() throws IOException {
+        if (closed) {
+            throw new IOException("Stream closed");
+        }
 
-    int byteRead;
-    try {
-      byteRead = wrappedStream.read();
-    } catch (SocketTimeoutException e) {
-      LOG.info("Got timeout while trying to read from stream, trying to recover " + e);
-      reopen(pos);
-      byteRead = wrappedStream.read();
-    } catch (SocketException e) {
-      LOG.info("Got socket exception while trying to read from stream, trying to recover " + e);
-      reopen(pos);
-      byteRead = wrappedStream.read();
+        openIfNeeded();
+
+        int byteRead;
+        try {
+            byteRead = wrappedStream.read();
+        } catch (SocketTimeoutException e) {
+            LOG.info("Got timeout while trying to read from stream, trying to recover " + e);
+            reopen(pos);
+            byteRead = wrappedStream.read();
+        } catch (SocketException e) {
+            LOG.info("Got socket exception while trying to read from stream, trying to recover " + e);
+            reopen(pos);
+            byteRead = wrappedStream.read();
+        }
+
+        if (byteRead >= 0) {
+            pos++;
+        }
+
+        if (stats != null && byteRead >= 0) {
+            stats.incrementBytesRead(1);
+        }
+        return byteRead;
     }
 
-    if (byteRead >= 0) {
-      pos++;
+    @Override
+    public synchronized int read(byte buf[], int off, int len) throws IOException {
+        if (closed) {
+            throw new IOException("Stream closed");
+        }
+
+        openIfNeeded();
+
+        int byteRead;
+        try {
+            byteRead = wrappedStream.read(buf, off, len);
+        } catch (SocketTimeoutException e) {
+            LOG.info("Got timeout while trying to read from stream, trying to recover " + e);
+            reopen(pos);
+            byteRead = wrappedStream.read(buf, off, len);
+        } catch (SocketException e) {
+            LOG.info("Got socket exception while trying to read from stream, trying to recover " + e);
+            reopen(pos);
+            byteRead = wrappedStream.read(buf, off, len);
+        }
+
+        if (byteRead > 0) {
+            pos += byteRead;
+        }
+
+        if (stats != null && byteRead > 0) {
+            stats.incrementBytesRead(byteRead);
+        }
+
+        return byteRead;
     }
 
-    if (stats != null && byteRead >= 0) {
-      stats.incrementBytesRead(1);
-    }
-    return byteRead;
-  }
-
-  @Override
-  public synchronized int read(byte buf[], int off, int len) throws IOException {
-    if (closed) {
-      throw new IOException("Stream closed");
+    @Override
+    public synchronized void close() throws IOException {
+        super.close();
+        closed = true;
+        if (wrappedObject != null) {
+            wrappedObject.close();
+        }
     }
 
-    openIfNeeded();
-
-    int byteRead;
-    try {
-      byteRead = wrappedStream.read(buf, off, len);
-    } catch (SocketTimeoutException e) {
-      LOG.info("Got timeout while trying to read from stream, trying to recover " + e);
-      reopen(pos);
-      byteRead = wrappedStream.read(buf, off, len);
-    } catch (SocketException e) {
-      LOG.info("Got socket exception while trying to read from stream, trying to recover " + e);
-      reopen(pos);
-      byteRead = wrappedStream.read(buf, off, len);
+    @Override
+    public synchronized int available() throws IOException {
+        if (closed) {
+            throw new IOException("Stream closed");
+        }
+        long remaining = this.contentLength - this.pos;
+        if (remaining > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int)remaining;
     }
 
-    if (byteRead > 0) {
-      pos += byteRead;
+    @Override
+    public boolean markSupported() {
+        return false;
     }
-
-    if (stats != null && byteRead > 0) {
-      stats.incrementBytesRead(byteRead);
-    }
-
-    return byteRead;
-  }
-
-  @Override
-  public synchronized void close() throws IOException {
-    super.close();
-    closed = true;
-    if (wrappedObject != null) {
-      wrappedObject.close();
-    }
-  }
-
-  @Override
-  public synchronized int available() throws IOException {
-    if (closed) {
-      throw new IOException("Stream closed");
-    }
-    long remaining = this.contentLength - this.pos;
-    if (remaining > Integer.MAX_VALUE) {
-      return Integer.MAX_VALUE;
-    }
-    return (int)remaining;
-  }
-
-  @Override
-  public boolean markSupported() {
-    return false;
-  }
 }

@@ -26,26 +26,26 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 public class RandomSignerSecretProvider extends RolloverSignerSecretProvider {
 
-  private final Random rand;
+    private final Random rand;
 
-  public RandomSignerSecretProvider() {
-    super();
-    rand = new Random();
-  }
+    public RandomSignerSecretProvider() {
+        super();
+        rand = new Random();
+    }
 
-  /**
-   * This constructor lets you set the seed of the Random Number Generator and
-   * is meant for testing.
-   * @param seed the seed for the random number generator
-   */
-  @VisibleForTesting
-  public RandomSignerSecretProvider(long seed) {
-    super();
-    rand = new Random(seed);
-  }
+    /**
+     * This constructor lets you set the seed of the Random Number Generator and
+     * is meant for testing.
+     * @param seed the seed for the random number generator
+     */
+    @VisibleForTesting
+    public RandomSignerSecretProvider(long seed) {
+        super();
+        rand = new Random(seed);
+    }
 
-  @Override
-  protected byte[] generateNewSecret() {
-    return Long.toString(rand.nextLong()).getBytes();
-  }
+    @Override
+    protected byte[] generateNewSecret() {
+        return Long.toString(rand.nextLong()).getBytes();
+    }
 }

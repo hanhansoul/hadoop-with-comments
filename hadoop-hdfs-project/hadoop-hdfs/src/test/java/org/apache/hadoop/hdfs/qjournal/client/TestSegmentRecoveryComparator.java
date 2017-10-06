@@ -32,63 +32,63 @@ import com.google.common.collect.Maps;
 import static org.apache.hadoop.hdfs.qjournal.client.SegmentRecoveryComparator.INSTANCE;
 
 public class TestSegmentRecoveryComparator {
-  
-  private static Map.Entry<AsyncLogger, PrepareRecoveryResponseProto> makeEntry(
-      PrepareRecoveryResponseProto proto) {
-    return Maps.immutableEntry(Mockito.mock(AsyncLogger.class), proto);
-  }
-  
-  @Test
-  public void testComparisons() {
-    Entry<AsyncLogger, PrepareRecoveryResponseProto> INPROGRESS_1_3 =
-        makeEntry(PrepareRecoveryResponseProto.newBuilder()
-          .setSegmentState(SegmentStateProto.newBuilder()
-              .setStartTxId(1L)
-              .setEndTxId(3L)
-              .setIsInProgress(true))
-          .setLastWriterEpoch(0L)
-          .build());
-    Entry<AsyncLogger, PrepareRecoveryResponseProto> INPROGRESS_1_4 =
-        makeEntry(PrepareRecoveryResponseProto.newBuilder()
-          .setSegmentState(SegmentStateProto.newBuilder()
-              .setStartTxId(1L)
-              .setEndTxId(4L)
-              .setIsInProgress(true))
-          .setLastWriterEpoch(0L)
-          .build());
-    Entry<AsyncLogger, PrepareRecoveryResponseProto> INPROGRESS_1_4_ACCEPTED =
-        makeEntry(PrepareRecoveryResponseProto.newBuilder()
-          .setSegmentState(SegmentStateProto.newBuilder()
-              .setStartTxId(1L)
-              .setEndTxId(4L)
-              .setIsInProgress(true))
-          .setLastWriterEpoch(0L)
-          .setAcceptedInEpoch(1L)
-          .build());
 
-    Entry<AsyncLogger, PrepareRecoveryResponseProto> FINALIZED_1_3 =
-        makeEntry(PrepareRecoveryResponseProto.newBuilder()
-          .setSegmentState(SegmentStateProto.newBuilder()
-              .setStartTxId(1L)
-              .setEndTxId(3L)
-              .setIsInProgress(false))
-          .setLastWriterEpoch(0L)
-          .build());
+    private static Map.Entry<AsyncLogger, PrepareRecoveryResponseProto> makeEntry(
+        PrepareRecoveryResponseProto proto) {
+        return Maps.immutableEntry(Mockito.mock(AsyncLogger.class), proto);
+    }
 
-    // Should compare equal to itself
-    assertEquals(0, INSTANCE.compare(INPROGRESS_1_3, INPROGRESS_1_3));
-    
-    // Longer log wins.
-    assertEquals(-1, INSTANCE.compare(INPROGRESS_1_3, INPROGRESS_1_4));
-    assertEquals(1, INSTANCE.compare(INPROGRESS_1_4, INPROGRESS_1_3));
-    
-    // Finalized log wins even over a longer in-progress
-    assertEquals(-1, INSTANCE.compare(INPROGRESS_1_4, FINALIZED_1_3));
-    assertEquals(1, INSTANCE.compare(FINALIZED_1_3, INPROGRESS_1_4));
+    @Test
+    public void testComparisons() {
+        Entry<AsyncLogger, PrepareRecoveryResponseProto> INPROGRESS_1_3 =
+            makeEntry(PrepareRecoveryResponseProto.newBuilder()
+                      .setSegmentState(SegmentStateProto.newBuilder()
+                                       .setStartTxId(1L)
+                                       .setEndTxId(3L)
+                                       .setIsInProgress(true))
+                      .setLastWriterEpoch(0L)
+                      .build());
+        Entry<AsyncLogger, PrepareRecoveryResponseProto> INPROGRESS_1_4 =
+            makeEntry(PrepareRecoveryResponseProto.newBuilder()
+                      .setSegmentState(SegmentStateProto.newBuilder()
+                                       .setStartTxId(1L)
+                                       .setEndTxId(4L)
+                                       .setIsInProgress(true))
+                      .setLastWriterEpoch(0L)
+                      .build());
+        Entry<AsyncLogger, PrepareRecoveryResponseProto> INPROGRESS_1_4_ACCEPTED =
+            makeEntry(PrepareRecoveryResponseProto.newBuilder()
+                      .setSegmentState(SegmentStateProto.newBuilder()
+                                       .setStartTxId(1L)
+                                       .setEndTxId(4L)
+                                       .setIsInProgress(true))
+                      .setLastWriterEpoch(0L)
+                      .setAcceptedInEpoch(1L)
+                      .build());
 
-    // Finalized log wins even if the in-progress one has an accepted
-    // recovery proposal.
-    assertEquals(-1, INSTANCE.compare(INPROGRESS_1_4_ACCEPTED, FINALIZED_1_3));
-    assertEquals(1, INSTANCE.compare(FINALIZED_1_3, INPROGRESS_1_4_ACCEPTED));
-  }
+        Entry<AsyncLogger, PrepareRecoveryResponseProto> FINALIZED_1_3 =
+            makeEntry(PrepareRecoveryResponseProto.newBuilder()
+                      .setSegmentState(SegmentStateProto.newBuilder()
+                                       .setStartTxId(1L)
+                                       .setEndTxId(3L)
+                                       .setIsInProgress(false))
+                      .setLastWriterEpoch(0L)
+                      .build());
+
+        // Should compare equal to itself
+        assertEquals(0, INSTANCE.compare(INPROGRESS_1_3, INPROGRESS_1_3));
+
+        // Longer log wins.
+        assertEquals(-1, INSTANCE.compare(INPROGRESS_1_3, INPROGRESS_1_4));
+        assertEquals(1, INSTANCE.compare(INPROGRESS_1_4, INPROGRESS_1_3));
+
+        // Finalized log wins even over a longer in-progress
+        assertEquals(-1, INSTANCE.compare(INPROGRESS_1_4, FINALIZED_1_3));
+        assertEquals(1, INSTANCE.compare(FINALIZED_1_3, INPROGRESS_1_4));
+
+        // Finalized log wins even if the in-progress one has an accepted
+        // recovery proposal.
+        assertEquals(-1, INSTANCE.compare(INPROGRESS_1_4_ACCEPTED, FINALIZED_1_3));
+        assertEquals(1, INSTANCE.compare(FINALIZED_1_3, INPROGRESS_1_4_ACCEPTED));
+    }
 }

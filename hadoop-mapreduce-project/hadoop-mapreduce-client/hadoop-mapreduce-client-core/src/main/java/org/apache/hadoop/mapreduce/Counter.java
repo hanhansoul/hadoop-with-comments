@@ -37,47 +37,47 @@ import org.apache.hadoop.io.Writable;
 @InterfaceStability.Stable
 public interface Counter extends Writable {
 
-  /**
-   * Set the display name of the counter
-   * @param displayName of the counter
-   * @deprecated (and no-op by default)
-   */
-  @Deprecated
-  void setDisplayName(String displayName);
+    /**
+     * Set the display name of the counter
+     * @param displayName of the counter
+     * @deprecated (and no-op by default)
+     */
+    @Deprecated
+    void setDisplayName(String displayName);
 
-  /**
-   * @return the name of the counter
-   */
-  String getName();
+    /**
+     * @return the name of the counter
+     */
+    String getName();
 
-  /**
-   * Get the display name of the counter.
-   * @return the user facing name of the counter
-   */
-  String getDisplayName();
+    /**
+     * Get the display name of the counter.
+     * @return the user facing name of the counter
+     */
+    String getDisplayName();
 
-  /**
-   * What is the current value of this counter?
-   * @return the current value
-   */
-  long getValue();
+    /**
+     * What is the current value of this counter?
+     * @return the current value
+     */
+    long getValue();
 
-  /**
-   * Set this counter by the given value
-   * @param value the value to set
-   */
-  void setValue(long value);
+    /**
+     * Set this counter by the given value
+     * @param value the value to set
+     */
+    void setValue(long value);
 
-  /**
-   * Increment this counter by the given value
-   * @param incr the value to increase this counter by
-   */
-  void increment(long incr);
- 
-  @Private
-  /**
-   * Return the underlying object if this is a facade.
-   * @return the undelying object.
-   */
-  Counter getUnderlyingCounter();
+    /**
+     * Increment this counter by the given value
+     * @param incr the value to increase this counter by
+     */
+    void increment(long incr);
+
+    @Private
+    /**
+     * Return the underlying object if this is a facade.
+     * @return the undelying object.
+     */
+    Counter getUnderlyingCounter();
 }

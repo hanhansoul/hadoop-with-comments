@@ -37,57 +37,57 @@ import com.google.inject.Inject;
 
 public class ContainerPage extends NMView implements YarnWebParams {
 
-  @Override
-  protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    @Override
+    protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
 
-    setTitle("Container " + $(CONTAINER_ID));
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:0}");
-  }
-
-  @Override
-  protected Class<? extends SubView> content() {
-    return ContainerBlock.class;
-  }
-
-  public static class ContainerBlock extends HtmlBlock implements YarnWebParams {
-
-    private final Context nmContext;
-
-    @Inject
-    public ContainerBlock(Context nmContext) {
-      this.nmContext = nmContext;
+        setTitle("Container " + $(CONTAINER_ID));
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:0}");
     }
 
     @Override
-    protected void render(Block html) {
-      ContainerId containerID;
-      try {
-        containerID = ConverterUtils.toContainerId($(CONTAINER_ID));
-      } catch (IllegalArgumentException e) {
-        html.p()._("Invalid containerId " + $(CONTAINER_ID))._();
-        return;
-      }
-
-      DIV<Hamlet> div = html.div("#content");
-      Container container = this.nmContext.getContainers().get(containerID);
-      if (container == null) {
-        div.h1("Unknown Container. Container might have completed, "
-                + "please go back to the previous page and retry.")._();
-        return;
-      }
-      ContainerInfo info = new ContainerInfo(this.nmContext, container);
-
-      info("Container information")
-        ._("ContainerID", info.getId())
-        ._("ContainerState", info.getState())
-        ._("ExitStatus", info.getExitStatus())
-        ._("Diagnostics", info.getDiagnostics())
-        ._("User", info.getUser())
-        ._("TotalMemoryNeeded", info.getMemoryNeeded())
-        ._("TotalVCoresNeeded", info.getVCoresNeeded())
-        ._("logs", info.getShortLogLink(), "Link to logs");
-      html._(InfoBlock.class);
+    protected Class<? extends SubView> content() {
+        return ContainerBlock.class;
     }
-  }
+
+    public static class ContainerBlock extends HtmlBlock implements YarnWebParams {
+
+        private final Context nmContext;
+
+        @Inject
+        public ContainerBlock(Context nmContext) {
+            this.nmContext = nmContext;
+        }
+
+        @Override
+        protected void render(Block html) {
+            ContainerId containerID;
+            try {
+                containerID = ConverterUtils.toContainerId($(CONTAINER_ID));
+            } catch (IllegalArgumentException e) {
+                html.p()._("Invalid containerId " + $(CONTAINER_ID))._();
+                return;
+            }
+
+            DIV<Hamlet> div = html.div("#content");
+            Container container = this.nmContext.getContainers().get(containerID);
+            if (container == null) {
+                div.h1("Unknown Container. Container might have completed, "
+                       + "please go back to the previous page and retry.")._();
+                return;
+            }
+            ContainerInfo info = new ContainerInfo(this.nmContext, container);
+
+            info("Container information")
+            ._("ContainerID", info.getId())
+            ._("ContainerState", info.getState())
+            ._("ExitStatus", info.getExitStatus())
+            ._("Diagnostics", info.getDiagnostics())
+            ._("User", info.getUser())
+            ._("TotalMemoryNeeded", info.getMemoryNeeded())
+            ._("TotalVCoresNeeded", info.getVCoresNeeded())
+            ._("logs", info.getShortLogLink(), "Link to logs");
+            html._(InfoBlock.class);
+        }
+    }
 }

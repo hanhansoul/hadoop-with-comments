@@ -22,11 +22,11 @@ import org.apache.hadoop.yarn.webapp.View;
 /**
  *  override method render() for test
  */
-public class ViewForTest extends View{
+public class ViewForTest extends View {
 
-  @Override
-  public void render() {
-    
-  }
+    @Override
+    public void render() {
+
+    }
 
 }

@@ -29,20 +29,20 @@ import org.apache.hadoop.yarn.util.Records;
  * control system in the {@code ResourceManager} to a reservation update
  * operation. Currently response is empty if the operation was successful, if
  * not an exception reporting reason for a failure.
- * 
+ *
  * @see ReservationDefinition
- * 
+ *
  */
 @Public
 @Unstable
 public abstract class ReservationUpdateResponse {
 
-  @Private
-  @Unstable
-  public static ReservationUpdateResponse newInstance() {
-    ReservationUpdateResponse response =
-        Records.newRecord(ReservationUpdateResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static ReservationUpdateResponse newInstance() {
+        ReservationUpdateResponse response =
+            Records.newRecord(ReservationUpdateResponse.class);
+        return response;
+    }
 
 }

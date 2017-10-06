@@ -26,33 +26,33 @@ import org.apache.hadoop.yarn.util.Records;
 
 
 public abstract class NodeStatus {
-  
-  public static NodeStatus newInstance(NodeId nodeId, int responseId,
-      List<ContainerStatus> containerStatuses,
-      List<ApplicationId> keepAliveApplications,
-      NodeHealthStatus nodeHealthStatus) {
-    NodeStatus nodeStatus = Records.newRecord(NodeStatus.class);
-    nodeStatus.setResponseId(responseId);
-    nodeStatus.setNodeId(nodeId);
-    nodeStatus.setContainersStatuses(containerStatuses);
-    nodeStatus.setKeepAliveApplications(keepAliveApplications);
-    nodeStatus.setNodeHealthStatus(nodeHealthStatus);
-    return nodeStatus;
-  }
 
-  public abstract NodeId getNodeId();
-  public abstract int getResponseId();
-  
-  public abstract List<ContainerStatus> getContainersStatuses();
-  public abstract void setContainersStatuses(
-      List<ContainerStatus> containersStatuses);
+    public static NodeStatus newInstance(NodeId nodeId, int responseId,
+                                         List<ContainerStatus> containerStatuses,
+                                         List<ApplicationId> keepAliveApplications,
+                                         NodeHealthStatus nodeHealthStatus) {
+        NodeStatus nodeStatus = Records.newRecord(NodeStatus.class);
+        nodeStatus.setResponseId(responseId);
+        nodeStatus.setNodeId(nodeId);
+        nodeStatus.setContainersStatuses(containerStatuses);
+        nodeStatus.setKeepAliveApplications(keepAliveApplications);
+        nodeStatus.setNodeHealthStatus(nodeHealthStatus);
+        return nodeStatus;
+    }
 
-  public abstract List<ApplicationId> getKeepAliveApplications();
-  public abstract void setKeepAliveApplications(List<ApplicationId> appIds);
-  
-  public abstract NodeHealthStatus getNodeHealthStatus();
-  public abstract void setNodeHealthStatus(NodeHealthStatus healthStatus);
+    public abstract NodeId getNodeId();
+    public abstract int getResponseId();
 
-  public abstract void setNodeId(NodeId nodeId);
-  public abstract void setResponseId(int responseId);
+    public abstract List<ContainerStatus> getContainersStatuses();
+    public abstract void setContainersStatuses(
+        List<ContainerStatus> containersStatuses);
+
+    public abstract List<ApplicationId> getKeepAliveApplications();
+    public abstract void setKeepAliveApplications(List<ApplicationId> appIds);
+
+    public abstract NodeHealthStatus getNodeHealthStatus();
+    public abstract void setNodeHealthStatus(NodeHealthStatus healthStatus);
+
+    public abstract void setNodeId(NodeId nodeId);
+    public abstract void setResponseId(int responseId);
 }

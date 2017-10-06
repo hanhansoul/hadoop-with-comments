@@ -26,11 +26,11 @@ import org.apache.hadoop.yarn.util.Records;
 @Private
 @Stable
 public abstract class RefreshQueuesResponse {
-  @Private
-  @Unstable
-  public static RefreshQueuesResponse newInstance() {
-    RefreshQueuesResponse response =
-        Records.newRecord(RefreshQueuesResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static RefreshQueuesResponse newInstance() {
+        RefreshQueuesResponse response =
+            Records.newRecord(RefreshQueuesResponse.class);
+        return response;
+    }
 }

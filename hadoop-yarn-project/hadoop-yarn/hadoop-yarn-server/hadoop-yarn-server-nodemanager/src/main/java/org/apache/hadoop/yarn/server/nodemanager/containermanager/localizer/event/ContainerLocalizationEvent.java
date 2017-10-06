@@ -21,15 +21,15 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Cont
 
 public class ContainerLocalizationEvent extends LocalizationEvent {
 
-  final Container container;
+    final Container container;
 
-  public ContainerLocalizationEvent(LocalizationEventType event, Container c) {
-    super(event);
-    this.container = c;
-  }
+    public ContainerLocalizationEvent(LocalizationEventType event, Container c) {
+        super(event);
+        this.container = c;
+    }
 
-  public Container getContainer() {
-    return container;
-  }
+    public Container getContainer() {
+        return container;
+    }
 
 }

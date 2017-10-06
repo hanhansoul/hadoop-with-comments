@@ -33,63 +33,63 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AMAttemptInfo {
 
-  protected String nodeHttpAddress;
-  protected String nodeId;
-  protected int id;
-  protected long startTime;
-  protected String containerId;
-  protected String logsLink;
+    protected String nodeHttpAddress;
+    protected String nodeId;
+    protected int id;
+    protected long startTime;
+    protected String containerId;
+    protected String logsLink;
 
-  public AMAttemptInfo() {
-  }
-
-  public AMAttemptInfo(AMInfo amInfo, String jobId, String user) {
-
-    this.nodeHttpAddress = "";
-    this.nodeId = "";
-    String nmHost = amInfo.getNodeManagerHost();
-    int nmHttpPort = amInfo.getNodeManagerHttpPort();
-    int nmPort = amInfo.getNodeManagerPort();
-    if (nmHost != null) {
-      this.nodeHttpAddress = nmHost + ":" + nmHttpPort;
-      NodeId nodeId = NodeId.newInstance(nmHost, nmPort);
-      this.nodeId = nodeId.toString();
+    public AMAttemptInfo() {
     }
 
-    this.id = amInfo.getAppAttemptId().getAttemptId();
-    this.startTime = amInfo.getStartTime();
-    this.containerId = "";
-    this.logsLink = "";
-    ContainerId containerId = amInfo.getContainerId();
-    if (containerId != null) {
-      this.containerId = containerId.toString();
-      this.logsLink = join(MRWebAppUtil.getYARNWebappScheme() + nodeHttpAddress,
-          ujoin("node", "containerlogs", this.containerId, user));
+    public AMAttemptInfo(AMInfo amInfo, String jobId, String user) {
+
+        this.nodeHttpAddress = "";
+        this.nodeId = "";
+        String nmHost = amInfo.getNodeManagerHost();
+        int nmHttpPort = amInfo.getNodeManagerHttpPort();
+        int nmPort = amInfo.getNodeManagerPort();
+        if (nmHost != null) {
+            this.nodeHttpAddress = nmHost + ":" + nmHttpPort;
+            NodeId nodeId = NodeId.newInstance(nmHost, nmPort);
+            this.nodeId = nodeId.toString();
+        }
+
+        this.id = amInfo.getAppAttemptId().getAttemptId();
+        this.startTime = amInfo.getStartTime();
+        this.containerId = "";
+        this.logsLink = "";
+        ContainerId containerId = amInfo.getContainerId();
+        if (containerId != null) {
+            this.containerId = containerId.toString();
+            this.logsLink = join(MRWebAppUtil.getYARNWebappScheme() + nodeHttpAddress,
+                                 ujoin("node", "containerlogs", this.containerId, user));
+        }
     }
-  }
 
-  public String getNodeHttpAddress() {
-    return this.nodeHttpAddress;
-  }
+    public String getNodeHttpAddress() {
+        return this.nodeHttpAddress;
+    }
 
-  public String getNodeId() {
-    return this.nodeId;
-  }
+    public String getNodeId() {
+        return this.nodeId;
+    }
 
-  public int getAttemptId() {
-    return this.id;
-  }
+    public int getAttemptId() {
+        return this.id;
+    }
 
-  public long getStartTime() {
-    return this.startTime;
-  }
+    public long getStartTime() {
+        return this.startTime;
+    }
 
-  public String getContainerId() {
-    return this.containerId;
-  }
+    public String getContainerId() {
+        return this.containerId;
+    }
 
-  public String getLogsLink() {
-    return this.logsLink;
-  }
+    public String getLogsLink() {
+        return this.logsLink;
+    }
 
 }

@@ -22,12 +22,12 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class SystemMetricsEvent extends AbstractEvent<SystemMetricsEventType> {
 
-  public SystemMetricsEvent(SystemMetricsEventType type) {
-    super(type);
-  }
+    public SystemMetricsEvent(SystemMetricsEventType type) {
+        super(type);
+    }
 
-  public SystemMetricsEvent(SystemMetricsEventType type, long timestamp) {
-    super(type, timestamp);
-  }
+    public SystemMetricsEvent(SystemMetricsEventType type, long timestamp) {
+        super(type, timestamp);
+    }
 
 }

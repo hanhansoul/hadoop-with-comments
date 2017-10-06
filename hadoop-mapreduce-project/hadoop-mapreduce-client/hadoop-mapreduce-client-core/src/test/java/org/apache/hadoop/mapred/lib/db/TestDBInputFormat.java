@@ -38,120 +38,120 @@ import static org.mockito.Mockito.*;
 
 public class TestDBInputFormat {
 
-  /**
-   * test DBInputFormat class. Class should split result for chunks
-   * @throws Exception
-   */
-  @Test(timeout = 10000)
-  public void testDBInputFormat() throws Exception {
-    JobConf configuration = new JobConf();
-    setupDriver(configuration);
-    
-    DBInputFormat<NullDBWritable> format = new DBInputFormat<NullDBWritable>();
-    format.setConf(configuration);
-    format.setConf(configuration);
-    DBInputFormat.DBInputSplit splitter = new DBInputFormat.DBInputSplit(1, 10);
-    Reporter reporter = mock(Reporter.class);
-    RecordReader<LongWritable, NullDBWritable> reader = format.getRecordReader(
-        splitter, configuration, reporter);
+    /**
+     * test DBInputFormat class. Class should split result for chunks
+     * @throws Exception
+     */
+    @Test(timeout = 10000)
+    public void testDBInputFormat() throws Exception {
+        JobConf configuration = new JobConf();
+        setupDriver(configuration);
 
-    configuration.setInt(MRJobConfig.NUM_MAPS, 3);
-    InputSplit[] lSplits = format.getSplits(configuration, 3);
-    assertEquals(5, lSplits[0].getLength());
-    assertEquals(3, lSplits.length);
+        DBInputFormat<NullDBWritable> format = new DBInputFormat<NullDBWritable>();
+        format.setConf(configuration);
+        format.setConf(configuration);
+        DBInputFormat.DBInputSplit splitter = new DBInputFormat.DBInputSplit(1, 10);
+        Reporter reporter = mock(Reporter.class);
+        RecordReader<LongWritable, NullDBWritable> reader = format.getRecordReader(
+                    splitter, configuration, reporter);
 
-    // test reader .Some simple tests
-    assertEquals(LongWritable.class, reader.createKey().getClass());
-    assertEquals(0, reader.getPos());
-    assertEquals(0, reader.getProgress(), 0.001);
-    reader.close();
-  }
-  
-  /** 
-   * test configuration for db. should works DBConfiguration.* parameters. 
-   */
-  @Test (timeout = 5000)
-  public void testSetInput() {
-    JobConf configuration = new JobConf();
+        configuration.setInt(MRJobConfig.NUM_MAPS, 3);
+        InputSplit[] lSplits = format.getSplits(configuration, 3);
+        assertEquals(5, lSplits[0].getLength());
+        assertEquals(3, lSplits.length);
 
-    String[] fieldNames = { "field1", "field2" };
-    DBInputFormat.setInput(configuration, NullDBWritable.class, "table",
-        "conditions", "orderBy", fieldNames);
-    assertEquals(
-        "org.apache.hadoop.mapred.lib.db.DBInputFormat$NullDBWritable",
-        configuration.getClass(DBConfiguration.INPUT_CLASS_PROPERTY, null)
+        // test reader .Some simple tests
+        assertEquals(LongWritable.class, reader.createKey().getClass());
+        assertEquals(0, reader.getPos());
+        assertEquals(0, reader.getProgress(), 0.001);
+        reader.close();
+    }
+
+    /**
+     * test configuration for db. should works DBConfiguration.* parameters.
+     */
+    @Test (timeout = 5000)
+    public void testSetInput() {
+        JobConf configuration = new JobConf();
+
+        String[] fieldNames = { "field1", "field2" };
+        DBInputFormat.setInput(configuration, NullDBWritable.class, "table",
+                               "conditions", "orderBy", fieldNames);
+        assertEquals(
+            "org.apache.hadoop.mapred.lib.db.DBInputFormat$NullDBWritable",
+            configuration.getClass(DBConfiguration.INPUT_CLASS_PROPERTY, null)
             .getName());
-    assertEquals("table",
-        configuration.get(DBConfiguration.INPUT_TABLE_NAME_PROPERTY, null));
+        assertEquals("table",
+                     configuration.get(DBConfiguration.INPUT_TABLE_NAME_PROPERTY, null));
 
-    String[] fields = configuration
-        .getStrings(DBConfiguration.INPUT_FIELD_NAMES_PROPERTY);
-    assertEquals("field1", fields[0]);
-    assertEquals("field2", fields[1]);
+        String[] fields = configuration
+                          .getStrings(DBConfiguration.INPUT_FIELD_NAMES_PROPERTY);
+        assertEquals("field1", fields[0]);
+        assertEquals("field2", fields[1]);
 
-    assertEquals("conditions",
-        configuration.get(DBConfiguration.INPUT_CONDITIONS_PROPERTY, null));
-    assertEquals("orderBy",
-        configuration.get(DBConfiguration.INPUT_ORDER_BY_PROPERTY, null));
+        assertEquals("conditions",
+                     configuration.get(DBConfiguration.INPUT_CONDITIONS_PROPERTY, null));
+        assertEquals("orderBy",
+                     configuration.get(DBConfiguration.INPUT_ORDER_BY_PROPERTY, null));
 
-    configuration = new JobConf();
+        configuration = new JobConf();
 
-    DBInputFormat.setInput(configuration, NullDBWritable.class, "query",
-        "countQuery");
-    assertEquals("query", configuration.get(DBConfiguration.INPUT_QUERY, null));
-    assertEquals("countQuery",
-        configuration.get(DBConfiguration.INPUT_COUNT_QUERY, null));
-    
-    JobConf jConfiguration = new JobConf();
-    DBConfiguration.configureDB(jConfiguration, "driverClass", "dbUrl", "user",
-        "password");
-    assertEquals("driverClass",
-        jConfiguration.get(DBConfiguration.DRIVER_CLASS_PROPERTY));
-    assertEquals("dbUrl", jConfiguration.get(DBConfiguration.URL_PROPERTY));
-    assertEquals("user", jConfiguration.get(DBConfiguration.USERNAME_PROPERTY));
-    assertEquals("password",
-        jConfiguration.get(DBConfiguration.PASSWORD_PROPERTY));
-    jConfiguration = new JobConf();
-    DBConfiguration.configureDB(jConfiguration, "driverClass", "dbUrl");
-    assertEquals("driverClass",
-        jConfiguration.get(DBConfiguration.DRIVER_CLASS_PROPERTY));
-    assertEquals("dbUrl", jConfiguration.get(DBConfiguration.URL_PROPERTY));
-    assertNull(jConfiguration.get(DBConfiguration.USERNAME_PROPERTY));
-    assertNull(jConfiguration.get(DBConfiguration.PASSWORD_PROPERTY));
-  }
+        DBInputFormat.setInput(configuration, NullDBWritable.class, "query",
+                               "countQuery");
+        assertEquals("query", configuration.get(DBConfiguration.INPUT_QUERY, null));
+        assertEquals("countQuery",
+                     configuration.get(DBConfiguration.INPUT_COUNT_QUERY, null));
 
-  /**
-   * 
-   * test DBRecordReader. This reader should creates keys, values, know about position.. 
-   */
-  @SuppressWarnings("unchecked")
-  @Test (timeout = 5000)
-  public void testDBRecordReader() throws Exception {
+        JobConf jConfiguration = new JobConf();
+        DBConfiguration.configureDB(jConfiguration, "driverClass", "dbUrl", "user",
+                                    "password");
+        assertEquals("driverClass",
+                     jConfiguration.get(DBConfiguration.DRIVER_CLASS_PROPERTY));
+        assertEquals("dbUrl", jConfiguration.get(DBConfiguration.URL_PROPERTY));
+        assertEquals("user", jConfiguration.get(DBConfiguration.USERNAME_PROPERTY));
+        assertEquals("password",
+                     jConfiguration.get(DBConfiguration.PASSWORD_PROPERTY));
+        jConfiguration = new JobConf();
+        DBConfiguration.configureDB(jConfiguration, "driverClass", "dbUrl");
+        assertEquals("driverClass",
+                     jConfiguration.get(DBConfiguration.DRIVER_CLASS_PROPERTY));
+        assertEquals("dbUrl", jConfiguration.get(DBConfiguration.URL_PROPERTY));
+        assertNull(jConfiguration.get(DBConfiguration.USERNAME_PROPERTY));
+        assertNull(jConfiguration.get(DBConfiguration.PASSWORD_PROPERTY));
+    }
 
-    JobConf job = mock(JobConf.class);
-    DBConfiguration dbConfig = mock(DBConfiguration.class);
-    String[] fields = { "field1", "filed2" };
+    /**
+     *
+     * test DBRecordReader. This reader should creates keys, values, know about position..
+     */
+    @SuppressWarnings("unchecked")
+    @Test (timeout = 5000)
+    public void testDBRecordReader() throws Exception {
 
-    @SuppressWarnings("rawtypes")
-    DBRecordReader reader = new DBInputFormat<NullDBWritable>().new DBRecordReader(
-        new DBInputSplit(),  NullDBWritable.class, job,
-        DriverForTest.getConnection(), dbConfig, "condition", fields, "table");
-    LongWritable key = reader.createKey();
-    assertEquals(0, key.get());
-    DBWritable value = reader.createValue();
-    assertEquals(
-        "org.apache.hadoop.mapred.lib.db.DBInputFormat$NullDBWritable", value
+        JobConf job = mock(JobConf.class);
+        DBConfiguration dbConfig = mock(DBConfiguration.class);
+        String[] fields = { "field1", "filed2" };
+
+        @SuppressWarnings("rawtypes")
+        DBRecordReader reader = new DBInputFormat<NullDBWritable>().new DBRecordReader(
+            new DBInputSplit(),  NullDBWritable.class, job,
+            DriverForTest.getConnection(), dbConfig, "condition", fields, "table");
+        LongWritable key = reader.createKey();
+        assertEquals(0, key.get());
+        DBWritable value = reader.createValue();
+        assertEquals(
+            "org.apache.hadoop.mapred.lib.db.DBInputFormat$NullDBWritable", value
             .getClass().getName());
-    assertEquals(0, reader.getPos());
-    assertFalse(reader.next(key, value));
+        assertEquals(0, reader.getPos());
+        assertFalse(reader.next(key, value));
 
-  }
+    }
 
-  private void setupDriver(JobConf configuration) throws Exception {
-    configuration.set(DBConfiguration.URL_PROPERTY, "testUrl");
-    DriverManager.registerDriver(new DriverForTest());
-    configuration.set(DBConfiguration.DRIVER_CLASS_PROPERTY,
-        DriverForTest.class.getCanonicalName());
-  }
+    private void setupDriver(JobConf configuration) throws Exception {
+        configuration.set(DBConfiguration.URL_PROPERTY, "testUrl");
+        DriverManager.registerDriver(new DriverForTest());
+        configuration.set(DBConfiguration.DRIVER_CLASS_PROPERTY,
+                          DriverForTest.class.getCanonicalName());
+    }
 
 }

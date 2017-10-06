@@ -28,63 +28,63 @@ import java.io.IOException;
  */
 public class TestSwiftFileSystemDelete extends SwiftFileSystemBaseTest {
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDeleteEmptyFile() throws IOException {
-    final Path file = new Path("/test/testDeleteEmptyFile");
-    createEmptyFile(file);
-    SwiftTestUtils.noteAction("about to delete");
-    assertDeleted(file, true);
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDeleteEmptyFile() throws IOException {
+        final Path file = new Path("/test/testDeleteEmptyFile");
+        createEmptyFile(file);
+        SwiftTestUtils.noteAction("about to delete");
+        assertDeleted(file, true);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDeleteEmptyFileTwice() throws IOException {
-    final Path file = new Path("/test/testDeleteEmptyFileTwice");
-    createEmptyFile(file);
-    assertDeleted(file, true);
-    SwiftTestUtils.noteAction("multiple creates, and deletes");
-    assertFalse("Delete returned true", fs.delete(file, false));
-    createEmptyFile(file);
-    assertDeleted(file, true);
-    assertFalse("Delete returned true", fs.delete(file, false));
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDeleteEmptyFileTwice() throws IOException {
+        final Path file = new Path("/test/testDeleteEmptyFileTwice");
+        createEmptyFile(file);
+        assertDeleted(file, true);
+        SwiftTestUtils.noteAction("multiple creates, and deletes");
+        assertFalse("Delete returned true", fs.delete(file, false));
+        createEmptyFile(file);
+        assertDeleted(file, true);
+        assertFalse("Delete returned true", fs.delete(file, false));
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDeleteNonEmptyFile() throws IOException {
-    final Path file = new Path("/test/testDeleteNonEmptyFile");
-    createFile(file);
-    assertDeleted(file, true);
-  }
-  
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDeleteNonEmptyFileTwice() throws IOException {
-    final Path file = new Path("/test/testDeleteNonEmptyFileTwice");
-    createFile(file);
-    assertDeleted(file, true);
-    assertFalse("Delete returned true", fs.delete(file, false));
-    createFile(file);
-    assertDeleted(file, true);
-    assertFalse("Delete returned true", fs.delete(file, false));
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDeleteNonEmptyFile() throws IOException {
+        final Path file = new Path("/test/testDeleteNonEmptyFile");
+        createFile(file);
+        assertDeleted(file, true);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDeleteTestDir() throws IOException {
-    final Path file = new Path("/test/");
-    fs.delete(file, true);
-    assertPathDoesNotExist("Test dir found", file);
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDeleteNonEmptyFileTwice() throws IOException {
+        final Path file = new Path("/test/testDeleteNonEmptyFileTwice");
+        createFile(file);
+        assertDeleted(file, true);
+        assertFalse("Delete returned true", fs.delete(file, false));
+        createFile(file);
+        assertDeleted(file, true);
+        assertFalse("Delete returned true", fs.delete(file, false));
+    }
 
-  /**
-   * Test recursive root directory deletion fails if there is an entry underneath
-   * @throws Throwable
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testRmRootDirRecursiveIsForbidden() throws Throwable {
-    Path root = path("/");
-    Path testFile = path("/test");
-    createFile(testFile);
-    assertTrue("rm(/) returned false", fs.delete(root, true));
-    assertExists("Root dir is missing", root);
-    assertPathDoesNotExist("test file not deleted", testFile);
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDeleteTestDir() throws IOException {
+        final Path file = new Path("/test/");
+        fs.delete(file, true);
+        assertPathDoesNotExist("Test dir found", file);
+    }
+
+    /**
+     * Test recursive root directory deletion fails if there is an entry underneath
+     * @throws Throwable
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testRmRootDirRecursiveIsForbidden() throws Throwable {
+        Path root = path("/");
+        Path testFile = path("/test");
+        createFile(testFile);
+        assertTrue("rm(/) returned false", fs.delete(root, true));
+        assertExists("Root dir is missing", root);
+        assertPathDoesNotExist("test file not deleted", testFile);
+    }
 
 }

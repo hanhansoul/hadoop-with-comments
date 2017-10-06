@@ -29,14 +29,14 @@ import org.apache.hadoop.metrics.ContextFactory;
 import org.apache.hadoop.metrics.spi.AbstractMetricsContext;
 
 public class TestGangliaContext {
-  
-  @Test
-  public void testCloseShouldCloseTheSocketWhichIsCreatedByInit() throws Exception {
-    AbstractMetricsContext context=new GangliaContext();
-    context.init("gangliaContext", ContextFactory.getFactory());
-    GangliaContext gangliaContext =(GangliaContext) context;
-    assertFalse("Socket already closed",gangliaContext.datagramSocket.isClosed());
-    context.close();
-    assertTrue("Socket not closed",gangliaContext.datagramSocket.isClosed());
-  }
+
+    @Test
+    public void testCloseShouldCloseTheSocketWhichIsCreatedByInit() throws Exception {
+        AbstractMetricsContext context=new GangliaContext();
+        context.init("gangliaContext", ContextFactory.getFactory());
+        GangliaContext gangliaContext =(GangliaContext) context;
+        assertFalse("Socket already closed",gangliaContext.datagramSocket.isClosed());
+        context.close();
+        assertTrue("Socket not closed",gangliaContext.datagramSocket.isClosed());
+    }
 }

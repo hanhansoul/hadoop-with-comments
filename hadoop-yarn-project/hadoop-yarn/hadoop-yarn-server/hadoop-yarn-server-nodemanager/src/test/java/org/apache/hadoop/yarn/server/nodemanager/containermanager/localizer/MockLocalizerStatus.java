@@ -25,56 +25,64 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerSt
 
 public class MockLocalizerStatus implements LocalizerStatus {
 
-  private String locId;
-  private List<LocalResourceStatus> stats;
+    private String locId;
+    private List<LocalResourceStatus> stats;
 
-  public MockLocalizerStatus() {
-    stats = new ArrayList<LocalResourceStatus>();
-  }
-
-  public MockLocalizerStatus(String locId, List<LocalResourceStatus> stats) {
-    this.locId = locId;
-    this.stats = stats;
-  }
-
-  @Override
-  public String getLocalizerId() { return locId; }
-  @Override
-  public List<LocalResourceStatus> getResources() { return stats; }
-  @Override
-  public void setLocalizerId(String id) { this.locId = id; }
-  @Override
-  public void addAllResources(List<LocalResourceStatus> rsrcs) {
-    stats.addAll(rsrcs);
-  }
-  @Override
-  public LocalResourceStatus getResourceStatus(int index) {
-    return stats.get(index);
-  }
-  @Override
-  public void addResourceStatus(LocalResourceStatus resource) {
-    stats.add(resource);
-  }
-  @Override
-  public void removeResource(int index) {
-    stats.remove(index);
-  }
-  public void clearResources() { stats.clear(); }
-
-  @Override
-  public boolean equals(Object o) {
-    if (!(o instanceof MockLocalizerStatus)) {
-      return false;
+    public MockLocalizerStatus() {
+        stats = new ArrayList<LocalResourceStatus>();
     }
-    MockLocalizerStatus other = (MockLocalizerStatus) o;
-    return getLocalizerId().equals(other)
-      && getResources().containsAll(other.getResources())
-      && other.getResources().containsAll(getResources());
-  }
 
-  @Override
-  public int hashCode() {
-    return 4344;
-  }
+    public MockLocalizerStatus(String locId, List<LocalResourceStatus> stats) {
+        this.locId = locId;
+        this.stats = stats;
+    }
+
+    @Override
+    public String getLocalizerId() {
+        return locId;
+    }
+    @Override
+    public List<LocalResourceStatus> getResources() {
+        return stats;
+    }
+    @Override
+    public void setLocalizerId(String id) {
+        this.locId = id;
+    }
+    @Override
+    public void addAllResources(List<LocalResourceStatus> rsrcs) {
+        stats.addAll(rsrcs);
+    }
+    @Override
+    public LocalResourceStatus getResourceStatus(int index) {
+        return stats.get(index);
+    }
+    @Override
+    public void addResourceStatus(LocalResourceStatus resource) {
+        stats.add(resource);
+    }
+    @Override
+    public void removeResource(int index) {
+        stats.remove(index);
+    }
+    public void clearResources() {
+        stats.clear();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MockLocalizerStatus)) {
+            return false;
+        }
+        MockLocalizerStatus other = (MockLocalizerStatus) o;
+        return getLocalizerId().equals(other)
+               && getResources().containsAll(other.getResources())
+               && other.getResources().containsAll(getResources());
+    }
+
+    @Override
+    public int hashCode() {
+        return 4344;
+    }
 
 }

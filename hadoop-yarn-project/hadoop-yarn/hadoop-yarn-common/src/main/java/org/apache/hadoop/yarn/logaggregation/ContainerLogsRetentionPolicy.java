@@ -25,5 +25,5 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
  * This API is not exposed to end-users yet.
  */
 public enum ContainerLogsRetentionPolicy {
-  APPLICATION_MASTER_ONLY, AM_AND_FAILED_CONTAINERS_ONLY, ALL_CONTAINERS 
+    APPLICATION_MASTER_ONLY, AM_AND_FAILED_CONTAINERS_ONLY, ALL_CONTAINERS
 }

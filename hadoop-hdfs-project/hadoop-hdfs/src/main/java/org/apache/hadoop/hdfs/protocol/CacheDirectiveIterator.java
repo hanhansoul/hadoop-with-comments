@@ -37,86 +37,86 @@ import com.google.common.base.Preconditions;
 public class CacheDirectiveIterator
     extends BatchedRemoteIterator<Long, CacheDirectiveEntry> {
 
-  private CacheDirectiveInfo filter;
-  private final ClientProtocol namenode;
+    private CacheDirectiveInfo filter;
+    private final ClientProtocol namenode;
 
-  public CacheDirectiveIterator(ClientProtocol namenode,
-      CacheDirectiveInfo filter) {
-    super(0L);
-    this.namenode = namenode;
-    this.filter = filter;
-  }
-
-  private static CacheDirectiveInfo removeIdFromFilter(CacheDirectiveInfo filter) {
-    CacheDirectiveInfo.Builder builder = new CacheDirectiveInfo.Builder(filter);
-    builder.setId(null);
-    return builder.build();
-  }
-
-  /**
-   * Used for compatibility when communicating with a server version that
-   * does not support filtering directives by ID.
-   */
-  private static class SingleEntry implements
-      BatchedEntries<CacheDirectiveEntry> {
-
-    private final CacheDirectiveEntry entry;
-
-    public SingleEntry(final CacheDirectiveEntry entry) {
-      this.entry = entry;
+    public CacheDirectiveIterator(ClientProtocol namenode,
+                                  CacheDirectiveInfo filter) {
+        super(0L);
+        this.namenode = namenode;
+        this.filter = filter;
     }
 
-    @Override
-    public CacheDirectiveEntry get(int i) {
-      if (i > 0) {
-        return null;
-      }
-      return entry;
+    private static CacheDirectiveInfo removeIdFromFilter(CacheDirectiveInfo filter) {
+        CacheDirectiveInfo.Builder builder = new CacheDirectiveInfo.Builder(filter);
+        builder.setId(null);
+        return builder.build();
     }
 
-    @Override
-    public int size() {
-      return 1;
-    }
+    /**
+     * Used for compatibility when communicating with a server version that
+     * does not support filtering directives by ID.
+     */
+    private static class SingleEntry implements
+        BatchedEntries<CacheDirectiveEntry> {
 
-    @Override
-    public boolean hasMore() {
-      return false;
-    }
-  }
+        private final CacheDirectiveEntry entry;
 
-  @Override
-  public BatchedEntries<CacheDirectiveEntry> makeRequest(Long prevKey)
-      throws IOException {
-    BatchedEntries<CacheDirectiveEntry> entries = null;
-    try {
-      entries = namenode.listCacheDirectives(prevKey, filter);
-    } catch (IOException e) {
-      if (e.getMessage().contains("Filtering by ID is unsupported")) {
-        // Retry case for old servers, do the filtering client-side
-        long id = filter.getId();
-        filter = removeIdFromFilter(filter);
-        // Using id - 1 as prevId should get us a window containing the id
-        // This is somewhat brittle, since it depends on directives being
-        // returned in order of ascending ID.
-        entries = namenode.listCacheDirectives(id - 1, filter);
-        for (int i=0; i<entries.size(); i++) {
-          CacheDirectiveEntry entry = entries.get(i);
-          if (entry.getInfo().getId().equals((Long)id)) {
-            return new SingleEntry(entry);
-          }
+        public SingleEntry(final CacheDirectiveEntry entry) {
+            this.entry = entry;
         }
-        throw new RemoteException(InvalidRequestException.class.getName(),
-            "Did not find requested id " + id);
-      }
-      throw e;
-    }
-    Preconditions.checkNotNull(entries);
-    return entries;
-  }
 
-  @Override
-  public Long elementToPrevKey(CacheDirectiveEntry entry) {
-    return entry.getInfo().getId();
-  }
+        @Override
+        public CacheDirectiveEntry get(int i) {
+            if (i > 0) {
+                return null;
+            }
+            return entry;
+        }
+
+        @Override
+        public int size() {
+            return 1;
+        }
+
+        @Override
+        public boolean hasMore() {
+            return false;
+        }
+    }
+
+    @Override
+    public BatchedEntries<CacheDirectiveEntry> makeRequest(Long prevKey)
+    throws IOException {
+        BatchedEntries<CacheDirectiveEntry> entries = null;
+        try {
+            entries = namenode.listCacheDirectives(prevKey, filter);
+        } catch (IOException e) {
+            if (e.getMessage().contains("Filtering by ID is unsupported")) {
+                // Retry case for old servers, do the filtering client-side
+                long id = filter.getId();
+                filter = removeIdFromFilter(filter);
+                // Using id - 1 as prevId should get us a window containing the id
+                // This is somewhat brittle, since it depends on directives being
+                // returned in order of ascending ID.
+                entries = namenode.listCacheDirectives(id - 1, filter);
+                for (int i=0; i<entries.size(); i++) {
+                    CacheDirectiveEntry entry = entries.get(i);
+                    if (entry.getInfo().getId().equals((Long)id)) {
+                        return new SingleEntry(entry);
+                    }
+                }
+                throw new RemoteException(InvalidRequestException.class.getName(),
+                                          "Did not find requested id " + id);
+            }
+            throw e;
+        }
+        Preconditions.checkNotNull(entries);
+        return entries;
+    }
+
+    @Override
+    public Long elementToPrevKey(CacheDirectiveEntry entry) {
+        return entry.getInfo().getId();
+    }
 }

@@ -23,14 +23,14 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 
 public class NodesListManagerEvent extends
     AbstractEvent<NodesListManagerEventType> {
-  private final RMNode node;
+    private final RMNode node;
 
-  public NodesListManagerEvent(NodesListManagerEventType type, RMNode node) {
-    super(type);
-    this.node = node;
-  }
+    public NodesListManagerEvent(NodesListManagerEventType type, RMNode node) {
+        super(type);
+        this.node = node;
+    }
 
-  public RMNode getNode() {
-    return node;
-  }
+    public RMNode getNode() {
+        return node;
+    }
 }

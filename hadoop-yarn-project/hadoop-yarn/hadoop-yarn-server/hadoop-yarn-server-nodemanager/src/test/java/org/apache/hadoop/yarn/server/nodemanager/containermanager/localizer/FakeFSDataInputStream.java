@@ -27,15 +27,21 @@ import org.apache.hadoop.fs.Seekable;
 /** mock streams in unit tests */
 public class FakeFSDataInputStream
     extends FilterInputStream implements Seekable, PositionedReadable {
-  public FakeFSDataInputStream(InputStream in) { super(in); }
-  public void seek(long pos) throws IOException { }
-  public long getPos() throws IOException { return -1; }
-  public boolean seekToNewSource(long targetPos) throws IOException {
-    return false;
-  }
-  public int read(long position, byte[] buffer, int offset, int length)
-    throws IOException { return -1; }
-  public void readFully(long position, byte[] buffer, int offset, int length)
+    public FakeFSDataInputStream(InputStream in) {
+        super(in);
+    }
+    public void seek(long pos) throws IOException { }
+    public long getPos() throws IOException {
+        return -1;
+    }
+    public boolean seekToNewSource(long targetPos) throws IOException {
+        return false;
+    }
+    public int read(long position, byte[] buffer, int offset, int length)
+    throws IOException {
+        return -1;
+    }
+    public void readFully(long position, byte[] buffer, int offset, int length)
     throws IOException { }
-  public void readFully(long position, byte[] buffer) throws IOException { }
+    public void readFully(long position, byte[] buffer) throws IOException { }
 }

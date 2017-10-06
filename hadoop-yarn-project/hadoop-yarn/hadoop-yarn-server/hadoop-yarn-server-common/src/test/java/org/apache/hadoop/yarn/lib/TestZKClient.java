@@ -39,151 +39,150 @@ import org.junit.Test;
 
 public class TestZKClient  {
 
-  public static int CONNECTION_TIMEOUT = 30000;
-  static final File BASETEST =
-    new File(System.getProperty("build.test.dir", "target/zookeeper-build"));
+    public static int CONNECTION_TIMEOUT = 30000;
+    static final File BASETEST =
+        new File(System.getProperty("build.test.dir", "target/zookeeper-build"));
 
-  protected String hostPort = "127.0.0.1:2000";
-  protected int maxCnxns = 0;
-  protected NIOServerCnxnFactory factory = null;
-  protected ZooKeeperServer zks;
-  protected File tmpDir = null;
+    protected String hostPort = "127.0.0.1:2000";
+    protected int maxCnxns = 0;
+    protected NIOServerCnxnFactory factory = null;
+    protected ZooKeeperServer zks;
+    protected File tmpDir = null;
 
-  public static String send4LetterWord(String host, int port, String cmd)
-  throws IOException
-  {
-    Socket sock = new Socket(host, port);
-    BufferedReader reader = null;
-    try {
-      OutputStream outstream = sock.getOutputStream();
-      outstream.write(cmd.getBytes());
-      outstream.flush();
-      // this replicates NC - close the output stream before reading
-      sock.shutdownOutput();
+    public static String send4LetterWord(String host, int port, String cmd)
+    throws IOException {
+        Socket sock = new Socket(host, port);
+        BufferedReader reader = null;
+        try {
+            OutputStream outstream = sock.getOutputStream();
+            outstream.write(cmd.getBytes());
+            outstream.flush();
+            // this replicates NC - close the output stream before reading
+            sock.shutdownOutput();
 
-      reader =
-        new BufferedReader(
-            new InputStreamReader(sock.getInputStream()));
-      StringBuilder sb = new StringBuilder();
-      String line;
-      while((line = reader.readLine()) != null) {
-        sb.append(line + "\n");
-      }
-      return sb.toString();
-    } finally {
-      sock.close();
-      if (reader != null) {
-        reader.close();
-      }
-    }
-  }
-
-  public static boolean waitForServerDown(String hp, long timeout) {
-    long start = System.currentTimeMillis();
-    while (true) {
-      try {
-        String host = hp.split(":")[0];
-        int port = Integer.parseInt(hp.split(":")[1]);
-        send4LetterWord(host, port, "stat");
-      } catch (IOException e) {
-        return true;
-      }
-
-      if (System.currentTimeMillis() > start + timeout) {
-        break;
-      }
-      try {
-        Thread.sleep(250);
-      } catch (InterruptedException e) {
-        // ignore
-      }
-    }
-    return false;
-  }
-
-
-  public static boolean waitForServerUp(String hp, long timeout) {
-    long start = System.currentTimeMillis();
-    while (true) {
-      try {
-        String host = hp.split(":")[0];
-        int port = Integer.parseInt(hp.split(":")[1]);
-        // if there are multiple hostports, just take the first one
-        String result = send4LetterWord(host, port, "stat");
-        if (result.startsWith("Zookeeper version:")) {
-          return true;
+            reader =
+                new BufferedReader(
+                new InputStreamReader(sock.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while((line = reader.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            return sb.toString();
+        } finally {
+            sock.close();
+            if (reader != null) {
+                reader.close();
+            }
         }
-      } catch (IOException e) {
-      }
-      if (System.currentTimeMillis() > start + timeout) {
-        break;
-      }
-      try {
-        Thread.sleep(250);
-      } catch (InterruptedException e) {
-        // ignore
-      }
-    }
-    return false;
-  }
-
-  public static File createTmpDir(File parentDir) throws IOException {
-    File tmpFile = File.createTempFile("test", ".junit", parentDir);
-    // don't delete tmpFile - this ensures we don't attempt to create
-    // a tmpDir with a duplicate name
-    File tmpDir = new File(tmpFile + ".dir");
-    Assert.assertFalse(tmpDir.exists()); 
-    Assert.assertTrue(tmpDir.mkdirs());
-    return tmpDir;
-  }
-
-  @Before
-  public void setUp() throws IOException, InterruptedException {
-    System.setProperty("zookeeper.preAllocSize", "100");
-    FileTxnLog.setPreallocSize(100 * 1024);
-    if (!BASETEST.exists()) {
-      BASETEST.mkdirs();
-    }
-    File dataDir = createTmpDir(BASETEST);
-    zks = new ZooKeeperServer(dataDir, dataDir, 3000);
-    final int PORT = Integer.parseInt(hostPort.split(":")[1]);
-    if (factory == null) {
-      factory = new NIOServerCnxnFactory();
-      factory.configure(new InetSocketAddress(PORT), maxCnxns);
-    }
-    factory.startup(zks);
-    Assert.assertTrue("waiting for server up",
-        waitForServerUp("127.0.0.1:" + PORT,
-            CONNECTION_TIMEOUT));
-    
-  }
-  
-  @After
-  public void tearDown() throws IOException, InterruptedException {
-    if (zks != null) {
-      ZKDatabase zkDb = zks.getZKDatabase();
-      factory.shutdown();
-      try {
-        zkDb.close();
-      } catch (IOException ie) {
-      }
-      final int PORT = Integer.parseInt(hostPort.split(":")[1]);
-
-      Assert.assertTrue("waiting for server down",
-          waitForServerDown("127.0.0.1:" + PORT,
-              CONNECTION_TIMEOUT));
     }
 
-  }
-  @Test
-  public void testzkClient() throws Exception {
-    test("/some/test");
-  }
+    public static boolean waitForServerDown(String hp, long timeout) {
+        long start = System.currentTimeMillis();
+        while (true) {
+            try {
+                String host = hp.split(":")[0];
+                int port = Integer.parseInt(hp.split(":")[1]);
+                send4LetterWord(host, port, "stat");
+            } catch (IOException e) {
+                return true;
+            }
 
-  private void test(String testClient) throws Exception { 
-    ZKClient client = new ZKClient(hostPort);
-    client.registerService("/nodemanager", "hostPort");
-    client.unregisterService("/nodemanager");
-  }
+            if (System.currentTimeMillis() > start + timeout) {
+                break;
+            }
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
+        return false;
+    }
+
+
+    public static boolean waitForServerUp(String hp, long timeout) {
+        long start = System.currentTimeMillis();
+        while (true) {
+            try {
+                String host = hp.split(":")[0];
+                int port = Integer.parseInt(hp.split(":")[1]);
+                // if there are multiple hostports, just take the first one
+                String result = send4LetterWord(host, port, "stat");
+                if (result.startsWith("Zookeeper version:")) {
+                    return true;
+                }
+            } catch (IOException e) {
+            }
+            if (System.currentTimeMillis() > start + timeout) {
+                break;
+            }
+            try {
+                Thread.sleep(250);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+        }
+        return false;
+    }
+
+    public static File createTmpDir(File parentDir) throws IOException {
+        File tmpFile = File.createTempFile("test", ".junit", parentDir);
+        // don't delete tmpFile - this ensures we don't attempt to create
+        // a tmpDir with a duplicate name
+        File tmpDir = new File(tmpFile + ".dir");
+        Assert.assertFalse(tmpDir.exists());
+        Assert.assertTrue(tmpDir.mkdirs());
+        return tmpDir;
+    }
+
+    @Before
+    public void setUp() throws IOException, InterruptedException {
+        System.setProperty("zookeeper.preAllocSize", "100");
+        FileTxnLog.setPreallocSize(100 * 1024);
+        if (!BASETEST.exists()) {
+            BASETEST.mkdirs();
+        }
+        File dataDir = createTmpDir(BASETEST);
+        zks = new ZooKeeperServer(dataDir, dataDir, 3000);
+        final int PORT = Integer.parseInt(hostPort.split(":")[1]);
+        if (factory == null) {
+            factory = new NIOServerCnxnFactory();
+            factory.configure(new InetSocketAddress(PORT), maxCnxns);
+        }
+        factory.startup(zks);
+        Assert.assertTrue("waiting for server up",
+                          waitForServerUp("127.0.0.1:" + PORT,
+                                          CONNECTION_TIMEOUT));
+
+    }
+
+    @After
+    public void tearDown() throws IOException, InterruptedException {
+        if (zks != null) {
+            ZKDatabase zkDb = zks.getZKDatabase();
+            factory.shutdown();
+            try {
+                zkDb.close();
+            } catch (IOException ie) {
+            }
+            final int PORT = Integer.parseInt(hostPort.split(":")[1]);
+
+            Assert.assertTrue("waiting for server down",
+                              waitForServerDown("127.0.0.1:" + PORT,
+                                                CONNECTION_TIMEOUT));
+        }
+
+    }
+    @Test
+    public void testzkClient() throws Exception {
+        test("/some/test");
+    }
+
+    private void test(String testClient) throws Exception {
+        ZKClient client = new ZKClient(hostPort);
+        client.registerService("/nodemanager", "hostPort");
+        client.unregisterService("/nodemanager");
+    }
 
 }

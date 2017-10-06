@@ -27,33 +27,33 @@ import org.apache.hadoop.typedbytes.TypedBytesOutput;
 
 public class TypedBytesMapApp {
 
-  private String find;
+    private String find;
 
-  public TypedBytesMapApp(String find) {
-    this.find = find;
-  }
-
-  public void go() throws IOException {
-    TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(System.in));
-    TypedBytesOutput tboutput = new TypedBytesOutput(new DataOutputStream(System.out));
-
-    Object key = tbinput.readRaw();
-    while (key != null) {
-      Object value = tbinput.read();
-      for (String part : value.toString().split(find)) {
-        tboutput.write(part);  // write key
-        tboutput.write(1);     // write value
-      }
-      System.err.println("reporter:counter:UserCounters,InputLines,1");
-      key = tbinput.readRaw();
+    public TypedBytesMapApp(String find) {
+        this.find = find;
     }
-    
-    System.out.flush();
-  }
-  
-  public static void main(String[] args) throws IOException {
-    TypedBytesMapApp app = new TypedBytesMapApp(args[0].replace(".","\\."));
-    app.go();
-  }
-  
+
+    public void go() throws IOException {
+        TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(System.in));
+        TypedBytesOutput tboutput = new TypedBytesOutput(new DataOutputStream(System.out));
+
+        Object key = tbinput.readRaw();
+        while (key != null) {
+            Object value = tbinput.read();
+            for (String part : value.toString().split(find)) {
+                tboutput.write(part);  // write key
+                tboutput.write(1);     // write value
+            }
+            System.err.println("reporter:counter:UserCounters,InputLines,1");
+            key = tbinput.readRaw();
+        }
+
+        System.out.flush();
+    }
+
+    public static void main(String[] args) throws IOException {
+        TypedBytesMapApp app = new TypedBytesMapApp(args[0].replace(".","\\."));
+        app.go();
+    }
+
 }

@@ -38,10 +38,10 @@ import org.apache.commons.logging.impl.Log4JLogger;
  * </p>
  * <p>
  * To test a given {@link FileSystem} implementation create a subclass of this
- * test and override {@link #setUp()} to initialize the <code>fc</code> 
+ * test and override {@link #setUp()} to initialize the <code>fc</code>
  * {@link FileContext} instance variable.
- * 
- * Since this a junit 4 you can also do a single setup before 
+ *
+ * Since this a junit 4 you can also do a single setup before
  * the start of any tests.
  * E.g.
  *     @BeforeClass   public static void clusterSetupAtBegining()
@@ -51,119 +51,118 @@ import org.apache.commons.logging.impl.Log4JLogger;
 
 public abstract class FileContextCreateMkdirBaseTest {
 
-  protected final FileContextTestHelper fileContextTestHelper;
-  protected static FileContext fc;
-      
-  {
-    try {
-      ((Log4JLogger)FileSystem.LOG).getLogger().setLevel(Level.DEBUG);
+    protected final FileContextTestHelper fileContextTestHelper;
+    protected static FileContext fc;
+
+    {
+        try {
+            ((Log4JLogger)FileSystem.LOG).getLogger().setLevel(Level.DEBUG);
+        } catch(Exception e) {
+            System.out.println("Cannot change log level\n"
+                               + StringUtils.stringifyException(e));
+        }
     }
-    catch(Exception e) {
-      System.out.println("Cannot change log level\n"
-          + StringUtils.stringifyException(e));
+
+    public FileContextCreateMkdirBaseTest() {
+        fileContextTestHelper = createFileContextHelper();
     }
-  }
-  
-  public FileContextCreateMkdirBaseTest() {
-      fileContextTestHelper = createFileContextHelper();
-  }
 
-  protected FileContextTestHelper createFileContextHelper() {
-    return new FileContextTestHelper();
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    fc.mkdir(getTestRootPath(fc), FileContext.DEFAULT_PERM, true);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    fc.delete(getTestRootPath(fc), true);
-  }
-  
-  
-  
-  ///////////////////////
-  //      Test Mkdir
-  ////////////////////////
-  
-  @Test
-  public void testMkdirNonRecursiveWithExistingDir() throws IOException {
-    Path f = getTestRootPath(fc, "aDir");
-    fc.mkdir(f, FileContext.DEFAULT_PERM, false);
-    Assert.assertTrue(isDir(fc, f));
-  }
-  
-  @Test
-  public void testMkdirNonRecursiveWithNonExistingDir() {
-    try {
-      fc.mkdir(getTestRootPath(fc,"NonExistant/aDir"),
-          FileContext.DEFAULT_PERM, false);
-      Assert.fail("Mkdir with non existing parent dir should have failed");
-    } catch (IOException e) {
-      // failed As expected
+    protected FileContextTestHelper createFileContextHelper() {
+        return new FileContextTestHelper();
     }
-  }
-  
-  
-  @Test
-  public void testMkdirRecursiveWithExistingDir() throws IOException {
-    Path f = getTestRootPath(fc, "aDir");
-    fc.mkdir(f, FileContext.DEFAULT_PERM, true);
-    Assert.assertTrue(isDir(fc, f));
-  }
-  
-  
-  @Test
-  public void testMkdirRecursiveWithNonExistingDir() throws IOException {
-    Path f = getTestRootPath(fc, "NonExistant2/aDir");
-    fc.mkdir(f, FileContext.DEFAULT_PERM, true);
-    Assert.assertTrue(isDir(fc, f));
-  }
- 
-  ///////////////////////
-  //      Test Create
-  ////////////////////////
-  @Test
-  public void testCreateNonRecursiveWithExistingDir() throws IOException {
-    Path f = getTestRootPath(fc, "foo");
-    createFile(fc, f);
-    Assert.assertTrue(isFile(fc, f));
-  }
-  
-  @Test
-  public void testCreateNonRecursiveWithNonExistingDir() {
-    try {
-      createFileNonRecursive(fc, getTestRootPath(fc, "NonExisting/foo"));
-      Assert.fail("Create with non existing parent dir should have failed");
-    } catch (IOException e) {
-      // As expected
+
+    @Before
+    public void setUp() throws Exception {
+        fc.mkdir(getTestRootPath(fc), FileContext.DEFAULT_PERM, true);
     }
-  }
-  
-  
-  @Test
-  public void testCreateRecursiveWithExistingDir() throws IOException {
-    Path f = getTestRootPath(fc,"foo");
-    createFile(fc, f);
-    Assert.assertTrue(isFile(fc, f));
-  }
-  
-  
-  @Test
-  public void testCreateRecursiveWithNonExistingDir() throws IOException {
-    Path f = getTestRootPath(fc,"NonExisting/foo");
-    createFile(fc, f);
-    Assert.assertTrue(isFile(fc, f));
-  }
 
-  private Path getTestRootPath(FileContext fc) {
-    return fileContextTestHelper.getTestRootPath(fc);
-  }
+    @After
+    public void tearDown() throws Exception {
+        fc.delete(getTestRootPath(fc), true);
+    }
 
-  private Path getTestRootPath(FileContext fc, String pathString) {
-    return fileContextTestHelper.getTestRootPath(fc, pathString);
-  }
+
+
+    ///////////////////////
+    //      Test Mkdir
+    ////////////////////////
+
+    @Test
+    public void testMkdirNonRecursiveWithExistingDir() throws IOException {
+        Path f = getTestRootPath(fc, "aDir");
+        fc.mkdir(f, FileContext.DEFAULT_PERM, false);
+        Assert.assertTrue(isDir(fc, f));
+    }
+
+    @Test
+    public void testMkdirNonRecursiveWithNonExistingDir() {
+        try {
+            fc.mkdir(getTestRootPath(fc,"NonExistant/aDir"),
+                     FileContext.DEFAULT_PERM, false);
+            Assert.fail("Mkdir with non existing parent dir should have failed");
+        } catch (IOException e) {
+            // failed As expected
+        }
+    }
+
+
+    @Test
+    public void testMkdirRecursiveWithExistingDir() throws IOException {
+        Path f = getTestRootPath(fc, "aDir");
+        fc.mkdir(f, FileContext.DEFAULT_PERM, true);
+        Assert.assertTrue(isDir(fc, f));
+    }
+
+
+    @Test
+    public void testMkdirRecursiveWithNonExistingDir() throws IOException {
+        Path f = getTestRootPath(fc, "NonExistant2/aDir");
+        fc.mkdir(f, FileContext.DEFAULT_PERM, true);
+        Assert.assertTrue(isDir(fc, f));
+    }
+
+    ///////////////////////
+    //      Test Create
+    ////////////////////////
+    @Test
+    public void testCreateNonRecursiveWithExistingDir() throws IOException {
+        Path f = getTestRootPath(fc, "foo");
+        createFile(fc, f);
+        Assert.assertTrue(isFile(fc, f));
+    }
+
+    @Test
+    public void testCreateNonRecursiveWithNonExistingDir() {
+        try {
+            createFileNonRecursive(fc, getTestRootPath(fc, "NonExisting/foo"));
+            Assert.fail("Create with non existing parent dir should have failed");
+        } catch (IOException e) {
+            // As expected
+        }
+    }
+
+
+    @Test
+    public void testCreateRecursiveWithExistingDir() throws IOException {
+        Path f = getTestRootPath(fc,"foo");
+        createFile(fc, f);
+        Assert.assertTrue(isFile(fc, f));
+    }
+
+
+    @Test
+    public void testCreateRecursiveWithNonExistingDir() throws IOException {
+        Path f = getTestRootPath(fc,"NonExisting/foo");
+        createFile(fc, f);
+        Assert.assertTrue(isFile(fc, f));
+    }
+
+    private Path getTestRootPath(FileContext fc) {
+        return fileContextTestHelper.getTestRootPath(fc);
+    }
+
+    private Path getTestRootPath(FileContext fc, String pathString) {
+        return fileContextTestHelper.getTestRootPath(fc, pathString);
+    }
 
 }

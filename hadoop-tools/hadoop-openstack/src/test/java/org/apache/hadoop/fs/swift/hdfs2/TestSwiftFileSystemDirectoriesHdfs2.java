@@ -25,19 +25,19 @@ import org.apache.hadoop.fs.swift.snative.SwiftFileStatus;
  * Add some HDFS-2 only assertions to {@link TestSwiftFileSystemDirectories}
  */
 public class TestSwiftFileSystemDirectoriesHdfs2 extends
-                                                 TestSwiftFileSystemDirectories {
+    TestSwiftFileSystemDirectories {
 
 
-  /**
-   * make assertions about fields that only appear in
-   * FileStatus in HDFS2
-   * @param stat status to look at
-   */
-  protected void extraStatusAssertions(SwiftFileStatus stat) {
-    //HDFS2
-    assertTrue("isDirectory(): Not a directory: " + stat, stat.isDirectory());
-    assertFalse("isFile(): declares itself a file: " + stat, stat.isFile());
-    assertFalse("isFile(): declares itself a file: " + stat, stat.isSymlink());
-  }
+    /**
+     * make assertions about fields that only appear in
+     * FileStatus in HDFS2
+     * @param stat status to look at
+     */
+    protected void extraStatusAssertions(SwiftFileStatus stat) {
+        //HDFS2
+        assertTrue("isDirectory(): Not a directory: " + stat, stat.isDirectory());
+        assertFalse("isFile(): declares itself a file: " + stat, stat.isFile());
+        assertFalse("isFile(): declares itself a file: " + stat, stat.isSymlink());
+    }
 
 }

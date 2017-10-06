@@ -31,109 +31,109 @@ import java.io.IOException;
 
 public class StubContext {
 
-  private StubStatusReporter reporter = new StubStatusReporter();
-  private RecordReader<Text, CopyListingFileStatus> reader;
-  private StubInMemoryWriter writer = new StubInMemoryWriter();
-  private Mapper<Text, CopyListingFileStatus, Text, Text>.Context mapperContext;
+    private StubStatusReporter reporter = new StubStatusReporter();
+    private RecordReader<Text, CopyListingFileStatus> reader;
+    private StubInMemoryWriter writer = new StubInMemoryWriter();
+    private Mapper<Text, CopyListingFileStatus, Text, Text>.Context mapperContext;
 
-  public StubContext(Configuration conf,
-      RecordReader<Text, CopyListingFileStatus> reader, int taskId)
-      throws IOException, InterruptedException {
+    public StubContext(Configuration conf,
+                       RecordReader<Text, CopyListingFileStatus> reader, int taskId)
+    throws IOException, InterruptedException {
 
-    WrappedMapper<Text, CopyListingFileStatus, Text, Text> wrappedMapper
+        WrappedMapper<Text, CopyListingFileStatus, Text, Text> wrappedMapper
             = new WrappedMapper<Text, CopyListingFileStatus, Text, Text>();
 
-    MapContextImpl<Text, CopyListingFileStatus, Text, Text> contextImpl
+        MapContextImpl<Text, CopyListingFileStatus, Text, Text> contextImpl
             = new MapContextImpl<Text, CopyListingFileStatus, Text, Text>(conf,
-            getTaskAttemptID(taskId), reader, writer,
-            null, reporter, null);
+                    getTaskAttemptID(taskId), reader, writer,
+                    null, reporter, null);
 
-    this.reader = reader;
-    this.mapperContext = wrappedMapper.getMapContext(contextImpl);
-  }
-
-  public Mapper<Text, CopyListingFileStatus, Text, Text>.Context getContext() {
-    return mapperContext;
-  }
-
-  public StatusReporter getReporter() {
-    return reporter;
-  }
-
-  public RecordReader<Text, CopyListingFileStatus> getReader() {
-    return reader;
-  }
-
-  public StubInMemoryWriter getWriter() {
-    return writer;
-  }
-
-  public static class StubStatusReporter extends StatusReporter {
-
-    private Counters counters = new Counters();
-
-    public StubStatusReporter() {
-	    /*
-      final CounterGroup counterGroup
-              = new CounterGroup("FileInputFormatCounters",
-                                 "FileInputFormatCounters");
-      counterGroup.addCounter(new Counter("BYTES_READ",
-                                          "BYTES_READ",
-                                          0));
-      counters.addGroup(counterGroup);
-      */
+        this.reader = reader;
+        this.mapperContext = wrappedMapper.getMapContext(contextImpl);
     }
 
-    @Override
-    public Counter getCounter(Enum<?> name) {
-      return counters.findCounter(name);
+    public Mapper<Text, CopyListingFileStatus, Text, Text>.Context getContext() {
+        return mapperContext;
     }
 
-    @Override
-    public Counter getCounter(String group, String name) {
-      return counters.findCounter(group, name);
+    public StatusReporter getReporter() {
+        return reporter;
     }
 
-    @Override
-    public void progress() {}
-
-    @Override
-    public float getProgress() {
-      return 0F;
+    public RecordReader<Text, CopyListingFileStatus> getReader() {
+        return reader;
     }
 
-    @Override
-    public void setStatus(String status) {}
-  }
-
-
-  public static class StubInMemoryWriter extends RecordWriter<Text, Text> {
-
-    List<Text> keys = new ArrayList<Text>();
-
-    List<Text> values = new ArrayList<Text>();
-
-    @Override
-    public void write(Text key, Text value) throws IOException, InterruptedException {
-      keys.add(key);
-      values.add(value);
+    public StubInMemoryWriter getWriter() {
+        return writer;
     }
 
-    @Override
-    public void close(TaskAttemptContext context) throws IOException, InterruptedException {
+    public static class StubStatusReporter extends StatusReporter {
+
+        private Counters counters = new Counters();
+
+        public StubStatusReporter() {
+            /*
+            final CounterGroup counterGroup
+                  = new CounterGroup("FileInputFormatCounters",
+                                     "FileInputFormatCounters");
+            counterGroup.addCounter(new Counter("BYTES_READ",
+                                              "BYTES_READ",
+                                              0));
+            counters.addGroup(counterGroup);
+            */
+        }
+
+        @Override
+        public Counter getCounter(Enum<?> name) {
+            return counters.findCounter(name);
+        }
+
+        @Override
+        public Counter getCounter(String group, String name) {
+            return counters.findCounter(group, name);
+        }
+
+        @Override
+        public void progress() {}
+
+        @Override
+        public float getProgress() {
+            return 0F;
+        }
+
+        @Override
+        public void setStatus(String status) {}
     }
 
-    public List<Text> keys() {
-      return keys;
+
+    public static class StubInMemoryWriter extends RecordWriter<Text, Text> {
+
+        List<Text> keys = new ArrayList<Text>();
+
+        List<Text> values = new ArrayList<Text>();
+
+        @Override
+        public void write(Text key, Text value) throws IOException, InterruptedException {
+            keys.add(key);
+            values.add(value);
+        }
+
+        @Override
+        public void close(TaskAttemptContext context) throws IOException, InterruptedException {
+        }
+
+        public List<Text> keys() {
+            return keys;
+        }
+
+        public List<Text> values() {
+            return values;
+        }
+
     }
 
-    public List<Text> values() {
-      return values;
+    public static TaskAttemptID getTaskAttemptID(int taskId) {
+        return new TaskAttemptID("", 0, TaskType.MAP, taskId, 0);
     }
-
-  }
-
-  public static TaskAttemptID getTaskAttemptID(int taskId) {
-    return new TaskAttemptID("", 0, TaskType.MAP, taskId, 0);
-  }
 }

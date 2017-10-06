@@ -26,14 +26,14 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Public
 @Evolving
 public interface InputSplitWithLocationInfo extends InputSplit {
-  /**
-   * Gets info about which nodes the input split is stored on and how it is
-   * stored at each location.
-   * 
-   * @return list of <code>SplitLocationInfo</code>s describing how the split
-   *    data is stored at each location. A null value indicates that all the
-   *    locations have the data stored on disk.
-   * @throws IOException
-   */
-  SplitLocationInfo[] getLocationInfo() throws IOException;
+    /**
+     * Gets info about which nodes the input split is stored on and how it is
+     * stored at each location.
+     *
+     * @return list of <code>SplitLocationInfo</code>s describing how the split
+     *    data is stored at each location. A null value indicates that all the
+     *    locations have the data stored on disk.
+     * @throws IOException
+     */
+    SplitLocationInfo[] getLocationInfo() throws IOException;
 }

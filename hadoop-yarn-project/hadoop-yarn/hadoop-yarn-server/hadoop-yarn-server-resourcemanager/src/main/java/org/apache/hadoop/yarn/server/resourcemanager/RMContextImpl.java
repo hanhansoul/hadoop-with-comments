@@ -53,388 +53,388 @@ import com.google.common.annotations.VisibleForTesting;
 
 public class RMContextImpl implements RMContext {
 
-  private Dispatcher rmDispatcher;
+    private Dispatcher rmDispatcher;
 
-  private boolean isHAEnabled;
+    private boolean isHAEnabled;
 
-  private HAServiceState haServiceState =
-      HAServiceProtocol.HAServiceState.INITIALIZING;
+    private HAServiceState haServiceState =
+        HAServiceProtocol.HAServiceState.INITIALIZING;
 
-  private AdminService adminService;
+    private AdminService adminService;
 
-  private ConfigurationProvider configurationProvider;
+    private ConfigurationProvider configurationProvider;
 
-  private RMActiveServiceContext activeServiceContext;
+    private RMActiveServiceContext activeServiceContext;
 
-  private Configuration yarnConfiguration;
+    private Configuration yarnConfiguration;
 
-  private RMApplicationHistoryWriter rmApplicationHistoryWriter;
-  private SystemMetricsPublisher systemMetricsPublisher;
+    private RMApplicationHistoryWriter rmApplicationHistoryWriter;
+    private SystemMetricsPublisher systemMetricsPublisher;
 
-  /**
-   * Default constructor. To be used in conjunction with setter methods for
-   * individual fields.
-   */
-  public RMContextImpl() {
+    /**
+     * Default constructor. To be used in conjunction with setter methods for
+     * individual fields.
+     */
+    public RMContextImpl() {
 
-  }
-
-  @VisibleForTesting
-  // helper constructor for tests
-  public RMContextImpl(Dispatcher rmDispatcher,
-      ContainerAllocationExpirer containerAllocationExpirer,
-      AMLivelinessMonitor amLivelinessMonitor,
-      AMLivelinessMonitor amFinishingMonitor,
-      DelegationTokenRenewer delegationTokenRenewer,
-      AMRMTokenSecretManager appTokenSecretManager,
-      RMContainerTokenSecretManager containerTokenSecretManager,
-      NMTokenSecretManagerInRM nmTokenSecretManager,
-      ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
-      ResourceScheduler scheduler) {
-    this();
-    this.setDispatcher(rmDispatcher);
-    setActiveServiceContext(new RMActiveServiceContext(rmDispatcher,
-        containerAllocationExpirer, amLivelinessMonitor, amFinishingMonitor,
-        delegationTokenRenewer, appTokenSecretManager,
-        containerTokenSecretManager, nmTokenSecretManager,
-        clientToAMTokenSecretManager,
-        scheduler));
-
-    ConfigurationProvider provider = new LocalConfigurationProvider();
-    setConfigurationProvider(provider);
-  }
-  
-  @VisibleForTesting
-  // helper constructor for tests
-  public RMContextImpl(Dispatcher rmDispatcher,
-      ContainerAllocationExpirer containerAllocationExpirer,
-      AMLivelinessMonitor amLivelinessMonitor,
-      AMLivelinessMonitor amFinishingMonitor,
-      DelegationTokenRenewer delegationTokenRenewer,
-      AMRMTokenSecretManager appTokenSecretManager,
-      RMContainerTokenSecretManager containerTokenSecretManager,
-      NMTokenSecretManagerInRM nmTokenSecretManager,
-      ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager) {
-    this(
-      rmDispatcher,
-      containerAllocationExpirer,
-      amLivelinessMonitor,
-      amFinishingMonitor,
-      delegationTokenRenewer,
-      appTokenSecretManager,
-      containerTokenSecretManager,
-      nmTokenSecretManager,
-      clientToAMTokenSecretManager, null);
-  }
-
-  @Override
-  public Dispatcher getDispatcher() {
-    return this.rmDispatcher;
-  }
-
-  @Override
-  public RMStateStore getStateStore() {
-    return activeServiceContext.getStateStore();
-  }
-
-  @Override
-  public ConcurrentMap<ApplicationId, RMApp> getRMApps() {
-    return activeServiceContext.getRMApps();
-  }
-
-  @Override
-  public ConcurrentMap<NodeId, RMNode> getRMNodes() {
-    return activeServiceContext.getRMNodes();
-  }
-
-  @Override
-  public ConcurrentMap<String, RMNode> getInactiveRMNodes() {
-    return activeServiceContext.getInactiveRMNodes();
-  }
-
-  @Override
-  public ContainerAllocationExpirer getContainerAllocationExpirer() {
-    return activeServiceContext.getContainerAllocationExpirer();
-  }
-
-  @Override
-  public AMLivelinessMonitor getAMLivelinessMonitor() {
-    return activeServiceContext.getAMLivelinessMonitor();
-  }
-
-  @Override
-  public AMLivelinessMonitor getAMFinishingMonitor() {
-    return activeServiceContext.getAMFinishingMonitor();
-  }
-
-  @Override
-  public DelegationTokenRenewer getDelegationTokenRenewer() {
-    return activeServiceContext.getDelegationTokenRenewer();
-  }
-
-  @Override
-  public AMRMTokenSecretManager getAMRMTokenSecretManager() {
-    return activeServiceContext.getAMRMTokenSecretManager();
-  }
-
-  @Override
-  public RMContainerTokenSecretManager getContainerTokenSecretManager() {
-    return activeServiceContext.getContainerTokenSecretManager();
-  }
-
-  @Override
-  public NMTokenSecretManagerInRM getNMTokenSecretManager() {
-    return activeServiceContext.getNMTokenSecretManager();
-  }
-
-  @Override
-  public ResourceScheduler getScheduler() {
-    return activeServiceContext.getScheduler();
-  }
-
-  @Override
-  public ReservationSystem getReservationSystem() {
-    return activeServiceContext.getReservationSystem();
-  }
-
-  @Override
-  public NodesListManager getNodesListManager() {
-    return activeServiceContext.getNodesListManager();
-  }
-
-  @Override
-  public ClientToAMTokenSecretManagerInRM getClientToAMTokenSecretManager() {
-    return activeServiceContext.getClientToAMTokenSecretManager();
-  }
-
-  @Override
-  public AdminService getRMAdminService() {
-    return this.adminService;
-  }
-
-  @VisibleForTesting
-  public void setStateStore(RMStateStore store) {
-    activeServiceContext.setStateStore(store);
-  }
-
-  @Override
-  public ClientRMService getClientRMService() {
-    return activeServiceContext.getClientRMService();
-  }
-
-  @Override
-  public ApplicationMasterService getApplicationMasterService() {
-    return activeServiceContext.getApplicationMasterService();
-  }
-
-  @Override
-  public ResourceTrackerService getResourceTrackerService() {
-    return activeServiceContext.getResourceTrackerService();
-  }
-
-  void setHAEnabled(boolean isHAEnabled) {
-    this.isHAEnabled = isHAEnabled;
-  }
-
-  void setHAServiceState(HAServiceState haServiceState) {
-    synchronized (haServiceState) {
-      this.haServiceState = haServiceState;
     }
-  }
 
-  void setDispatcher(Dispatcher dispatcher) {
-    this.rmDispatcher = dispatcher;
-  }
+    @VisibleForTesting
+    // helper constructor for tests
+    public RMContextImpl(Dispatcher rmDispatcher,
+                         ContainerAllocationExpirer containerAllocationExpirer,
+                         AMLivelinessMonitor amLivelinessMonitor,
+                         AMLivelinessMonitor amFinishingMonitor,
+                         DelegationTokenRenewer delegationTokenRenewer,
+                         AMRMTokenSecretManager appTokenSecretManager,
+                         RMContainerTokenSecretManager containerTokenSecretManager,
+                         NMTokenSecretManagerInRM nmTokenSecretManager,
+                         ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager,
+                         ResourceScheduler scheduler) {
+        this();
+        this.setDispatcher(rmDispatcher);
+        setActiveServiceContext(new RMActiveServiceContext(rmDispatcher,
+                                containerAllocationExpirer, amLivelinessMonitor, amFinishingMonitor,
+                                delegationTokenRenewer, appTokenSecretManager,
+                                containerTokenSecretManager, nmTokenSecretManager,
+                                clientToAMTokenSecretManager,
+                                scheduler));
 
-  void setRMAdminService(AdminService adminService) {
-    this.adminService = adminService;
-  }
+        ConfigurationProvider provider = new LocalConfigurationProvider();
+        setConfigurationProvider(provider);
+    }
 
-  @Override
-  public void setClientRMService(ClientRMService clientRMService) {
-    activeServiceContext.setClientRMService(clientRMService);
-  }
+    @VisibleForTesting
+    // helper constructor for tests
+    public RMContextImpl(Dispatcher rmDispatcher,
+                         ContainerAllocationExpirer containerAllocationExpirer,
+                         AMLivelinessMonitor amLivelinessMonitor,
+                         AMLivelinessMonitor amFinishingMonitor,
+                         DelegationTokenRenewer delegationTokenRenewer,
+                         AMRMTokenSecretManager appTokenSecretManager,
+                         RMContainerTokenSecretManager containerTokenSecretManager,
+                         NMTokenSecretManagerInRM nmTokenSecretManager,
+                         ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager) {
+        this(
+            rmDispatcher,
+            containerAllocationExpirer,
+            amLivelinessMonitor,
+            amFinishingMonitor,
+            delegationTokenRenewer,
+            appTokenSecretManager,
+            containerTokenSecretManager,
+            nmTokenSecretManager,
+            clientToAMTokenSecretManager, null);
+    }
 
-  @Override
-  public RMDelegationTokenSecretManager getRMDelegationTokenSecretManager() {
-    return activeServiceContext.getRMDelegationTokenSecretManager();
-  }
+    @Override
+    public Dispatcher getDispatcher() {
+        return this.rmDispatcher;
+    }
 
-  @Override
-  public void setRMDelegationTokenSecretManager(
-      RMDelegationTokenSecretManager delegationTokenSecretManager) {
-    activeServiceContext
+    @Override
+    public RMStateStore getStateStore() {
+        return activeServiceContext.getStateStore();
+    }
+
+    @Override
+    public ConcurrentMap<ApplicationId, RMApp> getRMApps() {
+        return activeServiceContext.getRMApps();
+    }
+
+    @Override
+    public ConcurrentMap<NodeId, RMNode> getRMNodes() {
+        return activeServiceContext.getRMNodes();
+    }
+
+    @Override
+    public ConcurrentMap<String, RMNode> getInactiveRMNodes() {
+        return activeServiceContext.getInactiveRMNodes();
+    }
+
+    @Override
+    public ContainerAllocationExpirer getContainerAllocationExpirer() {
+        return activeServiceContext.getContainerAllocationExpirer();
+    }
+
+    @Override
+    public AMLivelinessMonitor getAMLivelinessMonitor() {
+        return activeServiceContext.getAMLivelinessMonitor();
+    }
+
+    @Override
+    public AMLivelinessMonitor getAMFinishingMonitor() {
+        return activeServiceContext.getAMFinishingMonitor();
+    }
+
+    @Override
+    public DelegationTokenRenewer getDelegationTokenRenewer() {
+        return activeServiceContext.getDelegationTokenRenewer();
+    }
+
+    @Override
+    public AMRMTokenSecretManager getAMRMTokenSecretManager() {
+        return activeServiceContext.getAMRMTokenSecretManager();
+    }
+
+    @Override
+    public RMContainerTokenSecretManager getContainerTokenSecretManager() {
+        return activeServiceContext.getContainerTokenSecretManager();
+    }
+
+    @Override
+    public NMTokenSecretManagerInRM getNMTokenSecretManager() {
+        return activeServiceContext.getNMTokenSecretManager();
+    }
+
+    @Override
+    public ResourceScheduler getScheduler() {
+        return activeServiceContext.getScheduler();
+    }
+
+    @Override
+    public ReservationSystem getReservationSystem() {
+        return activeServiceContext.getReservationSystem();
+    }
+
+    @Override
+    public NodesListManager getNodesListManager() {
+        return activeServiceContext.getNodesListManager();
+    }
+
+    @Override
+    public ClientToAMTokenSecretManagerInRM getClientToAMTokenSecretManager() {
+        return activeServiceContext.getClientToAMTokenSecretManager();
+    }
+
+    @Override
+    public AdminService getRMAdminService() {
+        return this.adminService;
+    }
+
+    @VisibleForTesting
+    public void setStateStore(RMStateStore store) {
+        activeServiceContext.setStateStore(store);
+    }
+
+    @Override
+    public ClientRMService getClientRMService() {
+        return activeServiceContext.getClientRMService();
+    }
+
+    @Override
+    public ApplicationMasterService getApplicationMasterService() {
+        return activeServiceContext.getApplicationMasterService();
+    }
+
+    @Override
+    public ResourceTrackerService getResourceTrackerService() {
+        return activeServiceContext.getResourceTrackerService();
+    }
+
+    void setHAEnabled(boolean isHAEnabled) {
+        this.isHAEnabled = isHAEnabled;
+    }
+
+    void setHAServiceState(HAServiceState haServiceState) {
+        synchronized (haServiceState) {
+            this.haServiceState = haServiceState;
+        }
+    }
+
+    void setDispatcher(Dispatcher dispatcher) {
+        this.rmDispatcher = dispatcher;
+    }
+
+    void setRMAdminService(AdminService adminService) {
+        this.adminService = adminService;
+    }
+
+    @Override
+    public void setClientRMService(ClientRMService clientRMService) {
+        activeServiceContext.setClientRMService(clientRMService);
+    }
+
+    @Override
+    public RMDelegationTokenSecretManager getRMDelegationTokenSecretManager() {
+        return activeServiceContext.getRMDelegationTokenSecretManager();
+    }
+
+    @Override
+    public void setRMDelegationTokenSecretManager(
+        RMDelegationTokenSecretManager delegationTokenSecretManager) {
+        activeServiceContext
         .setRMDelegationTokenSecretManager(delegationTokenSecretManager);
-  }
-
-  void setContainerAllocationExpirer(
-      ContainerAllocationExpirer containerAllocationExpirer) {
-    activeServiceContext
-        .setContainerAllocationExpirer(containerAllocationExpirer);
-  }
-
-  void setAMLivelinessMonitor(AMLivelinessMonitor amLivelinessMonitor) {
-    activeServiceContext.setAMLivelinessMonitor(amLivelinessMonitor);
-  }
-
-  void setAMFinishingMonitor(AMLivelinessMonitor amFinishingMonitor) {
-    activeServiceContext.setAMFinishingMonitor(amFinishingMonitor);
-  }
-
-  void setContainerTokenSecretManager(
-      RMContainerTokenSecretManager containerTokenSecretManager) {
-    activeServiceContext
-        .setContainerTokenSecretManager(containerTokenSecretManager);
-  }
-
-  void setNMTokenSecretManager(NMTokenSecretManagerInRM nmTokenSecretManager) {
-    activeServiceContext.setNMTokenSecretManager(nmTokenSecretManager);
-  }
-
-  void setScheduler(ResourceScheduler scheduler) {
-    activeServiceContext.setScheduler(scheduler);
-  }
-
-  void setReservationSystem(ReservationSystem reservationSystem) {
-    activeServiceContext.setReservationSystem(reservationSystem);
-  }
-
-  void setDelegationTokenRenewer(DelegationTokenRenewer delegationTokenRenewer) {
-    activeServiceContext.setDelegationTokenRenewer(delegationTokenRenewer);
-  }
-
-  void setClientToAMTokenSecretManager(
-      ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager) {
-    activeServiceContext
-        .setClientToAMTokenSecretManager(clientToAMTokenSecretManager);
-  }
-
-  void setAMRMTokenSecretManager(AMRMTokenSecretManager amRMTokenSecretManager) {
-    activeServiceContext.setAMRMTokenSecretManager(amRMTokenSecretManager);
-  }
-
-  void setNodesListManager(NodesListManager nodesListManager) {
-    activeServiceContext.setNodesListManager(nodesListManager);
-  }
-
-  void setApplicationMasterService(
-      ApplicationMasterService applicationMasterService) {
-    activeServiceContext.setApplicationMasterService(applicationMasterService);
-  }
-
-  void setResourceTrackerService(ResourceTrackerService resourceTrackerService) {
-    activeServiceContext.setResourceTrackerService(resourceTrackerService);
-  }
-
-  @Override
-  public boolean isHAEnabled() {
-    return isHAEnabled;
-  }
-
-  @Override
-  public HAServiceState getHAServiceState() {
-    synchronized (haServiceState) {
-      return haServiceState;
     }
-  }
 
-  public void setWorkPreservingRecoveryEnabled(boolean enabled) {
-    activeServiceContext.setWorkPreservingRecoveryEnabled(enabled);
-  }
+    void setContainerAllocationExpirer(
+        ContainerAllocationExpirer containerAllocationExpirer) {
+        activeServiceContext
+        .setContainerAllocationExpirer(containerAllocationExpirer);
+    }
 
-  @Override
-  public boolean isWorkPreservingRecoveryEnabled() {
-    return activeServiceContext.isWorkPreservingRecoveryEnabled();
-  }
+    void setAMLivelinessMonitor(AMLivelinessMonitor amLivelinessMonitor) {
+        activeServiceContext.setAMLivelinessMonitor(amLivelinessMonitor);
+    }
 
-  @Override
-  public RMApplicationHistoryWriter getRMApplicationHistoryWriter() {
-    return this.rmApplicationHistoryWriter;
-  }
+    void setAMFinishingMonitor(AMLivelinessMonitor amFinishingMonitor) {
+        activeServiceContext.setAMFinishingMonitor(amFinishingMonitor);
+    }
 
-  @Override
-  public void setSystemMetricsPublisher(
-      SystemMetricsPublisher systemMetricsPublisher) {
-    this.systemMetricsPublisher = systemMetricsPublisher;
-  }
+    void setContainerTokenSecretManager(
+        RMContainerTokenSecretManager containerTokenSecretManager) {
+        activeServiceContext
+        .setContainerTokenSecretManager(containerTokenSecretManager);
+    }
 
-  @Override
-  public SystemMetricsPublisher getSystemMetricsPublisher() {
-    return this.systemMetricsPublisher;
-  }
+    void setNMTokenSecretManager(NMTokenSecretManagerInRM nmTokenSecretManager) {
+        activeServiceContext.setNMTokenSecretManager(nmTokenSecretManager);
+    }
 
-  @Override
-  public void setRMApplicationHistoryWriter(
-      RMApplicationHistoryWriter rmApplicationHistoryWriter) {
-    this.rmApplicationHistoryWriter = rmApplicationHistoryWriter;
+    void setScheduler(ResourceScheduler scheduler) {
+        activeServiceContext.setScheduler(scheduler);
+    }
 
-  }
+    void setReservationSystem(ReservationSystem reservationSystem) {
+        activeServiceContext.setReservationSystem(reservationSystem);
+    }
 
-  @Override
-  public ConfigurationProvider getConfigurationProvider() {
-    return this.configurationProvider;
-  }
+    void setDelegationTokenRenewer(DelegationTokenRenewer delegationTokenRenewer) {
+        activeServiceContext.setDelegationTokenRenewer(delegationTokenRenewer);
+    }
 
-  public void setConfigurationProvider(
-      ConfigurationProvider configurationProvider) {
-    this.configurationProvider = configurationProvider;
-  }
+    void setClientToAMTokenSecretManager(
+        ClientToAMTokenSecretManagerInRM clientToAMTokenSecretManager) {
+        activeServiceContext
+        .setClientToAMTokenSecretManager(clientToAMTokenSecretManager);
+    }
 
-  @Override
-  public long getEpoch() {
-    return activeServiceContext.getEpoch();
-  }
+    void setAMRMTokenSecretManager(AMRMTokenSecretManager amRMTokenSecretManager) {
+        activeServiceContext.setAMRMTokenSecretManager(amRMTokenSecretManager);
+    }
 
-  void setEpoch(long epoch) {
-    activeServiceContext.setEpoch(epoch);
-  }
+    void setNodesListManager(NodesListManager nodesListManager) {
+        activeServiceContext.setNodesListManager(nodesListManager);
+    }
 
-  @Override
-  public RMNodeLabelsManager getNodeLabelManager() {
-    return activeServiceContext.getNodeLabelManager();
-  }
+    void setApplicationMasterService(
+        ApplicationMasterService applicationMasterService) {
+        activeServiceContext.setApplicationMasterService(applicationMasterService);
+    }
 
-  @Override
-  public void setNodeLabelManager(RMNodeLabelsManager mgr) {
-    activeServiceContext.setNodeLabelManager(mgr);
-  }
+    void setResourceTrackerService(ResourceTrackerService resourceTrackerService) {
+        activeServiceContext.setResourceTrackerService(resourceTrackerService);
+    }
 
-  public void setSchedulerRecoveryStartAndWaitTime(long waitTime) {
-    activeServiceContext.setSchedulerRecoveryStartAndWaitTime(waitTime);
-  }
+    @Override
+    public boolean isHAEnabled() {
+        return isHAEnabled;
+    }
 
-  public boolean isSchedulerReadyForAllocatingContainers() {
-    return activeServiceContext.isSchedulerReadyForAllocatingContainers();
-  }
+    @Override
+    public HAServiceState getHAServiceState() {
+        synchronized (haServiceState) {
+            return haServiceState;
+        }
+    }
 
-  @Private
-  @VisibleForTesting
-  public void setSystemClock(Clock clock) {
-    activeServiceContext.setSystemClock(clock);
-  }
+    public void setWorkPreservingRecoveryEnabled(boolean enabled) {
+        activeServiceContext.setWorkPreservingRecoveryEnabled(enabled);
+    }
 
-  public ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps() {
-    return activeServiceContext.getSystemCredentialsForApps();
-  }
+    @Override
+    public boolean isWorkPreservingRecoveryEnabled() {
+        return activeServiceContext.isWorkPreservingRecoveryEnabled();
+    }
 
-  @Private
-  @Unstable
-  public RMActiveServiceContext getActiveServiceContext() {
-    return activeServiceContext;
-  }
+    @Override
+    public RMApplicationHistoryWriter getRMApplicationHistoryWriter() {
+        return this.rmApplicationHistoryWriter;
+    }
 
-  @Private
-  @Unstable
-  void setActiveServiceContext(RMActiveServiceContext activeServiceContext) {
-    this.activeServiceContext = activeServiceContext;
-  }
+    @Override
+    public void setSystemMetricsPublisher(
+        SystemMetricsPublisher systemMetricsPublisher) {
+        this.systemMetricsPublisher = systemMetricsPublisher;
+    }
 
-  @Override
-  public Configuration getYarnConfiguration() {
-    return this.yarnConfiguration;
-  }
+    @Override
+    public SystemMetricsPublisher getSystemMetricsPublisher() {
+        return this.systemMetricsPublisher;
+    }
 
-  public void setYarnConfiguration(Configuration yarnConfiguration) {
-    this.yarnConfiguration=yarnConfiguration;
-  }
+    @Override
+    public void setRMApplicationHistoryWriter(
+        RMApplicationHistoryWriter rmApplicationHistoryWriter) {
+        this.rmApplicationHistoryWriter = rmApplicationHistoryWriter;
+
+    }
+
+    @Override
+    public ConfigurationProvider getConfigurationProvider() {
+        return this.configurationProvider;
+    }
+
+    public void setConfigurationProvider(
+        ConfigurationProvider configurationProvider) {
+        this.configurationProvider = configurationProvider;
+    }
+
+    @Override
+    public long getEpoch() {
+        return activeServiceContext.getEpoch();
+    }
+
+    void setEpoch(long epoch) {
+        activeServiceContext.setEpoch(epoch);
+    }
+
+    @Override
+    public RMNodeLabelsManager getNodeLabelManager() {
+        return activeServiceContext.getNodeLabelManager();
+    }
+
+    @Override
+    public void setNodeLabelManager(RMNodeLabelsManager mgr) {
+        activeServiceContext.setNodeLabelManager(mgr);
+    }
+
+    public void setSchedulerRecoveryStartAndWaitTime(long waitTime) {
+        activeServiceContext.setSchedulerRecoveryStartAndWaitTime(waitTime);
+    }
+
+    public boolean isSchedulerReadyForAllocatingContainers() {
+        return activeServiceContext.isSchedulerReadyForAllocatingContainers();
+    }
+
+    @Private
+    @VisibleForTesting
+    public void setSystemClock(Clock clock) {
+        activeServiceContext.setSystemClock(clock);
+    }
+
+    public ConcurrentMap<ApplicationId, ByteBuffer> getSystemCredentialsForApps() {
+        return activeServiceContext.getSystemCredentialsForApps();
+    }
+
+    @Private
+    @Unstable
+    public RMActiveServiceContext getActiveServiceContext() {
+        return activeServiceContext;
+    }
+
+    @Private
+    @Unstable
+    void setActiveServiceContext(RMActiveServiceContext activeServiceContext) {
+        this.activeServiceContext = activeServiceContext;
+    }
+
+    @Override
+    public Configuration getYarnConfiguration() {
+        return this.yarnConfiguration;
+    }
+
+    public void setYarnConfiguration(Configuration yarnConfiguration) {
+        this.yarnConfiguration=yarnConfiguration;
+    }
 }

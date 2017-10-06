@@ -37,59 +37,59 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class SequenceFileAsTextRecordReader
-  extends RecordReader<Text, Text> {
-  
-  private final SequenceFileRecordReader<WritableComparable<?>, Writable>
+    extends RecordReader<Text, Text> {
+
+    private final SequenceFileRecordReader<WritableComparable<?>, Writable>
     sequenceFileRecordReader;
 
-  private Text key;
-  private Text value;
+    private Text key;
+    private Text value;
 
-  public SequenceFileAsTextRecordReader()
+    public SequenceFileAsTextRecordReader()
     throws IOException {
-    sequenceFileRecordReader =
-      new SequenceFileRecordReader<WritableComparable<?>, Writable>();
-  }
+        sequenceFileRecordReader =
+            new SequenceFileRecordReader<WritableComparable<?>, Writable>();
+    }
 
-  public void initialize(InputSplit split, TaskAttemptContext context)
-      throws IOException, InterruptedException {
-    sequenceFileRecordReader.initialize(split, context);
-  }
+    public void initialize(InputSplit split, TaskAttemptContext context)
+    throws IOException, InterruptedException {
+        sequenceFileRecordReader.initialize(split, context);
+    }
 
-  @Override
-  public Text getCurrentKey() 
-      throws IOException, InterruptedException {
-    return key;
-  }
-  
-  @Override
-  public Text getCurrentValue() 
-      throws IOException, InterruptedException {
-    return value;
-  }
-  
-  /** Read key/value pair in a line. */
-  public synchronized boolean nextKeyValue() 
-      throws IOException, InterruptedException {
-    if (!sequenceFileRecordReader.nextKeyValue()) {
-      return false;
+    @Override
+    public Text getCurrentKey()
+    throws IOException, InterruptedException {
+        return key;
     }
-    if (key == null) {
-      key = new Text(); 
+
+    @Override
+    public Text getCurrentValue()
+    throws IOException, InterruptedException {
+        return value;
     }
-    if (value == null) {
-      value = new Text(); 
+
+    /** Read key/value pair in a line. */
+    public synchronized boolean nextKeyValue()
+    throws IOException, InterruptedException {
+        if (!sequenceFileRecordReader.nextKeyValue()) {
+            return false;
+        }
+        if (key == null) {
+            key = new Text();
+        }
+        if (value == null) {
+            value = new Text();
+        }
+        key.set(sequenceFileRecordReader.getCurrentKey().toString());
+        value.set(sequenceFileRecordReader.getCurrentValue().toString());
+        return true;
     }
-    key.set(sequenceFileRecordReader.getCurrentKey().toString());
-    value.set(sequenceFileRecordReader.getCurrentValue().toString());
-    return true;
-  }
-  
-  public float getProgress() throws IOException,  InterruptedException {
-    return sequenceFileRecordReader.getProgress();
-  }
-  
-  public synchronized void close() throws IOException {
-    sequenceFileRecordReader.close();
-  }
+
+    public float getProgress() throws IOException,  InterruptedException {
+        return sequenceFileRecordReader.getProgress();
+    }
+
+    public synchronized void close() throws IOException {
+        sequenceFileRecordReader.close();
+    }
 }

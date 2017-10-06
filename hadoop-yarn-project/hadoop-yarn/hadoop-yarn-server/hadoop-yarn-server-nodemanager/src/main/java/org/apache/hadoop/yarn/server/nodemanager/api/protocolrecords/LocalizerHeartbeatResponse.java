@@ -22,9 +22,9 @@ import org.apache.hadoop.yarn.server.nodemanager.api.*;
 
 public interface LocalizerHeartbeatResponse {
 
-  public LocalizerAction getLocalizerAction();
-  public void setLocalizerAction(LocalizerAction action);
+    public LocalizerAction getLocalizerAction();
+    public void setLocalizerAction(LocalizerAction action);
 
-  public List<ResourceLocalizationSpec> getResourceSpecs();
-  public void setResourceSpecs(List<ResourceLocalizationSpec> rsrcs);
+    public List<ResourceLocalizationSpec> getResourceSpecs();
+    public void setResourceSpecs(List<ResourceLocalizationSpec> rsrcs);
 }

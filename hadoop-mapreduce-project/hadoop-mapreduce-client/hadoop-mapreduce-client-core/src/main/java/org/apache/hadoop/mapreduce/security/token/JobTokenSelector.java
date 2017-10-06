@@ -35,19 +35,19 @@ import org.apache.hadoop.security.token.TokenSelector;
 @InterfaceStability.Unstable
 public class JobTokenSelector implements TokenSelector<JobTokenIdentifier> {
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Token<JobTokenIdentifier> selectToken(Text service,
-      Collection<Token<? extends TokenIdentifier>> tokens) {
-    if (service == null) {
-      return null;
+    @SuppressWarnings("unchecked")
+    @Override
+    public Token<JobTokenIdentifier> selectToken(Text service,
+            Collection<Token<? extends TokenIdentifier>> tokens) {
+        if (service == null) {
+            return null;
+        }
+        for (Token<? extends TokenIdentifier> token : tokens) {
+            if (JobTokenIdentifier.KIND_NAME.equals(token.getKind())
+                && service.equals(token.getService())) {
+                return (Token<JobTokenIdentifier>) token;
+            }
+        }
+        return null;
     }
-    for (Token<? extends TokenIdentifier> token : tokens) {
-      if (JobTokenIdentifier.KIND_NAME.equals(token.getKind())
-          && service.equals(token.getService())) {
-        return (Token<JobTokenIdentifier>) token;
-      }
-    }
-    return null;
-  }
 }

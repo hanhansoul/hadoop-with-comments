@@ -26,18 +26,16 @@ import java.util.zip.GZIPOutputStream;
 /**
  * This class tests gzip input streaming in MapReduce local mode.
  */
-public class TestGzipInput extends TestStreaming
-{
+public class TestGzipInput extends TestStreaming {
 
-  public TestGzipInput() throws IOException {
-    INPUT_FILE = new File(TEST_DIR, "input.txt.gz");
-  }
-  
-  protected void createInput() throws IOException
-  {
-    GZIPOutputStream out = new GZIPOutputStream(
-      new FileOutputStream(INPUT_FILE.getAbsoluteFile()));
-    out.write(input.getBytes("UTF-8"));
-    out.close();
-  }
+    public TestGzipInput() throws IOException {
+        INPUT_FILE = new File(TEST_DIR, "input.txt.gz");
+    }
+
+    protected void createInput() throws IOException {
+        GZIPOutputStream out = new GZIPOutputStream(
+            new FileOutputStream(INPUT_FILE.getAbsoluteFile()));
+        out.write(input.getBytes("UTF-8"));
+        out.close();
+    }
 }

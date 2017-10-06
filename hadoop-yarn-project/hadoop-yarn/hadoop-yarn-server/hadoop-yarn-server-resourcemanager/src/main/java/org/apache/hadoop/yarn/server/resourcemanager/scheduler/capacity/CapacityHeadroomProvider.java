@@ -21,45 +21,45 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.common.fica.FiCaS
 import org.apache.hadoop.yarn.api.records.Resource;
 
 public class CapacityHeadroomProvider {
-  
-  LeafQueue.User user;
-  LeafQueue queue;
-  FiCaSchedulerApp application;
-  Resource required;
-  LeafQueue.QueueHeadroomInfo queueHeadroomInfo;
-  
-  public CapacityHeadroomProvider(
-    LeafQueue.User user,
-    LeafQueue queue,
-    FiCaSchedulerApp application,
-    Resource required,
-    LeafQueue.QueueHeadroomInfo queueHeadroomInfo) {
-    
-    this.user = user;
-    this.queue = queue;
-    this.application = application;
-    this.required = required;
-    this.queueHeadroomInfo = queueHeadroomInfo;
-    
-  }
-  
-  public Resource getHeadroom() {
-    
-    Resource queueMaxCap;
-    Resource clusterResource;
-    synchronized (queueHeadroomInfo) {
-      queueMaxCap = queueHeadroomInfo.getQueueMaxCap();
-      clusterResource = queueHeadroomInfo.getClusterResource();
+
+    LeafQueue.User user;
+    LeafQueue queue;
+    FiCaSchedulerApp application;
+    Resource required;
+    LeafQueue.QueueHeadroomInfo queueHeadroomInfo;
+
+    public CapacityHeadroomProvider(
+        LeafQueue.User user,
+        LeafQueue queue,
+        FiCaSchedulerApp application,
+        Resource required,
+        LeafQueue.QueueHeadroomInfo queueHeadroomInfo) {
+
+        this.user = user;
+        this.queue = queue;
+        this.application = application;
+        this.required = required;
+        this.queueHeadroomInfo = queueHeadroomInfo;
+
     }
-    Resource headroom = queue.getHeadroom(user, queueMaxCap, 
-      clusterResource, application, required);
-    
-    // Corner case to deal with applications being slightly over-limit
-    if (headroom.getMemory() < 0) {
-      headroom.setMemory(0);
+
+    public Resource getHeadroom() {
+
+        Resource queueMaxCap;
+        Resource clusterResource;
+        synchronized (queueHeadroomInfo) {
+            queueMaxCap = queueHeadroomInfo.getQueueMaxCap();
+            clusterResource = queueHeadroomInfo.getClusterResource();
+        }
+        Resource headroom = queue.getHeadroom(user, queueMaxCap,
+                                              clusterResource, application, required);
+
+        // Corner case to deal with applications being slightly over-limit
+        if (headroom.getMemory() < 0) {
+            headroom.setMemory(0);
+        }
+        return headroom;
+
     }
-    return headroom;
-  
-  }
 
 }

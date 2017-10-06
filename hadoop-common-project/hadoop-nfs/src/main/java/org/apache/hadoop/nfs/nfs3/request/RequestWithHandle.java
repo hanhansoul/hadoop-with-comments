@@ -23,13 +23,13 @@ import org.apache.hadoop.nfs.nfs3.FileHandle;
  * An NFS request that uses {@link FileHandle} to identify a file.
  */
 public abstract class RequestWithHandle extends NFS3Request {
-  protected final FileHandle handle;
-  
-  RequestWithHandle(FileHandle handle) {
-    this.handle = handle;
-  }
+    protected final FileHandle handle;
 
-  public FileHandle getHandle() {
-    return this.handle;
-  }
+    RequestWithHandle(FileHandle handle) {
+        this.handle = handle;
+    }
+
+    public FileHandle getHandle() {
+        return this.handle;
+    }
 }

@@ -32,50 +32,50 @@ import com.google.protobuf.Message;
  */
 public class TestObjectWritableProtos {
 
-  @Test
-  public void testProtoBufs() throws IOException {
-    doTest(1);
-  }
-
-  @Test
-  public void testProtoBufs2() throws IOException {
-    doTest(2);
-  }
-  
-  @Test
-  public void testProtoBufs3() throws IOException {
-    doTest(3);
-  }
-  
-  /**
-   * Write a protobuf to a buffer 'numProtos' times, and then
-   * read them back, making sure all data comes through correctly.
-   */
-  private void doTest(int numProtos) throws IOException {
-    Configuration conf = new Configuration();
-    DataOutputBuffer out = new DataOutputBuffer();
-
-    // Write numProtos protobufs to the buffer
-    Message[] sent = new Message[numProtos];
-    for (int i = 0; i < numProtos; i++) {
-      // Construct a test protocol buffer using one of the
-      // protos that ships with the protobuf library
-      Message testProto = DescriptorProtos.EnumValueDescriptorProto.newBuilder()
-        .setName("test" + i).setNumber(i).build();
-      ObjectWritable.writeObject(out, testProto,
-          DescriptorProtos.EnumValueDescriptorProto.class, conf);
-      sent[i] = testProto;
+    @Test
+    public void testProtoBufs() throws IOException {
+        doTest(1);
     }
 
-    // Read back the data
-    DataInputBuffer in = new DataInputBuffer();
-    in.reset(out.getData(), out.getLength());
-    
-    for (int i = 0; i < numProtos; i++) {
-      Message received = (Message)ObjectWritable.readObject(in, conf);
-      
-      assertEquals(sent[i], received);
+    @Test
+    public void testProtoBufs2() throws IOException {
+        doTest(2);
     }
-  }
+
+    @Test
+    public void testProtoBufs3() throws IOException {
+        doTest(3);
+    }
+
+    /**
+     * Write a protobuf to a buffer 'numProtos' times, and then
+     * read them back, making sure all data comes through correctly.
+     */
+    private void doTest(int numProtos) throws IOException {
+        Configuration conf = new Configuration();
+        DataOutputBuffer out = new DataOutputBuffer();
+
+        // Write numProtos protobufs to the buffer
+        Message[] sent = new Message[numProtos];
+        for (int i = 0; i < numProtos; i++) {
+            // Construct a test protocol buffer using one of the
+            // protos that ships with the protobuf library
+            Message testProto = DescriptorProtos.EnumValueDescriptorProto.newBuilder()
+                                .setName("test" + i).setNumber(i).build();
+            ObjectWritable.writeObject(out, testProto,
+                                       DescriptorProtos.EnumValueDescriptorProto.class, conf);
+            sent[i] = testProto;
+        }
+
+        // Read back the data
+        DataInputBuffer in = new DataInputBuffer();
+        in.reset(out.getData(), out.getLength());
+
+        for (int i = 0; i < numProtos; i++) {
+            Message received = (Message)ObjectWritable.readObject(in, conf);
+
+            assertEquals(sent[i], received);
+        }
+    }
 
 }

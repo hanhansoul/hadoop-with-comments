@@ -22,12 +22,12 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This class implements a value aggregator that computes the 
+ * This class implements a value aggregator that computes the
  * histogram of a sequence of strings.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class ValueHistogram 
-    extends org.apache.hadoop.mapreduce.lib.aggregate.ValueHistogram 
+public class ValueHistogram
+    extends org.apache.hadoop.mapreduce.lib.aggregate.ValueHistogram
     implements ValueAggregator<String> {
 }

@@ -23,92 +23,92 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskId;
 import org.apache.hadoop.mapreduce.v2.proto.MRProtos.TaskAttemptIdProto;
 import org.apache.hadoop.mapreduce.v2.proto.MRProtos.TaskAttemptIdProtoOrBuilder;
 import org.apache.hadoop.mapreduce.v2.proto.MRProtos.TaskIdProto;
-    
+
 public class TaskAttemptIdPBImpl extends TaskAttemptId {
-  TaskAttemptIdProto proto = TaskAttemptIdProto.getDefaultInstance();
-  TaskAttemptIdProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private TaskId taskId = null;
-  
-  
-  
-  public TaskAttemptIdPBImpl() {
-    builder = TaskAttemptIdProto.newBuilder();
-  }
+    TaskAttemptIdProto proto = TaskAttemptIdProto.getDefaultInstance();
+    TaskAttemptIdProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public TaskAttemptIdPBImpl(TaskAttemptIdProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public synchronized TaskAttemptIdProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private TaskId taskId = null;
 
-  private synchronized void mergeLocalToBuilder() {
-    if (this.taskId != null
-        && !((TaskIdPBImpl) this.taskId).getProto().equals(builder.getTaskId())) {
-      builder.setTaskId(convertToProtoFormat(this.taskId));
+
+
+    public TaskAttemptIdPBImpl() {
+        builder = TaskAttemptIdProto.newBuilder();
     }
-  }
 
-  private synchronized void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private synchronized void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = TaskAttemptIdProto.newBuilder(proto);
+    public TaskAttemptIdPBImpl(TaskAttemptIdProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public synchronized int getId() {
-    TaskAttemptIdProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getId());
-  }
 
-  @Override
-  public synchronized void setId(int id) {
-    maybeInitBuilder();
-    builder.setId((id));
-  }
-  @Override
-  public synchronized TaskId getTaskId() {
-    TaskAttemptIdProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.taskId != null) {
-      return this.taskId;
+    public synchronized TaskAttemptIdProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasTaskId()) {
-      return null;
+
+    private synchronized void mergeLocalToBuilder() {
+        if (this.taskId != null
+            && !((TaskIdPBImpl) this.taskId).getProto().equals(builder.getTaskId())) {
+            builder.setTaskId(convertToProtoFormat(this.taskId));
+        }
     }
-    taskId = convertFromProtoFormat(p.getTaskId());
-    return taskId;
-  }
 
-  @Override
-  public synchronized void setTaskId(TaskId taskId) {
-    maybeInitBuilder();
-    if (taskId == null)
-      builder.clearTaskId();
-    this.taskId = taskId;
-  }
+    private synchronized void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private TaskIdPBImpl convertFromProtoFormat(TaskIdProto p) {
-    return new TaskIdPBImpl(p);
-  }
+    private synchronized void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = TaskAttemptIdProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
-  private TaskIdProto convertToProtoFormat(TaskId t) {
-    return ((TaskIdPBImpl)t).getProto();
-  }
+
+    @Override
+    public synchronized int getId() {
+        TaskAttemptIdProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getId());
+    }
+
+    @Override
+    public synchronized void setId(int id) {
+        maybeInitBuilder();
+        builder.setId((id));
+    }
+    @Override
+    public synchronized TaskId getTaskId() {
+        TaskAttemptIdProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.taskId != null) {
+            return this.taskId;
+        }
+        if (!p.hasTaskId()) {
+            return null;
+        }
+        taskId = convertFromProtoFormat(p.getTaskId());
+        return taskId;
+    }
+
+    @Override
+    public synchronized void setTaskId(TaskId taskId) {
+        maybeInitBuilder();
+        if (taskId == null)
+            builder.clearTaskId();
+        this.taskId = taskId;
+    }
+
+    private TaskIdPBImpl convertFromProtoFormat(TaskIdProto p) {
+        return new TaskIdPBImpl(p);
+    }
+
+    private TaskIdProto convertToProtoFormat(TaskId t) {
+        return ((TaskIdPBImpl)t).getProto();
+    }
 }

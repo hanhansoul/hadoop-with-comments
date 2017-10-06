@@ -45,245 +45,245 @@ import static org.apache.hadoop.fs.swift.util.SwiftTestUtils.writeTextFile;
  */
 public class TestSwiftFileSystemBasicOps extends SwiftFileSystemBaseTest {
 
-  private static final Log LOG =
-          LogFactory.getLog(TestSwiftFileSystemBasicOps.class);
+    private static final Log LOG =
+        LogFactory.getLog(TestSwiftFileSystemBasicOps.class);
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testLsRoot() throws Throwable {
-    Path path = new Path("/");
-    FileStatus[] statuses = fs.listStatus(path);
-  }
-
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testMkDir() throws Throwable {
-    Path path = new Path("/test/MkDir");
-    fs.mkdirs(path);
-    //success then -so try a recursive operation
-    fs.delete(path, true);
-  }
-
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDeleteNonexistentFile() throws Throwable {
-    Path path = new Path("/test/DeleteNonexistentFile");
-    assertFalse("delete returned true", fs.delete(path, false));
-  }
-
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testPutFile() throws Throwable {
-    Path path = new Path("/test/PutFile");
-    Exception caught = null;
-    writeTextFile(fs, path, "Testing a put to a file", false);
-    assertDeleted(path, false);
-  }
-
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testPutGetFile() throws Throwable {
-    Path path = new Path("/test/PutGetFile");
-    try {
-      String text = "Testing a put and get to a file "
-              + System.currentTimeMillis();
-      writeTextFile(fs, path, text, false);
-
-      String result = readBytesToString(fs, path, text.length());
-      assertEquals(text, result);
-    } finally {
-      delete(fs, path);
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testLsRoot() throws Throwable {
+        Path path = new Path("/");
+        FileStatus[] statuses = fs.listStatus(path);
     }
-  }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testPutDeleteFileInSubdir() throws Throwable {
-    Path path =
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testMkDir() throws Throwable {
+        Path path = new Path("/test/MkDir");
+        fs.mkdirs(path);
+        //success then -so try a recursive operation
+        fs.delete(path, true);
+    }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDeleteNonexistentFile() throws Throwable {
+        Path path = new Path("/test/DeleteNonexistentFile");
+        assertFalse("delete returned true", fs.delete(path, false));
+    }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testPutFile() throws Throwable {
+        Path path = new Path("/test/PutFile");
+        Exception caught = null;
+        writeTextFile(fs, path, "Testing a put to a file", false);
+        assertDeleted(path, false);
+    }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testPutGetFile() throws Throwable {
+        Path path = new Path("/test/PutGetFile");
+        try {
+            String text = "Testing a put and get to a file "
+                          + System.currentTimeMillis();
+            writeTextFile(fs, path, text, false);
+
+            String result = readBytesToString(fs, path, text.length());
+            assertEquals(text, result);
+        } finally {
+            delete(fs, path);
+        }
+    }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testPutDeleteFileInSubdir() throws Throwable {
+        Path path =
             new Path("/test/PutDeleteFileInSubdir/testPutDeleteFileInSubdir");
-    String text = "Testing a put and get to a file in a subdir "
-            + System.currentTimeMillis();
-    writeTextFile(fs, path, text, false);
-    assertDeleted(path, false);
-    //now delete the parent that should have no children
-    assertDeleted(new Path("/test/PutDeleteFileInSubdir"), false);
-  }
+        String text = "Testing a put and get to a file in a subdir "
+                      + System.currentTimeMillis();
+        writeTextFile(fs, path, text, false);
+        assertDeleted(path, false);
+        //now delete the parent that should have no children
+        assertDeleted(new Path("/test/PutDeleteFileInSubdir"), false);
+    }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testRecursiveDelete() throws Throwable {
-    Path childpath =
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testRecursiveDelete() throws Throwable {
+        Path childpath =
             new Path("/test/testRecursiveDelete");
-    String text = "Testing a put and get to a file in a subdir "
-            + System.currentTimeMillis();
-    writeTextFile(fs, childpath, text, false);
-    //now delete the parent that should have no children
-    assertDeleted(new Path("/test"), true);
-    assertFalse("child entry still present " + childpath, fs.exists(childpath));
-  }
-
-  private void delete(SwiftNativeFileSystem fs, Path path) {
-    try {
-      if (!fs.delete(path, false)) {
-        LOG.warn("Failed to delete " + path);
-      }
-    } catch (IOException e) {
-      LOG.warn("deleting " + path, e);
+        String text = "Testing a put and get to a file in a subdir "
+                      + System.currentTimeMillis();
+        writeTextFile(fs, childpath, text, false);
+        //now delete the parent that should have no children
+        assertDeleted(new Path("/test"), true);
+        assertFalse("child entry still present " + childpath, fs.exists(childpath));
     }
-  }
 
-  private void deleteR(SwiftNativeFileSystem fs, Path path) {
-    try {
-      if (!fs.delete(path, true)) {
-        LOG.warn("Failed to delete " + path);
-      }
-    } catch (IOException e) {
-      LOG.warn("deleting " + path, e);
+    private void delete(SwiftNativeFileSystem fs, Path path) {
+        try {
+            if (!fs.delete(path, false)) {
+                LOG.warn("Failed to delete " + path);
+            }
+        } catch (IOException e) {
+            LOG.warn("deleting " + path, e);
+        }
     }
-  }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testOverwrite() throws Throwable {
-    Path path = new Path("/test/Overwrite");
-    try {
-      String text = "Testing a put to a file "
-              + System.currentTimeMillis();
-      writeTextFile(fs, path, text, false);
-      assertFileHasLength(fs, path, text.length());
-      String text2 = "Overwriting a file "
-              + System.currentTimeMillis();
-      writeTextFile(fs, path, text2, true);
-      assertFileHasLength(fs, path, text2.length());
-      String result = readBytesToString(fs, path, text2.length());
-      assertEquals(text2, result);
-    } finally {
-      delete(fs, path);
+    private void deleteR(SwiftNativeFileSystem fs, Path path) {
+        try {
+            if (!fs.delete(path, true)) {
+                LOG.warn("Failed to delete " + path);
+            }
+        } catch (IOException e) {
+            LOG.warn("deleting " + path, e);
+        }
     }
-  }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testOverwriteDirectory() throws Throwable {
-    Path path = new Path("/test/testOverwriteDirectory");
-    try {
-      fs.mkdirs(path.getParent());
-      String text = "Testing a put to a file "
-              + System.currentTimeMillis();
-      writeTextFile(fs, path, text, false);
-      assertFileHasLength(fs, path, text.length());
-    } finally {
-      delete(fs, path);
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testOverwrite() throws Throwable {
+        Path path = new Path("/test/Overwrite");
+        try {
+            String text = "Testing a put to a file "
+                          + System.currentTimeMillis();
+            writeTextFile(fs, path, text, false);
+            assertFileHasLength(fs, path, text.length());
+            String text2 = "Overwriting a file "
+                           + System.currentTimeMillis();
+            writeTextFile(fs, path, text2, true);
+            assertFileHasLength(fs, path, text2.length());
+            String result = readBytesToString(fs, path, text2.length());
+            assertEquals(text2, result);
+        } finally {
+            delete(fs, path);
+        }
     }
-  }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testFileStatus() throws Throwable {
-    Path path = new Path("/test/FileStatus");
-    try {
-      String text = "Testing File Status "
-              + System.currentTimeMillis();
-      writeTextFile(fs, path, text, false);
-      SwiftTestUtils.assertIsFile(fs, path);
-    } finally {
-      delete(fs, path);
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testOverwriteDirectory() throws Throwable {
+        Path path = new Path("/test/testOverwriteDirectory");
+        try {
+            fs.mkdirs(path.getParent());
+            String text = "Testing a put to a file "
+                          + System.currentTimeMillis();
+            writeTextFile(fs, path, text, false);
+            assertFileHasLength(fs, path, text.length());
+        } finally {
+            delete(fs, path);
+        }
     }
-  }
 
-  /**
-   * Assert that a newly created directory is a directory
-   *
-   * @throws Throwable if not, or if something else failed
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDirStatus() throws Throwable {
-    Path path = new Path("/test/DirStatus");
-    try {
-      fs.mkdirs(path);
-      assertIsDirectory(fs, path);
-    } finally {
-      delete(fs, path);
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testFileStatus() throws Throwable {
+        Path path = new Path("/test/FileStatus");
+        try {
+            String text = "Testing File Status "
+                          + System.currentTimeMillis();
+            writeTextFile(fs, path, text, false);
+            SwiftTestUtils.assertIsFile(fs, path);
+        } finally {
+            delete(fs, path);
+        }
     }
-  }
 
-  /**
-   * Assert that if a directory that has children is deleted, it is still
-   * a directory
-   *
-   * @throws Throwable if not, or if something else failed
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDirStaysADir() throws Throwable {
-    Path path = new Path("/test/dirStaysADir");
-    Path child = new Path(path, "child");
-    try {
-      //create the dir
-      fs.mkdirs(path);
-      //assert the parent has the directory nature
-      assertIsDirectory(fs, path);
-      //create the child dir
-      writeTextFile(fs, child, "child file", true);
-      //assert the parent has the directory nature
-      assertIsDirectory(fs, path);
-      //now rm the child
-      delete(fs, child);
-    } finally {
-      deleteR(fs, path);
+    /**
+     * Assert that a newly created directory is a directory
+     *
+     * @throws Throwable if not, or if something else failed
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDirStatus() throws Throwable {
+        Path path = new Path("/test/DirStatus");
+        try {
+            fs.mkdirs(path);
+            assertIsDirectory(fs, path);
+        } finally {
+            delete(fs, path);
+        }
     }
-  }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testCreateMultilevelDir() throws Throwable {
-    Path base = new Path("/test/CreateMultilevelDir");
-    Path path = new Path(base, "1/2/3");
-    fs.mkdirs(path);
-    assertExists("deep multilevel dir not created", path);
-    fs.delete(base, true);
-    assertPathDoesNotExist("Multilevel delete failed", path);
-    assertPathDoesNotExist("Multilevel delete failed", base);
-
-  }
-
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testCreateDirWithFileParent() throws Throwable {
-    Path path = new Path("/test/CreateDirWithFileParent");
-    Path child = new Path(path, "subdir/child");
-    fs.mkdirs(path.getParent());
-    try {
-      //create the child dir
-      writeTextFile(fs, path, "parent", true);
-      try {
-        fs.mkdirs(child);
-      } catch (ParentNotDirectoryException expected) {
-        LOG.debug("Expected Exception", expected);
-      }
-    } finally {
-      fs.delete(path, true);
+    /**
+     * Assert that if a directory that has children is deleted, it is still
+     * a directory
+     *
+     * @throws Throwable if not, or if something else failed
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDirStaysADir() throws Throwable {
+        Path path = new Path("/test/dirStaysADir");
+        Path child = new Path(path, "child");
+        try {
+            //create the dir
+            fs.mkdirs(path);
+            //assert the parent has the directory nature
+            assertIsDirectory(fs, path);
+            //create the child dir
+            writeTextFile(fs, child, "child file", true);
+            //assert the parent has the directory nature
+            assertIsDirectory(fs, path);
+            //now rm the child
+            delete(fs, child);
+        } finally {
+            deleteR(fs, path);
+        }
     }
-  }
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testLongObjectNamesForbidden() throws Throwable {
-    StringBuilder buffer = new StringBuilder(1200);
-    buffer.append("/");
-    for (int i = 0; i < (1200 / 4); i++) {
-      buffer.append(String.format("%04x", i));
-    }
-    String pathString = buffer.toString();
-    Path path = new Path(pathString);
-    try {
-      writeTextFile(fs, path, pathString, true);
-      //if we get here, problems.
-      fs.delete(path, false);
-      fail("Managed to create an object with a name of length "
-              + pathString.length());
-    } catch (SwiftBadRequestException e) {
-      //expected
-      //LOG.debug("Caught exception " + e, e);
-    }
-  }
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testCreateMultilevelDir() throws Throwable {
+        Path base = new Path("/test/CreateMultilevelDir");
+        Path path = new Path(base, "1/2/3");
+        fs.mkdirs(path);
+        assertExists("deep multilevel dir not created", path);
+        fs.delete(base, true);
+        assertPathDoesNotExist("Multilevel delete failed", path);
+        assertPathDoesNotExist("Multilevel delete failed", base);
 
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testLsNonExistentFile() throws Exception {
-    try {
-      Path path = new Path("/test/hadoop/file");
-      FileStatus[] statuses = fs.listStatus(path);
-      fail("Should throw FileNotFoundException on " + path
-              + " but got list of length " + statuses.length);
-    } catch (FileNotFoundException fnfe) {
-      // expected
     }
-  }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testCreateDirWithFileParent() throws Throwable {
+        Path path = new Path("/test/CreateDirWithFileParent");
+        Path child = new Path(path, "subdir/child");
+        fs.mkdirs(path.getParent());
+        try {
+            //create the child dir
+            writeTextFile(fs, path, "parent", true);
+            try {
+                fs.mkdirs(child);
+            } catch (ParentNotDirectoryException expected) {
+                LOG.debug("Expected Exception", expected);
+            }
+        } finally {
+            fs.delete(path, true);
+        }
+    }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testLongObjectNamesForbidden() throws Throwable {
+        StringBuilder buffer = new StringBuilder(1200);
+        buffer.append("/");
+        for (int i = 0; i < (1200 / 4); i++) {
+            buffer.append(String.format("%04x", i));
+        }
+        String pathString = buffer.toString();
+        Path path = new Path(pathString);
+        try {
+            writeTextFile(fs, path, pathString, true);
+            //if we get here, problems.
+            fs.delete(path, false);
+            fail("Managed to create an object with a name of length "
+                 + pathString.length());
+        } catch (SwiftBadRequestException e) {
+            //expected
+            //LOG.debug("Caught exception " + e, e);
+        }
+    }
+
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testLsNonExistentFile() throws Exception {
+        try {
+            Path path = new Path("/test/hadoop/file");
+            FileStatus[] statuses = fs.listStatus(path);
+            fail("Should throw FileNotFoundException on " + path
+                 + " but got list of length " + statuses.length);
+        } catch (FileNotFoundException fnfe) {
+            // expected
+        }
+    }
 
 }

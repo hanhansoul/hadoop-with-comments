@@ -32,65 +32,65 @@ import org.apache.hadoop.yarn.api.records.LocalResourceVisibility;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class LocalResourceInfo {
 
-  @XmlElement(name = "resource")
-  URI url;
-  LocalResourceType type;
-  LocalResourceVisibility visibility;
-  long size;
-  long timestamp;
-  String pattern;
+    @XmlElement(name = "resource")
+    URI url;
+    LocalResourceType type;
+    LocalResourceVisibility visibility;
+    long size;
+    long timestamp;
+    String pattern;
 
-  public URI getUrl() {
-    return url;
-  }
-
-  public LocalResourceType getType() {
-    return type;
-  }
-
-  public LocalResourceVisibility getVisibility() {
-    return visibility;
-  }
-
-  public long getSize() {
-    return size;
-  }
-
-  public long getTimestamp() {
-    return timestamp;
-  }
-
-  public String getPattern() {
-    return pattern;
-  }
-
-  public void setUrl(URI url) {
-    this.url = url;
-  }
-
-  public void setType(LocalResourceType type) {
-    this.type = type;
-  }
-
-  public void setVisibility(LocalResourceVisibility visibility) {
-    this.visibility = visibility;
-  }
-
-  public void setSize(long size) {
-    if (size <= 0) {
-      throw new IllegalArgumentException("size must be greater than 0");
+    public URI getUrl() {
+        return url;
     }
-    this.size = size;
-  }
 
-  public void setTimestamp(long timestamp) {
-    if (timestamp <= 0) {
-      throw new IllegalArgumentException("timestamp must be greater than 0");
+    public LocalResourceType getType() {
+        return type;
     }
-    this.timestamp = timestamp;
-  }
 
-  public void setPattern(String pattern) {
-    this.pattern = pattern;
-  }
+    public LocalResourceVisibility getVisibility() {
+        return visibility;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setUrl(URI url) {
+        this.url = url;
+    }
+
+    public void setType(LocalResourceType type) {
+        this.type = type;
+    }
+
+    public void setVisibility(LocalResourceVisibility visibility) {
+        this.visibility = visibility;
+    }
+
+    public void setSize(long size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("size must be greater than 0");
+        }
+        this.size = size;
+    }
+
+    public void setTimestamp(long timestamp) {
+        if (timestamp <= 0) {
+            throw new IllegalArgumentException("timestamp must be greater than 0");
+        }
+        this.timestamp = timestamp;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
 }

@@ -29,35 +29,35 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The request sent by the <code>ApplicationMaster</code> to the
  * <code>NodeManager</code> to <em>stop</em> containers.</p>
- * 
+ *
  * @see ContainerManagementProtocol#stopContainers(StopContainersRequest)
  */
 @Public
 @Stable
 public abstract class StopContainersRequest {
 
-  @Public
-  @Stable
-  public static StopContainersRequest newInstance(List<ContainerId> containerIds) {
-    StopContainersRequest request =
-        Records.newRecord(StopContainersRequest.class);
-    request.setContainerIds(containerIds);
-    return request;
-  }
+    @Public
+    @Stable
+    public static StopContainersRequest newInstance(List<ContainerId> containerIds) {
+        StopContainersRequest request =
+            Records.newRecord(StopContainersRequest.class);
+        request.setContainerIds(containerIds);
+        return request;
+    }
 
-  /**
-   * Get the <code>ContainerId</code>s of the containers to be stopped.
-   * @return <code>ContainerId</code>s of containers to be stopped
-   */
-  @Public
-  @Stable
-  public abstract List<ContainerId> getContainerIds();
-  
-  /**
-   * Set the <code>ContainerId</code>s of the containers to be stopped.
-   * @param containerIds <code>ContainerId</code>s of the containers to be stopped
-   */
-  @Public
-  @Stable
-  public abstract void setContainerIds(List<ContainerId> containerIds);
+    /**
+     * Get the <code>ContainerId</code>s of the containers to be stopped.
+     * @return <code>ContainerId</code>s of containers to be stopped
+     */
+    @Public
+    @Stable
+    public abstract List<ContainerId> getContainerIds();
+
+    /**
+     * Set the <code>ContainerId</code>s of the containers to be stopped.
+     * @param containerIds <code>ContainerId</code>s of the containers to be stopped
+     */
+    @Public
+    @Stable
+    public abstract void setContainerIds(List<ContainerId> containerIds);
 }

@@ -35,17 +35,17 @@ import org.apache.hadoop.conf.Configuration;
 public class MySQLDataDrivenDBRecordReader<T extends DBWritable>
     extends DataDrivenDBRecordReader<T> {
 
-  public MySQLDataDrivenDBRecordReader(DBInputFormat.DBInputSplit split,
-      Class<T> inputClass, Configuration conf, Connection conn, DBConfiguration dbConfig,
-      String cond, String [] fields, String table) throws SQLException {
-    super(split, inputClass, conf, conn, dbConfig, cond, fields, table, "MYSQL");
-  }
+    public MySQLDataDrivenDBRecordReader(DBInputFormat.DBInputSplit split,
+                                         Class<T> inputClass, Configuration conf, Connection conn, DBConfiguration dbConfig,
+                                         String cond, String [] fields, String table) throws SQLException {
+        super(split, inputClass, conf, conn, dbConfig, cond, fields, table, "MYSQL");
+    }
 
-  // Execute statements for mysql in unbuffered mode.
-  protected ResultSet executeQuery(String query) throws SQLException {
-    statement = getConnection().prepareStatement(query,
-      ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-    statement.setFetchSize(Integer.MIN_VALUE); // MySQL: read row-at-a-time.
-    return statement.executeQuery();
-  }
+    // Execute statements for mysql in unbuffered mode.
+    protected ResultSet executeQuery(String query) throws SQLException {
+        statement = getConnection().prepareStatement(query,
+                    ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+        statement.setFetchSize(Integer.MIN_VALUE); // MySQL: read row-at-a-time.
+        return statement.executeQuery();
+    }
 }

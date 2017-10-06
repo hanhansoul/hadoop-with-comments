@@ -20,13 +20,13 @@ package org.apache.hadoop.yarn.server.nodemanager;
 
 public interface ResourceView {
 
-  long getVmemAllocatedForContainers();
+    long getVmemAllocatedForContainers();
 
-  boolean isVmemCheckEnabled();
+    boolean isVmemCheckEnabled();
 
-  long getPmemAllocatedForContainers();
+    long getPmemAllocatedForContainers();
 
-  boolean isPmemCheckEnabled();
+    boolean isPmemCheckEnabled();
 
-  long getVCoresAllocatedForContainers();
+    long getVCoresAllocatedForContainers();
 }

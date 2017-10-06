@@ -28,22 +28,22 @@ import java.net.URI;
  */
 public class SwiftBadRequestException extends SwiftInvalidResponseException {
 
-  public SwiftBadRequestException(String message,
-                                  String operation,
-                                  URI uri,
-                                  HttpMethod method) {
-    super(message, operation, uri, method);
-  }
+    public SwiftBadRequestException(String message,
+                                    String operation,
+                                    URI uri,
+                                    HttpMethod method) {
+        super(message, operation, uri, method);
+    }
 
-  public SwiftBadRequestException(String message,
-                                  int statusCode,
-                                  String operation,
-                                  URI uri) {
-    super(message, statusCode, operation, uri);
-  }
+    public SwiftBadRequestException(String message,
+                                    int statusCode,
+                                    String operation,
+                                    URI uri) {
+        super(message, statusCode, operation, uri);
+    }
 
-  @Override
-  public String exceptionTitle() {
-    return "BadRequest";
-  }
+    @Override
+    public String exceptionTitle() {
+        return "BadRequest";
+    }
 }

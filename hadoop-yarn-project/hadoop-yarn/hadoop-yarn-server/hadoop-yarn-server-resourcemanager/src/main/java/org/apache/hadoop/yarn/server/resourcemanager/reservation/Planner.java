@@ -26,23 +26,23 @@ import org.apache.hadoop.yarn.server.resourcemanager.reservation.exceptions.Plan
 
 public interface Planner {
 
-  /**
-   * Update the existing {@link Plan}, by adding/removing/updating existing
-   * reservations, and adding a subset of the reservation requests in the
-   * contracts parameter.
-   *
-   * @param plan the {@link Plan} to replan
-   * @param contracts the list of reservation requests
-   * @throws PlanningException
-   */
-  public void plan(Plan plan, List<ReservationDefinition> contracts)
-      throws PlanningException;
+    /**
+     * Update the existing {@link Plan}, by adding/removing/updating existing
+     * reservations, and adding a subset of the reservation requests in the
+     * contracts parameter.
+     *
+     * @param plan the {@link Plan} to replan
+     * @param contracts the list of reservation requests
+     * @throws PlanningException
+     */
+    public void plan(Plan plan, List<ReservationDefinition> contracts)
+    throws PlanningException;
 
-  /**
-   * Initialize the replanner
-   *
-   * @param planQueueName the name of the queue for this plan
-   * @param conf the scheduler configuration
-   */
-  void init(String planQueueName, Configuration conf);
+    /**
+     * Initialize the replanner
+     *
+     * @param planQueueName the name of the queue for this plan
+     * @param conf the scheduler configuration
+     */
+    void init(String planQueueName, Configuration conf);
 }

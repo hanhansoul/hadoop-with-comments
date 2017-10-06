@@ -27,76 +27,76 @@ import org.apache.hadoop.yarn.server.api.records.MasterKey;
 
 public class MasterKeyPBImpl extends ProtoBase<MasterKeyProto> implements
     MasterKey {
-  MasterKeyProto proto = MasterKeyProto.getDefaultInstance();
-  MasterKeyProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public MasterKeyPBImpl() {
-    builder = MasterKeyProto.newBuilder();
-  }
+    MasterKeyProto proto = MasterKeyProto.getDefaultInstance();
+    MasterKeyProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public MasterKeyPBImpl(MasterKeyProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public synchronized MasterKeyProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private synchronized void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = MasterKeyProto.newBuilder(proto);
+    public MasterKeyPBImpl() {
+        builder = MasterKeyProto.newBuilder();
     }
-    viaProto = false;
-  }
 
-  @Override
-  public synchronized int getKeyId() {
-    MasterKeyProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getKeyId());
-  }
-
-  @Override
-  public synchronized void setKeyId(int id) {
-    maybeInitBuilder();
-    builder.setKeyId((id));
-  }
-
-  @Override
-  public synchronized ByteBuffer getBytes() {
-    MasterKeyProtoOrBuilder p = viaProto ? proto : builder;
-    return convertFromProtoFormat(p.getBytes());
-  }
-
-  @Override
-  public synchronized void setBytes(ByteBuffer bytes) {
-    maybeInitBuilder();
-    builder.setBytes(convertToProtoFormat(bytes));
-  }
-
-  @Override
-  public int hashCode() {
-    return getKeyId();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (!(obj instanceof MasterKey)) {
-      return false;
+    public MasterKeyPBImpl(MasterKeyProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    MasterKey other = (MasterKey) obj;
-    if (this.getKeyId() != other.getKeyId()) {
-      return false;
+
+    public synchronized MasterKeyProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!this.getBytes().equals(other.getBytes())) {
-      return false;
+
+    private synchronized void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = MasterKeyProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    return true;
-  }
+
+    @Override
+    public synchronized int getKeyId() {
+        MasterKeyProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getKeyId());
+    }
+
+    @Override
+    public synchronized void setKeyId(int id) {
+        maybeInitBuilder();
+        builder.setKeyId((id));
+    }
+
+    @Override
+    public synchronized ByteBuffer getBytes() {
+        MasterKeyProtoOrBuilder p = viaProto ? proto : builder;
+        return convertFromProtoFormat(p.getBytes());
+    }
+
+    @Override
+    public synchronized void setBytes(ByteBuffer bytes) {
+        maybeInitBuilder();
+        builder.setBytes(convertToProtoFormat(bytes));
+    }
+
+    @Override
+    public int hashCode() {
+        return getKeyId();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof MasterKey)) {
+            return false;
+        }
+        MasterKey other = (MasterKey) obj;
+        if (this.getKeyId() != other.getKeyId()) {
+            return false;
+        }
+        if (!this.getBytes().equals(other.getBytes())) {
+            return false;
+        }
+        return true;
+    }
 
 }

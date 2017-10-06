@@ -34,80 +34,80 @@ import static org.junit.Assert.*;
 
 
 public class TestYarnApiClasses {
-  private final org.apache.hadoop.yarn.factories.RecordFactory recordFactory = RecordFactoryProvider
-          .getRecordFactory(null);
+    private final org.apache.hadoop.yarn.factories.RecordFactory recordFactory = RecordFactoryProvider
+            .getRecordFactory(null);
 
-  /**
-   * Simple test Resource request.
-   * Test hashCode, equals and compare.
-   */
-  @Test
-  public void testResourceRequest() {
+    /**
+     * Simple test Resource request.
+     * Test hashCode, equals and compare.
+     */
+    @Test
+    public void testResourceRequest() {
 
-    Resource resource = recordFactory.newRecordInstance(Resource.class);
-    Priority priority = recordFactory.newRecordInstance(Priority.class);
+        Resource resource = recordFactory.newRecordInstance(Resource.class);
+        Priority priority = recordFactory.newRecordInstance(Priority.class);
 
-    ResourceRequest original = ResourceRequest.newInstance(priority, "localhost", resource, 2) ;
+        ResourceRequest original = ResourceRequest.newInstance(priority, "localhost", resource, 2) ;
 
-    ResourceRequest copy = ResourceRequest.newInstance(priority, "localhost", resource, 2);
+        ResourceRequest copy = ResourceRequest.newInstance(priority, "localhost", resource, 2);
 
-    assertTrue(original.equals(copy));
-    assertEquals(0, original.compareTo(copy));
-    assertTrue(original.hashCode() == copy.hashCode());
+        assertTrue(original.equals(copy));
+        assertEquals(0, original.compareTo(copy));
+        assertTrue(original.hashCode() == copy.hashCode());
 
-    copy.setNumContainers(1);
+        copy.setNumContainers(1);
 
-    assertFalse(original.equals(copy));
-    assertNotSame(0, original.compareTo(copy));
-    assertFalse(original.hashCode() == copy.hashCode());
+        assertFalse(original.equals(copy));
+        assertNotSame(0, original.compareTo(copy));
+        assertFalse(original.hashCode() == copy.hashCode());
 
-  }
+    }
 
-  /**
-  * Test CancelDelegationTokenRequestPBImpl.
-  * Test a transformation to prototype and back
-  */
-  @Test
-  public void testCancelDelegationTokenRequestPBImpl() {
+    /**
+    * Test CancelDelegationTokenRequestPBImpl.
+    * Test a transformation to prototype and back
+    */
+    @Test
+    public void testCancelDelegationTokenRequestPBImpl() {
 
-    Token token = getDelegationToken();
+        Token token = getDelegationToken();
 
-    CancelDelegationTokenRequestPBImpl original = new CancelDelegationTokenRequestPBImpl();
-    original.setDelegationToken(token);
-    CancelDelegationTokenRequestProto protoType = original.getProto();
+        CancelDelegationTokenRequestPBImpl original = new CancelDelegationTokenRequestPBImpl();
+        original.setDelegationToken(token);
+        CancelDelegationTokenRequestProto protoType = original.getProto();
 
-    CancelDelegationTokenRequestPBImpl copy = new CancelDelegationTokenRequestPBImpl(protoType);
-    assertNotNull(copy.getDelegationToken());
-    //compare source and converted
-    assertEquals(token, copy.getDelegationToken());
+        CancelDelegationTokenRequestPBImpl copy = new CancelDelegationTokenRequestPBImpl(protoType);
+        assertNotNull(copy.getDelegationToken());
+        //compare source and converted
+        assertEquals(token, copy.getDelegationToken());
 
-  }
+    }
 
-  /**
-  * Test RenewDelegationTokenRequestPBImpl.
-  * Test a transformation to prototype and back
-  */
+    /**
+    * Test RenewDelegationTokenRequestPBImpl.
+    * Test a transformation to prototype and back
+    */
 
-  @Test
-  public void testRenewDelegationTokenRequestPBImpl() {
+    @Test
+    public void testRenewDelegationTokenRequestPBImpl() {
 
-    Token token = getDelegationToken();
+        Token token = getDelegationToken();
 
-    RenewDelegationTokenRequestPBImpl original = new RenewDelegationTokenRequestPBImpl();
-    original.setDelegationToken(token);
-    RenewDelegationTokenRequestProto protoType = original.getProto();
+        RenewDelegationTokenRequestPBImpl original = new RenewDelegationTokenRequestPBImpl();
+        original.setDelegationToken(token);
+        RenewDelegationTokenRequestProto protoType = original.getProto();
 
-    RenewDelegationTokenRequestPBImpl copy = new RenewDelegationTokenRequestPBImpl(protoType);
-    assertNotNull(copy.getDelegationToken());
-    //compare source and converted
-    assertEquals(token, copy.getDelegationToken());
+        RenewDelegationTokenRequestPBImpl copy = new RenewDelegationTokenRequestPBImpl(protoType);
+        assertNotNull(copy.getDelegationToken());
+        //compare source and converted
+        assertEquals(token, copy.getDelegationToken());
 
-  }
+    }
 
- 
-  private Token getDelegationToken() {
-    return Token.newInstance(new byte[0], "", new byte[0], "");
-  }
+
+    private Token getDelegationToken() {
+        return Token.newInstance(new byte[0], "", new byte[0], "");
+    }
 
 
 }

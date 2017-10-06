@@ -37,232 +37,232 @@ import org.apache.hadoop.yarn.util.resource.Resources;
 @Evolving
 public class FairSchedulerConfiguration extends Configuration {
 
-  public static final Log LOG = LogFactory.getLog(
-      FairSchedulerConfiguration.class.getName());
-  
-  /** Increment request grant-able by the RM scheduler. 
-   * These properties are looked up in the yarn-site.xml  */
-  public static final String RM_SCHEDULER_INCREMENT_ALLOCATION_MB =
-    YarnConfiguration.YARN_PREFIX + "scheduler.increment-allocation-mb";
-  public static final int DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_MB = 1024;
-  public static final String RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES =
-    YarnConfiguration.YARN_PREFIX + "scheduler.increment-allocation-vcores";
-  public static final int DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES = 1;
-  
-  private static final String CONF_PREFIX =  "yarn.scheduler.fair.";
+    public static final Log LOG = LogFactory.getLog(
+                                      FairSchedulerConfiguration.class.getName());
 
-  public static final String ALLOCATION_FILE = CONF_PREFIX + "allocation.file";
-  protected static final String DEFAULT_ALLOCATION_FILE = "fair-scheduler.xml";
-  
-  /** Whether to enable the Fair Scheduler event log */
-  public static final String EVENT_LOG_ENABLED = CONF_PREFIX + "event-log-enabled";
-  public static final boolean DEFAULT_EVENT_LOG_ENABLED = false;
+    /** Increment request grant-able by the RM scheduler.
+     * These properties are looked up in the yarn-site.xml  */
+    public static final String RM_SCHEDULER_INCREMENT_ALLOCATION_MB =
+        YarnConfiguration.YARN_PREFIX + "scheduler.increment-allocation-mb";
+    public static final int DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_MB = 1024;
+    public static final String RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES =
+        YarnConfiguration.YARN_PREFIX + "scheduler.increment-allocation-vcores";
+    public static final int DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES = 1;
 
-  protected static final String EVENT_LOG_DIR = "eventlog.dir";
+    private static final String CONF_PREFIX =  "yarn.scheduler.fair.";
 
-  /** Whether pools can be created that were not specified in the FS configuration file
-   */
-  protected static final String ALLOW_UNDECLARED_POOLS = CONF_PREFIX + "allow-undeclared-pools";
-  protected static final boolean DEFAULT_ALLOW_UNDECLARED_POOLS = true;
-  
-  /** Whether to use the user name as the queue name (instead of "default") if
-   * the request does not specify a queue. */
-  protected static final String  USER_AS_DEFAULT_QUEUE = CONF_PREFIX + "user-as-default-queue";
-  protected static final boolean DEFAULT_USER_AS_DEFAULT_QUEUE = true;
+    public static final String ALLOCATION_FILE = CONF_PREFIX + "allocation.file";
+    protected static final String DEFAULT_ALLOCATION_FILE = "fair-scheduler.xml";
 
-  protected static final float  DEFAULT_LOCALITY_THRESHOLD = -1.0f;
+    /** Whether to enable the Fair Scheduler event log */
+    public static final String EVENT_LOG_ENABLED = CONF_PREFIX + "event-log-enabled";
+    public static final boolean DEFAULT_EVENT_LOG_ENABLED = false;
 
-  /** Cluster threshold for node locality. */
-  protected static final String LOCALITY_THRESHOLD_NODE = CONF_PREFIX + "locality.threshold.node";
-  protected static final float  DEFAULT_LOCALITY_THRESHOLD_NODE =
-		  DEFAULT_LOCALITY_THRESHOLD;
+    protected static final String EVENT_LOG_DIR = "eventlog.dir";
 
-  /** Cluster threshold for rack locality. */
-  protected static final String LOCALITY_THRESHOLD_RACK = CONF_PREFIX + "locality.threshold.rack";
-  protected static final float  DEFAULT_LOCALITY_THRESHOLD_RACK =
-		  DEFAULT_LOCALITY_THRESHOLD;
+    /** Whether pools can be created that were not specified in the FS configuration file
+     */
+    protected static final String ALLOW_UNDECLARED_POOLS = CONF_PREFIX + "allow-undeclared-pools";
+    protected static final boolean DEFAULT_ALLOW_UNDECLARED_POOLS = true;
 
-  /** Delay for node locality. */
-  protected static final String LOCALITY_DELAY_NODE_MS = CONF_PREFIX + "locality-delay-node-ms";
-  protected static final long DEFAULT_LOCALITY_DELAY_NODE_MS = -1L;
+    /** Whether to use the user name as the queue name (instead of "default") if
+     * the request does not specify a queue. */
+    protected static final String  USER_AS_DEFAULT_QUEUE = CONF_PREFIX + "user-as-default-queue";
+    protected static final boolean DEFAULT_USER_AS_DEFAULT_QUEUE = true;
 
-  /** Delay for rack locality. */
-  protected static final String LOCALITY_DELAY_RACK_MS = CONF_PREFIX + "locality-delay-rack-ms";
-  protected static final long DEFAULT_LOCALITY_DELAY_RACK_MS = -1L;
+    protected static final float  DEFAULT_LOCALITY_THRESHOLD = -1.0f;
 
-  /** Enable continuous scheduling or not. */
-  protected static final String CONTINUOUS_SCHEDULING_ENABLED = CONF_PREFIX + "continuous-scheduling-enabled";
-  protected static final boolean DEFAULT_CONTINUOUS_SCHEDULING_ENABLED = false;
+    /** Cluster threshold for node locality. */
+    protected static final String LOCALITY_THRESHOLD_NODE = CONF_PREFIX + "locality.threshold.node";
+    protected static final float  DEFAULT_LOCALITY_THRESHOLD_NODE =
+        DEFAULT_LOCALITY_THRESHOLD;
 
-  /** Sleep time of each pass in continuous scheduling (5ms in default) */
-  protected static final String CONTINUOUS_SCHEDULING_SLEEP_MS = CONF_PREFIX + "continuous-scheduling-sleep-ms";
-  protected static final int DEFAULT_CONTINUOUS_SCHEDULING_SLEEP_MS = 5;
+    /** Cluster threshold for rack locality. */
+    protected static final String LOCALITY_THRESHOLD_RACK = CONF_PREFIX + "locality.threshold.rack";
+    protected static final float  DEFAULT_LOCALITY_THRESHOLD_RACK =
+        DEFAULT_LOCALITY_THRESHOLD;
 
-  /** Whether preemption is enabled. */
-  protected static final String  PREEMPTION = CONF_PREFIX + "preemption";
-  protected static final boolean DEFAULT_PREEMPTION = false;
+    /** Delay for node locality. */
+    protected static final String LOCALITY_DELAY_NODE_MS = CONF_PREFIX + "locality-delay-node-ms";
+    protected static final long DEFAULT_LOCALITY_DELAY_NODE_MS = -1L;
 
-  protected static final String PREEMPTION_THRESHOLD =
-      CONF_PREFIX + "preemption.cluster-utilization-threshold";
-  protected static final float DEFAULT_PREEMPTION_THRESHOLD = 0.8f;
-  
-  protected static final String PREEMPTION_INTERVAL = CONF_PREFIX + "preemptionInterval";
-  protected static final int DEFAULT_PREEMPTION_INTERVAL = 5000;
-  protected static final String WAIT_TIME_BEFORE_KILL = CONF_PREFIX + "waitTimeBeforeKill";
-  protected static final int DEFAULT_WAIT_TIME_BEFORE_KILL = 15000;
+    /** Delay for rack locality. */
+    protected static final String LOCALITY_DELAY_RACK_MS = CONF_PREFIX + "locality-delay-rack-ms";
+    protected static final long DEFAULT_LOCALITY_DELAY_RACK_MS = -1L;
 
-  /** Whether to assign multiple containers in one check-in. */
-  public static final String  ASSIGN_MULTIPLE = CONF_PREFIX + "assignmultiple";
-  protected static final boolean DEFAULT_ASSIGN_MULTIPLE = false;
+    /** Enable continuous scheduling or not. */
+    protected static final String CONTINUOUS_SCHEDULING_ENABLED = CONF_PREFIX + "continuous-scheduling-enabled";
+    protected static final boolean DEFAULT_CONTINUOUS_SCHEDULING_ENABLED = false;
 
-  /** Whether to give more weight to apps requiring many resources. */
-  protected static final String  SIZE_BASED_WEIGHT = CONF_PREFIX + "sizebasedweight";
-  protected static final boolean DEFAULT_SIZE_BASED_WEIGHT = false;
+    /** Sleep time of each pass in continuous scheduling (5ms in default) */
+    protected static final String CONTINUOUS_SCHEDULING_SLEEP_MS = CONF_PREFIX + "continuous-scheduling-sleep-ms";
+    protected static final int DEFAULT_CONTINUOUS_SCHEDULING_SLEEP_MS = 5;
 
-  /** Maximum number of containers to assign on each check-in. */
-  protected static final String MAX_ASSIGN = CONF_PREFIX + "max.assign";
-  protected static final int DEFAULT_MAX_ASSIGN = -1;
+    /** Whether preemption is enabled. */
+    protected static final String  PREEMPTION = CONF_PREFIX + "preemption";
+    protected static final boolean DEFAULT_PREEMPTION = false;
 
-  /** The update interval for calculating resources in FairScheduler .*/
-  public static final String UPDATE_INTERVAL_MS =
-      CONF_PREFIX + "update-interval-ms";
-  public static final int DEFAULT_UPDATE_INTERVAL_MS = 500;
+    protected static final String PREEMPTION_THRESHOLD =
+        CONF_PREFIX + "preemption.cluster-utilization-threshold";
+    protected static final float DEFAULT_PREEMPTION_THRESHOLD = 0.8f;
 
-  public FairSchedulerConfiguration() {
-    super();
-  }
-  
-  public FairSchedulerConfiguration(Configuration conf) {
-    super(conf);
-  }
+    protected static final String PREEMPTION_INTERVAL = CONF_PREFIX + "preemptionInterval";
+    protected static final int DEFAULT_PREEMPTION_INTERVAL = 5000;
+    protected static final String WAIT_TIME_BEFORE_KILL = CONF_PREFIX + "waitTimeBeforeKill";
+    protected static final int DEFAULT_WAIT_TIME_BEFORE_KILL = 15000;
 
-  public Resource getMinimumAllocation() {
-    int mem = getInt(
-        YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
-        YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB);
-    int cpu = getInt(
-        YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES,
-        YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
-    return Resources.createResource(mem, cpu);
-  }
+    /** Whether to assign multiple containers in one check-in. */
+    public static final String  ASSIGN_MULTIPLE = CONF_PREFIX + "assignmultiple";
+    protected static final boolean DEFAULT_ASSIGN_MULTIPLE = false;
 
-  public Resource getMaximumAllocation() {
-    int mem = getInt(
-        YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
-        YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB);
-    int cpu = getInt(
-        YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES,
-        YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES);
-    return Resources.createResource(mem, cpu);
-  }
+    /** Whether to give more weight to apps requiring many resources. */
+    protected static final String  SIZE_BASED_WEIGHT = CONF_PREFIX + "sizebasedweight";
+    protected static final boolean DEFAULT_SIZE_BASED_WEIGHT = false;
 
-  public Resource getIncrementAllocation() {
-    int incrementMemory = getInt(
-      RM_SCHEDULER_INCREMENT_ALLOCATION_MB,
-      DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_MB);
-    int incrementCores = getInt(
-      RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES,
-      DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES);
-    return Resources.createResource(incrementMemory, incrementCores);
-  }
-  
-  public float getLocalityThresholdNode() {
-    return getFloat(LOCALITY_THRESHOLD_NODE, DEFAULT_LOCALITY_THRESHOLD_NODE);
-  }
+    /** Maximum number of containers to assign on each check-in. */
+    protected static final String MAX_ASSIGN = CONF_PREFIX + "max.assign";
+    protected static final int DEFAULT_MAX_ASSIGN = -1;
 
-  public float getLocalityThresholdRack() {
-    return getFloat(LOCALITY_THRESHOLD_RACK, DEFAULT_LOCALITY_THRESHOLD_RACK);
-  }
+    /** The update interval for calculating resources in FairScheduler .*/
+    public static final String UPDATE_INTERVAL_MS =
+        CONF_PREFIX + "update-interval-ms";
+    public static final int DEFAULT_UPDATE_INTERVAL_MS = 500;
 
-  public boolean isContinuousSchedulingEnabled() {
-    return getBoolean(CONTINUOUS_SCHEDULING_ENABLED, DEFAULT_CONTINUOUS_SCHEDULING_ENABLED);
-  }
-
-  public int getContinuousSchedulingSleepMs() {
-    return getInt(CONTINUOUS_SCHEDULING_SLEEP_MS, DEFAULT_CONTINUOUS_SCHEDULING_SLEEP_MS);
-  }
-
-  public long getLocalityDelayNodeMs() {
-    return getLong(LOCALITY_DELAY_NODE_MS, DEFAULT_LOCALITY_DELAY_NODE_MS);
-  }
-
-  public long getLocalityDelayRackMs() {
-    return getLong(LOCALITY_DELAY_RACK_MS, DEFAULT_LOCALITY_DELAY_RACK_MS);
-  }
-
-  public boolean getPreemptionEnabled() {
-    return getBoolean(PREEMPTION, DEFAULT_PREEMPTION);
-  }
-
-  public float getPreemptionUtilizationThreshold() {
-    return getFloat(PREEMPTION_THRESHOLD, DEFAULT_PREEMPTION_THRESHOLD);
-  }
-
-  public boolean getAssignMultiple() {
-    return getBoolean(ASSIGN_MULTIPLE, DEFAULT_ASSIGN_MULTIPLE);
-  }
-
-  public int getMaxAssign() {
-    return getInt(MAX_ASSIGN, DEFAULT_MAX_ASSIGN);
-  }
-
-  public boolean getSizeBasedWeight() {
-    return getBoolean(SIZE_BASED_WEIGHT, DEFAULT_SIZE_BASED_WEIGHT);
-  }
-
-  public boolean isEventLogEnabled() {
-    return getBoolean(EVENT_LOG_ENABLED, DEFAULT_EVENT_LOG_ENABLED);
-  }
-  
-  public String getEventlogDir() {
-    return get(EVENT_LOG_DIR, new File(System.getProperty("hadoop.log.dir",
-    		"/tmp/")).getAbsolutePath() + File.separator + "fairscheduler");
-  }
-  
-  public int getPreemptionInterval() {
-    return getInt(PREEMPTION_INTERVAL, DEFAULT_PREEMPTION_INTERVAL);
-  }
-  
-  public int getWaitTimeBeforeKill() {
-    return getInt(WAIT_TIME_BEFORE_KILL, DEFAULT_WAIT_TIME_BEFORE_KILL);
-  }
-
-  public boolean getUsePortForNodeName() {
-    return getBoolean(YarnConfiguration.RM_SCHEDULER_INCLUDE_PORT_IN_NODE_NAME,
-        YarnConfiguration.DEFAULT_RM_SCHEDULER_USE_PORT_FOR_NODE_NAME);
-  }
-
-  /**
-   * Parses a resource config value of a form like "1024", "1024 mb",
-   * or "1024 mb, 3 vcores". If no units are given, megabytes are assumed.
-   * 
-   * @throws AllocationConfigurationException
-   */
-  public static Resource parseResourceConfigValue(String val)
-      throws AllocationConfigurationException {
-    try {
-      int memory = findResource(val, "mb");
-      int vcores = findResource(val, "vcores");
-      return BuilderUtils.newResource(memory, vcores);
-    } catch (AllocationConfigurationException ex) {
-      throw ex;
-    } catch (Exception ex) {
-      throw new AllocationConfigurationException(
-          "Error reading resource config", ex);
+    public FairSchedulerConfiguration() {
+        super();
     }
-  }
 
-  public long getUpdateInterval() {
-    return getLong(UPDATE_INTERVAL_MS, DEFAULT_UPDATE_INTERVAL_MS);
-  }
-  
-  private static int findResource(String val, String units)
+    public FairSchedulerConfiguration(Configuration conf) {
+        super(conf);
+    }
+
+    public Resource getMinimumAllocation() {
+        int mem = getInt(
+                      YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_MB,
+                      YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_MB);
+        int cpu = getInt(
+                      YarnConfiguration.RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES,
+                      YarnConfiguration.DEFAULT_RM_SCHEDULER_MINIMUM_ALLOCATION_VCORES);
+        return Resources.createResource(mem, cpu);
+    }
+
+    public Resource getMaximumAllocation() {
+        int mem = getInt(
+                      YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_MB,
+                      YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_MB);
+        int cpu = getInt(
+                      YarnConfiguration.RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES,
+                      YarnConfiguration.DEFAULT_RM_SCHEDULER_MAXIMUM_ALLOCATION_VCORES);
+        return Resources.createResource(mem, cpu);
+    }
+
+    public Resource getIncrementAllocation() {
+        int incrementMemory = getInt(
+                                  RM_SCHEDULER_INCREMENT_ALLOCATION_MB,
+                                  DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_MB);
+        int incrementCores = getInt(
+                                 RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES,
+                                 DEFAULT_RM_SCHEDULER_INCREMENT_ALLOCATION_VCORES);
+        return Resources.createResource(incrementMemory, incrementCores);
+    }
+
+    public float getLocalityThresholdNode() {
+        return getFloat(LOCALITY_THRESHOLD_NODE, DEFAULT_LOCALITY_THRESHOLD_NODE);
+    }
+
+    public float getLocalityThresholdRack() {
+        return getFloat(LOCALITY_THRESHOLD_RACK, DEFAULT_LOCALITY_THRESHOLD_RACK);
+    }
+
+    public boolean isContinuousSchedulingEnabled() {
+        return getBoolean(CONTINUOUS_SCHEDULING_ENABLED, DEFAULT_CONTINUOUS_SCHEDULING_ENABLED);
+    }
+
+    public int getContinuousSchedulingSleepMs() {
+        return getInt(CONTINUOUS_SCHEDULING_SLEEP_MS, DEFAULT_CONTINUOUS_SCHEDULING_SLEEP_MS);
+    }
+
+    public long getLocalityDelayNodeMs() {
+        return getLong(LOCALITY_DELAY_NODE_MS, DEFAULT_LOCALITY_DELAY_NODE_MS);
+    }
+
+    public long getLocalityDelayRackMs() {
+        return getLong(LOCALITY_DELAY_RACK_MS, DEFAULT_LOCALITY_DELAY_RACK_MS);
+    }
+
+    public boolean getPreemptionEnabled() {
+        return getBoolean(PREEMPTION, DEFAULT_PREEMPTION);
+    }
+
+    public float getPreemptionUtilizationThreshold() {
+        return getFloat(PREEMPTION_THRESHOLD, DEFAULT_PREEMPTION_THRESHOLD);
+    }
+
+    public boolean getAssignMultiple() {
+        return getBoolean(ASSIGN_MULTIPLE, DEFAULT_ASSIGN_MULTIPLE);
+    }
+
+    public int getMaxAssign() {
+        return getInt(MAX_ASSIGN, DEFAULT_MAX_ASSIGN);
+    }
+
+    public boolean getSizeBasedWeight() {
+        return getBoolean(SIZE_BASED_WEIGHT, DEFAULT_SIZE_BASED_WEIGHT);
+    }
+
+    public boolean isEventLogEnabled() {
+        return getBoolean(EVENT_LOG_ENABLED, DEFAULT_EVENT_LOG_ENABLED);
+    }
+
+    public String getEventlogDir() {
+        return get(EVENT_LOG_DIR, new File(System.getProperty("hadoop.log.dir",
+                                           "/tmp/")).getAbsolutePath() + File.separator + "fairscheduler");
+    }
+
+    public int getPreemptionInterval() {
+        return getInt(PREEMPTION_INTERVAL, DEFAULT_PREEMPTION_INTERVAL);
+    }
+
+    public int getWaitTimeBeforeKill() {
+        return getInt(WAIT_TIME_BEFORE_KILL, DEFAULT_WAIT_TIME_BEFORE_KILL);
+    }
+
+    public boolean getUsePortForNodeName() {
+        return getBoolean(YarnConfiguration.RM_SCHEDULER_INCLUDE_PORT_IN_NODE_NAME,
+                          YarnConfiguration.DEFAULT_RM_SCHEDULER_USE_PORT_FOR_NODE_NAME);
+    }
+
+    /**
+     * Parses a resource config value of a form like "1024", "1024 mb",
+     * or "1024 mb, 3 vcores". If no units are given, megabytes are assumed.
+     *
+     * @throws AllocationConfigurationException
+     */
+    public static Resource parseResourceConfigValue(String val)
     throws AllocationConfigurationException {
-    Pattern pattern = Pattern.compile("(\\d+) ?" + units);
-    Matcher matcher = pattern.matcher(val);
-    if (!matcher.find()) {
-      throw new AllocationConfigurationException("Missing resource: " + units);
+        try {
+            int memory = findResource(val, "mb");
+            int vcores = findResource(val, "vcores");
+            return BuilderUtils.newResource(memory, vcores);
+        } catch (AllocationConfigurationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new AllocationConfigurationException(
+                "Error reading resource config", ex);
+        }
     }
-    return Integer.parseInt(matcher.group(1));
-  }
+
+    public long getUpdateInterval() {
+        return getLong(UPDATE_INTERVAL_MS, DEFAULT_UPDATE_INTERVAL_MS);
+    }
+
+    private static int findResource(String val, String units)
+    throws AllocationConfigurationException {
+        Pattern pattern = Pattern.compile("(\\d+) ?" + units);
+        Matcher matcher = pattern.matcher(val);
+        if (!matcher.find()) {
+            throw new AllocationConfigurationException("Missing resource: " + units);
+        }
+        return Integer.parseInt(matcher.group(1));
+    }
 }

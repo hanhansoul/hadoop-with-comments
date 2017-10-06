@@ -25,40 +25,46 @@ import java.net.URL;
 import org.junit.Test;
 
 public class TestOffsetUrlInputStream {
-  @Test
-  public void testRemoveOffset() throws IOException {
-    { //no offset
-      String s = "http://test/Abc?Length=99";
-      assertEquals(s, WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
-    }
+    @Test
+    public void testRemoveOffset() throws IOException {
+        {
+            //no offset
+            String s = "http://test/Abc?Length=99";
+            assertEquals(s, WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        }
 
-    { //no parameters
-      String s = "http://test/Abc";
-      assertEquals(s, WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
-    }
+        {
+            //no parameters
+            String s = "http://test/Abc";
+            assertEquals(s, WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        }
 
-    { //offset as first parameter
-      String s = "http://test/Abc?offset=10&Length=99";
-      assertEquals("http://test/Abc?Length=99",
-          WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
-    }
+        {
+            //offset as first parameter
+            String s = "http://test/Abc?offset=10&Length=99";
+            assertEquals("http://test/Abc?Length=99",
+                         WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        }
 
-    { //offset as second parameter
-      String s = "http://test/Abc?op=read&OFFset=10&Length=99";
-      assertEquals("http://test/Abc?op=read&Length=99",
-          WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
-    }
+        {
+            //offset as second parameter
+            String s = "http://test/Abc?op=read&OFFset=10&Length=99";
+            assertEquals("http://test/Abc?op=read&Length=99",
+                         WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        }
 
-    { //offset as last parameter
-      String s = "http://test/Abc?Length=99&offset=10";
-      assertEquals("http://test/Abc?Length=99",
-          WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
-    }
+        {
+            //offset as last parameter
+            String s = "http://test/Abc?Length=99&offset=10";
+            assertEquals("http://test/Abc?Length=99",
+                         WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        }
 
-    { //offset as the only parameter
-      String s = "http://test/Abc?offset=10";
-      assertEquals("http://test/Abc",
-          WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        {
+            //offset as the only parameter
+            String s = "http://test/Abc?offset=10";
+            assertEquals("http://test/Abc",
+                         WebHdfsFileSystem.removeOffsetParam(new URL(s)).toString());
+        }
     }
-  }
 }

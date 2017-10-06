@@ -28,53 +28,53 @@ import org.apache.hadoop.yarn.logaggregation.ContainerLogsRetentionPolicy;
 
 public class LogHandlerAppStartedEvent extends LogHandlerEvent {
 
-  private final ApplicationId applicationId;
-  private final ContainerLogsRetentionPolicy retentionPolicy;
-  private final String user;
-  private final Credentials credentials;
-  private final Map<ApplicationAccessType, String> appAcls;
-  private final LogAggregationContext logAggregationContext;
+    private final ApplicationId applicationId;
+    private final ContainerLogsRetentionPolicy retentionPolicy;
+    private final String user;
+    private final Credentials credentials;
+    private final Map<ApplicationAccessType, String> appAcls;
+    private final LogAggregationContext logAggregationContext;
 
-  public LogHandlerAppStartedEvent(ApplicationId appId, String user,
-      Credentials credentials, ContainerLogsRetentionPolicy retentionPolicy,
-      Map<ApplicationAccessType, String> appAcls) {
-    this(appId, user, credentials, retentionPolicy, appAcls, null);
-  }
+    public LogHandlerAppStartedEvent(ApplicationId appId, String user,
+                                     Credentials credentials, ContainerLogsRetentionPolicy retentionPolicy,
+                                     Map<ApplicationAccessType, String> appAcls) {
+        this(appId, user, credentials, retentionPolicy, appAcls, null);
+    }
 
-  public LogHandlerAppStartedEvent(ApplicationId appId, String user,
-      Credentials credentials, ContainerLogsRetentionPolicy retentionPolicy,
-      Map<ApplicationAccessType, String> appAcls,
-      LogAggregationContext logAggregationContext) {
-    super(LogHandlerEventType.APPLICATION_STARTED);
-    this.applicationId = appId;
-    this.user = user;
-    this.credentials = credentials;
-    this.retentionPolicy = retentionPolicy;
-    this.appAcls = appAcls;
-    this.logAggregationContext = logAggregationContext;
-  }
+    public LogHandlerAppStartedEvent(ApplicationId appId, String user,
+                                     Credentials credentials, ContainerLogsRetentionPolicy retentionPolicy,
+                                     Map<ApplicationAccessType, String> appAcls,
+                                     LogAggregationContext logAggregationContext) {
+        super(LogHandlerEventType.APPLICATION_STARTED);
+        this.applicationId = appId;
+        this.user = user;
+        this.credentials = credentials;
+        this.retentionPolicy = retentionPolicy;
+        this.appAcls = appAcls;
+        this.logAggregationContext = logAggregationContext;
+    }
 
-  public ApplicationId getApplicationId() {
-    return this.applicationId;
-  }
+    public ApplicationId getApplicationId() {
+        return this.applicationId;
+    }
 
-  public Credentials getCredentials() {
-    return this.credentials;
-  }
+    public Credentials getCredentials() {
+        return this.credentials;
+    }
 
-  public ContainerLogsRetentionPolicy getLogRetentionPolicy() {
-    return this.retentionPolicy;
-  }
+    public ContainerLogsRetentionPolicy getLogRetentionPolicy() {
+        return this.retentionPolicy;
+    }
 
-  public String getUser() {
-    return this.user;
-  }
+    public String getUser() {
+        return this.user;
+    }
 
-  public Map<ApplicationAccessType, String> getApplicationAcls() {
-    return this.appAcls;
-  }
+    public Map<ApplicationAccessType, String> getApplicationAcls() {
+        return this.appAcls;
+    }
 
-  public LogAggregationContext getLogAggregationContext() {
-    return this.logAggregationContext;
-  }
+    public LogAggregationContext getLogAggregationContext() {
+        return this.logAggregationContext;
+    }
 }

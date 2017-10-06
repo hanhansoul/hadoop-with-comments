@@ -23,17 +23,17 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.Private
 public abstract class ByteParam extends Param<Byte> {
 
-  public ByteParam(String name, Byte defaultValue) {
-    super(name, defaultValue);
-  }
+    public ByteParam(String name, Byte defaultValue) {
+        super(name, defaultValue);
+    }
 
-  @Override
-  protected Byte parse(String str) throws Exception {
-    return Byte.parseByte(str);
-  }
+    @Override
+    protected Byte parse(String str) throws Exception {
+        return Byte.parseByte(str);
+    }
 
-  @Override
-  protected String getDomain() {
-    return "a byte";
-  }
+    @Override
+    protected String getDomain() {
+        return "a byte";
+    }
 }

@@ -31,24 +31,24 @@ import org.junit.Test;
 
 
 public class TestMiniJournalCluster {
-  @Test
-  public void testStartStop() throws IOException {
-    Configuration conf = new Configuration();
-    MiniJournalCluster c = new MiniJournalCluster.Builder(conf)
-      .build();
-    try {
-      URI uri = c.getQuorumJournalURI("myjournal");
-      String[] addrs = uri.getAuthority().split(";");
-      assertEquals(3, addrs.length);
-      
-      JournalNode node = c.getJournalNode(0);
-      String dir = node.getConf().get(DFSConfigKeys.DFS_JOURNALNODE_EDITS_DIR_KEY);
-      assertEquals(
-          new File(MiniDFSCluster.getBaseDirectory() + "journalnode-0")
-            .getAbsolutePath(),
-          dir);
-    } finally {
-      c.shutdown();
+    @Test
+    public void testStartStop() throws IOException {
+        Configuration conf = new Configuration();
+        MiniJournalCluster c = new MiniJournalCluster.Builder(conf)
+        .build();
+        try {
+            URI uri = c.getQuorumJournalURI("myjournal");
+            String[] addrs = uri.getAuthority().split(";");
+            assertEquals(3, addrs.length);
+
+            JournalNode node = c.getJournalNode(0);
+            String dir = node.getConf().get(DFSConfigKeys.DFS_JOURNALNODE_EDITS_DIR_KEY);
+            assertEquals(
+                new File(MiniDFSCluster.getBaseDirectory() + "journalnode-0")
+                .getAbsolutePath(),
+                dir);
+        } finally {
+            c.shutdown();
+        }
     }
-  }
 }

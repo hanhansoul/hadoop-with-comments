@@ -28,7 +28,7 @@ import org.apache.hadoop.service.Service;
  * of the service life cycle to initialize and cleanup the storage. Users can
  * access the storage via {@link ApplicationHistoryReader} and
  * {@link ApplicationHistoryWriter} interfaces.
- * 
+ *
  */
 @InterfaceAudience.Public
 @InterfaceStability.Unstable

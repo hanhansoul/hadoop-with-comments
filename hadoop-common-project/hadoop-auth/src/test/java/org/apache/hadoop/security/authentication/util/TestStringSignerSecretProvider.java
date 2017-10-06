@@ -20,19 +20,19 @@ import org.junit.Test;
 
 public class TestStringSignerSecretProvider {
 
-  @Test
-  public void testGetSecrets() throws Exception {
-    String secretStr = "secret";
-    StringSignerSecretProvider secretProvider
+    @Test
+    public void testGetSecrets() throws Exception {
+        String secretStr = "secret";
+        StringSignerSecretProvider secretProvider
             = new StringSignerSecretProvider();
-    Properties secretProviderProps = new Properties();
-    secretProviderProps.setProperty(
+        Properties secretProviderProps = new Properties();
+        secretProviderProps.setProperty(
             AuthenticationFilter.SIGNATURE_SECRET, "secret");
-    secretProvider.init(secretProviderProps, null, -1);
-    byte[] secretBytes = secretStr.getBytes();
-    Assert.assertArrayEquals(secretBytes, secretProvider.getCurrentSecret());
-    byte[][] allSecrets = secretProvider.getAllSecrets();
-    Assert.assertEquals(1, allSecrets.length);
-    Assert.assertArrayEquals(secretBytes, allSecrets[0]);
-  }
+        secretProvider.init(secretProviderProps, null, -1);
+        byte[] secretBytes = secretStr.getBytes();
+        Assert.assertArrayEquals(secretBytes, secretProvider.getCurrentSecret());
+        byte[][] allSecrets = secretProvider.getAllSecrets();
+        Assert.assertEquals(1, allSecrets.length);
+        Assert.assertArrayEquals(secretBytes, allSecrets[0]);
+    }
 }

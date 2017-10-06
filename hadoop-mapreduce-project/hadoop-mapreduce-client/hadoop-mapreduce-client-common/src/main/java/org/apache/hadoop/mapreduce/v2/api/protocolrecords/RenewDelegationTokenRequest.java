@@ -29,6 +29,6 @@ import org.apache.hadoop.yarn.api.records.Token;
 @Public
 @Evolving
 public interface RenewDelegationTokenRequest {
-  Token getDelegationToken();
-  void setDelegationToken(Token dToken);
+    Token getDelegationToken();
+    void setDelegationToken(Token dToken);
 }

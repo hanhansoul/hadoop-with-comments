@@ -39,113 +39,113 @@ import org.apache.hadoop.yarn.server.api.records.MasterKey;
 public class BaseNMTokenSecretManager extends
     SecretManager<NMTokenIdentifier> {
 
-  private static Log LOG = LogFactory
-      .getLog(BaseNMTokenSecretManager.class);
+    private static Log LOG = LogFactory
+                             .getLog(BaseNMTokenSecretManager.class);
 
-  protected int serialNo = new SecureRandom().nextInt();
+    protected int serialNo = new SecureRandom().nextInt();
 
-  protected final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-  protected final Lock readLock = readWriteLock.readLock();
-  protected final Lock writeLock = readWriteLock.writeLock();
+    protected final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    protected final Lock readLock = readWriteLock.readLock();
+    protected final Lock writeLock = readWriteLock.writeLock();
 
-  protected MasterKeyData currentMasterKey;
-  
-  protected MasterKeyData createNewMasterKey() {
-    this.writeLock.lock();
-    try {
-      return new MasterKeyData(serialNo++, generateSecret());
-    } finally {
-      this.writeLock.unlock();
-    }
-  }
+    protected MasterKeyData currentMasterKey;
 
-  @Private
-  public MasterKey getCurrentKey() {
-    this.readLock.lock();
-    try {
-      return this.currentMasterKey.getMasterKey();
-    } finally {
-      this.readLock.unlock();
+    protected MasterKeyData createNewMasterKey() {
+        this.writeLock.lock();
+        try {
+            return new MasterKeyData(serialNo++, generateSecret());
+        } finally {
+            this.writeLock.unlock();
+        }
     }
-  }
 
-  @Override
-  protected byte[] createPassword(NMTokenIdentifier identifier) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("creating password for "
-          + identifier.getApplicationAttemptId() + " for user "
-          + identifier.getApplicationSubmitter() + " to run on NM "
-          + identifier.getNodeId());
+    @Private
+    public MasterKey getCurrentKey() {
+        this.readLock.lock();
+        try {
+            return this.currentMasterKey.getMasterKey();
+        } finally {
+            this.readLock.unlock();
+        }
     }
-    readLock.lock();
-    try {
-      return createPassword(identifier.getBytes(),
-          currentMasterKey.getSecretKey());
-    } finally {
-      readLock.unlock();
-    }
-  }
 
-  @Override
-  public byte[] retrievePassword(NMTokenIdentifier identifier)
-      throws org.apache.hadoop.security.token.SecretManager.InvalidToken {
-    readLock.lock();
-    try {
-      return retrivePasswordInternal(identifier, currentMasterKey);
-    } finally {
-      readLock.unlock();
+    @Override
+    protected byte[] createPassword(NMTokenIdentifier identifier) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("creating password for "
+                      + identifier.getApplicationAttemptId() + " for user "
+                      + identifier.getApplicationSubmitter() + " to run on NM "
+                      + identifier.getNodeId());
+        }
+        readLock.lock();
+        try {
+            return createPassword(identifier.getBytes(),
+                                  currentMasterKey.getSecretKey());
+        } finally {
+            readLock.unlock();
+        }
     }
-  }
 
-  protected byte[] retrivePasswordInternal(NMTokenIdentifier identifier,
-      MasterKeyData masterKey) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("creating password for "
-          + identifier.getApplicationAttemptId() + " for user "
-          + identifier.getApplicationSubmitter() + " to run on NM "
-          + identifier.getNodeId());
+    @Override
+    public byte[] retrievePassword(NMTokenIdentifier identifier)
+    throws org.apache.hadoop.security.token.SecretManager.InvalidToken {
+        readLock.lock();
+        try {
+            return retrivePasswordInternal(identifier, currentMasterKey);
+        } finally {
+            readLock.unlock();
+        }
     }
-    return createPassword(identifier.getBytes(), masterKey.getSecretKey());
-  }
-  /**
-   * It is required for RPC
-   */
-  @Override
-  public NMTokenIdentifier createIdentifier() {
-    return new NMTokenIdentifier();
-  }
-  
-  /**
-   * Helper function for creating NMTokens.
-   */
-  public Token createNMToken(ApplicationAttemptId applicationAttemptId,
-      NodeId nodeId, String applicationSubmitter) {
-    byte[] password;
-    NMTokenIdentifier identifier;
-    
-    this.readLock.lock();
-    try {
-      identifier =
-          new NMTokenIdentifier(applicationAttemptId, nodeId,
-              applicationSubmitter, this.currentMasterKey.getMasterKey()
-                  .getKeyId());
-      password = this.createPassword(identifier);
-    } finally {
-      this.readLock.unlock();
+
+    protected byte[] retrivePasswordInternal(NMTokenIdentifier identifier,
+            MasterKeyData masterKey) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("creating password for "
+                      + identifier.getApplicationAttemptId() + " for user "
+                      + identifier.getApplicationSubmitter() + " to run on NM "
+                      + identifier.getNodeId());
+        }
+        return createPassword(identifier.getBytes(), masterKey.getSecretKey());
     }
-    return newInstance(password, identifier);
-  }
-  
-  public static Token newInstance(byte[] password,
-      NMTokenIdentifier identifier) {
-    NodeId nodeId = identifier.getNodeId();
-    // RPC layer client expects ip:port as service for tokens
-    InetSocketAddress addr =
-        NetUtils.createSocketAddrForHost(nodeId.getHost(), nodeId.getPort());
-    Token nmToken =
-        Token.newInstance(identifier.getBytes(),
-          NMTokenIdentifier.KIND.toString(), password, SecurityUtil
-            .buildTokenService(addr).toString());
-    return nmToken;
-  }
+    /**
+     * It is required for RPC
+     */
+    @Override
+    public NMTokenIdentifier createIdentifier() {
+        return new NMTokenIdentifier();
+    }
+
+    /**
+     * Helper function for creating NMTokens.
+     */
+    public Token createNMToken(ApplicationAttemptId applicationAttemptId,
+                               NodeId nodeId, String applicationSubmitter) {
+        byte[] password;
+        NMTokenIdentifier identifier;
+
+        this.readLock.lock();
+        try {
+            identifier =
+                new NMTokenIdentifier(applicationAttemptId, nodeId,
+                                      applicationSubmitter, this.currentMasterKey.getMasterKey()
+                                      .getKeyId());
+            password = this.createPassword(identifier);
+        } finally {
+            this.readLock.unlock();
+        }
+        return newInstance(password, identifier);
+    }
+
+    public static Token newInstance(byte[] password,
+                                    NMTokenIdentifier identifier) {
+        NodeId nodeId = identifier.getNodeId();
+        // RPC layer client expects ip:port as service for tokens
+        InetSocketAddress addr =
+            NetUtils.createSocketAddrForHost(nodeId.getHost(), nodeId.getPort());
+        Token nmToken =
+            Token.newInstance(identifier.getBytes(),
+                              NMTokenIdentifier.KIND.toString(), password, SecurityUtil
+                              .buildTokenService(addr).toString());
+        return nmToken;
+    }
 }

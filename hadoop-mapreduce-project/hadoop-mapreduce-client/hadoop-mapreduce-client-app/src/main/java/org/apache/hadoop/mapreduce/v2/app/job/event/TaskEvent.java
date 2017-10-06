@@ -27,14 +27,14 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskId;
  */
 public class TaskEvent extends AbstractEvent<TaskEventType> {
 
-  private TaskId taskID;
+    private TaskId taskID;
 
-  public TaskEvent(TaskId taskID, TaskEventType type) {
-    super(type);
-    this.taskID = taskID;
-  }
+    public TaskEvent(TaskId taskID, TaskEventType type) {
+        super(type);
+        this.taskID = taskID;
+    }
 
-  public TaskId getTaskID() {
-    return taskID;
-  }
+    public TaskId getTaskID() {
+        return taskID;
+    }
 }

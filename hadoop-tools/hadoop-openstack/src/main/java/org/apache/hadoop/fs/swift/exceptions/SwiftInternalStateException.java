@@ -24,15 +24,15 @@ package org.apache.hadoop.fs.swift.exceptions;
  */
 public class SwiftInternalStateException extends SwiftException {
 
-  public SwiftInternalStateException(String message) {
-    super(message);
-  }
+    public SwiftInternalStateException(String message) {
+        super(message);
+    }
 
-  public SwiftInternalStateException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public SwiftInternalStateException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public SwiftInternalStateException(Throwable cause) {
-    super(cause);
-  }
+    public SwiftInternalStateException(Throwable cause) {
+        super(cause);
+    }
 }

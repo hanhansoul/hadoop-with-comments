@@ -33,62 +33,62 @@ import org.apache.hadoop.yarn.util.Records;
 @Unstable
 public abstract class ApplicationFinishData {
 
-  @Public
-  @Unstable
-  public static ApplicationFinishData newInstance(ApplicationId applicationId,
-      long finishTime, String diagnosticsInfo,
-      FinalApplicationStatus finalApplicationStatus,
-      YarnApplicationState yarnApplicationState) {
-    ApplicationFinishData appFD =
-        Records.newRecord(ApplicationFinishData.class);
-    appFD.setApplicationId(applicationId);
-    appFD.setFinishTime(finishTime);
-    appFD.setDiagnosticsInfo(diagnosticsInfo);
-    appFD.setFinalApplicationStatus(finalApplicationStatus);
-    appFD.setYarnApplicationState(yarnApplicationState);
-    return appFD;
-  }
+    @Public
+    @Unstable
+    public static ApplicationFinishData newInstance(ApplicationId applicationId,
+            long finishTime, String diagnosticsInfo,
+            FinalApplicationStatus finalApplicationStatus,
+            YarnApplicationState yarnApplicationState) {
+        ApplicationFinishData appFD =
+            Records.newRecord(ApplicationFinishData.class);
+        appFD.setApplicationId(applicationId);
+        appFD.setFinishTime(finishTime);
+        appFD.setDiagnosticsInfo(diagnosticsInfo);
+        appFD.setFinalApplicationStatus(finalApplicationStatus);
+        appFD.setYarnApplicationState(yarnApplicationState);
+        return appFD;
+    }
 
-  @Public
-  @Unstable
-  public abstract ApplicationId getApplicationId();
+    @Public
+    @Unstable
+    public abstract ApplicationId getApplicationId();
 
-  @Public
-  @Unstable
-  public abstract void setApplicationId(ApplicationId applicationId);
+    @Public
+    @Unstable
+    public abstract void setApplicationId(ApplicationId applicationId);
 
-  @Public
-  @Unstable
-  public abstract long getFinishTime();
+    @Public
+    @Unstable
+    public abstract long getFinishTime();
 
-  @Public
-  @Unstable
-  public abstract void setFinishTime(long finishTime);
+    @Public
+    @Unstable
+    public abstract void setFinishTime(long finishTime);
 
-  @Public
-  @Unstable
-  public abstract String getDiagnosticsInfo();
+    @Public
+    @Unstable
+    public abstract String getDiagnosticsInfo();
 
-  @Public
-  @Unstable
-  public abstract void setDiagnosticsInfo(String diagnosticsInfo);
+    @Public
+    @Unstable
+    public abstract void setDiagnosticsInfo(String diagnosticsInfo);
 
-  @Public
-  @Unstable
-  public abstract FinalApplicationStatus getFinalApplicationStatus();
+    @Public
+    @Unstable
+    public abstract FinalApplicationStatus getFinalApplicationStatus();
 
-  @Public
-  @Unstable
-  public abstract void setFinalApplicationStatus(
-      FinalApplicationStatus finalApplicationStatus);
+    @Public
+    @Unstable
+    public abstract void setFinalApplicationStatus(
+        FinalApplicationStatus finalApplicationStatus);
 
-  @Public
-  @Unstable
-  public abstract YarnApplicationState getYarnApplicationState();
+    @Public
+    @Unstable
+    public abstract YarnApplicationState getYarnApplicationState();
 
-  @Public
-  @Unstable
-  public abstract void setYarnApplicationState(
-      YarnApplicationState yarnApplicationState);
+    @Public
+    @Unstable
+    public abstract void setYarnApplicationState(
+        YarnApplicationState yarnApplicationState);
 
 }

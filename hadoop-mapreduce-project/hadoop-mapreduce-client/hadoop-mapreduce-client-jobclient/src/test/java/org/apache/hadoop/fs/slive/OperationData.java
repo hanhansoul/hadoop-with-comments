@@ -27,66 +27,66 @@ import org.apache.hadoop.fs.slive.Constants.Distribution;
  */
 class OperationData {
 
-  private static final String SEP = ",";
+    private static final String SEP = ",";
 
-  private Distribution distribution;
-  private Double percent;
+    private Distribution distribution;
+    private Double percent;
 
-  OperationData(Distribution d, Double p) {
-    this.distribution = d;
-    this.percent = p;
-  }
-
-  /**
-   * Expects a comma separated list (where the first element is the ratio
-   * (between 0 and 100)) and the second element is the distribution (if
-   * non-existent then uniform will be selected). If an empty list is passed in
-   * then this element will just set the distribution (to uniform) and leave the
-   * percent as null.
-   */
-  OperationData(String data) {
-    String pieces[] = Helper.getTrimmedStrings(data);
-    distribution = Distribution.UNIFORM;
-    percent = null;
-    if (pieces.length == 1) {
-      percent = (Double.parseDouble(pieces[0]) / 100.0d);
-    } else if (pieces.length >= 2) {
-      percent = (Double.parseDouble(pieces[0]) / 100.0d);
-      distribution = Distribution.valueOf(pieces[1].toUpperCase());
+    OperationData(Distribution d, Double p) {
+        this.distribution = d;
+        this.percent = p;
     }
-  }
 
-  /**
-   * Gets the distribution this operation represents
-   * 
-   * @return Distribution
-   */
-  Distribution getDistribution() {
-    return distribution;
-  }
-
-  /**
-   * Gets the 0 - 1 percent that this operations run ratio should be
-   * 
-   * @return Double (or null if not given)
-   */
-  Double getPercent() {
-    return percent;
-  }
-
-  /**
-   * Returns a string list representation of this object (if the percent is
-   * null) then NaN will be output instead. Format is percent,distribution.
-   */
-  public String toString() {
-    StringBuilder str = new StringBuilder();
-    if (getPercent() != null) {
-      str.append(getPercent() * 100.0d);
-    } else {
-      str.append(Double.NaN);
+    /**
+     * Expects a comma separated list (where the first element is the ratio
+     * (between 0 and 100)) and the second element is the distribution (if
+     * non-existent then uniform will be selected). If an empty list is passed in
+     * then this element will just set the distribution (to uniform) and leave the
+     * percent as null.
+     */
+    OperationData(String data) {
+        String pieces[] = Helper.getTrimmedStrings(data);
+        distribution = Distribution.UNIFORM;
+        percent = null;
+        if (pieces.length == 1) {
+            percent = (Double.parseDouble(pieces[0]) / 100.0d);
+        } else if (pieces.length >= 2) {
+            percent = (Double.parseDouble(pieces[0]) / 100.0d);
+            distribution = Distribution.valueOf(pieces[1].toUpperCase());
+        }
     }
-    str.append(SEP);
-    str.append(getDistribution().lowerName());
-    return str.toString();
-  }
+
+    /**
+     * Gets the distribution this operation represents
+     *
+     * @return Distribution
+     */
+    Distribution getDistribution() {
+        return distribution;
+    }
+
+    /**
+     * Gets the 0 - 1 percent that this operations run ratio should be
+     *
+     * @return Double (or null if not given)
+     */
+    Double getPercent() {
+        return percent;
+    }
+
+    /**
+     * Returns a string list representation of this object (if the percent is
+     * null) then NaN will be output instead. Format is percent,distribution.
+     */
+    public String toString() {
+        StringBuilder str = new StringBuilder();
+        if (getPercent() != null) {
+            str.append(getPercent() * 100.0d);
+        } else {
+            str.append(Double.NaN);
+        }
+        str.append(SEP);
+        str.append(getDistribution().lowerName());
+        return str.toString();
+    }
 }

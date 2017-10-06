@@ -24,10 +24,10 @@ import java.io.IOException;
  * {@link JobStoryProducer} produces the sequence of {@link JobStory}'s.
  */
 public interface JobStoryProducer extends Closeable {
-  /**
-   * Get the next job.
-   * @return The next job. Or null if no more job is available.
-   * @throws IOException 
-   */
-  JobStory getNextJob() throws IOException;
+    /**
+     * Get the next job.
+     * @return The next job. Or null if no more job is available.
+     * @throws IOException
+     */
+    JobStory getNextJob() throws IOException;
 }

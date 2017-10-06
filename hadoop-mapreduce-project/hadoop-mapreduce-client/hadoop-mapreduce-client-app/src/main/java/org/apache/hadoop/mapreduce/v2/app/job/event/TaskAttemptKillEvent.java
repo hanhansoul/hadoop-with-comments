@@ -23,15 +23,15 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class TaskAttemptKillEvent extends TaskAttemptEvent {
 
-  private final String message;
+    private final String message;
 
-  public TaskAttemptKillEvent(TaskAttemptId attemptID,
-      String message) {
-    super(attemptID, TaskAttemptEventType.TA_KILL);
-    this.message = message;
-  }
+    public TaskAttemptKillEvent(TaskAttemptId attemptID,
+                                String message) {
+        super(attemptID, TaskAttemptEventType.TA_KILL);
+        this.message = message;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 }

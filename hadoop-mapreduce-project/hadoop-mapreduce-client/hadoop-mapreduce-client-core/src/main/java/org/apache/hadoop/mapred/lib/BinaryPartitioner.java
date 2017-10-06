@@ -25,19 +25,19 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Partitioner;
 
 /**
- * Partition {@link BinaryComparable} keys using a configurable part of 
- * the bytes array returned by {@link BinaryComparable#getBytes()}. 
- * 
+ * Partition {@link BinaryComparable} keys using a configurable part of
+ * the bytes array returned by {@link BinaryComparable#getBytes()}.
+ *
  * @see org.apache.hadoop.mapreduce.lib.partition.BinaryPartitioner
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class BinaryPartitioner<V>  
-  extends org.apache.hadoop.mapreduce.lib.partition.BinaryPartitioner<V>
-  implements Partitioner<BinaryComparable, V> {
-  
-  public void configure(JobConf job) {
-    super.setConf(job);
-  }
-  
+public class BinaryPartitioner<V>
+    extends org.apache.hadoop.mapreduce.lib.partition.BinaryPartitioner<V>
+    implements Partitioner<BinaryComparable, V> {
+
+    public void configure(JobConf job) {
+        super.setConf(job);
+    }
+
 }

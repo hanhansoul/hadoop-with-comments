@@ -27,37 +27,37 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
 @Public
 @Stable
 public enum YarnApplicationAttemptState {
-  /** AppAttempt was just created. */
-  NEW,
+    /** AppAttempt was just created. */
+    NEW,
 
-  /** AppAttempt has been submitted. */
-  SUBMITTED,
+    /** AppAttempt has been submitted. */
+    SUBMITTED,
 
-  /** AppAttempt was scheduled */
-  SCHEDULED,
+    /** AppAttempt was scheduled */
+    SCHEDULED,
 
-  /** Acquired AM Container from Scheduler and Saving AppAttempt Data */
-  ALLOCATED_SAVING,
+    /** Acquired AM Container from Scheduler and Saving AppAttempt Data */
+    ALLOCATED_SAVING,
 
-  /** AppAttempt Data was saved */
-  ALLOCATED,
+    /** AppAttempt Data was saved */
+    ALLOCATED,
 
-  /** AppAttempt was launched */
-  LAUNCHED,
+    /** AppAttempt was launched */
+    LAUNCHED,
 
-  /** AppAttempt failed. */
-  FAILED,
+    /** AppAttempt failed. */
+    FAILED,
 
-  /** AppAttempt is currently running. */
-  RUNNING,
+    /** AppAttempt is currently running. */
+    RUNNING,
 
-  /** AppAttempt is finishing. */
-  FINISHING,
+    /** AppAttempt is finishing. */
+    FINISHING,
 
-  /** AppAttempt finished successfully. */
-  FINISHED,
+    /** AppAttempt finished successfully. */
+    FINISHED,
 
-  /** AppAttempt was terminated by a user or admin. */
-  KILLED
+    /** AppAttempt was terminated by a user or admin. */
+    KILLED
 
 }

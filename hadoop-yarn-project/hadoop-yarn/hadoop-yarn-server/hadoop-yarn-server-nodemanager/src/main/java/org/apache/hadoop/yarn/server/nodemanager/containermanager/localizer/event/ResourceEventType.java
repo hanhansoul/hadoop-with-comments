@@ -24,14 +24,14 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Loca
  * events is a subclass of {@link ResourceEvent}.
  */
 public enum ResourceEventType {
-  /** See {@link ResourceRequestEvent} */
-  REQUEST,
-  /** See {@link ResourceLocalizedEvent} */ 
-  LOCALIZED,
-  /** See {@link ResourceReleaseEvent} */
-  RELEASE,
-  /** See {@link ResourceFailedLocalizationEvent} */
-  LOCALIZATION_FAILED,
-  /** See {@link ResourceRecoveredEvent} */
-  RECOVERED
+    /** See {@link ResourceRequestEvent} */
+    REQUEST,
+    /** See {@link ResourceLocalizedEvent} */
+    LOCALIZED,
+    /** See {@link ResourceReleaseEvent} */
+    RELEASE,
+    /** See {@link ResourceFailedLocalizationEvent} */
+    LOCALIZATION_FAILED,
+    /** See {@link ResourceRecoveredEvent} */
+    RECOVERED
 }

@@ -49,172 +49,172 @@ import org.apache.commons.logging.Log;
 @InterfaceStability.Evolving
 public class FixedLengthRecordReader
     extends RecordReader<LongWritable, BytesWritable> {
-  private static final Log LOG 
-      = LogFactory.getLog(FixedLengthRecordReader.class);
+    private static final Log LOG
+        = LogFactory.getLog(FixedLengthRecordReader.class);
 
-  private int recordLength;
-  private long start;
-  private long pos;
-  private long end;
-  private long  numRecordsRemainingInSplit;
-  private FSDataInputStream fileIn;
-  private Seekable filePosition;
-  private LongWritable key;
-  private BytesWritable value;
-  private boolean isCompressedInput;
-  private Decompressor decompressor;
-  private InputStream inputStream;
+    private int recordLength;
+    private long start;
+    private long pos;
+    private long end;
+    private long  numRecordsRemainingInSplit;
+    private FSDataInputStream fileIn;
+    private Seekable filePosition;
+    private LongWritable key;
+    private BytesWritable value;
+    private boolean isCompressedInput;
+    private Decompressor decompressor;
+    private InputStream inputStream;
 
-  public FixedLengthRecordReader(int recordLength) {
-    this.recordLength = recordLength;
-  }
-
-  @Override
-  public void initialize(InputSplit genericSplit,
-                         TaskAttemptContext context) throws IOException {
-    FileSplit split = (FileSplit) genericSplit;
-    Configuration job = context.getConfiguration();
-    final Path file = split.getPath();
-    initialize(job, split.getStart(), split.getLength(), file);
-  }
-
-  // This is also called from the old FixedLengthRecordReader API implementation
-  public void initialize(Configuration job, long splitStart, long splitLength,
-                         Path file) throws IOException {
-    start = splitStart;
-    end = start + splitLength;
-    long partialRecordLength = start % recordLength;
-    long numBytesToSkip = 0;
-    if (partialRecordLength != 0) {
-      numBytesToSkip = recordLength - partialRecordLength;
+    public FixedLengthRecordReader(int recordLength) {
+        this.recordLength = recordLength;
     }
 
-    // open the file and seek to the start of the split
-    final FileSystem fs = file.getFileSystem(job);
-    fileIn = fs.open(file);
+    @Override
+    public void initialize(InputSplit genericSplit,
+                           TaskAttemptContext context) throws IOException {
+        FileSplit split = (FileSplit) genericSplit;
+        Configuration job = context.getConfiguration();
+        final Path file = split.getPath();
+        initialize(job, split.getStart(), split.getLength(), file);
+    }
 
-    CompressionCodec codec = new CompressionCodecFactory(job).getCodec(file);
-    if (null != codec) {
-      isCompressedInput = true;	
-      decompressor = CodecPool.getDecompressor(codec);
-      CompressionInputStream cIn
-          = codec.createInputStream(fileIn, decompressor);
-      filePosition = cIn;
-      inputStream = cIn;
-      numRecordsRemainingInSplit = Long.MAX_VALUE;
-      LOG.info(
-          "Compressed input; cannot compute number of records in the split");
-    } else {
-      fileIn.seek(start);
-      filePosition = fileIn;
-      inputStream = fileIn;
-      long splitSize = end - start - numBytesToSkip;
-      numRecordsRemainingInSplit = (splitSize + recordLength - 1)/recordLength;
-      if (numRecordsRemainingInSplit < 0) {
-        numRecordsRemainingInSplit = 0;
-      }
-      LOG.info("Expecting " + numRecordsRemainingInSplit
-          + " records each with a length of " + recordLength
-          + " bytes in the split with an effective size of "
-          + splitSize + " bytes");
-    }
-    if (numBytesToSkip != 0) {
-      start += inputStream.skip(numBytesToSkip);
-    }
-    this.pos = start;
-  }
-
-  @Override
-  public synchronized boolean nextKeyValue() throws IOException {
-    if (key == null) {
-      key = new LongWritable();
-    }
-    if (value == null) {
-      value = new BytesWritable(new byte[recordLength]);
-    }
-    boolean dataRead = false;
-    value.setSize(recordLength);
-    byte[] record = value.getBytes();
-    if (numRecordsRemainingInSplit > 0) {
-      key.set(pos);
-      int offset = 0;
-      int numBytesToRead = recordLength;
-      int numBytesRead = 0;
-      while (numBytesToRead > 0) {
-        numBytesRead = inputStream.read(record, offset, numBytesToRead);
-        if (numBytesRead == -1) {
-          // EOF
-          break;
+    // This is also called from the old FixedLengthRecordReader API implementation
+    public void initialize(Configuration job, long splitStart, long splitLength,
+                           Path file) throws IOException {
+        start = splitStart;
+        end = start + splitLength;
+        long partialRecordLength = start % recordLength;
+        long numBytesToSkip = 0;
+        if (partialRecordLength != 0) {
+            numBytesToSkip = recordLength - partialRecordLength;
         }
-        offset += numBytesRead;
-        numBytesToRead -= numBytesRead;
-      }
-      numBytesRead = recordLength - numBytesToRead;
-      pos += numBytesRead;
-      if (numBytesRead > 0) {
-        dataRead = true;
-        if (numBytesRead >= recordLength) {
-          if (!isCompressedInput) {
-            numRecordsRemainingInSplit--;
-          }
+
+        // open the file and seek to the start of the split
+        final FileSystem fs = file.getFileSystem(job);
+        fileIn = fs.open(file);
+
+        CompressionCodec codec = new CompressionCodecFactory(job).getCodec(file);
+        if (null != codec) {
+            isCompressedInput = true;
+            decompressor = CodecPool.getDecompressor(codec);
+            CompressionInputStream cIn
+                = codec.createInputStream(fileIn, decompressor);
+            filePosition = cIn;
+            inputStream = cIn;
+            numRecordsRemainingInSplit = Long.MAX_VALUE;
+            LOG.info(
+                "Compressed input; cannot compute number of records in the split");
         } else {
-          throw new IOException("Partial record(length = " + numBytesRead
-              + ") found at the end of split.");
+            fileIn.seek(start);
+            filePosition = fileIn;
+            inputStream = fileIn;
+            long splitSize = end - start - numBytesToSkip;
+            numRecordsRemainingInSplit = (splitSize + recordLength - 1)/recordLength;
+            if (numRecordsRemainingInSplit < 0) {
+                numRecordsRemainingInSplit = 0;
+            }
+            LOG.info("Expecting " + numRecordsRemainingInSplit
+                     + " records each with a length of " + recordLength
+                     + " bytes in the split with an effective size of "
+                     + splitSize + " bytes");
         }
-      } else {
-        numRecordsRemainingInSplit = 0L; // End of input.
-      }
+        if (numBytesToSkip != 0) {
+            start += inputStream.skip(numBytesToSkip);
+        }
+        this.pos = start;
     }
-    return dataRead;
-  }
 
-  @Override
-  public LongWritable getCurrentKey() {
-    return key;
-  }
-
-  @Override
-  public BytesWritable getCurrentValue() {
-    return value;
-  }
-
-  @Override
-  public synchronized float getProgress() throws IOException {
-    if (start == end) {
-      return 0.0f;
-    } else {
-      return Math.min(1.0f, (getFilePosition() - start) / (float)(end - start));
+    @Override
+    public synchronized boolean nextKeyValue() throws IOException {
+        if (key == null) {
+            key = new LongWritable();
+        }
+        if (value == null) {
+            value = new BytesWritable(new byte[recordLength]);
+        }
+        boolean dataRead = false;
+        value.setSize(recordLength);
+        byte[] record = value.getBytes();
+        if (numRecordsRemainingInSplit > 0) {
+            key.set(pos);
+            int offset = 0;
+            int numBytesToRead = recordLength;
+            int numBytesRead = 0;
+            while (numBytesToRead > 0) {
+                numBytesRead = inputStream.read(record, offset, numBytesToRead);
+                if (numBytesRead == -1) {
+                    // EOF
+                    break;
+                }
+                offset += numBytesRead;
+                numBytesToRead -= numBytesRead;
+            }
+            numBytesRead = recordLength - numBytesToRead;
+            pos += numBytesRead;
+            if (numBytesRead > 0) {
+                dataRead = true;
+                if (numBytesRead >= recordLength) {
+                    if (!isCompressedInput) {
+                        numRecordsRemainingInSplit--;
+                    }
+                } else {
+                    throw new IOException("Partial record(length = " + numBytesRead
+                                          + ") found at the end of split.");
+                }
+            } else {
+                numRecordsRemainingInSplit = 0L; // End of input.
+            }
+        }
+        return dataRead;
     }
-  }
-  
-  @Override
-  public synchronized void close() throws IOException {
-    try {
-      if (inputStream != null) {
-        inputStream.close();
-        inputStream = null;
-      }
-    } finally {
-      if (decompressor != null) {
-        CodecPool.returnDecompressor(decompressor);
-        decompressor = null;
-      }
-    }
-  }
 
-  // This is called from the old FixedLengthRecordReader API implementation.
-  public long getPos() {
-    return pos;
-  }
-
-  private long getFilePosition() throws IOException {
-    long retVal;
-    if (isCompressedInput && null != filePosition) {
-      retVal = filePosition.getPos();
-    } else {
-      retVal = pos;
+    @Override
+    public LongWritable getCurrentKey() {
+        return key;
     }
-    return retVal;
-  }
+
+    @Override
+    public BytesWritable getCurrentValue() {
+        return value;
+    }
+
+    @Override
+    public synchronized float getProgress() throws IOException {
+        if (start == end) {
+            return 0.0f;
+        } else {
+            return Math.min(1.0f, (getFilePosition() - start) / (float)(end - start));
+        }
+    }
+
+    @Override
+    public synchronized void close() throws IOException {
+        try {
+            if (inputStream != null) {
+                inputStream.close();
+                inputStream = null;
+            }
+        } finally {
+            if (decompressor != null) {
+                CodecPool.returnDecompressor(decompressor);
+                decompressor = null;
+            }
+        }
+    }
+
+    // This is called from the old FixedLengthRecordReader API implementation.
+    public long getPos() {
+        return pos;
+    }
+
+    private long getFilePosition() throws IOException {
+        long retVal;
+        if (isCompressedInput && null != filePosition) {
+            retVal = filePosition.getPos();
+        } else {
+            retVal = pos;
+        }
+        return retVal;
+    }
 
 }

@@ -39,78 +39,78 @@ import java.io.IOException;
  */
 public class LocalFSContract extends AbstractFSContract {
 
-  public static final String CONTRACT_XML = "contract/localfs.xml";
-  private FileSystem fs;
-  private String testDataDir = new FileSystemTestHelper().getTestRootDir();
+    public static final String CONTRACT_XML = "contract/localfs.xml";
+    private FileSystem fs;
+    private String testDataDir = new FileSystemTestHelper().getTestRootDir();
 
-  public LocalFSContract(Configuration conf) {
-    super(conf);
-    //insert the base features
-    addConfResource(getContractXml());
-  }
-
-  /**
-   * Return the contract file for this filesystem
-   * @return the XML
-   */
-  protected String getContractXml() {
-    return CONTRACT_XML;
-  }
-
-  @Override
-  public void init() throws IOException {
-    super.init();
-    fs = getLocalFS();
-    adjustContractToLocalEnvironment();
-  }
-
-  /**
-   *  tweak some of the contract parameters based on the local system
-   *  state
-   */
-  protected void adjustContractToLocalEnvironment() {
-    if (Shell.WINDOWS) {
-      //NTFS doesn't do case sensitivity, and its permissions are ACL-based
-      getConf().setBoolean(getConfKey(ContractOptions.IS_CASE_SENSITIVE), false);
-      getConf().setBoolean(getConfKey(ContractOptions.SUPPORTS_UNIX_PERMISSIONS), false);
-    } else if (ContractTestUtils.isOSX()) {
-      //OSX HFS+ is not case sensitive
-      getConf().setBoolean(getConfKey(ContractOptions.IS_CASE_SENSITIVE),
-                           false);
+    public LocalFSContract(Configuration conf) {
+        super(conf);
+        //insert the base features
+        addConfResource(getContractXml());
     }
-  }
 
-  /**
-   * Get the local filesystem. This may be overridden
-   * @return the filesystem
-   * @throws IOException
-   */
-  protected FileSystem getLocalFS() throws IOException {
-    return FileSystem.getLocal(getConf());
-  }
+    /**
+     * Return the contract file for this filesystem
+     * @return the XML
+     */
+    protected String getContractXml() {
+        return CONTRACT_XML;
+    }
 
-  @Override
-  public FileSystem getTestFileSystem() throws IOException {
-    return fs;
-  }
+    @Override
+    public void init() throws IOException {
+        super.init();
+        fs = getLocalFS();
+        adjustContractToLocalEnvironment();
+    }
 
-  @Override
-  public String getScheme() {
-    return "file";
-  }
+    /**
+     *  tweak some of the contract parameters based on the local system
+     *  state
+     */
+    protected void adjustContractToLocalEnvironment() {
+        if (Shell.WINDOWS) {
+            //NTFS doesn't do case sensitivity, and its permissions are ACL-based
+            getConf().setBoolean(getConfKey(ContractOptions.IS_CASE_SENSITIVE), false);
+            getConf().setBoolean(getConfKey(ContractOptions.SUPPORTS_UNIX_PERMISSIONS), false);
+        } else if (ContractTestUtils.isOSX()) {
+            //OSX HFS+ is not case sensitive
+            getConf().setBoolean(getConfKey(ContractOptions.IS_CASE_SENSITIVE),
+                                 false);
+        }
+    }
 
-  @Override
-  public Path getTestPath() {
-    Path path = fs.makeQualified(new Path(
-      getTestDataDir()));
-    return path;
-  }
+    /**
+     * Get the local filesystem. This may be overridden
+     * @return the filesystem
+     * @throws IOException
+     */
+    protected FileSystem getLocalFS() throws IOException {
+        return FileSystem.getLocal(getConf());
+    }
 
-  /**
-   * Get the test data directory
-   * @return the directory for test data
-   */
-  protected String getTestDataDir() {
-    return testDataDir;
-  }
+    @Override
+    public FileSystem getTestFileSystem() throws IOException {
+        return fs;
+    }
+
+    @Override
+    public String getScheme() {
+        return "file";
+    }
+
+    @Override
+    public Path getTestPath() {
+        Path path = fs.makeQualified(new Path(
+                                         getTestDataDir()));
+        return path;
+    }
+
+    /**
+     * Get the test data directory
+     * @return the directory for test data
+     */
+    protected String getTestDataDir() {
+        return testDataDir;
+    }
 }

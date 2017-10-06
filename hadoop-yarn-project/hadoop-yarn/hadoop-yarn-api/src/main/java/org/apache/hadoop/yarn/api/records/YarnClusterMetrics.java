@@ -26,31 +26,31 @@ import org.apache.hadoop.yarn.util.Records;
 
 /**
  * <p><code>YarnClusterMetrics</code> represents cluster metrics.</p>
- * 
+ *
  * <p>Currently only number of <code>NodeManager</code>s is provided.</p>
  */
 @Public
 @Stable
 public abstract class YarnClusterMetrics {
-  
-  @Private
-  @Unstable
-  public static YarnClusterMetrics newInstance(int numNodeManagers) {
-    YarnClusterMetrics metrics = Records.newRecord(YarnClusterMetrics.class);
-    metrics.setNumNodeManagers(numNodeManagers);
-    return metrics;
-  }
 
-  /**
-   * Get the number of <code>NodeManager</code>s in the cluster.
-   * @return number of <code>NodeManager</code>s in the cluster
-   */
-  @Public
-  @Stable
-  public abstract int getNumNodeManagers();
+    @Private
+    @Unstable
+    public static YarnClusterMetrics newInstance(int numNodeManagers) {
+        YarnClusterMetrics metrics = Records.newRecord(YarnClusterMetrics.class);
+        metrics.setNumNodeManagers(numNodeManagers);
+        return metrics;
+    }
 
-  @Private
-  @Unstable
-  public abstract void setNumNodeManagers(int numNodeManagers);
+    /**
+     * Get the number of <code>NodeManager</code>s in the cluster.
+     * @return number of <code>NodeManager</code>s in the cluster
+     */
+    @Public
+    @Stable
+    public abstract int getNumNodeManagers();
+
+    @Private
+    @Unstable
+    public abstract void setNumNodeManagers(int numNodeManagers);
 
 }

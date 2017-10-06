@@ -27,18 +27,18 @@ import org.apache.hadoop.yarn.webapp.YarnWebParams;
 
 public class ContainerPage extends RmView {
 
-  @Override
-  protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    @Override
+    protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
 
-    String containerId = $(YarnWebParams.CONTAINER_ID);
-    set(TITLE, containerId.isEmpty() ? "Bad request: missing container ID"
-        : join("Container ", $(YarnWebParams.CONTAINER_ID)));
-  }
+        String containerId = $(YarnWebParams.CONTAINER_ID);
+        set(TITLE, containerId.isEmpty() ? "Bad request: missing container ID"
+            : join("Container ", $(YarnWebParams.CONTAINER_ID)));
+    }
 
-  @Override
-  protected Class<? extends SubView> content() {
-    return ContainerBlock.class;
-  }
+    @Override
+    protected Class<? extends SubView> content() {
+        return ContainerBlock.class;
+    }
 
 }

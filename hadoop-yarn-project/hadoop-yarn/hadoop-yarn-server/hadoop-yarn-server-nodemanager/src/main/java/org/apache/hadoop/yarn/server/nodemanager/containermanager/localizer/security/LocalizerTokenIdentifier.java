@@ -28,30 +28,30 @@ import org.apache.hadoop.security.token.TokenIdentifier;
 
 public class LocalizerTokenIdentifier extends TokenIdentifier {
 
-  public static final Text KIND = new Text("Localizer");
+    public static final Text KIND = new Text("Localizer");
 
-  @Override
-  public void write(DataOutput out) throws IOException {
-    // TODO Auto-generated method stub
-    out.writeInt(1);
-  }
+    @Override
+    public void write(DataOutput out) throws IOException {
+        // TODO Auto-generated method stub
+        out.writeInt(1);
+    }
 
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    // TODO Auto-generated method stub
-    in.readInt();
-  }
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        // TODO Auto-generated method stub
+        in.readInt();
+    }
 
-  @Override
-  public Text getKind() {
-    // TODO Auto-generated method stub
-    return KIND;
-  }
+    @Override
+    public Text getKind() {
+        // TODO Auto-generated method stub
+        return KIND;
+    }
 
-  @Override
-  public UserGroupInformation getUser() {
-    // TODO Auto-generated method stub
-    return UserGroupInformation.createRemoteUser("testing");
-  }
+    @Override
+    public UserGroupInformation getUser() {
+        // TODO Auto-generated method stub
+        return UserGroupInformation.createRemoteUser("testing");
+    }
 
 }

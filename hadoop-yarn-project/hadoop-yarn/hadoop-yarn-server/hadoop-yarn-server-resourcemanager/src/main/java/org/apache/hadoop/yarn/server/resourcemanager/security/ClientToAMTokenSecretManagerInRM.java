@@ -30,42 +30,42 @@ import org.apache.hadoop.yarn.security.client.BaseClientToAMTokenSecretManager;
 public class ClientToAMTokenSecretManagerInRM extends
     BaseClientToAMTokenSecretManager {
 
-  // Per application master-keys for managing client-tokens
-  private Map<ApplicationAttemptId, SecretKey> masterKeys =
-      new HashMap<ApplicationAttemptId, SecretKey>();
+    // Per application master-keys for managing client-tokens
+    private Map<ApplicationAttemptId, SecretKey> masterKeys =
+        new HashMap<ApplicationAttemptId, SecretKey>();
 
-  public synchronized SecretKey createMasterKey(
-      ApplicationAttemptId applicationAttemptID) {
-    return generateSecret();
-  }
+    public synchronized SecretKey createMasterKey(
+        ApplicationAttemptId applicationAttemptID) {
+        return generateSecret();
+    }
 
-  public synchronized void registerApplication(
-      ApplicationAttemptId applicationAttemptID, SecretKey key) {
-    this.masterKeys.put(applicationAttemptID, key);
-  }
+    public synchronized void registerApplication(
+        ApplicationAttemptId applicationAttemptID, SecretKey key) {
+        this.masterKeys.put(applicationAttemptID, key);
+    }
 
-  // Only for RM recovery
-  public synchronized SecretKey registerMasterKey(
-      ApplicationAttemptId applicationAttemptID, byte[] keyData) {
-    SecretKey key = createSecretKey(keyData);
-    registerApplication(applicationAttemptID, key);
-    return key;
-  }
+    // Only for RM recovery
+    public synchronized SecretKey registerMasterKey(
+        ApplicationAttemptId applicationAttemptID, byte[] keyData) {
+        SecretKey key = createSecretKey(keyData);
+        registerApplication(applicationAttemptID, key);
+        return key;
+    }
 
-  public synchronized void unRegisterApplication(
-      ApplicationAttemptId applicationAttemptID) {
-    this.masterKeys.remove(applicationAttemptID);
-  }
+    public synchronized void unRegisterApplication(
+        ApplicationAttemptId applicationAttemptID) {
+        this.masterKeys.remove(applicationAttemptID);
+    }
 
-  @Override
-  public synchronized SecretKey getMasterKey(
-      ApplicationAttemptId applicationAttemptID) {
-    return this.masterKeys.get(applicationAttemptID);
-  }
+    @Override
+    public synchronized SecretKey getMasterKey(
+        ApplicationAttemptId applicationAttemptID) {
+        return this.masterKeys.get(applicationAttemptID);
+    }
 
-  @VisibleForTesting
-  public synchronized boolean hasMasterKey(
-      ApplicationAttemptId applicationAttemptID) {
-    return this.masterKeys.containsKey(applicationAttemptID);
-  }
+    @VisibleForTesting
+    public synchronized boolean hasMasterKey(
+        ApplicationAttemptId applicationAttemptID) {
+        return this.masterKeys.containsKey(applicationAttemptID);
+    }
 }

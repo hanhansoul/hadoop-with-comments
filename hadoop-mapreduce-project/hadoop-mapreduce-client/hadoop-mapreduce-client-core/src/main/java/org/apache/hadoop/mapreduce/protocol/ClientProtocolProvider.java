@@ -26,12 +26,12 @@ import org.apache.hadoop.conf.Configuration;
 
 @InterfaceAudience.Private
 public abstract class ClientProtocolProvider {
-  
-  public abstract ClientProtocol create(Configuration conf) throws IOException;
-  
-  public abstract ClientProtocol create(InetSocketAddress addr,
-      Configuration conf) throws IOException;
 
-  public abstract void close(ClientProtocol clientProtocol) throws IOException;
+    public abstract ClientProtocol create(Configuration conf) throws IOException;
+
+    public abstract ClientProtocol create(InetSocketAddress addr,
+                                          Configuration conf) throws IOException;
+
+    public abstract void close(ClientProtocol clientProtocol) throws IOException;
 
 }

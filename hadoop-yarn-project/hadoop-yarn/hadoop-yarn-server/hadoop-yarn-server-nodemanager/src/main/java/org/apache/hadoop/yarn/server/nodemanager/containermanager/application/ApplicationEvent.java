@@ -23,16 +23,16 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class ApplicationEvent extends AbstractEvent<ApplicationEventType> {
 
-  private final ApplicationId applicationID;
+    private final ApplicationId applicationID;
 
-  public ApplicationEvent(ApplicationId appID,
-      ApplicationEventType appEventType) {
-    super(appEventType);
-    this.applicationID = appID;
-  }
+    public ApplicationEvent(ApplicationId appID,
+                            ApplicationEventType appEventType) {
+        super(appEventType);
+        this.applicationID = appID;
+    }
 
-  public ApplicationId getApplicationID() {
-    return this.applicationID;
-  }
+    public ApplicationId getApplicationID() {
+        return this.applicationID;
+    }
 
 }

@@ -48,241 +48,241 @@ import com.google.common.collect.ImmutableMap;
  */
 public class KeyAuthorizationKeyProvider extends KeyProviderCryptoExtension {
 
-  public static final String KEY_ACL = "key.acl.";
-  private static final String KEY_ACL_NAME = KEY_ACL + "name";
+    public static final String KEY_ACL = "key.acl.";
+    private static final String KEY_ACL_NAME = KEY_ACL + "name";
 
-  public enum KeyOpType {
-    ALL, READ, MANAGEMENT, GENERATE_EEK, DECRYPT_EEK;
-  }
-
-  /**
-   * Interface that needs to be implemented by a client of the
-   * <code>KeyAuthorizationKeyProvider</code>.
-   */
-  public static interface KeyACLs {
-    
-    /**
-     * This is called by the KeyProvider to check if the given user is
-     * authorized to perform the specified operation on the given acl name.
-     * @param aclName name of the key ACL
-     * @param ugi User's UserGroupInformation
-     * @param opType Operation Type 
-     * @return true if user has access to the aclName and opType else false
-     */
-    public boolean hasAccessToKey(String aclName, UserGroupInformation ugi,
-        KeyOpType opType);
+    public enum KeyOpType {
+        ALL, READ, MANAGEMENT, GENERATE_EEK, DECRYPT_EEK;
+    }
 
     /**
-     * 
-     * @param aclName ACL name
-     * @param opType Operation Type
-     * @return true if AclName exists else false 
+     * Interface that needs to be implemented by a client of the
+     * <code>KeyAuthorizationKeyProvider</code>.
      */
-    public boolean isACLPresent(String aclName, KeyOpType opType);
-  }
+    public static interface KeyACLs {
 
-  private final KeyProviderCryptoExtension provider;
-  private final KeyACLs acls;
+        /**
+         * This is called by the KeyProvider to check if the given user is
+         * authorized to perform the specified operation on the given acl name.
+         * @param aclName name of the key ACL
+         * @param ugi User's UserGroupInformation
+         * @param opType Operation Type
+         * @return true if user has access to the aclName and opType else false
+         */
+        public boolean hasAccessToKey(String aclName, UserGroupInformation ugi,
+                                      KeyOpType opType);
 
-  /**
-   * The constructor takes a {@link KeyProviderCryptoExtension} and an
-   * implementation of <code>KeyACLs</code>. All calls are delegated to the
-   * provider keyProvider after authorization check (if required)
-   * @param keyProvider 
-   * @param acls
-   */
-  public KeyAuthorizationKeyProvider(KeyProviderCryptoExtension keyProvider,
-      KeyACLs acls) {
-    super(keyProvider, null);
-    this.provider = keyProvider;
-    this.acls = acls;
-  }
-
-  // This method first checks if "key.acl.name" attribute is present as an
-  // attribute in the provider Options. If yes, use the aclName for any
-  // subsequent access checks, else use the keyName as the aclName and set it
-  // as the value of the "key.acl.name" in the key's metadata.
-  private void authorizeCreateKey(String keyName, Options options,
-      UserGroupInformation ugi) throws IOException{
-    Preconditions.checkNotNull(ugi, "UserGroupInformation cannot be null");
-    Map<String, String> attributes = options.getAttributes();
-    String aclName = attributes.get(KEY_ACL_NAME);
-    boolean success = false;
-    if (Strings.isNullOrEmpty(aclName)) {
-      if (acls.isACLPresent(keyName, KeyOpType.MANAGEMENT)) {
-        options.setAttributes(ImmutableMap.<String, String> builder()
-            .putAll(attributes).put(KEY_ACL_NAME, keyName).build());
-        success =
-            acls.hasAccessToKey(keyName, ugi, KeyOpType.MANAGEMENT)
-                || acls.hasAccessToKey(keyName, ugi, KeyOpType.ALL);
-      } else {
-        success = false;
-      }
-    } else {
-      success = acls.isACLPresent(aclName, KeyOpType.MANAGEMENT) &&
-          (acls.hasAccessToKey(aclName, ugi, KeyOpType.MANAGEMENT)
-          || acls.hasAccessToKey(aclName, ugi, KeyOpType.ALL));
+        /**
+         *
+         * @param aclName ACL name
+         * @param opType Operation Type
+         * @return true if AclName exists else false
+         */
+        public boolean isACLPresent(String aclName, KeyOpType opType);
     }
-    if (!success)
-      throw new AuthorizationException(String.format("User [%s] is not"
-          + " authorized to create key !!", ugi.getShortUserName()));
-  }
 
-  private void checkAccess(String aclName, UserGroupInformation ugi,
-      KeyOpType opType) throws AuthorizationException {
-    Preconditions.checkNotNull(aclName, "Key ACL name cannot be null");
-    Preconditions.checkNotNull(ugi, "UserGroupInformation cannot be null");
-    if (acls.isACLPresent(aclName, KeyOpType.MANAGEMENT) &&
-        (acls.hasAccessToKey(aclName, ugi, opType)
-            || acls.hasAccessToKey(aclName, ugi, KeyOpType.ALL))) {
-      return;
-    } else {
-      throw new AuthorizationException(String.format("User [%s] is not"
-          + " authorized to perform [%s] on key with ACL name [%s]!!",
-          ugi.getShortUserName(), opType, aclName));
+    private final KeyProviderCryptoExtension provider;
+    private final KeyACLs acls;
+
+    /**
+     * The constructor takes a {@link KeyProviderCryptoExtension} and an
+     * implementation of <code>KeyACLs</code>. All calls are delegated to the
+     * provider keyProvider after authorization check (if required)
+     * @param keyProvider
+     * @param acls
+     */
+    public KeyAuthorizationKeyProvider(KeyProviderCryptoExtension keyProvider,
+                                       KeyACLs acls) {
+        super(keyProvider, null);
+        this.provider = keyProvider;
+        this.acls = acls;
     }
-  }
 
-  @Override
-  public KeyVersion createKey(String name, Options options)
-      throws NoSuchAlgorithmException, IOException {
-    authorizeCreateKey(name, options, getUser());
-    return provider.createKey(name, options);
-  }
-
-  @Override
-  public KeyVersion createKey(String name, byte[] material, Options options)
-      throws IOException {
-    authorizeCreateKey(name, options, getUser());
-    return provider.createKey(name, material, options);
-  }
-
-  @Override
-  public KeyVersion rollNewVersion(String name)
-      throws NoSuchAlgorithmException, IOException {
-    doAccessCheck(name, KeyOpType.MANAGEMENT);
-    return provider.rollNewVersion(name);
-  }
-
-  @Override
-  public void deleteKey(String name) throws IOException {
-    doAccessCheck(name, KeyOpType.MANAGEMENT);
-    provider.deleteKey(name);
-  }
-
-  @Override
-  public KeyVersion rollNewVersion(String name, byte[] material)
-      throws IOException {
-    doAccessCheck(name, KeyOpType.MANAGEMENT);
-    return provider.rollNewVersion(name, material);
-  }
-
-  @Override
-  public void warmUpEncryptedKeys(String... names) throws IOException {
-    for (String name : names) {
-      doAccessCheck(name, KeyOpType.GENERATE_EEK);
+    // This method first checks if "key.acl.name" attribute is present as an
+    // attribute in the provider Options. If yes, use the aclName for any
+    // subsequent access checks, else use the keyName as the aclName and set it
+    // as the value of the "key.acl.name" in the key's metadata.
+    private void authorizeCreateKey(String keyName, Options options,
+                                    UserGroupInformation ugi) throws IOException {
+        Preconditions.checkNotNull(ugi, "UserGroupInformation cannot be null");
+        Map<String, String> attributes = options.getAttributes();
+        String aclName = attributes.get(KEY_ACL_NAME);
+        boolean success = false;
+        if (Strings.isNullOrEmpty(aclName)) {
+            if (acls.isACLPresent(keyName, KeyOpType.MANAGEMENT)) {
+                options.setAttributes(ImmutableMap.<String, String> builder()
+                                      .putAll(attributes).put(KEY_ACL_NAME, keyName).build());
+                success =
+                    acls.hasAccessToKey(keyName, ugi, KeyOpType.MANAGEMENT)
+                    || acls.hasAccessToKey(keyName, ugi, KeyOpType.ALL);
+            } else {
+                success = false;
+            }
+        } else {
+            success = acls.isACLPresent(aclName, KeyOpType.MANAGEMENT) &&
+                      (acls.hasAccessToKey(aclName, ugi, KeyOpType.MANAGEMENT)
+                       || acls.hasAccessToKey(aclName, ugi, KeyOpType.ALL));
+        }
+        if (!success)
+            throw new AuthorizationException(String.format("User [%s] is not"
+                                             + " authorized to create key !!", ugi.getShortUserName()));
     }
-    provider.warmUpEncryptedKeys(names);
-  }
 
-  @Override
-  public EncryptedKeyVersion generateEncryptedKey(String encryptionKeyName)
-      throws IOException, GeneralSecurityException {
-    doAccessCheck(encryptionKeyName, KeyOpType.GENERATE_EEK);
-    return provider.generateEncryptedKey(encryptionKeyName);
-  }
-
-  private void verifyKeyVersionBelongsToKey(EncryptedKeyVersion ekv)
-      throws IOException {
-    String kn = ekv.getEncryptionKeyName();
-    String kvn = ekv.getEncryptionKeyVersionName();
-    KeyVersion kv = provider.getKeyVersion(kvn);
-    if (!kv.getName().equals(kn)) {
-      throw new IllegalArgumentException(String.format(
-          "KeyVersion '%s' does not belong to the key '%s'", kvn, kn));
+    private void checkAccess(String aclName, UserGroupInformation ugi,
+                             KeyOpType opType) throws AuthorizationException {
+        Preconditions.checkNotNull(aclName, "Key ACL name cannot be null");
+        Preconditions.checkNotNull(ugi, "UserGroupInformation cannot be null");
+        if (acls.isACLPresent(aclName, KeyOpType.MANAGEMENT) &&
+            (acls.hasAccessToKey(aclName, ugi, opType)
+             || acls.hasAccessToKey(aclName, ugi, KeyOpType.ALL))) {
+            return;
+        } else {
+            throw new AuthorizationException(String.format("User [%s] is not"
+                                             + " authorized to perform [%s] on key with ACL name [%s]!!",
+                                             ugi.getShortUserName(), opType, aclName));
+        }
     }
-  }
 
-  @Override
-  public KeyVersion decryptEncryptedKey(EncryptedKeyVersion encryptedKeyVersion)
-          throws IOException, GeneralSecurityException {
-    verifyKeyVersionBelongsToKey(encryptedKeyVersion);
-    doAccessCheck(
-        encryptedKeyVersion.getEncryptionKeyName(), KeyOpType.DECRYPT_EEK);
-    return provider.decryptEncryptedKey(encryptedKeyVersion);
-  }
-
-  @Override
-  public KeyVersion getKeyVersion(String versionName) throws IOException {
-    KeyVersion keyVersion = provider.getKeyVersion(versionName);
-    if (keyVersion != null) {
-      doAccessCheck(keyVersion.getName(), KeyOpType.READ);
+    @Override
+    public KeyVersion createKey(String name, Options options)
+    throws NoSuchAlgorithmException, IOException {
+        authorizeCreateKey(name, options, getUser());
+        return provider.createKey(name, options);
     }
-    return keyVersion;
-  }
 
-  @Override
-  public List<String> getKeys() throws IOException {
-    return provider.getKeys();
-  }
-
-  @Override
-  public List<KeyVersion> getKeyVersions(String name) throws IOException {
-    doAccessCheck(name, KeyOpType.READ);
-    return provider.getKeyVersions(name);
-  }
-
-  @Override
-  public Metadata getMetadata(String name) throws IOException {
-    doAccessCheck(name, KeyOpType.READ);
-    return provider.getMetadata(name);
-  }
-
-  @Override
-  public Metadata[] getKeysMetadata(String... names) throws IOException {
-    for (String name : names) {
-      doAccessCheck(name, KeyOpType.READ);
+    @Override
+    public KeyVersion createKey(String name, byte[] material, Options options)
+    throws IOException {
+        authorizeCreateKey(name, options, getUser());
+        return provider.createKey(name, material, options);
     }
-    return provider.getKeysMetadata(names);
-  }
 
-  @Override
-  public KeyVersion getCurrentKey(String name) throws IOException {
-    doAccessCheck(name, KeyOpType.READ);
-    return provider.getCurrentKey(name);
-  }
-
-  @Override
-  public void flush() throws IOException {
-    provider.flush();
-  }
-
-  @Override
-  public boolean isTransient() {
-    return provider.isTransient();
-  }
-
-  private void doAccessCheck(String keyName, KeyOpType opType) throws
-      IOException {
-    Metadata metadata = provider.getMetadata(keyName);
-    if (metadata != null) {
-      String aclName = metadata.getAttributes().get(KEY_ACL_NAME);
-      checkAccess((aclName == null) ? keyName : aclName, getUser(), opType);
+    @Override
+    public KeyVersion rollNewVersion(String name)
+    throws NoSuchAlgorithmException, IOException {
+        doAccessCheck(name, KeyOpType.MANAGEMENT);
+        return provider.rollNewVersion(name);
     }
-  }
 
-  private UserGroupInformation getUser() throws IOException {
-    return UserGroupInformation.getCurrentUser();
-  }
+    @Override
+    public void deleteKey(String name) throws IOException {
+        doAccessCheck(name, KeyOpType.MANAGEMENT);
+        provider.deleteKey(name);
+    }
 
-  @Override
-  protected KeyProvider getKeyProvider() {
-    return this;
-  }
+    @Override
+    public KeyVersion rollNewVersion(String name, byte[] material)
+    throws IOException {
+        doAccessCheck(name, KeyOpType.MANAGEMENT);
+        return provider.rollNewVersion(name, material);
+    }
 
-  @Override
-  public String toString() {
-    return provider.toString();
-  }
+    @Override
+    public void warmUpEncryptedKeys(String... names) throws IOException {
+        for (String name : names) {
+            doAccessCheck(name, KeyOpType.GENERATE_EEK);
+        }
+        provider.warmUpEncryptedKeys(names);
+    }
+
+    @Override
+    public EncryptedKeyVersion generateEncryptedKey(String encryptionKeyName)
+    throws IOException, GeneralSecurityException {
+        doAccessCheck(encryptionKeyName, KeyOpType.GENERATE_EEK);
+        return provider.generateEncryptedKey(encryptionKeyName);
+    }
+
+    private void verifyKeyVersionBelongsToKey(EncryptedKeyVersion ekv)
+    throws IOException {
+        String kn = ekv.getEncryptionKeyName();
+        String kvn = ekv.getEncryptionKeyVersionName();
+        KeyVersion kv = provider.getKeyVersion(kvn);
+        if (!kv.getName().equals(kn)) {
+            throw new IllegalArgumentException(String.format(
+                                                   "KeyVersion '%s' does not belong to the key '%s'", kvn, kn));
+        }
+    }
+
+    @Override
+    public KeyVersion decryptEncryptedKey(EncryptedKeyVersion encryptedKeyVersion)
+    throws IOException, GeneralSecurityException {
+        verifyKeyVersionBelongsToKey(encryptedKeyVersion);
+        doAccessCheck(
+            encryptedKeyVersion.getEncryptionKeyName(), KeyOpType.DECRYPT_EEK);
+        return provider.decryptEncryptedKey(encryptedKeyVersion);
+    }
+
+    @Override
+    public KeyVersion getKeyVersion(String versionName) throws IOException {
+        KeyVersion keyVersion = provider.getKeyVersion(versionName);
+        if (keyVersion != null) {
+            doAccessCheck(keyVersion.getName(), KeyOpType.READ);
+        }
+        return keyVersion;
+    }
+
+    @Override
+    public List<String> getKeys() throws IOException {
+        return provider.getKeys();
+    }
+
+    @Override
+    public List<KeyVersion> getKeyVersions(String name) throws IOException {
+        doAccessCheck(name, KeyOpType.READ);
+        return provider.getKeyVersions(name);
+    }
+
+    @Override
+    public Metadata getMetadata(String name) throws IOException {
+        doAccessCheck(name, KeyOpType.READ);
+        return provider.getMetadata(name);
+    }
+
+    @Override
+    public Metadata[] getKeysMetadata(String... names) throws IOException {
+        for (String name : names) {
+            doAccessCheck(name, KeyOpType.READ);
+        }
+        return provider.getKeysMetadata(names);
+    }
+
+    @Override
+    public KeyVersion getCurrentKey(String name) throws IOException {
+        doAccessCheck(name, KeyOpType.READ);
+        return provider.getCurrentKey(name);
+    }
+
+    @Override
+    public void flush() throws IOException {
+        provider.flush();
+    }
+
+    @Override
+    public boolean isTransient() {
+        return provider.isTransient();
+    }
+
+    private void doAccessCheck(String keyName, KeyOpType opType) throws
+        IOException {
+        Metadata metadata = provider.getMetadata(keyName);
+        if (metadata != null) {
+            String aclName = metadata.getAttributes().get(KEY_ACL_NAME);
+            checkAccess((aclName == null) ? keyName : aclName, getUser(), opType);
+        }
+    }
+
+    private UserGroupInformation getUser() throws IOException {
+        return UserGroupInformation.getCurrentUser();
+    }
+
+    @Override
+    protected KeyProvider getKeyProvider() {
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return provider.toString();
+    }
 
 }

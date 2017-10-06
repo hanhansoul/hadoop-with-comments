@@ -31,74 +31,74 @@ import org.apache.hadoop.hdfs.server.namenode.Namesystem;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 class DecommissionManager {
-  static final Log LOG = LogFactory.getLog(DecommissionManager.class);
+    static final Log LOG = LogFactory.getLog(DecommissionManager.class);
 
-  private final Namesystem namesystem;
-  private final BlockManager blockmanager;
+    private final Namesystem namesystem;
+    private final BlockManager blockmanager;
 
-  DecommissionManager(final Namesystem namesystem,
-      final BlockManager blockmanager) {
-    this.namesystem = namesystem;
-    this.blockmanager = blockmanager;
-  }
-
-  /** Periodically check decommission status. */
-  class Monitor implements Runnable {
-    /** recheckInterval is how often namenode checks
-     *  if a node has finished decommission
-     */
-    private final long recheckInterval;
-    /** The number of decommission nodes to check for each interval */
-    private final int numNodesPerCheck;
-    /** firstkey can be initialized to anything. */
-    private String firstkey = "";
-
-    Monitor(int recheckIntervalInSecond, int numNodesPerCheck) {
-      this.recheckInterval = recheckIntervalInSecond * 1000L;
-      this.numNodesPerCheck = numNodesPerCheck;
+    DecommissionManager(final Namesystem namesystem,
+                        final BlockManager blockmanager) {
+        this.namesystem = namesystem;
+        this.blockmanager = blockmanager;
     }
 
-    /**
-     * Check decommission status of numNodesPerCheck nodes
-     * for every recheckInterval milliseconds.
-     */
-    @Override
-    public void run() {
-      for(; namesystem.isRunning(); ) {
-        namesystem.writeLock();
-        try {
-          check();
-        } finally {
-          namesystem.writeUnlock();
-        }
-  
-        try {
-          Thread.sleep(recheckInterval);
-        } catch (InterruptedException ie) {
-          LOG.warn(this.getClass().getSimpleName() + " interrupted: " + ie);
-        }
-      }
-    }
-    
-    private void check() {
-      final DatanodeManager dm = blockmanager.getDatanodeManager();
-      int count = 0;
-      for(Map.Entry<String, DatanodeDescriptor> entry
-          : dm.getDatanodeCyclicIteration(firstkey)) {
-        final DatanodeDescriptor d = entry.getValue();
-        firstkey = entry.getKey();
+    /** Periodically check decommission status. */
+    class Monitor implements Runnable {
+        /** recheckInterval is how often namenode checks
+         *  if a node has finished decommission
+         */
+        private final long recheckInterval;
+        /** The number of decommission nodes to check for each interval */
+        private final int numNodesPerCheck;
+        /** firstkey can be initialized to anything. */
+        private String firstkey = "";
 
-        if (d.isDecommissionInProgress()) {
-          try {
-            dm.checkDecommissionState(d);
-          } catch(Exception e) {
-            LOG.warn("entry=" + entry, e);
-          }
-          if (++count == numNodesPerCheck) {
-            return;
-          }
+        Monitor(int recheckIntervalInSecond, int numNodesPerCheck) {
+            this.recheckInterval = recheckIntervalInSecond * 1000L;
+            this.numNodesPerCheck = numNodesPerCheck;
         }
-      }
+
+        /**
+         * Check decommission status of numNodesPerCheck nodes
+         * for every recheckInterval milliseconds.
+         */
+        @Override
+        public void run() {
+            for(; namesystem.isRunning(); ) {
+                namesystem.writeLock();
+                try {
+                    check();
+                } finally {
+                    namesystem.writeUnlock();
+                }
+
+                try {
+                    Thread.sleep(recheckInterval);
+                } catch (InterruptedException ie) {
+                    LOG.warn(this.getClass().getSimpleName() + " interrupted: " + ie);
+                }
+            }
+        }
+
+        private void check() {
+            final DatanodeManager dm = blockmanager.getDatanodeManager();
+            int count = 0;
+            for(Map.Entry<String, DatanodeDescriptor> entry
+                : dm.getDatanodeCyclicIteration(firstkey)) {
+                final DatanodeDescriptor d = entry.getValue();
+                firstkey = entry.getKey();
+
+                if (d.isDecommissionInProgress()) {
+                    try {
+                        dm.checkDecommissionState(d);
+                    } catch(Exception e) {
+                        LOG.warn("entry=" + entry, e);
+                    }
+                    if (++count == numNodesPerCheck) {
+                        return;
+                    }
+                }
+            }
+        }
     }
-  }
 }

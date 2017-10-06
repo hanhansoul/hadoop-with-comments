@@ -37,174 +37,174 @@ import org.iq80.leveldb.ReadOptions;
 @Public
 @Evolving
 public class LeveldbIterator implements Iterator<Map.Entry<byte[], byte[]>>,
-                                        Closeable {
-  private DBIterator iter;
+    Closeable {
+    private DBIterator iter;
 
-  /**
-   * Create an iterator for the specified database
-   */
-  public LeveldbIterator(DB db) {
-    iter = db.iterator();
-  }
-
-  /**
-   * Create an iterator for the specified database
-   */
-  public LeveldbIterator(DB db, ReadOptions options) {
-    iter = db.iterator(options);
-  }
-
-  /**
-   * Create an iterator using the specified underlying DBIterator
-   */
-  public LeveldbIterator(DBIterator iter) {
-    this.iter = iter;
-  }
-
-  /**
-   * Repositions the iterator so the key of the next BlockElement
-   * returned greater than or equal to the specified targetKey.
-   */
-  public void seek(byte[] key) throws DBException {
-    try {
-      iter.seek(key);
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Create an iterator for the specified database
+     */
+    public LeveldbIterator(DB db) {
+        iter = db.iterator();
     }
-  }
 
-  /**
-   * Repositions the iterator so is is at the beginning of the Database.
-   */
-  public void seekToFirst() throws DBException {
-    try {
-      iter.seekToFirst();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Create an iterator for the specified database
+     */
+    public LeveldbIterator(DB db, ReadOptions options) {
+        iter = db.iterator(options);
     }
-  }
 
-  /**
-   * Repositions the iterator so it is at the end of of the Database.
-   */
-  public void seekToLast() throws DBException {
-    try {
-      iter.seekToLast();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Create an iterator using the specified underlying DBIterator
+     */
+    public LeveldbIterator(DBIterator iter) {
+        this.iter = iter;
     }
-  }
 
-  /**
-   * Returns <tt>true</tt> if the iteration has more elements.
-   */
-  public boolean hasNext() throws DBException {
-    try {
-      return iter.hasNext();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Repositions the iterator so the key of the next BlockElement
+     * returned greater than or equal to the specified targetKey.
+     */
+    public void seek(byte[] key) throws DBException {
+        try {
+            iter.seek(key);
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * Returns the next element in the iteration.
-   */
-  @Override
-  public Map.Entry<byte[], byte[]> next() throws DBException {
-    try {
-      return iter.next();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Repositions the iterator so is is at the beginning of the Database.
+     */
+    public void seekToFirst() throws DBException {
+        try {
+            iter.seekToFirst();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * Returns the next element in the iteration, without advancing the
-   * iteration.
-   */
-  public Map.Entry<byte[], byte[]> peekNext() throws DBException {
-    try {
-      return iter.peekNext();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Repositions the iterator so it is at the end of of the Database.
+     */
+    public void seekToLast() throws DBException {
+        try {
+            iter.seekToLast();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * @return true if there is a previous entry in the iteration.
-   */
-  public boolean hasPrev() throws DBException {
-    try {
-      return iter.hasPrev();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Returns <tt>true</tt> if the iteration has more elements.
+     */
+    public boolean hasNext() throws DBException {
+        try {
+            return iter.hasNext();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * @return the previous element in the iteration and rewinds the iteration.
-   */
-  public Map.Entry<byte[], byte[]> prev() throws DBException {
-    try {
-      return iter.prev();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Returns the next element in the iteration.
+     */
+    @Override
+    public Map.Entry<byte[], byte[]> next() throws DBException {
+        try {
+            return iter.next();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * @return the previous element in the iteration, without rewinding the
-   * iteration.
-   */
-  public Map.Entry<byte[], byte[]> peekPrev() throws DBException {
-    try {
-      return iter.peekPrev();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * Returns the next element in the iteration, without advancing the
+     * iteration.
+     */
+    public Map.Entry<byte[], byte[]> peekNext() throws DBException {
+        try {
+            return iter.peekNext();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * Removes from the database the last element returned by the iterator.
-   */
-  @Override
-  public void remove() throws DBException {
-    try {
-      iter.remove();
-    } catch (DBException e) {
-      throw e;
-    } catch (RuntimeException e) {
-      throw new DBException(e.getMessage(), e);
+    /**
+     * @return true if there is a previous entry in the iteration.
+     */
+    public boolean hasPrev() throws DBException {
+        try {
+            return iter.hasPrev();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
 
-  /**
-   * Closes the iterator.
-   */
-  @Override
-  public void close() throws IOException {
-    try {
-      iter.close();
-    } catch (RuntimeException e) {
-      throw new IOException(e.getMessage(), e);
+    /**
+     * @return the previous element in the iteration and rewinds the iteration.
+     */
+    public Map.Entry<byte[], byte[]> prev() throws DBException {
+        try {
+            return iter.prev();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
     }
-  }
+
+    /**
+     * @return the previous element in the iteration, without rewinding the
+     * iteration.
+     */
+    public Map.Entry<byte[], byte[]> peekPrev() throws DBException {
+        try {
+            return iter.peekPrev();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Removes from the database the last element returned by the iterator.
+     */
+    @Override
+    public void remove() throws DBException {
+        try {
+            iter.remove();
+        } catch (DBException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new DBException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Closes the iterator.
+     */
+    @Override
+    public void close() throws IOException {
+        try {
+            iter.close();
+        } catch (RuntimeException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+    }
 }

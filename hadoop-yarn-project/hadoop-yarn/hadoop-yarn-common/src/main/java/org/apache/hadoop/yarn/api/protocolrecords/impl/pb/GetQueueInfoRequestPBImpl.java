@@ -30,102 +30,102 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetQueueInfoRequestPBImpl extends GetQueueInfoRequest {
 
-  GetQueueInfoRequestProto proto = 
-    GetQueueInfoRequestProto.getDefaultInstance();
-  GetQueueInfoRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    GetQueueInfoRequestProto proto =
+        GetQueueInfoRequestProto.getDefaultInstance();
+    GetQueueInfoRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetQueueInfoRequestPBImpl() {
-    builder = GetQueueInfoRequestProto.newBuilder();
-  }
-  
-  public GetQueueInfoRequestPBImpl(GetQueueInfoRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  @Override
-  public boolean getIncludeApplications() {
-    GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.hasIncludeApplications()) ? p.getIncludeApplications() : false;
-  }
-
-  @Override
-  public boolean getIncludeChildQueues() {
-    GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.hasIncludeChildQueues()) ? p.getIncludeChildQueues() : false;
-  }
-
-  @Override
-  public String getQueueName() {
-    GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.hasQueueName()) ? p.getQueueName() : null;
-  }
-
-  @Override
-  public boolean getRecursive() {
-    GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.hasRecursive()) ? p.getRecursive() : false;
-  }
-
-  @Override
-  public void setIncludeApplications(boolean includeApplications) {
-    maybeInitBuilder();
-    builder.setIncludeApplications(includeApplications);
-  }
-
-  @Override
-  public void setIncludeChildQueues(boolean includeChildQueues) {
-    maybeInitBuilder();
-    builder.setIncludeChildQueues(includeChildQueues);
-  }
-
-  @Override
-  public void setQueueName(String queueName) {
-    maybeInitBuilder();
-    if (queueName == null) {
-      builder.clearQueueName();
-      return;
+    public GetQueueInfoRequestPBImpl() {
+        builder = GetQueueInfoRequestProto.newBuilder();
     }
-    builder.setQueueName((queueName));
-  }
 
-  @Override
-  public void setRecursive(boolean recursive) {
-    maybeInitBuilder();
-    builder.setRecursive(recursive);
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetQueueInfoRequestProto.newBuilder(proto);
+    public GetQueueInfoRequestPBImpl(GetQueueInfoRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  public GetQueueInfoRequestProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public boolean getIncludeApplications() {
+        GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.hasIncludeApplications()) ? p.getIncludeApplications() : false;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    @Override
+    public boolean getIncludeChildQueues() {
+        GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.hasIncludeChildQueues()) ? p.getIncludeChildQueues() : false;
+    }
+
+    @Override
+    public String getQueueName() {
+        GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.hasQueueName()) ? p.getQueueName() : null;
+    }
+
+    @Override
+    public boolean getRecursive() {
+        GetQueueInfoRequestProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.hasRecursive()) ? p.getRecursive() : false;
+    }
+
+    @Override
+    public void setIncludeApplications(boolean includeApplications) {
+        maybeInitBuilder();
+        builder.setIncludeApplications(includeApplications);
+    }
+
+    @Override
+    public void setIncludeChildQueues(boolean includeChildQueues) {
+        maybeInitBuilder();
+        builder.setIncludeChildQueues(includeChildQueues);
+    }
+
+    @Override
+    public void setQueueName(String queueName) {
+        maybeInitBuilder();
+        if (queueName == null) {
+            builder.clearQueueName();
+            return;
+        }
+        builder.setQueueName((queueName));
+    }
+
+    @Override
+    public void setRecursive(boolean recursive) {
+        maybeInitBuilder();
+        builder.setRecursive(recursive);
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetQueueInfoRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    public GetQueueInfoRequestProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

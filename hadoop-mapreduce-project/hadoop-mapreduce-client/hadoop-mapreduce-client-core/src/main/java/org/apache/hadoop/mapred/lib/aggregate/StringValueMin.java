@@ -22,12 +22,12 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This class implements a value aggregator that maintain the smallest of 
+ * This class implements a value aggregator that maintain the smallest of
  * a sequence of strings.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class StringValueMin 
-    extends org.apache.hadoop.mapreduce.lib.aggregate.StringValueMin 
+public class StringValueMin
+    extends org.apache.hadoop.mapreduce.lib.aggregate.StringValueMin
     implements ValueAggregator<String> {
 }

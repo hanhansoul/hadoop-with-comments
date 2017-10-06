@@ -47,44 +47,44 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 public class FixedLengthInputFormat
     extends FileInputFormat<LongWritable, BytesWritable> {
 
-  public static final String FIXED_RECORD_LENGTH =
-      "fixedlengthinputformat.record.length"; 
+    public static final String FIXED_RECORD_LENGTH =
+        "fixedlengthinputformat.record.length";
 
-  /**
-   * Set the length of each record
-   * @param conf configuration
-   * @param recordLength the length of a record
-   */
-  public static void setRecordLength(Configuration conf, int recordLength) {
-    conf.setInt(FIXED_RECORD_LENGTH, recordLength);
-  }
-
-  /**
-   * Get record length value
-   * @param conf configuration
-   * @return the record length, zero means none was set
-   */
-  public static int getRecordLength(Configuration conf) {
-    return conf.getInt(FIXED_RECORD_LENGTH, 0);
-  }
-
-  @Override
-  public RecordReader<LongWritable, BytesWritable>
-      createRecordReader(InputSplit split, TaskAttemptContext context)
-      throws IOException, InterruptedException {
-    int recordLength = getRecordLength(context.getConfiguration());
-    if (recordLength <= 0) {
-      throw new IOException("Fixed record length " + recordLength
-          + " is invalid.  It should be set to a value greater than zero");
+    /**
+     * Set the length of each record
+     * @param conf configuration
+     * @param recordLength the length of a record
+     */
+    public static void setRecordLength(Configuration conf, int recordLength) {
+        conf.setInt(FIXED_RECORD_LENGTH, recordLength);
     }
-    return new FixedLengthRecordReader(recordLength);
-  }
 
-  @Override
-  protected boolean isSplitable(JobContext context, Path file) {
-    final CompressionCodec codec = 
-        new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
-    return (null == codec);
-  } 
+    /**
+     * Get record length value
+     * @param conf configuration
+     * @return the record length, zero means none was set
+     */
+    public static int getRecordLength(Configuration conf) {
+        return conf.getInt(FIXED_RECORD_LENGTH, 0);
+    }
+
+    @Override
+    public RecordReader<LongWritable, BytesWritable>
+    createRecordReader(InputSplit split, TaskAttemptContext context)
+    throws IOException, InterruptedException {
+        int recordLength = getRecordLength(context.getConfiguration());
+        if (recordLength <= 0) {
+            throw new IOException("Fixed record length " + recordLength
+                                  + " is invalid.  It should be set to a value greater than zero");
+        }
+        return new FixedLengthRecordReader(recordLength);
+    }
+
+    @Override
+    protected boolean isSplitable(JobContext context, Path file) {
+        final CompressionCodec codec =
+            new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
+        return (null == codec);
+    }
 
 }

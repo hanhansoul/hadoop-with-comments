@@ -45,122 +45,122 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class TestRMNMInfo {
-  private static final Log LOG = LogFactory.getLog(TestRMNMInfo.class);
-  private static final int NUMNODEMANAGERS = 4;
-  protected static MiniMRYarnCluster mrCluster;
+    private static final Log LOG = LogFactory.getLog(TestRMNMInfo.class);
+    private static final int NUMNODEMANAGERS = 4;
+    protected static MiniMRYarnCluster mrCluster;
 
-  private static Configuration initialConf = new Configuration();
-  private static FileSystem localFs;
-  static {
-    try {
-      localFs = FileSystem.getLocal(initialConf);
-    } catch (IOException io) {
-      throw new RuntimeException("problem getting local fs", io);
+    private static Configuration initialConf = new Configuration();
+    private static FileSystem localFs;
+    static {
+        try {
+            localFs = FileSystem.getLocal(initialConf);
+        } catch (IOException io) {
+            throw new RuntimeException("problem getting local fs", io);
+        }
     }
-  }
-  private static Path TEST_ROOT_DIR =
-         new Path("target",TestRMNMInfo.class.getName() + "-tmpDir")
-              .makeQualified(localFs.getUri(), localFs.getWorkingDirectory());
-  static Path APP_JAR = new Path(TEST_ROOT_DIR, "MRAppJar.jar");
+    private static Path TEST_ROOT_DIR =
+        new Path("target",TestRMNMInfo.class.getName() + "-tmpDir")
+    .makeQualified(localFs.getUri(), localFs.getWorkingDirectory());
+    static Path APP_JAR = new Path(TEST_ROOT_DIR, "MRAppJar.jar");
 
-  @BeforeClass
-  public static void setup() throws IOException {
+    @BeforeClass
+    public static void setup() throws IOException {
 
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-               + " not found. Not running test.");
-      return;
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
+
+        if (mrCluster == null) {
+            mrCluster = new MiniMRYarnCluster(TestRMNMInfo.class.getName(),
+                                              NUMNODEMANAGERS);
+            Configuration conf = new Configuration();
+            mrCluster.init(conf);
+            mrCluster.start();
+        }
+
+        // workaround the absent public distcache.
+        localFs.copyFromLocalFile(new Path(MiniMRYarnCluster.APPJAR), APP_JAR);
+        localFs.setPermission(APP_JAR, new FsPermission("700"));
     }
 
-    if (mrCluster == null) {
-      mrCluster = new MiniMRYarnCluster(TestRMNMInfo.class.getName(),
-                                        NUMNODEMANAGERS);
-      Configuration conf = new Configuration();
-      mrCluster.init(conf);
-      mrCluster.start();
+    @AfterClass
+    public static void tearDown() {
+        if (mrCluster != null) {
+            mrCluster.stop();
+            mrCluster = null;
+        }
     }
 
-    // workaround the absent public distcache.
-    localFs.copyFromLocalFile(new Path(MiniMRYarnCluster.APPJAR), APP_JAR);
-    localFs.setPermission(APP_JAR, new FsPermission("700"));
-  }
+    @Test
+    public void testRMNMInfo() throws Exception {
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
 
-  @AfterClass
-  public static void tearDown() {
-    if (mrCluster != null) {
-      mrCluster.stop();
-      mrCluster = null;
+        RMContext rmc = mrCluster.getResourceManager().getRMContext();
+        ResourceScheduler rms = mrCluster.getResourceManager()
+                                .getResourceScheduler();
+        RMNMInfo rmInfo = new RMNMInfo(rmc,rms);
+        String liveNMs = rmInfo.getLiveNodeManagers();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jn = mapper.readTree(liveNMs);
+        Assert.assertEquals("Unexpected number of live nodes:",
+                            NUMNODEMANAGERS, jn.size());
+        Iterator<JsonNode> it = jn.iterator();
+        while (it.hasNext()) {
+            JsonNode n = it.next();
+            Assert.assertNotNull(n.get("HostName"));
+            Assert.assertNotNull(n.get("Rack"));
+            Assert.assertTrue("Node " + n.get("NodeId") + " should be RUNNING",
+                              n.get("State").asText().contains("RUNNING"));
+            Assert.assertNotNull(n.get("NodeHTTPAddress"));
+            Assert.assertNotNull(n.get("LastHealthUpdate"));
+            Assert.assertNotNull(n.get("HealthReport"));
+            Assert.assertNotNull(n.get("NodeManagerVersion"));
+            Assert.assertNotNull(n.get("NumContainers"));
+            Assert.assertEquals(
+                n.get("NodeId") + ": Unexpected number of used containers",
+                0, n.get("NumContainers").asInt());
+            Assert.assertEquals(
+                n.get("NodeId") + ": Unexpected amount of used memory",
+                0, n.get("UsedMemoryMB").asInt());
+            Assert.assertNotNull(n.get("AvailableMemoryMB"));
+        }
     }
-  }
 
-  @Test
-  public void testRMNMInfo() throws Exception {
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-           + " not found. Not running test.");
-      return;
+    @Test
+    public void testRMNMInfoMissmatch() throws Exception {
+        RMContext rmc = mock(RMContext.class);
+        ResourceScheduler rms = mock(ResourceScheduler.class);
+        ConcurrentMap<NodeId, RMNode> map = new ConcurrentHashMap<NodeId, RMNode>();
+        RMNode node = MockNodes.newNodeInfo(1, MockNodes.newResource(4 * 1024));
+        map.put(node.getNodeID(), node);
+        when(rmc.getRMNodes()).thenReturn(map);
+
+        RMNMInfo rmInfo = new RMNMInfo(rmc,rms);
+        String liveNMs = rmInfo.getLiveNodeManagers();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jn = mapper.readTree(liveNMs);
+        Assert.assertEquals("Unexpected number of live nodes:",
+                            1, jn.size());
+        Iterator<JsonNode> it = jn.iterator();
+        while (it.hasNext()) {
+            JsonNode n = it.next();
+            Assert.assertNotNull(n.get("HostName"));
+            Assert.assertNotNull(n.get("Rack"));
+            Assert.assertTrue("Node " + n.get("NodeId") + " should be RUNNING",
+                              n.get("State").asText().contains("RUNNING"));
+            Assert.assertNotNull(n.get("NodeHTTPAddress"));
+            Assert.assertNotNull(n.get("LastHealthUpdate"));
+            Assert.assertNotNull(n.get("HealthReport"));
+            Assert.assertNotNull(n.get("NodeManagerVersion"));
+            Assert.assertNull(n.get("NumContainers"));
+            Assert.assertNull(n.get("UsedMemoryMB"));
+            Assert.assertNull(n.get("AvailableMemoryMB"));
+        }
     }
-    
-    RMContext rmc = mrCluster.getResourceManager().getRMContext();
-    ResourceScheduler rms = mrCluster.getResourceManager()
-                                                   .getResourceScheduler();
-    RMNMInfo rmInfo = new RMNMInfo(rmc,rms);
-    String liveNMs = rmInfo.getLiveNodeManagers();
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jn = mapper.readTree(liveNMs);
-    Assert.assertEquals("Unexpected number of live nodes:",
-                                               NUMNODEMANAGERS, jn.size());
-    Iterator<JsonNode> it = jn.iterator();
-    while (it.hasNext()) {
-      JsonNode n = it.next();
-      Assert.assertNotNull(n.get("HostName"));
-      Assert.assertNotNull(n.get("Rack"));
-      Assert.assertTrue("Node " + n.get("NodeId") + " should be RUNNING",
-              n.get("State").asText().contains("RUNNING"));
-      Assert.assertNotNull(n.get("NodeHTTPAddress"));
-      Assert.assertNotNull(n.get("LastHealthUpdate"));
-      Assert.assertNotNull(n.get("HealthReport"));
-      Assert.assertNotNull(n.get("NodeManagerVersion"));
-      Assert.assertNotNull(n.get("NumContainers"));
-      Assert.assertEquals(
-              n.get("NodeId") + ": Unexpected number of used containers",
-              0, n.get("NumContainers").asInt());
-      Assert.assertEquals(
-              n.get("NodeId") + ": Unexpected amount of used memory",
-              0, n.get("UsedMemoryMB").asInt());
-      Assert.assertNotNull(n.get("AvailableMemoryMB"));
-    }
-  }
-  
-  @Test
-  public void testRMNMInfoMissmatch() throws Exception {
-    RMContext rmc = mock(RMContext.class);
-    ResourceScheduler rms = mock(ResourceScheduler.class);
-    ConcurrentMap<NodeId, RMNode> map = new ConcurrentHashMap<NodeId, RMNode>();
-    RMNode node = MockNodes.newNodeInfo(1, MockNodes.newResource(4 * 1024));
-    map.put(node.getNodeID(), node);
-    when(rmc.getRMNodes()).thenReturn(map);
-    
-    RMNMInfo rmInfo = new RMNMInfo(rmc,rms);
-    String liveNMs = rmInfo.getLiveNodeManagers();
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode jn = mapper.readTree(liveNMs);
-    Assert.assertEquals("Unexpected number of live nodes:",
-                                               1, jn.size());
-    Iterator<JsonNode> it = jn.iterator();
-    while (it.hasNext()) {
-      JsonNode n = it.next();
-      Assert.assertNotNull(n.get("HostName"));
-      Assert.assertNotNull(n.get("Rack"));
-      Assert.assertTrue("Node " + n.get("NodeId") + " should be RUNNING",
-              n.get("State").asText().contains("RUNNING"));
-      Assert.assertNotNull(n.get("NodeHTTPAddress"));
-      Assert.assertNotNull(n.get("LastHealthUpdate"));
-      Assert.assertNotNull(n.get("HealthReport"));
-      Assert.assertNotNull(n.get("NodeManagerVersion"));
-      Assert.assertNull(n.get("NumContainers"));
-      Assert.assertNull(n.get("UsedMemoryMB"));
-      Assert.assertNull(n.get("AvailableMemoryMB"));
-    }
-  }
 }

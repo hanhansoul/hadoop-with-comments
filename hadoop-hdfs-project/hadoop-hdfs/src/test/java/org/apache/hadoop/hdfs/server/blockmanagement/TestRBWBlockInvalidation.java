@@ -54,189 +54,189 @@ import com.google.common.collect.Lists;
  * and then the under replicated block gets replicated to the datanode.
  */
 public class TestRBWBlockInvalidation {
-  private static final Log LOG = LogFactory.getLog(TestRBWBlockInvalidation.class);
-  
-  private static NumberReplicas countReplicas(final FSNamesystem namesystem,
-      ExtendedBlock block) {
-    return namesystem.getBlockManager().countNodes(block.getLocalBlock());
-  }
+    private static final Log LOG = LogFactory.getLog(TestRBWBlockInvalidation.class);
 
-  /**
-   * Test when a block's replica is removed from RBW folder in one of the
-   * datanode, namenode should ask to invalidate that corrupted block and
-   * schedule replication for one more replica for that under replicated block.
-   */
-  @Test(timeout=600000)
-  public void testBlockInvalidationWhenRBWReplicaMissedInDN()
-      throws IOException, InterruptedException {
-    // This test cannot pass on Windows due to file locking enforcement.  It will
-    // reject the attempt to delete the block file from the RBW folder.
-    assumeTrue(!Path.WINDOWS);
+    private static NumberReplicas countReplicas(final FSNamesystem namesystem,
+            ExtendedBlock block) {
+        return namesystem.getBlockManager().countNodes(block.getLocalBlock());
+    }
 
-    Configuration conf = new HdfsConfiguration();
-    conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 2);
-    conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 300);
-    conf.setLong(DFSConfigKeys.DFS_DATANODE_DIRECTORYSCAN_INTERVAL_KEY, 1);
-    conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
+    /**
+     * Test when a block's replica is removed from RBW folder in one of the
+     * datanode, namenode should ask to invalidate that corrupted block and
+     * schedule replication for one more replica for that under replicated block.
+     */
+    @Test(timeout=600000)
+    public void testBlockInvalidationWhenRBWReplicaMissedInDN()
+    throws IOException, InterruptedException {
+        // This test cannot pass on Windows due to file locking enforcement.  It will
+        // reject the attempt to delete the block file from the RBW folder.
+        assumeTrue(!Path.WINDOWS);
+
+        Configuration conf = new HdfsConfiguration();
+        conf.setInt(DFSConfigKeys.DFS_REPLICATION_KEY, 2);
+        conf.setLong(DFSConfigKeys.DFS_BLOCKREPORT_INTERVAL_MSEC_KEY, 300);
+        conf.setLong(DFSConfigKeys.DFS_DATANODE_DIRECTORYSCAN_INTERVAL_KEY, 1);
+        conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
         .build();
-    FSDataOutputStream out = null;
-    try {
-      final FSNamesystem namesystem = cluster.getNamesystem();
-      FileSystem fs = cluster.getFileSystem();
-      Path testPath = new Path("/tmp/TestRBWBlockInvalidation", "foo1");
-      out = fs.create(testPath, (short) 2);
-      out.writeBytes("HDFS-3157: " + testPath);
-      out.hsync();
-      cluster.startDataNodes(conf, 1, true, null, null, null);
-      String bpid = namesystem.getBlockPoolId();
-      ExtendedBlock blk = DFSTestUtil.getFirstBlock(fs, testPath);
-      Block block = blk.getLocalBlock();
-      DataNode dn = cluster.getDataNodes().get(0);
+        FSDataOutputStream out = null;
+        try {
+            final FSNamesystem namesystem = cluster.getNamesystem();
+            FileSystem fs = cluster.getFileSystem();
+            Path testPath = new Path("/tmp/TestRBWBlockInvalidation", "foo1");
+            out = fs.create(testPath, (short) 2);
+            out.writeBytes("HDFS-3157: " + testPath);
+            out.hsync();
+            cluster.startDataNodes(conf, 1, true, null, null, null);
+            String bpid = namesystem.getBlockPoolId();
+            ExtendedBlock blk = DFSTestUtil.getFirstBlock(fs, testPath);
+            Block block = blk.getLocalBlock();
+            DataNode dn = cluster.getDataNodes().get(0);
 
-      // Delete partial block and its meta information from the RBW folder
-      // of first datanode.
-      File blockFile = DataNodeTestUtils.getBlockFile(dn, bpid, block);
-      File metaFile = DataNodeTestUtils.getMetaFile(dn, bpid, block);
-      assertTrue("Could not delete the block file from the RBW folder",
-          blockFile.delete());
-      assertTrue("Could not delete the block meta file from the RBW folder",
-          metaFile.delete());
+            // Delete partial block and its meta information from the RBW folder
+            // of first datanode.
+            File blockFile = DataNodeTestUtils.getBlockFile(dn, bpid, block);
+            File metaFile = DataNodeTestUtils.getMetaFile(dn, bpid, block);
+            assertTrue("Could not delete the block file from the RBW folder",
+                       blockFile.delete());
+            assertTrue("Could not delete the block meta file from the RBW folder",
+                       metaFile.delete());
 
-      out.close();
-      
-      int liveReplicas = 0;
-      while (true) {
-        if ((liveReplicas = countReplicas(namesystem, blk).liveReplicas()) < 2) {
-          // This confirms we have a corrupt replica
-          LOG.info("Live Replicas after corruption: " + liveReplicas);
-          break;
-        }
-        Thread.sleep(100);
-      }
-      assertEquals("There should be less than 2 replicas in the "
-          + "liveReplicasMap", 1, liveReplicas);
-      
-      while (true) {
-        if ((liveReplicas =
-              countReplicas(namesystem, blk).liveReplicas()) > 1) {
-          //Wait till the live replica count becomes equal to Replication Factor
-          LOG.info("Live Replicas after Rereplication: " + liveReplicas);
-          break;
-        }
-        Thread.sleep(100);
-      }
-      assertEquals("There should be two live replicas", 2, liveReplicas);
+            out.close();
 
-      while (true) {
-        Thread.sleep(100);
-        if (countReplicas(namesystem, blk).corruptReplicas() == 0) {
-          LOG.info("Corrupt Replicas becomes 0");
-          break;
+            int liveReplicas = 0;
+            while (true) {
+                if ((liveReplicas = countReplicas(namesystem, blk).liveReplicas()) < 2) {
+                    // This confirms we have a corrupt replica
+                    LOG.info("Live Replicas after corruption: " + liveReplicas);
+                    break;
+                }
+                Thread.sleep(100);
+            }
+            assertEquals("There should be less than 2 replicas in the "
+                         + "liveReplicasMap", 1, liveReplicas);
+
+            while (true) {
+                if ((liveReplicas =
+                         countReplicas(namesystem, blk).liveReplicas()) > 1) {
+                    //Wait till the live replica count becomes equal to Replication Factor
+                    LOG.info("Live Replicas after Rereplication: " + liveReplicas);
+                    break;
+                }
+                Thread.sleep(100);
+            }
+            assertEquals("There should be two live replicas", 2, liveReplicas);
+
+            while (true) {
+                Thread.sleep(100);
+                if (countReplicas(namesystem, blk).corruptReplicas() == 0) {
+                    LOG.info("Corrupt Replicas becomes 0");
+                    break;
+                }
+            }
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+            cluster.shutdown();
         }
-      }
-    } finally {
-      if (out != null) {
-        out.close();
-      }
-      cluster.shutdown();
     }
-  }
-  
-  /**
-   * Regression test for HDFS-4799, a case where, upon restart, if there
-   * were RWR replicas with out-of-date genstamps, the NN could accidentally
-   * delete good replicas instead of the bad replicas.
-   */
-  @Test(timeout=60000)
-  public void testRWRInvalidation() throws Exception {
-    Configuration conf = new HdfsConfiguration();
 
-    // Set the deletion policy to be randomized rather than the default.
-    // The default is based on disk space, which isn't controllable
-    // in the context of the test, whereas a random one is more accurate
-    // to what is seen in real clusters (nodes have random amounts of free
-    // space)
-    conf.setClass(DFSConfigKeys.DFS_BLOCK_REPLICATOR_CLASSNAME_KEY,
-        RandomDeleterPolicy.class, BlockPlacementPolicy.class); 
+    /**
+     * Regression test for HDFS-4799, a case where, upon restart, if there
+     * were RWR replicas with out-of-date genstamps, the NN could accidentally
+     * delete good replicas instead of the bad replicas.
+     */
+    @Test(timeout=60000)
+    public void testRWRInvalidation() throws Exception {
+        Configuration conf = new HdfsConfiguration();
 
-    // Speed up the test a bit with faster heartbeats.
-    conf.setInt(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
+        // Set the deletion policy to be randomized rather than the default.
+        // The default is based on disk space, which isn't controllable
+        // in the context of the test, whereas a random one is more accurate
+        // to what is seen in real clusters (nodes have random amounts of free
+        // space)
+        conf.setClass(DFSConfigKeys.DFS_BLOCK_REPLICATOR_CLASSNAME_KEY,
+                      RandomDeleterPolicy.class, BlockPlacementPolicy.class);
 
-    // Test with a bunch of separate files, since otherwise the test may
-    // fail just due to "good luck", even if a bug is present.
-    List<Path> testPaths = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
-      testPaths.add(new Path("/test" + i));
-    }
-    
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
+        // Speed up the test a bit with faster heartbeats.
+        conf.setInt(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1);
+
+        // Test with a bunch of separate files, since otherwise the test may
+        // fail just due to "good luck", even if a bug is present.
+        List<Path> testPaths = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            testPaths.add(new Path("/test" + i));
+        }
+
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
         .build();
-    try {
-      List<FSDataOutputStream> streams = Lists.newArrayList();
-      try {
-        // Open the test files and write some data to each
-        for (Path path : testPaths) {
-          FSDataOutputStream out = cluster.getFileSystem().create(path, (short)2);
-          streams.add(out);
+        try {
+            List<FSDataOutputStream> streams = Lists.newArrayList();
+            try {
+                // Open the test files and write some data to each
+                for (Path path : testPaths) {
+                    FSDataOutputStream out = cluster.getFileSystem().create(path, (short)2);
+                    streams.add(out);
 
-          out.writeBytes("old gs data\n");
-          out.hflush();
+                    out.writeBytes("old gs data\n");
+                    out.hflush();
+                }
+
+
+                // Shutdown one of the nodes in the pipeline
+                DataNodeProperties oldGenstampNode = cluster.stopDataNode(0);
+
+                // Write some more data and flush again. This data will only
+                // be in the latter genstamp copy of the blocks.
+                for (int i = 0; i < streams.size(); i++) {
+                    Path path = testPaths.get(i);
+                    FSDataOutputStream out = streams.get(i);
+
+                    out.writeBytes("new gs data\n");
+                    out.hflush();
+
+                    // Set replication so that only one node is necessary for this block,
+                    // and close it.
+                    cluster.getFileSystem().setReplication(path, (short)1);
+                    out.close();
+                }
+
+                // Upon restart, there will be two replicas, one with an old genstamp
+                // and one current copy. This test wants to ensure that the old genstamp
+                // copy is the one that is deleted.
+
+                LOG.info("=========================== restarting cluster");
+                DataNodeProperties otherNode = cluster.stopDataNode(0);
+                cluster.restartNameNode();
+
+                // Restart the datanode with the corrupt replica first.
+                cluster.restartDataNode(oldGenstampNode);
+                cluster.waitActive();
+
+                // Then the other node
+                cluster.restartDataNode(otherNode);
+                cluster.waitActive();
+
+                // Compute and send invalidations, waiting until they're fully processed.
+                cluster.getNameNode().getNamesystem().getBlockManager()
+                .computeInvalidateWork(2);
+                cluster.triggerHeartbeats();
+                HATestUtil.waitForDNDeletions(cluster);
+                cluster.triggerDeletionReports();
+
+                // Make sure we can still read the blocks.
+                for (Path path : testPaths) {
+                    String ret = DFSTestUtil.readFile(cluster.getFileSystem(), path);
+                    assertEquals("old gs data\n" + "new gs data\n", ret);
+                }
+            } finally {
+                IOUtils.cleanup(LOG, streams.toArray(new Closeable[0]));
+            }
+        } finally {
+            cluster.shutdown();
         }
-        
-        
-        // Shutdown one of the nodes in the pipeline
-        DataNodeProperties oldGenstampNode = cluster.stopDataNode(0);
 
-        // Write some more data and flush again. This data will only
-        // be in the latter genstamp copy of the blocks.
-        for (int i = 0; i < streams.size(); i++) {
-          Path path = testPaths.get(i);
-          FSDataOutputStream out = streams.get(i);
-
-          out.writeBytes("new gs data\n");
-          out.hflush();
-
-          // Set replication so that only one node is necessary for this block,
-          // and close it.
-          cluster.getFileSystem().setReplication(path, (short)1);
-          out.close();
-        }
-        
-        // Upon restart, there will be two replicas, one with an old genstamp
-        // and one current copy. This test wants to ensure that the old genstamp
-        // copy is the one that is deleted.
-
-        LOG.info("=========================== restarting cluster");
-        DataNodeProperties otherNode = cluster.stopDataNode(0);
-        cluster.restartNameNode();
-        
-        // Restart the datanode with the corrupt replica first.
-        cluster.restartDataNode(oldGenstampNode);
-        cluster.waitActive();
-
-        // Then the other node
-        cluster.restartDataNode(otherNode);
-        cluster.waitActive();
-        
-        // Compute and send invalidations, waiting until they're fully processed.
-        cluster.getNameNode().getNamesystem().getBlockManager()
-          .computeInvalidateWork(2);
-        cluster.triggerHeartbeats();
-        HATestUtil.waitForDNDeletions(cluster);
-        cluster.triggerDeletionReports();
-        
-        // Make sure we can still read the blocks.
-        for (Path path : testPaths) {
-          String ret = DFSTestUtil.readFile(cluster.getFileSystem(), path);
-          assertEquals("old gs data\n" + "new gs data\n", ret);
-        }
-      } finally {
-        IOUtils.cleanup(LOG, streams.toArray(new Closeable[0]));
-      }
-    } finally {
-      cluster.shutdown();
     }
-
-  }
 }

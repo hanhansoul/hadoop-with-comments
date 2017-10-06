@@ -26,23 +26,23 @@ import org.junit.Test;
 
 public class TestMRFramework {
 
-  @Test
-  public void testFramework() {
-    JobConf jobConf = new JobConf();
-    jobConf.set(JTConfig.JT_IPC_ADDRESS, MRConfig.LOCAL_FRAMEWORK_NAME);
-    jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
-    assertFalse("Expected 'isLocal' to be false", 
-        StreamUtil.isLocalJobTracker(jobConf));
-    
-    jobConf.set(JTConfig.JT_IPC_ADDRESS, MRConfig.LOCAL_FRAMEWORK_NAME);
-    jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.CLASSIC_FRAMEWORK_NAME);
-    assertFalse("Expected 'isLocal' to be false", 
-        StreamUtil.isLocalJobTracker(jobConf));
-    
-    jobConf.set(JTConfig.JT_IPC_ADDRESS, "jthost:9090");
-    jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.LOCAL_FRAMEWORK_NAME);
-    assertTrue("Expected 'isLocal' to be true", 
-        StreamUtil.isLocalJobTracker(jobConf));
-  }
+    @Test
+    public void testFramework() {
+        JobConf jobConf = new JobConf();
+        jobConf.set(JTConfig.JT_IPC_ADDRESS, MRConfig.LOCAL_FRAMEWORK_NAME);
+        jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
+        assertFalse("Expected 'isLocal' to be false",
+                    StreamUtil.isLocalJobTracker(jobConf));
+
+        jobConf.set(JTConfig.JT_IPC_ADDRESS, MRConfig.LOCAL_FRAMEWORK_NAME);
+        jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.CLASSIC_FRAMEWORK_NAME);
+        assertFalse("Expected 'isLocal' to be false",
+                    StreamUtil.isLocalJobTracker(jobConf));
+
+        jobConf.set(JTConfig.JT_IPC_ADDRESS, "jthost:9090");
+        jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.LOCAL_FRAMEWORK_NAME);
+        assertTrue("Expected 'isLocal' to be true",
+                   StreamUtil.isLocalJobTracker(jobConf));
+    }
 
 }

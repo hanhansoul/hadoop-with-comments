@@ -39,79 +39,79 @@ import org.junit.Test;
 
 public class TestAMRMRPCResponseId {
 
-  private MockRM rm;
-  ApplicationMasterService amService = null;
+    private MockRM rm;
+    ApplicationMasterService amService = null;
 
-  @Before
-  public void setUp() {
-    this.rm = new MockRM();
-    rm.start();
-    amService = rm.getApplicationMasterService();
-  }
-  
-  @After
-  public void tearDown() {
-    if (rm != null) {
-      this.rm.stop();
+    @Before
+    public void setUp() {
+        this.rm = new MockRM();
+        rm.start();
+        amService = rm.getApplicationMasterService();
     }
-  }
 
-  private AllocateResponse allocate(ApplicationAttemptId attemptId,
-      final AllocateRequest req) throws Exception {
-    UserGroupInformation ugi =
-        UserGroupInformation.createRemoteUser(attemptId.toString());
-    org.apache.hadoop.security.token.Token<AMRMTokenIdentifier> token =
-        rm.getRMContext().getRMApps().get(attemptId.getApplicationId())
-          .getRMAppAttempt(attemptId).getAMRMToken();
-    ugi.addTokenIdentifier(token.decodeIdentifier());
-    return ugi.doAs(new PrivilegedExceptionAction<AllocateResponse>() {
-      @Override
-      public AllocateResponse run() throws Exception {
-        return amService.allocate(req);
-      }
-    });
-  }
-
-  @Test
-  public void testARRMResponseId() throws Exception {
-
-    MockNM nm1 = rm.registerNode("h1:1234", 5000);
-
-    RMApp app = rm.submitApp(2000);
-
-    // Trigger the scheduling so the AM gets 'launched'
-    nm1.nodeHeartbeat(true);
-
-    RMAppAttempt attempt = app.getCurrentAppAttempt();
-    MockAM am = rm.sendAMLaunched(attempt.getAppAttemptId());
-
-    am.registerAppAttempt();
-    
-    AllocateRequest allocateRequest =
-        AllocateRequest.newInstance(0, 0F, null, null, null);
-
-    AllocateResponse response =
-        allocate(attempt.getAppAttemptId(), allocateRequest);
-    Assert.assertEquals(1, response.getResponseId());
-    Assert.assertTrue(response.getAMCommand() == null);
-    allocateRequest =
-        AllocateRequest.newInstance(response.getResponseId(), 0F, null, null,
-          null);
-    
-    response = allocate(attempt.getAppAttemptId(), allocateRequest);
-    Assert.assertEquals(2, response.getResponseId());
-    /* try resending */
-    response = allocate(attempt.getAppAttemptId(), allocateRequest);
-    Assert.assertEquals(2, response.getResponseId());
-    
-    /** try sending old request again **/
-    allocateRequest = AllocateRequest.newInstance(0, 0F, null, null, null);
-
-    try {
-      allocate(attempt.getAppAttemptId(), allocateRequest);
-      Assert.fail();
-    } catch (Exception e) {
-      Assert.assertTrue(e.getCause() instanceof InvalidApplicationMasterRequestException);
+    @After
+    public void tearDown() {
+        if (rm != null) {
+            this.rm.stop();
+        }
     }
-  }
+
+    private AllocateResponse allocate(ApplicationAttemptId attemptId,
+                                      final AllocateRequest req) throws Exception {
+        UserGroupInformation ugi =
+            UserGroupInformation.createRemoteUser(attemptId.toString());
+        org.apache.hadoop.security.token.Token<AMRMTokenIdentifier> token =
+            rm.getRMContext().getRMApps().get(attemptId.getApplicationId())
+            .getRMAppAttempt(attemptId).getAMRMToken();
+        ugi.addTokenIdentifier(token.decodeIdentifier());
+        return ugi.doAs(new PrivilegedExceptionAction<AllocateResponse>() {
+            @Override
+            public AllocateResponse run() throws Exception {
+                return amService.allocate(req);
+            }
+        });
+    }
+
+    @Test
+    public void testARRMResponseId() throws Exception {
+
+        MockNM nm1 = rm.registerNode("h1:1234", 5000);
+
+        RMApp app = rm.submitApp(2000);
+
+        // Trigger the scheduling so the AM gets 'launched'
+        nm1.nodeHeartbeat(true);
+
+        RMAppAttempt attempt = app.getCurrentAppAttempt();
+        MockAM am = rm.sendAMLaunched(attempt.getAppAttemptId());
+
+        am.registerAppAttempt();
+
+        AllocateRequest allocateRequest =
+            AllocateRequest.newInstance(0, 0F, null, null, null);
+
+        AllocateResponse response =
+            allocate(attempt.getAppAttemptId(), allocateRequest);
+        Assert.assertEquals(1, response.getResponseId());
+        Assert.assertTrue(response.getAMCommand() == null);
+        allocateRequest =
+            AllocateRequest.newInstance(response.getResponseId(), 0F, null, null,
+                                        null);
+
+        response = allocate(attempt.getAppAttemptId(), allocateRequest);
+        Assert.assertEquals(2, response.getResponseId());
+        /* try resending */
+        response = allocate(attempt.getAppAttemptId(), allocateRequest);
+        Assert.assertEquals(2, response.getResponseId());
+
+        /** try sending old request again **/
+        allocateRequest = AllocateRequest.newInstance(0, 0F, null, null, null);
+
+        try {
+            allocate(attempt.getAppAttemptId(), allocateRequest);
+            Assert.fail();
+        } catch (Exception e) {
+            Assert.assertTrue(e.getCause() instanceof InvalidApplicationMasterRequestException);
+        }
+    }
 }

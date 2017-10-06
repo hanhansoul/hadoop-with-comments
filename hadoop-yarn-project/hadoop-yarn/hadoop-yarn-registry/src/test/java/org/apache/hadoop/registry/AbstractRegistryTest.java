@@ -39,85 +39,85 @@ import java.net.URISyntaxException;
  *
  */
 public class AbstractRegistryTest extends AbstractZKRegistryTest {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(AbstractRegistryTest.class);
-  protected RMRegistryOperationsService registry;
-  protected RegistryOperations operations;
+    private static final Logger LOG =
+        LoggerFactory.getLogger(AbstractRegistryTest.class);
+    protected RMRegistryOperationsService registry;
+    protected RegistryOperations operations;
 
-  @Before
-  public void setupRegistry() throws IOException {
-    registry = new RMRegistryOperationsService("yarnRegistry");
-    operations = registry;
-    registry.init(createRegistryConfiguration());
-    registry.start();
-    operations.delete("/", true);
-    registry.createRootRegistryPaths();
-    addToTeardown(registry);
-  }
-
-  /**
-   * Create a service entry with the sample endpoints, and put it
-   * at the destination
-   * @param path path
-   * @param createFlags flags
-   * @return the record
-   * @throws IOException on a failure
-   */
-  protected ServiceRecord putExampleServiceEntry(String path, int createFlags) throws
-      IOException,
-      URISyntaxException {
-    return putExampleServiceEntry(path, createFlags, PersistencePolicies.PERMANENT);
-  }
-
-  /**
-   * Create a service entry with the sample endpoints, and put it
-   * at the destination
-   * @param path path
-   * @param createFlags flags
-   * @return the record
-   * @throws IOException on a failure
-   */
-  protected ServiceRecord putExampleServiceEntry(String path,
-      int createFlags,
-      String persistence)
-      throws IOException, URISyntaxException {
-    ServiceRecord record = buildExampleServiceEntry(persistence);
-
-    registry.mknode(RegistryPathUtils.parentOf(path), true);
-    operations.bind(path, record, createFlags);
-    return record;
-  }
-
-  /**
-   * Assert a path exists
-   * @param path path in the registry
-   * @throws IOException
-   */
-  public void assertPathExists(String path) throws IOException {
-    operations.stat(path);
-  }
-
-  /**
-   * assert that a path does not exist
-   * @param path path in the registry
-   * @throws IOException
-   */
-  public void assertPathNotFound(String path) throws IOException {
-    try {
-      operations.stat(path);
-      fail("Path unexpectedly found: " + path);
-    } catch (PathNotFoundException e) {
-
+    @Before
+    public void setupRegistry() throws IOException {
+        registry = new RMRegistryOperationsService("yarnRegistry");
+        operations = registry;
+        registry.init(createRegistryConfiguration());
+        registry.start();
+        operations.delete("/", true);
+        registry.createRootRegistryPaths();
+        addToTeardown(registry);
     }
-  }
 
-  /**
-   * Assert that a path resolves to a service record
-   * @param path path in the registry
-   * @throws IOException
-   */
-  public void assertResolves(String path) throws IOException {
-    operations.resolve(path);
-  }
+    /**
+     * Create a service entry with the sample endpoints, and put it
+     * at the destination
+     * @param path path
+     * @param createFlags flags
+     * @return the record
+     * @throws IOException on a failure
+     */
+    protected ServiceRecord putExampleServiceEntry(String path, int createFlags) throws
+        IOException,
+        URISyntaxException {
+        return putExampleServiceEntry(path, createFlags, PersistencePolicies.PERMANENT);
+    }
+
+    /**
+     * Create a service entry with the sample endpoints, and put it
+     * at the destination
+     * @param path path
+     * @param createFlags flags
+     * @return the record
+     * @throws IOException on a failure
+     */
+    protected ServiceRecord putExampleServiceEntry(String path,
+            int createFlags,
+            String persistence)
+    throws IOException, URISyntaxException {
+        ServiceRecord record = buildExampleServiceEntry(persistence);
+
+        registry.mknode(RegistryPathUtils.parentOf(path), true);
+        operations.bind(path, record, createFlags);
+        return record;
+    }
+
+    /**
+     * Assert a path exists
+     * @param path path in the registry
+     * @throws IOException
+     */
+    public void assertPathExists(String path) throws IOException {
+        operations.stat(path);
+    }
+
+    /**
+     * assert that a path does not exist
+     * @param path path in the registry
+     * @throws IOException
+     */
+    public void assertPathNotFound(String path) throws IOException {
+        try {
+            operations.stat(path);
+            fail("Path unexpectedly found: " + path);
+        } catch (PathNotFoundException e) {
+
+        }
+    }
+
+    /**
+     * Assert that a path resolves to a service record
+     * @param path path in the registry
+     * @throws IOException
+     */
+    public void assertResolves(String path) throws IOException {
+        operations.resolve(path);
+    }
 
 }

@@ -37,68 +37,68 @@ import com.google.inject.Inject;
 // on Mac OS HFS as its case-insensitive!
 public class RmController extends Controller {
 
-  @Inject
-  RmController(RequestContext ctx) {
-    super(ctx);
-  }
-
-  @Override public void index() {
-    setTitle("Applications");
-  }
-
-  public void about() {
-    setTitle("About the Cluster");
-    render(AboutPage.class);
-  }
-
-  public void app() {
-    render(AppPage.class);
-  }
-
-  public void appattempt() {
-    render(AppAttemptPage.class);
-  }
-
-  public void container() {
-    render(ContainerPage.class);
-  }
-
-  public void nodes() {
-    render(NodesPage.class);
-  }
-
-  public void scheduler() {
-    // limit applications to those in states relevant to scheduling
-    set(YarnWebParams.APP_STATE, StringHelper.cjoin(
-        YarnApplicationState.NEW.toString(),
-        YarnApplicationState.NEW_SAVING.toString(),
-        YarnApplicationState.SUBMITTED.toString(),
-        YarnApplicationState.ACCEPTED.toString(),
-        YarnApplicationState.RUNNING.toString()));
-
-    ResourceManager rm = getInstance(ResourceManager.class);
-    ResourceScheduler rs = rm.getResourceScheduler();
-    if (rs == null || rs instanceof CapacityScheduler) {
-      setTitle("Capacity Scheduler");
-      render(CapacitySchedulerPage.class);
-      return;
+    @Inject
+    RmController(RequestContext ctx) {
+        super(ctx);
     }
-    
-    if (rs instanceof FairScheduler) {
-      setTitle("Fair Scheduler");
-      render(FairSchedulerPage.class);
-      return;
+
+    @Override public void index() {
+        setTitle("Applications");
     }
-    
-    setTitle("Default Scheduler");
-    render(DefaultSchedulerPage.class);
-  }
 
-  public void queue() {
-    setTitle(join("Queue ", get(QUEUE_NAME, "unknown")));
-  }
+    public void about() {
+        setTitle("About the Cluster");
+        render(AboutPage.class);
+    }
 
-  public void submit() {
-    setTitle("Application Submission Not Allowed");
-  }
+    public void app() {
+        render(AppPage.class);
+    }
+
+    public void appattempt() {
+        render(AppAttemptPage.class);
+    }
+
+    public void container() {
+        render(ContainerPage.class);
+    }
+
+    public void nodes() {
+        render(NodesPage.class);
+    }
+
+    public void scheduler() {
+        // limit applications to those in states relevant to scheduling
+        set(YarnWebParams.APP_STATE, StringHelper.cjoin(
+                YarnApplicationState.NEW.toString(),
+                YarnApplicationState.NEW_SAVING.toString(),
+                YarnApplicationState.SUBMITTED.toString(),
+                YarnApplicationState.ACCEPTED.toString(),
+                YarnApplicationState.RUNNING.toString()));
+
+        ResourceManager rm = getInstance(ResourceManager.class);
+        ResourceScheduler rs = rm.getResourceScheduler();
+        if (rs == null || rs instanceof CapacityScheduler) {
+            setTitle("Capacity Scheduler");
+            render(CapacitySchedulerPage.class);
+            return;
+        }
+
+        if (rs instanceof FairScheduler) {
+            setTitle("Fair Scheduler");
+            render(FairSchedulerPage.class);
+            return;
+        }
+
+        setTitle("Default Scheduler");
+        render(DefaultSchedulerPage.class);
+    }
+
+    public void queue() {
+        setTitle(join("Queue ", get(QUEUE_NAME, "unknown")));
+    }
+
+    public void submit() {
+        setTitle("Application Submission Not Allowed");
+    }
 }

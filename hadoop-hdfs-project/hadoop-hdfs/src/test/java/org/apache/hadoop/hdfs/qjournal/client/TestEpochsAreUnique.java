@@ -41,103 +41,103 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 
 public class TestEpochsAreUnique {
-  private static final Log LOG = LogFactory.getLog(TestEpochsAreUnique.class);
-  private static final String JID = "testEpochsAreUnique-jid";
-  private static final NamespaceInfo FAKE_NSINFO = new NamespaceInfo(
-      12345, "mycluster", "my-bp", 0L);
-  private final Random r = new Random();
-  
-  @Test
-  public void testSingleThreaded() throws IOException {
-    Configuration conf = new Configuration();
-    MiniJournalCluster cluster = new MiniJournalCluster.Builder(conf).build();
-    URI uri = cluster.getQuorumJournalURI(JID);
-    QuorumJournalManager qjm = new QuorumJournalManager(
-        conf, uri, FAKE_NSINFO);
-    try {
-      qjm.format(FAKE_NSINFO);
-    } finally {
-      qjm.close();
-    }
-    
-    try {
-      // With no failures or contention, epochs should increase one-by-one
-      for (int i = 0; i < 5; i++) {
-        qjm = new QuorumJournalManager(
+    private static final Log LOG = LogFactory.getLog(TestEpochsAreUnique.class);
+    private static final String JID = "testEpochsAreUnique-jid";
+    private static final NamespaceInfo FAKE_NSINFO = new NamespaceInfo(
+        12345, "mycluster", "my-bp", 0L);
+    private final Random r = new Random();
+
+    @Test
+    public void testSingleThreaded() throws IOException {
+        Configuration conf = new Configuration();
+        MiniJournalCluster cluster = new MiniJournalCluster.Builder(conf).build();
+        URI uri = cluster.getQuorumJournalURI(JID);
+        QuorumJournalManager qjm = new QuorumJournalManager(
             conf, uri, FAKE_NSINFO);
         try {
-          qjm.createNewUniqueEpoch();
-          assertEquals(i + 1, qjm.getLoggerSetForTests().getEpoch());
+            qjm.format(FAKE_NSINFO);
         } finally {
-          qjm.close();
-        }
-      }
-      
-      long prevEpoch = 5;
-      // With some failures injected, it should still always increase, perhaps
-      // skipping some
-      for (int i = 0; i < 20; i++) {
-        long newEpoch = -1;
-        while (true) {
-          qjm = new QuorumJournalManager(
-              conf, uri, FAKE_NSINFO, new FaultyLoggerFactory());
-          try {
-            qjm.createNewUniqueEpoch();
-            newEpoch = qjm.getLoggerSetForTests().getEpoch();
-            break;
-          } catch (IOException ioe) {
-            // It's OK to fail to create an epoch, since we randomly inject
-            // faults. It's possible we'll inject faults in too many of the
-            // underlying nodes, and a failure is expected in that case
-          } finally {
             qjm.close();
-          }
         }
-        LOG.info("Created epoch " + newEpoch);
-        assertTrue("New epoch " + newEpoch + " should be greater than previous " +
-            prevEpoch, newEpoch > prevEpoch);
-        prevEpoch = newEpoch;
-      }
-    } finally {
-      cluster.shutdown();
+
+        try {
+            // With no failures or contention, epochs should increase one-by-one
+            for (int i = 0; i < 5; i++) {
+                qjm = new QuorumJournalManager(
+                    conf, uri, FAKE_NSINFO);
+                try {
+                    qjm.createNewUniqueEpoch();
+                    assertEquals(i + 1, qjm.getLoggerSetForTests().getEpoch());
+                } finally {
+                    qjm.close();
+                }
+            }
+
+            long prevEpoch = 5;
+            // With some failures injected, it should still always increase, perhaps
+            // skipping some
+            for (int i = 0; i < 20; i++) {
+                long newEpoch = -1;
+                while (true) {
+                    qjm = new QuorumJournalManager(
+                        conf, uri, FAKE_NSINFO, new FaultyLoggerFactory());
+                    try {
+                        qjm.createNewUniqueEpoch();
+                        newEpoch = qjm.getLoggerSetForTests().getEpoch();
+                        break;
+                    } catch (IOException ioe) {
+                        // It's OK to fail to create an epoch, since we randomly inject
+                        // faults. It's possible we'll inject faults in too many of the
+                        // underlying nodes, and a failure is expected in that case
+                    } finally {
+                        qjm.close();
+                    }
+                }
+                LOG.info("Created epoch " + newEpoch);
+                assertTrue("New epoch " + newEpoch + " should be greater than previous " +
+                           prevEpoch, newEpoch > prevEpoch);
+                prevEpoch = newEpoch;
+            }
+        } finally {
+            cluster.shutdown();
+        }
     }
-  }
 
-  private class FaultyLoggerFactory implements AsyncLogger.Factory {
-    @Override
-    public AsyncLogger createLogger(Configuration conf, NamespaceInfo nsInfo,
-        String journalId, InetSocketAddress addr) {
-      AsyncLogger ch = IPCLoggerChannel.FACTORY.createLogger(
-          conf, nsInfo, journalId, addr);
-      AsyncLogger spy = Mockito.spy(ch);
-      Mockito.doAnswer(new SometimesFaulty<Long>(0.10f))
-          .when(spy).getJournalState();
-      Mockito.doAnswer(new SometimesFaulty<Void>(0.40f))
-          .when(spy).newEpoch(Mockito.anyLong());
+    private class FaultyLoggerFactory implements AsyncLogger.Factory {
+        @Override
+        public AsyncLogger createLogger(Configuration conf, NamespaceInfo nsInfo,
+                                        String journalId, InetSocketAddress addr) {
+            AsyncLogger ch = IPCLoggerChannel.FACTORY.createLogger(
+                                 conf, nsInfo, journalId, addr);
+            AsyncLogger spy = Mockito.spy(ch);
+            Mockito.doAnswer(new SometimesFaulty<Long>(0.10f))
+            .when(spy).getJournalState();
+            Mockito.doAnswer(new SometimesFaulty<Void>(0.40f))
+            .when(spy).newEpoch(Mockito.anyLong());
 
-      return spy;
-    }
-    
-  }
+            return spy;
+        }
 
-  private class SometimesFaulty<T> implements Answer<ListenableFuture<T>> {
-    private final float faultProbability;
-
-    public SometimesFaulty(float faultProbability) {
-      this.faultProbability = faultProbability;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public ListenableFuture<T> answer(InvocationOnMock invocation)
+    private class SometimesFaulty<T> implements Answer<ListenableFuture<T>> {
+        private final float faultProbability;
+
+        public SometimesFaulty(float faultProbability) {
+            this.faultProbability = faultProbability;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public ListenableFuture<T> answer(InvocationOnMock invocation)
         throws Throwable {
-      if (r.nextFloat() < faultProbability) {
-        return Futures.immediateFailedFuture(
-            new IOException("Injected fault"));
-      }
-      return (ListenableFuture<T>)invocation.callRealMethod();
+            if (r.nextFloat() < faultProbability) {
+                return Futures.immediateFailedFuture(
+                           new IOException("Injected fault"));
+            }
+            return (ListenableFuture<T>)invocation.callRealMethod();
+        }
     }
-  }
 
 
 

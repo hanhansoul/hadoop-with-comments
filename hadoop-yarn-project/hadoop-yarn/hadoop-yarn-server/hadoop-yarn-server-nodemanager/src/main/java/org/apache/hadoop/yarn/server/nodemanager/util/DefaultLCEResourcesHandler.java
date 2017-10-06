@@ -27,39 +27,39 @@ import org.apache.hadoop.yarn.server.nodemanager.LinuxContainerExecutor;
 
 public class DefaultLCEResourcesHandler implements LCEResourcesHandler {
 
-  final static Log LOG = LogFactory
-      .getLog(DefaultLCEResourcesHandler.class);
+    final static Log LOG = LogFactory
+                           .getLog(DefaultLCEResourcesHandler.class);
 
-  private Configuration conf;
-  
-  public DefaultLCEResourcesHandler() {
-  }
-  
-  public void setConf(Configuration conf) {
+    private Configuration conf;
+
+    public DefaultLCEResourcesHandler() {
+    }
+
+    public void setConf(Configuration conf) {
         this.conf = conf;
-  }
+    }
 
-  @Override
-  public Configuration getConf() {
-    return  conf;
-  }
-  
-  public void init(LinuxContainerExecutor lce) {
-  }
+    @Override
+    public Configuration getConf() {
+        return  conf;
+    }
 
-  /*
-   * LCE Resources Handler interface
-   */
-  
-  public void preExecute(ContainerId containerId, Resource containerResource) {
-  }
-  
-  public void postExecute(ContainerId containerId) {
-  }
-  
-  public String getResourcesOption(ContainerId containerId) {
-    return "cgroups=none";
-  }
+    public void init(LinuxContainerExecutor lce) {
+    }
+
+    /*
+     * LCE Resources Handler interface
+     */
+
+    public void preExecute(ContainerId containerId, Resource containerResource) {
+    }
+
+    public void postExecute(ContainerId containerId) {
+    }
+
+    public String getResourcesOption(ContainerId containerId) {
+        return "cgroups=none";
+    }
 
 
 }

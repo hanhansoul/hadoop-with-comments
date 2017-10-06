@@ -31,11 +31,11 @@ import org.apache.hadoop.mapred.Reporter;
 public class FailMapper extends MapReduceBase implements
     Mapper<WritableComparable, Writable, WritableComparable, Writable> {
 
-  public void map(WritableComparable key, Writable value,
-      OutputCollector<WritableComparable, Writable> out, Reporter reporter)
-      throws IOException {
-    // NOTE- the next line is required for the TestDebugScript test to succeed
-    System.err.println("failing map");
-    throw new RuntimeException("failing map");
-  }
+    public void map(WritableComparable key, Writable value,
+                    OutputCollector<WritableComparable, Writable> out, Reporter reporter)
+    throws IOException {
+        // NOTE- the next line is required for the TestDebugScript test to succeed
+        System.err.println("failing map");
+        throw new RuntimeException("failing map");
+    }
 }

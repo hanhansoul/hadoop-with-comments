@@ -26,11 +26,11 @@ import org.apache.hadoop.yarn.util.Records;
 @Private
 @Stable
 public abstract class RefreshUserToGroupsMappingsResponse {
-  @Private
-  @Unstable
-  public static RefreshUserToGroupsMappingsResponse newInstance() {
-    RefreshUserToGroupsMappingsResponse response =
-        Records.newRecord(RefreshUserToGroupsMappingsResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static RefreshUserToGroupsMappingsResponse newInstance() {
+        RefreshUserToGroupsMappingsResponse response =
+            Records.newRecord(RefreshUserToGroupsMappingsResponse.class);
+        return response;
+    }
 }

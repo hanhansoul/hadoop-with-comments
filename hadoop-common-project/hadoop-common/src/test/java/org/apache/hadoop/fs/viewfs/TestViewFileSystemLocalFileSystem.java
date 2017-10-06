@@ -28,8 +28,8 @@ import org.junit.Before;
 
 
 /**
- * 
- * Test the ViewFileSystemBaseTest using a viewfs with authority: 
+ *
+ * Test the ViewFileSystemBaseTest using a viewfs with authority:
  *    viewfs://mountTableName/
  *    ie the authority is used to load a mount table.
  *    The authority name used is "default"
@@ -38,19 +38,19 @@ import org.junit.Before;
 
 public class TestViewFileSystemLocalFileSystem extends ViewFileSystemBaseTest {
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    // create the test root on local_fs
-    fsTarget = FileSystem.getLocal(new Configuration());
-    super.setUp();
-    
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        // create the test root on local_fs
+        fsTarget = FileSystem.getLocal(new Configuration());
+        super.setUp();
 
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    fsTarget.delete(fileSystemTestHelper.getTestRootPath(fsTarget), true);
-    super.tearDown();
-  }
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        fsTarget.delete(fileSystemTestHelper.getTestRootPath(fsTarget), true);
+        super.tearDown();
+    }
 }

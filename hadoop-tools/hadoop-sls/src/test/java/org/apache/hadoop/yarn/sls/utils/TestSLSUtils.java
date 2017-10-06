@@ -23,12 +23,12 @@ import org.junit.Test;
 
 public class TestSLSUtils {
 
-  @Test
-  public void testGetRackHostname() {
-    String str = "/rack1/node1";
-    String rackHostname[] = SLSUtils.getRackHostName(str);
-    Assert.assertEquals(rackHostname[0], "rack1");
-    Assert.assertEquals(rackHostname[1], "node1");
-  }
+    @Test
+    public void testGetRackHostname() {
+        String str = "/rack1/node1";
+        String rackHostname[] = SLSUtils.getRackHostName(str);
+        Assert.assertEquals(rackHostname[0], "rack1");
+        Assert.assertEquals(rackHostname[1], "node1");
+    }
 
 }

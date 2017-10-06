@@ -32,37 +32,37 @@ import org.apache.hadoop.streaming.PipeMapper;
 import org.junit.Test;
 
 public class TestKeyOnlyTextOutputReader {
-  @Test
-  public void testKeyOnlyTextOutputReader() throws IOException {
-    String text = "key,value\nkey2,value2\nnocomma\n";
-    PipeMapRed pipeMapRed = new MyPipeMapRed(text);
-    KeyOnlyTextOutputReader outputReader = new KeyOnlyTextOutputReader();
-    outputReader.initialize(pipeMapRed);
-    outputReader.readKeyValue();
-    Assert.assertEquals(new Text("key,value"), outputReader.getCurrentKey());
-    outputReader.readKeyValue();
-    Assert.assertEquals(new Text("key2,value2"), outputReader.getCurrentKey());
-    outputReader.readKeyValue();
-    Assert.assertEquals(new Text("nocomma"), outputReader.getCurrentKey());
-    Assert.assertEquals(false, outputReader.readKeyValue());
-  }
-  
-  private class MyPipeMapRed extends PipeMapper {
-    private DataInput clientIn;
-    private Configuration conf = new Configuration();
-    
-    public MyPipeMapRed(String text) {
-      clientIn = new DataInputStream(new ByteArrayInputStream(text.getBytes()));
+    @Test
+    public void testKeyOnlyTextOutputReader() throws IOException {
+        String text = "key,value\nkey2,value2\nnocomma\n";
+        PipeMapRed pipeMapRed = new MyPipeMapRed(text);
+        KeyOnlyTextOutputReader outputReader = new KeyOnlyTextOutputReader();
+        outputReader.initialize(pipeMapRed);
+        outputReader.readKeyValue();
+        Assert.assertEquals(new Text("key,value"), outputReader.getCurrentKey());
+        outputReader.readKeyValue();
+        Assert.assertEquals(new Text("key2,value2"), outputReader.getCurrentKey());
+        outputReader.readKeyValue();
+        Assert.assertEquals(new Text("nocomma"), outputReader.getCurrentKey());
+        Assert.assertEquals(false, outputReader.readKeyValue());
     }
-    
-    @Override
-    public DataInput getClientInput() {
-      return clientIn;
+
+    private class MyPipeMapRed extends PipeMapper {
+        private DataInput clientIn;
+        private Configuration conf = new Configuration();
+
+        public MyPipeMapRed(String text) {
+            clientIn = new DataInputStream(new ByteArrayInputStream(text.getBytes()));
+        }
+
+        @Override
+        public DataInput getClientInput() {
+            return clientIn;
+        }
+
+        @Override
+        public Configuration getConfiguration() {
+            return conf;
+        }
     }
-    
-    @Override
-    public Configuration getConfiguration() {
-      return conf;
-    }
-  }
 }

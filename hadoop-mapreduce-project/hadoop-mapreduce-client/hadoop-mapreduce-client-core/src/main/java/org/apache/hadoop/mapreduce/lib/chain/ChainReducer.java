@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * The ChainReducer class allows to chain multiple Mapper classes after a
  * Reducer within the Reducer task.
- * 
+ *
  * <p>
  * For each record output by the Reducer, the Mapper classes are invoked in a
  * chained (or piped) fashion. The output of the reducer becomes the input of
@@ -60,7 +60,7 @@ import java.io.IOException;
  * </p>
  * ChainReducer usage pattern:
  * <p/>
- * 
+ *
  * <pre>
  * ...
  * Job = new Job(conf);
@@ -88,133 +88,133 @@ import java.io.IOException;
 public class ChainReducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends
     Reducer<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
-  /**
-   * Sets the {@link Reducer} class to the chain job.
-   * 
-   * <p>
-   * The key and values are passed from one element of the chain to the next, by
-   * value. For the added Reducer the configuration given for it,
-   * <code>reducerConf</code>, have precedence over the job's Configuration.
-   * This precedence is in effect when the task is running.
-   * </p>
-   * <p>
-   * IMPORTANT: There is no need to specify the output key/value classes for the
-   * ChainReducer, this is done by the setReducer or the addMapper for the last
-   * element in the chain.
-   * </p>
-   * 
-   * @param job
-   *          the job
-   * @param klass
-   *          the Reducer class to add.
-   * @param inputKeyClass
-   *          reducer input key class.
-   * @param inputValueClass
-   *          reducer input value class.
-   * @param outputKeyClass
-   *          reducer output key class.
-   * @param outputValueClass
-   *          reducer output value class.
-   * @param reducerConf
-   *          a configuration for the Reducer class. It is recommended to use a
-   *          Configuration without default values using the
-   *          <code>Configuration(boolean loadDefaults)</code> constructor with
-   *          FALSE.
-   */
-  public static void setReducer(Job job, Class<? extends Reducer> klass,
-      Class<?> inputKeyClass, Class<?> inputValueClass,
-      Class<?> outputKeyClass, Class<?> outputValueClass,
-      Configuration reducerConf) {
-    job.setReducerClass(ChainReducer.class);
-    job.setOutputKeyClass(outputKeyClass);
-    job.setOutputValueClass(outputValueClass);
-    Chain.setReducer(job, klass, inputKeyClass, inputValueClass,
-        outputKeyClass, outputValueClass, reducerConf);
-  }
-
-  /**
-   * Adds a {@link Mapper} class to the chain reducer.
-   * 
-   * <p>
-   * The key and values are passed from one element of the chain to the next, by
-   * value For the added Mapper the configuration given for it,
-   * <code>mapperConf</code>, have precedence over the job's Configuration. This
-   * precedence is in effect when the task is running.
-   * </p>
-   * <p>
-   * IMPORTANT: There is no need to specify the output key/value classes for the
-   * ChainMapper, this is done by the addMapper for the last mapper in the
-   * chain.
-   * </p>
-   * 
-   * @param job
-   *          The job.
-   * @param klass
-   *          the Mapper class to add.
-   * @param inputKeyClass
-   *          mapper input key class.
-   * @param inputValueClass
-   *          mapper input value class.
-   * @param outputKeyClass
-   *          mapper output key class.
-   * @param outputValueClass
-   *          mapper output value class.
-   * @param mapperConf
-   *          a configuration for the Mapper class. It is recommended to use a
-   *          Configuration without default values using the
-   *          <code>Configuration(boolean loadDefaults)</code> constructor with
-   *          FALSE.
-   */
-  public static void addMapper(Job job, Class<? extends Mapper> klass,
-      Class<?> inputKeyClass, Class<?> inputValueClass,
-      Class<?> outputKeyClass, Class<?> outputValueClass,
-      Configuration mapperConf) throws IOException {
-    job.setOutputKeyClass(outputKeyClass);
-    job.setOutputValueClass(outputValueClass);
-    Chain.addMapper(false, job, klass, inputKeyClass, inputValueClass,
-        outputKeyClass, outputValueClass, mapperConf);
-  }
-
-  private Chain chain;
-
-  protected void setup(Context context) {
-    chain = new Chain(false);
-    chain.setup(context.getConfiguration());
-  }
-
-  public void run(Context context) throws IOException, InterruptedException {
-    setup(context);
-
-    // if no reducer is set, just do nothing
-    if (chain.getReducer() == null) {
-      return;
-    }
-    int numMappers = chain.getAllMappers().size();
-    // if there are no mappers in chain, run the reducer
-    if (numMappers == 0) {
-      chain.runReducer(context);
-      return;
+    /**
+     * Sets the {@link Reducer} class to the chain job.
+     *
+     * <p>
+     * The key and values are passed from one element of the chain to the next, by
+     * value. For the added Reducer the configuration given for it,
+     * <code>reducerConf</code>, have precedence over the job's Configuration.
+     * This precedence is in effect when the task is running.
+     * </p>
+     * <p>
+     * IMPORTANT: There is no need to specify the output key/value classes for the
+     * ChainReducer, this is done by the setReducer or the addMapper for the last
+     * element in the chain.
+     * </p>
+     *
+     * @param job
+     *          the job
+     * @param klass
+     *          the Reducer class to add.
+     * @param inputKeyClass
+     *          reducer input key class.
+     * @param inputValueClass
+     *          reducer input value class.
+     * @param outputKeyClass
+     *          reducer output key class.
+     * @param outputValueClass
+     *          reducer output value class.
+     * @param reducerConf
+     *          a configuration for the Reducer class. It is recommended to use a
+     *          Configuration without default values using the
+     *          <code>Configuration(boolean loadDefaults)</code> constructor with
+     *          FALSE.
+     */
+    public static void setReducer(Job job, Class<? extends Reducer> klass,
+                                  Class<?> inputKeyClass, Class<?> inputValueClass,
+                                  Class<?> outputKeyClass, Class<?> outputValueClass,
+                                  Configuration reducerConf) {
+        job.setReducerClass(ChainReducer.class);
+        job.setOutputKeyClass(outputKeyClass);
+        job.setOutputValueClass(outputValueClass);
+        Chain.setReducer(job, klass, inputKeyClass, inputValueClass,
+                         outputKeyClass, outputValueClass, reducerConf);
     }
 
-    // add reducer and all mappers with proper context
-    ChainBlockingQueue<Chain.KeyValuePair<?, ?>> inputqueue;
-    ChainBlockingQueue<Chain.KeyValuePair<?, ?>> outputqueue;
-    // add reducer
-    outputqueue = chain.createBlockingQueue();
-    chain.addReducer(context, outputqueue);
-    // add all mappers except last one
-    for (int i = 0; i < numMappers - 1; i++) {
-      inputqueue = outputqueue;
-      outputqueue = chain.createBlockingQueue();
-      chain.addMapper(inputqueue, outputqueue, context, i);
+    /**
+     * Adds a {@link Mapper} class to the chain reducer.
+     *
+     * <p>
+     * The key and values are passed from one element of the chain to the next, by
+     * value For the added Mapper the configuration given for it,
+     * <code>mapperConf</code>, have precedence over the job's Configuration. This
+     * precedence is in effect when the task is running.
+     * </p>
+     * <p>
+     * IMPORTANT: There is no need to specify the output key/value classes for the
+     * ChainMapper, this is done by the addMapper for the last mapper in the
+     * chain.
+     * </p>
+     *
+     * @param job
+     *          The job.
+     * @param klass
+     *          the Mapper class to add.
+     * @param inputKeyClass
+     *          mapper input key class.
+     * @param inputValueClass
+     *          mapper input value class.
+     * @param outputKeyClass
+     *          mapper output key class.
+     * @param outputValueClass
+     *          mapper output value class.
+     * @param mapperConf
+     *          a configuration for the Mapper class. It is recommended to use a
+     *          Configuration without default values using the
+     *          <code>Configuration(boolean loadDefaults)</code> constructor with
+     *          FALSE.
+     */
+    public static void addMapper(Job job, Class<? extends Mapper> klass,
+                                 Class<?> inputKeyClass, Class<?> inputValueClass,
+                                 Class<?> outputKeyClass, Class<?> outputValueClass,
+                                 Configuration mapperConf) throws IOException {
+        job.setOutputKeyClass(outputKeyClass);
+        job.setOutputValueClass(outputValueClass);
+        Chain.addMapper(false, job, klass, inputKeyClass, inputValueClass,
+                        outputKeyClass, outputValueClass, mapperConf);
     }
-    // add last mapper
-    chain.addMapper(outputqueue, context, numMappers - 1);
 
-    // start all threads
-    chain.startAllThreads();
-    
-    // wait for all threads
-    chain.joinAllThreads();
-  }
+    private Chain chain;
+
+    protected void setup(Context context) {
+        chain = new Chain(false);
+        chain.setup(context.getConfiguration());
+    }
+
+    public void run(Context context) throws IOException, InterruptedException {
+        setup(context);
+
+        // if no reducer is set, just do nothing
+        if (chain.getReducer() == null) {
+            return;
+        }
+        int numMappers = chain.getAllMappers().size();
+        // if there are no mappers in chain, run the reducer
+        if (numMappers == 0) {
+            chain.runReducer(context);
+            return;
+        }
+
+        // add reducer and all mappers with proper context
+        ChainBlockingQueue<Chain.KeyValuePair<?, ?>> inputqueue;
+        ChainBlockingQueue<Chain.KeyValuePair<?, ?>> outputqueue;
+        // add reducer
+        outputqueue = chain.createBlockingQueue();
+        chain.addReducer(context, outputqueue);
+        // add all mappers except last one
+        for (int i = 0; i < numMappers - 1; i++) {
+            inputqueue = outputqueue;
+            outputqueue = chain.createBlockingQueue();
+            chain.addMapper(inputqueue, outputqueue, context, i);
+        }
+        // add last mapper
+        chain.addMapper(outputqueue, context, numMappers - 1);
+
+        // start all threads
+        chain.startAllThreads();
+
+        // wait for all threads
+        chain.joinAllThreads();
+    }
 }

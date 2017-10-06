@@ -25,31 +25,31 @@ import java.util.concurrent.atomic.AtomicLong;
  * we can grab them from client side, like HBase.
  */
 public class DFSHedgedReadMetrics {
-  public final AtomicLong hedgedReadOps = new AtomicLong();
-  public final AtomicLong hedgedReadOpsWin = new AtomicLong();
-  public final AtomicLong hedgedReadOpsInCurThread = new AtomicLong();
+    public final AtomicLong hedgedReadOps = new AtomicLong();
+    public final AtomicLong hedgedReadOpsWin = new AtomicLong();
+    public final AtomicLong hedgedReadOpsInCurThread = new AtomicLong();
 
-  public void incHedgedReadOps() {
-    hedgedReadOps.incrementAndGet();
-  }
+    public void incHedgedReadOps() {
+        hedgedReadOps.incrementAndGet();
+    }
 
-  public void incHedgedReadOpsInCurThread() {
-    hedgedReadOpsInCurThread.incrementAndGet();
-  }
+    public void incHedgedReadOpsInCurThread() {
+        hedgedReadOpsInCurThread.incrementAndGet();
+    }
 
-  public void incHedgedReadWins() {
-    hedgedReadOpsWin.incrementAndGet();
-  }
+    public void incHedgedReadWins() {
+        hedgedReadOpsWin.incrementAndGet();
+    }
 
-  public long getHedgedReadOps() {
-    return hedgedReadOps.longValue();
-  }
+    public long getHedgedReadOps() {
+        return hedgedReadOps.longValue();
+    }
 
-  public long getHedgedReadOpsInCurThread() {
-    return hedgedReadOpsInCurThread.longValue();
-  }
+    public long getHedgedReadOpsInCurThread() {
+        return hedgedReadOpsInCurThread.longValue();
+    }
 
-  public long getHedgedReadWins() {
-    return hedgedReadOpsWin.longValue();
-  }
+    public long getHedgedReadWins() {
+        return hedgedReadOpsWin.longValue();
+    }
 }

@@ -44,191 +44,191 @@ import com.google.common.collect.Maps;
 
 public class MockHistoryJobs extends MockJobs {
 
-  public static class JobsPair {
-    public Map<JobId, Job> partial;
-    public Map<JobId, Job> full;
-  }
-  
-  public static JobsPair newHistoryJobs(int numJobs, int numTasksPerJob,
-      int numAttemptsPerTask) throws IOException {
-    Map<JobId, Job> mocked = newJobs(numJobs, numTasksPerJob, numAttemptsPerTask);
-    return split(mocked);
-  }
-  
-  public static JobsPair newHistoryJobs(ApplicationId appID, int numJobsPerApp,
-      int numTasksPerJob, int numAttemptsPerTask) throws IOException {
-    Map<JobId, Job> mocked = newJobs(appID, numJobsPerApp, numTasksPerJob, 
-        numAttemptsPerTask);
-    return split(mocked);
-  }
-  
-  public static JobsPair newHistoryJobs(ApplicationId appID, int numJobsPerApp,
-      int numTasksPerJob, int numAttemptsPerTask, boolean hasFailedTasks)
-      throws IOException {
-    Map<JobId, Job> mocked = newJobs(appID, numJobsPerApp, numTasksPerJob,
-        numAttemptsPerTask, hasFailedTasks);
-    return split(mocked);
-  }
-
-  private static JobsPair split(Map<JobId, Job> mocked) throws IOException {
-    JobsPair ret = new JobsPair();
-    ret.full = Maps.newHashMap();
-    ret.partial = Maps.newHashMap();
-    for(Map.Entry<JobId, Job> entry: mocked.entrySet()) {
-      JobId id = entry.getKey();
-      Job j = entry.getValue();
-      MockCompletedJob mockJob = new MockCompletedJob(j);
-      // use MockCompletedJob to set everything below to make sure
-      // consistent with what history server would do
-      ret.full.put(id, mockJob);
-      JobReport report = mockJob.getReport();
-      JobIndexInfo info = new JobIndexInfo(report.getStartTime(), 
-          report.getFinishTime(), mockJob.getUserName(), mockJob.getName(), id, 
-          mockJob.getCompletedMaps(), mockJob.getCompletedReduces(),
-          String.valueOf(mockJob.getState()));
-      info.setJobStartTime(report.getStartTime());
-      info.setQueueName(mockJob.getQueueName());
-      ret.partial.put(id, new PartialJob(info, id));
-
-    }
-    return ret;
-  }
-
-  private static class MockCompletedJob extends CompletedJob {
-    private Job job;
-    
-    public MockCompletedJob(Job job) throws IOException {
-      super(new Configuration(), job.getID(), null, true, job.getUserName(),
-          null, null);
-      this.job = job;
+    public static class JobsPair {
+        public Map<JobId, Job> partial;
+        public Map<JobId, Job> full;
     }
 
-    @Override
-    public int getCompletedMaps() {
-      // we always return total since this is history server
-      // and PartialJob also assumes completed - total
-      return job.getTotalMaps();
+    public static JobsPair newHistoryJobs(int numJobs, int numTasksPerJob,
+                                          int numAttemptsPerTask) throws IOException {
+        Map<JobId, Job> mocked = newJobs(numJobs, numTasksPerJob, numAttemptsPerTask);
+        return split(mocked);
     }
 
-    @Override
-    public int getCompletedReduces() {
-      // we always return total since this is history server
-      // and PartialJob also assumes completed - total
-      return job.getTotalReduces();
+    public static JobsPair newHistoryJobs(ApplicationId appID, int numJobsPerApp,
+                                          int numTasksPerJob, int numAttemptsPerTask) throws IOException {
+        Map<JobId, Job> mocked = newJobs(appID, numJobsPerApp, numTasksPerJob,
+                                         numAttemptsPerTask);
+        return split(mocked);
     }
 
-    @Override
-    public org.apache.hadoop.mapreduce.Counters getAllCounters() {
-      return job.getAllCounters();
+    public static JobsPair newHistoryJobs(ApplicationId appID, int numJobsPerApp,
+                                          int numTasksPerJob, int numAttemptsPerTask, boolean hasFailedTasks)
+    throws IOException {
+        Map<JobId, Job> mocked = newJobs(appID, numJobsPerApp, numTasksPerJob,
+                                         numAttemptsPerTask, hasFailedTasks);
+        return split(mocked);
     }
 
-    @Override
-    public JobId getID() {
-      return job.getID();
+    private static JobsPair split(Map<JobId, Job> mocked) throws IOException {
+        JobsPair ret = new JobsPair();
+        ret.full = Maps.newHashMap();
+        ret.partial = Maps.newHashMap();
+        for(Map.Entry<JobId, Job> entry: mocked.entrySet()) {
+            JobId id = entry.getKey();
+            Job j = entry.getValue();
+            MockCompletedJob mockJob = new MockCompletedJob(j);
+            // use MockCompletedJob to set everything below to make sure
+            // consistent with what history server would do
+            ret.full.put(id, mockJob);
+            JobReport report = mockJob.getReport();
+            JobIndexInfo info = new JobIndexInfo(report.getStartTime(),
+                                                 report.getFinishTime(), mockJob.getUserName(), mockJob.getName(), id,
+                                                 mockJob.getCompletedMaps(), mockJob.getCompletedReduces(),
+                                                 String.valueOf(mockJob.getState()));
+            info.setJobStartTime(report.getStartTime());
+            info.setQueueName(mockJob.getQueueName());
+            ret.partial.put(id, new PartialJob(info, id));
+
+        }
+        return ret;
     }
 
-    @Override
-    public JobReport getReport() {
-      return job.getReport();
-    }
+    private static class MockCompletedJob extends CompletedJob {
+        private Job job;
 
-    @Override
-    public float getProgress() {
-      return job.getProgress();
-    }
+        public MockCompletedJob(Job job) throws IOException {
+            super(new Configuration(), job.getID(), null, true, job.getUserName(),
+                  null, null);
+            this.job = job;
+        }
 
-    @Override
-    public JobState getState() {
-      return job.getState();
-    }
+        @Override
+        public int getCompletedMaps() {
+            // we always return total since this is history server
+            // and PartialJob also assumes completed - total
+            return job.getTotalMaps();
+        }
 
-    @Override
-    public Task getTask(TaskId taskId) {
-      return job.getTask(taskId);
-    }
+        @Override
+        public int getCompletedReduces() {
+            // we always return total since this is history server
+            // and PartialJob also assumes completed - total
+            return job.getTotalReduces();
+        }
 
-    @Override
-    public TaskAttemptCompletionEvent[] getTaskAttemptCompletionEvents(
-        int fromEventId, int maxEvents) {
-      return job.getTaskAttemptCompletionEvents(fromEventId, maxEvents);
-    }
+        @Override
+        public org.apache.hadoop.mapreduce.Counters getAllCounters() {
+            return job.getAllCounters();
+        }
 
-    @Override
-    public TaskCompletionEvent[] getMapAttemptCompletionEvents(
-        int startIndex, int maxEvents) {
-      return job.getMapAttemptCompletionEvents(startIndex, maxEvents);
-    }
+        @Override
+        public JobId getID() {
+            return job.getID();
+        }
 
-    @Override
-    public Map<TaskId, Task> getTasks() {
-      return job.getTasks();
-    }
+        @Override
+        public JobReport getReport() {
+            return job.getReport();
+        }
 
-    @Override
-    protected void loadFullHistoryData(boolean loadTasks,
-        Path historyFileAbsolute) throws IOException {
-      //Empty
-    }
+        @Override
+        public float getProgress() {
+            return job.getProgress();
+        }
 
-    @Override
-    public List<String> getDiagnostics() {
-      return job.getDiagnostics();
-    }
+        @Override
+        public JobState getState() {
+            return job.getState();
+        }
 
-    @Override
-    public String getName() {
-      return job.getName();
-    }
+        @Override
+        public Task getTask(TaskId taskId) {
+            return job.getTask(taskId);
+        }
 
-    @Override
-    public String getQueueName() {
-      return job.getQueueName();
-    }
+        @Override
+        public TaskAttemptCompletionEvent[] getTaskAttemptCompletionEvents(
+            int fromEventId, int maxEvents) {
+            return job.getTaskAttemptCompletionEvents(fromEventId, maxEvents);
+        }
 
-    @Override
-    public int getTotalMaps() {
-      return job.getTotalMaps();
-    }
+        @Override
+        public TaskCompletionEvent[] getMapAttemptCompletionEvents(
+            int startIndex, int maxEvents) {
+            return job.getMapAttemptCompletionEvents(startIndex, maxEvents);
+        }
 
-    @Override
-    public int getTotalReduces() {
-      return job.getTotalReduces();
-    }
+        @Override
+        public Map<TaskId, Task> getTasks() {
+            return job.getTasks();
+        }
 
-    @Override
-    public boolean isUber() {
-      return job.isUber();
-    }
+        @Override
+        protected void loadFullHistoryData(boolean loadTasks,
+                                           Path historyFileAbsolute) throws IOException {
+            //Empty
+        }
 
-    @Override
-    public Map<TaskId, Task> getTasks(TaskType taskType) {
-      return job.getTasks();
-    }
+        @Override
+        public List<String> getDiagnostics() {
+            return job.getDiagnostics();
+        }
 
-    @Override
-    public
+        @Override
+        public String getName() {
+            return job.getName();
+        }
+
+        @Override
+        public String getQueueName() {
+            return job.getQueueName();
+        }
+
+        @Override
+        public int getTotalMaps() {
+            return job.getTotalMaps();
+        }
+
+        @Override
+        public int getTotalReduces() {
+            return job.getTotalReduces();
+        }
+
+        @Override
+        public boolean isUber() {
+            return job.isUber();
+        }
+
+        @Override
+        public Map<TaskId, Task> getTasks(TaskType taskType) {
+            return job.getTasks();
+        }
+
+        @Override
+        public
         boolean checkAccess(UserGroupInformation callerUGI, JobACL jobOperation) {
-      return job.checkAccess(callerUGI, jobOperation);
-    }
-    
-    @Override
-    public  Map<JobACL, AccessControlList> getJobACLs() {
-      return job.getJobACLs();
-    }
-    
-    @Override
-    public String getUserName() {
-      return job.getUserName();
-    }
+            return job.checkAccess(callerUGI, jobOperation);
+        }
 
-    @Override
-    public Path getConfFile() {
-      return job.getConfFile();
-    }
+        @Override
+        public  Map<JobACL, AccessControlList> getJobACLs() {
+            return job.getJobACLs();
+        }
 
-    @Override
-    public List<AMInfo> getAMInfos() {
-      return job.getAMInfos();
+        @Override
+        public String getUserName() {
+            return job.getUserName();
+        }
+
+        @Override
+        public Path getConfFile() {
+            return job.getConfFile();
+        }
+
+        @Override
+        public List<AMInfo> getAMInfos() {
+            return job.getAMInfos();
+        }
     }
-  }
 }

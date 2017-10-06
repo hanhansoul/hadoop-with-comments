@@ -43,80 +43,80 @@ import org.htrace.TraceScope;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public abstract class DataTransferProtoUtil {
-  static BlockConstructionStage fromProto(
-      OpWriteBlockProto.BlockConstructionStage stage) {
-    return BlockConstructionStage.valueOf(stage.name());
-  }
-
-  static OpWriteBlockProto.BlockConstructionStage toProto(
-      BlockConstructionStage stage) {
-    return OpWriteBlockProto.BlockConstructionStage.valueOf(stage.name());
-  }
-
-  public static ChecksumProto toProto(DataChecksum checksum) {
-    ChecksumTypeProto type = PBHelper.convert(checksum.getChecksumType());
-    // ChecksumType#valueOf never returns null
-    return ChecksumProto.newBuilder()
-      .setBytesPerChecksum(checksum.getBytesPerChecksum())
-      .setType(type)
-      .build();
-  }
-
-  public static DataChecksum fromProto(ChecksumProto proto) {
-    if (proto == null) return null;
-
-    int bytesPerChecksum = proto.getBytesPerChecksum();
-    DataChecksum.Type type = PBHelper.convert(proto.getType());
-    return DataChecksum.newDataChecksum(type, bytesPerChecksum);
-  }
-
-  static ClientOperationHeaderProto buildClientHeader(ExtendedBlock blk,
-      String client, Token<BlockTokenIdentifier> blockToken) {
-    ClientOperationHeaderProto header =
-      ClientOperationHeaderProto.newBuilder()
-        .setBaseHeader(buildBaseHeader(blk, blockToken))
-        .setClientName(client)
-        .build();
-    return header;
-  }
-
-  static BaseHeaderProto buildBaseHeader(ExtendedBlock blk,
-      Token<BlockTokenIdentifier> blockToken) {
-    BaseHeaderProto.Builder builder =  BaseHeaderProto.newBuilder()
-      .setBlock(PBHelper.convert(blk))
-      .setToken(PBHelper.convert(blockToken));
-    if (Trace.isTracing()) {
-      Span s = Trace.currentSpan();
-      builder.setTraceInfo(DataTransferTraceInfoProto.newBuilder()
-          .setTraceId(s.getTraceId())
-          .setParentId(s.getSpanId()));
+    static BlockConstructionStage fromProto(
+        OpWriteBlockProto.BlockConstructionStage stage) {
+        return BlockConstructionStage.valueOf(stage.name());
     }
-    return builder.build();
-  }
 
-  public static TraceInfo fromProto(DataTransferTraceInfoProto proto) {
-    if (proto == null) return null;
-    if (!proto.hasTraceId()) return null;
-    return new TraceInfo(proto.getTraceId(), proto.getParentId());
-  }
-
-  public static TraceScope continueTraceSpan(ClientOperationHeaderProto header,
-      String description) {
-    return continueTraceSpan(header.getBaseHeader(), description);
-  }
-
-  public static TraceScope continueTraceSpan(BaseHeaderProto header,
-      String description) {
-    return continueTraceSpan(header.getTraceInfo(), description);
-  }
-
-  public static TraceScope continueTraceSpan(DataTransferTraceInfoProto proto,
-      String description) {
-    TraceScope scope = null;
-    TraceInfo info = fromProto(proto);
-    if (info != null) {
-      scope = Trace.startSpan(description, info);
+    static OpWriteBlockProto.BlockConstructionStage toProto(
+        BlockConstructionStage stage) {
+        return OpWriteBlockProto.BlockConstructionStage.valueOf(stage.name());
     }
-    return scope;
-  }
+
+    public static ChecksumProto toProto(DataChecksum checksum) {
+        ChecksumTypeProto type = PBHelper.convert(checksum.getChecksumType());
+        // ChecksumType#valueOf never returns null
+        return ChecksumProto.newBuilder()
+               .setBytesPerChecksum(checksum.getBytesPerChecksum())
+               .setType(type)
+               .build();
+    }
+
+    public static DataChecksum fromProto(ChecksumProto proto) {
+        if (proto == null) return null;
+
+        int bytesPerChecksum = proto.getBytesPerChecksum();
+        DataChecksum.Type type = PBHelper.convert(proto.getType());
+        return DataChecksum.newDataChecksum(type, bytesPerChecksum);
+    }
+
+    static ClientOperationHeaderProto buildClientHeader(ExtendedBlock blk,
+            String client, Token<BlockTokenIdentifier> blockToken) {
+        ClientOperationHeaderProto header =
+            ClientOperationHeaderProto.newBuilder()
+            .setBaseHeader(buildBaseHeader(blk, blockToken))
+            .setClientName(client)
+            .build();
+        return header;
+    }
+
+    static BaseHeaderProto buildBaseHeader(ExtendedBlock blk,
+                                           Token<BlockTokenIdentifier> blockToken) {
+        BaseHeaderProto.Builder builder =  BaseHeaderProto.newBuilder()
+                                           .setBlock(PBHelper.convert(blk))
+                                           .setToken(PBHelper.convert(blockToken));
+        if (Trace.isTracing()) {
+            Span s = Trace.currentSpan();
+            builder.setTraceInfo(DataTransferTraceInfoProto.newBuilder()
+                                 .setTraceId(s.getTraceId())
+                                 .setParentId(s.getSpanId()));
+        }
+        return builder.build();
+    }
+
+    public static TraceInfo fromProto(DataTransferTraceInfoProto proto) {
+        if (proto == null) return null;
+        if (!proto.hasTraceId()) return null;
+        return new TraceInfo(proto.getTraceId(), proto.getParentId());
+    }
+
+    public static TraceScope continueTraceSpan(ClientOperationHeaderProto header,
+            String description) {
+        return continueTraceSpan(header.getBaseHeader(), description);
+    }
+
+    public static TraceScope continueTraceSpan(BaseHeaderProto header,
+            String description) {
+        return continueTraceSpan(header.getTraceInfo(), description);
+    }
+
+    public static TraceScope continueTraceSpan(DataTransferTraceInfoProto proto,
+            String description) {
+        TraceScope scope = null;
+        TraceInfo info = fromProto(proto);
+        if (info != null) {
+            scope = Trace.startSpan(description, info);
+        }
+        return scope;
+    }
 }

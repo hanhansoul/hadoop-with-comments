@@ -28,21 +28,21 @@ import org.junit.Test;
 
 public class TestInputStreamEntity {
 
-  @Test
-  public void test() throws Exception {
-    InputStream is = new ByteArrayInputStream("abc".getBytes());
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    InputStreamEntity i = new InputStreamEntity(is);
-    i.write(baos);
-    baos.close();
-    assertEquals(new String(baos.toByteArray()), "abc");
+    @Test
+    public void test() throws Exception {
+        InputStream is = new ByteArrayInputStream("abc".getBytes());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStreamEntity i = new InputStreamEntity(is);
+        i.write(baos);
+        baos.close();
+        assertEquals(new String(baos.toByteArray()), "abc");
 
-    is = new ByteArrayInputStream("abc".getBytes());
-    baos = new ByteArrayOutputStream();
-    i = new InputStreamEntity(is, 1, 1);
-    i.write(baos);
-    baos.close();
-    assertEquals(baos.toByteArray()[0], 'b');
-  }
+        is = new ByteArrayInputStream("abc".getBytes());
+        baos = new ByteArrayOutputStream();
+        i = new InputStreamEntity(is, 1, 1);
+        i.write(baos);
+        baos.close();
+        assertEquals(baos.toByteArray()[0], 'b');
+    }
 
 }

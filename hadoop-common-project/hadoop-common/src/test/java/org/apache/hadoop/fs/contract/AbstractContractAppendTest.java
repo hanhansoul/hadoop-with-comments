@@ -33,96 +33,96 @@ import static org.apache.hadoop.fs.contract.ContractTestUtils.touch;
  * Test concat -if supported
  */
 public abstract class AbstractContractAppendTest extends AbstractFSContractTestBase {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(AbstractContractAppendTest.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(AbstractContractAppendTest.class);
 
-  private Path testPath;
-  private Path target;
+    private Path testPath;
+    private Path target;
 
-  @Override
-  public void setup() throws Exception {
-    super.setup();
-    skipIfUnsupported(SUPPORTS_APPEND);
+    @Override
+    public void setup() throws Exception {
+        super.setup();
+        skipIfUnsupported(SUPPORTS_APPEND);
 
-    //delete the test directory
-    testPath = path("test");
-    target = new Path(testPath, "target");
-  }
-
-  @Test
-  public void testAppendToEmptyFile() throws Throwable {
-    touch(getFileSystem(), target);
-    byte[] dataset = dataset(256, 'a', 'z');
-    FSDataOutputStream outputStream = getFileSystem().append(target);
-    try {
-      outputStream.write(dataset);
-    } finally {
-      outputStream.close();
+        //delete the test directory
+        testPath = path("test");
+        target = new Path(testPath, "target");
     }
-    byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), target,
-                                                 dataset.length);
-    ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
-  }
 
-  @Test
-  public void testAppendNonexistentFile() throws Throwable {
-    try {
-      FSDataOutputStream out = getFileSystem().append(target);
-      //got here: trouble
-      out.close();
-      fail("expected a failure");
-    } catch (Exception e) {
-      //expected
-      handleExpectedException(e);
+    @Test
+    public void testAppendToEmptyFile() throws Throwable {
+        touch(getFileSystem(), target);
+        byte[] dataset = dataset(256, 'a', 'z');
+        FSDataOutputStream outputStream = getFileSystem().append(target);
+        try {
+            outputStream.write(dataset);
+        } finally {
+            outputStream.close();
+        }
+        byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), target,
+                       dataset.length);
+        ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
     }
-  }
 
-  @Test
-  public void testAppendToExistingFile() throws Throwable {
-    byte[] original = dataset(8192, 'A', 'Z');
-    byte[] appended = dataset(8192, '0', '9');
-    createFile(getFileSystem(), target, false, original);
-    FSDataOutputStream outputStream = getFileSystem().append(target);
-      outputStream.write(appended);
-      outputStream.close();
-    byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), target,
-                                                 original.length + appended.length);
-    ContractTestUtils.validateFileContent(bytes,
-            new byte[] [] { original, appended });
-  }
-
-  @Test
-  public void testAppendMissingTarget() throws Throwable {
-    try {
-      FSDataOutputStream out = getFileSystem().append(target);
-      //got here: trouble
-      out.close();
-      fail("expected a failure");
-    } catch (Exception e) {
-      //expected
-      handleExpectedException(e);
+    @Test
+    public void testAppendNonexistentFile() throws Throwable {
+        try {
+            FSDataOutputStream out = getFileSystem().append(target);
+            //got here: trouble
+            out.close();
+            fail("expected a failure");
+        } catch (Exception e) {
+            //expected
+            handleExpectedException(e);
+        }
     }
-  }
 
-  @Test
-  public void testRenameFileBeingAppended() throws Throwable {
-    touch(getFileSystem(), target);
-    assertPathExists("original file does not exist", target);
-    byte[] dataset = dataset(256, 'a', 'z');
-    FSDataOutputStream outputStream = getFileSystem().append(target);
-    outputStream.write(dataset);
-    Path renamed = new Path(testPath, "renamed");
-    outputStream.close();
-    String listing = ls(testPath);
+    @Test
+    public void testAppendToExistingFile() throws Throwable {
+        byte[] original = dataset(8192, 'A', 'Z');
+        byte[] appended = dataset(8192, '0', '9');
+        createFile(getFileSystem(), target, false, original);
+        FSDataOutputStream outputStream = getFileSystem().append(target);
+        outputStream.write(appended);
+        outputStream.close();
+        byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), target,
+                       original.length + appended.length);
+        ContractTestUtils.validateFileContent(bytes,
+                                              new byte[] [] { original, appended });
+    }
 
-    //expected: the stream goes to the file that was being renamed, not
-    //the original path
-    assertPathExists("renamed destination file does not exist", renamed);
+    @Test
+    public void testAppendMissingTarget() throws Throwable {
+        try {
+            FSDataOutputStream out = getFileSystem().append(target);
+            //got here: trouble
+            out.close();
+            fail("expected a failure");
+        } catch (Exception e) {
+            //expected
+            handleExpectedException(e);
+        }
+    }
 
-    assertPathDoesNotExist("Source file found after rename during append:\n" +
-                           listing, target);
-    byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), renamed,
-                                                 dataset.length);
-    ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
-  }
+    @Test
+    public void testRenameFileBeingAppended() throws Throwable {
+        touch(getFileSystem(), target);
+        assertPathExists("original file does not exist", target);
+        byte[] dataset = dataset(256, 'a', 'z');
+        FSDataOutputStream outputStream = getFileSystem().append(target);
+        outputStream.write(dataset);
+        Path renamed = new Path(testPath, "renamed");
+        outputStream.close();
+        String listing = ls(testPath);
+
+        //expected: the stream goes to the file that was being renamed, not
+        //the original path
+        assertPathExists("renamed destination file does not exist", renamed);
+
+        assertPathDoesNotExist("Source file found after rename during append:\n" +
+                               listing, target);
+        byte[] bytes = ContractTestUtils.readDataset(getFileSystem(), renamed,
+                       dataset.length);
+        ContractTestUtils.compareByteArrays(dataset, bytes, dataset.length);
+    }
 }

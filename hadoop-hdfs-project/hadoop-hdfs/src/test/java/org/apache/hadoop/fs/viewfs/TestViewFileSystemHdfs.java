@@ -41,98 +41,98 @@ import org.junit.BeforeClass;
 
 public class TestViewFileSystemHdfs extends ViewFileSystemBaseTest {
 
-  private static MiniDFSCluster cluster;
-  private static Path defaultWorkingDirectory;
-  private static Path defaultWorkingDirectory2;
-  private static final Configuration CONF = new Configuration();
-  private static FileSystem fHdfs;
-  private static FileSystem fHdfs2;
-  private FileSystem fsTarget2;
-  Path targetTestRoot2;
-  
-  @Override
-  protected FileSystemTestHelper createFileSystemHelper() {
-    return new FileSystemTestHelper("/tmp/TestViewFileSystemHdfs");
-  }
+    private static MiniDFSCluster cluster;
+    private static Path defaultWorkingDirectory;
+    private static Path defaultWorkingDirectory2;
+    private static final Configuration CONF = new Configuration();
+    private static FileSystem fHdfs;
+    private static FileSystem fHdfs2;
+    private FileSystem fsTarget2;
+    Path targetTestRoot2;
 
-  @BeforeClass
-  public static void clusterSetupAtBegining() throws IOException,
-      LoginException, URISyntaxException {
-    SupportsBlocks = true;
-    CONF.setBoolean(
-        DFSConfigKeys.DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);
-    
-    cluster =
-        new MiniDFSCluster.Builder(CONF).nnTopology(
-                MiniDFSNNTopology.simpleFederatedTopology(2))
-            .numDataNodes(2)
-            .build();
-    cluster.waitClusterUp();
-    
-    fHdfs = cluster.getFileSystem(0);
-    fHdfs2 = cluster.getFileSystem(1);
-    fHdfs.getConf().set(CommonConfigurationKeys.FS_DEFAULT_NAME_KEY,
-        FsConstants.VIEWFS_URI.toString());
-    fHdfs2.getConf().set(CommonConfigurationKeys.FS_DEFAULT_NAME_KEY,
-        FsConstants.VIEWFS_URI.toString());
+    @Override
+    protected FileSystemTestHelper createFileSystemHelper() {
+        return new FileSystemTestHelper("/tmp/TestViewFileSystemHdfs");
+    }
 
-    defaultWorkingDirectory = fHdfs.makeQualified( new Path("/user/" + 
-        UserGroupInformation.getCurrentUser().getShortUserName()));
-    defaultWorkingDirectory2 = fHdfs2.makeQualified( new Path("/user/" + 
-        UserGroupInformation.getCurrentUser().getShortUserName()));
-    
-    fHdfs.mkdirs(defaultWorkingDirectory);
-    fHdfs2.mkdirs(defaultWorkingDirectory2);
-  }
+    @BeforeClass
+    public static void clusterSetupAtBegining() throws IOException,
+        LoginException, URISyntaxException {
+        SupportsBlocks = true;
+        CONF.setBoolean(
+            DFSConfigKeys.DFS_NAMENODE_DELEGATION_TOKEN_ALWAYS_USE_KEY, true);
 
-      
-  @AfterClass
-  public static void ClusterShutdownAtEnd() throws Exception {
-    cluster.shutdown();   
-  }
+        cluster =
+            new MiniDFSCluster.Builder(CONF).nnTopology(
+            MiniDFSNNTopology.simpleFederatedTopology(2))
+        .numDataNodes(2)
+        .build();
+        cluster.waitClusterUp();
 
-  @Override
-  @Before
-  public void setUp() throws Exception {
-    // create the test root on local_fs
-    fsTarget = fHdfs;
-    fsTarget2 = fHdfs2;
-    targetTestRoot2 = new FileSystemTestHelper().getAbsoluteTestRootPath(fsTarget2);
-    super.setUp();
-  }
+        fHdfs = cluster.getFileSystem(0);
+        fHdfs2 = cluster.getFileSystem(1);
+        fHdfs.getConf().set(CommonConfigurationKeys.FS_DEFAULT_NAME_KEY,
+                            FsConstants.VIEWFS_URI.toString());
+        fHdfs2.getConf().set(CommonConfigurationKeys.FS_DEFAULT_NAME_KEY,
+                             FsConstants.VIEWFS_URI.toString());
 
-  @Override
-  @After
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
+        defaultWorkingDirectory = fHdfs.makeQualified( new Path("/user/" +
+                                  UserGroupInformation.getCurrentUser().getShortUserName()));
+        defaultWorkingDirectory2 = fHdfs2.makeQualified( new Path("/user/" +
+                                   UserGroupInformation.getCurrentUser().getShortUserName()));
 
-  @Override
-  void setupMountPoints() {
-    super.setupMountPoints();
-    ConfigUtil.addLink(conf, "/mountOnNn2", new Path(targetTestRoot2,
-        "mountOnNn2").toUri());
-  }
+        fHdfs.mkdirs(defaultWorkingDirectory);
+        fHdfs2.mkdirs(defaultWorkingDirectory2);
+    }
 
-  // Overriden test helper methods - changed values based on hdfs and the
-  // additional mount.
-  @Override
-  int getExpectedDirPaths() {
-    return 8;
-  }
-  
-  @Override
-  int getExpectedMountPoints() {
-    return 9;
-  }
 
-  @Override
-  int getExpectedDelegationTokenCount() {
-    return 2; // Mount points to 2 unique hdfs 
-  }
+    @AfterClass
+    public static void ClusterShutdownAtEnd() throws Exception {
+        cluster.shutdown();
+    }
 
-  @Override
-  int getExpectedDelegationTokenCountWithCredentials() {
-    return 2;
-  }
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        // create the test root on local_fs
+        fsTarget = fHdfs;
+        fsTarget2 = fHdfs2;
+        targetTestRoot2 = new FileSystemTestHelper().getAbsoluteTestRootPath(fsTarget2);
+        super.setUp();
+    }
+
+    @Override
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    @Override
+    void setupMountPoints() {
+        super.setupMountPoints();
+        ConfigUtil.addLink(conf, "/mountOnNn2", new Path(targetTestRoot2,
+                           "mountOnNn2").toUri());
+    }
+
+    // Overriden test helper methods - changed values based on hdfs and the
+    // additional mount.
+    @Override
+    int getExpectedDirPaths() {
+        return 8;
+    }
+
+    @Override
+    int getExpectedMountPoints() {
+        return 9;
+    }
+
+    @Override
+    int getExpectedDelegationTokenCount() {
+        return 2; // Mount points to 2 unique hdfs
+    }
+
+    @Override
+    int getExpectedDelegationTokenCountWithCredentials() {
+        return 2;
+    }
 }

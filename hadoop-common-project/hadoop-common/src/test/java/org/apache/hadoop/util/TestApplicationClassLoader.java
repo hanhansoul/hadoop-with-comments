@@ -44,93 +44,93 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 
 public class TestApplicationClassLoader {
-  
-  private static File testDir = new File(System.getProperty("test.build.data",
-          System.getProperty("java.io.tmpdir")), "appclassloader");
-  
-  @Before
-  public void setUp() {
-    FileUtil.fullyDelete(testDir);
-    testDir.mkdirs();
-  }
 
-  @Test
-  public void testConstructUrlsFromClasspath() throws Exception {
-    File file = new File(testDir, "file");
-    assertTrue("Create file", file.createNewFile());
+    private static File testDir = new File(System.getProperty("test.build.data",
+                                           System.getProperty("java.io.tmpdir")), "appclassloader");
 
-    File dir = new File(testDir, "dir");
-    assertTrue("Make dir", dir.mkdir());
+    @Before
+    public void setUp() {
+        FileUtil.fullyDelete(testDir);
+        testDir.mkdirs();
+    }
 
-    File jarsDir = new File(testDir, "jarsdir");
-    assertTrue("Make jarsDir", jarsDir.mkdir());
-    File nonJarFile = new File(jarsDir, "nonjar");
-    assertTrue("Create non-jar file", nonJarFile.createNewFile());
-    File jarFile = new File(jarsDir, "a.jar");
-    assertTrue("Create jar file", jarFile.createNewFile());
+    @Test
+    public void testConstructUrlsFromClasspath() throws Exception {
+        File file = new File(testDir, "file");
+        assertTrue("Create file", file.createNewFile());
 
-    File nofile = new File(testDir, "nofile");
-    // don't create nofile
+        File dir = new File(testDir, "dir");
+        assertTrue("Make dir", dir.mkdir());
 
-    StringBuilder cp = new StringBuilder();
-    cp.append(file.getAbsolutePath()).append(File.pathSeparator)
-      .append(dir.getAbsolutePath()).append(File.pathSeparator)
-      .append(jarsDir.getAbsolutePath() + "/*").append(File.pathSeparator)
-      .append(nofile.getAbsolutePath()).append(File.pathSeparator)
-      .append(nofile.getAbsolutePath() + "/*").append(File.pathSeparator);
-    
-    URL[] urls = constructUrlsFromClasspath(cp.toString());
-    
-    assertEquals(3, urls.length);
-    assertEquals(file.toURI().toURL(), urls[0]);
-    assertEquals(dir.toURI().toURL(), urls[1]);
-    assertEquals(jarFile.toURI().toURL(), urls[2]);
-    // nofile should be ignored
-  }
-  
-  @Test
-  public void testIsSystemClass() {
-    assertFalse(isSystemClass("org.example.Foo", null));
-    assertTrue(isSystemClass("org.example.Foo", classes("org.example.Foo")));
-    assertTrue(isSystemClass("/org.example.Foo", classes("org.example.Foo")));
-    assertTrue(isSystemClass("org.example.Foo", classes("org.example.")));
-    assertTrue(isSystemClass("net.example.Foo",
-        classes("org.example.,net.example.")));
-    assertFalse(isSystemClass("org.example.Foo",
-        classes("-org.example.Foo,org.example.")));
-    assertTrue(isSystemClass("org.example.Bar",
-        classes("-org.example.Foo.,org.example.")));
-  }
-  
-  private List<String> classes(String classes) {
-    return Lists.newArrayList(Splitter.on(',').split(classes));
-  }
-  
-  @Test
-  public void testGetResource() throws IOException {
-    URL testJar = makeTestJar().toURI().toURL();
-    
-    ClassLoader currentClassLoader = getClass().getClassLoader();
-    ClassLoader appClassloader = new ApplicationClassLoader(
-        new URL[] { testJar }, currentClassLoader, null);
+        File jarsDir = new File(testDir, "jarsdir");
+        assertTrue("Make jarsDir", jarsDir.mkdir());
+        File nonJarFile = new File(jarsDir, "nonjar");
+        assertTrue("Create non-jar file", nonJarFile.createNewFile());
+        File jarFile = new File(jarsDir, "a.jar");
+        assertTrue("Create jar file", jarFile.createNewFile());
 
-    assertNull("Resource should be null for current classloader",
-        currentClassLoader.getResourceAsStream("resource.txt"));
+        File nofile = new File(testDir, "nofile");
+        // don't create nofile
 
-    InputStream in = appClassloader.getResourceAsStream("resource.txt");
-    assertNotNull("Resource should not be null for app classloader", in);
-    assertEquals("hello", IOUtils.toString(in));
-  }
-  
-  private File makeTestJar() throws IOException {
-    File jarFile = new File(testDir, "test.jar");
-    JarOutputStream out = new JarOutputStream(new FileOutputStream(jarFile));
-    ZipEntry entry = new ZipEntry("resource.txt");
-    out.putNextEntry(entry);
-    out.write("hello".getBytes());
-    out.closeEntry();
-    out.close();
-    return jarFile;
-  }
-  
+        StringBuilder cp = new StringBuilder();
+        cp.append(file.getAbsolutePath()).append(File.pathSeparator)
+        .append(dir.getAbsolutePath()).append(File.pathSeparator)
+        .append(jarsDir.getAbsolutePath() + "/*").append(File.pathSeparator)
+        .append(nofile.getAbsolutePath()).append(File.pathSeparator)
+        .append(nofile.getAbsolutePath() + "/*").append(File.pathSeparator);
+
+        URL[] urls = constructUrlsFromClasspath(cp.toString());
+
+        assertEquals(3, urls.length);
+        assertEquals(file.toURI().toURL(), urls[0]);
+        assertEquals(dir.toURI().toURL(), urls[1]);
+        assertEquals(jarFile.toURI().toURL(), urls[2]);
+        // nofile should be ignored
+    }
+
+    @Test
+    public void testIsSystemClass() {
+        assertFalse(isSystemClass("org.example.Foo", null));
+        assertTrue(isSystemClass("org.example.Foo", classes("org.example.Foo")));
+        assertTrue(isSystemClass("/org.example.Foo", classes("org.example.Foo")));
+        assertTrue(isSystemClass("org.example.Foo", classes("org.example.")));
+        assertTrue(isSystemClass("net.example.Foo",
+                                 classes("org.example.,net.example.")));
+        assertFalse(isSystemClass("org.example.Foo",
+                                  classes("-org.example.Foo,org.example.")));
+        assertTrue(isSystemClass("org.example.Bar",
+                                 classes("-org.example.Foo.,org.example.")));
+    }
+
+    private List<String> classes(String classes) {
+        return Lists.newArrayList(Splitter.on(',').split(classes));
+    }
+
+    @Test
+    public void testGetResource() throws IOException {
+        URL testJar = makeTestJar().toURI().toURL();
+
+        ClassLoader currentClassLoader = getClass().getClassLoader();
+        ClassLoader appClassloader = new ApplicationClassLoader(
+            new URL[] { testJar }, currentClassLoader, null);
+
+        assertNull("Resource should be null for current classloader",
+                   currentClassLoader.getResourceAsStream("resource.txt"));
+
+        InputStream in = appClassloader.getResourceAsStream("resource.txt");
+        assertNotNull("Resource should not be null for app classloader", in);
+        assertEquals("hello", IOUtils.toString(in));
+    }
+
+    private File makeTestJar() throws IOException {
+        File jarFile = new File(testDir, "test.jar");
+        JarOutputStream out = new JarOutputStream(new FileOutputStream(jarFile));
+        ZipEntry entry = new ZipEntry("resource.txt");
+        out.putNextEntry(entry);
+        out.write("hello".getBytes());
+        out.closeEntry();
+        out.close();
+        return jarFile;
+    }
+
 }

@@ -34,30 +34,30 @@ import org.apache.hadoop.yarn.util.Clock;
 @SuppressWarnings("rawtypes")
 public class ReduceTaskAttemptImpl extends TaskAttemptImpl {
 
-  private final int numMapTasks;
+    private final int numMapTasks;
 
-  public ReduceTaskAttemptImpl(TaskId id, int attempt,
-      EventHandler eventHandler, Path jobFile, int partition,
-      int numMapTasks, JobConf conf,
-      TaskAttemptListener taskAttemptListener,
-      Token<JobTokenIdentifier> jobToken,
-      Credentials credentials, Clock clock,
-      AppContext appContext) {
-    super(id, attempt, eventHandler, taskAttemptListener, jobFile, partition,
-        conf, new String[] {}, jobToken, credentials, clock,
-        appContext);
-    this.numMapTasks = numMapTasks;
-  }
+    public ReduceTaskAttemptImpl(TaskId id, int attempt,
+                                 EventHandler eventHandler, Path jobFile, int partition,
+                                 int numMapTasks, JobConf conf,
+                                 TaskAttemptListener taskAttemptListener,
+                                 Token<JobTokenIdentifier> jobToken,
+                                 Credentials credentials, Clock clock,
+                                 AppContext appContext) {
+        super(id, attempt, eventHandler, taskAttemptListener, jobFile, partition,
+              conf, new String[] {}, jobToken, credentials, clock,
+              appContext);
+        this.numMapTasks = numMapTasks;
+    }
 
-  @Override
-  public Task createRemoteTask() {
-  //job file name is set in TaskAttempt, setting it null here
-    ReduceTask reduceTask =
-      new ReduceTask("", TypeConverter.fromYarn(getID()), partition,
-          numMapTasks, 1); // YARN doesn't have the concept of slots per task, set it as 1.
-  reduceTask.setUser(conf.get(MRJobConfig.USER_NAME));
-  reduceTask.setConf(conf);
-    return reduceTask;
-  }
+    @Override
+    public Task createRemoteTask() {
+        //job file name is set in TaskAttempt, setting it null here
+        ReduceTask reduceTask =
+            new ReduceTask("", TypeConverter.fromYarn(getID()), partition,
+                           numMapTasks, 1); // YARN doesn't have the concept of slots per task, set it as 1.
+        reduceTask.setUser(conf.get(MRJobConfig.USER_NAME));
+        reduceTask.setConf(conf);
+        return reduceTask;
+    }
 
 }

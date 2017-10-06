@@ -34,150 +34,150 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestTableMapping {
-  @Test
-  public void testResolve() throws IOException {
-    File mapFile = File.createTempFile(getClass().getSimpleName() +
-        ".testResolve", ".txt");
-    Files.write("a.b.c /rack1\n" +
-                "1.2.3.4\t/rack2\n", mapFile, Charsets.UTF_8);
-    mapFile.deleteOnExit();
-    TableMapping mapping = new TableMapping();
+    @Test
+    public void testResolve() throws IOException {
+        File mapFile = File.createTempFile(getClass().getSimpleName() +
+                                           ".testResolve", ".txt");
+        Files.write("a.b.c /rack1\n" +
+                    "1.2.3.4\t/rack2\n", mapFile, Charsets.UTF_8);
+        mapFile.deleteOnExit();
+        TableMapping mapping = new TableMapping();
 
-    Configuration conf = new Configuration();
-    conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
-    mapping.setConf(conf);
+        Configuration conf = new Configuration();
+        conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
+        mapping.setConf(conf);
 
-    List<String> names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        List<String> names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    List<String> result = mapping.resolve(names);
-    assertEquals(names.size(), result.size());
-    assertEquals("/rack1", result.get(0));
-    assertEquals("/rack2", result.get(1));
-  }
+        List<String> result = mapping.resolve(names);
+        assertEquals(names.size(), result.size());
+        assertEquals("/rack1", result.get(0));
+        assertEquals("/rack2", result.get(1));
+    }
 
-  @Test
-  public void testTableCaching() throws IOException {
-    File mapFile = File.createTempFile(getClass().getSimpleName() +
-        ".testTableCaching", ".txt");
-    Files.write("a.b.c /rack1\n" +
-                "1.2.3.4\t/rack2\n", mapFile, Charsets.UTF_8);
-    mapFile.deleteOnExit();
-    TableMapping mapping = new TableMapping();
+    @Test
+    public void testTableCaching() throws IOException {
+        File mapFile = File.createTempFile(getClass().getSimpleName() +
+                                           ".testTableCaching", ".txt");
+        Files.write("a.b.c /rack1\n" +
+                    "1.2.3.4\t/rack2\n", mapFile, Charsets.UTF_8);
+        mapFile.deleteOnExit();
+        TableMapping mapping = new TableMapping();
 
-    Configuration conf = new Configuration();
-    conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
-    mapping.setConf(conf);
+        Configuration conf = new Configuration();
+        conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
+        mapping.setConf(conf);
 
-    List<String> names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        List<String> names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    List<String> result1 = mapping.resolve(names);
-    assertEquals(names.size(), result1.size());
-    assertEquals("/rack1", result1.get(0));
-    assertEquals("/rack2", result1.get(1));
+        List<String> result1 = mapping.resolve(names);
+        assertEquals(names.size(), result1.size());
+        assertEquals("/rack1", result1.get(0));
+        assertEquals("/rack2", result1.get(1));
 
-    // unset the file, see if it gets read again
-    conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, "some bad value for a file");
+        // unset the file, see if it gets read again
+        conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, "some bad value for a file");
 
-    List<String> result2 = mapping.resolve(names);
-    assertEquals(result1, result2);
-  }
+        List<String> result2 = mapping.resolve(names);
+        assertEquals(result1, result2);
+    }
 
-  @Test
-  public void testNoFile() {
-    TableMapping mapping = new TableMapping();
+    @Test
+    public void testNoFile() {
+        TableMapping mapping = new TableMapping();
 
-    Configuration conf = new Configuration();
-    mapping.setConf(conf);
+        Configuration conf = new Configuration();
+        mapping.setConf(conf);
 
-    List<String> names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        List<String> names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    List<String> result = mapping.resolve(names);
-    assertEquals(names.size(), result.size());
-    assertEquals(NetworkTopology.DEFAULT_RACK, result.get(0));
-    assertEquals(NetworkTopology.DEFAULT_RACK, result.get(1));
-  }
+        List<String> result = mapping.resolve(names);
+        assertEquals(names.size(), result.size());
+        assertEquals(NetworkTopology.DEFAULT_RACK, result.get(0));
+        assertEquals(NetworkTopology.DEFAULT_RACK, result.get(1));
+    }
 
-  @Test
-  public void testFileDoesNotExist() {
-    TableMapping mapping = new TableMapping();
+    @Test
+    public void testFileDoesNotExist() {
+        TableMapping mapping = new TableMapping();
 
-    Configuration conf = new Configuration();
-    conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, "/this/file/does/not/exist");
-    mapping.setConf(conf);
+        Configuration conf = new Configuration();
+        conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, "/this/file/does/not/exist");
+        mapping.setConf(conf);
 
-    List<String> names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        List<String> names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    List<String> result = mapping.resolve(names);
-    assertEquals(names.size(), result.size());
-    assertEquals(result.get(0), NetworkTopology.DEFAULT_RACK);
-    assertEquals(result.get(1), NetworkTopology.DEFAULT_RACK);
-  }
+        List<String> result = mapping.resolve(names);
+        assertEquals(names.size(), result.size());
+        assertEquals(result.get(0), NetworkTopology.DEFAULT_RACK);
+        assertEquals(result.get(1), NetworkTopology.DEFAULT_RACK);
+    }
 
-  @Test
-  public void testClearingCachedMappings() throws IOException {
-    File mapFile = File.createTempFile(getClass().getSimpleName() +
-        ".testClearingCachedMappings", ".txt");
-    Files.write("a.b.c /rack1\n" +
-                "1.2.3.4\t/rack2\n", mapFile, Charsets.UTF_8);
-    mapFile.deleteOnExit();
+    @Test
+    public void testClearingCachedMappings() throws IOException {
+        File mapFile = File.createTempFile(getClass().getSimpleName() +
+                                           ".testClearingCachedMappings", ".txt");
+        Files.write("a.b.c /rack1\n" +
+                    "1.2.3.4\t/rack2\n", mapFile, Charsets.UTF_8);
+        mapFile.deleteOnExit();
 
-    TableMapping mapping = new TableMapping();
+        TableMapping mapping = new TableMapping();
 
-    Configuration conf = new Configuration();
-    conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
-    mapping.setConf(conf);
+        Configuration conf = new Configuration();
+        conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
+        mapping.setConf(conf);
 
-    List<String> names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        List<String> names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    List<String> result = mapping.resolve(names);
-    assertEquals(names.size(), result.size());
-    assertEquals("/rack1", result.get(0));
-    assertEquals("/rack2", result.get(1));
+        List<String> result = mapping.resolve(names);
+        assertEquals(names.size(), result.size());
+        assertEquals("/rack1", result.get(0));
+        assertEquals("/rack2", result.get(1));
 
-    Files.write("", mapFile, Charsets.UTF_8);
+        Files.write("", mapFile, Charsets.UTF_8);
 
-    mapping.reloadCachedMappings();
+        mapping.reloadCachedMappings();
 
-    names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    result = mapping.resolve(names);
-    assertEquals(names.size(), result.size());
-    assertEquals(NetworkTopology.DEFAULT_RACK, result.get(0));
-    assertEquals(NetworkTopology.DEFAULT_RACK, result.get(1));
-  }
+        result = mapping.resolve(names);
+        assertEquals(names.size(), result.size());
+        assertEquals(NetworkTopology.DEFAULT_RACK, result.get(0));
+        assertEquals(NetworkTopology.DEFAULT_RACK, result.get(1));
+    }
 
 
-  @Test(timeout=60000)
-  public void testBadFile() throws IOException {
-    File mapFile = File.createTempFile(getClass().getSimpleName() +
-        ".testBadFile", ".txt");
-    Files.write("bad contents", mapFile, Charsets.UTF_8);
-    mapFile.deleteOnExit();
-    TableMapping mapping = new TableMapping();
+    @Test(timeout=60000)
+    public void testBadFile() throws IOException {
+        File mapFile = File.createTempFile(getClass().getSimpleName() +
+                                           ".testBadFile", ".txt");
+        Files.write("bad contents", mapFile, Charsets.UTF_8);
+        mapFile.deleteOnExit();
+        TableMapping mapping = new TableMapping();
 
-    Configuration conf = new Configuration();
-    conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
-    mapping.setConf(conf);
+        Configuration conf = new Configuration();
+        conf.set(NET_TOPOLOGY_TABLE_MAPPING_FILE_KEY, mapFile.getCanonicalPath());
+        mapping.setConf(conf);
 
-    List<String> names = new ArrayList<String>();
-    names.add("a.b.c");
-    names.add("1.2.3.4");
+        List<String> names = new ArrayList<String>();
+        names.add("a.b.c");
+        names.add("1.2.3.4");
 
-    List<String> result = mapping.resolve(names);
-    assertEquals(names.size(), result.size());
-    assertEquals(result.get(0), NetworkTopology.DEFAULT_RACK);
-    assertEquals(result.get(1), NetworkTopology.DEFAULT_RACK);
-  }
+        List<String> result = mapping.resolve(names);
+        assertEquals(names.size(), result.size());
+        assertEquals(result.get(0), NetworkTopology.DEFAULT_RACK);
+        assertEquals(result.get(1), NetworkTopology.DEFAULT_RACK);
+    }
 }

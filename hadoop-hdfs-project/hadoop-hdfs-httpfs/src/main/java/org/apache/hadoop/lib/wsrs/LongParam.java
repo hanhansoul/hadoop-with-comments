@@ -23,17 +23,17 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.Private
 public abstract class LongParam extends Param<Long> {
 
-  public LongParam(String name, Long defaultValue) {
-    super(name, defaultValue);
-  }
+    public LongParam(String name, Long defaultValue) {
+        super(name, defaultValue);
+    }
 
-  @Override
-  protected Long parse(String str) throws Exception {
-    return Long.parseLong(str);
-  }
+    @Override
+    protected Long parse(String str) throws Exception {
+        return Long.parseLong(str);
+    }
 
-  @Override
-  protected String getDomain() {
-    return "a long";
-  }
+    @Override
+    protected String getDomain() {
+        return "a long";
+    }
 }

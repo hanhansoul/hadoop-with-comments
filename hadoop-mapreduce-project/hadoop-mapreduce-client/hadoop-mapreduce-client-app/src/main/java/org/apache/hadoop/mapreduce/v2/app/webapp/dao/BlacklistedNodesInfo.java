@@ -28,15 +28,15 @@ import org.apache.hadoop.mapreduce.v2.app.AppContext;
 @XmlRootElement(name = "blacklistednodesinfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BlacklistedNodesInfo {
-  private Set<String> blacklistedNodes;
-  
-  public BlacklistedNodesInfo() { }
-  
-  public BlacklistedNodesInfo(AppContext appContext) {
-    blacklistedNodes = appContext.getBlacklistedNodes();
-  }
-  
-  public Set<String> getBlacklistedNodes() {
-    return blacklistedNodes;
-  }
+    private Set<String> blacklistedNodes;
+
+    public BlacklistedNodesInfo() { }
+
+    public BlacklistedNodesInfo(AppContext appContext) {
+        blacklistedNodes = appContext.getBlacklistedNodes();
+    }
+
+    public Set<String> getBlacklistedNodes() {
+        return blacklistedNodes;
+    }
 }

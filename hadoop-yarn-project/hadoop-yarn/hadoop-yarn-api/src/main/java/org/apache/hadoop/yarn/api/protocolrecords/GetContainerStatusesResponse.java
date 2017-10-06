@@ -37,55 +37,55 @@ import org.apache.hadoop.yarn.util.Records;
  * <code>ApplicationMaster</code> when asked to obtain the
  * <code>ContainerStatus</code> of requested containers.
  * </p>
- * 
+ *
  * @see ContainerManagementProtocol#getContainerStatuses(GetContainerStatusesRequest)
  */
 @Public
 @Stable
 public abstract class GetContainerStatusesResponse {
 
-  @Private
-  @Unstable
-  public static GetContainerStatusesResponse newInstance(
-      List<ContainerStatus> statuses,
-      Map<ContainerId, SerializedException> failedRequests) {
-    GetContainerStatusesResponse response =
-        Records.newRecord(GetContainerStatusesResponse.class);
-    response.setContainerStatuses(statuses);
-    response.setFailedRequests(failedRequests);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetContainerStatusesResponse newInstance(
+        List<ContainerStatus> statuses,
+        Map<ContainerId, SerializedException> failedRequests) {
+        GetContainerStatusesResponse response =
+            Records.newRecord(GetContainerStatusesResponse.class);
+        response.setContainerStatuses(statuses);
+        response.setFailedRequests(failedRequests);
+        return response;
+    }
 
-  /**
-   * Get the <code>ContainerStatus</code>es of the requested containers.
-   * 
-   * @return <code>ContainerStatus</code>es of the requested containers.
-   */
-  @Public
-  @Stable
-  public abstract List<ContainerStatus> getContainerStatuses();
+    /**
+     * Get the <code>ContainerStatus</code>es of the requested containers.
+     *
+     * @return <code>ContainerStatus</code>es of the requested containers.
+     */
+    @Public
+    @Stable
+    public abstract List<ContainerStatus> getContainerStatuses();
 
-  /**
-   * Set the <code>ContainerStatus</code>es of the requested containers.
-   */
-  @Private
-  @Unstable
-  public abstract void setContainerStatuses(List<ContainerStatus> statuses);
+    /**
+     * Set the <code>ContainerStatus</code>es of the requested containers.
+     */
+    @Private
+    @Unstable
+    public abstract void setContainerStatuses(List<ContainerStatus> statuses);
 
-  /**
-   * Get the containerId-to-exception map in which the exception indicates error
-   * from per container for failed requests
-   */
-  @Public
-  @Stable
-  public abstract Map<ContainerId, SerializedException> getFailedRequests();
+    /**
+     * Get the containerId-to-exception map in which the exception indicates error
+     * from per container for failed requests
+     */
+    @Public
+    @Stable
+    public abstract Map<ContainerId, SerializedException> getFailedRequests();
 
-  /**
-   * Set the containerId-to-exception map in which the exception indicates error
-   * from per container for failed requests
-   */
-  @Private
-  @Unstable
-  public abstract void setFailedRequests(
-      Map<ContainerId, SerializedException> failedContainers);
+    /**
+     * Set the containerId-to-exception map in which the exception indicates error
+     * from per container for failed requests
+     */
+    @Private
+    @Unstable
+    public abstract void setFailedRequests(
+        Map<ContainerId, SerializedException> failedContainers);
 }

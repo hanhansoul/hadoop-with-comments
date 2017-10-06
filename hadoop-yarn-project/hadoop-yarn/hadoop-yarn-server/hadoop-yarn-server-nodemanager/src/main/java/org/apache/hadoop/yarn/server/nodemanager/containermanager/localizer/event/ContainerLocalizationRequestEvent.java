@@ -34,23 +34,23 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Reso
 public class ContainerLocalizationRequestEvent extends
     ContainerLocalizationEvent {
 
-  private final Map<LocalResourceVisibility, Collection<LocalResourceRequest>> 
+    private final Map<LocalResourceVisibility, Collection<LocalResourceRequest>>
     rsrc;
 
-  /**
-   * Event requesting the localization of the rsrc.
-   * @param c
-   * @param rsrc
-   */
-  public ContainerLocalizationRequestEvent(Container c,
-      Map<LocalResourceVisibility, Collection<LocalResourceRequest>> rsrc) {
-    super(LocalizationEventType.INIT_CONTAINER_RESOURCES, c);
-    this.rsrc = rsrc;
-  }
+    /**
+     * Event requesting the localization of the rsrc.
+     * @param c
+     * @param rsrc
+     */
+    public ContainerLocalizationRequestEvent(Container c,
+            Map<LocalResourceVisibility, Collection<LocalResourceRequest>> rsrc) {
+        super(LocalizationEventType.INIT_CONTAINER_RESOURCES, c);
+        this.rsrc = rsrc;
+    }
 
-  public
-      Map<LocalResourceVisibility, Collection<LocalResourceRequest>>
-      getRequestedResources() {
-    return rsrc;
-  }
+    public
+    Map<LocalResourceVisibility, Collection<LocalResourceRequest>>
+    getRequestedResources() {
+        return rsrc;
+    }
 }

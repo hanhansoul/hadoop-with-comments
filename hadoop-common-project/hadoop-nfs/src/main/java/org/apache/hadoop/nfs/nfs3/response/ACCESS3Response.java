@@ -23,48 +23,48 @@ import org.apache.hadoop.oncrpc.XDR;
 import org.apache.hadoop.oncrpc.security.Verifier;
 
 /**
- * ACCESS3 Response 
+ * ACCESS3 Response
  */
 public class ACCESS3Response extends NFS3Response {
-  /*
-   * A bit mask of access permissions indicating access rights for the
-   * authentication credentials provided with the request.
-   */
-  private final int access;
-  private final Nfs3FileAttributes postOpAttr;
-  
-  public ACCESS3Response(int status) {
-    this(status, new Nfs3FileAttributes(), 0);
-  }
-  
-  public ACCESS3Response(int status, Nfs3FileAttributes postOpAttr, int access) {
-    super(status);
-    this.postOpAttr = postOpAttr;
-    this.access = access;
-  }
+    /*
+     * A bit mask of access permissions indicating access rights for the
+     * authentication credentials provided with the request.
+     */
+    private final int access;
+    private final Nfs3FileAttributes postOpAttr;
 
-  public static ACCESS3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    Nfs3FileAttributes postOpAttr = null;
-    int access = 0;
-
-    if (status == Nfs3Status.NFS3_OK) {
-      postOpAttr = Nfs3FileAttributes.deserialize(xdr);
-      access = xdr.readInt();
+    public ACCESS3Response(int status) {
+        this(status, new Nfs3FileAttributes(), 0);
     }
-    return new ACCESS3Response(status, postOpAttr, access);
-  }
 
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    if (this.getStatus() == Nfs3Status.NFS3_OK) {
-      out.writeBoolean(true);
-      postOpAttr.serialize(out);
-      out.writeInt(access);
-    } else {
-      out.writeBoolean(false);
+    public ACCESS3Response(int status, Nfs3FileAttributes postOpAttr, int access) {
+        super(status);
+        this.postOpAttr = postOpAttr;
+        this.access = access;
     }
-    return out;
-  }
+
+    public static ACCESS3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        Nfs3FileAttributes postOpAttr = null;
+        int access = 0;
+
+        if (status == Nfs3Status.NFS3_OK) {
+            postOpAttr = Nfs3FileAttributes.deserialize(xdr);
+            access = xdr.readInt();
+        }
+        return new ACCESS3Response(status, postOpAttr, access);
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        if (this.getStatus() == Nfs3Status.NFS3_OK) {
+            out.writeBoolean(true);
+            postOpAttr.serialize(out);
+            out.writeInt(access);
+        } else {
+            out.writeBoolean(false);
+        }
+        return out;
+    }
 }

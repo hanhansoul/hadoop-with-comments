@@ -23,14 +23,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestDeduplicationMap {
-  @Test
-  public void testDeduplicationMap() {
-    DeduplicationMap<String> m = DeduplicationMap.newMap();
-    Assert.assertEquals(1, m.getId("1"));
-    Assert.assertEquals(2, m.getId("2"));
-    Assert.assertEquals(3, m.getId("3"));
-    Assert.assertEquals(1, m.getId("1"));
-    Assert.assertEquals(2, m.getId("2"));
-    Assert.assertEquals(3, m.getId("3"));
-  }
+    @Test
+    public void testDeduplicationMap() {
+        DeduplicationMap<String> m = DeduplicationMap.newMap();
+        Assert.assertEquals(1, m.getId("1"));
+        Assert.assertEquals(2, m.getId("2"));
+        Assert.assertEquals(3, m.getId("3"));
+        Assert.assertEquals(1, m.getId("1"));
+        Assert.assertEquals(2, m.getId("2"));
+        Assert.assertEquals(3, m.getId("3"));
+    }
 }

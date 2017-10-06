@@ -26,11 +26,11 @@ import org.apache.hadoop.yarn.util.Records;
 @Private
 @Stable
 public abstract class RefreshSuperUserGroupsConfigurationResponse {
-  @Private
-  @Unstable
-  public static RefreshSuperUserGroupsConfigurationResponse newInstance() {
-    RefreshSuperUserGroupsConfigurationResponse response =
-        Records.newRecord(RefreshSuperUserGroupsConfigurationResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static RefreshSuperUserGroupsConfigurationResponse newInstance() {
+        RefreshSuperUserGroupsConfigurationResponse response =
+            Records.newRecord(RefreshSuperUserGroupsConfigurationResponse.class);
+        return response;
+    }
 }

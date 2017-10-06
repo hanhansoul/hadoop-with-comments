@@ -30,139 +30,139 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class URLPBImpl extends URL {
-  URLProto proto = URLProto.getDefaultInstance();
-  URLProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public URLPBImpl() {
-    builder = URLProto.newBuilder();
-  }
+    URLProto proto = URLProto.getDefaultInstance();
+    URLProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public URLPBImpl(URLProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public URLProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public URLPBImpl() {
+        builder = URLProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = URLProto.newBuilder(proto);
+    public URLPBImpl(URLProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public String getFile() {
-    URLProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasFile()) {
-      return null;
-    }
-    return (p.getFile());
-  }
 
-  @Override
-  public void setFile(String file) {
-    maybeInitBuilder();
-    if (file == null) { 
-      builder.clearFile();
-      return;
+    public URLProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    builder.setFile((file));
-  }
-  @Override
-  public String getScheme() {
-    URLProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasScheme()) {
-      return null;
-    }
-    return (p.getScheme());
-  }
 
-  @Override
-  public void setScheme(String scheme) {
-    maybeInitBuilder();
-    if (scheme == null) { 
-      builder.clearScheme();
-      return;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    builder.setScheme((scheme));
-  }
- 
-  @Override
-  public String getUserInfo() {
-    URLProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasUserInfo()) {
-      return null;
-    }
-    return (p.getUserInfo());
-  }
 
-  @Override
-  public void setUserInfo(String userInfo) {
-    maybeInitBuilder();
-    if (userInfo == null) { 
-      builder.clearUserInfo();
-      return;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    builder.setUserInfo((userInfo));
-  }
-  
-  @Override
-  public String getHost() {
-    URLProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasHost()) {
-      return null;
-    }
-    return (p.getHost());
-  }
 
-  @Override
-  public void setHost(String host) {
-    maybeInitBuilder();
-    if (host == null) { 
-      builder.clearHost();
-      return;
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    builder.setHost((host));
-  }
-  @Override
-  public int getPort() {
-    URLProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getPort());
-  }
 
-  @Override
-  public void setPort(int port) {
-    maybeInitBuilder();
-    builder.setPort((port));
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = URLProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
 
+    @Override
+    public String getFile() {
+        URLProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasFile()) {
+            return null;
+        }
+        return (p.getFile());
+    }
 
-}  
+    @Override
+    public void setFile(String file) {
+        maybeInitBuilder();
+        if (file == null) {
+            builder.clearFile();
+            return;
+        }
+        builder.setFile((file));
+    }
+    @Override
+    public String getScheme() {
+        URLProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasScheme()) {
+            return null;
+        }
+        return (p.getScheme());
+    }
+
+    @Override
+    public void setScheme(String scheme) {
+        maybeInitBuilder();
+        if (scheme == null) {
+            builder.clearScheme();
+            return;
+        }
+        builder.setScheme((scheme));
+    }
+
+    @Override
+    public String getUserInfo() {
+        URLProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasUserInfo()) {
+            return null;
+        }
+        return (p.getUserInfo());
+    }
+
+    @Override
+    public void setUserInfo(String userInfo) {
+        maybeInitBuilder();
+        if (userInfo == null) {
+            builder.clearUserInfo();
+            return;
+        }
+        builder.setUserInfo((userInfo));
+    }
+
+    @Override
+    public String getHost() {
+        URLProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasHost()) {
+            return null;
+        }
+        return (p.getHost());
+    }
+
+    @Override
+    public void setHost(String host) {
+        maybeInitBuilder();
+        if (host == null) {
+            builder.clearHost();
+            return;
+        }
+        builder.setHost((host));
+    }
+    @Override
+    public int getPort() {
+        URLProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getPort());
+    }
+
+    @Override
+    public void setPort(int port) {
+        maybeInitBuilder();
+        builder.setPort((port));
+    }
+
+
+
+}

@@ -25,60 +25,60 @@ import org.apache.hadoop.yarn.util.Records;
  * Represent a new increased container accepted by Resource Manager
  */
 public abstract class ContainerResourceIncrease {
-  @Public
-  public static ContainerResourceIncrease newInstance(
-      ContainerId existingContainerId, Resource targetCapability, Token token) {
-    ContainerResourceIncrease context = Records
-        .newRecord(ContainerResourceIncrease.class);
-    context.setContainerId(existingContainerId);
-    context.setCapability(targetCapability);
-    context.setContainerToken(token);
-    return context;
-  }
-
-  @Public
-  public abstract ContainerId getContainerId();
-
-  @Public
-  public abstract void setContainerId(ContainerId containerId);
-
-  @Public
-  public abstract Resource getCapability();
-
-  @Public
-  public abstract void setCapability(Resource capability);
-  
-  @Public
-  public abstract Token getContainerToken();
-
-  @Public
-  public abstract void setContainerToken(Token token);
-
-  @Override
-  public int hashCode() {
-    return getCapability().hashCode() + getContainerId().hashCode();
-  }
-  
-  @Override
-  public boolean equals(Object other) {
-    if (other instanceof ContainerResourceIncrease) {
-      ContainerResourceIncrease ctx = (ContainerResourceIncrease)other;
-      
-      if (getContainerId() == null && ctx.getContainerId() != null) {
-        return false;
-      } else if (!getContainerId().equals(ctx.getContainerId())) {
-        return false;
-      }
-      
-      if (getCapability() == null && ctx.getCapability() != null) {
-        return false;
-      } else if (!getCapability().equals(ctx.getCapability())) {
-        return false;
-      }
-      
-      return true;
-    } else {
-      return false;
+    @Public
+    public static ContainerResourceIncrease newInstance(
+        ContainerId existingContainerId, Resource targetCapability, Token token) {
+        ContainerResourceIncrease context = Records
+                                            .newRecord(ContainerResourceIncrease.class);
+        context.setContainerId(existingContainerId);
+        context.setCapability(targetCapability);
+        context.setContainerToken(token);
+        return context;
     }
-  }
+
+    @Public
+    public abstract ContainerId getContainerId();
+
+    @Public
+    public abstract void setContainerId(ContainerId containerId);
+
+    @Public
+    public abstract Resource getCapability();
+
+    @Public
+    public abstract void setCapability(Resource capability);
+
+    @Public
+    public abstract Token getContainerToken();
+
+    @Public
+    public abstract void setContainerToken(Token token);
+
+    @Override
+    public int hashCode() {
+        return getCapability().hashCode() + getContainerId().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ContainerResourceIncrease) {
+            ContainerResourceIncrease ctx = (ContainerResourceIncrease)other;
+
+            if (getContainerId() == null && ctx.getContainerId() != null) {
+                return false;
+            } else if (!getContainerId().equals(ctx.getContainerId())) {
+                return false;
+            }
+
+            if (getCapability() == null && ctx.getCapability() != null) {
+                return false;
+            } else if (!getCapability().equals(ctx.getCapability())) {
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

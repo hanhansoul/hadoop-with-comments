@@ -23,13 +23,13 @@ package org.apache.hadoop.hdfs.server.namenode;
  * exception.
  */
 interface StreamLimiter {
-  /**
-   * Set a limit.  Calling this function clears any existing limit.
-   */
-  public void setLimit(long limit);
-  
-  /**
-   * Disable limit.
-   */
-  public void clearLimit();
+    /**
+     * Set a limit.  Calling this function clears any existing limit.
+     */
+    public void setLimit(long limit);
+
+    /**
+     * Disable limit.
+     */
+    public void clearLimit();
 }

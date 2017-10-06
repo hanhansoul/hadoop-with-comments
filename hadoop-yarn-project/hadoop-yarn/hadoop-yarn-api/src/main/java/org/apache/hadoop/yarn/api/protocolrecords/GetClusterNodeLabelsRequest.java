@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Evolving
 public abstract class GetClusterNodeLabelsRequest {
-  public static GetClusterNodeLabelsRequest newInstance() {
-    return Records.newRecord(GetClusterNodeLabelsRequest.class);
-  }
+    public static GetClusterNodeLabelsRequest newInstance() {
+        return Records.newRecord(GetClusterNodeLabelsRequest.class);
+    }
 }

@@ -32,182 +32,182 @@ import org.apache.hadoop.yarn.api.records.YarnApplicationState;
 @Unstable
 public class ApplicationHistoryData {
 
-  private ApplicationId applicationId;
+    private ApplicationId applicationId;
 
-  private String applicationName;
+    private String applicationName;
 
-  private String applicationType;
+    private String applicationType;
 
-  private String user;
+    private String user;
 
-  private String queue;
+    private String queue;
 
-  private long submitTime;
+    private long submitTime;
 
-  private long startTime;
+    private long startTime;
 
-  private long finishTime;
+    private long finishTime;
 
-  private String diagnosticsInfo;
+    private String diagnosticsInfo;
 
-  private FinalApplicationStatus finalApplicationStatus;
+    private FinalApplicationStatus finalApplicationStatus;
 
-  private YarnApplicationState yarnApplicationState;
+    private YarnApplicationState yarnApplicationState;
 
-  @Public
-  @Unstable
-  public static ApplicationHistoryData newInstance(ApplicationId applicationId,
-      String applicationName, String applicationType, String queue,
-      String user, long submitTime, long startTime, long finishTime,
-      String diagnosticsInfo, FinalApplicationStatus finalApplicationStatus,
-      YarnApplicationState yarnApplicationState) {
-    ApplicationHistoryData appHD = new ApplicationHistoryData();
-    appHD.setApplicationId(applicationId);
-    appHD.setApplicationName(applicationName);
-    appHD.setApplicationType(applicationType);
-    appHD.setQueue(queue);
-    appHD.setUser(user);
-    appHD.setSubmitTime(submitTime);
-    appHD.setStartTime(startTime);
-    appHD.setFinishTime(finishTime);
-    appHD.setDiagnosticsInfo(diagnosticsInfo);
-    appHD.setFinalApplicationStatus(finalApplicationStatus);
-    appHD.setYarnApplicationState(yarnApplicationState);
-    return appHD;
-  }
+    @Public
+    @Unstable
+    public static ApplicationHistoryData newInstance(ApplicationId applicationId,
+            String applicationName, String applicationType, String queue,
+            String user, long submitTime, long startTime, long finishTime,
+            String diagnosticsInfo, FinalApplicationStatus finalApplicationStatus,
+            YarnApplicationState yarnApplicationState) {
+        ApplicationHistoryData appHD = new ApplicationHistoryData();
+        appHD.setApplicationId(applicationId);
+        appHD.setApplicationName(applicationName);
+        appHD.setApplicationType(applicationType);
+        appHD.setQueue(queue);
+        appHD.setUser(user);
+        appHD.setSubmitTime(submitTime);
+        appHD.setStartTime(startTime);
+        appHD.setFinishTime(finishTime);
+        appHD.setDiagnosticsInfo(diagnosticsInfo);
+        appHD.setFinalApplicationStatus(finalApplicationStatus);
+        appHD.setYarnApplicationState(yarnApplicationState);
+        return appHD;
+    }
 
-  @Public
-  @Unstable
-  public ApplicationId getApplicationId() {
-    return applicationId;
-  }
+    @Public
+    @Unstable
+    public ApplicationId getApplicationId() {
+        return applicationId;
+    }
 
-  @Public
-  @Unstable
-  public void setApplicationId(ApplicationId applicationId) {
-    this.applicationId = applicationId;
-  }
+    @Public
+    @Unstable
+    public void setApplicationId(ApplicationId applicationId) {
+        this.applicationId = applicationId;
+    }
 
-  @Public
-  @Unstable
-  public String getApplicationName() {
-    return applicationName;
-  }
+    @Public
+    @Unstable
+    public String getApplicationName() {
+        return applicationName;
+    }
 
-  @Public
-  @Unstable
-  public void setApplicationName(String applicationName) {
-    this.applicationName = applicationName;
-  }
+    @Public
+    @Unstable
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
 
-  @Public
-  @Unstable
-  public String getApplicationType() {
-    return applicationType;
-  }
+    @Public
+    @Unstable
+    public String getApplicationType() {
+        return applicationType;
+    }
 
-  @Public
-  @Unstable
-  public void setApplicationType(String applicationType) {
-    this.applicationType = applicationType;
-  }
+    @Public
+    @Unstable
+    public void setApplicationType(String applicationType) {
+        this.applicationType = applicationType;
+    }
 
-  @Public
-  @Unstable
-  public String getUser() {
-    return user;
-  }
+    @Public
+    @Unstable
+    public String getUser() {
+        return user;
+    }
 
-  @Public
-  @Unstable
-  public void setUser(String user) {
-    this.user = user;
-  }
+    @Public
+    @Unstable
+    public void setUser(String user) {
+        this.user = user;
+    }
 
-  @Public
-  @Unstable
-  public String getQueue() {
-    return queue;
-  }
+    @Public
+    @Unstable
+    public String getQueue() {
+        return queue;
+    }
 
-  @Public
-  @Unstable
-  public void setQueue(String queue) {
-    this.queue = queue;
-  }
+    @Public
+    @Unstable
+    public void setQueue(String queue) {
+        this.queue = queue;
+    }
 
-  @Public
-  @Unstable
-  public long getSubmitTime() {
-    return submitTime;
-  }
+    @Public
+    @Unstable
+    public long getSubmitTime() {
+        return submitTime;
+    }
 
-  @Public
-  @Unstable
-  public void setSubmitTime(long submitTime) {
-    this.submitTime = submitTime;
-  }
+    @Public
+    @Unstable
+    public void setSubmitTime(long submitTime) {
+        this.submitTime = submitTime;
+    }
 
-  @Public
-  @Unstable
-  public long getStartTime() {
-    return startTime;
-  }
+    @Public
+    @Unstable
+    public long getStartTime() {
+        return startTime;
+    }
 
-  @Public
-  @Unstable
-  public void setStartTime(long startTime) {
-    this.startTime = startTime;
-  }
+    @Public
+    @Unstable
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
 
-  @Public
-  @Unstable
-  public long getFinishTime() {
-    return finishTime;
-  }
+    @Public
+    @Unstable
+    public long getFinishTime() {
+        return finishTime;
+    }
 
-  @Public
-  @Unstable
-  public void setFinishTime(long finishTime) {
-    this.finishTime = finishTime;
-  }
+    @Public
+    @Unstable
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
+    }
 
-  @Public
-  @Unstable
-  public String getDiagnosticsInfo() {
-    return diagnosticsInfo;
-  }
+    @Public
+    @Unstable
+    public String getDiagnosticsInfo() {
+        return diagnosticsInfo;
+    }
 
-  @Public
-  @Unstable
-  public void setDiagnosticsInfo(String diagnosticsInfo) {
-    this.diagnosticsInfo = diagnosticsInfo;
-  }
+    @Public
+    @Unstable
+    public void setDiagnosticsInfo(String diagnosticsInfo) {
+        this.diagnosticsInfo = diagnosticsInfo;
+    }
 
-  @Public
-  @Unstable
-  public FinalApplicationStatus getFinalApplicationStatus() {
-    return finalApplicationStatus;
-  }
+    @Public
+    @Unstable
+    public FinalApplicationStatus getFinalApplicationStatus() {
+        return finalApplicationStatus;
+    }
 
-  @Public
-  @Unstable
-  public void setFinalApplicationStatus(
-      FinalApplicationStatus finalApplicationStatus) {
-    this.finalApplicationStatus = finalApplicationStatus;
-  }
+    @Public
+    @Unstable
+    public void setFinalApplicationStatus(
+        FinalApplicationStatus finalApplicationStatus) {
+        this.finalApplicationStatus = finalApplicationStatus;
+    }
 
-  @Public
-  @Unstable
-  public YarnApplicationState getYarnApplicationState() {
-    return this.yarnApplicationState;
-  }
+    @Public
+    @Unstable
+    public YarnApplicationState getYarnApplicationState() {
+        return this.yarnApplicationState;
+    }
 
-  @Public
-  @Unstable
-  public void
-      setYarnApplicationState(YarnApplicationState yarnApplicationState) {
-    this.yarnApplicationState = yarnApplicationState;
-  }
+    @Public
+    @Unstable
+    public void
+    setYarnApplicationState(YarnApplicationState yarnApplicationState) {
+        this.yarnApplicationState = yarnApplicationState;
+    }
 
 }

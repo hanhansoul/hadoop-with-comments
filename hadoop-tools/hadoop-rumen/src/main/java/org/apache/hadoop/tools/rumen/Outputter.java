@@ -27,19 +27,19 @@ import org.apache.hadoop.fs.Path;
  * Interface to output a sequence of objects of type T.
  */
 public interface Outputter<T> extends Closeable {
-  /**
-   * Initialize the {@link Outputter} to a specific path.
-   * @param path The {@link Path} to the output file.
-   * @param conf Configuration
-   * @throws IOException
-   */
-  public void init(Path path, Configuration conf) throws IOException;
-  
-  /**
-   * Output an object.
-   * @param object The objecte.
-   * @throws IOException
-   */
-  public void output(T object) throws IOException;
+    /**
+     * Initialize the {@link Outputter} to a specific path.
+     * @param path The {@link Path} to the output file.
+     * @param conf Configuration
+     * @throws IOException
+     */
+    public void init(Path path, Configuration conf) throws IOException;
+
+    /**
+     * Output an object.
+     * @param object The objecte.
+     * @throws IOException
+     */
+    public void output(T object) throws IOException;
 
 }

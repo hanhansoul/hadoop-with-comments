@@ -104,195 +104,195 @@ import com.google.protobuf.ServiceException;
 public class MRClientProtocolPBClientImpl implements MRClientProtocol,
     Closeable {
 
-  protected MRClientProtocolPB proxy;
-  
-  public MRClientProtocolPBClientImpl() {};
-  
-  public MRClientProtocolPBClientImpl(long clientVersion, InetSocketAddress addr, Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, MRClientProtocolPB.class, ProtobufRpcEngine.class);
-    proxy = RPC.getProxy(MRClientProtocolPB.class, clientVersion, addr, conf);
-  }
-  
-  @Override
-  public InetSocketAddress getConnectAddress() {
-    return RPC.getServerAddress(proxy);
-  }
+    protected MRClientProtocolPB proxy;
 
-  @Override
-  public void close() {
-    if (this.proxy != null) {
-      RPC.stopProxy(this.proxy);
-    }
-  }
+    public MRClientProtocolPBClientImpl() {};
 
-  @Override
-  public GetJobReportResponse getJobReport(GetJobReportRequest request)
-      throws IOException {
-    GetJobReportRequestProto requestProto = ((GetJobReportRequestPBImpl)request).getProto();
-    try {
-      return new GetJobReportResponsePBImpl(proxy.getJobReport(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    public MRClientProtocolPBClientImpl(long clientVersion, InetSocketAddress addr, Configuration conf) throws IOException {
+        RPC.setProtocolEngine(conf, MRClientProtocolPB.class, ProtobufRpcEngine.class);
+        proxy = RPC.getProxy(MRClientProtocolPB.class, clientVersion, addr, conf);
     }
-  }
 
-  @Override
-  public GetTaskReportResponse getTaskReport(GetTaskReportRequest request)
-      throws IOException {
-    GetTaskReportRequestProto requestProto = ((GetTaskReportRequestPBImpl)request).getProto();
-    try {
-      return new GetTaskReportResponsePBImpl(proxy.getTaskReport(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public InetSocketAddress getConnectAddress() {
+        return RPC.getServerAddress(proxy);
     }
-  }
 
-  @Override
-  public GetTaskAttemptReportResponse getTaskAttemptReport(
-      GetTaskAttemptReportRequest request) throws IOException {
-    GetTaskAttemptReportRequestProto requestProto = ((GetTaskAttemptReportRequestPBImpl)request).getProto();
-    try {
-      return new GetTaskAttemptReportResponsePBImpl(proxy.getTaskAttemptReport(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public void close() {
+        if (this.proxy != null) {
+            RPC.stopProxy(this.proxy);
+        }
     }
-  }
 
-  @Override
-  public GetCountersResponse getCounters(GetCountersRequest request)
-      throws IOException {
-    GetCountersRequestProto requestProto = ((GetCountersRequestPBImpl)request).getProto();
-    try {
-      return new GetCountersResponsePBImpl(proxy.getCounters(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetJobReportResponse getJobReport(GetJobReportRequest request)
+    throws IOException {
+        GetJobReportRequestProto requestProto = ((GetJobReportRequestPBImpl)request).getProto();
+        try {
+            return new GetJobReportResponsePBImpl(proxy.getJobReport(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
 
-  @Override
-  public GetTaskAttemptCompletionEventsResponse getTaskAttemptCompletionEvents(
-      GetTaskAttemptCompletionEventsRequest request) throws IOException {
-    GetTaskAttemptCompletionEventsRequestProto requestProto = ((GetTaskAttemptCompletionEventsRequestPBImpl)request).getProto();
-    try {
-      return new GetTaskAttemptCompletionEventsResponsePBImpl(proxy.getTaskAttemptCompletionEvents(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetTaskReportResponse getTaskReport(GetTaskReportRequest request)
+    throws IOException {
+        GetTaskReportRequestProto requestProto = ((GetTaskReportRequestPBImpl)request).getProto();
+        try {
+            return new GetTaskReportResponsePBImpl(proxy.getTaskReport(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
 
-  @Override
-  public GetTaskReportsResponse getTaskReports(GetTaskReportsRequest request)
-      throws IOException {
-    GetTaskReportsRequestProto requestProto = ((GetTaskReportsRequestPBImpl)request).getProto();
-    try {
-      return new GetTaskReportsResponsePBImpl(proxy.getTaskReports(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetTaskAttemptReportResponse getTaskAttemptReport(
+        GetTaskAttemptReportRequest request) throws IOException {
+        GetTaskAttemptReportRequestProto requestProto = ((GetTaskAttemptReportRequestPBImpl)request).getProto();
+        try {
+            return new GetTaskAttemptReportResponsePBImpl(proxy.getTaskAttemptReport(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
 
-  @Override
-  public GetDiagnosticsResponse getDiagnostics(GetDiagnosticsRequest request)
-      throws IOException {
-    GetDiagnosticsRequestProto requestProto = ((GetDiagnosticsRequestPBImpl)request).getProto();
-    try {
-      return new GetDiagnosticsResponsePBImpl(proxy.getDiagnostics(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetCountersResponse getCounters(GetCountersRequest request)
+    throws IOException {
+        GetCountersRequestProto requestProto = ((GetCountersRequestPBImpl)request).getProto();
+        try {
+            return new GetCountersResponsePBImpl(proxy.getCounters(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
-  
-  @Override
-  public GetDelegationTokenResponse getDelegationToken(
-      GetDelegationTokenRequest request) throws IOException {
-    GetDelegationTokenRequestProto requestProto = ((GetDelegationTokenRequestPBImpl)
-        request).getProto();
-    try {
-      return new GetDelegationTokenResponsePBImpl(proxy.getDelegationToken(
-          null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
-    }
-  }
-  
-  @Override
-  public KillJobResponse killJob(KillJobRequest request)
-      throws IOException {
-    KillJobRequestProto requestProto = ((KillJobRequestPBImpl)request).getProto();
-    try {
-      return new KillJobResponsePBImpl(proxy.killJob(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
-    }
-  }
 
-  @Override
-  public KillTaskResponse killTask(KillTaskRequest request)
-      throws IOException {
-    KillTaskRequestProto requestProto = ((KillTaskRequestPBImpl)request).getProto();
-    try {
-      return new KillTaskResponsePBImpl(proxy.killTask(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetTaskAttemptCompletionEventsResponse getTaskAttemptCompletionEvents(
+        GetTaskAttemptCompletionEventsRequest request) throws IOException {
+        GetTaskAttemptCompletionEventsRequestProto requestProto = ((GetTaskAttemptCompletionEventsRequestPBImpl)request).getProto();
+        try {
+            return new GetTaskAttemptCompletionEventsResponsePBImpl(proxy.getTaskAttemptCompletionEvents(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
 
-  @Override
-  public KillTaskAttemptResponse killTaskAttempt(KillTaskAttemptRequest request)
-      throws IOException {
-    KillTaskAttemptRequestProto requestProto = ((KillTaskAttemptRequestPBImpl)request).getProto();
-    try {
-      return new KillTaskAttemptResponsePBImpl(proxy.killTaskAttempt(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetTaskReportsResponse getTaskReports(GetTaskReportsRequest request)
+    throws IOException {
+        GetTaskReportsRequestProto requestProto = ((GetTaskReportsRequestPBImpl)request).getProto();
+        try {
+            return new GetTaskReportsResponsePBImpl(proxy.getTaskReports(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
 
-  @Override
-  public FailTaskAttemptResponse failTaskAttempt(FailTaskAttemptRequest request)
-      throws IOException {
-    FailTaskAttemptRequestProto requestProto = ((FailTaskAttemptRequestPBImpl)request).getProto();
-    try {
-      return new FailTaskAttemptResponsePBImpl(proxy.failTaskAttempt(null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetDiagnosticsResponse getDiagnostics(GetDiagnosticsRequest request)
+    throws IOException {
+        GetDiagnosticsRequestProto requestProto = ((GetDiagnosticsRequestPBImpl)request).getProto();
+        try {
+            return new GetDiagnosticsResponsePBImpl(proxy.getDiagnostics(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
- 
-  @Override
-  public RenewDelegationTokenResponse renewDelegationToken(
-      RenewDelegationTokenRequest request) throws IOException {
-    RenewDelegationTokenRequestProto requestProto = 
-        ((RenewDelegationTokenRequestPBImpl) request).getProto();
-    try {
-      return new RenewDelegationTokenResponsePBImpl(proxy.renewDelegationToken(
-          null, requestProto));
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
-    }
-  }
 
-  @Override
-  public CancelDelegationTokenResponse cancelDelegationToken(
-      CancelDelegationTokenRequest request) throws IOException {
-    CancelDelegationTokenRequestProto requestProto =
-        ((CancelDelegationTokenRequestPBImpl) request).getProto();
-    try {
-      return new CancelDelegationTokenResponsePBImpl(
-          proxy.cancelDelegationToken(null, requestProto));
-
-    } catch (ServiceException e) {
-      throw unwrapAndThrowException(e);
+    @Override
+    public GetDelegationTokenResponse getDelegationToken(
+        GetDelegationTokenRequest request) throws IOException {
+        GetDelegationTokenRequestProto requestProto = ((GetDelegationTokenRequestPBImpl)
+                request).getProto();
+        try {
+            return new GetDelegationTokenResponsePBImpl(proxy.getDelegationToken(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
 
-  private IOException unwrapAndThrowException(ServiceException se) {
-    if (se.getCause() instanceof RemoteException) {
-      return ((RemoteException) se.getCause()).unwrapRemoteException();
-    } else if (se.getCause() instanceof IOException) {
-      return (IOException)se.getCause();
-    } else {
-      throw new UndeclaredThrowableException(se.getCause());
+    @Override
+    public KillJobResponse killJob(KillJobRequest request)
+    throws IOException {
+        KillJobRequestProto requestProto = ((KillJobRequestPBImpl)request).getProto();
+        try {
+            return new KillJobResponsePBImpl(proxy.killJob(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
     }
-  }
+
+    @Override
+    public KillTaskResponse killTask(KillTaskRequest request)
+    throws IOException {
+        KillTaskRequestProto requestProto = ((KillTaskRequestPBImpl)request).getProto();
+        try {
+            return new KillTaskResponsePBImpl(proxy.killTask(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
+    }
+
+    @Override
+    public KillTaskAttemptResponse killTaskAttempt(KillTaskAttemptRequest request)
+    throws IOException {
+        KillTaskAttemptRequestProto requestProto = ((KillTaskAttemptRequestPBImpl)request).getProto();
+        try {
+            return new KillTaskAttemptResponsePBImpl(proxy.killTaskAttempt(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
+    }
+
+    @Override
+    public FailTaskAttemptResponse failTaskAttempt(FailTaskAttemptRequest request)
+    throws IOException {
+        FailTaskAttemptRequestProto requestProto = ((FailTaskAttemptRequestPBImpl)request).getProto();
+        try {
+            return new FailTaskAttemptResponsePBImpl(proxy.failTaskAttempt(null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
+    }
+
+    @Override
+    public RenewDelegationTokenResponse renewDelegationToken(
+        RenewDelegationTokenRequest request) throws IOException {
+        RenewDelegationTokenRequestProto requestProto =
+            ((RenewDelegationTokenRequestPBImpl) request).getProto();
+        try {
+            return new RenewDelegationTokenResponsePBImpl(proxy.renewDelegationToken(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
+    }
+
+    @Override
+    public CancelDelegationTokenResponse cancelDelegationToken(
+        CancelDelegationTokenRequest request) throws IOException {
+        CancelDelegationTokenRequestProto requestProto =
+            ((CancelDelegationTokenRequestPBImpl) request).getProto();
+        try {
+            return new CancelDelegationTokenResponsePBImpl(
+                       proxy.cancelDelegationToken(null, requestProto));
+
+        } catch (ServiceException e) {
+            throw unwrapAndThrowException(e);
+        }
+    }
+
+    private IOException unwrapAndThrowException(ServiceException se) {
+        if (se.getCause() instanceof RemoteException) {
+            return ((RemoteException) se.getCause()).unwrapRemoteException();
+        } else if (se.getCause() instanceof IOException) {
+            return (IOException)se.getCause();
+        } else {
+            throw new UndeclaredThrowableException(se.getCause());
+        }
+    }
 }

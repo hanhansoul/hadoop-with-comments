@@ -25,14 +25,14 @@ import java.io.IOException;
  * without consuming any input.
  */
 public class OutputOnlyApp {
-  public static void main(String[] args) throws IOException {
-    if (args.length < 1) {
-      System.err.println("Usage: OutputOnlyApp NUMRECORDS");
-      return;
+    public static void main(String[] args) throws IOException {
+        if (args.length < 1) {
+            System.err.println("Usage: OutputOnlyApp NUMRECORDS");
+            return;
+        }
+        int numRecords = Integer.parseInt(args[0]);
+        while (numRecords-- > 0) {
+            System.out.println("key\tvalue");
+        }
     }
-    int numRecords = Integer.parseInt(args[0]);
-    while (numRecords-- > 0) {
-      System.out.println("key\tvalue");
-    }
-  }
 }

@@ -27,32 +27,32 @@ import org.apache.hadoop.yarn.webapp.view.InfoBlock;
 import com.google.inject.Inject;
 
 public class AboutBlock extends HtmlBlock {
-  final ResourceManager rm;
+    final ResourceManager rm;
 
-  @Inject
-  AboutBlock(ResourceManager rm, ViewContext ctx) {
-    super(ctx);
-    this.rm = rm;
-  }
+    @Inject
+    AboutBlock(ResourceManager rm, ViewContext ctx) {
+        super(ctx);
+        this.rm = rm;
+    }
 
-  @Override
-  protected void render(Block html) {
-    html._(MetricsOverviewTable.class);
-    ResourceManager rm = getInstance(ResourceManager.class);
-    ClusterInfo cinfo = new ClusterInfo(rm);
-    info("Cluster overview").
-      _("Cluster ID:", cinfo.getClusterId()).
-      _("ResourceManager state:", cinfo.getState()).
-      _("ResourceManager HA state:", cinfo.getHAState()).
-      _("ResourceManager HA zookeeper connection state:",
+    @Override
+    protected void render(Block html) {
+        html._(MetricsOverviewTable.class);
+        ResourceManager rm = getInstance(ResourceManager.class);
+        ClusterInfo cinfo = new ClusterInfo(rm);
+        info("Cluster overview").
+        _("Cluster ID:", cinfo.getClusterId()).
+        _("ResourceManager state:", cinfo.getState()).
+        _("ResourceManager HA state:", cinfo.getHAState()).
+        _("ResourceManager HA zookeeper connection state:",
           cinfo.getHAZookeeperConnectionState()).
-      _("ResourceManager RMStateStore:", cinfo.getRMStateStore()).
-      _("ResourceManager started on:", Times.format(cinfo.getStartedOn())).
-      _("ResourceManager version:", cinfo.getRMBuildVersion() +
+        _("ResourceManager RMStateStore:", cinfo.getRMStateStore()).
+        _("ResourceManager started on:", Times.format(cinfo.getStartedOn())).
+        _("ResourceManager version:", cinfo.getRMBuildVersion() +
           " on " + cinfo.getRMVersionBuiltOn()).
-      _("Hadoop version:", cinfo.getHadoopBuildVersion() +
+        _("Hadoop version:", cinfo.getHadoopBuildVersion() +
           " on " + cinfo.getHadoopVersionBuiltOn());
-    html._(InfoBlock.class);
-  }
+        html._(InfoBlock.class);
+    }
 
 }

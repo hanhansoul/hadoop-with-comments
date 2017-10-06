@@ -36,141 +36,141 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class GetApplicationsResponsePBImpl
-extends GetApplicationsResponse {
+    extends GetApplicationsResponse {
 
-  GetApplicationsResponseProto proto =
-    GetApplicationsResponseProto.getDefaultInstance();
-  GetApplicationsResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetApplicationsResponseProto proto =
+        GetApplicationsResponseProto.getDefaultInstance();
+    GetApplicationsResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  List<ApplicationReport> applicationList;
+    List<ApplicationReport> applicationList;
 
-  public GetApplicationsResponsePBImpl() {
-    builder = GetApplicationsResponseProto.newBuilder();
-  }
-
-  public GetApplicationsResponsePBImpl(GetApplicationsResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  @Override
-  public List<ApplicationReport> getApplicationList() {
-    initLocalApplicationsList();
-    return this.applicationList;
-  }
-
-  @Override
-  public void setApplicationList(List<ApplicationReport> applications) {
-    maybeInitBuilder();
-    if (applications == null)
-      builder.clearApplications();
-    this.applicationList = applications;
-  }
-
-  public GetApplicationsResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public GetApplicationsResponsePBImpl() {
+        builder = GetApplicationsResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.applicationList != null) {
-      addLocalApplicationsToProto();
+    public GetApplicationsResponsePBImpl(GetApplicationsResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetApplicationsResponseProto.newBuilder(proto);
+    @Override
+    public List<ApplicationReport> getApplicationList() {
+        initLocalApplicationsList();
+        return this.applicationList;
     }
-    viaProto = false;
-  }
 
-  // Once this is called. containerList will never be null - until a getProto
-  // is called.
-  private void initLocalApplicationsList() {
-    if (this.applicationList != null) {
-      return;
+    @Override
+    public void setApplicationList(List<ApplicationReport> applications) {
+        maybeInitBuilder();
+        if (applications == null)
+            builder.clearApplications();
+        this.applicationList = applications;
     }
-    GetApplicationsResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<ApplicationReportProto> list = p.getApplicationsList();
-    applicationList = new ArrayList<ApplicationReport>();
 
-    for (ApplicationReportProto a : list) {
-      applicationList.add(convertFromProtoFormat(a));
+    public GetApplicationsResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void addLocalApplicationsToProto() {
-    maybeInitBuilder();
-    builder.clearApplications();
-    if (applicationList == null)
-      return;
-    Iterable<ApplicationReportProto> iterable = new Iterable<ApplicationReportProto>() {
-      @Override
-      public Iterator<ApplicationReportProto> iterator() {
-        return new Iterator<ApplicationReportProto>() {
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
 
-          Iterator<ApplicationReport> iter = applicationList.iterator();
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 
-          @Override
-          public boolean hasNext() {
-            return iter.hasNext();
-          }
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-          @Override
-          public ApplicationReportProto next() {
-            return convertToProtoFormat(iter.next());
-          }
+    private void mergeLocalToBuilder() {
+        if (this.applicationList != null) {
+            addLocalApplicationsToProto();
+        }
+    }
 
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-          }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetApplicationsResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    // Once this is called. containerList will never be null - until a getProto
+    // is called.
+    private void initLocalApplicationsList() {
+        if (this.applicationList != null) {
+            return;
+        }
+        GetApplicationsResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<ApplicationReportProto> list = p.getApplicationsList();
+        applicationList = new ArrayList<ApplicationReport>();
+
+        for (ApplicationReportProto a : list) {
+            applicationList.add(convertFromProtoFormat(a));
+        }
+    }
+
+    private void addLocalApplicationsToProto() {
+        maybeInitBuilder();
+        builder.clearApplications();
+        if (applicationList == null)
+            return;
+        Iterable<ApplicationReportProto> iterable = new Iterable<ApplicationReportProto>() {
+            @Override
+            public Iterator<ApplicationReportProto> iterator() {
+                return new Iterator<ApplicationReportProto>() {
+
+                    Iterator<ApplicationReport> iter = applicationList.iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
+
+                    @Override
+                    public ApplicationReportProto next() {
+                        return convertToProtoFormat(iter.next());
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+
+                    }
+                };
+
+            }
         };
+        builder.addAllApplications(iterable);
+    }
 
-      }
-    };
-    builder.addAllApplications(iterable);
-  }
+    private ApplicationReportPBImpl convertFromProtoFormat(ApplicationReportProto p) {
+        return new ApplicationReportPBImpl(p);
+    }
 
-  private ApplicationReportPBImpl convertFromProtoFormat(ApplicationReportProto p) {
-    return new ApplicationReportPBImpl(p);
-  }
-
-  private ApplicationReportProto convertToProtoFormat(ApplicationReport t) {
-    return ((ApplicationReportPBImpl)t).getProto();
-  }
+    private ApplicationReportProto convertToProtoFormat(ApplicationReport t) {
+        return ((ApplicationReportPBImpl)t).getProto();
+    }
 
 }

@@ -33,81 +33,83 @@ import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 
 public class TestSharedFileDescriptorFactory {
-  static final Log LOG = LogFactory.getLog(TestSharedFileDescriptorFactory.class);
+    static final Log LOG = LogFactory.getLog(TestSharedFileDescriptorFactory.class);
 
-  private static final File TEST_BASE =
-      new File(System.getProperty("test.build.data", "/tmp"));
+    private static final File TEST_BASE =
+        new File(System.getProperty("test.build.data", "/tmp"));
 
-  @Before
-  public void setup() throws Exception {
-    Assume.assumeTrue(null ==
-        SharedFileDescriptorFactory.getLoadingFailureReason());
-  }
-
-  @Test(timeout=10000)
-  public void testReadAndWrite() throws Exception {
-    File path = new File(TEST_BASE, "testReadAndWrite");
-    path.mkdirs();
-    SharedFileDescriptorFactory factory =
-        SharedFileDescriptorFactory.create("woot_",
-            new String[] { path.getAbsolutePath() });
-    FileInputStream inStream =
-        factory.createDescriptor("testReadAndWrite", 4096);
-    FileOutputStream outStream = new FileOutputStream(inStream.getFD());
-    outStream.write(101);
-    inStream.getChannel().position(0);
-    Assert.assertEquals(101, inStream.read());
-    inStream.close();
-    outStream.close();
-    FileUtil.fullyDelete(path);
-  }
-
-  static private void createTempFile(String path) throws Exception {
-    FileOutputStream fos = new FileOutputStream(path);
-    fos.write(101);
-    fos.close();
-  }
-  
-  @Test(timeout=10000)
-  public void testCleanupRemainders() throws Exception {
-    Assume.assumeTrue(NativeIO.isAvailable());
-    Assume.assumeTrue(SystemUtils.IS_OS_UNIX);
-    File path = new File(TEST_BASE, "testCleanupRemainders");
-    path.mkdirs();
-    String remainder1 = path.getAbsolutePath() + 
-        Path.SEPARATOR + "woot2_remainder1";
-    String remainder2 = path.getAbsolutePath() +
-        Path.SEPARATOR + "woot2_remainder2";
-    createTempFile(remainder1);
-    createTempFile(remainder2);
-    SharedFileDescriptorFactory.create("woot2_", 
-        new String[] { path.getAbsolutePath() });
-    // creating the SharedFileDescriptorFactory should have removed 
-    // the remainders
-    Assert.assertFalse(new File(remainder1).exists());
-    Assert.assertFalse(new File(remainder2).exists());
-    FileUtil.fullyDelete(path);
-  }
-  
-  @Test(timeout=60000)
-  public void testDirectoryFallbacks() throws Exception {
-    File nonExistentPath = new File(TEST_BASE, "nonexistent");
-    File permissionDeniedPath = new File("/");
-    File goodPath = new File(TEST_BASE, "testDirectoryFallbacks");
-    goodPath.mkdirs();
-    try {
-      SharedFileDescriptorFactory.create("shm_", 
-          new String[] { nonExistentPath.getAbsolutePath(),
-                          permissionDeniedPath.getAbsolutePath() });
-      Assert.fail();
-    } catch (IOException e) {
+    @Before
+    public void setup() throws Exception {
+        Assume.assumeTrue(null ==
+                          SharedFileDescriptorFactory.getLoadingFailureReason());
     }
-    SharedFileDescriptorFactory factory =
-        SharedFileDescriptorFactory.create("shm_", 
-            new String[] { nonExistentPath.getAbsolutePath(),
-                            permissionDeniedPath.getAbsolutePath(),
-                            goodPath.getAbsolutePath() } );
-    Assert.assertEquals(goodPath.getAbsolutePath(), factory.getPath());
-    FileUtil.fullyDelete(goodPath);
-  }
+
+    @Test(timeout=10000)
+    public void testReadAndWrite() throws Exception {
+        File path = new File(TEST_BASE, "testReadAndWrite");
+        path.mkdirs();
+        SharedFileDescriptorFactory factory =
+            SharedFileDescriptorFactory.create("woot_",
+                                               new String[] { path.getAbsolutePath() });
+        FileInputStream inStream =
+            factory.createDescriptor("testReadAndWrite", 4096);
+        FileOutputStream outStream = new FileOutputStream(inStream.getFD());
+        outStream.write(101);
+        inStream.getChannel().position(0);
+        Assert.assertEquals(101, inStream.read());
+        inStream.close();
+        outStream.close();
+        FileUtil.fullyDelete(path);
+    }
+
+    static private void createTempFile(String path) throws Exception {
+        FileOutputStream fos = new FileOutputStream(path);
+        fos.write(101);
+        fos.close();
+    }
+
+    @Test(timeout=10000)
+    public void testCleanupRemainders() throws Exception {
+        Assume.assumeTrue(NativeIO.isAvailable());
+        Assume.assumeTrue(SystemUtils.IS_OS_UNIX);
+        File path = new File(TEST_BASE, "testCleanupRemainders");
+        path.mkdirs();
+        String remainder1 = path.getAbsolutePath() +
+                            Path.SEPARATOR + "woot2_remainder1";
+        String remainder2 = path.getAbsolutePath() +
+                            Path.SEPARATOR + "woot2_remainder2";
+        createTempFile(remainder1);
+        createTempFile(remainder2);
+        SharedFileDescriptorFactory.create("woot2_",
+                                           new String[] { path.getAbsolutePath() });
+        // creating the SharedFileDescriptorFactory should have removed
+        // the remainders
+        Assert.assertFalse(new File(remainder1).exists());
+        Assert.assertFalse(new File(remainder2).exists());
+        FileUtil.fullyDelete(path);
+    }
+
+    @Test(timeout=60000)
+    public void testDirectoryFallbacks() throws Exception {
+        File nonExistentPath = new File(TEST_BASE, "nonexistent");
+        File permissionDeniedPath = new File("/");
+        File goodPath = new File(TEST_BASE, "testDirectoryFallbacks");
+        goodPath.mkdirs();
+        try {
+            SharedFileDescriptorFactory.create("shm_",
+                                               new String[] { nonExistentPath.getAbsolutePath(),
+                                                       permissionDeniedPath.getAbsolutePath()
+                                                            });
+            Assert.fail();
+        } catch (IOException e) {
+        }
+        SharedFileDescriptorFactory factory =
+            SharedFileDescriptorFactory.create("shm_",
+                                               new String[] { nonExistentPath.getAbsolutePath(),
+                                                       permissionDeniedPath.getAbsolutePath(),
+                                                       goodPath.getAbsolutePath()
+                                                            } );
+        Assert.assertEquals(goodPath.getAbsolutePath(), factory.getPath());
+        FileUtil.fullyDelete(goodPath);
+    }
 }

@@ -22,12 +22,12 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This class implements a value aggregator that maintain the minimum of 
+ * This class implements a value aggregator that maintain the minimum of
  * a sequence of long values.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class LongValueMin 
-    extends org.apache.hadoop.mapreduce.lib.aggregate.LongValueMin 
+public class LongValueMin
+    extends org.apache.hadoop.mapreduce.lib.aggregate.LongValueMin
     implements ValueAggregator<String> {
 }

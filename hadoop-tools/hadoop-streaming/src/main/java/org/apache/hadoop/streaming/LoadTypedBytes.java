@@ -35,71 +35,71 @@ import org.apache.hadoop.util.ToolRunner;
  */
 public class LoadTypedBytes implements Tool {
 
-  private Configuration conf;
+    private Configuration conf;
 
-  public LoadTypedBytes(Configuration conf) {
-    this.conf = conf;
-  }
-  
-  public LoadTypedBytes() {
-    this(new Configuration());
-  }
-  
-  public Configuration getConf() {
-    return conf;
-  }
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-  
-  /**
-   * The main driver for <code>LoadTypedBytes</code>.
-   */
-  public int run(String[] args) throws Exception {
-    if (args.length == 0) {
-      System.err.println("Too few arguments!");
-      printUsage();
-      return 1;
+    public LoadTypedBytes(Configuration conf) {
+        this.conf = conf;
     }
-    Path path = new Path(args[0]);
-    FileSystem fs = path.getFileSystem(getConf());
-    if (fs.exists(path)) {
-      System.err.println("given path exists already!");
-      return -1;
-    }
-    TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(System.in));
-    SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, path,
-      TypedBytesWritable.class, TypedBytesWritable.class);
-    try {
-      TypedBytesWritable key = new TypedBytesWritable();
-      TypedBytesWritable value = new TypedBytesWritable();
-      byte[] rawKey = tbinput.readRaw();
-      while (rawKey != null) {
-        byte[] rawValue = tbinput.readRaw();
-        key.set(rawKey, 0, rawKey.length);
-        value.set(rawValue, 0, rawValue.length);
-        writer.append(key, value);
-        rawKey = tbinput.readRaw();
-      }
-    } finally {
-      writer.close();
-    }
-    return 0;
-  }
 
-  private void printUsage() {
-    System.out.println("Usage: $HADOOP_PREFIX/bin/hadoop jar hadoop-streaming.jar"
-        + " loadtb <path>");
-    System.out.println("  Reads typed bytes from standard input" +
-    " and stores them in a sequence file in");
-    System.out.println("  the specified path");
-  }
+    public LoadTypedBytes() {
+        this(new Configuration());
+    }
 
-  public static void main(String[] args) throws Exception {
-    LoadTypedBytes loadtb = new LoadTypedBytes();
-    int res = ToolRunner.run(loadtb, args);
-    System.exit(res);
-  }
+    public Configuration getConf() {
+        return conf;
+    }
+
+    public void setConf(Configuration conf) {
+        this.conf = conf;
+    }
+
+    /**
+     * The main driver for <code>LoadTypedBytes</code>.
+     */
+    public int run(String[] args) throws Exception {
+        if (args.length == 0) {
+            System.err.println("Too few arguments!");
+            printUsage();
+            return 1;
+        }
+        Path path = new Path(args[0]);
+        FileSystem fs = path.getFileSystem(getConf());
+        if (fs.exists(path)) {
+            System.err.println("given path exists already!");
+            return -1;
+        }
+        TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(System.in));
+        SequenceFile.Writer writer = SequenceFile.createWriter(fs, conf, path,
+                                     TypedBytesWritable.class, TypedBytesWritable.class);
+        try {
+            TypedBytesWritable key = new TypedBytesWritable();
+            TypedBytesWritable value = new TypedBytesWritable();
+            byte[] rawKey = tbinput.readRaw();
+            while (rawKey != null) {
+                byte[] rawValue = tbinput.readRaw();
+                key.set(rawKey, 0, rawKey.length);
+                value.set(rawValue, 0, rawValue.length);
+                writer.append(key, value);
+                rawKey = tbinput.readRaw();
+            }
+        } finally {
+            writer.close();
+        }
+        return 0;
+    }
+
+    private void printUsage() {
+        System.out.println("Usage: $HADOOP_PREFIX/bin/hadoop jar hadoop-streaming.jar"
+                           + " loadtb <path>");
+        System.out.println("  Reads typed bytes from standard input" +
+                           " and stores them in a sequence file in");
+        System.out.println("  the specified path");
+    }
+
+    public static void main(String[] args) throws Exception {
+        LoadTypedBytes loadtb = new LoadTypedBytes();
+        int res = ToolRunner.run(loadtb, args);
+        System.exit(res);
+    }
 
 }

@@ -19,8 +19,8 @@ package org.apache.hadoop.yarn.server.resourcemanager.scheduler;
 
 public enum ContainerPreemptEventType {
 
-  DROP_RESERVATION,
-  PREEMPT_CONTAINER,
-  KILL_CONTAINER
+    DROP_RESERVATION,
+    PREEMPT_CONTAINER,
+    KILL_CONTAINER
 
 }

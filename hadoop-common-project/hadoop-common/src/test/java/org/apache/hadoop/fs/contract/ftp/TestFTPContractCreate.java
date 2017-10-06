@@ -24,9 +24,9 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
 
 public class TestFTPContractCreate extends AbstractContractCreateTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new FTPContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new FTPContract(conf);
+    }
 
 }

@@ -67,290 +67,290 @@ import org.apache.hadoop.yarn.proto.YarnServiceProtos.SchedulerResourceTypes;
  */
 public abstract class RMCommunicator extends AbstractService
     implements RMHeartbeatHandler {
-  private static final Log LOG = LogFactory.getLog(RMContainerAllocator.class);
-  private int rmPollInterval;//millis
-  protected ApplicationId applicationId;
-  private final AtomicBoolean stopped;
-  protected Thread allocatorThread;
-  @SuppressWarnings("rawtypes")
-  protected EventHandler eventHandler;
-  protected ApplicationMasterProtocol scheduler;
-  private final ClientService clientService;
-  protected int lastResponseID;
-  private Resource maxContainerCapability;
-  protected Map<ApplicationAccessType, String> applicationACLs;
-  private volatile long lastHeartbeatTime;
-  private ConcurrentLinkedQueue<Runnable> heartbeatCallbacks;
+    private static final Log LOG = LogFactory.getLog(RMContainerAllocator.class);
+    private int rmPollInterval;//millis
+    protected ApplicationId applicationId;
+    private final AtomicBoolean stopped;
+    protected Thread allocatorThread;
+    @SuppressWarnings("rawtypes")
+    protected EventHandler eventHandler;
+    protected ApplicationMasterProtocol scheduler;
+    private final ClientService clientService;
+    protected int lastResponseID;
+    private Resource maxContainerCapability;
+    protected Map<ApplicationAccessType, String> applicationACLs;
+    private volatile long lastHeartbeatTime;
+    private ConcurrentLinkedQueue<Runnable> heartbeatCallbacks;
 
-  private final RecordFactory recordFactory =
-      RecordFactoryProvider.getRecordFactory(null);
+    private final RecordFactory recordFactory =
+        RecordFactoryProvider.getRecordFactory(null);
 
-  private final AppContext context;
-  private Job job;
-  // Has a signal (SIGTERM etc) been issued?
-  protected volatile boolean isSignalled = false;
-  private volatile boolean shouldUnregister = true;
-  private boolean isApplicationMasterRegistered = false;
+    private final AppContext context;
+    private Job job;
+    // Has a signal (SIGTERM etc) been issued?
+    protected volatile boolean isSignalled = false;
+    private volatile boolean shouldUnregister = true;
+    private boolean isApplicationMasterRegistered = false;
 
-  private EnumSet<SchedulerResourceTypes> schedulerResourceTypes;
+    private EnumSet<SchedulerResourceTypes> schedulerResourceTypes;
 
-  public RMCommunicator(ClientService clientService, AppContext context) {
-    super("RMCommunicator");
-    this.clientService = clientService;
-    this.context = context;
-    this.eventHandler = context.getEventHandler();
-    this.applicationId = context.getApplicationID();
-    this.stopped = new AtomicBoolean(false);
-    this.heartbeatCallbacks = new ConcurrentLinkedQueue<Runnable>();
-    this.schedulerResourceTypes = EnumSet.of(SchedulerResourceTypes.MEMORY);
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    super.serviceInit(conf);
-    rmPollInterval =
-        conf.getInt(MRJobConfig.MR_AM_TO_RM_HEARTBEAT_INTERVAL_MS,
-            MRJobConfig.DEFAULT_MR_AM_TO_RM_HEARTBEAT_INTERVAL_MS);
-  }
-
-  @Override
-  protected void serviceStart() throws Exception {
-    scheduler= createSchedulerProxy();
-    JobID id = TypeConverter.fromYarn(this.applicationId);
-    JobId jobId = TypeConverter.toYarn(id);
-    job = context.getJob(jobId);
-    register();
-    startAllocatorThread();
-    super.serviceStart();
-  }
-
-  protected AppContext getContext() {
-    return context;
-  }
-
-  protected Job getJob() {
-    return job;
-  }
-
-  /**
-   * Get the appProgress. Can be used only after this component is started.
-   * @return the appProgress.
-   */
-  protected float getApplicationProgress() {
-    // For now just a single job. In future when we have a DAG, we need an
-    // aggregate progress.
-    return this.job.getProgress();
-  }
-
-  protected void register() {
-    //Register
-    InetSocketAddress serviceAddr = null;
-    if (clientService != null ) {
-      serviceAddr = clientService.getBindAddress();
+    public RMCommunicator(ClientService clientService, AppContext context) {
+        super("RMCommunicator");
+        this.clientService = clientService;
+        this.context = context;
+        this.eventHandler = context.getEventHandler();
+        this.applicationId = context.getApplicationID();
+        this.stopped = new AtomicBoolean(false);
+        this.heartbeatCallbacks = new ConcurrentLinkedQueue<Runnable>();
+        this.schedulerResourceTypes = EnumSet.of(SchedulerResourceTypes.MEMORY);
     }
-    try {
-      RegisterApplicationMasterRequest request =
-        recordFactory.newRecordInstance(RegisterApplicationMasterRequest.class);
-      if (serviceAddr != null) {
-        request.setHost(serviceAddr.getHostName());
-        request.setRpcPort(serviceAddr.getPort());
-        request.setTrackingUrl(MRWebAppUtil
-            .getAMWebappScheme(getConfig())
-            + serviceAddr.getHostName() + ":" + clientService.getHttpPort());
-      }
-      RegisterApplicationMasterResponse response =
-        scheduler.registerApplicationMaster(request);
-      isApplicationMasterRegistered = true;
-      maxContainerCapability = response.getMaximumResourceCapability();
-      this.context.getClusterInfo().setMaxContainerCapability(
-          maxContainerCapability);
-      if (UserGroupInformation.isSecurityEnabled()) {
-        setClientToAMToken(response.getClientToAMTokenMasterKey());        
-      }
-      this.applicationACLs = response.getApplicationACLs();
-      LOG.info("maxContainerCapability: " + maxContainerCapability);
-      String queue = response.getQueue();
-      LOG.info("queue: " + queue);
-      job.setQueueName(queue);
-      this.schedulerResourceTypes.addAll(response.getSchedulerResourceTypes());
-    } catch (Exception are) {
-      LOG.error("Exception while registering", are);
-      throw new YarnRuntimeException(are);
-    }
-  }
 
-  private void setClientToAMToken(ByteBuffer clientToAMTokenMasterKey) {
-    byte[] key = clientToAMTokenMasterKey.array();
-    context.getClientToAMTokenSecretManager().setMasterKey(key);
-  }
-
-  protected void unregister() {
-    try {
-      doUnregistration();
-    } catch(Exception are) {
-      LOG.error("Exception while unregistering ", are);
-      // if unregistration failed, isLastAMRetry needs to be recalculated
-      // to see whether AM really has the chance to retry
-      RunningAppContext raContext = (RunningAppContext) context;
-      raContext.resetIsLastAMRetry();
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        super.serviceInit(conf);
+        rmPollInterval =
+            conf.getInt(MRJobConfig.MR_AM_TO_RM_HEARTBEAT_INTERVAL_MS,
+                        MRJobConfig.DEFAULT_MR_AM_TO_RM_HEARTBEAT_INTERVAL_MS);
     }
-  }
 
-  @VisibleForTesting
-  protected void doUnregistration()
-      throws YarnException, IOException, InterruptedException {
-    FinalApplicationStatus finishState = FinalApplicationStatus.UNDEFINED;
-    JobImpl jobImpl = (JobImpl)job;
-    if (jobImpl.getInternalState() == JobStateInternal.SUCCEEDED) {
-      finishState = FinalApplicationStatus.SUCCEEDED;
-    } else if (jobImpl.getInternalState() == JobStateInternal.KILLED
-        || (jobImpl.getInternalState() == JobStateInternal.RUNNING && isSignalled)) {
-      finishState = FinalApplicationStatus.KILLED;
-    } else if (jobImpl.getInternalState() == JobStateInternal.FAILED
-        || jobImpl.getInternalState() == JobStateInternal.ERROR) {
-      finishState = FinalApplicationStatus.FAILED;
+    @Override
+    protected void serviceStart() throws Exception {
+        scheduler= createSchedulerProxy();
+        JobID id = TypeConverter.fromYarn(this.applicationId);
+        JobId jobId = TypeConverter.toYarn(id);
+        job = context.getJob(jobId);
+        register();
+        startAllocatorThread();
+        super.serviceStart();
     }
-    StringBuffer sb = new StringBuffer();
-    for (String s : job.getDiagnostics()) {
-      sb.append(s).append("\n");
-    }
-    LOG.info("Setting job diagnostics to " + sb.toString());
 
-    String historyUrl =
-        MRWebAppUtil.getApplicationWebURLOnJHSWithScheme(getConfig(),
-            context.getApplicationID());
-    LOG.info("History url is " + historyUrl);
-    FinishApplicationMasterRequest request =
-        FinishApplicationMasterRequest.newInstance(finishState,
-          sb.toString(), historyUrl);
-    try {
-      while (true) {
-        FinishApplicationMasterResponse response =
-            scheduler.finishApplicationMaster(request);
-        if (response.getIsUnregistered()) {
-          // When excepting ClientService, other services are already stopped,
-          // it is safe to let clients know the final states. ClientService
-          // should wait for some time so clients have enough time to know the
-          // final states.
-          RunningAppContext raContext = (RunningAppContext) context;
-          raContext.markSuccessfulUnregistration();
-          break;
+    protected AppContext getContext() {
+        return context;
+    }
+
+    protected Job getJob() {
+        return job;
+    }
+
+    /**
+     * Get the appProgress. Can be used only after this component is started.
+     * @return the appProgress.
+     */
+    protected float getApplicationProgress() {
+        // For now just a single job. In future when we have a DAG, we need an
+        // aggregate progress.
+        return this.job.getProgress();
+    }
+
+    protected void register() {
+        //Register
+        InetSocketAddress serviceAddr = null;
+        if (clientService != null ) {
+            serviceAddr = clientService.getBindAddress();
         }
-        LOG.info("Waiting for application to be successfully unregistered.");
-        Thread.sleep(rmPollInterval);
-      }
-    } catch (ApplicationMasterNotRegisteredException e) {
-      // RM might have restarted or failed over and so lost the fact that AM had
-      // registered before.
-      register();
-      doUnregistration();
-    }
-  }
-
-  protected Resource getMaxContainerCapability() {
-    return maxContainerCapability;
-  }
-
-  @Override
-  protected void serviceStop() throws Exception {
-    if (stopped.getAndSet(true)) {
-      // return if already stopped
-      return;
-    }
-    if (allocatorThread != null) {
-      allocatorThread.interrupt();
-      try {
-        allocatorThread.join();
-      } catch (InterruptedException ie) {
-        LOG.warn("InterruptedException while stopping", ie);
-      }
-    }
-    if (isApplicationMasterRegistered && shouldUnregister) {
-      unregister();
-    }
-    super.serviceStop();
-  }
-
-  protected void startAllocatorThread() {
-    allocatorThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        while (!stopped.get() && !Thread.currentThread().isInterrupted()) {
-          try {
-            Thread.sleep(rmPollInterval);
-            try {
-              heartbeat();
-            } catch (YarnRuntimeException e) {
-              LOG.error("Error communicating with RM: " + e.getMessage() , e);
-              return;
-            } catch (Exception e) {
-              LOG.error("ERROR IN CONTACTING RM. ", e);
-              continue;
-              // TODO: for other exceptions
+        try {
+            RegisterApplicationMasterRequest request =
+                recordFactory.newRecordInstance(RegisterApplicationMasterRequest.class);
+            if (serviceAddr != null) {
+                request.setHost(serviceAddr.getHostName());
+                request.setRpcPort(serviceAddr.getPort());
+                request.setTrackingUrl(MRWebAppUtil
+                                       .getAMWebappScheme(getConfig())
+                                       + serviceAddr.getHostName() + ":" + clientService.getHttpPort());
             }
-
-            lastHeartbeatTime = context.getClock().getTime();
-            executeHeartbeatCallbacks();
-          } catch (InterruptedException e) {
-            if (!stopped.get()) {
-              LOG.warn("Allocated thread interrupted. Returning.");
+            RegisterApplicationMasterResponse response =
+                scheduler.registerApplicationMaster(request);
+            isApplicationMasterRegistered = true;
+            maxContainerCapability = response.getMaximumResourceCapability();
+            this.context.getClusterInfo().setMaxContainerCapability(
+                maxContainerCapability);
+            if (UserGroupInformation.isSecurityEnabled()) {
+                setClientToAMToken(response.getClientToAMTokenMasterKey());
             }
+            this.applicationACLs = response.getApplicationACLs();
+            LOG.info("maxContainerCapability: " + maxContainerCapability);
+            String queue = response.getQueue();
+            LOG.info("queue: " + queue);
+            job.setQueueName(queue);
+            this.schedulerResourceTypes.addAll(response.getSchedulerResourceTypes());
+        } catch (Exception are) {
+            LOG.error("Exception while registering", are);
+            throw new YarnRuntimeException(are);
+        }
+    }
+
+    private void setClientToAMToken(ByteBuffer clientToAMTokenMasterKey) {
+        byte[] key = clientToAMTokenMasterKey.array();
+        context.getClientToAMTokenSecretManager().setMasterKey(key);
+    }
+
+    protected void unregister() {
+        try {
+            doUnregistration();
+        } catch(Exception are) {
+            LOG.error("Exception while unregistering ", are);
+            // if unregistration failed, isLastAMRetry needs to be recalculated
+            // to see whether AM really has the chance to retry
+            RunningAppContext raContext = (RunningAppContext) context;
+            raContext.resetIsLastAMRetry();
+        }
+    }
+
+    @VisibleForTesting
+    protected void doUnregistration()
+    throws YarnException, IOException, InterruptedException {
+        FinalApplicationStatus finishState = FinalApplicationStatus.UNDEFINED;
+        JobImpl jobImpl = (JobImpl)job;
+        if (jobImpl.getInternalState() == JobStateInternal.SUCCEEDED) {
+            finishState = FinalApplicationStatus.SUCCEEDED;
+        } else if (jobImpl.getInternalState() == JobStateInternal.KILLED
+                   || (jobImpl.getInternalState() == JobStateInternal.RUNNING && isSignalled)) {
+            finishState = FinalApplicationStatus.KILLED;
+        } else if (jobImpl.getInternalState() == JobStateInternal.FAILED
+                   || jobImpl.getInternalState() == JobStateInternal.ERROR) {
+            finishState = FinalApplicationStatus.FAILED;
+        }
+        StringBuffer sb = new StringBuffer();
+        for (String s : job.getDiagnostics()) {
+            sb.append(s).append("\n");
+        }
+        LOG.info("Setting job diagnostics to " + sb.toString());
+
+        String historyUrl =
+            MRWebAppUtil.getApplicationWebURLOnJHSWithScheme(getConfig(),
+                    context.getApplicationID());
+        LOG.info("History url is " + historyUrl);
+        FinishApplicationMasterRequest request =
+            FinishApplicationMasterRequest.newInstance(finishState,
+                    sb.toString(), historyUrl);
+        try {
+            while (true) {
+                FinishApplicationMasterResponse response =
+                    scheduler.finishApplicationMaster(request);
+                if (response.getIsUnregistered()) {
+                    // When excepting ClientService, other services are already stopped,
+                    // it is safe to let clients know the final states. ClientService
+                    // should wait for some time so clients have enough time to know the
+                    // final states.
+                    RunningAppContext raContext = (RunningAppContext) context;
+                    raContext.markSuccessfulUnregistration();
+                    break;
+                }
+                LOG.info("Waiting for application to be successfully unregistered.");
+                Thread.sleep(rmPollInterval);
+            }
+        } catch (ApplicationMasterNotRegisteredException e) {
+            // RM might have restarted or failed over and so lost the fact that AM had
+            // registered before.
+            register();
+            doUnregistration();
+        }
+    }
+
+    protected Resource getMaxContainerCapability() {
+        return maxContainerCapability;
+    }
+
+    @Override
+    protected void serviceStop() throws Exception {
+        if (stopped.getAndSet(true)) {
+            // return if already stopped
             return;
-          }
         }
-      }
-    });
-    allocatorThread.setName("RMCommunicator Allocator");
-    allocatorThread.start();
-  }
-
-  protected ApplicationMasterProtocol createSchedulerProxy() {
-    final Configuration conf = getConfig();
-
-    try {
-      return ClientRMProxy.createRMProxy(conf, ApplicationMasterProtocol.class);
-    } catch (IOException e) {
-      throw new YarnRuntimeException(e);
+        if (allocatorThread != null) {
+            allocatorThread.interrupt();
+            try {
+                allocatorThread.join();
+            } catch (InterruptedException ie) {
+                LOG.warn("InterruptedException while stopping", ie);
+            }
+        }
+        if (isApplicationMasterRegistered && shouldUnregister) {
+            unregister();
+        }
+        super.serviceStop();
     }
-  }
 
-  protected abstract void heartbeat() throws Exception;
+    protected void startAllocatorThread() {
+        allocatorThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!stopped.get() && !Thread.currentThread().isInterrupted()) {
+                    try {
+                        Thread.sleep(rmPollInterval);
+                        try {
+                            heartbeat();
+                        } catch (YarnRuntimeException e) {
+                            LOG.error("Error communicating with RM: " + e.getMessage(), e);
+                            return;
+                        } catch (Exception e) {
+                            LOG.error("ERROR IN CONTACTING RM. ", e);
+                            continue;
+                            // TODO: for other exceptions
+                        }
 
-  private void executeHeartbeatCallbacks() {
-    Runnable callback = null;
-    while ((callback = heartbeatCallbacks.poll()) != null) {
-      callback.run();
+                        lastHeartbeatTime = context.getClock().getTime();
+                        executeHeartbeatCallbacks();
+                    } catch (InterruptedException e) {
+                        if (!stopped.get()) {
+                            LOG.warn("Allocated thread interrupted. Returning.");
+                        }
+                        return;
+                    }
+                }
+            }
+        });
+        allocatorThread.setName("RMCommunicator Allocator");
+        allocatorThread.start();
     }
-  }
 
-  @Override
-  public long getLastHeartbeatTime() {
-    return lastHeartbeatTime;
-  }
+    protected ApplicationMasterProtocol createSchedulerProxy() {
+        final Configuration conf = getConfig();
 
-  @Override
-  public void runOnNextHeartbeat(Runnable callback) {
-    heartbeatCallbacks.add(callback);
-  }
+        try {
+            return ClientRMProxy.createRMProxy(conf, ApplicationMasterProtocol.class);
+        } catch (IOException e) {
+            throw new YarnRuntimeException(e);
+        }
+    }
 
-  public void setShouldUnregister(boolean shouldUnregister) {
-    this.shouldUnregister = shouldUnregister;
-    LOG.info("RMCommunicator notified that shouldUnregistered is: " 
-        + shouldUnregister);
-  }
-  
-  public void setSignalled(boolean isSignalled) {
-    this.isSignalled = isSignalled;
-    LOG.info("RMCommunicator notified that isSignalled is: " 
-        + isSignalled);
-  }
+    protected abstract void heartbeat() throws Exception;
 
-  @VisibleForTesting
-  protected boolean isApplicationMasterRegistered() {
-    return isApplicationMasterRegistered;
-  }
+    private void executeHeartbeatCallbacks() {
+        Runnable callback = null;
+        while ((callback = heartbeatCallbacks.poll()) != null) {
+            callback.run();
+        }
+    }
 
-  public EnumSet<SchedulerResourceTypes> getSchedulerResourceTypes() {
-    return schedulerResourceTypes;
-  }
+    @Override
+    public long getLastHeartbeatTime() {
+        return lastHeartbeatTime;
+    }
+
+    @Override
+    public void runOnNextHeartbeat(Runnable callback) {
+        heartbeatCallbacks.add(callback);
+    }
+
+    public void setShouldUnregister(boolean shouldUnregister) {
+        this.shouldUnregister = shouldUnregister;
+        LOG.info("RMCommunicator notified that shouldUnregistered is: "
+                 + shouldUnregister);
+    }
+
+    public void setSignalled(boolean isSignalled) {
+        this.isSignalled = isSignalled;
+        LOG.info("RMCommunicator notified that isSignalled is: "
+                 + isSignalled);
+    }
+
+    @VisibleForTesting
+    protected boolean isApplicationMasterRegistered() {
+        return isApplicationMasterRegistered;
+    }
+
+    public EnumSet<SchedulerResourceTypes> getSchedulerResourceTypes() {
+        return schedulerResourceTypes;
+    }
 }

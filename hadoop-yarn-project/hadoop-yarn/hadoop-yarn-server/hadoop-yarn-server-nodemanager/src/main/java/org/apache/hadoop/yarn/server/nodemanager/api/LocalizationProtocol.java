@@ -24,6 +24,6 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerHe
 import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerStatus;
 
 public interface LocalizationProtocol {
-  public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status)
-      throws YarnException, IOException;
+    public LocalizerHeartbeatResponse heartbeat(LocalizerStatus status)
+    throws YarnException, IOException;
 }

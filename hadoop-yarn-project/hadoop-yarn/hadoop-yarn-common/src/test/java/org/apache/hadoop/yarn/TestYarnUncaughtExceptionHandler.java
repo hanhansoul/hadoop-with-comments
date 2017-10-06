@@ -28,89 +28,89 @@ import org.junit.Test;
 
 public class TestYarnUncaughtExceptionHandler {
 
-  private static final YarnUncaughtExceptionHandler exHandler =
+    private static final YarnUncaughtExceptionHandler exHandler =
         new YarnUncaughtExceptionHandler();
-  /**
-   * Throw {@code YarnRuntimeException} inside thread and
-   * check {@code YarnUncaughtExceptionHandler} instance
-   *
-   * @throws InterruptedException
-   */
-  @Test
-  public void testUncaughtExceptionHandlerWithRuntimeException()
-      throws InterruptedException {
-    final YarnUncaughtExceptionHandler spyYarnHandler = spy(exHandler);
-    final YarnRuntimeException yarnException = new YarnRuntimeException(
-        "test-yarn-runtime-exception");
-    final Thread yarnThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        throw yarnException;
-      }
-    });
+    /**
+     * Throw {@code YarnRuntimeException} inside thread and
+     * check {@code YarnUncaughtExceptionHandler} instance
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testUncaughtExceptionHandlerWithRuntimeException()
+    throws InterruptedException {
+        final YarnUncaughtExceptionHandler spyYarnHandler = spy(exHandler);
+        final YarnRuntimeException yarnException = new YarnRuntimeException(
+            "test-yarn-runtime-exception");
+        final Thread yarnThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                throw yarnException;
+            }
+        });
 
-    yarnThread.setUncaughtExceptionHandler(spyYarnHandler);
-    assertSame(spyYarnHandler, yarnThread.getUncaughtExceptionHandler());
-    yarnThread.start();
-    yarnThread.join();
-    verify(spyYarnHandler).uncaughtException(yarnThread, yarnException);
-  }
+        yarnThread.setUncaughtExceptionHandler(spyYarnHandler);
+        assertSame(spyYarnHandler, yarnThread.getUncaughtExceptionHandler());
+        yarnThread.start();
+        yarnThread.join();
+        verify(spyYarnHandler).uncaughtException(yarnThread, yarnException);
+    }
 
-  /**
-   * <p>
-   * Throw {@code Error} inside thread and
-   * check {@code YarnUncaughtExceptionHandler} instance
-   * <p>
-   * Used {@code ExitUtil} class to avoid jvm exit through
-   * {@code System.exit(-1) }
-   *
-   * @throws InterruptedException
-   */
-  @Test
-  public void testUncaughtExceptionHandlerWithError()
-      throws InterruptedException {
-    ExitUtil.disableSystemExit();
-    final YarnUncaughtExceptionHandler spyErrorHandler = spy(exHandler);
-    final java.lang.Error error = new java.lang.Error("test-error");
-    final Thread errorThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        throw error;
-      }
-    });
-    errorThread.setUncaughtExceptionHandler(spyErrorHandler);
-    assertSame(spyErrorHandler, errorThread.getUncaughtExceptionHandler());
-    errorThread.start();
-    errorThread.join();
-    verify(spyErrorHandler).uncaughtException(errorThread, error);
-  }
+    /**
+     * <p>
+     * Throw {@code Error} inside thread and
+     * check {@code YarnUncaughtExceptionHandler} instance
+     * <p>
+     * Used {@code ExitUtil} class to avoid jvm exit through
+     * {@code System.exit(-1) }
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testUncaughtExceptionHandlerWithError()
+    throws InterruptedException {
+        ExitUtil.disableSystemExit();
+        final YarnUncaughtExceptionHandler spyErrorHandler = spy(exHandler);
+        final java.lang.Error error = new java.lang.Error("test-error");
+        final Thread errorThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                throw error;
+            }
+        });
+        errorThread.setUncaughtExceptionHandler(spyErrorHandler);
+        assertSame(spyErrorHandler, errorThread.getUncaughtExceptionHandler());
+        errorThread.start();
+        errorThread.join();
+        verify(spyErrorHandler).uncaughtException(errorThread, error);
+    }
 
-  /**
-   * <p>
-   * Throw {@code OutOfMemoryError} inside thread and
-   * check {@code YarnUncaughtExceptionHandler} instance
-   * <p>
-   * Used {@code ExitUtil} class to avoid jvm exit through
-   * {@code Runtime.getRuntime().halt(-1)}
-   *
-   * @throws InterruptedException
-   */
-  @Test
-  public void testUncaughtExceptionHandlerWithOutOfMemoryError()
-      throws InterruptedException {
-    ExitUtil.disableSystemHalt();
-    final YarnUncaughtExceptionHandler spyOomHandler = spy(exHandler);
-    final OutOfMemoryError oomError = new OutOfMemoryError("out-of-memory-error");
-    final Thread oomThread = new Thread(new Runnable() {
-      @Override
-      public void run() {
-        throw oomError;
-      }
-    });
-    oomThread.setUncaughtExceptionHandler(spyOomHandler);
-    assertSame(spyOomHandler, oomThread.getUncaughtExceptionHandler());
-    oomThread.start();
-    oomThread.join();
-    verify(spyOomHandler).uncaughtException(oomThread, oomError);
-  }
+    /**
+     * <p>
+     * Throw {@code OutOfMemoryError} inside thread and
+     * check {@code YarnUncaughtExceptionHandler} instance
+     * <p>
+     * Used {@code ExitUtil} class to avoid jvm exit through
+     * {@code Runtime.getRuntime().halt(-1)}
+     *
+     * @throws InterruptedException
+     */
+    @Test
+    public void testUncaughtExceptionHandlerWithOutOfMemoryError()
+    throws InterruptedException {
+        ExitUtil.disableSystemHalt();
+        final YarnUncaughtExceptionHandler spyOomHandler = spy(exHandler);
+        final OutOfMemoryError oomError = new OutOfMemoryError("out-of-memory-error");
+        final Thread oomThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                throw oomError;
+            }
+        });
+        oomThread.setUncaughtExceptionHandler(spyOomHandler);
+        assertSame(spyOomHandler, oomThread.getUncaughtExceptionHandler());
+        oomThread.start();
+        oomThread.join();
+        verify(spyOomHandler).uncaughtException(oomThread, oomError);
+    }
 }

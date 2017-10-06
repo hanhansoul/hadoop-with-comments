@@ -34,90 +34,92 @@ import org.junit.Test;
 
 public class TestDFSShellGenericOptions {
 
-  @Test
-  public void testDFSCommand() throws IOException {
-    String namenode = null;
-    MiniDFSCluster cluster = null;
-    try {
-      Configuration conf = new HdfsConfiguration();
-      cluster = new MiniDFSCluster.Builder(conf).build();
-      namenode = FileSystem.getDefaultUri(conf).toString();
-      String [] args = new String[4];
-      args[2] = "-mkdir";
-      args[3] = "/data";
-      testFsOption(args, namenode);
-      testConfOption(args, namenode);
-      testPropertyOption(args, namenode);
-    } finally {
-      if (cluster != null) { cluster.shutdown(); }
-    }
-  }
-
-  private void testFsOption(String [] args, String namenode) {        
-    // prepare arguments to create a directory /data
-    args[0] = "-fs";
-    args[1] = namenode;
-    execute(args, namenode);
-  }
-    
-  private void testConfOption(String[] args, String namenode) {
-    // prepare configuration hdfs-site.xml
-    File configDir = new File(new File("build", "test"), "minidfs");
-    assertTrue(configDir.mkdirs());
-    File siteFile = new File(configDir, "hdfs-site.xml");
-    PrintWriter pw;
-    try {
-      pw = new PrintWriter(siteFile);
-      pw.print("<?xml version=\"1.0\"?>\n"+
-               "<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?>\n"+
-               "<configuration>\n"+
-               " <property>\n"+
-               "   <name>fs.defaultFS</name>\n"+
-               "   <value>"+namenode+"</value>\n"+
-               " </property>\n"+
-               "</configuration>\n");
-      pw.close();
-    
-      // prepare arguments to create a directory /data
-      args[0] = "-conf";
-      args[1] = siteFile.getPath();
-      execute(args, namenode); 
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
-    } finally {
-      siteFile.delete();
-      configDir.delete();
-    }
-  }
-    
-  private void testPropertyOption(String[] args, String namenode) {
-    // prepare arguments to create a directory /data
-    args[0] = "-D";
-    args[1] = "fs.defaultFS="+namenode;
-    execute(args, namenode);        
-  }
-    
-  private void execute(String [] args, String namenode) {
-    FsShell shell=new FsShell();
-    FileSystem fs=null;
-    try {
-      ToolRunner.run(shell, args);
-      fs = FileSystem.get(NameNode.getUri(NameNode.getAddress(namenode)),
-          shell.getConf());
-      assertTrue("Directory does not get created", 
-                 fs.isDirectory(new Path("/data")));
-      fs.delete(new Path("/data"), true);
-    } catch (Exception e) {
-      System.err.println(e.getMessage());
-      e.printStackTrace();
-    } finally {
-      if (fs!=null) {
+    @Test
+    public void testDFSCommand() throws IOException {
+        String namenode = null;
+        MiniDFSCluster cluster = null;
         try {
-          fs.close();
-        } catch (IOException ignored) {
+            Configuration conf = new HdfsConfiguration();
+            cluster = new MiniDFSCluster.Builder(conf).build();
+            namenode = FileSystem.getDefaultUri(conf).toString();
+            String [] args = new String[4];
+            args[2] = "-mkdir";
+            args[3] = "/data";
+            testFsOption(args, namenode);
+            testConfOption(args, namenode);
+            testPropertyOption(args, namenode);
+        } finally {
+            if (cluster != null) {
+                cluster.shutdown();
+            }
         }
-      }
     }
-  }
+
+    private void testFsOption(String [] args, String namenode) {
+        // prepare arguments to create a directory /data
+        args[0] = "-fs";
+        args[1] = namenode;
+        execute(args, namenode);
+    }
+
+    private void testConfOption(String[] args, String namenode) {
+        // prepare configuration hdfs-site.xml
+        File configDir = new File(new File("build", "test"), "minidfs");
+        assertTrue(configDir.mkdirs());
+        File siteFile = new File(configDir, "hdfs-site.xml");
+        PrintWriter pw;
+        try {
+            pw = new PrintWriter(siteFile);
+            pw.print("<?xml version=\"1.0\"?>\n"+
+                     "<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?>\n"+
+                     "<configuration>\n"+
+                     " <property>\n"+
+                     "   <name>fs.defaultFS</name>\n"+
+                     "   <value>"+namenode+"</value>\n"+
+                     " </property>\n"+
+                     "</configuration>\n");
+            pw.close();
+
+            // prepare arguments to create a directory /data
+            args[0] = "-conf";
+            args[1] = siteFile.getPath();
+            execute(args, namenode);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            siteFile.delete();
+            configDir.delete();
+        }
+    }
+
+    private void testPropertyOption(String[] args, String namenode) {
+        // prepare arguments to create a directory /data
+        args[0] = "-D";
+        args[1] = "fs.defaultFS="+namenode;
+        execute(args, namenode);
+    }
+
+    private void execute(String [] args, String namenode) {
+        FsShell shell=new FsShell();
+        FileSystem fs=null;
+        try {
+            ToolRunner.run(shell, args);
+            fs = FileSystem.get(NameNode.getUri(NameNode.getAddress(namenode)),
+                                shell.getConf());
+            assertTrue("Directory does not get created",
+                       fs.isDirectory(new Path("/data")));
+            fs.delete(new Path("/data"), true);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (fs!=null) {
+                try {
+                    fs.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
 
 }

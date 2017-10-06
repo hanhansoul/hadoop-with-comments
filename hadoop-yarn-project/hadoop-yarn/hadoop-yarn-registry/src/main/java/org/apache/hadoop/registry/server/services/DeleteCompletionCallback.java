@@ -33,26 +33,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  * This callback logs at debug and increments the event counter.
  */
 public class DeleteCompletionCallback implements BackgroundCallback {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(RMRegistryOperationsService.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(RMRegistryOperationsService.class);
 
-  private AtomicInteger events = new AtomicInteger(0);
+    private AtomicInteger events = new AtomicInteger(0);
 
-  @Override
-  public void processResult(CuratorFramework client,
-      CuratorEvent event) throws
-      Exception {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Delete event {}", event);
+    @Override
+    public void processResult(CuratorFramework client,
+                              CuratorEvent event) throws
+        Exception {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Delete event {}", event);
+        }
+        events.incrementAndGet();
     }
-    events.incrementAndGet();
-  }
 
-  /**
-   * Get the number of deletion events
-   * @return the count of events
-   */
-  public int getEventCount() {
-    return events.get();
-  }
+    /**
+     * Get the number of deletion events
+     * @return the count of events
+     */
+    public int getEventCount() {
+        return events.get();
+    }
 }

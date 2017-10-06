@@ -30,16 +30,16 @@ import org.apache.hadoop.security.authorize.Service;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class ClientHSPolicyProvider extends PolicyProvider {
-  
-  private static final Service[] mrHSServices = 
-      new Service[] {
-    new Service(
-        JHAdminConfig.MR_HS_SECURITY_SERVICE_AUTHORIZATION,
-        HSClientProtocolPB.class)
-  };
 
-  @Override
-  public Service[] getServices() {
-    return mrHSServices;
-  }
+    private static final Service[] mrHSServices =
+        new Service[] {
+        new Service(
+            JHAdminConfig.MR_HS_SECURITY_SERVICE_AUTHORIZATION,
+            HSClientProtocolPB.class)
+    };
+
+    @Override
+    public Service[] getServices() {
+        return mrHSServices;
+    }
 }

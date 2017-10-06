@@ -23,28 +23,28 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptS
 
 public class AppAttemptRemovedSchedulerEvent extends SchedulerEvent {
 
-  private final ApplicationAttemptId applicationAttemptId;
-  private final RMAppAttemptState finalAttemptState;
-  private final boolean keepContainersAcrossAppAttempts;
+    private final ApplicationAttemptId applicationAttemptId;
+    private final RMAppAttemptState finalAttemptState;
+    private final boolean keepContainersAcrossAppAttempts;
 
-  public AppAttemptRemovedSchedulerEvent(
-      ApplicationAttemptId applicationAttemptId,
-      RMAppAttemptState finalAttemptState, boolean keepContainers) {
-    super(SchedulerEventType.APP_ATTEMPT_REMOVED);
-    this.applicationAttemptId = applicationAttemptId;
-    this.finalAttemptState = finalAttemptState;
-    this.keepContainersAcrossAppAttempts = keepContainers;
-  }
+    public AppAttemptRemovedSchedulerEvent(
+        ApplicationAttemptId applicationAttemptId,
+        RMAppAttemptState finalAttemptState, boolean keepContainers) {
+        super(SchedulerEventType.APP_ATTEMPT_REMOVED);
+        this.applicationAttemptId = applicationAttemptId;
+        this.finalAttemptState = finalAttemptState;
+        this.keepContainersAcrossAppAttempts = keepContainers;
+    }
 
-  public ApplicationAttemptId getApplicationAttemptID() {
-    return this.applicationAttemptId;
-  }
+    public ApplicationAttemptId getApplicationAttemptID() {
+        return this.applicationAttemptId;
+    }
 
-  public RMAppAttemptState getFinalAttemptState() {
-    return this.finalAttemptState;
-  }
+    public RMAppAttemptState getFinalAttemptState() {
+        return this.finalAttemptState;
+    }
 
-  public boolean getKeepContainersAcrossAppAttempts() {
-    return this.keepContainersAcrossAppAttempts;
-  }
+    public boolean getKeepContainersAcrossAppAttempts() {
+        return this.keepContainersAcrossAppAttempts;
+    }
 }

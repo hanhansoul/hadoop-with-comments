@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Evolving
 public abstract class ReplaceLabelsOnNodeResponse {
-  public static ReplaceLabelsOnNodeResponse newInstance() {
-    return Records.newRecord(ReplaceLabelsOnNodeResponse.class);
-  }
+    public static ReplaceLabelsOnNodeResponse newInstance() {
+        return Records.newRecord(ReplaceLabelsOnNodeResponse.class);
+    }
 }

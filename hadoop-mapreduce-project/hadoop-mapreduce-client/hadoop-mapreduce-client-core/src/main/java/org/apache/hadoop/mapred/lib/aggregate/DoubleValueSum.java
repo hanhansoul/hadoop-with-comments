@@ -27,7 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class DoubleValueSum 
+public class DoubleValueSum
     extends org.apache.hadoop.mapreduce.lib.aggregate.DoubleValueSum
     implements ValueAggregator<String> {
 

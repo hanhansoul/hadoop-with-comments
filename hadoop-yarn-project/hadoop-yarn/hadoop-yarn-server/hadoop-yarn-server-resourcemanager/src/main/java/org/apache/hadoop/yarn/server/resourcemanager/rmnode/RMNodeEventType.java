@@ -19,30 +19,30 @@
 package org.apache.hadoop.yarn.server.resourcemanager.rmnode;
 
 public enum RMNodeEventType {
-  
-  STARTED,
-  
-  // Source: AdminService
-  DECOMMISSION,
-  
-  // Source: AdminService, ResourceTrackerService
-  RESOURCE_UPDATE,
 
-  // ResourceTrackerService
-  STATUS_UPDATE,
-  REBOOTING,
-  RECONNECTED,
+    STARTED,
 
-  // Source: Application
-  CLEANUP_APP,
+    // Source: AdminService
+    DECOMMISSION,
 
-  // Source: Container
-  CONTAINER_ALLOCATED,
-  CLEANUP_CONTAINER,
+    // Source: AdminService, ResourceTrackerService
+    RESOURCE_UPDATE,
 
-  // Source: RMAppAttempt
-  FINISHED_CONTAINERS_PULLED_BY_AM,
+    // ResourceTrackerService
+    STATUS_UPDATE,
+    REBOOTING,
+    RECONNECTED,
 
-  // Source: NMLivelinessMonitor
-  EXPIRE
+    // Source: Application
+    CLEANUP_APP,
+
+    // Source: Container
+    CONTAINER_ALLOCATED,
+    CLEANUP_CONTAINER,
+
+    // Source: RMAppAttempt
+    FINISHED_CONTAINERS_PULLED_BY_AM,
+
+    // Source: NMLivelinessMonitor
+    EXPIRE
 }

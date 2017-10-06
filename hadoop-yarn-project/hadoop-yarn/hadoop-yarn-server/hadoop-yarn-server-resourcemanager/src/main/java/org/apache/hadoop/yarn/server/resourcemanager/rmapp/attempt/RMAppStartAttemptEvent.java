@@ -22,15 +22,15 @@ import org.apache.hadoop.yarn.api.records.ApplicationAttemptId;
 
 public class RMAppStartAttemptEvent extends RMAppAttemptEvent {
 
-  private final boolean transferStateFromPreviousAttempt;
+    private final boolean transferStateFromPreviousAttempt;
 
-  public RMAppStartAttemptEvent(ApplicationAttemptId appAttemptId,
-      boolean transferStateFromPreviousAttempt) {
-    super(appAttemptId, RMAppAttemptEventType.START);
-    this.transferStateFromPreviousAttempt = transferStateFromPreviousAttempt;
-  }
+    public RMAppStartAttemptEvent(ApplicationAttemptId appAttemptId,
+                                  boolean transferStateFromPreviousAttempt) {
+        super(appAttemptId, RMAppAttemptEventType.START);
+        this.transferStateFromPreviousAttempt = transferStateFromPreviousAttempt;
+    }
 
-  public boolean getTransferStateFromPreviousAttempt() {
-    return transferStateFromPreviousAttempt;
-  }
+    public boolean getTransferStateFromPreviousAttempt() {
+        return transferStateFromPreviousAttempt;
+    }
 }

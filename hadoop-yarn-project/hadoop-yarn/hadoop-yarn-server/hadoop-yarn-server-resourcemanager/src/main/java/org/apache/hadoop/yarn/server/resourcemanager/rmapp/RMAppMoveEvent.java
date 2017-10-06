@@ -23,22 +23,22 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import com.google.common.util.concurrent.SettableFuture;
 
 public class RMAppMoveEvent extends RMAppEvent {
-  private String targetQueue;
-  private SettableFuture<Object> result;
-  
-  public RMAppMoveEvent(ApplicationId id, String newQueue,
-      SettableFuture<Object> resultFuture) {
-    super(id, RMAppEventType.MOVE);
-    this.targetQueue = newQueue;
-    this.result = resultFuture;
-  }
-  
-  public String getTargetQueue() {
-    return targetQueue;
-  }
-  
-  public SettableFuture<Object> getResult() {
-    return result;
-  }
+    private String targetQueue;
+    private SettableFuture<Object> result;
+
+    public RMAppMoveEvent(ApplicationId id, String newQueue,
+                          SettableFuture<Object> resultFuture) {
+        super(id, RMAppEventType.MOVE);
+        this.targetQueue = newQueue;
+        this.result = resultFuture;
+    }
+
+    public String getTargetQueue() {
+        return targetQueue;
+    }
+
+    public SettableFuture<Object> getResult() {
+        return result;
+    }
 
 }

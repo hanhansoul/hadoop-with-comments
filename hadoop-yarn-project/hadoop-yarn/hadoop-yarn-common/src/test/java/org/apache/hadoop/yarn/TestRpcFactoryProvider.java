@@ -32,46 +32,46 @@ import org.junit.Test;
 
 public class TestRpcFactoryProvider {
 
-  @Test
-  public void testFactoryProvider() {
-    Configuration conf = new Configuration();
-    RpcClientFactory clientFactory = null;
-    RpcServerFactory serverFactory = null;
-    
-    
-    clientFactory = RpcFactoryProvider.getClientFactory(conf);
-    serverFactory = RpcFactoryProvider.getServerFactory(conf);
-    Assert.assertEquals(RpcClientFactoryPBImpl.class, clientFactory.getClass());
-    Assert.assertEquals(RpcServerFactoryPBImpl.class, serverFactory.getClass());
+    @Test
+    public void testFactoryProvider() {
+        Configuration conf = new Configuration();
+        RpcClientFactory clientFactory = null;
+        RpcServerFactory serverFactory = null;
 
-    conf.set(YarnConfiguration.IPC_CLIENT_FACTORY_CLASS, "unknown");
-    conf.set(YarnConfiguration.IPC_SERVER_FACTORY_CLASS, "unknown");
-    conf.set(YarnConfiguration.IPC_RECORD_FACTORY_CLASS, "unknown");
 
-    try {
-      clientFactory = RpcFactoryProvider.getClientFactory(conf);
-      Assert.fail("Expected an exception - unknown serializer");
-    } catch (YarnRuntimeException e) {
+        clientFactory = RpcFactoryProvider.getClientFactory(conf);
+        serverFactory = RpcFactoryProvider.getServerFactory(conf);
+        Assert.assertEquals(RpcClientFactoryPBImpl.class, clientFactory.getClass());
+        Assert.assertEquals(RpcServerFactoryPBImpl.class, serverFactory.getClass());
+
+        conf.set(YarnConfiguration.IPC_CLIENT_FACTORY_CLASS, "unknown");
+        conf.set(YarnConfiguration.IPC_SERVER_FACTORY_CLASS, "unknown");
+        conf.set(YarnConfiguration.IPC_RECORD_FACTORY_CLASS, "unknown");
+
+        try {
+            clientFactory = RpcFactoryProvider.getClientFactory(conf);
+            Assert.fail("Expected an exception - unknown serializer");
+        } catch (YarnRuntimeException e) {
+        }
+        try {
+            serverFactory = RpcFactoryProvider.getServerFactory(conf);
+            Assert.fail("Expected an exception - unknown serializer");
+        } catch (YarnRuntimeException e) {
+        }
+
+        conf = new Configuration();
+        conf.set(YarnConfiguration.IPC_CLIENT_FACTORY_CLASS, "NonExistantClass");
+        conf.set(YarnConfiguration.IPC_SERVER_FACTORY_CLASS, RpcServerFactoryPBImpl.class.getName());
+
+        try {
+            clientFactory = RpcFactoryProvider.getClientFactory(conf);
+            Assert.fail("Expected an exception - unknown class");
+        } catch (YarnRuntimeException e) {
+        }
+        try {
+            serverFactory = RpcFactoryProvider.getServerFactory(conf);
+        } catch (YarnRuntimeException e) {
+            Assert.fail("Error while loading factory using reflection: [" + RpcServerFactoryPBImpl.class.getName() + "]");
+        }
     }
-    try {
-      serverFactory = RpcFactoryProvider.getServerFactory(conf);
-      Assert.fail("Expected an exception - unknown serializer");
-    } catch (YarnRuntimeException e) {
-    }
-    
-    conf = new Configuration();
-    conf.set(YarnConfiguration.IPC_CLIENT_FACTORY_CLASS, "NonExistantClass");
-    conf.set(YarnConfiguration.IPC_SERVER_FACTORY_CLASS, RpcServerFactoryPBImpl.class.getName());
-    
-    try {
-      clientFactory = RpcFactoryProvider.getClientFactory(conf);
-      Assert.fail("Expected an exception - unknown class");
-    } catch (YarnRuntimeException e) {
-    }
-    try {
-      serverFactory = RpcFactoryProvider.getServerFactory(conf);
-    } catch (YarnRuntimeException e) {
-      Assert.fail("Error while loading factory using reflection: [" + RpcServerFactoryPBImpl.class.getName() + "]");
-    }
-  }
 }

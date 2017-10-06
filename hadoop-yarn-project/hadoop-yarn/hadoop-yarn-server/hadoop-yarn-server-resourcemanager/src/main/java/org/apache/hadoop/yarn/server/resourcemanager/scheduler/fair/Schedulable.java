@@ -51,54 +51,54 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 @Private
 @Unstable
 public interface Schedulable {
-  /**
-   * Name of job/queue, used for debugging as well as for breaking ties in
-   * scheduling order deterministically.
-   */
-  public String getName();
+    /**
+     * Name of job/queue, used for debugging as well as for breaking ties in
+     * scheduling order deterministically.
+     */
+    public String getName();
 
-  /**
-   * Maximum number of resources required by this Schedulable. This is defined as
-   * number of currently utilized resources + number of unlaunched resources (that
-   * are either not yet launched or need to be speculated).
-   */
-  public Resource getDemand();
+    /**
+     * Maximum number of resources required by this Schedulable. This is defined as
+     * number of currently utilized resources + number of unlaunched resources (that
+     * are either not yet launched or need to be speculated).
+     */
+    public Resource getDemand();
 
-  /** Get the aggregate amount of resources consumed by the schedulable. */
-  public Resource getResourceUsage();
+    /** Get the aggregate amount of resources consumed by the schedulable. */
+    public Resource getResourceUsage();
 
-  /** Minimum Resource share assigned to the schedulable. */
-  public Resource getMinShare();
+    /** Minimum Resource share assigned to the schedulable. */
+    public Resource getMinShare();
 
-  /** Maximum Resource share assigned to the schedulable. */
-  public Resource getMaxShare();
+    /** Maximum Resource share assigned to the schedulable. */
+    public Resource getMaxShare();
 
-  /** Job/queue weight in fair sharing. */
-  public ResourceWeights getWeights();
+    /** Job/queue weight in fair sharing. */
+    public ResourceWeights getWeights();
 
-  /** Start time for jobs in FIFO queues; meaningless for QueueSchedulables.*/
-  public long getStartTime();
+    /** Start time for jobs in FIFO queues; meaningless for QueueSchedulables.*/
+    public long getStartTime();
 
- /** Job priority for jobs in FIFO queues; meaningless for QueueSchedulables. */
-  public Priority getPriority();
+    /** Job priority for jobs in FIFO queues; meaningless for QueueSchedulables. */
+    public Priority getPriority();
 
-  /** Refresh the Schedulable's demand and those of its children if any. */
-  public void updateDemand();
+    /** Refresh the Schedulable's demand and those of its children if any. */
+    public void updateDemand();
 
-  /**
-   * Assign a container on this node if possible, and return the amount of
-   * resources assigned.
-   */
-  public Resource assignContainer(FSSchedulerNode node);
+    /**
+     * Assign a container on this node if possible, and return the amount of
+     * resources assigned.
+     */
+    public Resource assignContainer(FSSchedulerNode node);
 
-  /**
-   * Preempt a container from this Schedulable if possible.
-   */
-  public RMContainer preemptContainer();
+    /**
+     * Preempt a container from this Schedulable if possible.
+     */
+    public RMContainer preemptContainer();
 
-  /** Get the fair share assigned to this Schedulable. */
-  public Resource getFairShare();
+    /** Get the fair share assigned to this Schedulable. */
+    public Resource getFairShare();
 
-  /** Assign a fair share to this Schedulable. */
-  public void setFairShare(Resource fairShare);
+    /** Assign a fair share to this Schedulable. */
+    public void setFairShare(Resource fairShare);
 }

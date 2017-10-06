@@ -51,187 +51,187 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 public class TestHistoryFileManager {
-  private static MiniDFSCluster dfsCluster = null;
-  private static MiniDFSCluster dfsCluster2 = null;
-  private static String coreSitePath;
+    private static MiniDFSCluster dfsCluster = null;
+    private static MiniDFSCluster dfsCluster2 = null;
+    private static String coreSitePath;
 
-  @Rule
-  public TestName name = new TestName();
+    @Rule
+    public TestName name = new TestName();
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    coreSitePath = "." + File.separator + "target" + File.separator +
-            "test-classes" + File.separator + "core-site.xml";
-    Configuration conf = new HdfsConfiguration();
-    Configuration conf2 = new HdfsConfiguration();
-    dfsCluster = new MiniDFSCluster.Builder(conf).build();
-    conf2.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR,
-            conf.get(MiniDFSCluster.HDFS_MINIDFS_BASEDIR) + "_2");
-    dfsCluster2 = new MiniDFSCluster.Builder(conf2).build();
-  }
-
-  @AfterClass
-  public static void cleanUpClass() throws Exception {
-    dfsCluster.shutdown();
-    dfsCluster2.shutdown();
-  }
-
-  @After
-  public void cleanTest() throws Exception {
-    new File(coreSitePath).delete();
-  }
-
-  private String getDoneDirNameForTest() {
-    return "/" + name.getMethodName();
-  }
-
-  private String getIntermediateDoneDirNameForTest() {
-    return "/intermediate_" + name.getMethodName();
-  }
-
-  private void testTryCreateHistoryDirs(Configuration conf, boolean expected)
-      throws Exception {
-    conf.set(JHAdminConfig.MR_HISTORY_DONE_DIR, getDoneDirNameForTest());
-    conf.set(JHAdminConfig.MR_HISTORY_INTERMEDIATE_DONE_DIR, getIntermediateDoneDirNameForTest());
-    HistoryFileManager hfm = new HistoryFileManager();
-    hfm.conf = conf;
-    Assert.assertEquals(expected, hfm.tryCreatingHistoryDirs(false));
-  }
-
-  @Test
-  public void testCreateDirsWithoutFileSystem() throws Exception {
-    Configuration conf = new YarnConfiguration();
-    conf.set(FileSystem.FS_DEFAULT_NAME_KEY, "hdfs://localhost:1");
-    testTryCreateHistoryDirs(conf, false);
-  }
-
-  @Test
-  public void testCreateDirsWithFileSystem() throws Exception {
-    dfsCluster.getFileSystem().setSafeMode(
-        HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
-    Assert.assertFalse(dfsCluster.getFileSystem().isInSafeMode());
-    testTryCreateHistoryDirs(dfsCluster.getConfiguration(0), true);
-  }
-
-  @Test
-  public void testCreateDirsWithAdditionalFileSystem() throws Exception {
-    dfsCluster.getFileSystem().setSafeMode(
-        HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
-    dfsCluster2.getFileSystem().setSafeMode(
-        HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
-    Assert.assertFalse(dfsCluster.getFileSystem().isInSafeMode());
-    Assert.assertFalse(dfsCluster2.getFileSystem().isInSafeMode());
-
-    // Set default configuration to the first cluster
-    Configuration conf = new Configuration(false);
-    conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY,
-            dfsCluster.getURI().toString());
-    FileOutputStream os = new FileOutputStream(coreSitePath);
-    conf.writeXml(os);
-    os.close();
-
-    testTryCreateHistoryDirs(dfsCluster2.getConfiguration(0), true);
-
-    // Directories should be created only in the default file system (dfsCluster)
-    Assert.assertTrue(dfsCluster.getFileSystem()
-            .exists(new Path(getDoneDirNameForTest())));
-    Assert.assertTrue(dfsCluster.getFileSystem()
-            .exists(new Path(getIntermediateDoneDirNameForTest())));
-    Assert.assertFalse(dfsCluster2.getFileSystem()
-            .exists(new Path(getDoneDirNameForTest())));
-    Assert.assertFalse(dfsCluster2.getFileSystem()
-            .exists(new Path(getIntermediateDoneDirNameForTest())));
-  }
-
-  @Test
-  public void testCreateDirsWithFileSystemInSafeMode() throws Exception {
-    dfsCluster.getFileSystem().setSafeMode(
-        HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
-    Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
-    testTryCreateHistoryDirs(dfsCluster.getConfiguration(0), false);
-  }
-
-  private void testCreateHistoryDirs(Configuration conf, Clock clock)
-      throws Exception {
-    conf.set(JHAdminConfig.MR_HISTORY_DONE_DIR, "/" + UUID.randomUUID());
-    conf.set(JHAdminConfig.MR_HISTORY_INTERMEDIATE_DONE_DIR, "/" + UUID.randomUUID());
-    HistoryFileManager hfm = new HistoryFileManager();
-    hfm.conf = conf;
-    hfm.createHistoryDirs(clock, 500, 2000);
-  }
-
-  @Test
-  public void testCreateDirsWithFileSystemBecomingAvailBeforeTimeout()
-      throws Exception {
-    dfsCluster.getFileSystem().setSafeMode(
-        HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
-    Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
-    new Thread() {
-      @Override
-      public void run() {
-        try {
-          Thread.sleep(500);
-          dfsCluster.getFileSystem().setSafeMode(
-              HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
-          Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
-        } catch (Exception ex) {
-          Assert.fail(ex.toString());
-        }
-      }
-    }.start();
-    testCreateHistoryDirs(dfsCluster.getConfiguration(0), new SystemClock());
-  }
-
-  @Test(expected = YarnRuntimeException.class)
-  public void testCreateDirsWithFileSystemNotBecomingAvailBeforeTimeout()
-      throws Exception {
-    dfsCluster.getFileSystem().setSafeMode(
-        HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
-    Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
-    final ControlledClock clock = new ControlledClock(new SystemClock());
-    clock.setTime(1);
-    new Thread() {
-      @Override
-      public void run() {
-        try {
-          Thread.sleep(500);
-          clock.setTime(3000);
-        } catch (Exception ex) {
-          Assert.fail(ex.toString());
-        }
-      }
-    }.start();
-    testCreateHistoryDirs(dfsCluster.getConfiguration(0), clock);
-  }
-
-  @Test
-  public void testHistoryFileInfoSummaryFileNotExist() throws Exception {
-    HistoryFileManagerTest hmTest = new HistoryFileManagerTest();
-    String job = "job_1410889000000_123456";
-    Path summaryFile = new Path(job + ".summary");
-    JobIndexInfo jobIndexInfo = new JobIndexInfo();
-    jobIndexInfo.setJobId(TypeConverter.toYarn(JobID.forName(job)));
-    Configuration conf = dfsCluster.getConfiguration(0);
-    conf.set(JHAdminConfig.MR_HISTORY_DONE_DIR,
-        "/" + UUID.randomUUID());
-    conf.set(JHAdminConfig.MR_HISTORY_INTERMEDIATE_DONE_DIR,
-        "/" + UUID.randomUUID());
-    hmTest.serviceInit(conf);
-    HistoryFileInfo info = hmTest.getHistoryFileInfo(null, null,
-        summaryFile, jobIndexInfo, false);
-    info.moveToDone();
-    Assert.assertFalse(info.didMoveFail());
-  }
-
-  static class HistoryFileManagerTest extends HistoryFileManager {
-    public HistoryFileManagerTest() {
-      super();
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        coreSitePath = "." + File.separator + "target" + File.separator +
+                       "test-classes" + File.separator + "core-site.xml";
+        Configuration conf = new HdfsConfiguration();
+        Configuration conf2 = new HdfsConfiguration();
+        dfsCluster = new MiniDFSCluster.Builder(conf).build();
+        conf2.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR,
+                  conf.get(MiniDFSCluster.HDFS_MINIDFS_BASEDIR) + "_2");
+        dfsCluster2 = new MiniDFSCluster.Builder(conf2).build();
     }
-    public HistoryFileInfo getHistoryFileInfo(Path historyFile,
-        Path confFile, Path summaryFile, JobIndexInfo jobIndexInfo,
-        boolean isInDone) {
-      return new HistoryFileInfo(historyFile, confFile, summaryFile,
-          jobIndexInfo, isInDone);
+
+    @AfterClass
+    public static void cleanUpClass() throws Exception {
+        dfsCluster.shutdown();
+        dfsCluster2.shutdown();
     }
-  }
+
+    @After
+    public void cleanTest() throws Exception {
+        new File(coreSitePath).delete();
+    }
+
+    private String getDoneDirNameForTest() {
+        return "/" + name.getMethodName();
+    }
+
+    private String getIntermediateDoneDirNameForTest() {
+        return "/intermediate_" + name.getMethodName();
+    }
+
+    private void testTryCreateHistoryDirs(Configuration conf, boolean expected)
+    throws Exception {
+        conf.set(JHAdminConfig.MR_HISTORY_DONE_DIR, getDoneDirNameForTest());
+        conf.set(JHAdminConfig.MR_HISTORY_INTERMEDIATE_DONE_DIR, getIntermediateDoneDirNameForTest());
+        HistoryFileManager hfm = new HistoryFileManager();
+        hfm.conf = conf;
+        Assert.assertEquals(expected, hfm.tryCreatingHistoryDirs(false));
+    }
+
+    @Test
+    public void testCreateDirsWithoutFileSystem() throws Exception {
+        Configuration conf = new YarnConfiguration();
+        conf.set(FileSystem.FS_DEFAULT_NAME_KEY, "hdfs://localhost:1");
+        testTryCreateHistoryDirs(conf, false);
+    }
+
+    @Test
+    public void testCreateDirsWithFileSystem() throws Exception {
+        dfsCluster.getFileSystem().setSafeMode(
+            HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
+        Assert.assertFalse(dfsCluster.getFileSystem().isInSafeMode());
+        testTryCreateHistoryDirs(dfsCluster.getConfiguration(0), true);
+    }
+
+    @Test
+    public void testCreateDirsWithAdditionalFileSystem() throws Exception {
+        dfsCluster.getFileSystem().setSafeMode(
+            HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
+        dfsCluster2.getFileSystem().setSafeMode(
+            HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
+        Assert.assertFalse(dfsCluster.getFileSystem().isInSafeMode());
+        Assert.assertFalse(dfsCluster2.getFileSystem().isInSafeMode());
+
+        // Set default configuration to the first cluster
+        Configuration conf = new Configuration(false);
+        conf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY,
+                 dfsCluster.getURI().toString());
+        FileOutputStream os = new FileOutputStream(coreSitePath);
+        conf.writeXml(os);
+        os.close();
+
+        testTryCreateHistoryDirs(dfsCluster2.getConfiguration(0), true);
+
+        // Directories should be created only in the default file system (dfsCluster)
+        Assert.assertTrue(dfsCluster.getFileSystem()
+                          .exists(new Path(getDoneDirNameForTest())));
+        Assert.assertTrue(dfsCluster.getFileSystem()
+                          .exists(new Path(getIntermediateDoneDirNameForTest())));
+        Assert.assertFalse(dfsCluster2.getFileSystem()
+                           .exists(new Path(getDoneDirNameForTest())));
+        Assert.assertFalse(dfsCluster2.getFileSystem()
+                           .exists(new Path(getIntermediateDoneDirNameForTest())));
+    }
+
+    @Test
+    public void testCreateDirsWithFileSystemInSafeMode() throws Exception {
+        dfsCluster.getFileSystem().setSafeMode(
+            HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
+        Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
+        testTryCreateHistoryDirs(dfsCluster.getConfiguration(0), false);
+    }
+
+    private void testCreateHistoryDirs(Configuration conf, Clock clock)
+    throws Exception {
+        conf.set(JHAdminConfig.MR_HISTORY_DONE_DIR, "/" + UUID.randomUUID());
+        conf.set(JHAdminConfig.MR_HISTORY_INTERMEDIATE_DONE_DIR, "/" + UUID.randomUUID());
+        HistoryFileManager hfm = new HistoryFileManager();
+        hfm.conf = conf;
+        hfm.createHistoryDirs(clock, 500, 2000);
+    }
+
+    @Test
+    public void testCreateDirsWithFileSystemBecomingAvailBeforeTimeout()
+    throws Exception {
+        dfsCluster.getFileSystem().setSafeMode(
+            HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
+        Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+                    dfsCluster.getFileSystem().setSafeMode(
+                        HdfsConstants.SafeModeAction.SAFEMODE_LEAVE);
+                    Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
+                } catch (Exception ex) {
+                    Assert.fail(ex.toString());
+                }
+            }
+        } .start();
+        testCreateHistoryDirs(dfsCluster.getConfiguration(0), new SystemClock());
+    }
+
+    @Test(expected = YarnRuntimeException.class)
+    public void testCreateDirsWithFileSystemNotBecomingAvailBeforeTimeout()
+    throws Exception {
+        dfsCluster.getFileSystem().setSafeMode(
+            HdfsConstants.SafeModeAction.SAFEMODE_ENTER);
+        Assert.assertTrue(dfsCluster.getFileSystem().isInSafeMode());
+        final ControlledClock clock = new ControlledClock(new SystemClock());
+        clock.setTime(1);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(500);
+                    clock.setTime(3000);
+                } catch (Exception ex) {
+                    Assert.fail(ex.toString());
+                }
+            }
+        } .start();
+        testCreateHistoryDirs(dfsCluster.getConfiguration(0), clock);
+    }
+
+    @Test
+    public void testHistoryFileInfoSummaryFileNotExist() throws Exception {
+        HistoryFileManagerTest hmTest = new HistoryFileManagerTest();
+        String job = "job_1410889000000_123456";
+        Path summaryFile = new Path(job + ".summary");
+        JobIndexInfo jobIndexInfo = new JobIndexInfo();
+        jobIndexInfo.setJobId(TypeConverter.toYarn(JobID.forName(job)));
+        Configuration conf = dfsCluster.getConfiguration(0);
+        conf.set(JHAdminConfig.MR_HISTORY_DONE_DIR,
+                 "/" + UUID.randomUUID());
+        conf.set(JHAdminConfig.MR_HISTORY_INTERMEDIATE_DONE_DIR,
+                 "/" + UUID.randomUUID());
+        hmTest.serviceInit(conf);
+        HistoryFileInfo info = hmTest.getHistoryFileInfo(null, null,
+                               summaryFile, jobIndexInfo, false);
+        info.moveToDone();
+        Assert.assertFalse(info.didMoveFail());
+    }
+
+    static class HistoryFileManagerTest extends HistoryFileManager {
+        public HistoryFileManagerTest() {
+            super();
+        }
+        public HistoryFileInfo getHistoryFileInfo(Path historyFile,
+                Path confFile, Path summaryFile, JobIndexInfo jobIndexInfo,
+                boolean isInDone) {
+            return new HistoryFileInfo(historyFile, confFile, summaryFile,
+                                       jobIndexInfo, isInDone);
+        }
+    }
 }

@@ -29,11 +29,11 @@ import org.apache.hadoop.yarn.util.Records;
 @Private
 @Unstable
 public abstract class CancelDelegationTokenResponse {
-  @Private
-  @Unstable
-  public static CancelDelegationTokenResponse newInstance() {
-    CancelDelegationTokenResponse response =
-        Records.newRecord(CancelDelegationTokenResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static CancelDelegationTokenResponse newInstance() {
+        CancelDelegationTokenResponse response =
+            Records.newRecord(CancelDelegationTokenResponse.class);
+        return response;
+    }
 }

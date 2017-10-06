@@ -31,58 +31,58 @@ import org.apache.hadoop.mapreduce.v2.hs.JobHistory;
  * code tree as rumen.
  */
 public class CurrentJHParser implements JobHistoryParser {
-  private EventReader reader;
+    private EventReader reader;
 
-  private static class ForkedDataInputStream extends DataInputStream {
-    ForkedDataInputStream(InputStream input) {
-      super(input);
+    private static class ForkedDataInputStream extends DataInputStream {
+        ForkedDataInputStream(InputStream input) {
+            super(input);
+        }
+
+        @Override
+        public void close() {
+            // no code
+        }
+    }
+
+    /**
+     * Can this parser parse the input?
+     *
+     * @param input
+     * @return Whether this parser can parse the input.
+     * @throws IOException
+     */
+    public static boolean canParse(InputStream input) throws IOException {
+        final DataInputStream in = new ForkedDataInputStream(input);
+
+        try {
+            final EventReader reader = new EventReader(in);
+
+            try {
+                reader.getNextEvent();
+            } catch (IOException e) {
+                return false;
+            } finally {
+                reader.close();
+            }
+        } catch (IOException e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public CurrentJHParser(InputStream input) throws IOException {
+        reader = new EventReader(new DataInputStream(input));
     }
 
     @Override
-    public void close() {
-      // no code
+    public HistoryEvent nextEvent() throws IOException {
+        return reader.getNextEvent();
     }
-  }
 
-  /**
-   * Can this parser parse the input?
-   * 
-   * @param input
-   * @return Whether this parser can parse the input.
-   * @throws IOException
-   */
-  public static boolean canParse(InputStream input) throws IOException {
-    final DataInputStream in = new ForkedDataInputStream(input);
-
-    try {
-      final EventReader reader = new EventReader(in);
-
-      try {
-        reader.getNextEvent();
-      } catch (IOException e) {
-        return false;
-      } finally {
+    @Override
+    public void close() throws IOException {
         reader.close();
-      }
-    } catch (IOException e) {
-      return false;
     }
-
-    return true;
-  }
-
-  public CurrentJHParser(InputStream input) throws IOException {
-    reader = new EventReader(new DataInputStream(input));
-  }
-
-  @Override
-  public HistoryEvent nextEvent() throws IOException {
-    return reader.getNextEvent();
-  }
-
-  @Override
-  public void close() throws IOException {
-    reader.close();
-  }
 
 }

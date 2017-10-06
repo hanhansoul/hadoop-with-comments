@@ -19,11 +19,11 @@
 package org.apache.hadoop.mapreduce.v2.api.records;
 
 public enum JobState {
-  NEW,
-  INITED,
-  RUNNING,
-  SUCCEEDED,
-  FAILED,
-  KILLED,
-  ERROR
+    NEW,
+    INITED,
+    RUNNING,
+    SUCCEEDED,
+    FAILED,
+    KILLED,
+    ERROR
 }

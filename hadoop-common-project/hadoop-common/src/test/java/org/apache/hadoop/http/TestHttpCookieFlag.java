@@ -40,113 +40,113 @@ import java.net.HttpCookie;
 import java.util.List;
 
 public class TestHttpCookieFlag {
-  private static final String BASEDIR = System.getProperty("test.build.dir",
-          "target/test-dir") + "/" + TestHttpCookieFlag.class.getSimpleName();
-  private static String keystoresDir;
-  private static String sslConfDir;
-  private static SSLFactory clientSslFactory;
-  private static HttpServer2 server;
+    private static final String BASEDIR = System.getProperty("test.build.dir",
+                                          "target/test-dir") + "/" + TestHttpCookieFlag.class.getSimpleName();
+    private static String keystoresDir;
+    private static String sslConfDir;
+    private static SSLFactory clientSslFactory;
+    private static HttpServer2 server;
 
-  public static class DummyAuthenticationFilter implements Filter {
+    public static class DummyAuthenticationFilter implements Filter {
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+        @Override
+        public void init(FilterConfig filterConfig) throws ServletException {
+        }
+
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response,
+                             FilterChain chain) throws IOException,
+            ServletException {
+            HttpServletResponse resp = (HttpServletResponse) response;
+            boolean isHttps = "https".equals(request.getScheme());
+            AuthenticationFilter.createAuthCookie(resp, "token", null, null, -1,
+                                                  isHttps);
+            chain.doFilter(request, resp);
+        }
+
+        @Override
+        public void destroy() {
+        }
+    }
+    public static class DummyFilterInitializer extends FilterInitializer {
+        @Override
+        public void initFilter(FilterContainer container, Configuration conf) {
+            container.addFilter("DummyAuth", DummyAuthenticationFilter.class
+                                .getName(), null);
+        }
     }
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response,
-                         FilterChain chain) throws IOException,
-                                                   ServletException {
-      HttpServletResponse resp = (HttpServletResponse) response;
-      boolean isHttps = "https".equals(request.getScheme());
-      AuthenticationFilter.createAuthCookie(resp, "token", null, null, -1,
-              isHttps);
-      chain.doFilter(request, resp);
-    }
+    @BeforeClass
+    public static void setUp() throws Exception {
+        Configuration conf = new Configuration();
+        conf.set(HttpServer2.FILTER_INITIALIZER_PROPERTY,
+                 DummyFilterInitializer.class.getName());
 
-    @Override
-    public void destroy() {
-    }
-  }
-  public static class DummyFilterInitializer extends FilterInitializer {
-    @Override
-    public void initFilter(FilterContainer container, Configuration conf) {
-      container.addFilter("DummyAuth", DummyAuthenticationFilter.class
-              .getName(), null);
-    }
-  }
+        File base = new File(BASEDIR);
+        FileUtil.fullyDelete(base);
+        base.mkdirs();
+        keystoresDir = new File(BASEDIR).getAbsolutePath();
+        sslConfDir = KeyStoreTestUtil.getClasspathDir(TestSSLHttpServer.class);
 
-  @BeforeClass
-  public static void setUp() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(HttpServer2.FILTER_INITIALIZER_PROPERTY,
-            DummyFilterInitializer.class.getName());
+        KeyStoreTestUtil.setupSSLConfig(keystoresDir, sslConfDir, conf, false);
+        Configuration sslConf = new Configuration(false);
+        sslConf.addResource("ssl-server.xml");
+        sslConf.addResource("ssl-client.xml");
 
-    File base = new File(BASEDIR);
-    FileUtil.fullyDelete(base);
-    base.mkdirs();
-    keystoresDir = new File(BASEDIR).getAbsolutePath();
-    sslConfDir = KeyStoreTestUtil.getClasspathDir(TestSSLHttpServer.class);
+        clientSslFactory = new SSLFactory(SSLFactory.Mode.CLIENT, sslConf);
+        clientSslFactory.init();
 
-    KeyStoreTestUtil.setupSSLConfig(keystoresDir, sslConfDir, conf, false);
-    Configuration sslConf = new Configuration(false);
-    sslConf.addResource("ssl-server.xml");
-    sslConf.addResource("ssl-client.xml");
-
-    clientSslFactory = new SSLFactory(SSLFactory.Mode.CLIENT, sslConf);
-    clientSslFactory.init();
-
-    server = new HttpServer2.Builder()
-            .setName("test")
-            .addEndpoint(new URI("http://localhost"))
-            .addEndpoint(new URI("https://localhost"))
-            .setConf(conf)
-            .keyPassword(sslConf.get("ssl.server.keystore.keypassword"))
-            .keyStore(sslConf.get("ssl.server.keystore.location"),
-                    sslConf.get("ssl.server.keystore.password"),
-                    sslConf.get("ssl.server.keystore.type", "jks"))
-            .trustStore(sslConf.get("ssl.server.truststore.location"),
+        server = new HttpServer2.Builder()
+        .setName("test")
+        .addEndpoint(new URI("http://localhost"))
+        .addEndpoint(new URI("https://localhost"))
+        .setConf(conf)
+        .keyPassword(sslConf.get("ssl.server.keystore.keypassword"))
+        .keyStore(sslConf.get("ssl.server.keystore.location"),
+                  sslConf.get("ssl.server.keystore.password"),
+                  sslConf.get("ssl.server.keystore.type", "jks"))
+        .trustStore(sslConf.get("ssl.server.truststore.location"),
                     sslConf.get("ssl.server.truststore.password"),
                     sslConf.get("ssl.server.truststore.type", "jks")).build();
-    server.addServlet("echo", "/echo", TestHttpServer.EchoServlet.class);
-    server.start();
-  }
+        server.addServlet("echo", "/echo", TestHttpServer.EchoServlet.class);
+        server.start();
+    }
 
-  @Test
-  public void testHttpCookie() throws IOException {
-    URL base = new URL("http://" + NetUtils.getHostPortString(server
-            .getConnectorAddress(0)));
-    HttpURLConnection conn = (HttpURLConnection) new URL(base,
-            "/echo").openConnection();
+    @Test
+    public void testHttpCookie() throws IOException {
+        URL base = new URL("http://" + NetUtils.getHostPortString(server
+                           .getConnectorAddress(0)));
+        HttpURLConnection conn = (HttpURLConnection) new URL(base,
+                                 "/echo").openConnection();
 
-    String header = conn.getHeaderField("Set-Cookie");
-    List<HttpCookie> cookies = HttpCookie.parse(header);
-    Assert.assertTrue(!cookies.isEmpty());
-    Assert.assertTrue(header.contains("; HttpOnly"));
-    Assert.assertTrue("token".equals(cookies.get(0).getValue()));
-  }
+        String header = conn.getHeaderField("Set-Cookie");
+        List<HttpCookie> cookies = HttpCookie.parse(header);
+        Assert.assertTrue(!cookies.isEmpty());
+        Assert.assertTrue(header.contains("; HttpOnly"));
+        Assert.assertTrue("token".equals(cookies.get(0).getValue()));
+    }
 
-  @Test
-  public void testHttpsCookie() throws IOException, GeneralSecurityException {
-    URL base = new URL("https://" + NetUtils.getHostPortString(server
-            .getConnectorAddress(1)));
-    HttpsURLConnection conn = (HttpsURLConnection) new URL(base,
-            "/echo").openConnection();
-    conn.setSSLSocketFactory(clientSslFactory.createSSLSocketFactory());
+    @Test
+    public void testHttpsCookie() throws IOException, GeneralSecurityException {
+        URL base = new URL("https://" + NetUtils.getHostPortString(server
+                           .getConnectorAddress(1)));
+        HttpsURLConnection conn = (HttpsURLConnection) new URL(base,
+                                  "/echo").openConnection();
+        conn.setSSLSocketFactory(clientSslFactory.createSSLSocketFactory());
 
-    String header = conn.getHeaderField("Set-Cookie");
-    List<HttpCookie> cookies = HttpCookie.parse(header);
-    Assert.assertTrue(!cookies.isEmpty());
-    Assert.assertTrue(header.contains("; HttpOnly"));
-    Assert.assertTrue(cookies.get(0).getSecure());
-    Assert.assertTrue("token".equals(cookies.get(0).getValue()));
-  }
+        String header = conn.getHeaderField("Set-Cookie");
+        List<HttpCookie> cookies = HttpCookie.parse(header);
+        Assert.assertTrue(!cookies.isEmpty());
+        Assert.assertTrue(header.contains("; HttpOnly"));
+        Assert.assertTrue(cookies.get(0).getSecure());
+        Assert.assertTrue("token".equals(cookies.get(0).getValue()));
+    }
 
-  @AfterClass
-  public static void cleanup() throws Exception {
-    server.stop();
-    FileUtil.fullyDelete(new File(BASEDIR));
-    KeyStoreTestUtil.cleanupSSLConfig(keystoresDir, sslConfDir);
-    clientSslFactory.destroy();
-  }
+    @AfterClass
+    public static void cleanup() throws Exception {
+        server.stop();
+        FileUtil.fullyDelete(new File(BASEDIR));
+        KeyStoreTestUtil.cleanupSSLConfig(keystoresDir, sslConfDir);
+        clientSslFactory.destroy();
+    }
 }

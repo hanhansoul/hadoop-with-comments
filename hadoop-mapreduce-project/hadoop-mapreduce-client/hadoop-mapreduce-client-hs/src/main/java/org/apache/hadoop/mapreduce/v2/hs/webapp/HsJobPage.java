@@ -30,24 +30,24 @@ import org.apache.hadoop.yarn.webapp.SubView;
  */
 public class HsJobPage extends HsView {
 
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
-   */
-  @Override protected void preHead(Page.HTML<_> html) {
-    String jobID = $(JOB_ID);
-    set(TITLE, jobID.isEmpty() ? "Bad request: missing job ID"
-               : join("MapReduce Job ", $(JOB_ID)));
-    commonPreHead(html);
-    //Override the nav config from the commonPreHead
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:1}");
-  }
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
+     */
+    @Override protected void preHead(Page.HTML<_> html) {
+        String jobID = $(JOB_ID);
+        set(TITLE, jobID.isEmpty() ? "Bad request: missing job ID"
+            : join("MapReduce Job ", $(JOB_ID)));
+        commonPreHead(html);
+        //Override the nav config from the commonPreHead
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:1}");
+    }
 
-  /**
-   * The content of this page is the JobBlock
-   * @return HsJobBlock.class
-   */
-  @Override protected Class<? extends SubView> content() {
-    return HsJobBlock.class;
-  }
+    /**
+     * The content of this page is the JobBlock
+     * @return HsJobBlock.class
+     */
+    @Override protected Class<? extends SubView> content() {
+        return HsJobBlock.class;
+    }
 }

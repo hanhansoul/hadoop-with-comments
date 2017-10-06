@@ -27,22 +27,22 @@ import java.net.URI;
  */
 public class SwiftAuthenticationFailedException extends SwiftInvalidResponseException {
 
-  public SwiftAuthenticationFailedException(String message,
-                                            int statusCode,
-                                            String operation,
-                                            URI uri) {
-    super(message, statusCode, operation, uri);
-  }
+    public SwiftAuthenticationFailedException(String message,
+            int statusCode,
+            String operation,
+            URI uri) {
+        super(message, statusCode, operation, uri);
+    }
 
-  public SwiftAuthenticationFailedException(String message,
-                                            String operation,
-                                            URI uri,
-                                            HttpMethod method) {
-    super(message, operation, uri, method);
-  }
+    public SwiftAuthenticationFailedException(String message,
+            String operation,
+            URI uri,
+            HttpMethod method) {
+        super(message, operation, uri, method);
+    }
 
-  @Override
-  public String exceptionTitle() {
-    return "Authentication Failure";
-  }
+    @Override
+    public String exceptionTitle() {
+        return "Authentication Failure";
+    }
 }

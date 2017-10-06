@@ -28,19 +28,19 @@ import org.apache.hadoop.yarn.api.records.Resource;
 @Private
 @Stable
 public class NodeReport {
-  private final Resource usedResources;
-  private final int numContainers;
-  
-  public NodeReport(Resource used, int numContainers) {
-    this.usedResources = used;
-    this.numContainers = numContainers;
-  }
+    private final Resource usedResources;
+    private final int numContainers;
 
-  public Resource getUsedResources() {
-    return usedResources;
-  }
+    public NodeReport(Resource used, int numContainers) {
+        this.usedResources = used;
+        this.numContainers = numContainers;
+    }
 
-  public int getNumContainers() {
-    return numContainers;
-  }
+    public Resource getUsedResources() {
+        return usedResources;
+    }
+
+    public int getNumContainers() {
+        return numContainers;
+    }
 }

@@ -36,36 +36,36 @@ public class TotalOrderPartitioner<K extends WritableComparable<?>,V>
     extends org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner<K, V>
     implements Partitioner<K,V> {
 
-  public TotalOrderPartitioner() { }
+    public TotalOrderPartitioner() { }
 
-  public void configure(JobConf job) {
-    super.setConf(job);
-  }
+    public void configure(JobConf job) {
+        super.setConf(job);
+    }
 
-  /**
-   * Set the path to the SequenceFile storing the sorted partition keyset.
-   * It must be the case that for <tt>R</tt> reduces, there are <tt>R-1</tt>
-   * keys in the SequenceFile.
-   * @deprecated Use 
-   * {@link #setPartitionFile(Configuration, Path)}
-   * instead
-   */
-  @Deprecated
-  public static void setPartitionFile(JobConf job, Path p) {
-    org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner.
-            setPartitionFile(job, p);
-  }
+    /**
+     * Set the path to the SequenceFile storing the sorted partition keyset.
+     * It must be the case that for <tt>R</tt> reduces, there are <tt>R-1</tt>
+     * keys in the SequenceFile.
+     * @deprecated Use
+     * {@link #setPartitionFile(Configuration, Path)}
+     * instead
+     */
+    @Deprecated
+    public static void setPartitionFile(JobConf job, Path p) {
+        org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner.
+        setPartitionFile(job, p);
+    }
 
-  /**
-   * Get the path to the SequenceFile storing the sorted partition keyset.
-   * @see #setPartitionFile(JobConf,Path)
-   * @deprecated Use 
-   * {@link #getPartitionFile(Configuration)}
-   * instead
-   */
-  @Deprecated
-  public static String getPartitionFile(JobConf job) {
-    return org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner.
-            getPartitionFile(job);
-  }
+    /**
+     * Get the path to the SequenceFile storing the sorted partition keyset.
+     * @see #setPartitionFile(JobConf,Path)
+     * @deprecated Use
+     * {@link #getPartitionFile(Configuration)}
+     * instead
+     */
+    @Deprecated
+    public static String getPartitionFile(JobConf job) {
+        return org.apache.hadoop.mapreduce.lib.partition.TotalOrderPartitioner.
+               getPartitionFile(job);
+    }
 }

@@ -28,32 +28,32 @@ import org.junit.Test;
  * Tests for the Command Line Interface (CLI)
  */
 public class TestCLI extends CLITestHelper {
-  @Before
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-  }
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+    }
 
-  @After
-  @Override
-  public void tearDown() throws Exception {
-    super.tearDown();
-  }
+    @After
+    @Override
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-  @Override
-  protected CommandExecutor.Result execute(CLICommand cmd) throws Exception {
-    return cmd.getExecutor("").executeCommand(cmd.getCmd());
+    @Override
+    protected CommandExecutor.Result execute(CLICommand cmd) throws Exception {
+        return cmd.getExecutor("").executeCommand(cmd.getCmd());
 
-  }
-  
-  @Override
-  protected String getTestFile() {
-    return "testConf.xml";
-  }
-  
-  @Test
-  @Override
-  public void testAll() {
-    super.testAll();
-  }
+    }
+
+    @Override
+    protected String getTestFile() {
+        return "testConf.xml";
+    }
+
+    @Test
+    @Override
+    public void testAll() {
+        super.testAll();
+    }
 }

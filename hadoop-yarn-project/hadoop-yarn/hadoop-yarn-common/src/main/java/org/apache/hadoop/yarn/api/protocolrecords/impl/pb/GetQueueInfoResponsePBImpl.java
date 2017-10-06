@@ -33,99 +33,99 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetQueueInfoResponsePBImpl extends GetQueueInfoResponse {
 
-  QueueInfo queueInfo;
-  
-  GetQueueInfoResponseProto proto = 
-    GetQueueInfoResponseProto.getDefaultInstance();
-  GetQueueInfoResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    QueueInfo queueInfo;
 
-  public GetQueueInfoResponsePBImpl() {
-    builder = GetQueueInfoResponseProto.newBuilder();
-  }
-  
-  public GetQueueInfoResponsePBImpl(GetQueueInfoResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
+    GetQueueInfoResponseProto proto =
+        GetQueueInfoResponseProto.getDefaultInstance();
+    GetQueueInfoResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetQueueInfoResponseProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
-    }
-    return false;
-  }
-
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  @Override
-  public QueueInfo getQueueInfo() {
-    if (this.queueInfo != null) {
-      return this.queueInfo;
+    public GetQueueInfoResponsePBImpl() {
+        builder = GetQueueInfoResponseProto.newBuilder();
     }
 
-    GetQueueInfoResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasQueueInfo()) {
-      return null;
+    public GetQueueInfoResponsePBImpl(GetQueueInfoResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    this.queueInfo = convertFromProtoFormat(p.getQueueInfo());
-    return this.queueInfo;
-  }
 
-  @Override
-  public void setQueueInfo(QueueInfo queueInfo) {
-    maybeInitBuilder();
-    if(queueInfo == null) {
-      builder.clearQueueInfo();
+    public GetQueueInfoResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    this.queueInfo = queueInfo;
-  }
 
-  private void mergeLocalToBuilder() {
-    if (this.queueInfo != null) {
-      builder.setQueueInfo(convertToProtoFormat(this.queueInfo));
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetQueueInfoResponseProto.newBuilder(proto);
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    viaProto = false;
-  }
 
-  private QueueInfo convertFromProtoFormat(QueueInfoProto queueInfo) {
-    return new QueueInfoPBImpl(queueInfo);
-  }
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-  private QueueInfoProto convertToProtoFormat(QueueInfo queueInfo) {
-    return ((QueueInfoPBImpl)queueInfo).getProto();
-  }
+    @Override
+    public QueueInfo getQueueInfo() {
+        if (this.queueInfo != null) {
+            return this.queueInfo;
+        }
+
+        GetQueueInfoResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasQueueInfo()) {
+            return null;
+        }
+        this.queueInfo = convertFromProtoFormat(p.getQueueInfo());
+        return this.queueInfo;
+    }
+
+    @Override
+    public void setQueueInfo(QueueInfo queueInfo) {
+        maybeInitBuilder();
+        if(queueInfo == null) {
+            builder.clearQueueInfo();
+        }
+        this.queueInfo = queueInfo;
+    }
+
+    private void mergeLocalToBuilder() {
+        if (this.queueInfo != null) {
+            builder.setQueueInfo(convertToProtoFormat(this.queueInfo));
+        }
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetQueueInfoResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private QueueInfo convertFromProtoFormat(QueueInfoProto queueInfo) {
+        return new QueueInfoPBImpl(queueInfo);
+    }
+
+    private QueueInfoProto convertToProtoFormat(QueueInfo queueInfo) {
+        return ((QueueInfoPBImpl)queueInfo).getProto();
+    }
 
 }

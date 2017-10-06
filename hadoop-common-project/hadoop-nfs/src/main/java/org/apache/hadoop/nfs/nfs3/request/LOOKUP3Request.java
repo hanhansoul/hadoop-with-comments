@@ -28,32 +28,32 @@ import com.google.common.annotations.VisibleForTesting;
  * LOOKUP3 Request
  */
 public class LOOKUP3Request extends RequestWithHandle {
-  private String name;
+    private String name;
 
-  public LOOKUP3Request(FileHandle handle, String name) {
-    super(handle);
-    this.name = name;
-  }
-  
-  public static LOOKUP3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    return new LOOKUP3Request(handle, name);
-  }
+    public LOOKUP3Request(FileHandle handle, String name) {
+        super(handle);
+        this.name = name;
+    }
 
-  public String getName() {
-    return this.name;
-  }
+    public static LOOKUP3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        return new LOOKUP3Request(handle, name);
+    }
 
-  public void setName(String name) {
-    this.name = name;
-  }
+    public String getName() {
+        return this.name;
+    }
 
-  @Override
-  @VisibleForTesting
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.getBytes().length);
-    xdr.writeFixedOpaque(name.getBytes());
-  }
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    @VisibleForTesting
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.getBytes().length);
+        xdr.writeFixedOpaque(name.getBytes());
+    }
 }

@@ -34,14 +34,18 @@ import org.apache.hadoop.yarn.api.protocolrecords.RegisterApplicationMasterReque
 
 public class ApplicationMasterNotRegisteredException extends YarnException {
 
-  private static final long serialVersionUID = 13498238L;
+    private static final long serialVersionUID = 13498238L;
 
-  public ApplicationMasterNotRegisteredException(Throwable cause) { super(cause);}
+    public ApplicationMasterNotRegisteredException(Throwable cause) {
+        super(cause);
+    }
 
-  public ApplicationMasterNotRegisteredException(String message) { super(message); }
+    public ApplicationMasterNotRegisteredException(String message) {
+        super(message);
+    }
 
-  public ApplicationMasterNotRegisteredException(String message, Throwable
-      cause) {
-    super(message, cause);
-  }
+    public ApplicationMasterNotRegisteredException(String message, Throwable
+            cause) {
+        super(message, cause);
+    }
 }

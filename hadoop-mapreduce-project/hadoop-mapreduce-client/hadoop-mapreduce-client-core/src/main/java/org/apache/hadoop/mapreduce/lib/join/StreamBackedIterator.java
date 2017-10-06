@@ -36,68 +36,68 @@ import org.apache.hadoop.io.Writable;
 public class StreamBackedIterator<X extends Writable>
     implements ResetableIterator<X> {
 
-  private static class ReplayableByteInputStream extends ByteArrayInputStream {
-    public ReplayableByteInputStream(byte[] arr) {
-      super(arr);
+    private static class ReplayableByteInputStream extends ByteArrayInputStream {
+        public ReplayableByteInputStream(byte[] arr) {
+            super(arr);
+        }
+        public void resetStream() {
+            mark = 0;
+            reset();
+        }
     }
-    public void resetStream() {
-      mark = 0;
-      reset();
+
+    private ByteArrayOutputStream outbuf = new ByteArrayOutputStream();
+    private DataOutputStream outfbuf = new DataOutputStream(outbuf);
+    private ReplayableByteInputStream inbuf;
+    private DataInputStream infbuf;
+
+    public StreamBackedIterator() { }
+
+    public boolean hasNext() {
+        return infbuf != null && inbuf.available() > 0;
     }
-  }
 
-  private ByteArrayOutputStream outbuf = new ByteArrayOutputStream();
-  private DataOutputStream outfbuf = new DataOutputStream(outbuf);
-  private ReplayableByteInputStream inbuf;
-  private DataInputStream infbuf;
-
-  public StreamBackedIterator() { }
-
-  public boolean hasNext() {
-    return infbuf != null && inbuf.available() > 0;
-  }
-
-  public boolean next(X val) throws IOException {
-    if (hasNext()) {
-      inbuf.mark(0);
-      val.readFields(infbuf);
-      return true;
+    public boolean next(X val) throws IOException {
+        if (hasNext()) {
+            inbuf.mark(0);
+            val.readFields(infbuf);
+            return true;
+        }
+        return false;
     }
-    return false;
-  }
 
-  public boolean replay(X val) throws IOException {
-    inbuf.reset();
-    if (0 == inbuf.available())
-      return false;
-    val.readFields(infbuf);
-    return true;
-  }
-
-  public void reset() {
-    if (null != outfbuf) {
-      inbuf = new ReplayableByteInputStream(outbuf.toByteArray());
-      infbuf =  new DataInputStream(inbuf);
-      outfbuf = null;
+    public boolean replay(X val) throws IOException {
+        inbuf.reset();
+        if (0 == inbuf.available())
+            return false;
+        val.readFields(infbuf);
+        return true;
     }
-    inbuf.resetStream();
-  }
 
-  public void add(X item) throws IOException {
-    item.write(outfbuf);
-  }
+    public void reset() {
+        if (null != outfbuf) {
+            inbuf = new ReplayableByteInputStream(outbuf.toByteArray());
+            infbuf =  new DataInputStream(inbuf);
+            outfbuf = null;
+        }
+        inbuf.resetStream();
+    }
 
-  public void close() throws IOException {
-    if (null != infbuf)
-      infbuf.close();
-    if (null != outfbuf)
-      outfbuf.close();
-  }
+    public void add(X item) throws IOException {
+        item.write(outfbuf);
+    }
 
-  public void clear() {
-    if (null != inbuf)
-      inbuf.resetStream();
-    outbuf.reset();
-    outfbuf = new DataOutputStream(outbuf);
-  }
+    public void close() throws IOException {
+        if (null != infbuf)
+            infbuf.close();
+        if (null != outfbuf)
+            outfbuf.close();
+    }
+
+    public void clear() {
+        if (null != inbuf)
+            inbuf.resetStream();
+        outbuf.reset();
+        outfbuf = new DataOutputStream(outbuf);
+    }
 }

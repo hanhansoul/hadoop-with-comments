@@ -43,98 +43,98 @@ import org.apache.hadoop.mapreduce.TaskAttemptID;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 class InMemoryMapOutput<K, V> extends MapOutput<K, V> {
-  private static final Log LOG = LogFactory.getLog(InMemoryMapOutput.class);
-  private Configuration conf;
-  private final MergeManagerImpl<K, V> merger;
-  private final byte[] memory;
-  private BoundedByteArrayOutputStream byteStream;
-  // Decompression of map-outputs
-  private final CompressionCodec codec;
-  private final Decompressor decompressor;
+    private static final Log LOG = LogFactory.getLog(InMemoryMapOutput.class);
+    private Configuration conf;
+    private final MergeManagerImpl<K, V> merger;
+    private final byte[] memory;
+    private BoundedByteArrayOutputStream byteStream;
+    // Decompression of map-outputs
+    private final CompressionCodec codec;
+    private final Decompressor decompressor;
 
-  public InMemoryMapOutput(Configuration conf, TaskAttemptID mapId,
-                           MergeManagerImpl<K, V> merger,
-                           int size, CompressionCodec codec,
-                           boolean primaryMapOutput) {
-    super(mapId, (long)size, primaryMapOutput);
-    this.conf = conf;
-    this.merger = merger;
-    this.codec = codec;
-    byteStream = new BoundedByteArrayOutputStream(size);
-    memory = byteStream.getBuffer();
-    if (codec != null) {
-      decompressor = CodecPool.getDecompressor(codec);
-    } else {
-      decompressor = null;
+    public InMemoryMapOutput(Configuration conf, TaskAttemptID mapId,
+                             MergeManagerImpl<K, V> merger,
+                             int size, CompressionCodec codec,
+                             boolean primaryMapOutput) {
+        super(mapId, (long)size, primaryMapOutput);
+        this.conf = conf;
+        this.merger = merger;
+        this.codec = codec;
+        byteStream = new BoundedByteArrayOutputStream(size);
+        memory = byteStream.getBuffer();
+        if (codec != null) {
+            decompressor = CodecPool.getDecompressor(codec);
+        } else {
+            decompressor = null;
+        }
     }
-  }
 
-  public byte[] getMemory() {
-    return memory;
-  }
-
-  public BoundedByteArrayOutputStream getArrayStream() {
-    return byteStream;
-  }
-
-  @Override
-  public void shuffle(MapHost host, InputStream input,
-                      long compressedLength, long decompressedLength,
-                      ShuffleClientMetrics metrics,
-                      Reporter reporter) throws IOException {
-    IFileInputStream checksumIn = 
-      new IFileInputStream(input, compressedLength, conf);
-
-    input = checksumIn;       
-  
-    // Are map-outputs compressed?
-    if (codec != null) {
-      decompressor.reset();
-      input = codec.createInputStream(input, decompressor);
+    public byte[] getMemory() {
+        return memory;
     }
-  
-    try {
-      IOUtils.readFully(input, memory, 0, memory.length);
-      metrics.inputBytes(memory.length);
-      reporter.progress();
-      LOG.info("Read " + memory.length + " bytes from map-output for " +
-                getMapId());
 
-      /**
-       * We've gotten the amount of data we were expecting. Verify the
-       * decompressor has nothing more to offer. This action also forces the
-       * decompressor to read any trailing bytes that weren't critical
-       * for decompression, which is necessary to keep the stream
-       * in sync.
-       */
-      if (input.read() >= 0 ) {
-        throw new IOException("Unexpected extra bytes from input stream for " +
-                               getMapId());
-      }
-
-    } catch (IOException ioe) {      
-      // Close the streams
-      IOUtils.cleanup(LOG, input);
-
-      // Re-throw
-      throw ioe;
-    } finally {
-      CodecPool.returnDecompressor(decompressor);
+    public BoundedByteArrayOutputStream getArrayStream() {
+        return byteStream;
     }
-  }
 
-  @Override
-  public void commit() throws IOException {
-    merger.closeInMemoryFile(this);
-  }
-  
-  @Override
-  public void abort() {
-    merger.unreserve(memory.length);
-  }
+    @Override
+    public void shuffle(MapHost host, InputStream input,
+                        long compressedLength, long decompressedLength,
+                        ShuffleClientMetrics metrics,
+                        Reporter reporter) throws IOException {
+        IFileInputStream checksumIn =
+            new IFileInputStream(input, compressedLength, conf);
 
-  @Override
-  public String getDescription() {
-    return "MEMORY";
-  }
+        input = checksumIn;
+
+        // Are map-outputs compressed?
+        if (codec != null) {
+            decompressor.reset();
+            input = codec.createInputStream(input, decompressor);
+        }
+
+        try {
+            IOUtils.readFully(input, memory, 0, memory.length);
+            metrics.inputBytes(memory.length);
+            reporter.progress();
+            LOG.info("Read " + memory.length + " bytes from map-output for " +
+                     getMapId());
+
+            /**
+             * We've gotten the amount of data we were expecting. Verify the
+             * decompressor has nothing more to offer. This action also forces the
+             * decompressor to read any trailing bytes that weren't critical
+             * for decompression, which is necessary to keep the stream
+             * in sync.
+             */
+            if (input.read() >= 0 ) {
+                throw new IOException("Unexpected extra bytes from input stream for " +
+                                      getMapId());
+            }
+
+        } catch (IOException ioe) {
+            // Close the streams
+            IOUtils.cleanup(LOG, input);
+
+            // Re-throw
+            throw ioe;
+        } finally {
+            CodecPool.returnDecompressor(decompressor);
+        }
+    }
+
+    @Override
+    public void commit() throws IOException {
+        merger.closeInMemoryFile(this);
+    }
+
+    @Override
+    public void abort() {
+        merger.unreserve(memory.length);
+    }
+
+    @Override
+    public String getDescription() {
+        return "MEMORY";
+    }
 }

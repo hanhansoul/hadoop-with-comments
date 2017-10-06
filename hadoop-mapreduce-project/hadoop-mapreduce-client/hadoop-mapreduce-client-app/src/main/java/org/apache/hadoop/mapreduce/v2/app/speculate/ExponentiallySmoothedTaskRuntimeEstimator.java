@@ -35,158 +35,158 @@ import org.apache.hadoop.mapreduce.v2.app.job.event.TaskAttemptStatusUpdateEvent
  */
 public class ExponentiallySmoothedTaskRuntimeEstimator extends StartEndTimesBase {
 
-  private final ConcurrentMap<TaskAttemptId, AtomicReference<EstimateVector>> estimates
-      = new ConcurrentHashMap<TaskAttemptId, AtomicReference<EstimateVector>>();
+    private final ConcurrentMap<TaskAttemptId, AtomicReference<EstimateVector>> estimates
+        = new ConcurrentHashMap<TaskAttemptId, AtomicReference<EstimateVector>>();
 
-  private SmoothedValue smoothedValue;
+    private SmoothedValue smoothedValue;
 
-  private long lambda;
+    private long lambda;
 
-  public enum SmoothedValue {
-    RATE, TIME_PER_UNIT_PROGRESS
-  }
-
-  ExponentiallySmoothedTaskRuntimeEstimator
-      (long lambda, SmoothedValue smoothedValue) {
-    super();
-    this.smoothedValue = smoothedValue;
-    this.lambda = lambda;
-  }
-
-  public ExponentiallySmoothedTaskRuntimeEstimator() {
-    super();
-  }
-
-  // immutable
-  private class EstimateVector {
-    final double value;
-    final float basedOnProgress;
-    final long atTime;
-
-    EstimateVector(double value, float basedOnProgress, long atTime) {
-      this.value = value;
-      this.basedOnProgress = basedOnProgress;
-      this.atTime = atTime;
+    public enum SmoothedValue {
+        RATE, TIME_PER_UNIT_PROGRESS
     }
 
-    EstimateVector incorporate(float newProgress, long newAtTime) {
-      if (newAtTime <= atTime || newProgress < basedOnProgress) {
-        return this;
-      }
-
-      double oldWeighting
-          = value < 0.0
-              ? 0.0 : Math.exp(((double) (newAtTime - atTime)) / lambda);
-
-      double newRead = (newProgress - basedOnProgress) / (newAtTime - atTime);
-
-      if (smoothedValue == SmoothedValue.TIME_PER_UNIT_PROGRESS) {
-        newRead = 1.0 / newRead;
-      }
-
-      return new EstimateVector
-          (value * oldWeighting + newRead * (1.0 - oldWeighting),
-           newProgress, newAtTime);
-    }
-  }
-
-  private void incorporateReading
-      (TaskAttemptId attemptID, float newProgress, long newTime) {
-    //TODO: Refactor this method, it seems more complicated than necessary.
-    AtomicReference<EstimateVector> vectorRef = estimates.get(attemptID);
-
-    if (vectorRef == null) {
-      estimates.putIfAbsent(attemptID, new AtomicReference<EstimateVector>(null));
-      incorporateReading(attemptID, newProgress, newTime);
-      return;
+    ExponentiallySmoothedTaskRuntimeEstimator
+    (long lambda, SmoothedValue smoothedValue) {
+        super();
+        this.smoothedValue = smoothedValue;
+        this.lambda = lambda;
     }
 
-    EstimateVector oldVector = vectorRef.get();
-
-    if (oldVector == null) {
-      if (vectorRef.compareAndSet(null,
-             new EstimateVector(-1.0, 0.0F, Long.MIN_VALUE))) {
-        return;
-      }
-
-      incorporateReading(attemptID, newProgress, newTime);
-      return;
+    public ExponentiallySmoothedTaskRuntimeEstimator() {
+        super();
     }
 
-    while (!vectorRef.compareAndSet
-            (oldVector, oldVector.incorporate(newProgress, newTime))) {
-      oldVector = vectorRef.get();
-    }
-  }
+    // immutable
+    private class EstimateVector {
+        final double value;
+        final float basedOnProgress;
+        final long atTime;
 
-  private EstimateVector getEstimateVector(TaskAttemptId attemptID) {
-    AtomicReference<EstimateVector> vectorRef = estimates.get(attemptID);
+        EstimateVector(double value, float basedOnProgress, long atTime) {
+            this.value = value;
+            this.basedOnProgress = basedOnProgress;
+            this.atTime = atTime;
+        }
 
-    if (vectorRef == null) {
-      return null;
-    }
+        EstimateVector incorporate(float newProgress, long newAtTime) {
+            if (newAtTime <= atTime || newProgress < basedOnProgress) {
+                return this;
+            }
 
-    return vectorRef.get();
-  }
+            double oldWeighting
+                = value < 0.0
+                  ? 0.0 : Math.exp(((double) (newAtTime - atTime)) / lambda);
 
-  @Override
-  public void contextualize(Configuration conf, AppContext context) {
-    super.contextualize(conf, context);
+            double newRead = (newProgress - basedOnProgress) / (newAtTime - atTime);
 
-    lambda
-        = conf.getLong(MRJobConfig.MR_AM_TASK_ESTIMATOR_SMOOTH_LAMBDA_MS,
-            MRJobConfig.DEFAULT_MR_AM_TASK_ESTIMATOR_SMOOTH_LAMBDA_MS);
-    smoothedValue
-        = conf.getBoolean(MRJobConfig.MR_AM_TASK_ESTIMATOR_EXPONENTIAL_RATE_ENABLE, true)
-            ? SmoothedValue.RATE : SmoothedValue.TIME_PER_UNIT_PROGRESS;
-  }
+            if (smoothedValue == SmoothedValue.TIME_PER_UNIT_PROGRESS) {
+                newRead = 1.0 / newRead;
+            }
 
-  @Override
-  public long estimatedRuntime(TaskAttemptId id) {
-    Long startTime = startTimes.get(id);
-
-    if (startTime == null) {
-      return -1L;
+            return new EstimateVector
+                   (value * oldWeighting + newRead * (1.0 - oldWeighting),
+                    newProgress, newAtTime);
+        }
     }
 
-    EstimateVector vector = getEstimateVector(id);
+    private void incorporateReading
+    (TaskAttemptId attemptID, float newProgress, long newTime) {
+        //TODO: Refactor this method, it seems more complicated than necessary.
+        AtomicReference<EstimateVector> vectorRef = estimates.get(attemptID);
 
-    if (vector == null) {
-      return -1L;
+        if (vectorRef == null) {
+            estimates.putIfAbsent(attemptID, new AtomicReference<EstimateVector>(null));
+            incorporateReading(attemptID, newProgress, newTime);
+            return;
+        }
+
+        EstimateVector oldVector = vectorRef.get();
+
+        if (oldVector == null) {
+            if (vectorRef.compareAndSet(null,
+                                        new EstimateVector(-1.0, 0.0F, Long.MIN_VALUE))) {
+                return;
+            }
+
+            incorporateReading(attemptID, newProgress, newTime);
+            return;
+        }
+
+        while (!vectorRef.compareAndSet
+               (oldVector, oldVector.incorporate(newProgress, newTime))) {
+            oldVector = vectorRef.get();
+        }
     }
 
-    long sunkTime = vector.atTime - startTime;
+    private EstimateVector getEstimateVector(TaskAttemptId attemptID) {
+        AtomicReference<EstimateVector> vectorRef = estimates.get(attemptID);
 
-    double value = vector.value;
-    float progress = vector.basedOnProgress;
+        if (vectorRef == null) {
+            return null;
+        }
 
-    if (value == 0) {
-      return -1L;
+        return vectorRef.get();
     }
 
-    double rate = smoothedValue == SmoothedValue.RATE ? value : 1.0 / value;
+    @Override
+    public void contextualize(Configuration conf, AppContext context) {
+        super.contextualize(conf, context);
 
-    if (rate == 0.0) {
-      return -1L;
+        lambda
+            = conf.getLong(MRJobConfig.MR_AM_TASK_ESTIMATOR_SMOOTH_LAMBDA_MS,
+                           MRJobConfig.DEFAULT_MR_AM_TASK_ESTIMATOR_SMOOTH_LAMBDA_MS);
+        smoothedValue
+            = conf.getBoolean(MRJobConfig.MR_AM_TASK_ESTIMATOR_EXPONENTIAL_RATE_ENABLE, true)
+              ? SmoothedValue.RATE : SmoothedValue.TIME_PER_UNIT_PROGRESS;
     }
 
-    double remainingTime = (1.0 - progress) / rate;
+    @Override
+    public long estimatedRuntime(TaskAttemptId id) {
+        Long startTime = startTimes.get(id);
 
-    return sunkTime + (long)remainingTime;
-  }
+        if (startTime == null) {
+            return -1L;
+        }
 
-  @Override
-  public long runtimeEstimateVariance(TaskAttemptId id) {
-    return -1L;
-  }
+        EstimateVector vector = getEstimateVector(id);
 
-  @Override
-  public void updateAttempt(TaskAttemptStatus status, long timestamp) {
-    super.updateAttempt(status, timestamp);
-    TaskAttemptId attemptID = status.id;
+        if (vector == null) {
+            return -1L;
+        }
 
-    float progress = status.progress;
+        long sunkTime = vector.atTime - startTime;
 
-    incorporateReading(attemptID, progress, timestamp);
-  }
+        double value = vector.value;
+        float progress = vector.basedOnProgress;
+
+        if (value == 0) {
+            return -1L;
+        }
+
+        double rate = smoothedValue == SmoothedValue.RATE ? value : 1.0 / value;
+
+        if (rate == 0.0) {
+            return -1L;
+        }
+
+        double remainingTime = (1.0 - progress) / rate;
+
+        return sunkTime + (long)remainingTime;
+    }
+
+    @Override
+    public long runtimeEstimateVariance(TaskAttemptId id) {
+        return -1L;
+    }
+
+    @Override
+    public void updateAttempt(TaskAttemptStatus status, long timestamp) {
+        super.updateAttempt(status, timestamp);
+        TaskAttemptId attemptID = status.id;
+
+        float progress = status.progress;
+
+        incorporateReading(attemptID, progress, timestamp);
+    }
 }

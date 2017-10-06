@@ -24,28 +24,28 @@ import org.junit.Test;
 
 public class TestKMSACLs {
 
-  @Test
-  public void testDefaults() {
-    KMSACLs acls = new KMSACLs(new Configuration(false));
-    for (KMSACLs.Type type : KMSACLs.Type.values()) {
-      Assert.assertTrue(acls.hasAccess(type,
-          UserGroupInformation.createRemoteUser("foo")));
+    @Test
+    public void testDefaults() {
+        KMSACLs acls = new KMSACLs(new Configuration(false));
+        for (KMSACLs.Type type : KMSACLs.Type.values()) {
+            Assert.assertTrue(acls.hasAccess(type,
+                                             UserGroupInformation.createRemoteUser("foo")));
+        }
     }
-  }
 
-  @Test
-  public void testCustom() {
-    Configuration conf = new Configuration(false);
-    for (KMSACLs.Type type : KMSACLs.Type.values()) {
-      conf.set(type.getAclConfigKey(), type.toString() + " ");
+    @Test
+    public void testCustom() {
+        Configuration conf = new Configuration(false);
+        for (KMSACLs.Type type : KMSACLs.Type.values()) {
+            conf.set(type.getAclConfigKey(), type.toString() + " ");
+        }
+        KMSACLs acls = new KMSACLs(conf);
+        for (KMSACLs.Type type : KMSACLs.Type.values()) {
+            Assert.assertTrue(acls.hasAccess(type,
+                                             UserGroupInformation.createRemoteUser(type.toString())));
+            Assert.assertFalse(acls.hasAccess(type,
+                                              UserGroupInformation.createRemoteUser("foo")));
+        }
     }
-    KMSACLs acls = new KMSACLs(conf);
-    for (KMSACLs.Type type : KMSACLs.Type.values()) {
-      Assert.assertTrue(acls.hasAccess(type,
-          UserGroupInformation.createRemoteUser(type.toString())));
-      Assert.assertFalse(acls.hasAccess(type,
-          UserGroupInformation.createRemoteUser("foo")));
-    }
-  }
 
 }

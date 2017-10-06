@@ -88,7 +88,7 @@ import com.google.common.annotations.VisibleForTesting;
  *
  * <pre>
  * {@code
- * NMClientAsync asyncClient = 
+ * NMClientAsync asyncClient =
  *     NMClientAsync.createNMClientAsync(new MyCallbackhandler());
  * asyncClient.init(conf);
  * asyncClient.start();
@@ -108,130 +108,130 @@ import com.google.common.annotations.VisibleForTesting;
 @Stable
 public abstract class NMClientAsync extends AbstractService {
 
-  protected NMClient client;
-  protected CallbackHandler callbackHandler;
+    protected NMClient client;
+    protected CallbackHandler callbackHandler;
 
-  public static NMClientAsync createNMClientAsync(
-      CallbackHandler callbackHandler) {
-    return new NMClientAsyncImpl(callbackHandler);
-  }
-  
-  protected NMClientAsync(CallbackHandler callbackHandler) {
-    this (NMClientAsync.class.getName(), callbackHandler);
-  }
+    public static NMClientAsync createNMClientAsync(
+        CallbackHandler callbackHandler) {
+        return new NMClientAsyncImpl(callbackHandler);
+    }
 
-  protected NMClientAsync(String name, CallbackHandler callbackHandler) {
-    this (name, new NMClientImpl(), callbackHandler);
-  }
+    protected NMClientAsync(CallbackHandler callbackHandler) {
+        this (NMClientAsync.class.getName(), callbackHandler);
+    }
 
-  @Private
-  @VisibleForTesting
-  protected NMClientAsync(String name, NMClient client,
-      CallbackHandler callbackHandler) {
-    super(name);
-    this.setClient(client);
-    this.setCallbackHandler(callbackHandler);
-  }
+    protected NMClientAsync(String name, CallbackHandler callbackHandler) {
+        this (name, new NMClientImpl(), callbackHandler);
+    }
 
-  public abstract void startContainerAsync(
-      Container container, ContainerLaunchContext containerLaunchContext);
+    @Private
+    @VisibleForTesting
+    protected NMClientAsync(String name, NMClient client,
+                            CallbackHandler callbackHandler) {
+        super(name);
+        this.setClient(client);
+        this.setCallbackHandler(callbackHandler);
+    }
 
-  public abstract void stopContainerAsync(
-      ContainerId containerId, NodeId nodeId);
+    public abstract void startContainerAsync(
+        Container container, ContainerLaunchContext containerLaunchContext);
 
-  public abstract void getContainerStatusAsync(
-      ContainerId containerId, NodeId nodeId);
-  
-  public NMClient getClient() {
-    return client;
-  }
+    public abstract void stopContainerAsync(
+        ContainerId containerId, NodeId nodeId);
 
-  public void setClient(NMClient client) {
-    this.client = client;
-  }
+    public abstract void getContainerStatusAsync(
+        ContainerId containerId, NodeId nodeId);
 
-  public CallbackHandler getCallbackHandler() {
-    return callbackHandler;
-  }
+    public NMClient getClient() {
+        return client;
+    }
 
-  public void setCallbackHandler(CallbackHandler callbackHandler) {
-    this.callbackHandler = callbackHandler;
-  }
+    public void setClient(NMClient client) {
+        this.client = client;
+    }
 
-  /**
-   * <p>
-   * The callback interface needs to be implemented by {@link NMClientAsync}
-   * users. The APIs are called when responses from <code>NodeManager</code> are
-   * available.
-   * </p>
-   *
-   * <p>
-   * Once a callback happens, the users can chose to act on it in blocking or
-   * non-blocking manner. If the action on callback is done in a blocking
-   * manner, some of the threads performing requests on NodeManagers may get
-   * blocked depending on how many threads in the pool are busy.
-   * </p>
-   *
-   * <p>
-   * The implementation of the callback function should not throw the
-   * unexpected exception. Otherwise, {@link NMClientAsync} will just
-   * catch, log and then ignore it.
-   * </p>
-   */
-  public static interface CallbackHandler {
-    /**
-     * The API is called when <code>NodeManager</code> responds to indicate its
-     * acceptance of the starting container request
-     * @param containerId the Id of the container
-     * @param allServiceResponse a Map between the auxiliary service names and
-     *                           their outputs
-     */
-    void onContainerStarted(ContainerId containerId,
-        Map<String, ByteBuffer> allServiceResponse);
+    public CallbackHandler getCallbackHandler() {
+        return callbackHandler;
+    }
+
+    public void setCallbackHandler(CallbackHandler callbackHandler) {
+        this.callbackHandler = callbackHandler;
+    }
 
     /**
-     * The API is called when <code>NodeManager</code> responds with the status
-     * of the container
-     * @param containerId the Id of the container
-     * @param containerStatus the status of the container
-     */
-    void onContainerStatusReceived(ContainerId containerId,
-        ContainerStatus containerStatus);
-
-    /**
-     * The API is called when <code>NodeManager</code> responds to indicate the
-     * container is stopped.
-     * @param containerId the Id of the container
-     */
-    void onContainerStopped(ContainerId containerId);
-
-    /**
-     * The API is called when an exception is raised in the process of
-     * starting a container
+     * <p>
+     * The callback interface needs to be implemented by {@link NMClientAsync}
+     * users. The APIs are called when responses from <code>NodeManager</code> are
+     * available.
+     * </p>
      *
-     * @param containerId the Id of the container
-     * @param t the raised exception
-     */
-    void onStartContainerError(ContainerId containerId, Throwable t);
-
-    /**
-     * The API is called when an exception is raised in the process of
-     * querying the status of a container
+     * <p>
+     * Once a callback happens, the users can chose to act on it in blocking or
+     * non-blocking manner. If the action on callback is done in a blocking
+     * manner, some of the threads performing requests on NodeManagers may get
+     * blocked depending on how many threads in the pool are busy.
+     * </p>
      *
-     * @param containerId the Id of the container
-     * @param t the raised exception
+     * <p>
+     * The implementation of the callback function should not throw the
+     * unexpected exception. Otherwise, {@link NMClientAsync} will just
+     * catch, log and then ignore it.
+     * </p>
      */
-    void onGetContainerStatusError(ContainerId containerId, Throwable t);
+    public static interface CallbackHandler {
+        /**
+         * The API is called when <code>NodeManager</code> responds to indicate its
+         * acceptance of the starting container request
+         * @param containerId the Id of the container
+         * @param allServiceResponse a Map between the auxiliary service names and
+         *                           their outputs
+         */
+        void onContainerStarted(ContainerId containerId,
+                                Map<String, ByteBuffer> allServiceResponse);
 
-    /**
-     * The API is called when an exception is raised in the process of
-     * stopping a container
-     *
-     * @param containerId the Id of the container
-     * @param t the raised exception
-     */
-    void onStopContainerError(ContainerId containerId, Throwable t);
+        /**
+         * The API is called when <code>NodeManager</code> responds with the status
+         * of the container
+         * @param containerId the Id of the container
+         * @param containerStatus the status of the container
+         */
+        void onContainerStatusReceived(ContainerId containerId,
+                                       ContainerStatus containerStatus);
 
-  }
+        /**
+         * The API is called when <code>NodeManager</code> responds to indicate the
+         * container is stopped.
+         * @param containerId the Id of the container
+         */
+        void onContainerStopped(ContainerId containerId);
+
+        /**
+         * The API is called when an exception is raised in the process of
+         * starting a container
+         *
+         * @param containerId the Id of the container
+         * @param t the raised exception
+         */
+        void onStartContainerError(ContainerId containerId, Throwable t);
+
+        /**
+         * The API is called when an exception is raised in the process of
+         * querying the status of a container
+         *
+         * @param containerId the Id of the container
+         * @param t the raised exception
+         */
+        void onGetContainerStatusError(ContainerId containerId, Throwable t);
+
+        /**
+         * The API is called when an exception is raised in the process of
+         * stopping a container
+         *
+         * @param containerId the Id of the container
+         * @param t the raised exception
+         */
+        void onStopContainerError(ContainerId containerId, Throwable t);
+
+    }
 
 }

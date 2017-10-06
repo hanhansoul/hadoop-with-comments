@@ -29,60 +29,59 @@ import org.junit.Test;
 
 public class TestMaster {
 
-  @Test
-  public void testGetMasterAddress() {
-    YarnConfiguration conf = new YarnConfiguration();
+    @Test
+    public void testGetMasterAddress() {
+        YarnConfiguration conf = new YarnConfiguration();
 
-    // Default is yarn framework
-    String masterHostname = Master.getMasterAddress(conf).getHostName();
-    
-    // no address set so should default to default rm address
-    InetSocketAddress rmAddr = NetUtils.createSocketAddr(YarnConfiguration.DEFAULT_RM_ADDRESS);
-    assertEquals(masterHostname, rmAddr.getHostName());
-    
-    // Trying invalid master address for classic 
-    conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.CLASSIC_FRAMEWORK_NAME);
-    conf.set(MRConfig.MASTER_ADDRESS, "local:invalid");
+        // Default is yarn framework
+        String masterHostname = Master.getMasterAddress(conf).getHostName();
 
-    // should throw an exception for invalid value
-    try {
-      Master.getMasterAddress(conf);
-      fail("Should not reach here as there is a bad master address");
+        // no address set so should default to default rm address
+        InetSocketAddress rmAddr = NetUtils.createSocketAddr(YarnConfiguration.DEFAULT_RM_ADDRESS);
+        assertEquals(masterHostname, rmAddr.getHostName());
+
+        // Trying invalid master address for classic
+        conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.CLASSIC_FRAMEWORK_NAME);
+        conf.set(MRConfig.MASTER_ADDRESS, "local:invalid");
+
+        // should throw an exception for invalid value
+        try {
+            Master.getMasterAddress(conf);
+            fail("Should not reach here as there is a bad master address");
+        } catch (Exception e) {
+            // Expected
+        }
+
+        // Change master address to a valid value
+        conf.set(MRConfig.MASTER_ADDRESS, "bar.com:8042");
+        masterHostname = Master.getMasterAddress(conf).getHostName();
+        assertEquals(masterHostname, "bar.com");
+
+        // change framework to yarn
+        conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
+        conf.set(YarnConfiguration.RM_ADDRESS, "foo1.com:8192");
+        masterHostname = Master.getMasterAddress(conf).getHostName();
+        assertEquals(masterHostname, "foo1.com");
+
     }
-    catch (Exception e) {
-      // Expected
+
+    @Test
+    public void testGetMasterUser() {
+        YarnConfiguration conf = new YarnConfiguration();
+        conf.set(MRConfig.MASTER_USER_NAME, "foo");
+        conf.set(YarnConfiguration.RM_PRINCIPAL, "bar");
+
+        // default is yarn framework
+        assertEquals(Master.getMasterUserName(conf), "bar");
+
+        // set framework name to classic
+        conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.CLASSIC_FRAMEWORK_NAME);
+        assertEquals(Master.getMasterUserName(conf), "foo");
+
+        // change framework to yarn
+        conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
+        assertEquals(Master.getMasterUserName(conf), "bar");
+
     }
-
-    // Change master address to a valid value
-    conf.set(MRConfig.MASTER_ADDRESS, "bar.com:8042");    
-    masterHostname = Master.getMasterAddress(conf).getHostName();
-    assertEquals(masterHostname, "bar.com");
-
-    // change framework to yarn
-    conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
-    conf.set(YarnConfiguration.RM_ADDRESS, "foo1.com:8192");
-    masterHostname = Master.getMasterAddress(conf).getHostName();
-    assertEquals(masterHostname, "foo1.com");
-
-  }
-
-  @Test 
-  public void testGetMasterUser() {
-    YarnConfiguration conf = new YarnConfiguration();
-    conf.set(MRConfig.MASTER_USER_NAME, "foo");
-    conf.set(YarnConfiguration.RM_PRINCIPAL, "bar");
-
-    // default is yarn framework  
-    assertEquals(Master.getMasterUserName(conf), "bar");
-
-    // set framework name to classic
-    conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.CLASSIC_FRAMEWORK_NAME);
-    assertEquals(Master.getMasterUserName(conf), "foo");
-
-    // change framework to yarn
-    conf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
-    assertEquals(Master.getMasterUserName(conf), "bar");
-
-  }
 
 }

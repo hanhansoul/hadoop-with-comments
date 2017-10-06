@@ -56,110 +56,110 @@ import com.google.common.annotations.VisibleForTesting;
  */
 public class TimelineAuthenticationFilterInitializer extends FilterInitializer {
 
-  /**
-   * The configuration prefix of timeline HTTP authentication
-   */
-  public static final String PREFIX = "yarn.timeline-service.http-authentication.";
+    /**
+     * The configuration prefix of timeline HTTP authentication
+     */
+    public static final String PREFIX = "yarn.timeline-service.http-authentication.";
 
-  private static final String SIGNATURE_SECRET_FILE =
-      TimelineAuthenticationFilter.SIGNATURE_SECRET + ".file";
+    private static final String SIGNATURE_SECRET_FILE =
+        TimelineAuthenticationFilter.SIGNATURE_SECRET + ".file";
 
-  @VisibleForTesting
-  Map<String, String> filterConfig;
+    @VisibleForTesting
+    Map<String, String> filterConfig;
 
-  /**
-   * <p>
-   * Initializes {@link TimelineAuthenticationFilter}
-   * <p/>
-   * <p>
-   * Propagates to {@link TimelineAuthenticationFilter} configuration all YARN
-   * configuration properties prefixed with
-   * "yarn.timeline-service.authentication."
-   * </p>
-   * 
-   * @param container
-   *          The filter container
-   * @param conf
-   *          Configuration for run-time parameters
-   */
-  @Override
-  public void initFilter(FilterContainer container, Configuration conf) {
-    filterConfig = new HashMap<String, String>();
+    /**
+     * <p>
+     * Initializes {@link TimelineAuthenticationFilter}
+     * <p/>
+     * <p>
+     * Propagates to {@link TimelineAuthenticationFilter} configuration all YARN
+     * configuration properties prefixed with
+     * "yarn.timeline-service.authentication."
+     * </p>
+     *
+     * @param container
+     *          The filter container
+     * @param conf
+     *          Configuration for run-time parameters
+     */
+    @Override
+    public void initFilter(FilterContainer container, Configuration conf) {
+        filterConfig = new HashMap<String, String>();
 
-    // setting the cookie path to root '/' so it is used for all resources.
-    filterConfig.put(TimelineAuthenticationFilter.COOKIE_PATH, "/");
+        // setting the cookie path to root '/' so it is used for all resources.
+        filterConfig.put(TimelineAuthenticationFilter.COOKIE_PATH, "/");
 
-    for (Map.Entry<String, String> entry : conf) {
-      String name = entry.getKey();
-      if (name.startsWith(ProxyUsers.CONF_HADOOP_PROXYUSER)) {
-        String value = conf.get(name);
-        name = name.substring("hadoop.".length());
-        filterConfig.put(name, value);
-      }
-    }
-    for (Map.Entry<String, String> entry : conf) {
-      String name = entry.getKey();
-      if (name.startsWith(PREFIX)) {
-        // yarn.timeline-service.http-authentication.proxyuser will override
-        // hadoop.proxyuser
-        String value = conf.get(name);
-        name = name.substring(PREFIX.length());
-        filterConfig.put(name, value);
-      }
-    }
-
-    String signatureSecretFile = filterConfig.get(SIGNATURE_SECRET_FILE);
-    if (signatureSecretFile != null) {
-      Reader reader = null;
-      try {
-        StringBuilder secret = new StringBuilder();
-        reader = new FileReader(signatureSecretFile);
-        int c = reader.read();
-        while (c > -1) {
-          secret.append((char) c);
-          c = reader.read();
+        for (Map.Entry<String, String> entry : conf) {
+            String name = entry.getKey();
+            if (name.startsWith(ProxyUsers.CONF_HADOOP_PROXYUSER)) {
+                String value = conf.get(name);
+                name = name.substring("hadoop.".length());
+                filterConfig.put(name, value);
+            }
         }
-        filterConfig
-            .put(TimelineAuthenticationFilter.SIGNATURE_SECRET,
-                secret.toString());
-      } catch (IOException ex) {
-        throw new RuntimeException(
-            "Could not read HTTP signature secret file: "
-                + signatureSecretFile);
-      } finally {
-        IOUtils.closeStream(reader);
-      }
-    }
-
-    String authType = filterConfig.get(AuthenticationFilter.AUTH_TYPE);
-    if (authType.equals(PseudoAuthenticationHandler.TYPE)) {
-      filterConfig.put(AuthenticationFilter.AUTH_TYPE,
-          PseudoDelegationTokenAuthenticationHandler.class.getName());
-    } else if (authType.equals(KerberosAuthenticationHandler.TYPE)) {
-      filterConfig.put(AuthenticationFilter.AUTH_TYPE,
-          KerberosDelegationTokenAuthenticationHandler.class.getName());
-
-      // Resolve _HOST into bind address
-      String bindAddress = conf.get(HttpServer2.BIND_ADDRESS);
-      String principal =
-          filterConfig.get(KerberosAuthenticationHandler.PRINCIPAL);
-      if (principal != null) {
-        try {
-          principal = SecurityUtil.getServerPrincipal(principal, bindAddress);
-        } catch (IOException ex) {
-          throw new RuntimeException(
-              "Could not resolve Kerberos principal name: " + ex.toString(), ex);
+        for (Map.Entry<String, String> entry : conf) {
+            String name = entry.getKey();
+            if (name.startsWith(PREFIX)) {
+                // yarn.timeline-service.http-authentication.proxyuser will override
+                // hadoop.proxyuser
+                String value = conf.get(name);
+                name = name.substring(PREFIX.length());
+                filterConfig.put(name, value);
+            }
         }
-        filterConfig.put(KerberosAuthenticationHandler.PRINCIPAL,
-            principal);
-      }
+
+        String signatureSecretFile = filterConfig.get(SIGNATURE_SECRET_FILE);
+        if (signatureSecretFile != null) {
+            Reader reader = null;
+            try {
+                StringBuilder secret = new StringBuilder();
+                reader = new FileReader(signatureSecretFile);
+                int c = reader.read();
+                while (c > -1) {
+                    secret.append((char) c);
+                    c = reader.read();
+                }
+                filterConfig
+                .put(TimelineAuthenticationFilter.SIGNATURE_SECRET,
+                     secret.toString());
+            } catch (IOException ex) {
+                throw new RuntimeException(
+                    "Could not read HTTP signature secret file: "
+                    + signatureSecretFile);
+            } finally {
+                IOUtils.closeStream(reader);
+            }
+        }
+
+        String authType = filterConfig.get(AuthenticationFilter.AUTH_TYPE);
+        if (authType.equals(PseudoAuthenticationHandler.TYPE)) {
+            filterConfig.put(AuthenticationFilter.AUTH_TYPE,
+                             PseudoDelegationTokenAuthenticationHandler.class.getName());
+        } else if (authType.equals(KerberosAuthenticationHandler.TYPE)) {
+            filterConfig.put(AuthenticationFilter.AUTH_TYPE,
+                             KerberosDelegationTokenAuthenticationHandler.class.getName());
+
+            // Resolve _HOST into bind address
+            String bindAddress = conf.get(HttpServer2.BIND_ADDRESS);
+            String principal =
+                filterConfig.get(KerberosAuthenticationHandler.PRINCIPAL);
+            if (principal != null) {
+                try {
+                    principal = SecurityUtil.getServerPrincipal(principal, bindAddress);
+                } catch (IOException ex) {
+                    throw new RuntimeException(
+                        "Could not resolve Kerberos principal name: " + ex.toString(), ex);
+                }
+                filterConfig.put(KerberosAuthenticationHandler.PRINCIPAL,
+                                 principal);
+            }
+        }
+
+        filterConfig.put(DelegationTokenAuthenticationHandler.TOKEN_KIND,
+                         TimelineDelegationTokenIdentifier.KIND_NAME.toString());
+
+        container.addGlobalFilter("Timeline Authentication Filter",
+                                  TimelineAuthenticationFilter.class.getName(),
+                                  filterConfig);
     }
-
-    filterConfig.put(DelegationTokenAuthenticationHandler.TOKEN_KIND,
-        TimelineDelegationTokenIdentifier.KIND_NAME.toString());
-
-    container.addGlobalFilter("Timeline Authentication Filter",
-        TimelineAuthenticationFilter.class.getName(),
-        filterConfig);
-  }
 }

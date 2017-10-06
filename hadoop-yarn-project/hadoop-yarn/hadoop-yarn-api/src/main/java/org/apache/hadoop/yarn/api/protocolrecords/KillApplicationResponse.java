@@ -41,32 +41,32 @@ import org.apache.hadoop.yarn.util.Records;
  * application is completed, the <code>ResourceManager</code> may retry this
  * application on recovery.
  * </p>
- * 
+ *
  * @see ApplicationClientProtocol#forceKillApplication(KillApplicationRequest)
  */
 @Public
 @Stable
 public abstract class KillApplicationResponse {
-  @Private
-  @Unstable
-  public static KillApplicationResponse newInstance(boolean isKillCompleted) {
-    KillApplicationResponse response =
-        Records.newRecord(KillApplicationResponse.class);
-    response.setIsKillCompleted(isKillCompleted);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static KillApplicationResponse newInstance(boolean isKillCompleted) {
+        KillApplicationResponse response =
+            Records.newRecord(KillApplicationResponse.class);
+        response.setIsKillCompleted(isKillCompleted);
+        return response;
+    }
 
-  /**
-   * Get the flag which indicates that the process of killing application is completed or not.
-   */
-  @Public
-  @Stable
-  public abstract boolean getIsKillCompleted();
+    /**
+     * Get the flag which indicates that the process of killing application is completed or not.
+     */
+    @Public
+    @Stable
+    public abstract boolean getIsKillCompleted();
 
-  /**
-   * Set the flag which indicates that the process of killing application is completed or not.
-   */
-  @Private
-  @Unstable
-  public abstract void setIsKillCompleted(boolean isKillCompleted);
+    /**
+     * Set the flag which indicates that the process of killing application is completed or not.
+     */
+    @Private
+    @Unstable
+    public abstract void setIsKillCompleted(boolean isKillCompleted);
 }

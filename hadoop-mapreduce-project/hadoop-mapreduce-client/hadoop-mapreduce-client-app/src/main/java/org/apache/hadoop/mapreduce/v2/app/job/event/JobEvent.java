@@ -27,15 +27,15 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
  */
 public class JobEvent extends AbstractEvent<JobEventType> {
 
-  private JobId jobID;
+    private JobId jobID;
 
-  public JobEvent(JobId jobID, JobEventType type) {
-    super(type);
-    this.jobID = jobID;
-  }
+    public JobEvent(JobId jobID, JobEventType type) {
+        super(type);
+        this.jobID = jobID;
+    }
 
-  public JobId getJobId() {
-    return jobID;
-  }
+    public JobId getJobId() {
+        return jobID;
+    }
 
 }

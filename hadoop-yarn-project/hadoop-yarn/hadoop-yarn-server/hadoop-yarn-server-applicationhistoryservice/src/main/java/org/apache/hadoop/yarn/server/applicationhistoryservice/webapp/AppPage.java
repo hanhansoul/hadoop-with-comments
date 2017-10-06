@@ -29,36 +29,36 @@ import org.apache.hadoop.yarn.webapp.YarnWebParams;
 
 public class AppPage extends AHSView {
 
-  @Override
-  protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    @Override
+    protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
 
-    String appId = $(YarnWebParams.APPLICATION_ID);
-    set(
-      TITLE,
-      appId.isEmpty() ? "Bad request: missing application ID" : join(
-        "Application ", $(YarnWebParams.APPLICATION_ID)));
+        String appId = $(YarnWebParams.APPLICATION_ID);
+        set(
+            TITLE,
+            appId.isEmpty() ? "Bad request: missing application ID" : join(
+                "Application ", $(YarnWebParams.APPLICATION_ID)));
 
-    set(DATATABLES_ID, "attempts ResourceRequests");
-    set(initID(DATATABLES, "attempts"), WebPageUtils.attemptsTableInit());
-    setTableStyles(html, "attempts", ".queue {width:6em}", ".ui {width:8em}");
+        set(DATATABLES_ID, "attempts ResourceRequests");
+        set(initID(DATATABLES, "attempts"), WebPageUtils.attemptsTableInit());
+        setTableStyles(html, "attempts", ".queue {width:6em}", ".ui {width:8em}");
 
-    setTableStyles(html, "ResourceRequests");
+        setTableStyles(html, "ResourceRequests");
 
-    set(YarnWebParams.WEB_UI_TYPE, YarnWebParams.APP_HISTORY_WEB_UI);
-  }
+        set(YarnWebParams.WEB_UI_TYPE, YarnWebParams.APP_HISTORY_WEB_UI);
+    }
 
-  @Override
-  protected Class<? extends SubView> content() {
-    return AppBlock.class;
-  }
+    @Override
+    protected Class<? extends SubView> content() {
+        return AppBlock.class;
+    }
 
-  protected String getAttemptsTableColumnDefs() {
-    StringBuilder sb = new StringBuilder();
-    return sb.append("[\n").append("{'sType':'numeric', 'aTargets': [0]")
-      .append(", 'mRender': parseHadoopID }")
+    protected String getAttemptsTableColumnDefs() {
+        StringBuilder sb = new StringBuilder();
+        return sb.append("[\n").append("{'sType':'numeric', 'aTargets': [0]")
+               .append(", 'mRender': parseHadoopID }")
 
-      .append("\n, {'sType':'numeric', 'aTargets': [1]")
-      .append(", 'mRender': renderHadoopDate }]").toString();
-  }
+               .append("\n, {'sType':'numeric', 'aTargets': [1]")
+               .append(", 'mRender': renderHadoopDate }]").toString();
+    }
 }

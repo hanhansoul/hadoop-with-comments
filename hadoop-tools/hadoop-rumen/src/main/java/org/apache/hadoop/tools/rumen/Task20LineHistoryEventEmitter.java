@@ -34,149 +34,149 @@ import org.apache.hadoop.mapreduce.jobhistory.TaskUpdatedEvent;
 
 public class Task20LineHistoryEventEmitter extends HistoryEventEmitter {
 
-  static List<SingleEventEmitter> nonFinals =
-      new LinkedList<SingleEventEmitter>();
-  static List<SingleEventEmitter> finals = new LinkedList<SingleEventEmitter>();
+    static List<SingleEventEmitter> nonFinals =
+        new LinkedList<SingleEventEmitter>();
+    static List<SingleEventEmitter> finals = new LinkedList<SingleEventEmitter>();
 
-  Long originalStartTime = null;
-  TaskType originalTaskType = null;
+    Long originalStartTime = null;
+    TaskType originalTaskType = null;
 
-  static {
-    nonFinals.add(new TaskStartedEventEmitter());
-    nonFinals.add(new TaskUpdatedEventEmitter());
+    static {
+        nonFinals.add(new TaskStartedEventEmitter());
+        nonFinals.add(new TaskUpdatedEventEmitter());
 
-    finals.add(new TaskFinishedEventEmitter());
-    finals.add(new TaskFailedEventEmitter());
-  }
-
-  protected Task20LineHistoryEventEmitter() {
-    super();
-  }
-
-  static private class TaskStartedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
-        HistoryEventEmitter thatg) {
-      if (taskIDName == null) {
-        return null;
-      }
-
-      TaskID taskID = TaskID.forName(taskIDName);
-
-      String taskType = line.get("TASK_TYPE");
-      String startTime = line.get("START_TIME");
-      String splits = line.get("SPLITS");
-
-      if (startTime != null && taskType != null) {
-        Task20LineHistoryEventEmitter that =
-            (Task20LineHistoryEventEmitter) thatg;
-
-        that.originalStartTime = Long.parseLong(startTime);
-        that.originalTaskType =
-            Version20LogInterfaceUtils.get20TaskType(taskType);
-
-        return new TaskStartedEvent(taskID, that.originalStartTime,
-            that.originalTaskType, splits);
-      }
-
-      return null;
+        finals.add(new TaskFinishedEventEmitter());
+        finals.add(new TaskFailedEventEmitter());
     }
-  }
 
-  static private class TaskUpdatedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
-        HistoryEventEmitter thatg) {
-      if (taskIDName == null) {
-        return null;
-      }
-
-      TaskID taskID = TaskID.forName(taskIDName);
-
-      String finishTime = line.get("FINISH_TIME");
-
-      if (finishTime != null) {
-        return new TaskUpdatedEvent(taskID, Long.parseLong(finishTime));
-      }
-
-      return null;
+    protected Task20LineHistoryEventEmitter() {
+        super();
     }
-  }
 
-  static private class TaskFinishedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
-        HistoryEventEmitter thatg) {
-      if (taskIDName == null) {
-        return null;
-      }
+    static private class TaskStartedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
+                                    HistoryEventEmitter thatg) {
+            if (taskIDName == null) {
+                return null;
+            }
 
-      TaskID taskID = TaskID.forName(taskIDName);
+            TaskID taskID = TaskID.forName(taskIDName);
 
-      String status = line.get("TASK_STATUS");
-      String finishTime = line.get("FINISH_TIME");
+            String taskType = line.get("TASK_TYPE");
+            String startTime = line.get("START_TIME");
+            String splits = line.get("SPLITS");
 
-      String error = line.get("ERROR");
+            if (startTime != null && taskType != null) {
+                Task20LineHistoryEventEmitter that =
+                    (Task20LineHistoryEventEmitter) thatg;
 
-      String counters = line.get("COUNTERS");
+                that.originalStartTime = Long.parseLong(startTime);
+                that.originalTaskType =
+                    Version20LogInterfaceUtils.get20TaskType(taskType);
 
-      if (finishTime != null && error == null
-          && (status != null && status.equalsIgnoreCase("success"))) {
-        Counters eventCounters = maybeParseCounters(counters);
+                return new TaskStartedEvent(taskID, that.originalStartTime,
+                                            that.originalTaskType, splits);
+            }
 
-        Task20LineHistoryEventEmitter that =
-            (Task20LineHistoryEventEmitter) thatg;
-
-        if (that.originalTaskType == null) {
-          return null;
+            return null;
         }
-
-        return new TaskFinishedEvent(taskID, null, Long.parseLong(finishTime),
-            that.originalTaskType, status, eventCounters);
-      }
-
-      return null;
     }
-  }
 
-  static private class TaskFailedEventEmitter extends SingleEventEmitter {
-    HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
-        HistoryEventEmitter thatg) {
-      if (taskIDName == null) {
-        return null;
-      }
+    static private class TaskUpdatedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
+                                    HistoryEventEmitter thatg) {
+            if (taskIDName == null) {
+                return null;
+            }
 
-      TaskID taskID = TaskID.forName(taskIDName);
+            TaskID taskID = TaskID.forName(taskIDName);
 
-      String status = line.get("TASK_STATUS");
-      String finishTime = line.get("FINISH_TIME");
+            String finishTime = line.get("FINISH_TIME");
 
-      String taskType = line.get("TASK_TYPE");
+            if (finishTime != null) {
+                return new TaskUpdatedEvent(taskID, Long.parseLong(finishTime));
+            }
 
-      String error = line.get("ERROR");
-
-      if (finishTime != null
-          && (error != null || (status != null && !status
-              .equalsIgnoreCase("success")))) {
-        Task20LineHistoryEventEmitter that =
-            (Task20LineHistoryEventEmitter) thatg;
-
-        TaskType originalTaskType =
-            that.originalTaskType == null ? Version20LogInterfaceUtils
-                .get20TaskType(taskType) : that.originalTaskType;
-
-        return new TaskFailedEvent(taskID, Long.parseLong(finishTime),
-            originalTaskType, error, status, null);
-      }
-
-      return null;
+            return null;
+        }
     }
-  }
 
-  @Override
-  List<SingleEventEmitter> finalSEEs() {
-    return finals;
-  }
+    static private class TaskFinishedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
+                                    HistoryEventEmitter thatg) {
+            if (taskIDName == null) {
+                return null;
+            }
 
-  @Override
-  List<SingleEventEmitter> nonFinalSEEs() {
-    return nonFinals;
-  }
+            TaskID taskID = TaskID.forName(taskIDName);
+
+            String status = line.get("TASK_STATUS");
+            String finishTime = line.get("FINISH_TIME");
+
+            String error = line.get("ERROR");
+
+            String counters = line.get("COUNTERS");
+
+            if (finishTime != null && error == null
+                && (status != null && status.equalsIgnoreCase("success"))) {
+                Counters eventCounters = maybeParseCounters(counters);
+
+                Task20LineHistoryEventEmitter that =
+                    (Task20LineHistoryEventEmitter) thatg;
+
+                if (that.originalTaskType == null) {
+                    return null;
+                }
+
+                return new TaskFinishedEvent(taskID, null, Long.parseLong(finishTime),
+                                             that.originalTaskType, status, eventCounters);
+            }
+
+            return null;
+        }
+    }
+
+    static private class TaskFailedEventEmitter extends SingleEventEmitter {
+        HistoryEvent maybeEmitEvent(ParsedLine line, String taskIDName,
+                                    HistoryEventEmitter thatg) {
+            if (taskIDName == null) {
+                return null;
+            }
+
+            TaskID taskID = TaskID.forName(taskIDName);
+
+            String status = line.get("TASK_STATUS");
+            String finishTime = line.get("FINISH_TIME");
+
+            String taskType = line.get("TASK_TYPE");
+
+            String error = line.get("ERROR");
+
+            if (finishTime != null
+                && (error != null || (status != null && !status
+                                      .equalsIgnoreCase("success")))) {
+                Task20LineHistoryEventEmitter that =
+                    (Task20LineHistoryEventEmitter) thatg;
+
+                TaskType originalTaskType =
+                    that.originalTaskType == null ? Version20LogInterfaceUtils
+                    .get20TaskType(taskType) : that.originalTaskType;
+
+                return new TaskFailedEvent(taskID, Long.parseLong(finishTime),
+                                           originalTaskType, error, status, null);
+            }
+
+            return null;
+        }
+    }
+
+    @Override
+    List<SingleEventEmitter> finalSEEs() {
+        return finals;
+    }
+
+    @Override
+    List<SingleEventEmitter> nonFinalSEEs() {
+        return nonFinals;
+    }
 }

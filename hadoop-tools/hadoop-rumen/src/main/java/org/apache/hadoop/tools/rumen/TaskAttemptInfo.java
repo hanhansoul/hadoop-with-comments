@@ -26,53 +26,53 @@ import org.apache.hadoop.mapred.TaskStatus.State;
  * task-attempt gleaned from job-history of the job.
  */
 public abstract class TaskAttemptInfo {
-  protected final State state;
-  protected final TaskInfo taskInfo;
+    protected final State state;
+    protected final TaskInfo taskInfo;
 
-  protected final List<List<Integer>> allSplits;
+    protected final List<List<Integer>> allSplits;
 
-  protected TaskAttemptInfo
-       (State state, TaskInfo taskInfo, List<List<Integer>> allSplits) {
-    if (state == State.SUCCEEDED || state == State.FAILED) {
-      this.state = state;
-    } else {
-      throw new IllegalArgumentException("status cannot be " + state);
+    protected TaskAttemptInfo
+    (State state, TaskInfo taskInfo, List<List<Integer>> allSplits) {
+        if (state == State.SUCCEEDED || state == State.FAILED) {
+            this.state = state;
+        } else {
+            throw new IllegalArgumentException("status cannot be " + state);
+        }
+        this.taskInfo = taskInfo;
+        this.allSplits = allSplits;
     }
-    this.taskInfo = taskInfo;
-    this.allSplits = allSplits;
-  }
 
-  protected TaskAttemptInfo
-       (State state, TaskInfo taskInfo) {
-    this(state, taskInfo, LoggedTaskAttempt.SplitVectorKind.getNullSplitsVector());
-  }
+    protected TaskAttemptInfo
+    (State state, TaskInfo taskInfo) {
+        this(state, taskInfo, LoggedTaskAttempt.SplitVectorKind.getNullSplitsVector());
+    }
 
-  /**
-   * Get the final {@link State} of the task-attempt.
-   * 
-   * @return the final <code>State</code> of the task-attempt
-   */
-  public State getRunState() {
-    return state;
-  }
+    /**
+     * Get the final {@link State} of the task-attempt.
+     *
+     * @return the final <code>State</code> of the task-attempt
+     */
+    public State getRunState() {
+        return state;
+    }
 
-  /**
-   * Get the total runtime for the task-attempt.
-   * 
-   * @return the total runtime for the task-attempt
-   */
-  public abstract long getRuntime();
+    /**
+     * Get the total runtime for the task-attempt.
+     *
+     * @return the total runtime for the task-attempt
+     */
+    public abstract long getRuntime();
 
-  /**
-   * Get the {@link TaskInfo} for the given task-attempt.
-   * 
-   * @return the <code>TaskInfo</code> for the given task-attempt
-   */
-  public TaskInfo getTaskInfo() {
-    return taskInfo;
-  }
-      
-  public List<Integer> getSplitVector(LoggedTaskAttempt.SplitVectorKind kind) {
-    return kind.get(allSplits);
-  }
+    /**
+     * Get the {@link TaskInfo} for the given task-attempt.
+     *
+     * @return the <code>TaskInfo</code> for the given task-attempt
+     */
+    public TaskInfo getTaskInfo() {
+        return taskInfo;
+    }
+
+    public List<Integer> getSplitVector(LoggedTaskAttempt.SplitVectorKind kind) {
+        return kind.get(allSplits);
+    }
 }

@@ -33,14 +33,14 @@ import org.apache.hadoop.security.token.TokenInfo;
 @KerberosInfo(
     serverPrincipal = DFSConfigKeys.DFS_NAMENODE_KERBEROS_PRINCIPAL_KEY)
 @TokenInfo(DelegationTokenSelector.class)
-@ProtocolInfo(protocolName = HdfsConstants.CLIENT_NAMENODE_PROTOCOL_NAME, 
-    protocolVersion = 1)
+@ProtocolInfo(protocolName = HdfsConstants.CLIENT_NAMENODE_PROTOCOL_NAME,
+              protocolVersion = 1)
 /**
  * Protocol that a clients use to communicate with the NameNode.
- * 
+ *
  * Note: This extends the protocolbuffer service based interface to
  * add annotations required for security.
  */
-public interface ClientNamenodeProtocolPB extends 
-  ClientNamenodeProtocol.BlockingInterface {
+public interface ClientNamenodeProtocolPB extends
+    ClientNamenodeProtocol.BlockingInterface {
 }

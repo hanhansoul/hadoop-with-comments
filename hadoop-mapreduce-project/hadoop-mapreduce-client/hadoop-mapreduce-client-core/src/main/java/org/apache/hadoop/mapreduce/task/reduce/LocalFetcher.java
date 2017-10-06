@@ -44,127 +44,127 @@ import org.apache.hadoop.mapreduce.CryptoUtils;
  */
 class LocalFetcher<K,V> extends Fetcher<K, V> {
 
-  private static final Log LOG = LogFactory.getLog(LocalFetcher.class);
+    private static final Log LOG = LogFactory.getLog(LocalFetcher.class);
 
-  private static final MapHost LOCALHOST = new MapHost("local", "local");
+    private static final MapHost LOCALHOST = new MapHost("local", "local");
 
-  private JobConf job;
-  private Map<TaskAttemptID, MapOutputFile> localMapFiles;
+    private JobConf job;
+    private Map<TaskAttemptID, MapOutputFile> localMapFiles;
 
-  public LocalFetcher(JobConf job, TaskAttemptID reduceId,
-                 ShuffleSchedulerImpl<K, V> scheduler,
-                 MergeManager<K,V> merger,
-                 Reporter reporter, ShuffleClientMetrics metrics,
-                 ExceptionReporter exceptionReporter,
-                 SecretKey shuffleKey,
-                 Map<TaskAttemptID, MapOutputFile> localMapFiles) {
-    super(job, reduceId, scheduler, merger, reporter, metrics,
-        exceptionReporter, shuffleKey);
+    public LocalFetcher(JobConf job, TaskAttemptID reduceId,
+                        ShuffleSchedulerImpl<K, V> scheduler,
+                        MergeManager<K,V> merger,
+                        Reporter reporter, ShuffleClientMetrics metrics,
+                        ExceptionReporter exceptionReporter,
+                        SecretKey shuffleKey,
+                        Map<TaskAttemptID, MapOutputFile> localMapFiles) {
+        super(job, reduceId, scheduler, merger, reporter, metrics,
+              exceptionReporter, shuffleKey);
 
-    this.job = job;
-    this.localMapFiles = localMapFiles;
+        this.job = job;
+        this.localMapFiles = localMapFiles;
 
-    setName("localfetcher#" + id);
-    setDaemon(true);
-  }
-
-  public void run() {
-    // Create a worklist of task attempts to work over.
-    Set<TaskAttemptID> maps = new HashSet<TaskAttemptID>();
-    for (TaskAttemptID map : localMapFiles.keySet()) {
-      maps.add(map);
+        setName("localfetcher#" + id);
+        setDaemon(true);
     }
 
-    while (maps.size() > 0) {
-      try {
-        // If merge is on, block
-        merger.waitForResource();
-        metrics.threadBusy();
+    public void run() {
+        // Create a worklist of task attempts to work over.
+        Set<TaskAttemptID> maps = new HashSet<TaskAttemptID>();
+        for (TaskAttemptID map : localMapFiles.keySet()) {
+            maps.add(map);
+        }
 
-        // Copy as much as is possible.
-        doCopy(maps);
-        metrics.threadFree();
-      } catch (InterruptedException ie) {
-      } catch (Throwable t) {
-        exceptionReporter.reportException(t);
-      }
-    }
-  }
+        while (maps.size() > 0) {
+            try {
+                // If merge is on, block
+                merger.waitForResource();
+                metrics.threadBusy();
 
-  /**
-   * The crux of the matter...
-   */
-  private void doCopy(Set<TaskAttemptID> maps) throws IOException {
-    Iterator<TaskAttemptID> iter = maps.iterator();
-    while (iter.hasNext()) {
-      TaskAttemptID map = iter.next();
-      LOG.debug("LocalFetcher " + id + " going to fetch: " + map);
-      if (copyMapOutput(map)) {
-        // Successful copy. Remove this from our worklist.
-        iter.remove();
-      } else {
-        // We got back a WAIT command; go back to the outer loop
-        // and block for InMemoryMerge.
-        break;
-      }
-    }
-  }
-
-  /**
-   * Retrieve the map output of a single map task
-   * and send it to the merger.
-   */
-  private boolean copyMapOutput(TaskAttemptID mapTaskId) throws IOException {
-    // Figure out where the map task stored its output.
-    Path mapOutputFileName = localMapFiles.get(mapTaskId).getOutputFile();
-    Path indexFileName = mapOutputFileName.suffix(".index");
-
-    // Read its index to determine the location of our split
-    // and its size.
-    SpillRecord sr = new SpillRecord(indexFileName, job);
-    IndexRecord ir = sr.getIndex(reduce);
-
-    long compressedLength = ir.partLength;
-    long decompressedLength = ir.rawLength;
-
-    // Get the location for the map output - either in-memory or on-disk
-    MapOutput<K, V> mapOutput = merger.reserve(mapTaskId, decompressedLength,
-        id);
-
-    // Check if we can shuffle *now* ...
-    if (mapOutput == null) {
-      LOG.info("fetcher#" + id + " - MergeManager returned Status.WAIT ...");
-      return false;
+                // Copy as much as is possible.
+                doCopy(maps);
+                metrics.threadFree();
+            } catch (InterruptedException ie) {
+            } catch (Throwable t) {
+                exceptionReporter.reportException(t);
+            }
+        }
     }
 
-    // Go!
-    LOG.info("localfetcher#" + id + " about to shuffle output of map " + 
-             mapOutput.getMapId() + " decomp: " +
-             decompressedLength + " len: " + compressedLength + " to " +
-             mapOutput.getDescription());
-
-    // now read the file, seek to the appropriate section, and send it.
-    FileSystem localFs = FileSystem.getLocal(job).getRaw();
-    FSDataInputStream inStream = localFs.open(mapOutputFileName);
-
-    inStream = CryptoUtils.wrapIfNecessary(job, inStream);
-
-    try {
-      inStream.seek(ir.startOffset);
-
-      mapOutput.shuffle(LOCALHOST, inStream, compressedLength, decompressedLength, metrics, reporter);
-    } finally {
-      try {
-        inStream.close();
-      } catch (IOException ioe) {
-        LOG.warn("IOException closing inputstream from map output: "
-            + ioe.toString());
-      }
+    /**
+     * The crux of the matter...
+     */
+    private void doCopy(Set<TaskAttemptID> maps) throws IOException {
+        Iterator<TaskAttemptID> iter = maps.iterator();
+        while (iter.hasNext()) {
+            TaskAttemptID map = iter.next();
+            LOG.debug("LocalFetcher " + id + " going to fetch: " + map);
+            if (copyMapOutput(map)) {
+                // Successful copy. Remove this from our worklist.
+                iter.remove();
+            } else {
+                // We got back a WAIT command; go back to the outer loop
+                // and block for InMemoryMerge.
+                break;
+            }
+        }
     }
 
-    scheduler.copySucceeded(mapTaskId, LOCALHOST, compressedLength, 0, 0,
-        mapOutput);
-    return true; // successful fetch.
-  }
+    /**
+     * Retrieve the map output of a single map task
+     * and send it to the merger.
+     */
+    private boolean copyMapOutput(TaskAttemptID mapTaskId) throws IOException {
+        // Figure out where the map task stored its output.
+        Path mapOutputFileName = localMapFiles.get(mapTaskId).getOutputFile();
+        Path indexFileName = mapOutputFileName.suffix(".index");
+
+        // Read its index to determine the location of our split
+        // and its size.
+        SpillRecord sr = new SpillRecord(indexFileName, job);
+        IndexRecord ir = sr.getIndex(reduce);
+
+        long compressedLength = ir.partLength;
+        long decompressedLength = ir.rawLength;
+
+        // Get the location for the map output - either in-memory or on-disk
+        MapOutput<K, V> mapOutput = merger.reserve(mapTaskId, decompressedLength,
+                                    id);
+
+        // Check if we can shuffle *now* ...
+        if (mapOutput == null) {
+            LOG.info("fetcher#" + id + " - MergeManager returned Status.WAIT ...");
+            return false;
+        }
+
+        // Go!
+        LOG.info("localfetcher#" + id + " about to shuffle output of map " +
+                 mapOutput.getMapId() + " decomp: " +
+                 decompressedLength + " len: " + compressedLength + " to " +
+                 mapOutput.getDescription());
+
+        // now read the file, seek to the appropriate section, and send it.
+        FileSystem localFs = FileSystem.getLocal(job).getRaw();
+        FSDataInputStream inStream = localFs.open(mapOutputFileName);
+
+        inStream = CryptoUtils.wrapIfNecessary(job, inStream);
+
+        try {
+            inStream.seek(ir.startOffset);
+
+            mapOutput.shuffle(LOCALHOST, inStream, compressedLength, decompressedLength, metrics, reporter);
+        } finally {
+            try {
+                inStream.close();
+            } catch (IOException ioe) {
+                LOG.warn("IOException closing inputstream from map output: "
+                         + ioe.toString());
+            }
+        }
+
+        scheduler.copySucceeded(mapTaskId, LOCALHOST, compressedLength, 0, 0,
+                                mapOutput);
+        return true; // successful fetch.
+    }
 }
 

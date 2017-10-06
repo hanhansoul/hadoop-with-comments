@@ -22,13 +22,13 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This class implements a value aggregator that sums up 
+ * This class implements a value aggregator that sums up
  * a sequence of long values.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class LongValueSum 
-    extends org.apache.hadoop.mapreduce.lib.aggregate.LongValueSum 
+public class LongValueSum
+    extends org.apache.hadoop.mapreduce.lib.aggregate.LongValueSum
     implements ValueAggregator<String> {
 }
 

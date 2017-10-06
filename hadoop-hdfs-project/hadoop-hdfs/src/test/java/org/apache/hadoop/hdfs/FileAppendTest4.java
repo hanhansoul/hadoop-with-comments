@@ -40,76 +40,76 @@ import org.junit.Test;
  *
  */
 public class FileAppendTest4 {
-  public static final Log LOG = LogFactory.getLog(FileAppendTest4.class);
-  
-  private static final int BYTES_PER_CHECKSUM = 4;
-  private static final int PACKET_SIZE = BYTES_PER_CHECKSUM;
-  private static final int BLOCK_SIZE = 2*PACKET_SIZE;
-  private static final short REPLICATION = 3;
-  private static final int DATANODE_NUM = 5;
-  private static Configuration conf;
-  private static MiniDFSCluster cluster;
-  private static DistributedFileSystem fs;
+    public static final Log LOG = LogFactory.getLog(FileAppendTest4.class);
 
-  private static void init(Configuration conf) {
-    conf.setInt(DFSConfigKeys.DFS_BYTES_PER_CHECKSUM_KEY, BYTES_PER_CHECKSUM);
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
-    conf.setInt(DFSConfigKeys.DFS_CLIENT_WRITE_PACKET_SIZE_KEY, PACKET_SIZE);
-  }
-  
-  @BeforeClass
-  public static void startUp () throws IOException {
-    conf = new HdfsConfiguration();
-    init(conf);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(DATANODE_NUM).build();
-    fs = cluster.getFileSystem();
-  }
+    private static final int BYTES_PER_CHECKSUM = 4;
+    private static final int PACKET_SIZE = BYTES_PER_CHECKSUM;
+    private static final int BLOCK_SIZE = 2*PACKET_SIZE;
+    private static final short REPLICATION = 3;
+    private static final int DATANODE_NUM = 5;
+    private static Configuration conf;
+    private static MiniDFSCluster cluster;
+    private static DistributedFileSystem fs;
 
-  @AfterClass
-  public static void tearDown() {
-    cluster.shutdown();
-  }
-  
-  /**
-   * Comprehensive test for append 
-   * @throws IOException an exception might be thrown
-   */
-  @Test
-  public void testAppend() throws IOException {
-    final int maxOldFileLen = 2*BLOCK_SIZE+1;
-    final int maxFlushedBytes = BLOCK_SIZE;
-    byte[] contents = AppendTestUtil.initBuffer(
-        maxOldFileLen+2*maxFlushedBytes);
-    for (int oldFileLen =0; oldFileLen <=maxOldFileLen; oldFileLen++) {
-      for (int flushedBytes1=0; flushedBytes1<=maxFlushedBytes; 
-                                flushedBytes1++) {
-        for (int flushedBytes2=0; flushedBytes2 <=maxFlushedBytes; 
-                                  flushedBytes2++) {
-          final int fileLen = oldFileLen + flushedBytes1 + flushedBytes2;
-          // create the initial file of oldFileLen
-          final Path p = 
-            new Path("foo"+ oldFileLen +"_"+ flushedBytes1 +"_"+ flushedBytes2);
-          LOG.info("Creating file " + p);
-          FSDataOutputStream out = fs.create(p, false, 
-              conf.getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096), 
-              REPLICATION, BLOCK_SIZE);
-          out.write(contents, 0, oldFileLen);
-          out.close();
-
-          // append flushedBytes bytes to the file
-          out = fs.append(p);
-          out.write(contents, oldFileLen, flushedBytes1);
-          out.hflush();
-
-          // write another flushedBytes2 bytes to the file
-          out.write(contents, oldFileLen + flushedBytes1, flushedBytes2);
-          out.close();
-
-          // validate the file content
-          AppendTestUtil.checkFullFile(fs, p, fileLen, contents, p.toString());
-          fs.delete(p, false);
-        }
-      }
+    private static void init(Configuration conf) {
+        conf.setInt(DFSConfigKeys.DFS_BYTES_PER_CHECKSUM_KEY, BYTES_PER_CHECKSUM);
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCK_SIZE);
+        conf.setInt(DFSConfigKeys.DFS_CLIENT_WRITE_PACKET_SIZE_KEY, PACKET_SIZE);
     }
-  }
+
+    @BeforeClass
+    public static void startUp () throws IOException {
+        conf = new HdfsConfiguration();
+        init(conf);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(DATANODE_NUM).build();
+        fs = cluster.getFileSystem();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        cluster.shutdown();
+    }
+
+    /**
+     * Comprehensive test for append
+     * @throws IOException an exception might be thrown
+     */
+    @Test
+    public void testAppend() throws IOException {
+        final int maxOldFileLen = 2*BLOCK_SIZE+1;
+        final int maxFlushedBytes = BLOCK_SIZE;
+        byte[] contents = AppendTestUtil.initBuffer(
+                              maxOldFileLen+2*maxFlushedBytes);
+        for (int oldFileLen =0; oldFileLen <=maxOldFileLen; oldFileLen++) {
+            for (int flushedBytes1=0; flushedBytes1<=maxFlushedBytes;
+                 flushedBytes1++) {
+                for (int flushedBytes2=0; flushedBytes2 <=maxFlushedBytes;
+                     flushedBytes2++) {
+                    final int fileLen = oldFileLen + flushedBytes1 + flushedBytes2;
+                    // create the initial file of oldFileLen
+                    final Path p =
+                        new Path("foo"+ oldFileLen +"_"+ flushedBytes1 +"_"+ flushedBytes2);
+                    LOG.info("Creating file " + p);
+                    FSDataOutputStream out = fs.create(p, false,
+                                                       conf.getInt(CommonConfigurationKeys.IO_FILE_BUFFER_SIZE_KEY, 4096),
+                                                       REPLICATION, BLOCK_SIZE);
+                    out.write(contents, 0, oldFileLen);
+                    out.close();
+
+                    // append flushedBytes bytes to the file
+                    out = fs.append(p);
+                    out.write(contents, oldFileLen, flushedBytes1);
+                    out.hflush();
+
+                    // write another flushedBytes2 bytes to the file
+                    out.write(contents, oldFileLen + flushedBytes1, flushedBytes2);
+                    out.close();
+
+                    // validate the file content
+                    AppendTestUtil.checkFullFile(fs, p, fileLen, contents, p.toString());
+                    fs.delete(p, false);
+                }
+            }
+        }
+    }
 }

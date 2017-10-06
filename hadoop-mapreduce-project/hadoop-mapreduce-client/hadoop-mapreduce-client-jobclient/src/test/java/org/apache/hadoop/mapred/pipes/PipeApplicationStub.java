@@ -28,74 +28,74 @@ Stub for  TestPipeApplication   test. This stub produced test data for main test
 
 public class PipeApplicationStub extends CommonStub {
 
-  public static void main(String[] args) {
-    PipeApplicationStub client = new PipeApplicationStub();
-    client.binaryProtocolStub();
-  }
-
-  public void binaryProtocolStub() {
-    try {
-
-      initSoket();
-
-      // output code
-      WritableUtils.writeVInt(dataOut, 50);
-      IntWritable wt = new IntWritable();
-      wt.set(123);
-      writeObject(wt, dataOut);
-      writeObject(new Text("value"), dataOut);
-
-      //  PARTITIONED_OUTPUT
-      WritableUtils.writeVInt(dataOut, 51);
-      WritableUtils.writeVInt(dataOut, 0);
-      writeObject(wt, dataOut);
-      writeObject(new Text("value"), dataOut);
-
-
-      // STATUS
-      WritableUtils.writeVInt(dataOut, 52);
-      Text.writeString(dataOut, "PROGRESS");
-      dataOut.flush();
-
-      // progress
-      WritableUtils.writeVInt(dataOut, 53);
-      dataOut.writeFloat(0.55f);
-      // register counter
-      WritableUtils.writeVInt(dataOut, 55);
-      // id
-      WritableUtils.writeVInt(dataOut, 0);
-      Text.writeString(dataOut, "group");
-      Text.writeString(dataOut, "name");
-      // increment counter
-      WritableUtils.writeVInt(dataOut, 56);
-      WritableUtils.writeVInt(dataOut, 0);
-
-      WritableUtils.writeVLong(dataOut, 2);
-
-      // map item
-      int intValue = WritableUtils.readVInt(dataInput);
-      System.out.println("intValue:" + intValue);
-      IntWritable iw = new IntWritable();
-      readObject(iw, dataInput);
-      System.out.println("key:" + iw.get());
-      Text txt = new Text();
-      readObject(txt, dataInput);
-      System.out.println("value:" + txt.toString());
-
-      // done
-      // end of session
-      WritableUtils.writeVInt(dataOut, 54);
-
-      System.out.println("finish");
-      dataOut.flush();
-      dataOut.close();
-
-    } catch (Exception x) {
-      x.printStackTrace();
-    } finally {
-      closeSoket();
+    public static void main(String[] args) {
+        PipeApplicationStub client = new PipeApplicationStub();
+        client.binaryProtocolStub();
     }
-  }
+
+    public void binaryProtocolStub() {
+        try {
+
+            initSoket();
+
+            // output code
+            WritableUtils.writeVInt(dataOut, 50);
+            IntWritable wt = new IntWritable();
+            wt.set(123);
+            writeObject(wt, dataOut);
+            writeObject(new Text("value"), dataOut);
+
+            //  PARTITIONED_OUTPUT
+            WritableUtils.writeVInt(dataOut, 51);
+            WritableUtils.writeVInt(dataOut, 0);
+            writeObject(wt, dataOut);
+            writeObject(new Text("value"), dataOut);
+
+
+            // STATUS
+            WritableUtils.writeVInt(dataOut, 52);
+            Text.writeString(dataOut, "PROGRESS");
+            dataOut.flush();
+
+            // progress
+            WritableUtils.writeVInt(dataOut, 53);
+            dataOut.writeFloat(0.55f);
+            // register counter
+            WritableUtils.writeVInt(dataOut, 55);
+            // id
+            WritableUtils.writeVInt(dataOut, 0);
+            Text.writeString(dataOut, "group");
+            Text.writeString(dataOut, "name");
+            // increment counter
+            WritableUtils.writeVInt(dataOut, 56);
+            WritableUtils.writeVInt(dataOut, 0);
+
+            WritableUtils.writeVLong(dataOut, 2);
+
+            // map item
+            int intValue = WritableUtils.readVInt(dataInput);
+            System.out.println("intValue:" + intValue);
+            IntWritable iw = new IntWritable();
+            readObject(iw, dataInput);
+            System.out.println("key:" + iw.get());
+            Text txt = new Text();
+            readObject(txt, dataInput);
+            System.out.println("value:" + txt.toString());
+
+            // done
+            // end of session
+            WritableUtils.writeVInt(dataOut, 54);
+
+            System.out.println("finish");
+            dataOut.flush();
+            dataOut.close();
+
+        } catch (Exception x) {
+            x.printStackTrace();
+        } finally {
+            closeSoket();
+        }
+    }
 
 
 }

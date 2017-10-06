@@ -36,56 +36,56 @@ import com.google.inject.Inject;
 
 public class NodePage extends NMView {
 
-  private static final long BYTES_IN_MB = 1024 * 1024;
+    private static final long BYTES_IN_MB = 1024 * 1024;
 
-  @Override
-  protected void commonPreHead(HTML<_> html) {
-    super.commonPreHead(html);
+    @Override
+    protected void commonPreHead(HTML<_> html) {
+        super.commonPreHead(html);
 
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:1}");
-  }
-
-  @Override
-  protected Class<? extends SubView> content() {
-    return NodeBlock.class;
-  }
-
-  public static class NodeBlock extends HtmlBlock {
-
-    private final Context context;
-    private final ResourceView resourceView;
-
-    @Inject
-    public NodeBlock(Context context, ResourceView resourceView) {
-      this.context = context;
-      this.resourceView = resourceView;
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:1}");
     }
 
     @Override
-    protected void render(Block html) {
-      NodeInfo info = new NodeInfo(this.context, this.resourceView);
-      info("NodeManager information")
-          ._("Total Vmem allocated for Containers",
-              StringUtils.byteDesc(info.getTotalVmemAllocated() * BYTES_IN_MB))
-          ._("Vmem enforcement enabled",
-              info.isVmemCheckEnabled())
-          ._("Total Pmem allocated for Container",
-              StringUtils.byteDesc(info.getTotalPmemAllocated() * BYTES_IN_MB))
-          ._("Pmem enforcement enabled",
-              info.isPmemCheckEnabled())
-           ._("Total VCores allocated for Containers",
-              String.valueOf(info.getTotalVCoresAllocated())) 
-          ._("NodeHealthyStatus",
-              info.getHealthStatus())
-          ._("LastNodeHealthTime", new Date(
-              info.getLastNodeUpdateTime()))
-          ._("NodeHealthReport",
-              info.getHealthReport())
-          ._("Node Manager Version:", info.getNMBuildVersion() +
-              " on " + info.getNMVersionBuiltOn())
-          ._("Hadoop Version:", info.getHadoopBuildVersion() +
-              " on " + info.getHadoopVersionBuiltOn());
-      html._(InfoBlock.class);
+    protected Class<? extends SubView> content() {
+        return NodeBlock.class;
     }
-  }
+
+    public static class NodeBlock extends HtmlBlock {
+
+        private final Context context;
+        private final ResourceView resourceView;
+
+        @Inject
+        public NodeBlock(Context context, ResourceView resourceView) {
+            this.context = context;
+            this.resourceView = resourceView;
+        }
+
+        @Override
+        protected void render(Block html) {
+            NodeInfo info = new NodeInfo(this.context, this.resourceView);
+            info("NodeManager information")
+            ._("Total Vmem allocated for Containers",
+               StringUtils.byteDesc(info.getTotalVmemAllocated() * BYTES_IN_MB))
+            ._("Vmem enforcement enabled",
+               info.isVmemCheckEnabled())
+            ._("Total Pmem allocated for Container",
+               StringUtils.byteDesc(info.getTotalPmemAllocated() * BYTES_IN_MB))
+            ._("Pmem enforcement enabled",
+               info.isPmemCheckEnabled())
+            ._("Total VCores allocated for Containers",
+               String.valueOf(info.getTotalVCoresAllocated()))
+            ._("NodeHealthyStatus",
+               info.getHealthStatus())
+            ._("LastNodeHealthTime", new Date(
+                   info.getLastNodeUpdateTime()))
+            ._("NodeHealthReport",
+               info.getHealthReport())
+            ._("Node Manager Version:", info.getNMBuildVersion() +
+               " on " + info.getNMVersionBuiltOn())
+            ._("Hadoop Version:", info.getHadoopBuildVersion() +
+               " on " + info.getHadoopVersionBuiltOn());
+            html._(InfoBlock.class);
+        }
+    }
 }

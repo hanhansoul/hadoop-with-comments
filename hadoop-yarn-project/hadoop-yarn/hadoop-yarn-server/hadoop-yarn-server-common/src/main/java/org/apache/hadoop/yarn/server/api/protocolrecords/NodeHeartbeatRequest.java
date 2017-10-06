@@ -23,26 +23,26 @@ import org.apache.hadoop.yarn.server.api.records.NodeStatus;
 import org.apache.hadoop.yarn.util.Records;
 
 public abstract class NodeHeartbeatRequest {
-  
-  public static NodeHeartbeatRequest newInstance(NodeStatus nodeStatus,
-      MasterKey lastKnownContainerTokenMasterKey,
-      MasterKey lastKnownNMTokenMasterKey) {
-    NodeHeartbeatRequest nodeHeartbeatRequest =
-        Records.newRecord(NodeHeartbeatRequest.class);
-    nodeHeartbeatRequest.setNodeStatus(nodeStatus);
-    nodeHeartbeatRequest
+
+    public static NodeHeartbeatRequest newInstance(NodeStatus nodeStatus,
+            MasterKey lastKnownContainerTokenMasterKey,
+            MasterKey lastKnownNMTokenMasterKey) {
+        NodeHeartbeatRequest nodeHeartbeatRequest =
+            Records.newRecord(NodeHeartbeatRequest.class);
+        nodeHeartbeatRequest.setNodeStatus(nodeStatus);
+        nodeHeartbeatRequest
         .setLastKnownContainerTokenMasterKey(lastKnownContainerTokenMasterKey);
-    nodeHeartbeatRequest
+        nodeHeartbeatRequest
         .setLastKnownNMTokenMasterKey(lastKnownNMTokenMasterKey);
-    return nodeHeartbeatRequest;
-  }
+        return nodeHeartbeatRequest;
+    }
 
-  public abstract NodeStatus getNodeStatus();
-  public abstract void setNodeStatus(NodeStatus status);
+    public abstract NodeStatus getNodeStatus();
+    public abstract void setNodeStatus(NodeStatus status);
 
-  public abstract MasterKey getLastKnownContainerTokenMasterKey();
-  public abstract void setLastKnownContainerTokenMasterKey(MasterKey secretKey);
-  
-  public abstract MasterKey getLastKnownNMTokenMasterKey();
-  public abstract void setLastKnownNMTokenMasterKey(MasterKey secretKey);
+    public abstract MasterKey getLastKnownContainerTokenMasterKey();
+    public abstract void setLastKnownContainerTokenMasterKey(MasterKey secretKey);
+
+    public abstract MasterKey getLastKnownNMTokenMasterKey();
+    public abstract void setLastKnownNMTokenMasterKey(MasterKey secretKey);
 }

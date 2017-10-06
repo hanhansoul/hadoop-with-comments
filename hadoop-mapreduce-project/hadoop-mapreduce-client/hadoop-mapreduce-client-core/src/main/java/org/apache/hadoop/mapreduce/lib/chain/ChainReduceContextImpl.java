@@ -45,277 +45,277 @@ import org.apache.hadoop.security.Credentials;
 class ChainReduceContextImpl<KEYIN, VALUEIN, KEYOUT, VALUEOUT> implements
     ReduceContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
-  private final ReduceContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> base;
-  private final RecordWriter<KEYOUT, VALUEOUT> rw;
-  private final Configuration conf;
+    private final ReduceContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> base;
+    private final RecordWriter<KEYOUT, VALUEOUT> rw;
+    private final Configuration conf;
 
-  public ChainReduceContextImpl(
-      ReduceContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> base,
-      RecordWriter<KEYOUT, VALUEOUT> output, Configuration conf) {
-    this.base = base;
-    this.rw = output;
-    this.conf = conf;
-  }
+    public ChainReduceContextImpl(
+        ReduceContext<KEYIN, VALUEIN, KEYOUT, VALUEOUT> base,
+        RecordWriter<KEYOUT, VALUEOUT> output, Configuration conf) {
+        this.base = base;
+        this.rw = output;
+        this.conf = conf;
+    }
 
-  @Override
-  public Iterable<VALUEIN> getValues() throws IOException, InterruptedException {
-    return base.getValues();
-  }
+    @Override
+    public Iterable<VALUEIN> getValues() throws IOException, InterruptedException {
+        return base.getValues();
+    }
 
-  @Override
-  public boolean nextKey() throws IOException, InterruptedException {
-    return base.nextKey();
-  }
+    @Override
+    public boolean nextKey() throws IOException, InterruptedException {
+        return base.nextKey();
+    }
 
-  @Override
-  public Counter getCounter(Enum<?> counterName) {
-    return base.getCounter(counterName);
-  }
+    @Override
+    public Counter getCounter(Enum<?> counterName) {
+        return base.getCounter(counterName);
+    }
 
-  @Override
-  public Counter getCounter(String groupName, String counterName) {
-    return base.getCounter(groupName, counterName);
-  }
+    @Override
+    public Counter getCounter(String groupName, String counterName) {
+        return base.getCounter(groupName, counterName);
+    }
 
-  @Override
-  public KEYIN getCurrentKey() throws IOException, InterruptedException {
-    return base.getCurrentKey();
-  }
+    @Override
+    public KEYIN getCurrentKey() throws IOException, InterruptedException {
+        return base.getCurrentKey();
+    }
 
-  @Override
-  public VALUEIN getCurrentValue() throws IOException, InterruptedException {
-    return base.getCurrentValue();
-  }
+    @Override
+    public VALUEIN getCurrentValue() throws IOException, InterruptedException {
+        return base.getCurrentValue();
+    }
 
-  @Override
-  public OutputCommitter getOutputCommitter() {
-    return base.getOutputCommitter();
-  }
+    @Override
+    public OutputCommitter getOutputCommitter() {
+        return base.getOutputCommitter();
+    }
 
-  @Override
-  public boolean nextKeyValue() throws IOException, InterruptedException {
-    return base.nextKeyValue();
-  }
+    @Override
+    public boolean nextKeyValue() throws IOException, InterruptedException {
+        return base.nextKeyValue();
+    }
 
-  @Override
-  public void write(KEYOUT key, VALUEOUT value) throws IOException,
-      InterruptedException {
-    rw.write(key, value);
-  }
+    @Override
+    public void write(KEYOUT key, VALUEOUT value) throws IOException,
+        InterruptedException {
+        rw.write(key, value);
+    }
 
-  @Override
-  public String getStatus() {
-    return base.getStatus();
-  }
+    @Override
+    public String getStatus() {
+        return base.getStatus();
+    }
 
-  @Override
-  public TaskAttemptID getTaskAttemptID() {
-    return base.getTaskAttemptID();
-  }
+    @Override
+    public TaskAttemptID getTaskAttemptID() {
+        return base.getTaskAttemptID();
+    }
 
-  @Override
-  public void setStatus(String msg) {
-    base.setStatus(msg);
-  }
+    @Override
+    public void setStatus(String msg) {
+        base.setStatus(msg);
+    }
 
-  @Override
-  public Path[] getArchiveClassPaths() {
-    return base.getArchiveClassPaths();
-  }
+    @Override
+    public Path[] getArchiveClassPaths() {
+        return base.getArchiveClassPaths();
+    }
 
-  @Override
-  public String[] getArchiveTimestamps() {
-    return base.getArchiveTimestamps();
-  }
+    @Override
+    public String[] getArchiveTimestamps() {
+        return base.getArchiveTimestamps();
+    }
 
-  @Override
-  public URI[] getCacheArchives() throws IOException {
-    return base.getCacheArchives();
-  }
+    @Override
+    public URI[] getCacheArchives() throws IOException {
+        return base.getCacheArchives();
+    }
 
-  @Override
-  public URI[] getCacheFiles() throws IOException {
-    return base.getCacheFiles();
-  }
+    @Override
+    public URI[] getCacheFiles() throws IOException {
+        return base.getCacheFiles();
+    }
 
-  @Override
-  public Class<? extends Reducer<?, ?, ?, ?>> getCombinerClass()
-      throws ClassNotFoundException {
-    return base.getCombinerClass();
-  }
+    @Override
+    public Class<? extends Reducer<?, ?, ?, ?>> getCombinerClass()
+    throws ClassNotFoundException {
+        return base.getCombinerClass();
+    }
 
-  @Override
-  public Configuration getConfiguration() {
-    return conf;
-  }
+    @Override
+    public Configuration getConfiguration() {
+        return conf;
+    }
 
-  @Override
-  public Path[] getFileClassPaths() {
-    return base.getFileClassPaths();
-  }
+    @Override
+    public Path[] getFileClassPaths() {
+        return base.getFileClassPaths();
+    }
 
-  @Override
-  public String[] getFileTimestamps() {
-    return base.getFileTimestamps();
-  }
+    @Override
+    public String[] getFileTimestamps() {
+        return base.getFileTimestamps();
+    }
 
-  @Override
-  public RawComparator<?> getCombinerKeyGroupingComparator() {
-    return base.getCombinerKeyGroupingComparator();
-  }
+    @Override
+    public RawComparator<?> getCombinerKeyGroupingComparator() {
+        return base.getCombinerKeyGroupingComparator();
+    }
 
-  @Override
-  public RawComparator<?> getGroupingComparator() {
-    return base.getGroupingComparator();
-  }
+    @Override
+    public RawComparator<?> getGroupingComparator() {
+        return base.getGroupingComparator();
+    }
 
-  @Override
-  public Class<? extends InputFormat<?, ?>> getInputFormatClass()
-      throws ClassNotFoundException {
-    return base.getInputFormatClass();
-  }
+    @Override
+    public Class<? extends InputFormat<?, ?>> getInputFormatClass()
+    throws ClassNotFoundException {
+        return base.getInputFormatClass();
+    }
 
-  @Override
-  public String getJar() {
-    return base.getJar();
-  }
+    @Override
+    public String getJar() {
+        return base.getJar();
+    }
 
-  @Override
-  public JobID getJobID() {
-    return base.getJobID();
-  }
+    @Override
+    public JobID getJobID() {
+        return base.getJobID();
+    }
 
-  @Override
-  public String getJobName() {
-    return base.getJobName();
-  }
+    @Override
+    public String getJobName() {
+        return base.getJobName();
+    }
 
-  @Override
-  public boolean getJobSetupCleanupNeeded() {
-    return base.getJobSetupCleanupNeeded();
-  }
+    @Override
+    public boolean getJobSetupCleanupNeeded() {
+        return base.getJobSetupCleanupNeeded();
+    }
 
-  @Override
-  public boolean getTaskCleanupNeeded() {
-    return base.getTaskCleanupNeeded();
-  }
+    @Override
+    public boolean getTaskCleanupNeeded() {
+        return base.getTaskCleanupNeeded();
+    }
 
-  @Override
-  public Path[] getLocalCacheArchives() throws IOException {
-    return base.getLocalCacheArchives();
-  }
+    @Override
+    public Path[] getLocalCacheArchives() throws IOException {
+        return base.getLocalCacheArchives();
+    }
 
-  @Override
-  public Path[] getLocalCacheFiles() throws IOException {
-    return base.getLocalCacheFiles();
-  }
+    @Override
+    public Path[] getLocalCacheFiles() throws IOException {
+        return base.getLocalCacheFiles();
+    }
 
-  @Override
-  public Class<?> getMapOutputKeyClass() {
-    return base.getMapOutputKeyClass();
-  }
+    @Override
+    public Class<?> getMapOutputKeyClass() {
+        return base.getMapOutputKeyClass();
+    }
 
-  @Override
-  public Class<?> getMapOutputValueClass() {
-    return base.getMapOutputValueClass();
-  }
+    @Override
+    public Class<?> getMapOutputValueClass() {
+        return base.getMapOutputValueClass();
+    }
 
-  @Override
-  public Class<? extends Mapper<?, ?, ?, ?>> getMapperClass()
-      throws ClassNotFoundException {
-    return base.getMapperClass();
-  }
+    @Override
+    public Class<? extends Mapper<?, ?, ?, ?>> getMapperClass()
+    throws ClassNotFoundException {
+        return base.getMapperClass();
+    }
 
-  @Override
-  public int getMaxMapAttempts() {
-    return base.getMaxMapAttempts();
-  }
+    @Override
+    public int getMaxMapAttempts() {
+        return base.getMaxMapAttempts();
+    }
 
-  @Override
-  public int getMaxReduceAttempts() {
-    return base.getMaxMapAttempts();
-  }
+    @Override
+    public int getMaxReduceAttempts() {
+        return base.getMaxMapAttempts();
+    }
 
-  @Override
-  public int getNumReduceTasks() {
-    return base.getNumReduceTasks();
-  }
+    @Override
+    public int getNumReduceTasks() {
+        return base.getNumReduceTasks();
+    }
 
-  @Override
-  public Class<? extends OutputFormat<?, ?>> getOutputFormatClass()
-      throws ClassNotFoundException {
-    return base.getOutputFormatClass();
-  }
+    @Override
+    public Class<? extends OutputFormat<?, ?>> getOutputFormatClass()
+    throws ClassNotFoundException {
+        return base.getOutputFormatClass();
+    }
 
-  @Override
-  public Class<?> getOutputKeyClass() {
-    return base.getOutputKeyClass();
-  }
+    @Override
+    public Class<?> getOutputKeyClass() {
+        return base.getOutputKeyClass();
+    }
 
-  @Override
-  public Class<?> getOutputValueClass() {
-    return base.getOutputValueClass();
-  }
+    @Override
+    public Class<?> getOutputValueClass() {
+        return base.getOutputValueClass();
+    }
 
-  @Override
-  public Class<? extends Partitioner<?, ?>> getPartitionerClass()
-      throws ClassNotFoundException {
-    return base.getPartitionerClass();
-  }
+    @Override
+    public Class<? extends Partitioner<?, ?>> getPartitionerClass()
+    throws ClassNotFoundException {
+        return base.getPartitionerClass();
+    }
 
-  @Override
-  public boolean getProfileEnabled() {
-    return base.getProfileEnabled();
-  }
+    @Override
+    public boolean getProfileEnabled() {
+        return base.getProfileEnabled();
+    }
 
-  @Override
-  public String getProfileParams() {
-    return base.getProfileParams();
-  }
+    @Override
+    public String getProfileParams() {
+        return base.getProfileParams();
+    }
 
-  @Override
-  public IntegerRanges getProfileTaskRange(boolean isMap) {
-    return base.getProfileTaskRange(isMap);
-  }
+    @Override
+    public IntegerRanges getProfileTaskRange(boolean isMap) {
+        return base.getProfileTaskRange(isMap);
+    }
 
-  @Override
-  public Class<? extends Reducer<?, ?, ?, ?>> getReducerClass()
-      throws ClassNotFoundException {
-    return base.getReducerClass();
-  }
+    @Override
+    public Class<? extends Reducer<?, ?, ?, ?>> getReducerClass()
+    throws ClassNotFoundException {
+        return base.getReducerClass();
+    }
 
-  @Override
-  public RawComparator<?> getSortComparator() {
-    return base.getSortComparator();
-  }
+    @Override
+    public RawComparator<?> getSortComparator() {
+        return base.getSortComparator();
+    }
 
-  @Override
-  public boolean getSymlink() {
-    return base.getSymlink();
-  }
+    @Override
+    public boolean getSymlink() {
+        return base.getSymlink();
+    }
 
-  @Override
-  public String getUser() {
-    return base.getUser();
-  }
+    @Override
+    public String getUser() {
+        return base.getUser();
+    }
 
-  @Override
-  public Path getWorkingDirectory() throws IOException {
-    return base.getWorkingDirectory();
-  }
+    @Override
+    public Path getWorkingDirectory() throws IOException {
+        return base.getWorkingDirectory();
+    }
 
-  @Override
-  public void progress() {
-    base.progress();
-  }
+    @Override
+    public void progress() {
+        base.progress();
+    }
 
-  @Override
-  public Credentials getCredentials() {
-    return base.getCredentials();
-  }
-  
-  @Override
-  public float getProgress() {
-    return base.getProgress();
-  }
+    @Override
+    public Credentials getCredentials() {
+        return base.getCredentials();
+    }
+
+    @Override
+    public float getProgress() {
+        return base.getProgress();
+    }
 }

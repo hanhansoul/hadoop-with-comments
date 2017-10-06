@@ -26,36 +26,36 @@ import org.apache.hadoop.oncrpc.XDR;
  * MKDIR3 Request
  */
 public class MKDIR3Request extends RequestWithHandle {
-  private final String name;
-  private final SetAttr3 objAttr;
+    private final String name;
+    private final SetAttr3 objAttr;
 
-  public static MKDIR3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    SetAttr3 objAttr = new SetAttr3();
-    objAttr.deserialize(xdr);
-    return new MKDIR3Request(handle, name, objAttr);
-  }
+    public static MKDIR3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        SetAttr3 objAttr = new SetAttr3();
+        objAttr.deserialize(xdr);
+        return new MKDIR3Request(handle, name, objAttr);
+    }
 
-  public MKDIR3Request(FileHandle handle, String name, SetAttr3 objAttr) {
-    super(handle);
-    this.name = name;
-    this.objAttr = objAttr;
-  }
+    public MKDIR3Request(FileHandle handle, String name, SetAttr3 objAttr) {
+        super(handle);
+        this.name = name;
+        this.objAttr = objAttr;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public SetAttr3 getObjAttr() {
-    return objAttr;
-  }
+    public SetAttr3 getObjAttr() {
+        return objAttr;
+    }
 
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.getBytes().length);
-    xdr.writeFixedOpaque(name.getBytes());
-    objAttr.serialize(xdr);
-  }
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.getBytes().length);
+        xdr.writeFixedOpaque(name.getBytes());
+        objAttr.serialize(xdr);
+    }
 }

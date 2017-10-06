@@ -43,52 +43,52 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 
 public class TestAppPage {
-  @Test
-  public void testAppBlockRenderWithNullCurrentAppAttempt() throws Exception {
-    final ApplicationId APP_ID = ApplicationId.newInstance(1234L, 0);
-    Injector injector;
-    
-    // init app
-    RMApp app = mock(RMApp.class);
-    when(app.getTrackingUrl()).thenReturn("http://host:123");
-    when(app.getState()).thenReturn(RMAppState.FAILED);
-    when(app.getApplicationId()).thenReturn(APP_ID);
-    when(app.getApplicationType()).thenReturn("Type");
-    when(app.getUser()).thenReturn("user");
-    when(app.getName()).thenReturn("Name");
-    when(app.getQueue()).thenReturn("queue");
-    when(app.getDiagnostics()).thenReturn(new StringBuilder());
-    when(app.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.FAILED);
-    when(app.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.FAILED);
-    when(app.getStartTime()).thenReturn(0L);
-    when(app.getFinishTime()).thenReturn(0L);
-    when(app.createApplicationState()).thenReturn(YarnApplicationState.FAILED);
-    
-    RMAppMetrics appMetrics = new RMAppMetrics(Resource.newInstance(0, 0), 0, 0, 0, 0);
-    when(app.getRMAppMetrics()).thenReturn(appMetrics);
-    
-    // initialize RM Context, and create RMApp, without creating RMAppAttempt
-    final RMContext rmContext = TestRMWebApp.mockRMContext(15, 1, 2, 8);
-    rmContext.getRMApps().put(APP_ID, app);
-    
-    injector =
-        WebAppTests.createMockInjector(RMContext.class, rmContext,
-            new Module() {
-              @Override
-              public void configure(Binder binder) {
+    @Test
+    public void testAppBlockRenderWithNullCurrentAppAttempt() throws Exception {
+        final ApplicationId APP_ID = ApplicationId.newInstance(1234L, 0);
+        Injector injector;
+
+        // init app
+        RMApp app = mock(RMApp.class);
+        when(app.getTrackingUrl()).thenReturn("http://host:123");
+        when(app.getState()).thenReturn(RMAppState.FAILED);
+        when(app.getApplicationId()).thenReturn(APP_ID);
+        when(app.getApplicationType()).thenReturn("Type");
+        when(app.getUser()).thenReturn("user");
+        when(app.getName()).thenReturn("Name");
+        when(app.getQueue()).thenReturn("queue");
+        when(app.getDiagnostics()).thenReturn(new StringBuilder());
+        when(app.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.FAILED);
+        when(app.getFinalApplicationStatus()).thenReturn(FinalApplicationStatus.FAILED);
+        when(app.getStartTime()).thenReturn(0L);
+        when(app.getFinishTime()).thenReturn(0L);
+        when(app.createApplicationState()).thenReturn(YarnApplicationState.FAILED);
+
+        RMAppMetrics appMetrics = new RMAppMetrics(Resource.newInstance(0, 0), 0, 0, 0, 0);
+        when(app.getRMAppMetrics()).thenReturn(appMetrics);
+
+        // initialize RM Context, and create RMApp, without creating RMAppAttempt
+        final RMContext rmContext = TestRMWebApp.mockRMContext(15, 1, 2, 8);
+        rmContext.getRMApps().put(APP_ID, app);
+
+        injector =
+            WebAppTests.createMockInjector(RMContext.class, rmContext,
+        new Module() {
+            @Override
+            public void configure(Binder binder) {
                 try {
-                  ResourceManager rm = TestRMWebApp.mockRm(rmContext);
-                  binder.bind(ResourceManager.class).toInstance(rm);
-                  binder.bind(ApplicationBaseProtocol.class).toInstance(
-                    rm.getClientRMService());
+                    ResourceManager rm = TestRMWebApp.mockRm(rmContext);
+                    binder.bind(ResourceManager.class).toInstance(rm);
+                    binder.bind(ApplicationBaseProtocol.class).toInstance(
+                        rm.getClientRMService());
                 } catch (IOException e) {
-                  throw new IllegalStateException(e);
+                    throw new IllegalStateException(e);
                 }
-              }
-            });
-    
-    AppBlock instance = injector.getInstance(AppBlock.class);
-    instance.set(YarnWebParams.APPLICATION_ID, APP_ID.toString());
-    instance.render();
-  }
+            }
+        });
+
+        AppBlock instance = injector.getInstance(AppBlock.class);
+        instance.set(YarnWebParams.APPLICATION_ID, APP_ID.toString());
+        instance.render();
+    }
 }

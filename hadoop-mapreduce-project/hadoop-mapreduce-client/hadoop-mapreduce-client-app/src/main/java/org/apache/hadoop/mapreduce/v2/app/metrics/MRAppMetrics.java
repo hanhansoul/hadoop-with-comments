@@ -29,155 +29,155 @@ import org.apache.hadoop.metrics2.source.JvmMetrics;
 
 @Metrics(about="MR App Metrics", context="mapred")
 public class MRAppMetrics {
-  @Metric MutableCounterInt jobsSubmitted;
-  @Metric MutableCounterInt jobsCompleted;
-  @Metric MutableCounterInt jobsFailed;
-  @Metric MutableCounterInt jobsKilled;
-  @Metric MutableGaugeInt jobsPreparing;
-  @Metric MutableGaugeInt jobsRunning;
+    @Metric MutableCounterInt jobsSubmitted;
+    @Metric MutableCounterInt jobsCompleted;
+    @Metric MutableCounterInt jobsFailed;
+    @Metric MutableCounterInt jobsKilled;
+    @Metric MutableGaugeInt jobsPreparing;
+    @Metric MutableGaugeInt jobsRunning;
 
-  @Metric MutableCounterInt mapsLaunched;
-  @Metric MutableCounterInt mapsCompleted;
-  @Metric MutableCounterInt mapsFailed;
-  @Metric MutableCounterInt mapsKilled;
-  @Metric MutableGaugeInt mapsRunning;
-  @Metric MutableGaugeInt mapsWaiting;
+    @Metric MutableCounterInt mapsLaunched;
+    @Metric MutableCounterInt mapsCompleted;
+    @Metric MutableCounterInt mapsFailed;
+    @Metric MutableCounterInt mapsKilled;
+    @Metric MutableGaugeInt mapsRunning;
+    @Metric MutableGaugeInt mapsWaiting;
 
-  @Metric MutableCounterInt reducesLaunched;
-  @Metric MutableCounterInt reducesCompleted;
-  @Metric MutableCounterInt reducesFailed;
-  @Metric MutableCounterInt reducesKilled;
-  @Metric MutableGaugeInt reducesRunning;
-  @Metric MutableGaugeInt reducesWaiting;
-  
-  public static MRAppMetrics create() {
-    return create(DefaultMetricsSystem.instance());
-  }
+    @Metric MutableCounterInt reducesLaunched;
+    @Metric MutableCounterInt reducesCompleted;
+    @Metric MutableCounterInt reducesFailed;
+    @Metric MutableCounterInt reducesKilled;
+    @Metric MutableGaugeInt reducesRunning;
+    @Metric MutableGaugeInt reducesWaiting;
 
-  public static MRAppMetrics create(MetricsSystem ms) {
-    JvmMetrics.initSingleton("MRAppMaster", null);
-    return ms.register(new MRAppMetrics());
-  }
-
-  // potential instrumentation interface methods
-
-  public void submittedJob(Job job) {
-    jobsSubmitted.incr();
-  }
-
-  public void completedJob(Job job) {
-    jobsCompleted.incr();
-  }
-
-  public void failedJob(Job job) {
-    jobsFailed.incr();
-  }
-
-  public void killedJob(Job job) {
-    jobsKilled.incr();
-  }
-
-  public void preparingJob(Job job) {
-    jobsPreparing.incr();
-  }
-
-  public void endPreparingJob(Job job) {
-    jobsPreparing.decr();
-  }
-
-  public void runningJob(Job job) {
-    jobsRunning.incr();
-  }
-
-  public void endRunningJob(Job job) {
-    jobsRunning.decr();
-  }
-
-  public void launchedTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsLaunched.incr();
-        break;
-      case REDUCE:
-        reducesLaunched.incr();
-        break;
+    public static MRAppMetrics create() {
+        return create(DefaultMetricsSystem.instance());
     }
-    endWaitingTask(task);
-  }
 
-  public void completedTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsCompleted.incr();
-        break;
-      case REDUCE:
-        reducesCompleted.incr();
-        break;
+    public static MRAppMetrics create(MetricsSystem ms) {
+        JvmMetrics.initSingleton("MRAppMaster", null);
+        return ms.register(new MRAppMetrics());
     }
-  }
 
-  public void failedTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsFailed.incr();
-        break;
-      case REDUCE:
-        reducesFailed.incr();
-        break;
-    }
-  }
+    // potential instrumentation interface methods
 
-  public void killedTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsKilled.incr();
-        break;
-      case REDUCE:
-        reducesKilled.incr();
-        break;
+    public void submittedJob(Job job) {
+        jobsSubmitted.incr();
     }
-  }
 
-  public void runningTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsRunning.incr();
-        break;
-      case REDUCE:
-        reducesRunning.incr();
-        break;
+    public void completedJob(Job job) {
+        jobsCompleted.incr();
     }
-  }
 
-  public void endRunningTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsRunning.decr();
-        break;
-      case REDUCE:
-        reducesRunning.decr();
-        break;
+    public void failedJob(Job job) {
+        jobsFailed.incr();
     }
-  }
 
-  public void waitingTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsWaiting.incr();
-        break;
-      case REDUCE:
-        reducesWaiting.incr();
+    public void killedJob(Job job) {
+        jobsKilled.incr();
     }
-  }
 
-  public void endWaitingTask(Task task) {
-    switch (task.getType()) {
-      case MAP:
-        mapsWaiting.decr();
-        break;
-      case REDUCE:
-        reducesWaiting.decr();
-        break;
+    public void preparingJob(Job job) {
+        jobsPreparing.incr();
     }
-  }
+
+    public void endPreparingJob(Job job) {
+        jobsPreparing.decr();
+    }
+
+    public void runningJob(Job job) {
+        jobsRunning.incr();
+    }
+
+    public void endRunningJob(Job job) {
+        jobsRunning.decr();
+    }
+
+    public void launchedTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsLaunched.incr();
+                break;
+            case REDUCE:
+                reducesLaunched.incr();
+                break;
+        }
+        endWaitingTask(task);
+    }
+
+    public void completedTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsCompleted.incr();
+                break;
+            case REDUCE:
+                reducesCompleted.incr();
+                break;
+        }
+    }
+
+    public void failedTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsFailed.incr();
+                break;
+            case REDUCE:
+                reducesFailed.incr();
+                break;
+        }
+    }
+
+    public void killedTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsKilled.incr();
+                break;
+            case REDUCE:
+                reducesKilled.incr();
+                break;
+        }
+    }
+
+    public void runningTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsRunning.incr();
+                break;
+            case REDUCE:
+                reducesRunning.incr();
+                break;
+        }
+    }
+
+    public void endRunningTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsRunning.decr();
+                break;
+            case REDUCE:
+                reducesRunning.decr();
+                break;
+        }
+    }
+
+    public void waitingTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsWaiting.incr();
+                break;
+            case REDUCE:
+                reducesWaiting.incr();
+        }
+    }
+
+    public void endWaitingTask(Task task) {
+        switch (task.getType()) {
+            case MAP:
+                mapsWaiting.decr();
+                break;
+            case REDUCE:
+                reducesWaiting.decr();
+                break;
+        }
+    }
 }

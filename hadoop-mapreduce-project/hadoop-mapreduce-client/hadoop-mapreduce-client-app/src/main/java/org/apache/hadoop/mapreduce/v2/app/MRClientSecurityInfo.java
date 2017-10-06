@@ -31,28 +31,28 @@ import org.apache.hadoop.yarn.security.client.ClientToAMTokenSelector;
 
 public class MRClientSecurityInfo extends SecurityInfo {
 
-  @Override
-  public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
-    return null;
-  }
-
-  @Override
-  public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol.equals(MRClientProtocolPB.class)) {
-      return null;
-    }
-    return new TokenInfo() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
+    @Override
+    public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
         return null;
-      }
+    }
 
-      @Override
-      public Class<? extends TokenSelector<? extends TokenIdentifier>>
-          value() {
-        return ClientToAMTokenSelector.class;
-      }
-    };
-  }
+    @Override
+    public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol.equals(MRClientProtocolPB.class)) {
+            return null;
+        }
+        return new TokenInfo() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public Class<? extends TokenSelector<? extends TokenIdentifier>>
+            value() {
+                return ClientToAMTokenSelector.class;
+            }
+        };
+    }
 }

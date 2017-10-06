@@ -27,26 +27,26 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 /**
  * Initialization context for {@link AuxiliaryService} when stopping an
  * application.
- * 
+ *
  */
 @Public
 @Evolving
 public class ApplicationTerminationContext {
 
-  private final ApplicationId applicationId;
+    private final ApplicationId applicationId;
 
-  @Private
-  @Unstable
-  public ApplicationTerminationContext(ApplicationId applicationId) {
-    this.applicationId = applicationId;
-  }
+    @Private
+    @Unstable
+    public ApplicationTerminationContext(ApplicationId applicationId) {
+        this.applicationId = applicationId;
+    }
 
-  /**
-   * Get {@link ApplicationId} of the application being stopped.
-   * 
-   * @return applications ID
-   */
-  public ApplicationId getApplicationId() {
-    return this.applicationId;
-  }
+    /**
+     * Get {@link ApplicationId} of the application being stopped.
+     *
+     * @return applications ID
+     */
+    public ApplicationId getApplicationId() {
+        return this.applicationId;
+    }
 }

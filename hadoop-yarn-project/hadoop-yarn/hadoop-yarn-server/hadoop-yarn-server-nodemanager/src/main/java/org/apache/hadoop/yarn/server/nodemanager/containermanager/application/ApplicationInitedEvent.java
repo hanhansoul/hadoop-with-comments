@@ -21,8 +21,8 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 public class ApplicationInitedEvent extends ApplicationEvent {
 
-  public ApplicationInitedEvent(ApplicationId appID) {
-    super(appID, ApplicationEventType.APPLICATION_INITED);
-  }
+    public ApplicationInitedEvent(ApplicationId appID) {
+        super(appID, ApplicationEventType.APPLICATION_INITED);
+    }
 
 }

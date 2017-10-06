@@ -29,44 +29,44 @@ import com.google.common.collect.Iterators;
  * Utilities to generate fake test apps
  */
 public class MockApps {
-  static final Iterator<String> NAMES = Iterators.cycle("SleepJob",
-      "RandomWriter", "TeraSort", "TeraGen", "PigLatin", "WordCount",
-      "I18nApp<☯>");
-  static final Iterator<String> USERS = Iterators.cycle("dorothy", "tinman",
-      "scarecrow", "glinda", "nikko", "toto", "winkie", "zeke", "gulch");
-  static final Iterator<YarnApplicationState> STATES = Iterators.cycle(
-      YarnApplicationState.values());
-  static final Iterator<String> QUEUES = Iterators.cycle("a.a1", "a.a2",
-      "b.b1", "b.b2", "b.b3", "c.c1.c11", "c.c1.c12", "c.c1.c13",
-      "c.c2", "c.c3", "c.c4");
-  static final long TS = System.currentTimeMillis();
+    static final Iterator<String> NAMES = Iterators.cycle("SleepJob",
+                                          "RandomWriter", "TeraSort", "TeraGen", "PigLatin", "WordCount",
+                                          "I18nApp<☯>");
+    static final Iterator<String> USERS = Iterators.cycle("dorothy", "tinman",
+                                          "scarecrow", "glinda", "nikko", "toto", "winkie", "zeke", "gulch");
+    static final Iterator<YarnApplicationState> STATES = Iterators.cycle(
+                YarnApplicationState.values());
+    static final Iterator<String> QUEUES = Iterators.cycle("a.a1", "a.a2",
+                                           "b.b1", "b.b2", "b.b3", "c.c1.c11", "c.c1.c12", "c.c1.c13",
+                                           "c.c2", "c.c3", "c.c4");
+    static final long TS = System.currentTimeMillis();
 
-  public static String newAppName() {
-    synchronized(NAMES) {
-      return NAMES.next();
+    public static String newAppName() {
+        synchronized(NAMES) {
+            return NAMES.next();
+        }
     }
-  }
 
-  public static String newUserName() {
-    synchronized(USERS) {
-      return USERS.next();
+    public static String newUserName() {
+        synchronized(USERS) {
+            return USERS.next();
+        }
     }
-  }
 
-  public static String newQueue() {
-    synchronized(QUEUES) {
-      return QUEUES.next();
+    public static String newQueue() {
+        synchronized(QUEUES) {
+            return QUEUES.next();
+        }
     }
-  }
 
-  public static ApplicationId newAppID(int i) {
-    return ApplicationId.newInstance(TS, i);
-  }
-
-  public static YarnApplicationState newAppState() {
-    synchronized(STATES) {
-      return STATES.next();
+    public static ApplicationId newAppID(int i) {
+        return ApplicationId.newInstance(TS, i);
     }
-  }
+
+    public static YarnApplicationState newAppState() {
+        synchronized(STATES) {
+            return STATES.next();
+        }
+    }
 
 }

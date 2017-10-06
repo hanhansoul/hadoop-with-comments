@@ -31,41 +31,41 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class TestHtmlPage {
-  
-  public static class TestView extends HtmlPage {
-    @Override
-    public void render(Page.HTML<_> html) {
-      html.
-        title("test").
-        p("#testid")._("test note")._()._();
+
+    public static class TestView extends HtmlPage {
+        @Override
+        public void render(Page.HTML<_> html) {
+            html.
+            title("test").
+            p("#testid")._("test note")._()._();
+        }
     }
-  }
 
-  public static class ShortView extends HtmlPage {
-    @Override
-    public void render(Page.HTML<_> html) {
-      html.
-        title("short test").
-        p()._("should throw");
+    public static class ShortView extends HtmlPage {
+        @Override
+        public void render(Page.HTML<_> html) {
+            html.
+            title("short test").
+            p()._("should throw");
+        }
     }
-  }
 
-  @Test public void testUsual() {
-    Injector injector = WebAppTests.testPage(TestView.class);
-    PrintWriter out = injector.getInstance(PrintWriter.class);
+    @Test public void testUsual() {
+        Injector injector = WebAppTests.testPage(TestView.class);
+        PrintWriter out = injector.getInstance(PrintWriter.class);
 
-    // Verify the HTML page has correct meta tags in the header
-    verify(out).print(" http-equiv=\"X-UA-Compatible\"");
-    verify(out).print(" content=\"IE=8\"");
-    verify(out).print(" http-equiv=\"Content-type\"");
-    verify(out).print(String.format(" content=\"%s\"", MimeType.HTML));
+        // Verify the HTML page has correct meta tags in the header
+        verify(out).print(" http-equiv=\"X-UA-Compatible\"");
+        verify(out).print(" content=\"IE=8\"");
+        verify(out).print(" http-equiv=\"Content-type\"");
+        verify(out).print(String.format(" content=\"%s\"", MimeType.HTML));
 
-    verify(out).print("test");
-    verify(out).print(" id=\"testid\"");
-    verify(out).print("test note");
-  }
+        verify(out).print("test");
+        verify(out).print(" id=\"testid\"");
+        verify(out).print("test note");
+    }
 
-  @Test(expected=WebAppException.class) public void testShort() {
-    WebAppTests.testPage(ShortView.class);
-  }
+    @Test(expected=WebAppException.class) public void testShort() {
+        WebAppTests.testPage(ShortView.class);
+    }
 }

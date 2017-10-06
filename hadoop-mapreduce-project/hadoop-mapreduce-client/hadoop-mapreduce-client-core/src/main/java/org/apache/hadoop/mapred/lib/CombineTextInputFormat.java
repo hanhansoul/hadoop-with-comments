@@ -40,29 +40,29 @@ import org.apache.hadoop.mapred.TextInputFormat;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public class CombineTextInputFormat
-  extends CombineFileInputFormat<LongWritable,Text> {
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public RecordReader<LongWritable,Text> getRecordReader(InputSplit split,
-    JobConf conf, Reporter reporter) throws IOException {
-    return new CombineFileRecordReader(conf, (CombineFileSplit)split, reporter,
-      TextRecordReaderWrapper.class);
-  }
-
-  /**
-   * A record reader that may be passed to <code>CombineFileRecordReader</code>
-   * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
-   * for <code>TextInputFormat</code>.
-   *
-   * @see CombineFileRecordReader
-   * @see CombineFileInputFormat
-   * @see TextInputFormat
-   */
-  private static class TextRecordReaderWrapper
-    extends CombineFileRecordReaderWrapper<LongWritable,Text> {
-    // this constructor signature is required by CombineFileRecordReader
-    public TextRecordReaderWrapper(CombineFileSplit split, Configuration conf,
-      Reporter reporter, Integer idx) throws IOException {
-      super(new TextInputFormat(), split, conf, reporter, idx);
+    extends CombineFileInputFormat<LongWritable,Text> {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public RecordReader<LongWritable,Text> getRecordReader(InputSplit split,
+            JobConf conf, Reporter reporter) throws IOException {
+        return new CombineFileRecordReader(conf, (CombineFileSplit)split, reporter,
+                                           TextRecordReaderWrapper.class);
     }
-  }
+
+    /**
+     * A record reader that may be passed to <code>CombineFileRecordReader</code>
+     * so that it can be used in a <code>CombineFileInputFormat</code>-equivalent
+     * for <code>TextInputFormat</code>.
+     *
+     * @see CombineFileRecordReader
+     * @see CombineFileInputFormat
+     * @see TextInputFormat
+     */
+    private static class TextRecordReaderWrapper
+        extends CombineFileRecordReaderWrapper<LongWritable,Text> {
+        // this constructor signature is required by CombineFileRecordReader
+        public TextRecordReaderWrapper(CombineFileSplit split, Configuration conf,
+                                       Reporter reporter, Integer idx) throws IOException {
+            super(new TextInputFormat(), split, conf, reporter, idx);
+        }
+    }
 }

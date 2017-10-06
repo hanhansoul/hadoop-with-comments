@@ -37,139 +37,139 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetClusterNodesResponsePBImpl extends GetClusterNodesResponse {
 
-  GetClusterNodesResponseProto proto = 
-    GetClusterNodesResponseProto.getDefaultInstance();
-  GetClusterNodesResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetClusterNodesResponseProto proto =
+        GetClusterNodesResponseProto.getDefaultInstance();
+    GetClusterNodesResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  List<NodeReport> nodeManagerInfoList;
-  
-  public GetClusterNodesResponsePBImpl() {
-    builder = GetClusterNodesResponseProto.newBuilder();
-  }
-  
-  public GetClusterNodesResponsePBImpl(GetClusterNodesResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
+    List<NodeReport> nodeManagerInfoList;
 
-  @Override
-  public List<NodeReport> getNodeReports() {    
-    initLocalNodeManagerInfosList();
-    return this.nodeManagerInfoList;
-  }
-  
-  @Override
-  public void setNodeReports(List<NodeReport> nodeManagers) {
-    if (nodeManagers == null) {
-      builder.clearNodeReports();
+    public GetClusterNodesResponsePBImpl() {
+        builder = GetClusterNodesResponseProto.newBuilder();
     }
-    this.nodeManagerInfoList = nodeManagers;
-  }
 
-  public GetClusterNodesResponseProto getProto() {    
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public GetClusterNodesResponsePBImpl(GetClusterNodesResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.nodeManagerInfoList != null) {
-      addLocalNodeManagerInfosToProto();
+    @Override
+    public List<NodeReport> getNodeReports() {
+        initLocalNodeManagerInfosList();
+        return this.nodeManagerInfoList;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetClusterNodesResponseProto.newBuilder(proto);
+    @Override
+    public void setNodeReports(List<NodeReport> nodeManagers) {
+        if (nodeManagers == null) {
+            builder.clearNodeReports();
+        }
+        this.nodeManagerInfoList = nodeManagers;
     }
-    viaProto = false;
-  }
 
-  // Once this is called. containerList will never be null - until a getProto
-  // is called.
-  private void initLocalNodeManagerInfosList() {
-    if (this.nodeManagerInfoList != null) {
-      return;
+    public GetClusterNodesResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    GetClusterNodesResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<NodeReportProto> list = p.getNodeReportsList();
-    nodeManagerInfoList = new ArrayList<NodeReport>();
 
-    for (NodeReportProto a : list) {
-      nodeManagerInfoList.add(convertFromProtoFormat(a));
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-  }
 
-  private void addLocalNodeManagerInfosToProto() {
-    maybeInitBuilder();
-    builder.clearNodeReports();
-    if (nodeManagerInfoList == null)
-      return;
-    Iterable<NodeReportProto> iterable = new Iterable<NodeReportProto>() {
-      @Override
-      public Iterator<NodeReportProto> iterator() {
-        return new Iterator<NodeReportProto>() {
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
 
-          Iterator<NodeReport> iter = nodeManagerInfoList.iterator();
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
-          @Override
-          public boolean hasNext() {
-            return iter.hasNext();
-          }
+    private void mergeLocalToBuilder() {
+        if (this.nodeManagerInfoList != null) {
+            addLocalNodeManagerInfosToProto();
+        }
+    }
 
-          @Override
-          public NodeReportProto next() {
-            return convertToProtoFormat(iter.next());
-          }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetClusterNodesResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
-          }
+    // Once this is called. containerList will never be null - until a getProto
+    // is called.
+    private void initLocalNodeManagerInfosList() {
+        if (this.nodeManagerInfoList != null) {
+            return;
+        }
+        GetClusterNodesResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<NodeReportProto> list = p.getNodeReportsList();
+        nodeManagerInfoList = new ArrayList<NodeReport>();
+
+        for (NodeReportProto a : list) {
+            nodeManagerInfoList.add(convertFromProtoFormat(a));
+        }
+    }
+
+    private void addLocalNodeManagerInfosToProto() {
+        maybeInitBuilder();
+        builder.clearNodeReports();
+        if (nodeManagerInfoList == null)
+            return;
+        Iterable<NodeReportProto> iterable = new Iterable<NodeReportProto>() {
+            @Override
+            public Iterator<NodeReportProto> iterator() {
+                return new Iterator<NodeReportProto>() {
+
+                    Iterator<NodeReport> iter = nodeManagerInfoList.iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
+
+                    @Override
+                    public NodeReportProto next() {
+                        return convertToProtoFormat(iter.next());
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+
+                    }
+                };
+
+            }
         };
+        builder.addAllNodeReports(iterable);
+    }
 
-      }
-    };
-    builder.addAllNodeReports(iterable);
-  }
+    private NodeReportPBImpl convertFromProtoFormat(NodeReportProto p) {
+        return new NodeReportPBImpl(p);
+    }
 
-  private NodeReportPBImpl convertFromProtoFormat(NodeReportProto p) {
-    return new NodeReportPBImpl(p);
-  }
-
-  private NodeReportProto convertToProtoFormat(NodeReport t) {
-    return ((NodeReportPBImpl)t).getProto();
-  }
+    private NodeReportProto convertToProtoFormat(NodeReport t) {
+        return ((NodeReportPBImpl)t).getProto();
+    }
 
 }

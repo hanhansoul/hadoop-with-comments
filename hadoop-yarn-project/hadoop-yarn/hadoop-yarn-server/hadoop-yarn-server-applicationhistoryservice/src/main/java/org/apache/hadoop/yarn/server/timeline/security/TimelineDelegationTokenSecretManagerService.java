@@ -43,76 +43,76 @@ import org.apache.hadoop.yarn.util.timeline.TimelineUtils;
 @Unstable
 public class TimelineDelegationTokenSecretManagerService extends AbstractService {
 
-  private TimelineDelegationTokenSecretManager secretManager = null;
-  private InetSocketAddress serviceAddr = null;
+    private TimelineDelegationTokenSecretManager secretManager = null;
+    private InetSocketAddress serviceAddr = null;
 
-  public TimelineDelegationTokenSecretManagerService() {
-    super(TimelineDelegationTokenSecretManagerService.class.getName());
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    long secretKeyInterval =
-        conf.getLong(YarnConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_KEY,
-            YarnConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT);
-    long tokenMaxLifetime =
-        conf.getLong(YarnConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_KEY,
-            YarnConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT);
-    long tokenRenewInterval =
-        conf.getLong(YarnConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_KEY,
-            YarnConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_DEFAULT);
-    secretManager = new TimelineDelegationTokenSecretManager(secretKeyInterval,
-        tokenMaxLifetime, tokenRenewInterval,
-        3600000);
-    secretManager.startThreads();
-
-    serviceAddr = TimelineUtils.getTimelineTokenServiceAddress(getConfig());
-    super.init(conf);
-  }
-
-  @Override
-  protected void serviceStop() throws Exception {
-    secretManager.stopThreads();
-    super.stop();
-  }
-
-  /**
-   * Ge the instance of {link #TimelineDelegationTokenSecretManager}
-   * @return the instance of {link #TimelineDelegationTokenSecretManager}
-   */
-  public TimelineDelegationTokenSecretManager getTimelineDelegationTokenSecretManager() {
-    return secretManager;
-  }
-
-  /**
-   * Create a timeline secret manager
-   * 
-   * @param delegationKeyUpdateInterval
-   *          the number of seconds for rolling new secret keys.
-   * @param delegationTokenMaxLifetime
-   *          the maximum lifetime of the delegation tokens
-   * @param delegationTokenRenewInterval
-   *          how often the tokens must be renewed
-   * @param delegationTokenRemoverScanInterval
-   *          how often the tokens are scanned for expired tokens
-   */
-  @Private
-  @Unstable
-  public static class TimelineDelegationTokenSecretManager extends
-      AbstractDelegationTokenSecretManager<TimelineDelegationTokenIdentifier> {
-
-    public TimelineDelegationTokenSecretManager(long delegationKeyUpdateInterval,
-        long delegationTokenMaxLifetime, long delegationTokenRenewInterval,
-        long delegationTokenRemoverScanInterval) {
-      super(delegationKeyUpdateInterval, delegationTokenMaxLifetime,
-          delegationTokenRenewInterval, delegationTokenRemoverScanInterval);
+    public TimelineDelegationTokenSecretManagerService() {
+        super(TimelineDelegationTokenSecretManagerService.class.getName());
     }
 
     @Override
-    public TimelineDelegationTokenIdentifier createIdentifier() {
-      return new TimelineDelegationTokenIdentifier();
+    protected void serviceInit(Configuration conf) throws Exception {
+        long secretKeyInterval =
+            conf.getLong(YarnConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_KEY,
+                         YarnConfiguration.DELEGATION_KEY_UPDATE_INTERVAL_DEFAULT);
+        long tokenMaxLifetime =
+            conf.getLong(YarnConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_KEY,
+                         YarnConfiguration.DELEGATION_TOKEN_MAX_LIFETIME_DEFAULT);
+        long tokenRenewInterval =
+            conf.getLong(YarnConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_KEY,
+                         YarnConfiguration.DELEGATION_TOKEN_RENEW_INTERVAL_DEFAULT);
+        secretManager = new TimelineDelegationTokenSecretManager(secretKeyInterval,
+                tokenMaxLifetime, tokenRenewInterval,
+                3600000);
+        secretManager.startThreads();
+
+        serviceAddr = TimelineUtils.getTimelineTokenServiceAddress(getConfig());
+        super.init(conf);
     }
 
-  }
+    @Override
+    protected void serviceStop() throws Exception {
+        secretManager.stopThreads();
+        super.stop();
+    }
+
+    /**
+     * Ge the instance of {link #TimelineDelegationTokenSecretManager}
+     * @return the instance of {link #TimelineDelegationTokenSecretManager}
+     */
+    public TimelineDelegationTokenSecretManager getTimelineDelegationTokenSecretManager() {
+        return secretManager;
+    }
+
+    /**
+     * Create a timeline secret manager
+     *
+     * @param delegationKeyUpdateInterval
+     *          the number of seconds for rolling new secret keys.
+     * @param delegationTokenMaxLifetime
+     *          the maximum lifetime of the delegation tokens
+     * @param delegationTokenRenewInterval
+     *          how often the tokens must be renewed
+     * @param delegationTokenRemoverScanInterval
+     *          how often the tokens are scanned for expired tokens
+     */
+    @Private
+    @Unstable
+    public static class TimelineDelegationTokenSecretManager extends
+        AbstractDelegationTokenSecretManager<TimelineDelegationTokenIdentifier> {
+
+        public TimelineDelegationTokenSecretManager(long delegationKeyUpdateInterval,
+                long delegationTokenMaxLifetime, long delegationTokenRenewInterval,
+                long delegationTokenRemoverScanInterval) {
+            super(delegationKeyUpdateInterval, delegationTokenMaxLifetime,
+                  delegationTokenRenewInterval, delegationTokenRemoverScanInterval);
+        }
+
+        @Override
+        public TimelineDelegationTokenIdentifier createIdentifier() {
+            return new TimelineDelegationTokenIdentifier();
+        }
+
+    }
 
 }

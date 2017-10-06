@@ -33,147 +33,147 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerAc
 import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerHeartbeatResponse;
 
 public class LocalizerHeartbeatResponsePBImpl
-        extends ProtoBase<LocalizerHeartbeatResponseProto>
-        implements LocalizerHeartbeatResponse {
+    extends ProtoBase<LocalizerHeartbeatResponseProto>
+    implements LocalizerHeartbeatResponse {
 
-  LocalizerHeartbeatResponseProto proto =
-    LocalizerHeartbeatResponseProto.getDefaultInstance();
-  LocalizerHeartbeatResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    LocalizerHeartbeatResponseProto proto =
+        LocalizerHeartbeatResponseProto.getDefaultInstance();
+    LocalizerHeartbeatResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private List<ResourceLocalizationSpec> resourceSpecs;
+    private List<ResourceLocalizationSpec> resourceSpecs;
 
-  public LocalizerHeartbeatResponsePBImpl() {
-    builder = LocalizerHeartbeatResponseProto.newBuilder();
-  }
-
-  public LocalizerHeartbeatResponsePBImpl(
-      LocalizerHeartbeatResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public LocalizerHeartbeatResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (resourceSpecs != null) {
-      addResourcesToProto();
+    public LocalizerHeartbeatResponsePBImpl() {
+        builder = LocalizerHeartbeatResponseProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = LocalizerHeartbeatResponseProto.newBuilder(proto);
+    public LocalizerHeartbeatResponsePBImpl(
+        LocalizerHeartbeatResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public LocalizerAction getLocalizerAction() {
-    LocalizerHeartbeatResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasAction()) {
-      return null;
+    public LocalizerHeartbeatResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    return convertFromProtoFormat(p.getAction());
-  }
 
-  @Override
-  public List<ResourceLocalizationSpec> getResourceSpecs() {
-    initResources();
-    return this.resourceSpecs;
-  }
-
-  public void setLocalizerAction(LocalizerAction action) {
-    maybeInitBuilder();
-    if (action == null) {
-      builder.clearAction();
-      return;
+    private void mergeLocalToBuilder() {
+        if (resourceSpecs != null) {
+            addResourcesToProto();
+        }
     }
-    builder.setAction(convertToProtoFormat(action));
-  }
 
-  public void setResourceSpecs(List<ResourceLocalizationSpec> rsrcs) {
-    maybeInitBuilder();
-    if (rsrcs == null) {
-      builder.clearResources();
-      return;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.resourceSpecs = rsrcs;
-  }
 
-  private void initResources() {
-    if (this.resourceSpecs != null) {
-      return;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = LocalizerHeartbeatResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    LocalizerHeartbeatResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<ResourceLocalizationSpecProto> list = p.getResourcesList();
-    this.resourceSpecs = new ArrayList<ResourceLocalizationSpec>();
-    for (ResourceLocalizationSpecProto c : list) {
-      this.resourceSpecs.add(convertFromProtoFormat(c));
-    }
-  }
 
-  private void addResourcesToProto() {
-    maybeInitBuilder();
-    builder.clearResources();
-    if (this.resourceSpecs == null) 
-      return;
-    Iterable<ResourceLocalizationSpecProto> iterable =
+    @Override
+    public LocalizerAction getLocalizerAction() {
+        LocalizerHeartbeatResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasAction()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getAction());
+    }
+
+    @Override
+    public List<ResourceLocalizationSpec> getResourceSpecs() {
+        initResources();
+        return this.resourceSpecs;
+    }
+
+    public void setLocalizerAction(LocalizerAction action) {
+        maybeInitBuilder();
+        if (action == null) {
+            builder.clearAction();
+            return;
+        }
+        builder.setAction(convertToProtoFormat(action));
+    }
+
+    public void setResourceSpecs(List<ResourceLocalizationSpec> rsrcs) {
+        maybeInitBuilder();
+        if (rsrcs == null) {
+            builder.clearResources();
+            return;
+        }
+        this.resourceSpecs = rsrcs;
+    }
+
+    private void initResources() {
+        if (this.resourceSpecs != null) {
+            return;
+        }
+        LocalizerHeartbeatResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<ResourceLocalizationSpecProto> list = p.getResourcesList();
+        this.resourceSpecs = new ArrayList<ResourceLocalizationSpec>();
+        for (ResourceLocalizationSpecProto c : list) {
+            this.resourceSpecs.add(convertFromProtoFormat(c));
+        }
+    }
+
+    private void addResourcesToProto() {
+        maybeInitBuilder();
+        builder.clearResources();
+        if (this.resourceSpecs == null)
+            return;
+        Iterable<ResourceLocalizationSpecProto> iterable =
         new Iterable<ResourceLocalizationSpecProto>() {
-      @Override
-      public Iterator<ResourceLocalizationSpecProto> iterator() {
-        return new Iterator<ResourceLocalizationSpecProto>() {
+            @Override
+            public Iterator<ResourceLocalizationSpecProto> iterator() {
+                return new Iterator<ResourceLocalizationSpecProto>() {
 
-          Iterator<ResourceLocalizationSpec> iter = resourceSpecs.iterator();
+                    Iterator<ResourceLocalizationSpec> iter = resourceSpecs.iterator();
 
-          @Override
-          public boolean hasNext() {
-            return iter.hasNext();
-          }
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
 
-          @Override
-          public ResourceLocalizationSpecProto next() {
-            ResourceLocalizationSpec resource = iter.next();
-            
-            return ((ResourceLocalizationSpecPBImpl)resource).getProto();
-          }
+                    @Override
+                    public ResourceLocalizationSpecProto next() {
+                        ResourceLocalizationSpec resource = iter.next();
 
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
+                        return ((ResourceLocalizationSpecPBImpl)resource).getProto();
+                    }
 
-          }
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+
+                    }
+                };
+
+            }
         };
-
-      }
-    };
-    builder.addAllResources(iterable);
-  }
+        builder.addAllResources(iterable);
+    }
 
 
-  private ResourceLocalizationSpec convertFromProtoFormat(
-      ResourceLocalizationSpecProto p) {
-    return new ResourceLocalizationSpecPBImpl(p);
-  }
+    private ResourceLocalizationSpec convertFromProtoFormat(
+        ResourceLocalizationSpecProto p) {
+        return new ResourceLocalizationSpecPBImpl(p);
+    }
 
-  private LocalizerActionProto convertToProtoFormat(LocalizerAction a) {
-    return LocalizerActionProto.valueOf(a.name());
-  }
+    private LocalizerActionProto convertToProtoFormat(LocalizerAction a) {
+        return LocalizerActionProto.valueOf(a.name());
+    }
 
-  private LocalizerAction convertFromProtoFormat(LocalizerActionProto a) {
-    return LocalizerAction.valueOf(a.name());
-  }
+    private LocalizerAction convertFromProtoFormat(LocalizerActionProto a) {
+        return LocalizerAction.valueOf(a.name());
+    }
 }

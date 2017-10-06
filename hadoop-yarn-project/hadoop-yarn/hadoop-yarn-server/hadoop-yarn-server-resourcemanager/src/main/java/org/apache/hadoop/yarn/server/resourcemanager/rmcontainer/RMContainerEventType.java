@@ -20,20 +20,20 @@ package org.apache.hadoop.yarn.server.resourcemanager.rmcontainer;
 
 public enum RMContainerEventType {
 
-  // Source: SchedulerApp
-  START,
-  ACQUIRED,
-  KILL, // Also from Node on NodeRemoval
-  RESERVED,
+    // Source: SchedulerApp
+    START,
+    ACQUIRED,
+    KILL, // Also from Node on NodeRemoval
+    RESERVED,
 
-  LAUNCHED,
-  FINISHED,
+    LAUNCHED,
+    FINISHED,
 
-  // Source: ApplicationMasterService->Scheduler
-  RELEASED,
+    // Source: ApplicationMasterService->Scheduler
+    RELEASED,
 
-  // Source: ContainerAllocationExpirer  
-  EXPIRE,
+    // Source: ContainerAllocationExpirer
+    EXPIRE,
 
-  RECOVER
+    RECOVER
 }

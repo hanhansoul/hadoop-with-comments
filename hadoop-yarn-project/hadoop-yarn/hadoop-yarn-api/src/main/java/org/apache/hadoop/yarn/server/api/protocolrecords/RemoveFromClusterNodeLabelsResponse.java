@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Evolving
 public abstract class RemoveFromClusterNodeLabelsResponse {
-  public static RemoveFromClusterNodeLabelsResponse newInstance() {
-    return Records.newRecord(RemoveFromClusterNodeLabelsResponse.class);
-  }
+    public static RemoveFromClusterNodeLabelsResponse newInstance() {
+        return Records.newRecord(RemoveFromClusterNodeLabelsResponse.class);
+    }
 }

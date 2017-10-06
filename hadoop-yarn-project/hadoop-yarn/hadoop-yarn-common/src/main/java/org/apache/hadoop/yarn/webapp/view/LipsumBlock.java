@@ -23,10 +23,10 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class LipsumBlock extends HtmlBlock {
 
-  @Override
-  public void render(Block html) {
-    html.
-      p().
+    @Override
+    public void render(Block html) {
+        html.
+        p().
         _("Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
           "Vivamus eu dui in ipsum tincidunt egestas ac sed nibh.",
           "Praesent quis nisl lorem, nec interdum urna.",
@@ -46,5 +46,5 @@ public class LipsumBlock extends HtmlBlock {
           "Aliquam gravida luctus augue, at scelerisque enim consectetur vel.",
           "Donec interdum tempor nisl, quis laoreet enim venenatis eu.",
           "Quisque elit elit, vulputate eget porta vel, laoreet ac lacus.")._();
-  }
+    }
 }

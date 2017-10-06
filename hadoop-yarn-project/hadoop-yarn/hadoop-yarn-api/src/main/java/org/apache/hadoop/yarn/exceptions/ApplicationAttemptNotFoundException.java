@@ -36,17 +36,17 @@ import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationAttemptReportReq
 @Unstable
 public class ApplicationAttemptNotFoundException extends YarnException {
 
-  private static final long serialVersionUID = 8694508L;
+    private static final long serialVersionUID = 8694508L;
 
-  public ApplicationAttemptNotFoundException(Throwable cause) {
-    super(cause);
-  }
+    public ApplicationAttemptNotFoundException(Throwable cause) {
+        super(cause);
+    }
 
-  public ApplicationAttemptNotFoundException(String message) {
-    super(message);
-  }
+    public ApplicationAttemptNotFoundException(String message) {
+        super(message);
+    }
 
-  public ApplicationAttemptNotFoundException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ApplicationAttemptNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -30,44 +30,44 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 public class TestDFSOutputStream {
-  static MiniDFSCluster cluster;
+    static MiniDFSCluster cluster;
 
-  @BeforeClass
-  public static void setup() throws IOException {
-    Configuration conf = new Configuration();
-    cluster = new MiniDFSCluster.Builder(conf).build();
-  }
-
-  /**
-   * The close() method of DFSOutputStream should never throw the same exception
-   * twice. See HDFS-5335 for details.
-   */
-  @Test
-  public void testCloseTwice() throws IOException {
-    DistributedFileSystem fs = cluster.getFileSystem();
-    FSDataOutputStream os = fs.create(new Path("/test"));
-    DFSOutputStream dos = (DFSOutputStream) Whitebox.getInternalState(os,
-        "wrappedStream");
-    @SuppressWarnings("unchecked")
-    AtomicReference<IOException> ex = (AtomicReference<IOException>) Whitebox
-        .getInternalState(dos, "lastException");
-    Assert.assertEquals(null, ex.get());
-
-    dos.close();
-
-    IOException dummy = new IOException("dummy");
-    ex.set(dummy);
-    try {
-      dos.close();
-    } catch (IOException e) {
-      Assert.assertEquals(e, dummy);
+    @BeforeClass
+    public static void setup() throws IOException {
+        Configuration conf = new Configuration();
+        cluster = new MiniDFSCluster.Builder(conf).build();
     }
-    Assert.assertEquals(null, ex.get());
-    dos.close();
-  }
 
-  @AfterClass
-  public static void tearDown() {
-    cluster.shutdown();
-  }
+    /**
+     * The close() method of DFSOutputStream should never throw the same exception
+     * twice. See HDFS-5335 for details.
+     */
+    @Test
+    public void testCloseTwice() throws IOException {
+        DistributedFileSystem fs = cluster.getFileSystem();
+        FSDataOutputStream os = fs.create(new Path("/test"));
+        DFSOutputStream dos = (DFSOutputStream) Whitebox.getInternalState(os,
+                              "wrappedStream");
+        @SuppressWarnings("unchecked")
+        AtomicReference<IOException> ex = (AtomicReference<IOException>) Whitebox
+                                          .getInternalState(dos, "lastException");
+        Assert.assertEquals(null, ex.get());
+
+        dos.close();
+
+        IOException dummy = new IOException("dummy");
+        ex.set(dummy);
+        try {
+            dos.close();
+        } catch (IOException e) {
+            Assert.assertEquals(e, dummy);
+        }
+        Assert.assertEquals(null, ex.get());
+        dos.close();
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        cluster.shutdown();
+    }
 }

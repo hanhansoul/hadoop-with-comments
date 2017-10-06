@@ -30,18 +30,18 @@ import org.apache.hadoop.yarn.server.resourcemanager.reservation.Plan;
 @Unstable
 public class ResourceOverCommitException extends PlanningException {
 
-  private static final long serialVersionUID = 7070699407526521032L;
+    private static final long serialVersionUID = 7070699407526521032L;
 
-  public ResourceOverCommitException(String message) {
-    super(message);
-  }
+    public ResourceOverCommitException(String message) {
+        super(message);
+    }
 
-  public ResourceOverCommitException(Throwable cause) {
-    super(cause);
-  }
+    public ResourceOverCommitException(Throwable cause) {
+        super(cause);
+    }
 
-  public ResourceOverCommitException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ResourceOverCommitException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

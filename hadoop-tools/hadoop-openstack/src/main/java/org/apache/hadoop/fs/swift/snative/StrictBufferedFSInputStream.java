@@ -31,19 +31,19 @@ import java.io.IOException;
  */
 public class StrictBufferedFSInputStream extends BufferedFSInputStream {
 
-  public StrictBufferedFSInputStream(FSInputStream in,
-                                     int size) {
-    super(in, size);
-  }
+    public StrictBufferedFSInputStream(FSInputStream in,
+                                       int size) {
+        super(in, size);
+    }
 
-  @Override
-  public void seek(long pos) throws IOException {
-    if (pos < 0) {
-      throw new EOFException(FSExceptionMessages.NEGATIVE_SEEK);
+    @Override
+    public void seek(long pos) throws IOException {
+        if (pos < 0) {
+            throw new EOFException(FSExceptionMessages.NEGATIVE_SEEK);
+        }
+        if (in == null) {
+            throw new SwiftConnectionClosedException(FSExceptionMessages.STREAM_IS_CLOSED);
+        }
+        super.seek(pos);
     }
-    if (in == null) {
-      throw new SwiftConnectionClosedException(FSExceptionMessages.STREAM_IS_CLOSED);
-    }
-    super.seek(pos);
-  }
 }

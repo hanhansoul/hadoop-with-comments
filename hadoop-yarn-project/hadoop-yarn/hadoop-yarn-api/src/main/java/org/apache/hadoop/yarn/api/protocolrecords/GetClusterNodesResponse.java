@@ -31,11 +31,11 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The response sent by the <code>ResourceManager</code> to a client
  * requesting a {@link NodeReport} for all nodes.</p>
- * 
- * <p>The <code>NodeReport</code> contains per-node information such as 
+ *
+ * <p>The <code>NodeReport</code> contains per-node information such as
  * available resources, number of containers, tracking url, rack name, health
  * status etc.
- * 
+ *
  * @see NodeReport
  * @see ApplicationClientProtocol#getClusterNodes(GetClusterNodesRequest)
  */
@@ -43,25 +43,25 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class GetClusterNodesResponse {
 
-  @Private
-  @Unstable
-  public static GetClusterNodesResponse
-      newInstance(List<NodeReport> nodeReports) {
-    GetClusterNodesResponse response =
-        Records.newRecord(GetClusterNodesResponse.class);
-    response.setNodeReports(nodeReports);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetClusterNodesResponse
+    newInstance(List<NodeReport> nodeReports) {
+        GetClusterNodesResponse response =
+            Records.newRecord(GetClusterNodesResponse.class);
+        response.setNodeReports(nodeReports);
+        return response;
+    }
 
-  /**
-   * Get <code>NodeReport</code> for all nodes in the cluster.
-   * @return <code>NodeReport</code> for all nodes in the cluster
-   */
-  @Public
-  @Stable
-  public abstract List<NodeReport> getNodeReports();
-  
-  @Private
-  @Unstable
-  public abstract void setNodeReports(List<NodeReport> nodeReports);
+    /**
+     * Get <code>NodeReport</code> for all nodes in the cluster.
+     * @return <code>NodeReport</code> for all nodes in the cluster
+     */
+    @Public
+    @Stable
+    public abstract List<NodeReport> getNodeReports();
+
+    @Private
+    @Unstable
+    public abstract void setNodeReports(List<NodeReport> nodeReports);
 }

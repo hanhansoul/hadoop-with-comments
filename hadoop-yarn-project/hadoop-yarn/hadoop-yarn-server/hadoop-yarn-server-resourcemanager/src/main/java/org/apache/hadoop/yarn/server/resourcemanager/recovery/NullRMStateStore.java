@@ -33,121 +33,121 @@ import org.apache.hadoop.yarn.server.resourcemanager.recovery.records.Applicatio
 @Unstable
 public class NullRMStateStore extends RMStateStore {
 
-  @Override
-  protected void initInternal(Configuration conf) throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void initInternal(Configuration conf) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void startInternal() throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void startInternal() throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void closeInternal() throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void closeInternal() throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  public synchronized long getAndIncrementEpoch() throws Exception {
-    return 0L;
-  }
+    @Override
+    public synchronized long getAndIncrementEpoch() throws Exception {
+        return 0L;
+    }
 
-  @Override
-  public RMState loadState() throws Exception {
-    throw new UnsupportedOperationException("Cannot load state from null store");
-  }
+    @Override
+    public RMState loadState() throws Exception {
+        throw new UnsupportedOperationException("Cannot load state from null store");
+    }
 
-  @Override
-  protected void storeApplicationStateInternal(ApplicationId appId,
-      ApplicationStateData appStateData) throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void storeApplicationStateInternal(ApplicationId appId,
+            ApplicationStateData appStateData) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void storeApplicationAttemptStateInternal(ApplicationAttemptId attemptId,
-      ApplicationAttemptStateData attemptStateData) throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void storeApplicationAttemptStateInternal(ApplicationAttemptId attemptId,
+            ApplicationAttemptStateData attemptStateData) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void removeApplicationStateInternal(ApplicationState appState)
-      throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void removeApplicationStateInternal(ApplicationState appState)
+    throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  public void storeRMDelegationTokenAndSequenceNumberState(
-      RMDelegationTokenIdentifier rmDTIdentifier, Long renewDate,
-      int latestSequenceNumber) throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void storeRMDelegationTokenAndSequenceNumberState(
+        RMDelegationTokenIdentifier rmDTIdentifier, Long renewDate,
+        int latestSequenceNumber) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  public void removeRMDelegationTokenState(RMDelegationTokenIdentifier rmDTIdentifier)
-      throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void removeRMDelegationTokenState(RMDelegationTokenIdentifier rmDTIdentifier)
+    throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void updateRMDelegationTokenAndSequenceNumberInternal(
-      RMDelegationTokenIdentifier rmDTIdentifier, Long renewDate,
-      int latestSequenceNumber) throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void updateRMDelegationTokenAndSequenceNumberInternal(
+        RMDelegationTokenIdentifier rmDTIdentifier, Long renewDate,
+        int latestSequenceNumber) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  public void storeRMDTMasterKeyState(DelegationKey delegationKey) throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void storeRMDTMasterKeyState(DelegationKey delegationKey) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  public void removeRMDTMasterKeyState(DelegationKey delegationKey) throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void removeRMDTMasterKeyState(DelegationKey delegationKey) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void updateApplicationStateInternal(ApplicationId appId,
-      ApplicationStateData appStateData) throws Exception {
-    // Do nothing 
-  }
+    @Override
+    protected void updateApplicationStateInternal(ApplicationId appId,
+            ApplicationStateData appStateData) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected void updateApplicationAttemptStateInternal(ApplicationAttemptId attemptId,
-      ApplicationAttemptStateData attemptStateData) throws Exception {
-  }
+    @Override
+    protected void updateApplicationAttemptStateInternal(ApplicationAttemptId attemptId,
+            ApplicationAttemptStateData attemptStateData) throws Exception {
+    }
 
-  @Override
-  public void checkVersion() throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void checkVersion() throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected Version loadVersion() throws Exception {
-    // Do nothing
-    return null;
-  }
+    @Override
+    protected Version loadVersion() throws Exception {
+        // Do nothing
+        return null;
+    }
 
-  @Override
-  protected void storeVersion() throws Exception {
-    // Do nothing
-  }
+    @Override
+    protected void storeVersion() throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  protected Version getCurrentVersion() {
-    // Do nothing
-    return null;
-  }
+    @Override
+    protected Version getCurrentVersion() {
+        // Do nothing
+        return null;
+    }
 
-  @Override
-  public void storeOrUpdateAMRMTokenSecretManagerState(
-      AMRMTokenSecretManagerState state, boolean isUpdate) {
-    //DO Nothing
-  }
+    @Override
+    public void storeOrUpdateAMRMTokenSecretManagerState(
+        AMRMTokenSecretManagerState state, boolean isUpdate) {
+        //DO Nothing
+    }
 
-  @Override
-  public void deleteStore() throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void deleteStore() throws Exception {
+        // Do nothing
+    }
 
 }

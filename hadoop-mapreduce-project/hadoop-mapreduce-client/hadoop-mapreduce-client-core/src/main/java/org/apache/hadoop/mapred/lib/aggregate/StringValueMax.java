@@ -22,12 +22,12 @@ import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * This class implements a value aggregator that maintain the biggest of 
+ * This class implements a value aggregator that maintain the biggest of
  * a sequence of strings.
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class StringValueMax 
-    extends org.apache.hadoop.mapreduce.lib.aggregate.StringValueMax 
+public class StringValueMax
+    extends org.apache.hadoop.mapreduce.lib.aggregate.StringValueMax
     implements ValueAggregator<String> {
 }

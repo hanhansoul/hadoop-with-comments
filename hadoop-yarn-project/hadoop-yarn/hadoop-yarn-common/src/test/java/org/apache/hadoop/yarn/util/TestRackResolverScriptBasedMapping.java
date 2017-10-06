@@ -27,18 +27,18 @@ import org.junit.Test;
 
 public class TestRackResolverScriptBasedMapping {
 
-  @Test
-  public void testScriptName() {
-    Configuration conf = new Configuration();
-    conf
+    @Test
+    public void testScriptName() {
+        Configuration conf = new Configuration();
+        conf
         .setClass(
             CommonConfigurationKeysPublic.
-                NET_TOPOLOGY_NODE_SWITCH_MAPPING_IMPL_KEY,
+            NET_TOPOLOGY_NODE_SWITCH_MAPPING_IMPL_KEY,
             ScriptBasedMapping.class, DNSToSwitchMapping.class);
-    conf.set(CommonConfigurationKeysPublic.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
-        "testScript");
-    RackResolver.init(conf);
-    Assert.assertEquals(RackResolver.getDnsToSwitchMapping().toString(),
-        "script-based mapping with script testScript");
-  }
+        conf.set(CommonConfigurationKeysPublic.NET_TOPOLOGY_SCRIPT_FILE_NAME_KEY,
+                 "testScript");
+        RackResolver.init(conf);
+        Assert.assertEquals(RackResolver.getDnsToSwitchMapping().toString(),
+                            "script-based mapping with script testScript");
+    }
 }

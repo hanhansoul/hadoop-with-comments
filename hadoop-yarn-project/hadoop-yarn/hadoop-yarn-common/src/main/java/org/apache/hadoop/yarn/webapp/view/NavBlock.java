@@ -23,19 +23,19 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class NavBlock extends HtmlBlock {
 
-  @Override protected void render(Block html) {
-    html.
-      div("#nav").
+    @Override protected void render(Block html) {
+        html.
+        div("#nav").
         h3("Heading1").
         ul().
-          li("Item 1").
-          li("Item 2").
-          li("...")._().
+        li("Item 1").
+        li("Item 2").
+        li("...")._().
         h3("Tools").
         ul().
-          li().a("/conf", "Configuration")._().
-          li().a("/stacks", "Thread dump")._().
-          li().a("/logs", "Logs")._().
-          li().a("/metrics", "Metrics")._()._()._();
-  }
+        li().a("/conf", "Configuration")._().
+        li().a("/stacks", "Thread dump")._().
+        li().a("/logs", "Logs")._().
+        li().a("/metrics", "Metrics")._()._()._();
+    }
 }

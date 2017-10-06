@@ -32,32 +32,32 @@ import java.util.List;
  */
 @InterfaceAudience.Private
 public class EventBatchList {
-  private List<EventBatch> batches;
-  private long firstTxid;
-  private long lastTxid;
-  private long syncTxid;
+    private List<EventBatch> batches;
+    private long firstTxid;
+    private long lastTxid;
+    private long syncTxid;
 
-  public EventBatchList(List<EventBatch> batches, long firstTxid,
-                         long lastTxid, long syncTxid) {
-    this.batches = batches;
-    this.firstTxid = firstTxid;
-    this.lastTxid = lastTxid;
-    this.syncTxid = syncTxid;
-  }
+    public EventBatchList(List<EventBatch> batches, long firstTxid,
+                          long lastTxid, long syncTxid) {
+        this.batches = batches;
+        this.firstTxid = firstTxid;
+        this.lastTxid = lastTxid;
+        this.syncTxid = syncTxid;
+    }
 
-  public List<EventBatch> getBatches() {
-    return batches;
-  }
+    public List<EventBatch> getBatches() {
+        return batches;
+    }
 
-  public long getFirstTxid() {
-    return firstTxid;
-  }
+    public long getFirstTxid() {
+        return firstTxid;
+    }
 
-  public long getLastTxid() {
-    return lastTxid;
-  }
+    public long getLastTxid() {
+        return lastTxid;
+    }
 
-  public long getSyncTxid() {
-    return syncTxid;
-  }
+    public long getSyncTxid() {
+        return syncTxid;
+    }
 }

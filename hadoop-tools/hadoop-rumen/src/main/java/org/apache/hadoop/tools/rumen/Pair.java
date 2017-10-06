@@ -18,21 +18,21 @@
 package org.apache.hadoop.tools.rumen;
 
 class Pair<CarType, CdrType> {
-  private final CarType car;
-  private final CdrType cdr;
+    private final CarType car;
+    private final CdrType cdr;
 
-  Pair(CarType car, CdrType cdr) {
-    super();
+    Pair(CarType car, CdrType cdr) {
+        super();
 
-    this.car = car;
-    this.cdr = cdr;
-  }
+        this.car = car;
+        this.cdr = cdr;
+    }
 
-  CarType first() {
-    return car;
-  }
+    CarType first() {
+        return car;
+    }
 
-  CdrType second() {
-    return cdr;
-  }
+    CdrType second() {
+        return cdr;
+    }
 }

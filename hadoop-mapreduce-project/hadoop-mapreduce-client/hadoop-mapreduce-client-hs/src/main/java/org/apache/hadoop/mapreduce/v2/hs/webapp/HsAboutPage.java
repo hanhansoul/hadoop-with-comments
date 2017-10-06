@@ -32,26 +32,26 @@ import org.apache.hadoop.yarn.webapp.view.InfoBlock;
  */
 public class HsAboutPage extends HsView {
 
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
-   */
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
-    //override the nav config from commonPReHead
-    set(initID(ACCORDION, "nav"), "{autoHeight:false, active:0}");
-  }
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.mapreduce.v2.hs.webapp.HsView#preHead(org.apache.hadoop.yarn.webapp.hamlet.Hamlet.HTML)
+     */
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
+        //override the nav config from commonPReHead
+        set(initID(ACCORDION, "nav"), "{autoHeight:false, active:0}");
+    }
 
-  /**
-   * The content of this page is the attempts block
-   * @return AttemptsBlock.class
-   */
-  @Override protected Class<? extends SubView> content() {
-    HistoryInfo info = new HistoryInfo();
-    info("History Server").
-      _("BuildVersion", info.getHadoopBuildVersion()
-        + " on " + info.getHadoopVersionBuiltOn()).
-      _("History Server started on", Times.format(info.getStartedOn()));
-    return InfoBlock.class;
-  }
+    /**
+     * The content of this page is the attempts block
+     * @return AttemptsBlock.class
+     */
+    @Override protected Class<? extends SubView> content() {
+        HistoryInfo info = new HistoryInfo();
+        info("History Server").
+        _("BuildVersion", info.getHadoopBuildVersion()
+          + " on " + info.getHadoopVersionBuiltOn()).
+        _("History Server started on", Times.format(info.getStartedOn()));
+        return InfoBlock.class;
+    }
 }

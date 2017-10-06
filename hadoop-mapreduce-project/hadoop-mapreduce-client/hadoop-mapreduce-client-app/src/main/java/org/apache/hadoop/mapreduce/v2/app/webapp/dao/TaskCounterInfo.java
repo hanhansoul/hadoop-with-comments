@@ -25,22 +25,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaskCounterInfo {
 
-  protected String name;
-  protected long value;
+    protected String name;
+    protected long value;
 
-  public TaskCounterInfo() {
-  }
+    public TaskCounterInfo() {
+    }
 
-  public TaskCounterInfo(String name, long value) {
-    this.name = name;
-    this.value = value;
-  }
+    public TaskCounterInfo(String name, long value) {
+        this.name = name;
+        this.value = value;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public long getValue() {
-    return value;
-  }
+    public long getValue() {
+        return value;
+    }
 }

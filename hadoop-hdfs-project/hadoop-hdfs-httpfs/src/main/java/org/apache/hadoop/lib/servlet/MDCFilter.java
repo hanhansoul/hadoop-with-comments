@@ -46,58 +46,58 @@ import java.security.Principal;
 @InterfaceAudience.Private
 public class MDCFilter implements Filter {
 
-  /**
-   * Initializes the filter.
-   * <p/>
-   * This implementation is a NOP.
-   *
-   * @param config filter configuration.
-   *
-   * @throws ServletException thrown if the filter could not be initialized.
-   */
-  @Override
-  public void init(FilterConfig config) throws ServletException {
-  }
-
-  /**
-   * Sets the slf4j <code>MDC</code> and delegates the request to the chain.
-   *
-   * @param request servlet request.
-   * @param response servlet response.
-   * @param chain filter chain.
-   *
-   * @throws IOException thrown if an IO error occurrs.
-   * @throws ServletException thrown if a servet error occurrs.
-   */
-  @Override
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-    throws IOException, ServletException {
-    try {
-      MDC.clear();
-      String hostname = HostnameFilter.get();
-      if (hostname != null) {
-        MDC.put("hostname", HostnameFilter.get());
-      }
-      Principal principal = ((HttpServletRequest) request).getUserPrincipal();
-      String user = (principal != null) ? principal.getName() : null;
-      if (user != null) {
-        MDC.put("user", user);
-      }
-      MDC.put("method", ((HttpServletRequest) request).getMethod());
-      MDC.put("path", ((HttpServletRequest) request).getPathInfo());
-      chain.doFilter(request, response);
-    } finally {
-      MDC.clear();
+    /**
+     * Initializes the filter.
+     * <p/>
+     * This implementation is a NOP.
+     *
+     * @param config filter configuration.
+     *
+     * @throws ServletException thrown if the filter could not be initialized.
+     */
+    @Override
+    public void init(FilterConfig config) throws ServletException {
     }
-  }
 
-  /**
-   * Destroys the filter.
-   * <p/>
-   * This implementation is a NOP.
-   */
-  @Override
-  public void destroy() {
-  }
+    /**
+     * Sets the slf4j <code>MDC</code> and delegates the request to the chain.
+     *
+     * @param request servlet request.
+     * @param response servlet response.
+     * @param chain filter chain.
+     *
+     * @throws IOException thrown if an IO error occurrs.
+     * @throws ServletException thrown if a servet error occurrs.
+     */
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    throws IOException, ServletException {
+        try {
+            MDC.clear();
+            String hostname = HostnameFilter.get();
+            if (hostname != null) {
+                MDC.put("hostname", HostnameFilter.get());
+            }
+            Principal principal = ((HttpServletRequest) request).getUserPrincipal();
+            String user = (principal != null) ? principal.getName() : null;
+            if (user != null) {
+                MDC.put("user", user);
+            }
+            MDC.put("method", ((HttpServletRequest) request).getMethod());
+            MDC.put("path", ((HttpServletRequest) request).getPathInfo());
+            chain.doFilter(request, response);
+        } finally {
+            MDC.clear();
+        }
+    }
+
+    /**
+     * Destroys the filter.
+     * <p/>
+     * This implementation is a NOP.
+     */
+    @Override
+    public void destroy() {
+    }
 }
 

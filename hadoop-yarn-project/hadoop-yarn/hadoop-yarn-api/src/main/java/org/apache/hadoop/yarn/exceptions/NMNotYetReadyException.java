@@ -28,9 +28,9 @@ import org.apache.hadoop.yarn.api.protocolrecords.StartContainersRequest;
  */
 public class NMNotYetReadyException extends YarnException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public NMNotYetReadyException(String msg) {
-    super(msg);
-  }
+    public NMNotYetReadyException(String msg) {
+        super(msg);
+    }
 }

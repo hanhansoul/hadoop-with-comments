@@ -32,46 +32,45 @@ import org.apache.hadoop.io.IOUtils;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class OfflineEditsVisitorFactory {
-  /**
-   * Factory function that creates an EditsVisitor object
-   *
-   * @param filename              output filename
-   * @param processor             type of visitor to create 
-   * @param printToScreen         parameter passed to visitor constructor
-   *
-   * @return EditsVisitor for appropriate output format (binary, xml, etc.)
-   */
-  static public OfflineEditsVisitor getEditsVisitor(String filename,
-    String processor, boolean printToScreen) throws IOException {
-    if(processor.toLowerCase().equals("binary")) {
-      return new BinaryEditsVisitor(filename);
+    /**
+     * Factory function that creates an EditsVisitor object
+     *
+     * @param filename              output filename
+     * @param processor             type of visitor to create
+     * @param printToScreen         parameter passed to visitor constructor
+     *
+     * @return EditsVisitor for appropriate output format (binary, xml, etc.)
+     */
+    static public OfflineEditsVisitor getEditsVisitor(String filename,
+            String processor, boolean printToScreen) throws IOException {
+        if(processor.toLowerCase().equals("binary")) {
+            return new BinaryEditsVisitor(filename);
+        }
+        OfflineEditsVisitor vis;
+        OutputStream fout = new FileOutputStream(filename);
+        OutputStream out = null;
+        try {
+            if (!printToScreen) {
+                out = fout;
+            } else {
+                OutputStream outs[] = new OutputStream[2];
+                outs[0] = fout;
+                outs[1] = System.out;
+                out = new TeeOutputStream(outs);
+            }
+            if(processor.toLowerCase().equals("xml")) {
+                vis = new XmlEditsVisitor(out);
+            } else if(processor.toLowerCase().equals("stats")) {
+                vis = new StatisticsEditsVisitor(out);
+            } else {
+                throw new IOException("Unknown proccesor " + processor +
+                                      " (valid processors: xml, binary, stats)");
+            }
+            out = fout = null;
+            return vis;
+        } finally {
+            IOUtils.closeStream(fout);
+            IOUtils.closeStream(out);
+        }
     }
-    OfflineEditsVisitor vis;
-    OutputStream fout = new FileOutputStream(filename);
-    OutputStream out = null;
-    try {
-      if (!printToScreen) {
-        out = fout;
-      }
-      else {
-        OutputStream outs[] = new OutputStream[2];
-        outs[0] = fout;
-        outs[1] = System.out;
-        out = new TeeOutputStream(outs);
-      }
-      if(processor.toLowerCase().equals("xml")) {
-        vis = new XmlEditsVisitor(out);
-      } else if(processor.toLowerCase().equals("stats")) {
-        vis = new StatisticsEditsVisitor(out);
-      } else {
-        throw new IOException("Unknown proccesor " + processor +
-          " (valid processors: xml, binary, stats)");
-      }
-      out = fout = null;
-      return vis;
-    } finally {
-      IOUtils.closeStream(fout);
-      IOUtils.closeStream(out);
-    }
-  }
 }

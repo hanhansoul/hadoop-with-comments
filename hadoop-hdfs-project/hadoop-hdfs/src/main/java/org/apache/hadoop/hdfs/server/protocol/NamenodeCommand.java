@@ -27,7 +27,7 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public class NamenodeCommand extends ServerCommand {
-  public NamenodeCommand(int action) {
-    super(action);
-  }
+    public NamenodeCommand(int action) {
+        super(action);
+    }
 }

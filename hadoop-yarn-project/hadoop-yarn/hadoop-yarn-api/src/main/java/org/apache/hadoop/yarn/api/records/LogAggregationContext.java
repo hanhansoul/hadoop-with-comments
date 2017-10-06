@@ -56,105 +56,105 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 public abstract class LogAggregationContext {
 
-  @Public
-  @Unstable
-  public static LogAggregationContext newInstance(String includePattern,
-      String excludePattern) {
-    LogAggregationContext context = Records.newRecord(LogAggregationContext.class);
-    context.setIncludePattern(includePattern);
-    context.setExcludePattern(excludePattern);
-    return context;
-  }
+    @Public
+    @Unstable
+    public static LogAggregationContext newInstance(String includePattern,
+            String excludePattern) {
+        LogAggregationContext context = Records.newRecord(LogAggregationContext.class);
+        context.setIncludePattern(includePattern);
+        context.setExcludePattern(excludePattern);
+        return context;
+    }
 
-  @Public
-  @Unstable
-  public static LogAggregationContext newInstance(String includePattern,
-      String excludePattern, String rolledLogsIncludePattern,
-      String rolledLogsExcludePattern) {
-    LogAggregationContext context =
-        Records.newRecord(LogAggregationContext.class);
-    context.setIncludePattern(includePattern);
-    context.setExcludePattern(excludePattern);
-    context.setRolledLogsIncludePattern(rolledLogsIncludePattern);
-    context.setRolledLogsExcludePattern(rolledLogsExcludePattern);
-    return context;
-  }
+    @Public
+    @Unstable
+    public static LogAggregationContext newInstance(String includePattern,
+            String excludePattern, String rolledLogsIncludePattern,
+            String rolledLogsExcludePattern) {
+        LogAggregationContext context =
+            Records.newRecord(LogAggregationContext.class);
+        context.setIncludePattern(includePattern);
+        context.setExcludePattern(excludePattern);
+        context.setRolledLogsIncludePattern(rolledLogsIncludePattern);
+        context.setRolledLogsExcludePattern(rolledLogsExcludePattern);
+        return context;
+    }
 
-  /**
-   * Get include pattern. This includePattern only takes affect
-   * on logs that exist at the time of application finish.
-   *
-   * @return include pattern
-   */
-  @Public
-  @Unstable
-  public abstract String getIncludePattern();
+    /**
+     * Get include pattern. This includePattern only takes affect
+     * on logs that exist at the time of application finish.
+     *
+     * @return include pattern
+     */
+    @Public
+    @Unstable
+    public abstract String getIncludePattern();
 
-  /**
-   * Set include pattern. This includePattern only takes affect
-   * on logs that exist at the time of application finish.
-   *
-   * @param includePattern
-   */
-  @Public
-  @Unstable
-  public abstract void setIncludePattern(String includePattern);
+    /**
+     * Set include pattern. This includePattern only takes affect
+     * on logs that exist at the time of application finish.
+     *
+     * @param includePattern
+     */
+    @Public
+    @Unstable
+    public abstract void setIncludePattern(String includePattern);
 
-  /**
-   * Get exclude pattern. This excludePattern only takes affect
-   * on logs that exist at the time of application finish.
-   *
-   * @return exclude pattern
-   */
-  @Public
-  @Unstable
-  public abstract String getExcludePattern();
+    /**
+     * Get exclude pattern. This excludePattern only takes affect
+     * on logs that exist at the time of application finish.
+     *
+     * @return exclude pattern
+     */
+    @Public
+    @Unstable
+    public abstract String getExcludePattern();
 
-  /**
-   * Set exclude pattern. This excludePattern only takes affect
-   * on logs that exist at the time of application finish.
-   *
-   * @param excludePattern
-   */
-  @Public
-  @Unstable
-  public abstract void setExcludePattern(String excludePattern);
+    /**
+     * Set exclude pattern. This excludePattern only takes affect
+     * on logs that exist at the time of application finish.
+     *
+     * @param excludePattern
+     */
+    @Public
+    @Unstable
+    public abstract void setExcludePattern(String excludePattern);
 
-  /**
-   * Get include pattern in a rolling fashion.
-   * 
-   * @return include pattern
-   */
-  @Public
-  @Unstable
-  public abstract String getRolledLogsIncludePattern();
+    /**
+     * Get include pattern in a rolling fashion.
+     *
+     * @return include pattern
+     */
+    @Public
+    @Unstable
+    public abstract String getRolledLogsIncludePattern();
 
-  /**
-   * Set include pattern in a rolling fashion.
-   * 
-   * @param rolledLogsIncludePattern
-   */
-  @Public
-  @Unstable
-  public abstract void setRolledLogsIncludePattern(
-      String rolledLogsIncludePattern);
+    /**
+     * Set include pattern in a rolling fashion.
+     *
+     * @param rolledLogsIncludePattern
+     */
+    @Public
+    @Unstable
+    public abstract void setRolledLogsIncludePattern(
+        String rolledLogsIncludePattern);
 
-  /**
-   * Get exclude pattern for aggregation in a rolling fashion.
-   * 
-   * @return exclude pattern
-   */
-  @Public
-  @Unstable
-  public abstract String getRolledLogsExcludePattern();
+    /**
+     * Get exclude pattern for aggregation in a rolling fashion.
+     *
+     * @return exclude pattern
+     */
+    @Public
+    @Unstable
+    public abstract String getRolledLogsExcludePattern();
 
-  /**
-   * Set exclude pattern for in a rolling fashion.
-   * 
-   * @param rolledLogsExcludePattern
-   */
-  @Public
-  @Unstable
-  public abstract void setRolledLogsExcludePattern(
-      String rolledLogsExcludePattern);
+    /**
+     * Set exclude pattern for in a rolling fashion.
+     *
+     * @param rolledLogsExcludePattern
+     */
+    @Public
+    @Unstable
+    public abstract void setRolledLogsExcludePattern(
+        String rolledLogsExcludePattern);
 }

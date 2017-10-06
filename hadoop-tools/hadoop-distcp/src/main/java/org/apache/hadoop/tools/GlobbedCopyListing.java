@@ -35,71 +35,71 @@ import java.util.ArrayList;
  * listing-file by "globbing" all specified source paths (wild-cards and all.)
  */
 public class GlobbedCopyListing extends CopyListing {
-  private static final Log LOG = LogFactory.getLog(GlobbedCopyListing.class);
+    private static final Log LOG = LogFactory.getLog(GlobbedCopyListing.class);
 
-  private final CopyListing simpleListing;
-  /**
-   * Constructor, to initialize the configuration.
-   * @param configuration The input Configuration object.
-   * @param credentials Credentials object on which the FS delegation tokens are cached. If null
-   * delegation token caching is skipped
-   */
-  public GlobbedCopyListing(Configuration configuration, Credentials credentials) {
-    super(configuration, credentials);
-    simpleListing = new SimpleCopyListing(getConf(), credentials) ;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  protected void validatePaths(DistCpOptions options)
-      throws IOException, InvalidInputException {
-  }
-
-  /**
-   * Implementation of CopyListing::buildListing().
-   * Creates the copy listing by "globbing" all source-paths.
-   * @param pathToListingFile The location at which the copy-listing file
-   *                           is to be created.
-   * @param options Input Options for DistCp (indicating source/target paths.)
-   * @throws IOException
-   */
-  @Override
-  public void doBuildListing(Path pathToListingFile,
-                             DistCpOptions options) throws IOException {
-
-    List<Path> globbedPaths = new ArrayList<Path>();
-    if (options.getSourcePaths().isEmpty()) {
-      throw new InvalidInputException("Nothing to process. Source paths::EMPTY");  
+    private final CopyListing simpleListing;
+    /**
+     * Constructor, to initialize the configuration.
+     * @param configuration The input Configuration object.
+     * @param credentials Credentials object on which the FS delegation tokens are cached. If null
+     * delegation token caching is skipped
+     */
+    public GlobbedCopyListing(Configuration configuration, Credentials credentials) {
+        super(configuration, credentials);
+        simpleListing = new SimpleCopyListing(getConf(), credentials) ;
     }
 
-    for (Path p : options.getSourcePaths()) {
-      FileSystem fs = p.getFileSystem(getConf());
-      FileStatus[] inputs = fs.globStatus(p);
+    /** {@inheritDoc} */
+    @Override
+    protected void validatePaths(DistCpOptions options)
+    throws IOException, InvalidInputException {
+    }
 
-      if(inputs != null && inputs.length > 0) {
-        for (FileStatus onePath: inputs) {
-          globbedPaths.add(onePath.getPath());
+    /**
+     * Implementation of CopyListing::buildListing().
+     * Creates the copy listing by "globbing" all source-paths.
+     * @param pathToListingFile The location at which the copy-listing file
+     *                           is to be created.
+     * @param options Input Options for DistCp (indicating source/target paths.)
+     * @throws IOException
+     */
+    @Override
+    public void doBuildListing(Path pathToListingFile,
+                               DistCpOptions options) throws IOException {
+
+        List<Path> globbedPaths = new ArrayList<Path>();
+        if (options.getSourcePaths().isEmpty()) {
+            throw new InvalidInputException("Nothing to process. Source paths::EMPTY");
         }
-      } else {
-        throw new InvalidInputException(p + " doesn't exist");        
-      }
+
+        for (Path p : options.getSourcePaths()) {
+            FileSystem fs = p.getFileSystem(getConf());
+            FileStatus[] inputs = fs.globStatus(p);
+
+            if(inputs != null && inputs.length > 0) {
+                for (FileStatus onePath: inputs) {
+                    globbedPaths.add(onePath.getPath());
+                }
+            } else {
+                throw new InvalidInputException(p + " doesn't exist");
+            }
+        }
+
+        DistCpOptions optionsGlobbed = new DistCpOptions(options);
+        optionsGlobbed.setSourcePaths(globbedPaths);
+        simpleListing.buildListing(pathToListingFile, optionsGlobbed);
     }
 
-    DistCpOptions optionsGlobbed = new DistCpOptions(options);
-    optionsGlobbed.setSourcePaths(globbedPaths);
-    simpleListing.buildListing(pathToListingFile, optionsGlobbed);
-  }
+    /** {@inheritDoc} */
+    @Override
+    protected long getBytesToCopy() {
+        return simpleListing.getBytesToCopy();
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  protected long getBytesToCopy() {
-    return simpleListing.getBytesToCopy();
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  protected long getNumberOfPaths() {
-    return simpleListing.getNumberOfPaths();
-  }
+    /** {@inheritDoc} */
+    @Override
+    protected long getNumberOfPaths() {
+        return simpleListing.getNumberOfPaths();
+    }
 
 }

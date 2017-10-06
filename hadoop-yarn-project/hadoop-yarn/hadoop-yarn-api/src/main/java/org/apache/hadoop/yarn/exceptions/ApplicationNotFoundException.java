@@ -31,20 +31,20 @@ import org.apache.hadoop.yarn.api.protocolrecords.GetApplicationReportRequest;
  */
 @Public
 @Unstable
-public class ApplicationNotFoundException extends YarnException{
+public class ApplicationNotFoundException extends YarnException {
 
-  private static final long serialVersionUID = 8694408L;
+    private static final long serialVersionUID = 8694408L;
 
-  public ApplicationNotFoundException(Throwable cause) {
-    super(cause);
-  }
+    public ApplicationNotFoundException(Throwable cause) {
+        super(cause);
+    }
 
-  public ApplicationNotFoundException(String message) {
-    super(message);
-  }
+    public ApplicationNotFoundException(String message) {
+        super(message);
+    }
 
-  public ApplicationNotFoundException(String message,
-      Throwable cause) {
-    super(message, cause);
-  }
+    public ApplicationNotFoundException(String message,
+                                        Throwable cause) {
+        super(message, cause);
+    }
 }

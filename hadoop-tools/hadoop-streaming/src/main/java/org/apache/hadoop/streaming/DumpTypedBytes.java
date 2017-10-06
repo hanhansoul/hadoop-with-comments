@@ -46,101 +46,101 @@ import org.apache.hadoop.util.ToolRunner;
  */
 public class DumpTypedBytes implements Tool {
 
-  private Configuration conf;
+    private Configuration conf;
 
-  public DumpTypedBytes(Configuration conf) {
-    this.conf = conf;
-  }
-  
-  public DumpTypedBytes() {
-    this(new Configuration());
-  }
-
-  public Configuration getConf() {
-    return conf;
-  }
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  /**
-   * The main driver for <code>DumpTypedBytes</code>.
-   */
-  public int run(String[] args) throws Exception {
-    if (args.length == 0) {
-      System.err.println("Too few arguments!");
-      printUsage();
-      return 1;
+    public DumpTypedBytes(Configuration conf) {
+        this.conf = conf;
     }
-    Path pattern = new Path(args[0]);
-    FileSystem fs = pattern.getFileSystem(getConf());
-    fs.setVerifyChecksum(true);
-    for (Path p : FileUtil.stat2Paths(fs.globStatus(pattern), pattern)) {
-      List<FileStatus> inputFiles = new ArrayList<FileStatus>();
-      FileStatus status = fs.getFileStatus(p);
-      if (status.isDirectory()) {
-        FileStatus[] files = fs.listStatus(p);
-        Collections.addAll(inputFiles, files);
-      } else {
-        inputFiles.add(status);
-      }
-      return dumpTypedBytes(inputFiles);
+
+    public DumpTypedBytes() {
+        this(new Configuration());
     }
-    return -1;
-  }
 
-  private void printUsage() {
-    System.out.println("Usage: $HADOOP_PREFIX/bin/hadoop jar hadoop-streaming.jar"
-        + " dumptb <glob-pattern>");
-    System.out.println("  Dumps all files that match the given pattern to " +
-        "standard output as typed bytes.");
-    System.out.println("  The files can be text or sequence files");
-  }
+    public Configuration getConf() {
+        return conf;
+    }
 
-  /**
-   * Dump given list of files to standard output as typed bytes.
-   */
-  @SuppressWarnings("unchecked")
-  private int dumpTypedBytes(List<FileStatus> files) throws IOException {
-    JobConf job = new JobConf(getConf()); 
-    DataOutputStream dout = new DataOutputStream(System.out);
-    AutoInputFormat autoInputFormat = new AutoInputFormat();
-    for (FileStatus fileStatus : files) {
-      FileSplit split = new FileSplit(fileStatus.getPath(), 0,
-        fileStatus.getLen() * fileStatus.getBlockSize(),
-        (String[]) null);
-      RecordReader recReader = null;
-      try {
-        recReader = autoInputFormat.getRecordReader(split, job, Reporter.NULL);
-        Object key = recReader.createKey();
-        Object value = recReader.createValue();
-        while (recReader.next(key, value)) {
-          if (key instanceof Writable) {
-            TypedBytesWritableOutput.get(dout).write((Writable) key);
-          } else {
-            TypedBytesOutput.get(dout).write(key);
-          }
-          if (value instanceof Writable) {
-            TypedBytesWritableOutput.get(dout).write((Writable) value);
-          } else {
-            TypedBytesOutput.get(dout).write(value);
-          }
+    public void setConf(Configuration conf) {
+        this.conf = conf;
+    }
+
+    /**
+     * The main driver for <code>DumpTypedBytes</code>.
+     */
+    public int run(String[] args) throws Exception {
+        if (args.length == 0) {
+            System.err.println("Too few arguments!");
+            printUsage();
+            return 1;
         }
-      } finally {
-        if (recReader != null) {
-          recReader.close();
+        Path pattern = new Path(args[0]);
+        FileSystem fs = pattern.getFileSystem(getConf());
+        fs.setVerifyChecksum(true);
+        for (Path p : FileUtil.stat2Paths(fs.globStatus(pattern), pattern)) {
+            List<FileStatus> inputFiles = new ArrayList<FileStatus>();
+            FileStatus status = fs.getFileStatus(p);
+            if (status.isDirectory()) {
+                FileStatus[] files = fs.listStatus(p);
+                Collections.addAll(inputFiles, files);
+            } else {
+                inputFiles.add(status);
+            }
+            return dumpTypedBytes(inputFiles);
         }
-      }
+        return -1;
     }
-    dout.flush();
-    return 0;
-  }
 
-  public static void main(String[] args) throws Exception {
-    DumpTypedBytes dumptb = new DumpTypedBytes();
-    int res = ToolRunner.run(dumptb, args);
-    System.exit(res);
-  }
-  
+    private void printUsage() {
+        System.out.println("Usage: $HADOOP_PREFIX/bin/hadoop jar hadoop-streaming.jar"
+                           + " dumptb <glob-pattern>");
+        System.out.println("  Dumps all files that match the given pattern to " +
+                           "standard output as typed bytes.");
+        System.out.println("  The files can be text or sequence files");
+    }
+
+    /**
+     * Dump given list of files to standard output as typed bytes.
+     */
+    @SuppressWarnings("unchecked")
+    private int dumpTypedBytes(List<FileStatus> files) throws IOException {
+        JobConf job = new JobConf(getConf());
+        DataOutputStream dout = new DataOutputStream(System.out);
+        AutoInputFormat autoInputFormat = new AutoInputFormat();
+        for (FileStatus fileStatus : files) {
+            FileSplit split = new FileSplit(fileStatus.getPath(), 0,
+                                            fileStatus.getLen() * fileStatus.getBlockSize(),
+                                            (String[]) null);
+            RecordReader recReader = null;
+            try {
+                recReader = autoInputFormat.getRecordReader(split, job, Reporter.NULL);
+                Object key = recReader.createKey();
+                Object value = recReader.createValue();
+                while (recReader.next(key, value)) {
+                    if (key instanceof Writable) {
+                        TypedBytesWritableOutput.get(dout).write((Writable) key);
+                    } else {
+                        TypedBytesOutput.get(dout).write(key);
+                    }
+                    if (value instanceof Writable) {
+                        TypedBytesWritableOutput.get(dout).write((Writable) value);
+                    } else {
+                        TypedBytesOutput.get(dout).write(value);
+                    }
+                }
+            } finally {
+                if (recReader != null) {
+                    recReader.close();
+                }
+            }
+        }
+        dout.flush();
+        return 0;
+    }
+
+    public static void main(String[] args) throws Exception {
+        DumpTypedBytes dumptb = new DumpTypedBytes();
+        int res = ToolRunner.run(dumptb, args);
+        System.exit(res);
+    }
+
 }

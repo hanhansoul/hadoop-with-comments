@@ -25,13 +25,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "scheduler")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SchedulerTypeInfo {
-  protected SchedulerInfo schedulerInfo;
+    protected SchedulerInfo schedulerInfo;
 
-  public SchedulerTypeInfo() {
-  } // JAXB needs this
+    public SchedulerTypeInfo() {
+    } // JAXB needs this
 
-  public SchedulerTypeInfo(final SchedulerInfo scheduler) {
-    this.schedulerInfo = scheduler;
-  }
+    public SchedulerTypeInfo(final SchedulerInfo scheduler) {
+        this.schedulerInfo = scheduler;
+    }
 
 }

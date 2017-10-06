@@ -32,23 +32,23 @@ import org.apache.hadoop.yarn.util.Records;
 @Evolving
 public abstract class PreemptionContainer {
 
-  @Private
-  @Unstable
-  public static PreemptionContainer newInstance(ContainerId id) {
-    PreemptionContainer container = Records.newRecord(PreemptionContainer.class);
-    container.setId(id);
-    return container;
-  }
+    @Private
+    @Unstable
+    public static PreemptionContainer newInstance(ContainerId id) {
+        PreemptionContainer container = Records.newRecord(PreemptionContainer.class);
+        container.setId(id);
+        return container;
+    }
 
-  /**
-   * @return Container referenced by this handle.
-   */
-  @Public
-  @Evolving
-  public abstract ContainerId getId();
+    /**
+     * @return Container referenced by this handle.
+     */
+    @Public
+    @Evolving
+    public abstract ContainerId getId();
 
-  @Private
-  @Unstable
-  public abstract void setId(ContainerId id);
+    @Private
+    @Unstable
+    public abstract void setId(ContainerId id);
 
 }

@@ -35,46 +35,46 @@ import org.junit.Test;
  */
 public class TestMRCJCRunJar {
 
-  private static String TEST_ROOT_DIR = new Path(System.getProperty(
-      "test.build.data", "/tmp")).toString();
+    private static String TEST_ROOT_DIR = new Path(System.getProperty(
+                "test.build.data", "/tmp")).toString();
 
-  private static final String TEST_JAR_NAME = "testjar.jar";
-  private static final String CLASS_NAME = "Hello.class";
+    private static final String TEST_JAR_NAME = "testjar.jar";
+    private static final String CLASS_NAME = "Hello.class";
 
-  @Test
-  public void testRunjar() throws Throwable {
-    File outFile = new File(TEST_ROOT_DIR, "out");
-    // delete if output file already exists.
-    if (outFile.exists()) {
-      outFile.delete();
+    @Test
+    public void testRunjar() throws Throwable {
+        File outFile = new File(TEST_ROOT_DIR, "out");
+        // delete if output file already exists.
+        if (outFile.exists()) {
+            outFile.delete();
+        }
+        File makeTestJar = makeTestJar();
+
+        String[] args = new String[3];
+        args[0] = makeTestJar.getAbsolutePath();
+        args[1] = "org.apache.hadoop.util.Hello";
+        args[2] = outFile.toString();
+        RunJar.main(args);
+        Assert.assertTrue("RunJar failed", outFile.exists());
     }
-    File makeTestJar = makeTestJar();
 
-    String[] args = new String[3];
-    args[0] = makeTestJar.getAbsolutePath();
-    args[1] = "org.apache.hadoop.util.Hello";
-    args[2] = outFile.toString();
-    RunJar.main(args);
-    Assert.assertTrue("RunJar failed", outFile.exists());
-  }
+    private File makeTestJar() throws IOException {
+        File jarFile = new File(TEST_ROOT_DIR, TEST_JAR_NAME);
+        JarOutputStream jstream = new JarOutputStream(new FileOutputStream(jarFile));
+        InputStream entryInputStream = this.getClass().getResourceAsStream(
+                                           CLASS_NAME);
+        ZipEntry entry = new ZipEntry("org/apache/hadoop/util/" + CLASS_NAME);
+        jstream.putNextEntry(entry);
+        BufferedInputStream bufInputStream = new BufferedInputStream(
+            entryInputStream, 2048);
+        int count;
+        byte[] data = new byte[2048];
+        while ((count = bufInputStream.read(data, 0, 2048)) != -1) {
+            jstream.write(data, 0, count);
+        }
+        jstream.closeEntry();
+        jstream.close();
 
-  private File makeTestJar() throws IOException {
-    File jarFile = new File(TEST_ROOT_DIR, TEST_JAR_NAME);
-    JarOutputStream jstream = new JarOutputStream(new FileOutputStream(jarFile));
-    InputStream entryInputStream = this.getClass().getResourceAsStream(
-        CLASS_NAME);
-    ZipEntry entry = new ZipEntry("org/apache/hadoop/util/" + CLASS_NAME);
-    jstream.putNextEntry(entry);
-    BufferedInputStream bufInputStream = new BufferedInputStream(
-        entryInputStream, 2048);
-    int count;
-    byte[] data = new byte[2048];
-    while ((count = bufInputStream.read(data, 0, 2048)) != -1) {
-      jstream.write(data, 0, count);
+        return jarFile;
     }
-    jstream.closeEntry();
-    jstream.close();
-
-    return jarFile;
-  }
 }

@@ -32,23 +32,23 @@ import org.apache.hadoop.contrib.utils.join.SampleTaggedMapOutput;
 public class SampleDataJoinMapper extends DataJoinMapperBase {
 
 
-  protected Text generateInputTag(String inputFile) {
-    // tag the row with input file name (data source)
-    return new Text(inputFile);
-  }
+    protected Text generateInputTag(String inputFile) {
+        // tag the row with input file name (data source)
+        return new Text(inputFile);
+    }
 
-  protected Text generateGroupKey(TaggedMapOutput aRecord) {
-    // first column in the input tab separated files becomes the key (to perform the JOIN)
-    String line = ((Text) aRecord.getData()).toString();
-    String groupKey = "";
-    String[] tokens = line.split("\\t", 2);
-    groupKey = tokens[0];
-    return new Text(groupKey);
-  }
+    protected Text generateGroupKey(TaggedMapOutput aRecord) {
+        // first column in the input tab separated files becomes the key (to perform the JOIN)
+        String line = ((Text) aRecord.getData()).toString();
+        String groupKey = "";
+        String[] tokens = line.split("\\t", 2);
+        groupKey = tokens[0];
+        return new Text(groupKey);
+    }
 
-  protected TaggedMapOutput generateTaggedMapOutput(Object value) {
-    TaggedMapOutput retv = new SampleTaggedMapOutput((Text) value);
-    retv.setTag(new Text(this.inputTag));
-    return retv;
-  }
+    protected TaggedMapOutput generateTaggedMapOutput(Object value) {
+        TaggedMapOutput retv = new SampleTaggedMapOutput((Text) value);
+        retv.setTag(new Text(this.inputTag));
+        return retv;
+    }
 }

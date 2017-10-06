@@ -23,8 +23,8 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class FooterBlock extends HtmlBlock {
 
-  @Override protected void render(Block html) {
-    html.
-      div("#footer.ui-widget")._();
-  }
+    @Override protected void render(Block html) {
+        html.
+        div("#footer.ui-widget")._();
+    }
 }

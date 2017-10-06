@@ -30,38 +30,38 @@ import org.apache.hadoop.fs.Path;
 
 public class TestS3InMemoryFileSystem extends TestCase {
 
-  private static final String TEST_PATH = "s3://test/data.txt";
-  
-  private static final String TEST_DATA = "Sample data for testing.";
-  
-  private S3InMemoryFileSystem fs;
-  
-  @Override
-  public void setUp() throws IOException {
-    fs = new S3InMemoryFileSystem();
-    fs.initialize(URI.create("s3://test/"), new Configuration());
-  }
- 
-  public void testBasicReadWriteIO() throws IOException {
-    FSDataOutputStream writeStream = fs.create(new Path(TEST_PATH));
-    writeStream.write(TEST_DATA.getBytes());
-    writeStream.flush();
-    writeStream.close();
-    
-    FSDataInputStream readStream = fs.open(new Path(TEST_PATH));
-    BufferedReader br = new BufferedReader(new InputStreamReader(readStream));
-    String line = "";
-    StringBuffer stringBuffer = new StringBuffer();
-    while ((line = br.readLine()) != null) {
-        stringBuffer.append(line);
+    private static final String TEST_PATH = "s3://test/data.txt";
+
+    private static final String TEST_DATA = "Sample data for testing.";
+
+    private S3InMemoryFileSystem fs;
+
+    @Override
+    public void setUp() throws IOException {
+        fs = new S3InMemoryFileSystem();
+        fs.initialize(URI.create("s3://test/"), new Configuration());
     }
-    br.close();
-    
-    assert(TEST_DATA.equals(stringBuffer.toString()));
-  }
-  
-  @Override
-  public void tearDown() throws IOException {
-    fs.close();  
-  }
+
+    public void testBasicReadWriteIO() throws IOException {
+        FSDataOutputStream writeStream = fs.create(new Path(TEST_PATH));
+        writeStream.write(TEST_DATA.getBytes());
+        writeStream.flush();
+        writeStream.close();
+
+        FSDataInputStream readStream = fs.open(new Path(TEST_PATH));
+        BufferedReader br = new BufferedReader(new InputStreamReader(readStream));
+        String line = "";
+        StringBuffer stringBuffer = new StringBuffer();
+        while ((line = br.readLine()) != null) {
+            stringBuffer.append(line);
+        }
+        br.close();
+
+        assert(TEST_DATA.equals(stringBuffer.toString()));
+    }
+
+    @Override
+    public void tearDown() throws IOException {
+        fs.close();
+    }
 }

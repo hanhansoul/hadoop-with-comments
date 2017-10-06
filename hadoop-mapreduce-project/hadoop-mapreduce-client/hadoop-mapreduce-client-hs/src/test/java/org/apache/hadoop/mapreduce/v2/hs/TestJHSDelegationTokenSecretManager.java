@@ -38,105 +38,105 @@ import org.junit.Test;
 
 public class TestJHSDelegationTokenSecretManager {
 
-  @Test
-  public void testRecovery() throws IOException {
-    Configuration conf = new Configuration();
-    HistoryServerStateStoreService store =
-        new HistoryServerMemStateStoreService();
-    store.init(conf);
-    store.start();
-    JHSDelegationTokenSecretManagerForTest mgr =
-        new JHSDelegationTokenSecretManagerForTest(store);
-    mgr.startThreads();
+    @Test
+    public void testRecovery() throws IOException {
+        Configuration conf = new Configuration();
+        HistoryServerStateStoreService store =
+            new HistoryServerMemStateStoreService();
+        store.init(conf);
+        store.start();
+        JHSDelegationTokenSecretManagerForTest mgr =
+            new JHSDelegationTokenSecretManagerForTest(store);
+        mgr.startThreads();
 
-    MRDelegationTokenIdentifier tokenId1 = new MRDelegationTokenIdentifier(
-        new Text("tokenOwner"), new Text("tokenRenewer"),
-        new Text("tokenUser"));
-    Token<MRDelegationTokenIdentifier> token1 =
-        new Token<MRDelegationTokenIdentifier>(tokenId1, mgr);
+        MRDelegationTokenIdentifier tokenId1 = new MRDelegationTokenIdentifier(
+            new Text("tokenOwner"), new Text("tokenRenewer"),
+            new Text("tokenUser"));
+        Token<MRDelegationTokenIdentifier> token1 =
+            new Token<MRDelegationTokenIdentifier>(tokenId1, mgr);
 
-    MRDelegationTokenIdentifier tokenId2 = new MRDelegationTokenIdentifier(
-        new Text("tokenOwner"), new Text("tokenRenewer"),
-        new Text("tokenUser"));
-    Token<MRDelegationTokenIdentifier> token2 =
-        new Token<MRDelegationTokenIdentifier>(tokenId2, mgr);
-    DelegationKey[] keys = mgr.getAllKeys();
-    long tokenRenewDate1 = mgr.getAllTokens().get(tokenId1).getRenewDate();
-    long tokenRenewDate2 = mgr.getAllTokens().get(tokenId2).getRenewDate();
-    mgr.stopThreads();
+        MRDelegationTokenIdentifier tokenId2 = new MRDelegationTokenIdentifier(
+            new Text("tokenOwner"), new Text("tokenRenewer"),
+            new Text("tokenUser"));
+        Token<MRDelegationTokenIdentifier> token2 =
+            new Token<MRDelegationTokenIdentifier>(tokenId2, mgr);
+        DelegationKey[] keys = mgr.getAllKeys();
+        long tokenRenewDate1 = mgr.getAllTokens().get(tokenId1).getRenewDate();
+        long tokenRenewDate2 = mgr.getAllTokens().get(tokenId2).getRenewDate();
+        mgr.stopThreads();
 
-    mgr = new JHSDelegationTokenSecretManagerForTest(store);
-    mgr.recover(store.loadState());
-    List<DelegationKey> recoveredKeys = Arrays.asList(mgr.getAllKeys());
-    for (DelegationKey key : keys) {
-      assertTrue("key missing after recovery", recoveredKeys.contains(key));
-    }
-    assertTrue("token1 missing", mgr.getAllTokens().containsKey(tokenId1));
-    assertEquals("token1 renew date", tokenRenewDate1,
-        mgr.getAllTokens().get(tokenId1).getRenewDate());
-    assertTrue("token2 missing", mgr.getAllTokens().containsKey(tokenId2));
-    assertEquals("token2 renew date", tokenRenewDate2,
-        mgr.getAllTokens().get(tokenId2).getRenewDate());
+        mgr = new JHSDelegationTokenSecretManagerForTest(store);
+        mgr.recover(store.loadState());
+        List<DelegationKey> recoveredKeys = Arrays.asList(mgr.getAllKeys());
+        for (DelegationKey key : keys) {
+            assertTrue("key missing after recovery", recoveredKeys.contains(key));
+        }
+        assertTrue("token1 missing", mgr.getAllTokens().containsKey(tokenId1));
+        assertEquals("token1 renew date", tokenRenewDate1,
+                     mgr.getAllTokens().get(tokenId1).getRenewDate());
+        assertTrue("token2 missing", mgr.getAllTokens().containsKey(tokenId2));
+        assertEquals("token2 renew date", tokenRenewDate2,
+                     mgr.getAllTokens().get(tokenId2).getRenewDate());
 
-    mgr.startThreads();
-    mgr.verifyToken(tokenId1, token1.getPassword());
-    mgr.verifyToken(tokenId2, token2.getPassword());
-    MRDelegationTokenIdentifier tokenId3 = new MRDelegationTokenIdentifier(
-        new Text("tokenOwner"), new Text("tokenRenewer"),
-        new Text("tokenUser"));
-    Token<MRDelegationTokenIdentifier> token3 =
-        new Token<MRDelegationTokenIdentifier>(tokenId3, mgr);
-    assertEquals("sequence number restore", tokenId2.getSequenceNumber() + 1,
-        tokenId3.getSequenceNumber());
-    mgr.cancelToken(token1, "tokenOwner");
+        mgr.startThreads();
+        mgr.verifyToken(tokenId1, token1.getPassword());
+        mgr.verifyToken(tokenId2, token2.getPassword());
+        MRDelegationTokenIdentifier tokenId3 = new MRDelegationTokenIdentifier(
+            new Text("tokenOwner"), new Text("tokenRenewer"),
+            new Text("tokenUser"));
+        Token<MRDelegationTokenIdentifier> token3 =
+            new Token<MRDelegationTokenIdentifier>(tokenId3, mgr);
+        assertEquals("sequence number restore", tokenId2.getSequenceNumber() + 1,
+                     tokenId3.getSequenceNumber());
+        mgr.cancelToken(token1, "tokenOwner");
 
-    // Testing with full principal name
-    MRDelegationTokenIdentifier tokenIdFull = new MRDelegationTokenIdentifier(
-        new Text("tokenOwner/localhost@LOCALHOST"), new Text("tokenRenewer"),
-        new Text("tokenUser"));
-    KerberosName.setRules("RULE:[1:$1]\nRULE:[2:$1]");
-    Token<MRDelegationTokenIdentifier> tokenFull = new Token<MRDelegationTokenIdentifier>(
-        tokenIdFull, mgr);
-    // Negative test
-    try {
-      mgr.cancelToken(tokenFull, "tokenOwner");
-    } catch (AccessControlException ace) {
-      assertTrue(ace.getMessage().contains(
-          "is not authorized to cancel the token"));
-    }
-    // Succeed to cancel with full principal
-    mgr.cancelToken(tokenFull, tokenIdFull.getOwner().toString());
+        // Testing with full principal name
+        MRDelegationTokenIdentifier tokenIdFull = new MRDelegationTokenIdentifier(
+            new Text("tokenOwner/localhost@LOCALHOST"), new Text("tokenRenewer"),
+            new Text("tokenUser"));
+        KerberosName.setRules("RULE:[1:$1]\nRULE:[2:$1]");
+        Token<MRDelegationTokenIdentifier> tokenFull = new Token<MRDelegationTokenIdentifier>(
+            tokenIdFull, mgr);
+        // Negative test
+        try {
+            mgr.cancelToken(tokenFull, "tokenOwner");
+        } catch (AccessControlException ace) {
+            assertTrue(ace.getMessage().contains(
+                           "is not authorized to cancel the token"));
+        }
+        // Succeed to cancel with full principal
+        mgr.cancelToken(tokenFull, tokenIdFull.getOwner().toString());
 
-    long tokenRenewDate3 = mgr.getAllTokens().get(tokenId3).getRenewDate();
-    mgr.stopThreads();
+        long tokenRenewDate3 = mgr.getAllTokens().get(tokenId3).getRenewDate();
+        mgr.stopThreads();
 
-    mgr = new JHSDelegationTokenSecretManagerForTest(store);
-    mgr.recover(store.loadState());
-    assertFalse("token1 should be missing",
-        mgr.getAllTokens().containsKey(tokenId1));
-    assertTrue("token2 missing", mgr.getAllTokens().containsKey(tokenId2));
-    assertEquals("token2 renew date", tokenRenewDate2,
-        mgr.getAllTokens().get(tokenId2).getRenewDate());
-    assertTrue("token3 missing", mgr.getAllTokens().containsKey(tokenId3));
-    assertEquals("token3 renew date", tokenRenewDate3,
-        mgr.getAllTokens().get(tokenId3).getRenewDate());
+        mgr = new JHSDelegationTokenSecretManagerForTest(store);
+        mgr.recover(store.loadState());
+        assertFalse("token1 should be missing",
+                    mgr.getAllTokens().containsKey(tokenId1));
+        assertTrue("token2 missing", mgr.getAllTokens().containsKey(tokenId2));
+        assertEquals("token2 renew date", tokenRenewDate2,
+                     mgr.getAllTokens().get(tokenId2).getRenewDate());
+        assertTrue("token3 missing", mgr.getAllTokens().containsKey(tokenId3));
+        assertEquals("token3 renew date", tokenRenewDate3,
+                     mgr.getAllTokens().get(tokenId3).getRenewDate());
 
-    mgr.startThreads();
-    mgr.verifyToken(tokenId2, token2.getPassword());
-    mgr.verifyToken(tokenId3, token3.getPassword());
-    mgr.stopThreads();
- }
-
-  private static class JHSDelegationTokenSecretManagerForTest
-      extends JHSDelegationTokenSecretManager {
-
-    public JHSDelegationTokenSecretManagerForTest(
-        HistoryServerStateStoreService store) {
-      super(10000, 10000, 10000, 10000, store);
+        mgr.startThreads();
+        mgr.verifyToken(tokenId2, token2.getPassword());
+        mgr.verifyToken(tokenId3, token3.getPassword());
+        mgr.stopThreads();
     }
 
-    public Map<MRDelegationTokenIdentifier, DelegationTokenInformation> getAllTokens() {
-      return new HashMap<MRDelegationTokenIdentifier, DelegationTokenInformation>(currentTokens);
+    private static class JHSDelegationTokenSecretManagerForTest
+        extends JHSDelegationTokenSecretManager {
+
+        public JHSDelegationTokenSecretManagerForTest(
+            HistoryServerStateStoreService store) {
+            super(10000, 10000, 10000, 10000, store);
+        }
+
+        public Map<MRDelegationTokenIdentifier, DelegationTokenInformation> getAllTokens() {
+            return new HashMap<MRDelegationTokenIdentifier, DelegationTokenInformation>(currentTokens);
+        }
     }
-  }
 }

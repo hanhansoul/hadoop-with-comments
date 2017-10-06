@@ -40,45 +40,45 @@ import org.apache.hadoop.mapreduce.MRJobConfig;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class SplitMetaInfoReader {
-  
-  public static JobSplit.TaskSplitMetaInfo[] readSplitMetaInfo(
-      JobID jobId, FileSystem fs, Configuration conf, Path jobSubmitDir) 
-  throws IOException {
-    long maxMetaInfoSize = conf.getLong(MRJobConfig.SPLIT_METAINFO_MAXSIZE,
-        MRJobConfig.DEFAULT_SPLIT_METAINFO_MAXSIZE);
-    Path metaSplitFile = JobSubmissionFiles.getJobSplitMetaFile(jobSubmitDir);
-    String jobSplitFile = JobSubmissionFiles.getJobSplitFile(jobSubmitDir).toString();
-    FileStatus fStatus = fs.getFileStatus(metaSplitFile);
-    if (maxMetaInfoSize > 0 && fStatus.getLen() > maxMetaInfoSize) {
-      throw new IOException("Split metadata size exceeded " +
-          maxMetaInfoSize +". Aborting job " + jobId);
+
+    public static JobSplit.TaskSplitMetaInfo[] readSplitMetaInfo(
+        JobID jobId, FileSystem fs, Configuration conf, Path jobSubmitDir)
+    throws IOException {
+        long maxMetaInfoSize = conf.getLong(MRJobConfig.SPLIT_METAINFO_MAXSIZE,
+                                            MRJobConfig.DEFAULT_SPLIT_METAINFO_MAXSIZE);
+        Path metaSplitFile = JobSubmissionFiles.getJobSplitMetaFile(jobSubmitDir);
+        String jobSplitFile = JobSubmissionFiles.getJobSplitFile(jobSubmitDir).toString();
+        FileStatus fStatus = fs.getFileStatus(metaSplitFile);
+        if (maxMetaInfoSize > 0 && fStatus.getLen() > maxMetaInfoSize) {
+            throw new IOException("Split metadata size exceeded " +
+                                  maxMetaInfoSize +". Aborting job " + jobId);
+        }
+        FSDataInputStream in = fs.open(metaSplitFile);
+        byte[] header = new byte[JobSplit.META_SPLIT_FILE_HEADER.length];
+        in.readFully(header);
+        if (!Arrays.equals(JobSplit.META_SPLIT_FILE_HEADER, header)) {
+            throw new IOException("Invalid header on split file");
+        }
+        int vers = WritableUtils.readVInt(in);
+        if (vers != JobSplit.META_SPLIT_VERSION) {
+            in.close();
+            throw new IOException("Unsupported split version " + vers);
+        }
+        int numSplits = WritableUtils.readVInt(in); //TODO: check for insane values
+        JobSplit.TaskSplitMetaInfo[] allSplitMetaInfo =
+            new JobSplit.TaskSplitMetaInfo[numSplits];
+        for (int i = 0; i < numSplits; i++) {
+            JobSplit.SplitMetaInfo splitMetaInfo = new JobSplit.SplitMetaInfo();
+            splitMetaInfo.readFields(in);
+            JobSplit.TaskSplitIndex splitIndex = new JobSplit.TaskSplitIndex(
+                jobSplitFile,
+                splitMetaInfo.getStartOffset());
+            allSplitMetaInfo[i] = new JobSplit.TaskSplitMetaInfo(splitIndex,
+                    splitMetaInfo.getLocations(),
+                    splitMetaInfo.getInputDataLength());
+        }
+        in.close();
+        return allSplitMetaInfo;
     }
-    FSDataInputStream in = fs.open(metaSplitFile);
-    byte[] header = new byte[JobSplit.META_SPLIT_FILE_HEADER.length];
-    in.readFully(header);
-    if (!Arrays.equals(JobSplit.META_SPLIT_FILE_HEADER, header)) {
-      throw new IOException("Invalid header on split file");
-    }
-    int vers = WritableUtils.readVInt(in);
-    if (vers != JobSplit.META_SPLIT_VERSION) {
-      in.close();
-      throw new IOException("Unsupported split version " + vers);
-    }
-    int numSplits = WritableUtils.readVInt(in); //TODO: check for insane values
-    JobSplit.TaskSplitMetaInfo[] allSplitMetaInfo = 
-      new JobSplit.TaskSplitMetaInfo[numSplits];
-    for (int i = 0; i < numSplits; i++) {
-      JobSplit.SplitMetaInfo splitMetaInfo = new JobSplit.SplitMetaInfo();
-      splitMetaInfo.readFields(in);
-      JobSplit.TaskSplitIndex splitIndex = new JobSplit.TaskSplitIndex(
-          jobSplitFile, 
-          splitMetaInfo.getStartOffset());
-      allSplitMetaInfo[i] = new JobSplit.TaskSplitMetaInfo(splitIndex, 
-          splitMetaInfo.getLocations(), 
-          splitMetaInfo.getInputDataLength());
-    }
-    in.close();
-    return allSplitMetaInfo;
-  }
 
 }

@@ -47,140 +47,139 @@ import java.util.Random;
 
 
 public class TestUniformSizeInputFormat {
-  private static MiniDFSCluster cluster;
-  private static final int N_FILES = 20;
-  private static final int SIZEOF_EACH_FILE=1024;
-  private static final Random random = new Random();
-  private static int totalFileSize = 0;
+    private static MiniDFSCluster cluster;
+    private static final int N_FILES = 20;
+    private static final int SIZEOF_EACH_FILE=1024;
+    private static final Random random = new Random();
+    private static int totalFileSize = 0;
 
-  private static final Credentials CREDENTIALS = new Credentials();
+    private static final Credentials CREDENTIALS = new Credentials();
 
 
-  @BeforeClass
-  public static void setup() throws Exception {
-    cluster = new MiniDFSCluster.Builder(new Configuration()).numDataNodes(1)
-                                          .format(true).build();
-    totalFileSize = 0;
+    @BeforeClass
+    public static void setup() throws Exception {
+        cluster = new MiniDFSCluster.Builder(new Configuration()).numDataNodes(1)
+        .format(true).build();
+        totalFileSize = 0;
 
-    for (int i=0; i<N_FILES; ++i)
-      totalFileSize += createFile("/tmp/source/" + String.valueOf(i), SIZEOF_EACH_FILE);
-  }
-
-  private static DistCpOptions getOptions(int nMaps) throws Exception {
-    Path sourcePath = new Path(cluster.getFileSystem().getUri().toString()
-                               + "/tmp/source");
-    Path targetPath = new Path(cluster.getFileSystem().getUri().toString()
-                               + "/tmp/target");
-
-    List<Path> sourceList = new ArrayList<Path>();
-    sourceList.add(sourcePath);
-    final DistCpOptions distCpOptions = new DistCpOptions(sourceList, targetPath);
-    distCpOptions.setMaxMaps(nMaps);
-    return distCpOptions;
-  }
-
-  private static int createFile(String path, int fileSize) throws Exception {
-    FileSystem fileSystem = null;
-    DataOutputStream outputStream = null;
-    try {
-      fileSystem = cluster.getFileSystem();
-      outputStream = fileSystem.create(new Path(path), true, 0);
-      int size = (int) Math.ceil(fileSize + (1 - random.nextFloat()) * fileSize);
-      outputStream.write(new byte[size]);
-      return size;
+        for (int i=0; i<N_FILES; ++i)
+            totalFileSize += createFile("/tmp/source/" + String.valueOf(i), SIZEOF_EACH_FILE);
     }
-    finally {
-      IOUtils.cleanup(null, fileSystem, outputStream);
+
+    private static DistCpOptions getOptions(int nMaps) throws Exception {
+        Path sourcePath = new Path(cluster.getFileSystem().getUri().toString()
+                                   + "/tmp/source");
+        Path targetPath = new Path(cluster.getFileSystem().getUri().toString()
+                                   + "/tmp/target");
+
+        List<Path> sourceList = new ArrayList<Path>();
+        sourceList.add(sourcePath);
+        final DistCpOptions distCpOptions = new DistCpOptions(sourceList, targetPath);
+        distCpOptions.setMaxMaps(nMaps);
+        return distCpOptions;
     }
-  }
 
-  @AfterClass
-  public static void tearDown() {
-    cluster.shutdown();
-  }
+    private static int createFile(String path, int fileSize) throws Exception {
+        FileSystem fileSystem = null;
+        DataOutputStream outputStream = null;
+        try {
+            fileSystem = cluster.getFileSystem();
+            outputStream = fileSystem.create(new Path(path), true, 0);
+            int size = (int) Math.ceil(fileSize + (1 - random.nextFloat()) * fileSize);
+            outputStream.write(new byte[size]);
+            return size;
+        } finally {
+            IOUtils.cleanup(null, fileSystem, outputStream);
+        }
+    }
 
-  public void testGetSplits(int nMaps) throws Exception {
-    DistCpOptions options = getOptions(nMaps);
-    Configuration configuration = new Configuration();
-    configuration.set("mapred.map.tasks",
-                      String.valueOf(options.getMaxMaps()));
-    Path listFile = new Path(cluster.getFileSystem().getUri().toString()
-        + "/tmp/testGetSplits_1/fileList.seq");
-    CopyListing.getCopyListing(configuration, CREDENTIALS, options).
+    @AfterClass
+    public static void tearDown() {
+        cluster.shutdown();
+    }
+
+    public void testGetSplits(int nMaps) throws Exception {
+        DistCpOptions options = getOptions(nMaps);
+        Configuration configuration = new Configuration();
+        configuration.set("mapred.map.tasks",
+                          String.valueOf(options.getMaxMaps()));
+        Path listFile = new Path(cluster.getFileSystem().getUri().toString()
+                                 + "/tmp/testGetSplits_1/fileList.seq");
+        CopyListing.getCopyListing(configuration, CREDENTIALS, options).
         buildListing(listFile, options);
 
-    JobContext jobContext = new JobContextImpl(configuration, new JobID());
-    UniformSizeInputFormat uniformSizeInputFormat = new UniformSizeInputFormat();
-    List<InputSplit> splits
+        JobContext jobContext = new JobContextImpl(configuration, new JobID());
+        UniformSizeInputFormat uniformSizeInputFormat = new UniformSizeInputFormat();
+        List<InputSplit> splits
             = uniformSizeInputFormat.getSplits(jobContext);
 
-    int sizePerMap = totalFileSize/nMaps;
+        int sizePerMap = totalFileSize/nMaps;
 
-    checkSplits(listFile, splits);
+        checkSplits(listFile, splits);
 
-    int doubleCheckedTotalSize = 0;
-    int previousSplitSize = -1;
-    for (int i=0; i<splits.size(); ++i) {
-      InputSplit split = splits.get(i);
-      int currentSplitSize = 0;
-      RecordReader<Text, CopyListingFileStatus> recordReader =
-        uniformSizeInputFormat.createRecordReader(split, null);
-      StubContext stubContext = new StubContext(jobContext.getConfiguration(),
-                                                recordReader, 0);
-      final TaskAttemptContext taskAttemptContext
-         = stubContext.getContext();
-      recordReader.initialize(split, taskAttemptContext);
-      while (recordReader.nextKeyValue()) {
-        Path sourcePath = recordReader.getCurrentValue().getPath();
-        FileSystem fs = sourcePath.getFileSystem(configuration);
-        FileStatus fileStatus [] = fs.listStatus(sourcePath);
-        if (fileStatus.length > 1) {
-          continue;
+        int doubleCheckedTotalSize = 0;
+        int previousSplitSize = -1;
+        for (int i=0; i<splits.size(); ++i) {
+            InputSplit split = splits.get(i);
+            int currentSplitSize = 0;
+            RecordReader<Text, CopyListingFileStatus> recordReader =
+                uniformSizeInputFormat.createRecordReader(split, null);
+            StubContext stubContext = new StubContext(jobContext.getConfiguration(),
+                    recordReader, 0);
+            final TaskAttemptContext taskAttemptContext
+                = stubContext.getContext();
+            recordReader.initialize(split, taskAttemptContext);
+            while (recordReader.nextKeyValue()) {
+                Path sourcePath = recordReader.getCurrentValue().getPath();
+                FileSystem fs = sourcePath.getFileSystem(configuration);
+                FileStatus fileStatus [] = fs.listStatus(sourcePath);
+                if (fileStatus.length > 1) {
+                    continue;
+                }
+                currentSplitSize += fileStatus[0].getLen();
+            }
+            Assert.assertTrue(
+                previousSplitSize == -1
+                || Math.abs(currentSplitSize - previousSplitSize) < 0.1*sizePerMap
+                || i == splits.size()-1);
+
+            doubleCheckedTotalSize += currentSplitSize;
         }
-        currentSplitSize += fileStatus[0].getLen();
-      }
-      Assert.assertTrue(
-           previousSplitSize == -1
-               || Math.abs(currentSplitSize - previousSplitSize) < 0.1*sizePerMap
-               || i == splits.size()-1);
 
-      doubleCheckedTotalSize += currentSplitSize;
+        Assert.assertEquals(totalFileSize, doubleCheckedTotalSize);
     }
 
-    Assert.assertEquals(totalFileSize, doubleCheckedTotalSize);
-  }
+    private void checkSplits(Path listFile, List<InputSplit> splits) throws IOException {
+        long lastEnd = 0;
 
-  private void checkSplits(Path listFile, List<InputSplit> splits) throws IOException {
-    long lastEnd = 0;
+        //Verify if each split's start is matching with the previous end and
+        //we are not missing anything
+        for (InputSplit split : splits) {
+            FileSplit fileSplit = (FileSplit) split;
+            long start = fileSplit.getStart();
+            Assert.assertEquals(lastEnd, start);
+            lastEnd = start + fileSplit.getLength();
+        }
 
-    //Verify if each split's start is matching with the previous end and
-    //we are not missing anything
-    for (InputSplit split : splits) {
-      FileSplit fileSplit = (FileSplit) split;
-      long start = fileSplit.getStart();
-      Assert.assertEquals(lastEnd, start);
-      lastEnd = start + fileSplit.getLength();
-    }
-
-    //Verify there is nothing more to read from the input file
-    SequenceFile.Reader reader
+        //Verify there is nothing more to read from the input file
+        SequenceFile.Reader reader
             = new SequenceFile.Reader(cluster.getFileSystem().getConf(),
-                    SequenceFile.Reader.file(listFile));
+                                      SequenceFile.Reader.file(listFile));
 
-    try {
-      reader.seek(lastEnd);
-      CopyListingFileStatus srcFileStatus = new CopyListingFileStatus();
-      Text srcRelPath = new Text();
-      Assert.assertFalse(reader.next(srcRelPath, srcFileStatus));
-    } finally {
-      IOUtils.closeStream(reader);
+        try {
+            reader.seek(lastEnd);
+            CopyListingFileStatus srcFileStatus = new CopyListingFileStatus();
+            Text srcRelPath = new Text();
+            Assert.assertFalse(reader.next(srcRelPath, srcFileStatus));
+        } finally {
+            IOUtils.closeStream(reader);
+        }
     }
-  }
 
-  @Test
-  public void testGetSplits() throws Exception {
-    testGetSplits(9);
-    for (int i=1; i<N_FILES; ++i)
-      testGetSplits(i);
-  }
+    @Test
+    public void testGetSplits() throws Exception {
+        testGetSplits(9);
+        for (int i=1; i<N_FILES; ++i)
+            testGetSplits(i);
+    }
 }

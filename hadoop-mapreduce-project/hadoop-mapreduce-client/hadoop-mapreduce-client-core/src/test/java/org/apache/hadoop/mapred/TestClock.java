@@ -27,12 +27,12 @@ import static org.junit.Assert.*;
  */
 public class TestClock {
 
-  @Test  (timeout=1000)
-  public void testClock(){
-    Clock clock= new Clock();
-    long templateTime=System.currentTimeMillis();
-    long time=clock.getTime();
-    assertEquals(templateTime, time,30);
+    @Test  (timeout=1000)
+    public void testClock() {
+        Clock clock= new Clock();
+        long templateTime=System.currentTimeMillis();
+        long time=clock.getTime();
+        assertEquals(templateTime, time,30);
 
-  }
+    }
 }

@@ -25,49 +25,49 @@ import org.apache.hadoop.yarn.api.records.Resource;
 
 public class ContainerCreatedEvent extends SystemMetricsEvent {
 
-  private ContainerId containerId;
-  private Resource allocatedResource;
-  private NodeId allocatedNode;
-  private Priority allocatedPriority;
-  private String nodeHttpAddress;
+    private ContainerId containerId;
+    private Resource allocatedResource;
+    private NodeId allocatedNode;
+    private Priority allocatedPriority;
+    private String nodeHttpAddress;
 
-  public ContainerCreatedEvent(
-      ContainerId containerId,
-      Resource allocatedResource,
-      NodeId allocatedNode,
-      Priority allocatedPriority,
-      long createdTime,
-      String nodeHttpAddress) {
-    super(SystemMetricsEventType.CONTAINER_CREATED, createdTime);
-    this.containerId = containerId;
-    this.allocatedResource = allocatedResource;
-    this.allocatedNode = allocatedNode;
-    this.allocatedPriority = allocatedPriority;
-    this.nodeHttpAddress = nodeHttpAddress;
-  }
+    public ContainerCreatedEvent(
+        ContainerId containerId,
+        Resource allocatedResource,
+        NodeId allocatedNode,
+        Priority allocatedPriority,
+        long createdTime,
+        String nodeHttpAddress) {
+        super(SystemMetricsEventType.CONTAINER_CREATED, createdTime);
+        this.containerId = containerId;
+        this.allocatedResource = allocatedResource;
+        this.allocatedNode = allocatedNode;
+        this.allocatedPriority = allocatedPriority;
+        this.nodeHttpAddress = nodeHttpAddress;
+    }
 
-  @Override
-  public int hashCode() {
-    return containerId.getApplicationAttemptId().getApplicationId().hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return containerId.getApplicationAttemptId().getApplicationId().hashCode();
+    }
 
-  public ContainerId getContainerId() {
-    return containerId;
-  }
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
-  public Resource getAllocatedResource() {
-    return allocatedResource;
-  }
+    public Resource getAllocatedResource() {
+        return allocatedResource;
+    }
 
-  public NodeId getAllocatedNode() {
-    return allocatedNode;
-  }
+    public NodeId getAllocatedNode() {
+        return allocatedNode;
+    }
 
-  public Priority getAllocatedPriority() {
-    return allocatedPriority;
-  }
+    public Priority getAllocatedPriority() {
+        return allocatedPriority;
+    }
 
-  public String getNodeHttpAddress() {
-    return nodeHttpAddress;
-  }
+    public String getNodeHttpAddress() {
+        return nodeHttpAddress;
+    }
 }

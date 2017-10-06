@@ -45,79 +45,79 @@ import org.apache.hadoop.test.GenericTestUtils;
  */
 public class TestSecondaryNameNodeUpgrade {
 
-  @Before
-  public void cleanupCluster() throws IOException {
-    File hdfsDir = new File(MiniDFSCluster.getBaseDirectory()).getCanonicalFile();
-    System.out.println("cleanupCluster deleting " + hdfsDir);
-    if (hdfsDir.exists() && !FileUtil.fullyDelete(hdfsDir)) {
-      throw new IOException("Could not delete hdfs directory '" + hdfsDir + "'");
-    }
-  }
-
-  private void doIt(Map<String, String> paramsToCorrupt) throws IOException {
-    MiniDFSCluster cluster = null;
-    FileSystem fs = null;
-    SecondaryNameNode snn = null;
-
-    try {
-      Configuration conf = new HdfsConfiguration();
-
-      cluster = new MiniDFSCluster.Builder(conf).build();
-      cluster.waitActive();
-
-      conf.set(DFSConfigKeys.DFS_NAMENODE_SECONDARY_HTTP_ADDRESS_KEY, "0.0.0.0:0");
-      snn = new SecondaryNameNode(conf);
-
-      fs = cluster.getFileSystem();
-
-      fs.mkdirs(new Path("/test/foo"));
-
-      snn.doCheckpoint();
-
-      List<File> versionFiles = snn.getFSImage().getStorage().getFiles(null, "VERSION");
-
-      snn.shutdown();
-
-      for (File versionFile : versionFiles) {
-        for (Map.Entry<String, String> paramToCorrupt : paramsToCorrupt.entrySet()) {
-          String param = paramToCorrupt.getKey();
-          String val = paramToCorrupt.getValue();
-          System.out.println("Changing '" + param + "' to '" + val + "' in " + versionFile);
-          FSImageTestUtil.corruptVersionFile(versionFile, param, val);
+    @Before
+    public void cleanupCluster() throws IOException {
+        File hdfsDir = new File(MiniDFSCluster.getBaseDirectory()).getCanonicalFile();
+        System.out.println("cleanupCluster deleting " + hdfsDir);
+        if (hdfsDir.exists() && !FileUtil.fullyDelete(hdfsDir)) {
+            throw new IOException("Could not delete hdfs directory '" + hdfsDir + "'");
         }
-      }
-
-      snn = new SecondaryNameNode(conf);
-
-      fs.mkdirs(new Path("/test/bar"));
-
-      snn.doCheckpoint();
-    } finally {
-      if (fs != null) fs.close();
-      if (cluster != null) cluster.shutdown();
-      if (snn != null) snn.shutdown();
     }
-  }
 
-  @Test
-  public void testUpgradeLayoutVersionSucceeds() throws IOException {
-    doIt(ImmutableMap.of("layoutVersion", "-39"));
-  }
+    private void doIt(Map<String, String> paramsToCorrupt) throws IOException {
+        MiniDFSCluster cluster = null;
+        FileSystem fs = null;
+        SecondaryNameNode snn = null;
 
-  @Test
-  public void testUpgradePreFedSucceeds() throws IOException {
-    doIt(ImmutableMap.of("layoutVersion", "-19", "clusterID", "",
-          "blockpoolID", ""));
-  }
+        try {
+            Configuration conf = new HdfsConfiguration();
 
-  @Test
-  public void testChangeNsIDFails() throws IOException {
-    try {
-      doIt(ImmutableMap.of("namespaceID", "2"));
-      Assert.fail("Should throw InconsistentFSStateException");
-    } catch(IOException e) {
-      GenericTestUtils.assertExceptionContains("Inconsistent checkpoint fields", e);
-      System.out.println("Correctly failed with inconsistent namespaceID: " + e);
+            cluster = new MiniDFSCluster.Builder(conf).build();
+            cluster.waitActive();
+
+            conf.set(DFSConfigKeys.DFS_NAMENODE_SECONDARY_HTTP_ADDRESS_KEY, "0.0.0.0:0");
+            snn = new SecondaryNameNode(conf);
+
+            fs = cluster.getFileSystem();
+
+            fs.mkdirs(new Path("/test/foo"));
+
+            snn.doCheckpoint();
+
+            List<File> versionFiles = snn.getFSImage().getStorage().getFiles(null, "VERSION");
+
+            snn.shutdown();
+
+            for (File versionFile : versionFiles) {
+                for (Map.Entry<String, String> paramToCorrupt : paramsToCorrupt.entrySet()) {
+                    String param = paramToCorrupt.getKey();
+                    String val = paramToCorrupt.getValue();
+                    System.out.println("Changing '" + param + "' to '" + val + "' in " + versionFile);
+                    FSImageTestUtil.corruptVersionFile(versionFile, param, val);
+                }
+            }
+
+            snn = new SecondaryNameNode(conf);
+
+            fs.mkdirs(new Path("/test/bar"));
+
+            snn.doCheckpoint();
+        } finally {
+            if (fs != null) fs.close();
+            if (cluster != null) cluster.shutdown();
+            if (snn != null) snn.shutdown();
+        }
     }
-  }
+
+    @Test
+    public void testUpgradeLayoutVersionSucceeds() throws IOException {
+        doIt(ImmutableMap.of("layoutVersion", "-39"));
+    }
+
+    @Test
+    public void testUpgradePreFedSucceeds() throws IOException {
+        doIt(ImmutableMap.of("layoutVersion", "-19", "clusterID", "",
+                             "blockpoolID", ""));
+    }
+
+    @Test
+    public void testChangeNsIDFails() throws IOException {
+        try {
+            doIt(ImmutableMap.of("namespaceID", "2"));
+            Assert.fail("Should throw InconsistentFSStateException");
+        } catch(IOException e) {
+            GenericTestUtils.assertExceptionContains("Inconsistent checkpoint fields", e);
+            System.out.println("Correctly failed with inconsistent namespaceID: " + e);
+        }
+    }
 }

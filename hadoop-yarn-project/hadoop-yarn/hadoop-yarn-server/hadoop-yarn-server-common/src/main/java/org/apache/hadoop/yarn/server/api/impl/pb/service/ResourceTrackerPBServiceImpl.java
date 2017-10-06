@@ -39,39 +39,39 @@ import com.google.protobuf.ServiceException;
 
 public class ResourceTrackerPBServiceImpl implements ResourceTrackerPB {
 
-  private ResourceTracker real;
-  
-  public ResourceTrackerPBServiceImpl(ResourceTracker impl) {
-    this.real = impl;
-  }
-  
-  @Override
-  public RegisterNodeManagerResponseProto registerNodeManager(
-      RpcController controller, RegisterNodeManagerRequestProto proto)
-      throws ServiceException {
-    RegisterNodeManagerRequestPBImpl request = new RegisterNodeManagerRequestPBImpl(proto);
-    try {
-      RegisterNodeManagerResponse response = real.registerNodeManager(request);
-      return ((RegisterNodeManagerResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
+    private ResourceTracker real;
 
-  @Override
-  public NodeHeartbeatResponseProto nodeHeartbeat(RpcController controller,
-      NodeHeartbeatRequestProto proto) throws ServiceException {
-    NodeHeartbeatRequestPBImpl request = new NodeHeartbeatRequestPBImpl(proto);
-    try {
-      NodeHeartbeatResponse response = real.nodeHeartbeat(request);
-      return ((NodeHeartbeatResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    public ResourceTrackerPBServiceImpl(ResourceTracker impl) {
+        this.real = impl;
     }
-  }
+
+    @Override
+    public RegisterNodeManagerResponseProto registerNodeManager(
+        RpcController controller, RegisterNodeManagerRequestProto proto)
+    throws ServiceException {
+        RegisterNodeManagerRequestPBImpl request = new RegisterNodeManagerRequestPBImpl(proto);
+        try {
+            RegisterNodeManagerResponse response = real.registerNodeManager(request);
+            return ((RegisterNodeManagerResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public NodeHeartbeatResponseProto nodeHeartbeat(RpcController controller,
+            NodeHeartbeatRequestProto proto) throws ServiceException {
+        NodeHeartbeatRequestPBImpl request = new NodeHeartbeatRequestPBImpl(proto);
+        try {
+            NodeHeartbeatResponse response = real.nodeHeartbeat(request);
+            return ((NodeHeartbeatResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
 
 }

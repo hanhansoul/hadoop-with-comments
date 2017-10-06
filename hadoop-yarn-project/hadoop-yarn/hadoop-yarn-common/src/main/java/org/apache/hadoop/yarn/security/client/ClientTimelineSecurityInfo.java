@@ -35,49 +35,49 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 @Public
 @Unstable
 public class ClientTimelineSecurityInfo extends SecurityInfo {
-  @Override
-  public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol
-        .equals(ApplicationHistoryProtocolPB.class)) {
-      return null;
+    @Override
+    public KerberosInfo getKerberosInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol
+            .equals(ApplicationHistoryProtocolPB.class)) {
+            return null;
+        }
+        return new KerberosInfo() {
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
+
+            @Override
+            public String serverPrincipal() {
+                return YarnConfiguration.TIMELINE_SERVICE_PRINCIPAL;
+            }
+
+            @Override
+            public String clientPrincipal() {
+                return null;
+            }
+        };
     }
-    return new KerberosInfo() {
 
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return null;
-      }
+    @Override
+    public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
+        if (!protocol
+            .equals(ApplicationHistoryProtocolPB.class)) {
+            return null;
+        }
+        return new TokenInfo() {
 
-      @Override
-      public String serverPrincipal() {
-        return YarnConfiguration.TIMELINE_SERVICE_PRINCIPAL;
-      }
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return null;
+            }
 
-      @Override
-      public String clientPrincipal() {
-        return null;
-      }
-    };
-  }
-
-  @Override
-  public TokenInfo getTokenInfo(Class<?> protocol, Configuration conf) {
-    if (!protocol
-        .equals(ApplicationHistoryProtocolPB.class)) {
-      return null;
+            @Override
+            public Class<? extends TokenSelector<? extends TokenIdentifier>>
+            value() {
+                return TimelineDelegationTokenSelector.class;
+            }
+        };
     }
-    return new TokenInfo() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return null;
-      }
-
-      @Override
-      public Class<? extends TokenSelector<? extends TokenIdentifier>>
-          value() {
-        return TimelineDelegationTokenSelector.class;
-      }
-    };
-  }
 }

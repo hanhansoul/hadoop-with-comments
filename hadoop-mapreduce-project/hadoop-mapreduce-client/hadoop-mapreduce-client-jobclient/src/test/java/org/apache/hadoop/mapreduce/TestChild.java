@@ -32,132 +32,132 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.log4j.Level;
 
 public class TestChild extends HadoopTestCase {
-  private static String TEST_ROOT_DIR =
-    new File(System.getProperty("test.build.data","/tmp"))
+    private static String TEST_ROOT_DIR =
+        new File(System.getProperty("test.build.data","/tmp"))
     .toURI().toString().replace(' ', '+');
-  private final Path inDir = new Path(TEST_ROOT_DIR, "./wc/input");
-  private final Path outDir = new Path(TEST_ROOT_DIR, "./wc/output");
-  
-  private final static String OLD_CONFIGS = "test.old.configs";
-  private final static String TASK_OPTS_VAL = "-Xmx200m";
-  private final static String MAP_OPTS_VAL = "-Xmx200m";
-  private final static String REDUCE_OPTS_VAL = "-Xmx300m";
-  
-  public TestChild() throws IOException {
-    super(HadoopTestCase.CLUSTER_MR , HadoopTestCase.LOCAL_FS, 2, 2);
-  }
+    private final Path inDir = new Path(TEST_ROOT_DIR, "./wc/input");
+    private final Path outDir = new Path(TEST_ROOT_DIR, "./wc/output");
 
-  static class MyMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
+    private final static String OLD_CONFIGS = "test.old.configs";
+    private final static String TASK_OPTS_VAL = "-Xmx200m";
+    private final static String MAP_OPTS_VAL = "-Xmx200m";
+    private final static String REDUCE_OPTS_VAL = "-Xmx300m";
 
-    @Override
-    protected void setup(Context context) throws IOException,
-        InterruptedException {
-      Configuration conf = context.getConfiguration();
-      boolean oldConfigs = conf.getBoolean(OLD_CONFIGS, false);
-      if (oldConfigs) {
-        String javaOpts = conf.get(JobConf.MAPRED_TASK_JAVA_OPTS);
-        assertNotNull(JobConf.MAPRED_TASK_JAVA_OPTS + " is null!", 
-                      javaOpts);
-        assertEquals(JobConf.MAPRED_TASK_JAVA_OPTS + " has value of: " + 
-                     javaOpts, 
-                     javaOpts, TASK_OPTS_VAL);
-      } else {
-        String mapJavaOpts = conf.get(JobConf.MAPRED_MAP_TASK_JAVA_OPTS);
-        assertNotNull(JobConf.MAPRED_MAP_TASK_JAVA_OPTS + " is null!", 
-                      mapJavaOpts);
-        assertEquals(JobConf.MAPRED_MAP_TASK_JAVA_OPTS + " has value of: " + 
-                     mapJavaOpts, 
-                     mapJavaOpts, MAP_OPTS_VAL);
-      }
-      
-      Level logLevel = 
-        Level.toLevel(conf.get(JobConf.MAPRED_MAP_TASK_LOG_LEVEL, 
-                               Level.INFO.toString()));  
-      assertEquals(JobConf.MAPRED_MAP_TASK_LOG_LEVEL + "has value of " + 
-                   logLevel, logLevel, Level.OFF);
+    public TestChild() throws IOException {
+        super(HadoopTestCase.CLUSTER_MR, HadoopTestCase.LOCAL_FS, 2, 2);
     }
-  }
-  
-  static class MyReducer 
-  extends Reducer<LongWritable, Text, LongWritable, Text> {
 
-    @Override
-    protected void setup(Context context)
+    static class MyMapper extends Mapper<LongWritable, Text, LongWritable, Text> {
+
+        @Override
+        protected void setup(Context context) throws IOException,
+            InterruptedException {
+            Configuration conf = context.getConfiguration();
+            boolean oldConfigs = conf.getBoolean(OLD_CONFIGS, false);
+            if (oldConfigs) {
+                String javaOpts = conf.get(JobConf.MAPRED_TASK_JAVA_OPTS);
+                assertNotNull(JobConf.MAPRED_TASK_JAVA_OPTS + " is null!",
+                              javaOpts);
+                assertEquals(JobConf.MAPRED_TASK_JAVA_OPTS + " has value of: " +
+                             javaOpts,
+                             javaOpts, TASK_OPTS_VAL);
+            } else {
+                String mapJavaOpts = conf.get(JobConf.MAPRED_MAP_TASK_JAVA_OPTS);
+                assertNotNull(JobConf.MAPRED_MAP_TASK_JAVA_OPTS + " is null!",
+                              mapJavaOpts);
+                assertEquals(JobConf.MAPRED_MAP_TASK_JAVA_OPTS + " has value of: " +
+                             mapJavaOpts,
+                             mapJavaOpts, MAP_OPTS_VAL);
+            }
+
+            Level logLevel =
+                Level.toLevel(conf.get(JobConf.MAPRED_MAP_TASK_LOG_LEVEL,
+                                       Level.INFO.toString()));
+            assertEquals(JobConf.MAPRED_MAP_TASK_LOG_LEVEL + "has value of " +
+                         logLevel, logLevel, Level.OFF);
+        }
+    }
+
+    static class MyReducer
+        extends Reducer<LongWritable, Text, LongWritable, Text> {
+
+        @Override
+        protected void setup(Context context)
         throws IOException, InterruptedException {
-      Configuration conf = context.getConfiguration();
-      boolean oldConfigs = conf.getBoolean(OLD_CONFIGS, false);
-      if (oldConfigs) {
-        String javaOpts = conf.get(JobConf.MAPRED_TASK_JAVA_OPTS);
-        assertNotNull(JobConf.MAPRED_TASK_JAVA_OPTS + " is null!", 
-                      javaOpts);
-        assertEquals(JobConf.MAPRED_TASK_JAVA_OPTS + " has value of: " + 
-                     javaOpts, 
-                     javaOpts, TASK_OPTS_VAL);
-      } else {
-        String reduceJavaOpts = conf.get(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS);
-        assertNotNull(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS + " is null!", 
-                      reduceJavaOpts);
-        assertEquals(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS + " has value of: " + 
-                     reduceJavaOpts, 
-                     reduceJavaOpts, REDUCE_OPTS_VAL);
-      }
-      
-      Level logLevel = 
-        Level.toLevel(conf.get(JobConf.MAPRED_REDUCE_TASK_LOG_LEVEL, 
-                               Level.INFO.toString()));  
-      assertEquals(JobConf.MAPRED_REDUCE_TASK_LOG_LEVEL + "has value of " + 
-                   logLevel, logLevel, Level.OFF);
-    }
-  }
-  
-  private Job submitAndValidateJob(JobConf conf, int numMaps, int numReds, 
-                                   boolean oldConfigs) 
-      throws IOException, InterruptedException, ClassNotFoundException {
-    conf.setBoolean(OLD_CONFIGS, oldConfigs);
-    if (oldConfigs) {
-      conf.set(JobConf.MAPRED_TASK_JAVA_OPTS, TASK_OPTS_VAL);
-    } else {
-      conf.set(JobConf.MAPRED_MAP_TASK_JAVA_OPTS, MAP_OPTS_VAL);
-      conf.set(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS, REDUCE_OPTS_VAL);
-    }
-    
-    conf.set(JobConf.MAPRED_MAP_TASK_LOG_LEVEL, Level.OFF.toString());
-    conf.set(JobConf.MAPRED_REDUCE_TASK_LOG_LEVEL, Level.OFF.toString());
-    
-    Job job = MapReduceTestUtil.createJob(conf, inDir, outDir, 
-                numMaps, numReds);
-    job.setMapperClass(MyMapper.class);
-    job.setReducerClass(MyReducer.class);
-    assertFalse("Job already has a job tracker connection, before it's submitted",
-                job.isConnected());
-    job.submit();
-    assertTrue("Job doesn't have a job tracker connection, even though it's been submitted",
-               job.isConnected());
-    job.waitForCompletion(true);
-    assertTrue(job.isSuccessful());
+            Configuration conf = context.getConfiguration();
+            boolean oldConfigs = conf.getBoolean(OLD_CONFIGS, false);
+            if (oldConfigs) {
+                String javaOpts = conf.get(JobConf.MAPRED_TASK_JAVA_OPTS);
+                assertNotNull(JobConf.MAPRED_TASK_JAVA_OPTS + " is null!",
+                              javaOpts);
+                assertEquals(JobConf.MAPRED_TASK_JAVA_OPTS + " has value of: " +
+                             javaOpts,
+                             javaOpts, TASK_OPTS_VAL);
+            } else {
+                String reduceJavaOpts = conf.get(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS);
+                assertNotNull(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS + " is null!",
+                              reduceJavaOpts);
+                assertEquals(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS + " has value of: " +
+                             reduceJavaOpts,
+                             reduceJavaOpts, REDUCE_OPTS_VAL);
+            }
 
-    // Check output directory
-    FileSystem fs = FileSystem.get(conf);
-    assertTrue("Job output directory doesn't exit!", fs.exists(outDir));
-    FileStatus[] list = fs.listStatus(outDir, new OutputFilter());
-    int numPartFiles = numReds == 0 ? numMaps : numReds;
-    assertTrue("Number of part-files is " + list.length + " and not "
-        + numPartFiles, list.length == numPartFiles);
-    return job;
-  }
-  
-  public void testChild() throws Exception {
-    try {
-      submitAndValidateJob(createJobConf(), 1, 1, true);
-      submitAndValidateJob(createJobConf(), 1, 1, false);
-    } finally {
-      tearDown();
+            Level logLevel =
+                Level.toLevel(conf.get(JobConf.MAPRED_REDUCE_TASK_LOG_LEVEL,
+                                       Level.INFO.toString()));
+            assertEquals(JobConf.MAPRED_REDUCE_TASK_LOG_LEVEL + "has value of " +
+                         logLevel, logLevel, Level.OFF);
+        }
     }
-  }
-  
-  private static class OutputFilter implements PathFilter {
-    public boolean accept(Path path) {
-      return !(path.getName().startsWith("_"));
+
+    private Job submitAndValidateJob(JobConf conf, int numMaps, int numReds,
+                                     boolean oldConfigs)
+    throws IOException, InterruptedException, ClassNotFoundException {
+        conf.setBoolean(OLD_CONFIGS, oldConfigs);
+        if (oldConfigs) {
+            conf.set(JobConf.MAPRED_TASK_JAVA_OPTS, TASK_OPTS_VAL);
+        } else {
+            conf.set(JobConf.MAPRED_MAP_TASK_JAVA_OPTS, MAP_OPTS_VAL);
+            conf.set(JobConf.MAPRED_REDUCE_TASK_JAVA_OPTS, REDUCE_OPTS_VAL);
+        }
+
+        conf.set(JobConf.MAPRED_MAP_TASK_LOG_LEVEL, Level.OFF.toString());
+        conf.set(JobConf.MAPRED_REDUCE_TASK_LOG_LEVEL, Level.OFF.toString());
+
+        Job job = MapReduceTestUtil.createJob(conf, inDir, outDir,
+                                              numMaps, numReds);
+        job.setMapperClass(MyMapper.class);
+        job.setReducerClass(MyReducer.class);
+        assertFalse("Job already has a job tracker connection, before it's submitted",
+                    job.isConnected());
+        job.submit();
+        assertTrue("Job doesn't have a job tracker connection, even though it's been submitted",
+                   job.isConnected());
+        job.waitForCompletion(true);
+        assertTrue(job.isSuccessful());
+
+        // Check output directory
+        FileSystem fs = FileSystem.get(conf);
+        assertTrue("Job output directory doesn't exit!", fs.exists(outDir));
+        FileStatus[] list = fs.listStatus(outDir, new OutputFilter());
+        int numPartFiles = numReds == 0 ? numMaps : numReds;
+        assertTrue("Number of part-files is " + list.length + " and not "
+                   + numPartFiles, list.length == numPartFiles);
+        return job;
     }
-  }
+
+    public void testChild() throws Exception {
+        try {
+            submitAndValidateJob(createJobConf(), 1, 1, true);
+            submitAndValidateJob(createJobConf(), 1, 1, false);
+        } finally {
+            tearDown();
+        }
+    }
+
+    private static class OutputFilter implements PathFilter {
+        public boolean accept(Path path) {
+            return !(path.getName().startsWith("_"));
+        }
+    }
 }

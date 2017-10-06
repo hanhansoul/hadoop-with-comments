@@ -30,31 +30,31 @@ import org.apache.hadoop.registry.server.services.RegistryAdminService;
  */
 public class SelectByYarnPersistence
     implements RegistryAdminService.NodeSelector {
-  private final String id;
-  private final String targetPolicy;
+    private final String id;
+    private final String targetPolicy;
 
-  public SelectByYarnPersistence(String id, String targetPolicy) {
-    Preconditions.checkArgument(!StringUtils.isEmpty(id), "id");
-    Preconditions.checkArgument(!StringUtils.isEmpty(targetPolicy),
-        "targetPolicy");
-    this.id = id;
-    this.targetPolicy = targetPolicy;
-  }
+    public SelectByYarnPersistence(String id, String targetPolicy) {
+        Preconditions.checkArgument(!StringUtils.isEmpty(id), "id");
+        Preconditions.checkArgument(!StringUtils.isEmpty(targetPolicy),
+                                    "targetPolicy");
+        this.id = id;
+        this.targetPolicy = targetPolicy;
+    }
 
-  @Override
-  public boolean shouldSelect(String path,
-      RegistryPathStatus registryPathStatus,
-      ServiceRecord serviceRecord) {
-    String policy =
-        serviceRecord.get(YarnRegistryAttributes.YARN_PERSISTENCE, "");
-    return id.equals(serviceRecord.get(YarnRegistryAttributes.YARN_ID, ""))
-           && (targetPolicy.equals(policy));
-  }
+    @Override
+    public boolean shouldSelect(String path,
+                                RegistryPathStatus registryPathStatus,
+                                ServiceRecord serviceRecord) {
+        String policy =
+            serviceRecord.get(YarnRegistryAttributes.YARN_PERSISTENCE, "");
+        return id.equals(serviceRecord.get(YarnRegistryAttributes.YARN_ID, ""))
+               && (targetPolicy.equals(policy));
+    }
 
-  @Override
-  public String toString() {
-    return String.format(
-        "Select by ID %s and policy %s: {}",
-        id, targetPolicy);
-  }
+    @Override
+    public String toString() {
+        return String.format(
+                   "Select by ID %s and policy %s: {}",
+                   id, targetPolicy);
+    }
 }

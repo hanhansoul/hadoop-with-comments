@@ -26,55 +26,55 @@ import org.apache.hadoop.fs.Path;
 
 public class FailureInjectingJavaKeyStoreProvider extends JavaKeyStoreProvider {
 
-  public static final String SCHEME_NAME = "failjceks";
+    public static final String SCHEME_NAME = "failjceks";
 
-  private boolean backupFail = false;
-  private boolean writeFail = false;
-  FailureInjectingJavaKeyStoreProvider(JavaKeyStoreProvider prov) {
-    super(prov);
-  }
-
-  public void setBackupFail(boolean b) {
-    backupFail = b;
-  }
-
-  public void setWriteFail(boolean b) {
-    backupFail = b;
-  }
-
-  // Failure injection methods..
-  @Override
-  public void writeToNew(Path newPath) throws IOException {
-    if (writeFail) {
-      throw new IOException("Injecting failure on write");
+    private boolean backupFail = false;
+    private boolean writeFail = false;
+    FailureInjectingJavaKeyStoreProvider(JavaKeyStoreProvider prov) {
+        super(prov);
     }
-    super.writeToNew(newPath);
-  }
 
-  @Override
-  public boolean backupToOld(Path oldPath) throws IOException {
-    if (backupFail) {
-      throw new IOException("Inejection Failure on backup");
+    public void setBackupFail(boolean b) {
+        backupFail = b;
     }
-    return super.backupToOld(oldPath);
-  }
 
-  public static class Factory extends KeyProviderFactory {
+    public void setWriteFail(boolean b) {
+        backupFail = b;
+    }
+
+    // Failure injection methods..
     @Override
-    public KeyProvider createProvider(URI providerName,
-        Configuration conf) throws IOException {
-      if (SCHEME_NAME.equals(providerName.getScheme())) {
-        try {
-          return new FailureInjectingJavaKeyStoreProvider(
-              (JavaKeyStoreProvider) new JavaKeyStoreProvider.Factory()
-                  .createProvider(
-                      new URI(providerName.toString().replace(SCHEME_NAME,
-                          JavaKeyStoreProvider.SCHEME_NAME)), conf));
-        } catch (URISyntaxException e) {
-          throw new RuntimeException(e);
+    public void writeToNew(Path newPath) throws IOException {
+        if (writeFail) {
+            throw new IOException("Injecting failure on write");
         }
-      }
-      return null;
+        super.writeToNew(newPath);
     }
-  }
+
+    @Override
+    public boolean backupToOld(Path oldPath) throws IOException {
+        if (backupFail) {
+            throw new IOException("Inejection Failure on backup");
+        }
+        return super.backupToOld(oldPath);
+    }
+
+    public static class Factory extends KeyProviderFactory {
+        @Override
+        public KeyProvider createProvider(URI providerName,
+                                          Configuration conf) throws IOException {
+            if (SCHEME_NAME.equals(providerName.getScheme())) {
+                try {
+                    return new FailureInjectingJavaKeyStoreProvider(
+                               (JavaKeyStoreProvider) new JavaKeyStoreProvider.Factory()
+                               .createProvider(
+                                   new URI(providerName.toString().replace(SCHEME_NAME,
+                                           JavaKeyStoreProvider.SCHEME_NAME)), conf));
+                } catch (URISyntaxException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return null;
+        }
+    }
 }

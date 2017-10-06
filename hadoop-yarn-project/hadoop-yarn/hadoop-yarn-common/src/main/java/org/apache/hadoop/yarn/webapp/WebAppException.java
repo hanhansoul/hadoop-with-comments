@@ -24,17 +24,17 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class WebAppException extends YarnRuntimeException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public WebAppException(String msg) {
-    super(msg);
-  }
+    public WebAppException(String msg) {
+        super(msg);
+    }
 
-  public WebAppException(Throwable cause) {
-    super(cause);
-  }
+    public WebAppException(Throwable cause) {
+        super(cause);
+    }
 
-  public WebAppException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+    public WebAppException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

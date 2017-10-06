@@ -39,84 +39,84 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 @InterfaceStability.Unstable
 public class ConfiguredRMFailoverProxyProvider<T>
     implements RMFailoverProxyProvider<T> {
-  private static final Log LOG =
-      LogFactory.getLog(ConfiguredRMFailoverProxyProvider.class);
+    private static final Log LOG =
+        LogFactory.getLog(ConfiguredRMFailoverProxyProvider.class);
 
-  private int currentProxyIndex = 0;
-  Map<String, T> proxies = new HashMap<String, T>();
+    private int currentProxyIndex = 0;
+    Map<String, T> proxies = new HashMap<String, T>();
 
-  private RMProxy<T> rmProxy;
-  private Class<T> protocol;
-  protected YarnConfiguration conf;
-  protected String[] rmServiceIds;
+    private RMProxy<T> rmProxy;
+    private Class<T> protocol;
+    protected YarnConfiguration conf;
+    protected String[] rmServiceIds;
 
-  @Override
-  public void init(Configuration configuration, RMProxy<T> rmProxy,
-                    Class<T> protocol) {
-    this.rmProxy = rmProxy;
-    this.protocol = protocol;
-    this.rmProxy.checkAllowedProtocols(this.protocol);
-    this.conf = new YarnConfiguration(configuration);
-    Collection<String> rmIds = HAUtil.getRMHAIds(conf);
-    this.rmServiceIds = rmIds.toArray(new String[rmIds.size()]);
-    conf.set(YarnConfiguration.RM_HA_ID, rmServiceIds[currentProxyIndex]);
+    @Override
+    public void init(Configuration configuration, RMProxy<T> rmProxy,
+                     Class<T> protocol) {
+        this.rmProxy = rmProxy;
+        this.protocol = protocol;
+        this.rmProxy.checkAllowedProtocols(this.protocol);
+        this.conf = new YarnConfiguration(configuration);
+        Collection<String> rmIds = HAUtil.getRMHAIds(conf);
+        this.rmServiceIds = rmIds.toArray(new String[rmIds.size()]);
+        conf.set(YarnConfiguration.RM_HA_ID, rmServiceIds[currentProxyIndex]);
 
-    conf.setInt(CommonConfigurationKeysPublic.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY,
-        conf.getInt(YarnConfiguration.CLIENT_FAILOVER_RETRIES,
-            YarnConfiguration.DEFAULT_CLIENT_FAILOVER_RETRIES));
+        conf.setInt(CommonConfigurationKeysPublic.IPC_CLIENT_CONNECT_MAX_RETRIES_KEY,
+                    conf.getInt(YarnConfiguration.CLIENT_FAILOVER_RETRIES,
+                                YarnConfiguration.DEFAULT_CLIENT_FAILOVER_RETRIES));
 
-    conf.setInt(CommonConfigurationKeysPublic.
-        IPC_CLIENT_CONNECT_MAX_RETRIES_ON_SOCKET_TIMEOUTS_KEY,
-        conf.getInt(YarnConfiguration.CLIENT_FAILOVER_RETRIES_ON_SOCKET_TIMEOUTS,
-            YarnConfiguration.DEFAULT_CLIENT_FAILOVER_RETRIES_ON_SOCKET_TIMEOUTS));
-  }
-
-  private T getProxyInternal() {
-    try {
-      final InetSocketAddress rmAddress = rmProxy.getRMAddress(conf, protocol);
-      return RMProxy.getProxy(conf, protocol, rmAddress);
-    } catch (IOException ioe) {
-      LOG.error("Unable to create proxy to the ResourceManager " +
-          rmServiceIds[currentProxyIndex], ioe);
-      return null;
+        conf.setInt(CommonConfigurationKeysPublic.
+                    IPC_CLIENT_CONNECT_MAX_RETRIES_ON_SOCKET_TIMEOUTS_KEY,
+                    conf.getInt(YarnConfiguration.CLIENT_FAILOVER_RETRIES_ON_SOCKET_TIMEOUTS,
+                                YarnConfiguration.DEFAULT_CLIENT_FAILOVER_RETRIES_ON_SOCKET_TIMEOUTS));
     }
-  }
 
-  @Override
-  public synchronized ProxyInfo<T> getProxy() {
-    String rmId = rmServiceIds[currentProxyIndex];
-    T current = proxies.get(rmId);
-    if (current == null) {
-      current = getProxyInternal();
-      proxies.put(rmId, current);
+    private T getProxyInternal() {
+        try {
+            final InetSocketAddress rmAddress = rmProxy.getRMAddress(conf, protocol);
+            return RMProxy.getProxy(conf, protocol, rmAddress);
+        } catch (IOException ioe) {
+            LOG.error("Unable to create proxy to the ResourceManager " +
+                      rmServiceIds[currentProxyIndex], ioe);
+            return null;
+        }
     }
-    return new ProxyInfo<T>(current, rmId);
-  }
 
-  @Override
-  public synchronized void performFailover(T currentProxy) {
-    currentProxyIndex = (currentProxyIndex + 1) % rmServiceIds.length;
-    conf.set(YarnConfiguration.RM_HA_ID, rmServiceIds[currentProxyIndex]);
-    LOG.info("Failing over to " + rmServiceIds[currentProxyIndex]);
-  }
-
-  @Override
-  public Class<T> getInterface() {
-    return protocol;
-  }
-
-  /**
-   * Close all the proxy objects which have been opened over the lifetime of
-   * this proxy provider.
-   */
-  @Override
-  public synchronized void close() throws IOException {
-    for (T proxy : proxies.values()) {
-      if (proxy instanceof Closeable) {
-        ((Closeable)proxy).close();
-      } else {
-        RPC.stopProxy(proxy);
-      }
+    @Override
+    public synchronized ProxyInfo<T> getProxy() {
+        String rmId = rmServiceIds[currentProxyIndex];
+        T current = proxies.get(rmId);
+        if (current == null) {
+            current = getProxyInternal();
+            proxies.put(rmId, current);
+        }
+        return new ProxyInfo<T>(current, rmId);
     }
-  }
+
+    @Override
+    public synchronized void performFailover(T currentProxy) {
+        currentProxyIndex = (currentProxyIndex + 1) % rmServiceIds.length;
+        conf.set(YarnConfiguration.RM_HA_ID, rmServiceIds[currentProxyIndex]);
+        LOG.info("Failing over to " + rmServiceIds[currentProxyIndex]);
+    }
+
+    @Override
+    public Class<T> getInterface() {
+        return protocol;
+    }
+
+    /**
+     * Close all the proxy objects which have been opened over the lifetime of
+     * this proxy provider.
+     */
+    @Override
+    public synchronized void close() throws IOException {
+        for (T proxy : proxies.values()) {
+            if (proxy instanceof Closeable) {
+                ((Closeable)proxy).close();
+            } else {
+                RPC.stopProxy(proxy);
+            }
+        }
+    }
 }

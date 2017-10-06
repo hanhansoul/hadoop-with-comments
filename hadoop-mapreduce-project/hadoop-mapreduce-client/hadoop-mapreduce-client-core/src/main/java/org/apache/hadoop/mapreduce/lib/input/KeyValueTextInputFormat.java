@@ -35,7 +35,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 
 /**
  * An {@link InputFormat} for plain text files. Files are broken into lines.
- * Either line feed or carriage-return are used to signal end of line. 
+ * Either line feed or carriage-return are used to signal end of line.
  * Each line is divided into key and value parts by a separator byte. If no
  * such a byte exists, the key will be the entire line and value will be empty.
  * The separator byte can be specified in config file under the attribute name
@@ -46,21 +46,21 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 @InterfaceStability.Stable
 public class KeyValueTextInputFormat extends FileInputFormat<Text, Text> {
 
-  @Override
-  protected boolean isSplitable(JobContext context, Path file) {
-    final CompressionCodec codec =
-      new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
-    if (null == codec) {
-      return true;
+    @Override
+    protected boolean isSplitable(JobContext context, Path file) {
+        final CompressionCodec codec =
+            new CompressionCodecFactory(context.getConfiguration()).getCodec(file);
+        if (null == codec) {
+            return true;
+        }
+        return codec instanceof SplittableCompressionCodec;
     }
-    return codec instanceof SplittableCompressionCodec;
-  }
 
-  public RecordReader<Text, Text> createRecordReader(InputSplit genericSplit,
-      TaskAttemptContext context) throws IOException {
-    
-    context.setStatus(genericSplit.toString());
-    return new KeyValueLineRecordReader(context.getConfiguration());
-  }
+    public RecordReader<Text, Text> createRecordReader(InputSplit genericSplit,
+            TaskAttemptContext context) throws IOException {
+
+        context.setStatus(genericSplit.toString());
+        return new KeyValueLineRecordReader(context.getConfiguration());
+    }
 
 }

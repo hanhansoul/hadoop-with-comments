@@ -28,25 +28,25 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class FakeTimer extends Timer {
-  private long nowMillis;
+    private long nowMillis;
 
-  /** Constructs a FakeTimer with a non-zero value */
-  public FakeTimer() {
-    nowMillis = 1000;  // Initialize with a non-trivial value.
-  }
+    /** Constructs a FakeTimer with a non-zero value */
+    public FakeTimer() {
+        nowMillis = 1000;  // Initialize with a non-trivial value.
+    }
 
-  @Override
-  public long now() {
-    return nowMillis;
-  }
+    @Override
+    public long now() {
+        return nowMillis;
+    }
 
-  @Override
-  public long monotonicNow() {
-    return nowMillis;
-  }
+    @Override
+    public long monotonicNow() {
+        return nowMillis;
+    }
 
-  /** Increases the time by milliseconds */
-  public void advance(long advMillis) {
-    nowMillis += advMillis;
-  }
+    /** Increases the time by milliseconds */
+    public void advance(long advMillis) {
+        nowMillis += advMillis;
+    }
 }

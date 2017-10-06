@@ -20,21 +20,21 @@ package org.apache.hadoop.yarn.server.nodemanager.containermanager.container;
 
 public enum ContainerEventType {
 
-  // Producer: ContainerManager
-  INIT_CONTAINER,
-  KILL_CONTAINER,
-  UPDATE_DIAGNOSTICS_MSG,
-  CONTAINER_DONE,
+    // Producer: ContainerManager
+    INIT_CONTAINER,
+    KILL_CONTAINER,
+    UPDATE_DIAGNOSTICS_MSG,
+    CONTAINER_DONE,
 
-  // DownloadManager
-  CONTAINER_INITED,
-  RESOURCE_LOCALIZED,
-  RESOURCE_FAILED,
-  CONTAINER_RESOURCES_CLEANEDUP,
+    // DownloadManager
+    CONTAINER_INITED,
+    RESOURCE_LOCALIZED,
+    RESOURCE_FAILED,
+    CONTAINER_RESOURCES_CLEANEDUP,
 
-  // Producer: ContainersLauncher
-  CONTAINER_LAUNCHED,
-  CONTAINER_EXITED_WITH_SUCCESS,
-  CONTAINER_EXITED_WITH_FAILURE,
-  CONTAINER_KILLED_ON_REQUEST,
+    // Producer: ContainersLauncher
+    CONTAINER_LAUNCHED,
+    CONTAINER_EXITED_WITH_SUCCESS,
+    CONTAINER_EXITED_WITH_FAILURE,
+    CONTAINER_KILLED_ON_REQUEST,
 }

@@ -31,26 +31,24 @@ import org.apache.hadoop.conf.Configuration;
  * Test Hadoop StreamUtil successfully returns a class loaded by the job conf
  * but has no package name.
  */
-public class TestClassWithNoPackage
-{
-  @Test
-  public void testGoodClassOrNull() throws Exception {
-    String NAME = "ClassWithNoPackage";
-    ClassLoader cl = TestClassWithNoPackage.class.getClassLoader();
-    String JAR = JarFinder.getJar(cl.loadClass(NAME));
+public class TestClassWithNoPackage {
+    @Test
+    public void testGoodClassOrNull() throws Exception {
+        String NAME = "ClassWithNoPackage";
+        ClassLoader cl = TestClassWithNoPackage.class.getClassLoader();
+        String JAR = JarFinder.getJar(cl.loadClass(NAME));
 
-    // Add testjob jar file to classpath.
-    Configuration conf = new Configuration();
-    conf.setClassLoader(new URLClassLoader(new URL[]{new URL("file", null, JAR)}, 
-                                           null));
-    // Get class with no package name.
-    String defaultPackage = this.getClass().getPackage().getName();
-    Class c = StreamUtil.goodClassOrNull(conf, NAME, defaultPackage);
-    assertNotNull("Class " + NAME + " not found!", c);
-  }
-  public static void main(String[]args) throws Exception
-  {
-    new TestClassWithNoPackage().testGoodClassOrNull();
-  }
+        // Add testjob jar file to classpath.
+        Configuration conf = new Configuration();
+        conf.setClassLoader(new URLClassLoader(new URL[] {new URL("file", null, JAR)},
+        null));
+        // Get class with no package name.
+        String defaultPackage = this.getClass().getPackage().getName();
+        Class c = StreamUtil.goodClassOrNull(conf, NAME, defaultPackage);
+        assertNotNull("Class " + NAME + " not found!", c);
+    }
+    public static void main(String[]args) throws Exception {
+        new TestClassWithNoPackage().testGoodClassOrNull();
+    }
 
 }

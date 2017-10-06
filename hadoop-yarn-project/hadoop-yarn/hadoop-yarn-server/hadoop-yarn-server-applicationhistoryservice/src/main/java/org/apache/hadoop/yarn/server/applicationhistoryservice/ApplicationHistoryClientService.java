@@ -62,159 +62,159 @@ import org.apache.hadoop.yarn.server.timeline.security.authorize.TimelinePolicyP
 
 public class ApplicationHistoryClientService extends AbstractService implements
     ApplicationHistoryProtocol {
-  private static final Log LOG = LogFactory
-    .getLog(ApplicationHistoryClientService.class);
-  private ApplicationHistoryManager history;
-  private Server server;
-  private InetSocketAddress bindAddress;
+    private static final Log LOG = LogFactory
+                                   .getLog(ApplicationHistoryClientService.class);
+    private ApplicationHistoryManager history;
+    private Server server;
+    private InetSocketAddress bindAddress;
 
-  public ApplicationHistoryClientService(ApplicationHistoryManager history) {
-    super("ApplicationHistoryClientService");
-    this.history = history;
-  }
-
-  protected void serviceStart() throws Exception {
-    Configuration conf = getConfig();
-    YarnRPC rpc = YarnRPC.create(conf);
-    InetSocketAddress address = conf.getSocketAddr(
-        YarnConfiguration.TIMELINE_SERVICE_BIND_HOST,
-        YarnConfiguration.TIMELINE_SERVICE_ADDRESS,
-        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ADDRESS,
-        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_PORT);
-
-    server =
-        rpc.getServer(ApplicationHistoryProtocol.class, this,
-          address, conf, null, conf.getInt(
-            YarnConfiguration.TIMELINE_SERVICE_HANDLER_THREAD_COUNT,
-            YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_THREAD_COUNT));
-
-    // Enable service authorization?
-    if (conf.getBoolean(
-        CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHORIZATION, false)) {
-      refreshServiceAcls(conf, new TimelinePolicyProvider());
+    public ApplicationHistoryClientService(ApplicationHistoryManager history) {
+        super("ApplicationHistoryClientService");
+        this.history = history;
     }
 
-    server.start();
-    this.bindAddress =
-        conf.updateConnectAddr(YarnConfiguration.TIMELINE_SERVICE_BIND_HOST,
-                               YarnConfiguration.TIMELINE_SERVICE_ADDRESS,
-                               YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ADDRESS,
-                               server.getListenerAddress());
-    LOG.info("Instantiated ApplicationHistoryClientService at "
-        + this.bindAddress);
+    protected void serviceStart() throws Exception {
+        Configuration conf = getConfig();
+        YarnRPC rpc = YarnRPC.create(conf);
+        InetSocketAddress address = conf.getSocketAddr(
+                                        YarnConfiguration.TIMELINE_SERVICE_BIND_HOST,
+                                        YarnConfiguration.TIMELINE_SERVICE_ADDRESS,
+                                        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ADDRESS,
+                                        YarnConfiguration.DEFAULT_TIMELINE_SERVICE_PORT);
 
-    super.serviceStart();
-  }
+        server =
+            rpc.getServer(ApplicationHistoryProtocol.class, this,
+                          address, conf, null, conf.getInt(
+                              YarnConfiguration.TIMELINE_SERVICE_HANDLER_THREAD_COUNT,
+                              YarnConfiguration.DEFAULT_TIMELINE_SERVICE_CLIENT_THREAD_COUNT));
 
-  @Override
-  protected void serviceStop() throws Exception {
-    if (server != null) {
-      server.stop();
+        // Enable service authorization?
+        if (conf.getBoolean(
+                CommonConfigurationKeysPublic.HADOOP_SECURITY_AUTHORIZATION, false)) {
+            refreshServiceAcls(conf, new TimelinePolicyProvider());
+        }
+
+        server.start();
+        this.bindAddress =
+            conf.updateConnectAddr(YarnConfiguration.TIMELINE_SERVICE_BIND_HOST,
+                                   YarnConfiguration.TIMELINE_SERVICE_ADDRESS,
+                                   YarnConfiguration.DEFAULT_TIMELINE_SERVICE_ADDRESS,
+                                   server.getListenerAddress());
+        LOG.info("Instantiated ApplicationHistoryClientService at "
+                 + this.bindAddress);
+
+        super.serviceStart();
     }
-    super.serviceStop();
-  }
 
-  @Private
-  public InetSocketAddress getBindAddress() {
-    return this.bindAddress;
-  }
-
-  private void refreshServiceAcls(Configuration configuration,
-      PolicyProvider policyProvider) {
-    this.server.refreshServiceAcl(configuration, policyProvider);
-  }
-
-  @Override
-  public CancelDelegationTokenResponse cancelDelegationToken(
-      CancelDelegationTokenRequest request) throws YarnException, IOException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public GetApplicationAttemptReportResponse getApplicationAttemptReport(
-      GetApplicationAttemptReportRequest request) throws YarnException,
-      IOException {
-    ApplicationAttemptId appAttemptId = request.getApplicationAttemptId();
-    try {
-      GetApplicationAttemptReportResponse response =
-          GetApplicationAttemptReportResponse.newInstance(history
-            .getApplicationAttempt(appAttemptId));
-      return response;
-    } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
-      throw e;
+    @Override
+    protected void serviceStop() throws Exception {
+        if (server != null) {
+            server.stop();
+        }
+        super.serviceStop();
     }
-  }
 
-  @Override
-  public GetApplicationAttemptsResponse getApplicationAttempts(
-      GetApplicationAttemptsRequest request) throws YarnException, IOException {
-    GetApplicationAttemptsResponse response =
-        GetApplicationAttemptsResponse
-          .newInstance(new ArrayList<ApplicationAttemptReport>(history
-            .getApplicationAttempts(request.getApplicationId()).values()));
-    return response;
-  }
-
-  @Override
-  public GetApplicationReportResponse getApplicationReport(
-      GetApplicationReportRequest request) throws YarnException, IOException {
-    ApplicationId applicationId = request.getApplicationId();
-    try {
-      GetApplicationReportResponse response =
-          GetApplicationReportResponse.newInstance(history
-            .getApplication(applicationId));
-      return response;
-    } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
-      throw e;
+    @Private
+    public InetSocketAddress getBindAddress() {
+        return this.bindAddress;
     }
-  }
 
-  @Override
-  public GetApplicationsResponse
-      getApplications(GetApplicationsRequest request) throws YarnException,
-          IOException {
-    GetApplicationsResponse response =
-        GetApplicationsResponse.newInstance(new ArrayList<ApplicationReport>(
-          history.getApplications(request.getLimit()).values()));
-    return response;
-  }
-
-  @Override
-  public GetContainerReportResponse getContainerReport(
-      GetContainerReportRequest request) throws YarnException, IOException {
-    ContainerId containerId = request.getContainerId();
-    try {
-      GetContainerReportResponse response =
-          GetContainerReportResponse.newInstance(history
-            .getContainer(containerId));
-      return response;
-    } catch (IOException e) {
-      LOG.error(e.getMessage(), e);
-      throw e;
+    private void refreshServiceAcls(Configuration configuration,
+                                    PolicyProvider policyProvider) {
+        this.server.refreshServiceAcl(configuration, policyProvider);
     }
-  }
 
-  @Override
-  public GetContainersResponse getContainers(GetContainersRequest request)
-      throws YarnException, IOException {
-    GetContainersResponse response =
-        GetContainersResponse.newInstance(new ArrayList<ContainerReport>(
-          history.getContainers(request.getApplicationAttemptId()).values()));
-    return response;
-  }
+    @Override
+    public CancelDelegationTokenResponse cancelDelegationToken(
+        CancelDelegationTokenRequest request) throws YarnException, IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-  @Override
-  public GetDelegationTokenResponse getDelegationToken(
-      GetDelegationTokenRequest request) throws YarnException, IOException {
-    return null;
-  }
+    @Override
+    public GetApplicationAttemptReportResponse getApplicationAttemptReport(
+        GetApplicationAttemptReportRequest request) throws YarnException,
+        IOException {
+        ApplicationAttemptId appAttemptId = request.getApplicationAttemptId();
+        try {
+            GetApplicationAttemptReportResponse response =
+                GetApplicationAttemptReportResponse.newInstance(history
+                        .getApplicationAttempt(appAttemptId));
+            return response;
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        }
+    }
 
-  @Override
-  public RenewDelegationTokenResponse renewDelegationToken(
-      RenewDelegationTokenRequest request) throws YarnException, IOException {
-    return null;
-  }
+    @Override
+    public GetApplicationAttemptsResponse getApplicationAttempts(
+        GetApplicationAttemptsRequest request) throws YarnException, IOException {
+        GetApplicationAttemptsResponse response =
+            GetApplicationAttemptsResponse
+            .newInstance(new ArrayList<ApplicationAttemptReport>(history
+                         .getApplicationAttempts(request.getApplicationId()).values()));
+        return response;
+    }
+
+    @Override
+    public GetApplicationReportResponse getApplicationReport(
+        GetApplicationReportRequest request) throws YarnException, IOException {
+        ApplicationId applicationId = request.getApplicationId();
+        try {
+            GetApplicationReportResponse response =
+                GetApplicationReportResponse.newInstance(history
+                        .getApplication(applicationId));
+            return response;
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public GetApplicationsResponse
+    getApplications(GetApplicationsRequest request) throws YarnException,
+        IOException {
+        GetApplicationsResponse response =
+            GetApplicationsResponse.newInstance(new ArrayList<ApplicationReport>(
+                    history.getApplications(request.getLimit()).values()));
+        return response;
+    }
+
+    @Override
+    public GetContainerReportResponse getContainerReport(
+        GetContainerReportRequest request) throws YarnException, IOException {
+        ContainerId containerId = request.getContainerId();
+        try {
+            GetContainerReportResponse response =
+                GetContainerReportResponse.newInstance(history
+                        .getContainer(containerId));
+            return response;
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    @Override
+    public GetContainersResponse getContainers(GetContainersRequest request)
+    throws YarnException, IOException {
+        GetContainersResponse response =
+            GetContainersResponse.newInstance(new ArrayList<ContainerReport>(
+                    history.getContainers(request.getApplicationAttemptId()).values()));
+        return response;
+    }
+
+    @Override
+    public GetDelegationTokenResponse getDelegationToken(
+        GetDelegationTokenRequest request) throws YarnException, IOException {
+        return null;
+    }
+
+    @Override
+    public RenewDelegationTokenResponse renewDelegationToken(
+        RenewDelegationTokenRequest request) throws YarnException, IOException {
+        return null;
+    }
 }

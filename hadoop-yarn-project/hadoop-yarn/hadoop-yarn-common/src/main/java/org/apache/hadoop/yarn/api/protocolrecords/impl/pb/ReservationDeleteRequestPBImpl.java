@@ -29,99 +29,99 @@ import com.google.protobuf.TextFormat;
 
 public class ReservationDeleteRequestPBImpl extends ReservationDeleteRequest {
 
-  ReservationDeleteRequestProto proto = ReservationDeleteRequestProto
-      .getDefaultInstance();
-  ReservationDeleteRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    ReservationDeleteRequestProto proto = ReservationDeleteRequestProto
+                                          .getDefaultInstance();
+    ReservationDeleteRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ReservationId reservationId;
+    private ReservationId reservationId;
 
-  public ReservationDeleteRequestPBImpl() {
-    builder = ReservationDeleteRequestProto.newBuilder();
-  }
-
-  public ReservationDeleteRequestPBImpl(ReservationDeleteRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public ReservationDeleteRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.reservationId != null) {
-      builder.setReservationId(convertToProtoFormat(this.reservationId));
+    public ReservationDeleteRequestPBImpl() {
+        builder = ReservationDeleteRequestProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ReservationDeleteRequestProto.newBuilder(proto);
+    public ReservationDeleteRequestPBImpl(ReservationDeleteRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public ReservationId getReservationId() {
-    ReservationDeleteRequestProtoOrBuilder p = viaProto ? proto : builder;
-    if (reservationId != null) {
-      return reservationId;
+    public ReservationDeleteRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (!p.hasReservationId()) {
-      return null;
+
+    private void mergeLocalToBuilder() {
+        if (this.reservationId != null) {
+            builder.setReservationId(convertToProtoFormat(this.reservationId));
+        }
     }
-    reservationId = convertFromProtoFormat(p.getReservationId());
-    return reservationId;
-  }
 
-  @Override
-  public void setReservationId(ReservationId reservationId) {
-    maybeInitBuilder();
-    if (reservationId == null) {
-      builder.clearReservationId();
-      return;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    this.reservationId = reservationId;
-  }
 
-  private ReservationIdPBImpl convertFromProtoFormat(ReservationIdProto p) {
-    return new ReservationIdPBImpl(p);
-  }
-
-  private ReservationIdProto convertToProtoFormat(ReservationId t) {
-    return ((ReservationIdPBImpl) t).getProto();
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ReservationDeleteRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    @Override
+    public ReservationId getReservationId() {
+        ReservationDeleteRequestProtoOrBuilder p = viaProto ? proto : builder;
+        if (reservationId != null) {
+            return reservationId;
+        }
+        if (!p.hasReservationId()) {
+            return null;
+        }
+        reservationId = convertFromProtoFormat(p.getReservationId());
+        return reservationId;
+    }
+
+    @Override
+    public void setReservationId(ReservationId reservationId) {
+        maybeInitBuilder();
+        if (reservationId == null) {
+            builder.clearReservationId();
+            return;
+        }
+        this.reservationId = reservationId;
+    }
+
+    private ReservationIdPBImpl convertFromProtoFormat(ReservationIdProto p) {
+        return new ReservationIdPBImpl(p);
+    }
+
+    private ReservationIdProto convertToProtoFormat(ReservationId t) {
+        return ((ReservationIdPBImpl) t).getProto();
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 
 }

@@ -36,55 +36,55 @@ import org.apache.hadoop.yarn.util.Records;
  * <code>ApplicationMaster</code> when asked to <em>stop</em> allocated
  * containers.
  * </p>
- * 
+ *
  * @see ContainerManagementProtocol#stopContainers(StopContainersRequest)
  */
 @Public
 @Stable
 public abstract class StopContainersResponse {
-  @Private
-  @Unstable
-  public static StopContainersResponse newInstance(
-      List<ContainerId> succeededRequests,
-      Map<ContainerId, SerializedException> failedRequests) {
-    StopContainersResponse response =
-        Records.newRecord(StopContainersResponse.class);
-    response.setFailedRequests(failedRequests);
-    response.setSuccessfullyStoppedContainers(succeededRequests);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static StopContainersResponse newInstance(
+        List<ContainerId> succeededRequests,
+        Map<ContainerId, SerializedException> failedRequests) {
+        StopContainersResponse response =
+            Records.newRecord(StopContainersResponse.class);
+        response.setFailedRequests(failedRequests);
+        response.setSuccessfullyStoppedContainers(succeededRequests);
+        return response;
+    }
 
-  /**
-   * Get the list of containerIds of successfully stopped containers.
-   * 
-   * @return the list of containerIds of successfully stopped containers.
-   */
-  @Public
-  @Stable
-  public abstract List<ContainerId> getSuccessfullyStoppedContainers();
+    /**
+     * Get the list of containerIds of successfully stopped containers.
+     *
+     * @return the list of containerIds of successfully stopped containers.
+     */
+    @Public
+    @Stable
+    public abstract List<ContainerId> getSuccessfullyStoppedContainers();
 
-  /**
-   * Set the list of containerIds of successfully stopped containers.
-   */
-  @Private
-  @Unstable
-  public abstract void setSuccessfullyStoppedContainers(
-      List<ContainerId> succeededRequests);
+    /**
+     * Set the list of containerIds of successfully stopped containers.
+     */
+    @Private
+    @Unstable
+    public abstract void setSuccessfullyStoppedContainers(
+        List<ContainerId> succeededRequests);
 
-  /**
-   * Get the containerId-to-exception map in which the exception indicates error
-   * from per container for failed requests
-   */
-  @Public
-  @Stable
-  public abstract Map<ContainerId, SerializedException> getFailedRequests();
+    /**
+     * Get the containerId-to-exception map in which the exception indicates error
+     * from per container for failed requests
+     */
+    @Public
+    @Stable
+    public abstract Map<ContainerId, SerializedException> getFailedRequests();
 
-  /**
-   * Set the containerId-to-exception map in which the exception indicates error
-   * from per container for failed requests
-   */
-  @Private
-  @Unstable
-  public abstract void setFailedRequests(
-      Map<ContainerId, SerializedException> failedRequests);
+    /**
+     * Set the containerId-to-exception map in which the exception indicates error
+     * from per container for failed requests
+     */
+    @Private
+    @Unstable
+    public abstract void setFailedRequests(
+        Map<ContainerId, SerializedException> failedRequests);
 }

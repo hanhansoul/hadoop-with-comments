@@ -29,7 +29,7 @@ import org.apache.hadoop.mapreduce.lib.chain.Chain.ChainBlockingQueue;
 /**
  * The ChainMapper class allows to use multiple Mapper classes within a single
  * Map task.
- * 
+ *
  * <p>
  * The Mapper classes are invoked in a chained (or piped) fashion, the output of
  * the first becomes the input of the second, and so on until the last Mapper,
@@ -58,7 +58,7 @@ import org.apache.hadoop.mapreduce.lib.chain.Chain.ChainBlockingQueue;
  * </p>
  * ChainMapper usage pattern:
  * <p/>
- * 
+ *
  * <pre>
  * ...
  * Job = new Job(conf);
@@ -84,88 +84,88 @@ import org.apache.hadoop.mapreduce.lib.chain.Chain.ChainBlockingQueue;
 public class ChainMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends
     Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
 
-  /**
-   * Adds a {@link Mapper} class to the chain mapper.
-   * 
-   * <p>
-   * The key and values are passed from one element of the chain to the next, by
-   * value. For the added Mapper the configuration given for it,
-   * <code>mapperConf</code>, have precedence over the job's Configuration. This
-   * precedence is in effect when the task is running.
-   * </p>
-   * <p>
-   * IMPORTANT: There is no need to specify the output key/value classes for the
-   * ChainMapper, this is done by the addMapper for the last mapper in the chain
-   * </p>
-   * 
-   * @param job
-   *          The job.
-   * @param klass
-   *          the Mapper class to add.
-   * @param inputKeyClass
-   *          mapper input key class.
-   * @param inputValueClass
-   *          mapper input value class.
-   * @param outputKeyClass
-   *          mapper output key class.
-   * @param outputValueClass
-   *          mapper output value class.
-   * @param mapperConf
-   *          a configuration for the Mapper class. It is recommended to use a
-   *          Configuration without default values using the
-   *          <code>Configuration(boolean loadDefaults)</code> constructor with
-   *          FALSE.
-   */
-  public static void addMapper(Job job, Class<? extends Mapper> klass,
-      Class<?> inputKeyClass, Class<?> inputValueClass,
-      Class<?> outputKeyClass, Class<?> outputValueClass,
-      Configuration mapperConf) throws IOException {
-    job.setMapperClass(ChainMapper.class);
-    job.setMapOutputKeyClass(outputKeyClass);
-    job.setMapOutputValueClass(outputValueClass);
-    Chain.addMapper(true, job, klass, inputKeyClass, inputValueClass,
-        outputKeyClass, outputValueClass, mapperConf);
-  }
-
-  private Chain chain;
-
-  protected void setup(Context context) {
-    chain = new Chain(true);
-    chain.setup(context.getConfiguration());
-  }
-
-  public void run(Context context) throws IOException, InterruptedException {
-
-    setup(context);
-
-    int numMappers = chain.getAllMappers().size();
-    if (numMappers == 0) {
-      return;
+    /**
+     * Adds a {@link Mapper} class to the chain mapper.
+     *
+     * <p>
+     * The key and values are passed from one element of the chain to the next, by
+     * value. For the added Mapper the configuration given for it,
+     * <code>mapperConf</code>, have precedence over the job's Configuration. This
+     * precedence is in effect when the task is running.
+     * </p>
+     * <p>
+     * IMPORTANT: There is no need to specify the output key/value classes for the
+     * ChainMapper, this is done by the addMapper for the last mapper in the chain
+     * </p>
+     *
+     * @param job
+     *          The job.
+     * @param klass
+     *          the Mapper class to add.
+     * @param inputKeyClass
+     *          mapper input key class.
+     * @param inputValueClass
+     *          mapper input value class.
+     * @param outputKeyClass
+     *          mapper output key class.
+     * @param outputValueClass
+     *          mapper output value class.
+     * @param mapperConf
+     *          a configuration for the Mapper class. It is recommended to use a
+     *          Configuration without default values using the
+     *          <code>Configuration(boolean loadDefaults)</code> constructor with
+     *          FALSE.
+     */
+    public static void addMapper(Job job, Class<? extends Mapper> klass,
+                                 Class<?> inputKeyClass, Class<?> inputValueClass,
+                                 Class<?> outputKeyClass, Class<?> outputValueClass,
+                                 Configuration mapperConf) throws IOException {
+        job.setMapperClass(ChainMapper.class);
+        job.setMapOutputKeyClass(outputKeyClass);
+        job.setMapOutputValueClass(outputValueClass);
+        Chain.addMapper(true, job, klass, inputKeyClass, inputValueClass,
+                        outputKeyClass, outputValueClass, mapperConf);
     }
 
-    ChainBlockingQueue<Chain.KeyValuePair<?, ?>> inputqueue;
-    ChainBlockingQueue<Chain.KeyValuePair<?, ?>> outputqueue;
-    if (numMappers == 1) {
-      chain.runMapper(context, 0);
-    } else {
-      // add all the mappers with proper context
-      // add first mapper
-      outputqueue = chain.createBlockingQueue();
-      chain.addMapper(context, outputqueue, 0);
-      // add other mappers
-      for (int i = 1; i < numMappers - 1; i++) {
-        inputqueue = outputqueue;
-        outputqueue = chain.createBlockingQueue();
-        chain.addMapper(inputqueue, outputqueue, context, i);
-      }
-      // add last mapper
-      chain.addMapper(outputqueue, context, numMappers - 1);
+    private Chain chain;
+
+    protected void setup(Context context) {
+        chain = new Chain(true);
+        chain.setup(context.getConfiguration());
     }
-    
-    // start all threads
-    chain.startAllThreads();
-    
-    // wait for all threads
-    chain.joinAllThreads();
-  }
+
+    public void run(Context context) throws IOException, InterruptedException {
+
+        setup(context);
+
+        int numMappers = chain.getAllMappers().size();
+        if (numMappers == 0) {
+            return;
+        }
+
+        ChainBlockingQueue<Chain.KeyValuePair<?, ?>> inputqueue;
+        ChainBlockingQueue<Chain.KeyValuePair<?, ?>> outputqueue;
+        if (numMappers == 1) {
+            chain.runMapper(context, 0);
+        } else {
+            // add all the mappers with proper context
+            // add first mapper
+            outputqueue = chain.createBlockingQueue();
+            chain.addMapper(context, outputqueue, 0);
+            // add other mappers
+            for (int i = 1; i < numMappers - 1; i++) {
+                inputqueue = outputqueue;
+                outputqueue = chain.createBlockingQueue();
+                chain.addMapper(inputqueue, outputqueue, context, i);
+            }
+            // add last mapper
+            chain.addMapper(outputqueue, context, numMappers - 1);
+        }
+
+        // start all threads
+        chain.startAllThreads();
+
+        // wait for all threads
+        chain.joinAllThreads();
+    }
 }

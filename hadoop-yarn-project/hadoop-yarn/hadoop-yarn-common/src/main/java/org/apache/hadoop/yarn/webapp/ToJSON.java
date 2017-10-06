@@ -27,5 +27,5 @@ import org.apache.hadoop.classification.InterfaceAudience;
  */
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public interface ToJSON {
-  void toJSON(PrintWriter out);
+    void toJSON(PrintWriter out);
 }

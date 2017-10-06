@@ -53,102 +53,106 @@ import org.junit.Test;
  * appropriate exceptions/failure response
  */
 public class TestDeadDatanode {
-  private static final Log LOG = LogFactory.getLog(TestDeadDatanode.class);
-  private MiniDFSCluster cluster;
+    private static final Log LOG = LogFactory.getLog(TestDeadDatanode.class);
+    private MiniDFSCluster cluster;
 
-  @After
-  public void cleanup() {
-    cluster.shutdown();
-  }
-
-  /**
-   * wait for datanode to reach alive or dead state for waitTime given in
-   * milliseconds.
-   */
-  private void waitForDatanodeState(String nodeID, boolean alive, int waitTime)
-      throws TimeoutException, InterruptedException {
-    long stopTime = Time.now() + waitTime;
-    FSNamesystem namesystem = cluster.getNamesystem();
-    String state = alive ? "alive" : "dead";
-    while (Time.now() < stopTime) {
-      final DatanodeDescriptor dd = BlockManagerTestUtil.getDatanode(
-          namesystem, nodeID);
-      if (dd.isAlive == alive) {
-        LOG.info("datanode " + nodeID + " is " + state);
-        return;
-      }
-      LOG.info("Waiting for datanode " + nodeID + " to become " + state);
-      Thread.sleep(1000);
-    }
-    throw new TimeoutException("Timedout waiting for datanode reach state "
-        + state);
-  }
-
-  /**
-   * Test to ensure namenode rejects request from dead datanode
-   * - Start a cluster
-   * - Shutdown the datanode and wait for it to be marked dead at the namenode
-   * - Send datanode requests to Namenode and make sure it is rejected 
-   *   appropriately.
-   */
-  @Test
-  public void testDeadDatanode() throws Exception {
-    Configuration conf = new HdfsConfiguration();
-    conf.setInt(DFSConfigKeys.DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_KEY, 500);
-    conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1L);
-    cluster = new MiniDFSCluster.Builder(conf).build();
-    cluster.waitActive();
-
-    String poolId = cluster.getNamesystem().getBlockPoolId();
-    // wait for datanode to be marked live
-    DataNode dn = cluster.getDataNodes().get(0);
-    DatanodeRegistration reg = 
-      DataNodeTestUtils.getDNRegistrationForBP(cluster.getDataNodes().get(0), poolId);
-      
-    waitForDatanodeState(reg.getDatanodeUuid(), true, 20000);
-
-    // Shutdown and wait for datanode to be marked dead
-    dn.shutdown();
-    waitForDatanodeState(reg.getDatanodeUuid(), false, 20000);
-
-    DatanodeProtocol dnp = cluster.getNameNodeRpc();
-    
-    ReceivedDeletedBlockInfo[] blocks = { new ReceivedDeletedBlockInfo(
-        new Block(0), 
-        ReceivedDeletedBlockInfo.BlockStatus.RECEIVED_BLOCK,
-        null) };
-    StorageReceivedDeletedBlocks[] storageBlocks = { 
-        new StorageReceivedDeletedBlocks(reg.getDatanodeUuid(), blocks) };
-    
-    // Ensure blockReceived call from dead datanode is rejected with IOException
-    try {
-      dnp.blockReceivedAndDeleted(reg, poolId, storageBlocks);
-      fail("Expected IOException is not thrown");
-    } catch (IOException ex) {
-      // Expected
+    @After
+    public void cleanup() {
+        cluster.shutdown();
     }
 
-    // Ensure blockReport from dead datanode is rejected with IOException
-    StorageBlockReport[] report = { new StorageBlockReport(
-        new DatanodeStorage(reg.getDatanodeUuid()),
-        new long[] { 0L, 0L, 0L }) };
-    try {
-      dnp.blockReport(reg, poolId, report,
-          new BlockReportContext(1, 0, System.nanoTime()));
-      fail("Expected IOException is not thrown");
-    } catch (IOException ex) {
-      // Expected
+    /**
+     * wait for datanode to reach alive or dead state for waitTime given in
+     * milliseconds.
+     */
+    private void waitForDatanodeState(String nodeID, boolean alive, int waitTime)
+    throws TimeoutException, InterruptedException {
+        long stopTime = Time.now() + waitTime;
+        FSNamesystem namesystem = cluster.getNamesystem();
+        String state = alive ? "alive" : "dead";
+        while (Time.now() < stopTime) {
+            final DatanodeDescriptor dd = BlockManagerTestUtil.getDatanode(
+                                              namesystem, nodeID);
+            if (dd.isAlive == alive) {
+                LOG.info("datanode " + nodeID + " is " + state);
+                return;
+            }
+            LOG.info("Waiting for datanode " + nodeID + " to become " + state);
+            Thread.sleep(1000);
+        }
+        throw new TimeoutException("Timedout waiting for datanode reach state "
+                                   + state);
     }
 
-    // Ensure heartbeat from dead datanode is rejected with a command
-    // that asks datanode to register again
-    StorageReport[] rep = { new StorageReport(
-        new DatanodeStorage(reg.getDatanodeUuid()),
-        false, 0, 0, 0, 0) };
-    DatanodeCommand[] cmd = dnp.sendHeartbeat(reg, rep, 0L, 0L, 0, 0, 0)
-      .getCommands();
-    assertEquals(1, cmd.length);
-    assertEquals(cmd[0].getAction(), RegisterCommand.REGISTER
-        .getAction());
-  }
+    /**
+     * Test to ensure namenode rejects request from dead datanode
+     * - Start a cluster
+     * - Shutdown the datanode and wait for it to be marked dead at the namenode
+     * - Send datanode requests to Namenode and make sure it is rejected
+     *   appropriately.
+     */
+    @Test
+    public void testDeadDatanode() throws Exception {
+        Configuration conf = new HdfsConfiguration();
+        conf.setInt(DFSConfigKeys.DFS_NAMENODE_HEARTBEAT_RECHECK_INTERVAL_KEY, 500);
+        conf.setLong(DFSConfigKeys.DFS_HEARTBEAT_INTERVAL_KEY, 1L);
+        cluster = new MiniDFSCluster.Builder(conf).build();
+        cluster.waitActive();
+
+        String poolId = cluster.getNamesystem().getBlockPoolId();
+        // wait for datanode to be marked live
+        DataNode dn = cluster.getDataNodes().get(0);
+        DatanodeRegistration reg =
+            DataNodeTestUtils.getDNRegistrationForBP(cluster.getDataNodes().get(0), poolId);
+
+        waitForDatanodeState(reg.getDatanodeUuid(), true, 20000);
+
+        // Shutdown and wait for datanode to be marked dead
+        dn.shutdown();
+        waitForDatanodeState(reg.getDatanodeUuid(), false, 20000);
+
+        DatanodeProtocol dnp = cluster.getNameNodeRpc();
+
+        ReceivedDeletedBlockInfo[] blocks = { new ReceivedDeletedBlockInfo(
+                new Block(0),
+                ReceivedDeletedBlockInfo.BlockStatus.RECEIVED_BLOCK,
+                null)
+        };
+        StorageReceivedDeletedBlocks[] storageBlocks = {
+            new StorageReceivedDeletedBlocks(reg.getDatanodeUuid(), blocks)
+        };
+
+        // Ensure blockReceived call from dead datanode is rejected with IOException
+        try {
+            dnp.blockReceivedAndDeleted(reg, poolId, storageBlocks);
+            fail("Expected IOException is not thrown");
+        } catch (IOException ex) {
+            // Expected
+        }
+
+        // Ensure blockReport from dead datanode is rejected with IOException
+        StorageBlockReport[] report = { new StorageBlockReport(
+                new DatanodeStorage(reg.getDatanodeUuid()),
+                new long[] { 0L, 0L, 0L })
+        };
+        try {
+            dnp.blockReport(reg, poolId, report,
+                            new BlockReportContext(1, 0, System.nanoTime()));
+            fail("Expected IOException is not thrown");
+        } catch (IOException ex) {
+            // Expected
+        }
+
+        // Ensure heartbeat from dead datanode is rejected with a command
+        // that asks datanode to register again
+        StorageReport[] rep = { new StorageReport(
+                new DatanodeStorage(reg.getDatanodeUuid()),
+                false, 0, 0, 0, 0)
+        };
+        DatanodeCommand[] cmd = dnp.sendHeartbeat(reg, rep, 0L, 0L, 0, 0, 0)
+                                .getCommands();
+        assertEquals(1, cmd.length);
+        assertEquals(cmd[0].getAction(), RegisterCommand.REGISTER
+                     .getAction());
+    }
 }

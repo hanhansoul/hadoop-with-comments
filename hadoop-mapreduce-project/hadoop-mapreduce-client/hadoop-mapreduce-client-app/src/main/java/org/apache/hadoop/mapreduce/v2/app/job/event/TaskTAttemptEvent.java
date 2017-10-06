@@ -23,15 +23,15 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskAttemptId;
 
 public class TaskTAttemptEvent extends TaskEvent {
 
-  private TaskAttemptId attemptID;
+    private TaskAttemptId attemptID;
 
-  public TaskTAttemptEvent(TaskAttemptId id, TaskEventType type) {
-    super(id.getTaskId(), type);
-    this.attemptID = id;
-  }
+    public TaskTAttemptEvent(TaskAttemptId id, TaskEventType type) {
+        super(id.getTaskId(), type);
+        this.attemptID = id;
+    }
 
-  public TaskAttemptId getTaskAttemptID() {
-    return attemptID;
-  }
+    public TaskAttemptId getTaskAttemptID() {
+        return attemptID;
+    }
 
 }

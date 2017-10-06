@@ -30,139 +30,139 @@ import org.apache.hadoop.yarn.util.resource.Resources;
 /**
  * An in memory implementation of a reservation allocation using the
  * {@link RLESparseResourceAllocation}
- * 
+ *
  */
 class InMemoryReservationAllocation implements ReservationAllocation {
 
-  private final String planName;
-  private final ReservationId reservationID;
-  private final String user;
-  private final ReservationDefinition contract;
-  private final long startTime;
-  private final long endTime;
-  private final Map<ReservationInterval, ReservationRequest> allocationRequests;
-  private boolean hasGang = false;
-  private long acceptedAt = -1;
+    private final String planName;
+    private final ReservationId reservationID;
+    private final String user;
+    private final ReservationDefinition contract;
+    private final long startTime;
+    private final long endTime;
+    private final Map<ReservationInterval, ReservationRequest> allocationRequests;
+    private boolean hasGang = false;
+    private long acceptedAt = -1;
 
-  private RLESparseResourceAllocation resourcesOverTime;
+    private RLESparseResourceAllocation resourcesOverTime;
 
-  InMemoryReservationAllocation(ReservationId reservationID,
-      ReservationDefinition contract, String user, String planName,
-      long startTime, long endTime,
-      Map<ReservationInterval, ReservationRequest> allocationRequests,
-      ResourceCalculator calculator, Resource minAlloc) {
-    this.contract = contract;
-    this.startTime = startTime;
-    this.endTime = endTime;
-    this.reservationID = reservationID;
-    this.user = user;
-    this.allocationRequests = allocationRequests;
-    this.planName = planName;
-    resourcesOverTime = new RLESparseResourceAllocation(calculator, minAlloc);
-    for (Map.Entry<ReservationInterval, ReservationRequest> r : allocationRequests
-        .entrySet()) {
-      resourcesOverTime.addInterval(r.getKey(), r.getValue());
-      if (r.getValue().getConcurrency() > 1) {
-        hasGang = true;
-      }
+    InMemoryReservationAllocation(ReservationId reservationID,
+                                  ReservationDefinition contract, String user, String planName,
+                                  long startTime, long endTime,
+                                  Map<ReservationInterval, ReservationRequest> allocationRequests,
+                                  ResourceCalculator calculator, Resource minAlloc) {
+        this.contract = contract;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.reservationID = reservationID;
+        this.user = user;
+        this.allocationRequests = allocationRequests;
+        this.planName = planName;
+        resourcesOverTime = new RLESparseResourceAllocation(calculator, minAlloc);
+        for (Map.Entry<ReservationInterval, ReservationRequest> r : allocationRequests
+             .entrySet()) {
+            resourcesOverTime.addInterval(r.getKey(), r.getValue());
+            if (r.getValue().getConcurrency() > 1) {
+                hasGang = true;
+            }
+        }
     }
-  }
 
-  @Override
-  public ReservationId getReservationId() {
-    return reservationID;
-  }
-
-  @Override
-  public ReservationDefinition getReservationDefinition() {
-    return contract;
-  }
-
-  @Override
-  public long getStartTime() {
-    return startTime;
-  }
-
-  @Override
-  public long getEndTime() {
-    return endTime;
-  }
-
-  @Override
-  public Map<ReservationInterval, ReservationRequest> getAllocationRequests() {
-    return Collections.unmodifiableMap(allocationRequests);
-  }
-
-  @Override
-  public String getPlanName() {
-    return planName;
-  }
-
-  @Override
-  public String getUser() {
-    return user;
-  }
-
-  @Override
-  public boolean containsGangs() {
-    return hasGang;
-  }
-
-  @Override
-  public void setAcceptanceTimestamp(long acceptedAt) {
-    this.acceptedAt = acceptedAt;
-  }
-
-  @Override
-  public long getAcceptanceTime() {
-    return acceptedAt;
-  }
-
-  @Override
-  public Resource getResourcesAtTime(long tick) {
-    if (tick < startTime || tick >= endTime) {
-      return Resource.newInstance(0, 0);
+    @Override
+    public ReservationId getReservationId() {
+        return reservationID;
     }
-    return Resources.clone(resourcesOverTime.getCapacityAtTime(tick));
-  }
 
-  @Override
-  public String toString() {
-    StringBuilder sBuf = new StringBuilder();
-    sBuf.append(getReservationId()).append(" user:").append(getUser())
+    @Override
+    public ReservationDefinition getReservationDefinition() {
+        return contract;
+    }
+
+    @Override
+    public long getStartTime() {
+        return startTime;
+    }
+
+    @Override
+    public long getEndTime() {
+        return endTime;
+    }
+
+    @Override
+    public Map<ReservationInterval, ReservationRequest> getAllocationRequests() {
+        return Collections.unmodifiableMap(allocationRequests);
+    }
+
+    @Override
+    public String getPlanName() {
+        return planName;
+    }
+
+    @Override
+    public String getUser() {
+        return user;
+    }
+
+    @Override
+    public boolean containsGangs() {
+        return hasGang;
+    }
+
+    @Override
+    public void setAcceptanceTimestamp(long acceptedAt) {
+        this.acceptedAt = acceptedAt;
+    }
+
+    @Override
+    public long getAcceptanceTime() {
+        return acceptedAt;
+    }
+
+    @Override
+    public Resource getResourcesAtTime(long tick) {
+        if (tick < startTime || tick >= endTime) {
+            return Resource.newInstance(0, 0);
+        }
+        return Resources.clone(resourcesOverTime.getCapacityAtTime(tick));
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sBuf = new StringBuilder();
+        sBuf.append(getReservationId()).append(" user:").append(getUser())
         .append(" startTime: ").append(getStartTime()).append(" endTime: ")
         .append(getEndTime()).append(" alloc:[")
         .append(resourcesOverTime.toString()).append("] ");
-    return sBuf.toString();
-  }
-
-  @Override
-  public int compareTo(ReservationAllocation other) {
-    // reverse order of acceptance
-    if (this.getAcceptanceTime() > other.getAcceptanceTime()) {
-      return -1;
+        return sBuf.toString();
     }
-    if (this.getAcceptanceTime() < other.getAcceptanceTime()) {
-      return 1;
+
+    @Override
+    public int compareTo(ReservationAllocation other) {
+        // reverse order of acceptance
+        if (this.getAcceptanceTime() > other.getAcceptanceTime()) {
+            return -1;
+        }
+        if (this.getAcceptanceTime() < other.getAcceptanceTime()) {
+            return 1;
+        }
+        return 0;
     }
-    return 0;
-  }
 
-  @Override
-  public int hashCode() {
-    return reservationID.hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return reservationID.hashCode();
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    InMemoryReservationAllocation other = (InMemoryReservationAllocation) obj;
-    return this.reservationID.equals(other.getReservationId());
-  }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        InMemoryReservationAllocation other = (InMemoryReservationAllocation) obj;
+        return this.reservationID.equals(other.getReservationId());
+    }
 
 }

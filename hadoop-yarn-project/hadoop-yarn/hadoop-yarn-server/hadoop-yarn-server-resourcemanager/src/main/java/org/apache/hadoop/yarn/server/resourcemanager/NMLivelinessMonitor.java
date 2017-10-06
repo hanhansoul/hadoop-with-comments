@@ -30,24 +30,24 @@ import org.apache.hadoop.yarn.util.SystemClock;
 
 public class NMLivelinessMonitor extends AbstractLivelinessMonitor<NodeId> {
 
-  private EventHandler dispatcher;
-  
-  public NMLivelinessMonitor(Dispatcher d) {
-    super("NMLivelinessMonitor", new SystemClock());
-    this.dispatcher = d.getEventHandler();
-  }
+    private EventHandler dispatcher;
 
-  public void serviceInit(Configuration conf) throws Exception {
-    int expireIntvl = conf.getInt(YarnConfiguration.RM_NM_EXPIRY_INTERVAL_MS,
-            YarnConfiguration.DEFAULT_RM_NM_EXPIRY_INTERVAL_MS);
-    setExpireInterval(expireIntvl);
-    setMonitorInterval(expireIntvl/3);
-    super.serviceInit(conf);
-  }
+    public NMLivelinessMonitor(Dispatcher d) {
+        super("NMLivelinessMonitor", new SystemClock());
+        this.dispatcher = d.getEventHandler();
+    }
 
-  @Override
-  protected void expire(NodeId id) {
-    dispatcher.handle(
-        new RMNodeEvent(id, RMNodeEventType.EXPIRE)); 
-  }
+    public void serviceInit(Configuration conf) throws Exception {
+        int expireIntvl = conf.getInt(YarnConfiguration.RM_NM_EXPIRY_INTERVAL_MS,
+                                      YarnConfiguration.DEFAULT_RM_NM_EXPIRY_INTERVAL_MS);
+        setExpireInterval(expireIntvl);
+        setMonitorInterval(expireIntvl/3);
+        super.serviceInit(conf);
+    }
+
+    @Override
+    protected void expire(NodeId id) {
+        dispatcher.handle(
+            new RMNodeEvent(id, RMNodeEventType.EXPIRE));
+    }
 }

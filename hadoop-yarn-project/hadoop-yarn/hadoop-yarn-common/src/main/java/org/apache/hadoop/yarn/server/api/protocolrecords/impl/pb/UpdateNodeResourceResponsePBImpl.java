@@ -22,45 +22,45 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.UpdateNodeResourceRespo
 
 public class UpdateNodeResourceResponsePBImpl extends UpdateNodeResourceResponse {
 
-  UpdateNodeResourceResponseProto proto = UpdateNodeResourceResponseProto.getDefaultInstance();
-  UpdateNodeResourceResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public UpdateNodeResourceResponsePBImpl() {
-    builder = UpdateNodeResourceResponseProto.newBuilder();
-  }
+    UpdateNodeResourceResponseProto proto = UpdateNodeResourceResponseProto.getDefaultInstance();
+    UpdateNodeResourceResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public UpdateNodeResourceResponsePBImpl(
-      UpdateNodeResourceResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public UpdateNodeResourceResponseProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-  
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public UpdateNodeResourceResponsePBImpl() {
+        builder = UpdateNodeResourceResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return getProto().toString().replaceAll("\\n", ", ")
-      .replaceAll("\\s+", " ");
-  }
+    public UpdateNodeResourceResponsePBImpl(
+        UpdateNodeResourceResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public UpdateNodeResourceResponseProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return getProto().toString().replaceAll("\\n", ", ")
+               .replaceAll("\\s+", " ");
+    }
 
 }

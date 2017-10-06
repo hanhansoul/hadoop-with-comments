@@ -30,25 +30,25 @@ import org.apache.hadoop.yarn.webapp.YarnWebParams;
 
 public class AppAttemptPage extends RmView {
 
-  @Override
-  protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    @Override
+    protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
 
-    String appAttemptId = $(YarnWebParams.APPLICATION_ATTEMPT_ID);
-    set(
-      TITLE,
-      appAttemptId.isEmpty() ? "Bad request: missing application attempt ID"
-          : join("Application Attempt ",
-            $(YarnWebParams.APPLICATION_ATTEMPT_ID)));
+        String appAttemptId = $(YarnWebParams.APPLICATION_ATTEMPT_ID);
+        set(
+            TITLE,
+            appAttemptId.isEmpty() ? "Bad request: missing application attempt ID"
+            : join("Application Attempt ",
+                   $(YarnWebParams.APPLICATION_ATTEMPT_ID)));
 
-    set(DATATABLES_ID, "containers");
-    set(initID(DATATABLES, "containers"), WebPageUtils.containersTableInit());
-    setTableStyles(html, "containers", ".queue {width:6em}", ".ui {width:8em}");
-  }
+        set(DATATABLES_ID, "containers");
+        set(initID(DATATABLES, "containers"), WebPageUtils.containersTableInit());
+        setTableStyles(html, "containers", ".queue {width:6em}", ".ui {width:8em}");
+    }
 
-  @Override
-  protected Class<? extends SubView> content() {
-    return RMAppAttemptBlock.class;
-  }
+    @Override
+    protected Class<? extends SubView> content() {
+        return RMAppAttemptBlock.class;
+    }
 
 }

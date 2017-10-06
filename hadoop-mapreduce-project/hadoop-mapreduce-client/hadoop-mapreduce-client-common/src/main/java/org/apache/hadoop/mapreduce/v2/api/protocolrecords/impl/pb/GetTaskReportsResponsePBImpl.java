@@ -32,147 +32,147 @@ import org.apache.hadoop.mapreduce.v2.proto.MRServiceProtos.GetTaskReportsRespon
 import org.apache.hadoop.yarn.api.records.impl.pb.ProtoBase;
 
 
-    
+
 public class GetTaskReportsResponsePBImpl extends ProtoBase<GetTaskReportsResponseProto> implements GetTaskReportsResponse {
-  GetTaskReportsResponseProto proto = GetTaskReportsResponseProto.getDefaultInstance();
-  GetTaskReportsResponseProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  private List<TaskReport> taskReports = null;
-  
-  
-  public GetTaskReportsResponsePBImpl() {
-    builder = GetTaskReportsResponseProto.newBuilder();
-  }
+    GetTaskReportsResponseProto proto = GetTaskReportsResponseProto.getDefaultInstance();
+    GetTaskReportsResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetTaskReportsResponsePBImpl(GetTaskReportsResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public GetTaskReportsResponseProto getProto() {
-      mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    private List<TaskReport> taskReports = null;
 
-  private void mergeLocalToBuilder() {
-    if (this.taskReports != null) {
-      addTaskReportsToProto();
+
+    public GetTaskReportsResponsePBImpl() {
+        builder = GetTaskReportsResponseProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetTaskReportsResponseProto.newBuilder(proto);
+    public GetTaskReportsResponsePBImpl(GetTaskReportsResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
-    
-  
-  @Override
-  public List<TaskReport> getTaskReportList() {
-    initTaskReports();
-    return this.taskReports;
-  }
-  @Override
-  public TaskReport getTaskReport(int index) {
-    initTaskReports();
-    return this.taskReports.get(index);
-  }
-  @Override
-  public int getTaskReportCount() {
-    initTaskReports();
-    return this.taskReports.size();
-  }
-  
-  private void initTaskReports() {
-    if (this.taskReports != null) {
-      return;
+
+    public GetTaskReportsResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    GetTaskReportsResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<TaskReportProto> list = p.getTaskReportsList();
-    this.taskReports = new ArrayList<TaskReport>();
 
-    for (TaskReportProto c : list) {
-      this.taskReports.add(convertFromProtoFormat(c));
+    private void mergeLocalToBuilder() {
+        if (this.taskReports != null) {
+            addTaskReportsToProto();
+        }
     }
-  }
-  
-  @Override
-  public void addAllTaskReports(final List<TaskReport> taskReports) {
-    if (taskReports == null)
-      return;
-    initTaskReports();
-    this.taskReports.addAll(taskReports);
-  }
-  
-  private void addTaskReportsToProto() {
-    maybeInitBuilder();
-    builder.clearTaskReports();
-    if (taskReports == null)
-      return;
-    Iterable<TaskReportProto> iterable = new Iterable<TaskReportProto>() {
-      @Override
-      public Iterator<TaskReportProto> iterator() {
-        return new Iterator<TaskReportProto>() {
 
-          Iterator<TaskReport> iter = taskReports.iterator();
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-          @Override
-          public boolean hasNext() {
-            return iter.hasNext();
-          }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetTaskReportsResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
-          @Override
-          public TaskReportProto next() {
-            return convertToProtoFormat(iter.next());
-          }
 
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
+    @Override
+    public List<TaskReport> getTaskReportList() {
+        initTaskReports();
+        return this.taskReports;
+    }
+    @Override
+    public TaskReport getTaskReport(int index) {
+        initTaskReports();
+        return this.taskReports.get(index);
+    }
+    @Override
+    public int getTaskReportCount() {
+        initTaskReports();
+        return this.taskReports.size();
+    }
 
-          }
+    private void initTaskReports() {
+        if (this.taskReports != null) {
+            return;
+        }
+        GetTaskReportsResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<TaskReportProto> list = p.getTaskReportsList();
+        this.taskReports = new ArrayList<TaskReport>();
+
+        for (TaskReportProto c : list) {
+            this.taskReports.add(convertFromProtoFormat(c));
+        }
+    }
+
+    @Override
+    public void addAllTaskReports(final List<TaskReport> taskReports) {
+        if (taskReports == null)
+            return;
+        initTaskReports();
+        this.taskReports.addAll(taskReports);
+    }
+
+    private void addTaskReportsToProto() {
+        maybeInitBuilder();
+        builder.clearTaskReports();
+        if (taskReports == null)
+            return;
+        Iterable<TaskReportProto> iterable = new Iterable<TaskReportProto>() {
+            @Override
+            public Iterator<TaskReportProto> iterator() {
+                return new Iterator<TaskReportProto>() {
+
+                    Iterator<TaskReport> iter = taskReports.iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
+
+                    @Override
+                    public TaskReportProto next() {
+                        return convertToProtoFormat(iter.next());
+                    }
+
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
+
+                    }
+                };
+
+            }
         };
+        builder.addAllTaskReports(iterable);
+    }
+    @Override
+    public void addTaskReport(TaskReport taskReports) {
+        initTaskReports();
+        this.taskReports.add(taskReports);
+    }
+    @Override
+    public void removeTaskReport(int index) {
+        initTaskReports();
+        this.taskReports.remove(index);
+    }
+    @Override
+    public void clearTaskReports() {
+        initTaskReports();
+        this.taskReports.clear();
+    }
 
-      }
-    };
-    builder.addAllTaskReports(iterable);
-  }
-  @Override
-  public void addTaskReport(TaskReport taskReports) {
-    initTaskReports();
-    this.taskReports.add(taskReports);
-  }
-  @Override
-  public void removeTaskReport(int index) {
-    initTaskReports();
-    this.taskReports.remove(index);
-  }
-  @Override
-  public void clearTaskReports() {
-    initTaskReports();
-    this.taskReports.clear();
-  }
+    private TaskReportPBImpl convertFromProtoFormat(TaskReportProto p) {
+        return new TaskReportPBImpl(p);
+    }
 
-  private TaskReportPBImpl convertFromProtoFormat(TaskReportProto p) {
-    return new TaskReportPBImpl(p);
-  }
-
-  private TaskReportProto convertToProtoFormat(TaskReport t) {
-    return ((TaskReportPBImpl)t).getProto();
-  }
+    private TaskReportProto convertToProtoFormat(TaskReport t) {
+        return ((TaskReportPBImpl)t).getProto();
+    }
 
 
 
-}  
+}

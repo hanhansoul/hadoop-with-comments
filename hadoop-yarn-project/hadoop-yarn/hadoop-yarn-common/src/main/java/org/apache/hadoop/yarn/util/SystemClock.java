@@ -28,7 +28,7 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
 @Stable
 public class SystemClock implements Clock {
 
-  public long getTime() {
-    return System.currentTimeMillis();
-  }
+    public long getTime() {
+        return System.currentTimeMillis();
+    }
 }

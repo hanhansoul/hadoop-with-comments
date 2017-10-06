@@ -28,34 +28,34 @@ import org.apache.hadoop.yarn.security.client.RMDelegationTokenIdentifier;
 import org.apache.hadoop.yarn.security.client.YARNDelegationTokenIdentifier;
 
 public class RMDelegationTokenIdentifierData {
-  RMDelegationTokenIdentifierDataProto.Builder builder =
-      RMDelegationTokenIdentifierDataProto.newBuilder();
+    RMDelegationTokenIdentifierDataProto.Builder builder =
+        RMDelegationTokenIdentifierDataProto.newBuilder();
 
-  public RMDelegationTokenIdentifierData() {}
+    public RMDelegationTokenIdentifierData() {}
 
-  public RMDelegationTokenIdentifierData(
-      YARNDelegationTokenIdentifier identifier, long renewdate) {
-    builder.setTokenIdentifier(identifier.getProto());
-    builder.setRenewDate(renewdate);
-  }
+    public RMDelegationTokenIdentifierData(
+        YARNDelegationTokenIdentifier identifier, long renewdate) {
+        builder.setTokenIdentifier(identifier.getProto());
+        builder.setRenewDate(renewdate);
+    }
 
-  public void readFields(DataInput in) throws IOException {
-    builder.mergeFrom((DataInputStream) in);
-  }
+    public void readFields(DataInput in) throws IOException {
+        builder.mergeFrom((DataInputStream) in);
+    }
 
-  public byte[] toByteArray() throws IOException {
-    return builder.build().toByteArray();
-  }
+    public byte[] toByteArray() throws IOException {
+        return builder.build().toByteArray();
+    }
 
-  public RMDelegationTokenIdentifier getTokenIdentifier() throws IOException {
-    ByteArrayInputStream in =
-        new ByteArrayInputStream(builder.getTokenIdentifier().toByteArray());
-    RMDelegationTokenIdentifier identifer = new RMDelegationTokenIdentifier();
-    identifer.readFields(new DataInputStream(in));
-    return identifer;
-  }
+    public RMDelegationTokenIdentifier getTokenIdentifier() throws IOException {
+        ByteArrayInputStream in =
+            new ByteArrayInputStream(builder.getTokenIdentifier().toByteArray());
+        RMDelegationTokenIdentifier identifer = new RMDelegationTokenIdentifier();
+        identifer.readFields(new DataInputStream(in));
+        return identifer;
+    }
 
-  public long getRenewDate() {
-    return builder.getRenewDate();
-  }
+    public long getRenewDate() {
+        return builder.getRenewDate();
+    }
 }

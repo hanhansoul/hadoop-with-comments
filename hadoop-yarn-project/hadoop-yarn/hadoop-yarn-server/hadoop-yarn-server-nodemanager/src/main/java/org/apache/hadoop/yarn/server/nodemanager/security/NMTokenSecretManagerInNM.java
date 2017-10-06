@@ -42,238 +42,238 @@ import com.google.common.annotations.VisibleForTesting;
 
 public class NMTokenSecretManagerInNM extends BaseNMTokenSecretManager {
 
-  private static final Log LOG = LogFactory
-    .getLog(NMTokenSecretManagerInNM.class);
-  
-  private MasterKeyData previousMasterKey;
-  
-  private final Map<ApplicationAttemptId, MasterKeyData> oldMasterKeys;
-  private final Map<ApplicationId, List<ApplicationAttemptId>> appToAppAttemptMap;
-  private final NMStateStoreService stateStore;
-  private NodeId nodeId;                                                      
-  
-  public NMTokenSecretManagerInNM() {
-    this(new NMNullStateStoreService());
-  }
+    private static final Log LOG = LogFactory
+                                   .getLog(NMTokenSecretManagerInNM.class);
 
-  public NMTokenSecretManagerInNM(NMStateStoreService stateStore) {
-    this.oldMasterKeys =
-        new HashMap<ApplicationAttemptId, MasterKeyData>();
-    appToAppAttemptMap =         
-        new HashMap<ApplicationId, List<ApplicationAttemptId>>();
-    this.stateStore = stateStore;
-  }
-  
-  public synchronized void recover()
-      throws IOException {
-    RecoveredNMTokensState state = stateStore.loadNMTokensState();
-    MasterKey key = state.getCurrentMasterKey();
-    if (key != null) {
-      super.currentMasterKey =
-          new MasterKeyData(key, createSecretKey(key.getBytes().array()));
+    private MasterKeyData previousMasterKey;
+
+    private final Map<ApplicationAttemptId, MasterKeyData> oldMasterKeys;
+    private final Map<ApplicationId, List<ApplicationAttemptId>> appToAppAttemptMap;
+    private final NMStateStoreService stateStore;
+    private NodeId nodeId;
+
+    public NMTokenSecretManagerInNM() {
+        this(new NMNullStateStoreService());
     }
 
-    key = state.getPreviousMasterKey();
-    if (key != null) {
-      previousMasterKey =
-          new MasterKeyData(key, createSecretKey(key.getBytes().array()));
+    public NMTokenSecretManagerInNM(NMStateStoreService stateStore) {
+        this.oldMasterKeys =
+            new HashMap<ApplicationAttemptId, MasterKeyData>();
+        appToAppAttemptMap =
+            new HashMap<ApplicationId, List<ApplicationAttemptId>>();
+        this.stateStore = stateStore;
     }
 
-    // restore the serial number from the current master key
-    if (super.currentMasterKey != null) {
-      super.serialNo = super.currentMasterKey.getMasterKey().getKeyId() + 1;
+    public synchronized void recover()
+    throws IOException {
+        RecoveredNMTokensState state = stateStore.loadNMTokensState();
+        MasterKey key = state.getCurrentMasterKey();
+        if (key != null) {
+            super.currentMasterKey =
+                new MasterKeyData(key, createSecretKey(key.getBytes().array()));
+        }
+
+        key = state.getPreviousMasterKey();
+        if (key != null) {
+            previousMasterKey =
+                new MasterKeyData(key, createSecretKey(key.getBytes().array()));
+        }
+
+        // restore the serial number from the current master key
+        if (super.currentMasterKey != null) {
+            super.serialNo = super.currentMasterKey.getMasterKey().getKeyId() + 1;
+        }
+
+        for (Map.Entry<ApplicationAttemptId, MasterKey> entry :
+             state.getApplicationMasterKeys().entrySet()) {
+            key = entry.getValue();
+            oldMasterKeys.put(entry.getKey(),
+                              new MasterKeyData(key, createSecretKey(key.getBytes().array())));
+        }
+
+        // reconstruct app to app attempts map
+        appToAppAttemptMap.clear();
+        for (ApplicationAttemptId attempt : oldMasterKeys.keySet()) {
+            ApplicationId app = attempt.getApplicationId();
+            List<ApplicationAttemptId> attempts = appToAppAttemptMap.get(app);
+            if (attempts == null) {
+                attempts = new ArrayList<ApplicationAttemptId>();
+                appToAppAttemptMap.put(app, attempts);
+            }
+            attempts.add(attempt);
+        }
     }
 
-    for (Map.Entry<ApplicationAttemptId, MasterKey> entry :
-         state.getApplicationMasterKeys().entrySet()) {
-      key = entry.getValue();
-      oldMasterKeys.put(entry.getKey(),
-          new MasterKeyData(key, createSecretKey(key.getBytes().array())));
+    private void updateCurrentMasterKey(MasterKeyData key) {
+        super.currentMasterKey = key;
+        try {
+            stateStore.storeNMTokenCurrentMasterKey(key.getMasterKey());
+        } catch (IOException e) {
+            LOG.error("Unable to update current master key in state store", e);
+        }
     }
 
-    // reconstruct app to app attempts map
-    appToAppAttemptMap.clear();
-    for (ApplicationAttemptId attempt : oldMasterKeys.keySet()) {
-      ApplicationId app = attempt.getApplicationId();
-      List<ApplicationAttemptId> attempts = appToAppAttemptMap.get(app);
-      if (attempts == null) {
-        attempts = new ArrayList<ApplicationAttemptId>();
-        appToAppAttemptMap.put(app, attempts);
-      }
-      attempts.add(attempt);
+    private void updatePreviousMasterKey(MasterKeyData key) {
+        previousMasterKey = key;
+        try {
+            stateStore.storeNMTokenPreviousMasterKey(key.getMasterKey());
+        } catch (IOException e) {
+            LOG.error("Unable to update previous master key in state store", e);
+        }
     }
-  }
 
-  private void updateCurrentMasterKey(MasterKeyData key) {
-    super.currentMasterKey = key;
-    try {
-      stateStore.storeNMTokenCurrentMasterKey(key.getMasterKey());
-    } catch (IOException e) {
-      LOG.error("Unable to update current master key in state store", e);
-    }
-  }
-
-  private void updatePreviousMasterKey(MasterKeyData key) {
-    previousMasterKey = key;
-    try {
-      stateStore.storeNMTokenPreviousMasterKey(key.getMasterKey());
-    } catch (IOException e) {
-      LOG.error("Unable to update previous master key in state store", e);
-    }
-  }
-
-  /**
-   * Used by NodeManagers to create a token-secret-manager with the key
-   * obtained from the RM. This can happen during registration or when the RM
-   * rolls the master-key and signal the NM.
-   */
-  @Private
-  public synchronized void setMasterKey(MasterKey masterKey) {
-    // Update keys only if the key has changed.
-    if (super.currentMasterKey == null || super.currentMasterKey.getMasterKey()
-          .getKeyId() != masterKey.getKeyId()) {
-      LOG.info("Rolling master-key for container-tokens, got key with id "
-          + masterKey.getKeyId());
-      if (super.currentMasterKey != null) {
-        updatePreviousMasterKey(super.currentMasterKey);
-      }
-      updateCurrentMasterKey(new MasterKeyData(masterKey,
-          createSecretKey(masterKey.getBytes().array())));
-    }
-  }
-
-  /**
-   * This method will be used to verify NMTokens generated by different master
-   * keys.
-   */
-  @Override
-  public synchronized byte[] retrievePassword(NMTokenIdentifier identifier)
-      throws InvalidToken {
-    int keyId = identifier.getKeyId();
-    ApplicationAttemptId appAttemptId = identifier.getApplicationAttemptId();
-
-    /*
-     * MasterKey used for retrieving password will be as follows. 1) By default
-     * older saved master key will be used. 2) If identifier's master key id
-     * matches that of previous master key id then previous key will be used. 3)
-     * If identifier's master key id matches that of current master key id then
-     * current key will be used.
+    /**
+     * Used by NodeManagers to create a token-secret-manager with the key
+     * obtained from the RM. This can happen during registration or when the RM
+     * rolls the master-key and signal the NM.
      */
-    MasterKeyData oldMasterKey = oldMasterKeys.get(appAttemptId);
-    MasterKeyData masterKeyToUse = oldMasterKey;
-    if (previousMasterKey != null
-        && keyId == previousMasterKey.getMasterKey().getKeyId()) {
-      masterKeyToUse = previousMasterKey;
-    } else if (keyId == currentMasterKey.getMasterKey().getKeyId()) {
-      masterKeyToUse = currentMasterKey;
-    }
-    
-    if (nodeId != null && !identifier.getNodeId().equals(nodeId)) {
-      throw new InvalidToken("Given NMToken for application : "
-          + appAttemptId.toString() + " is not valid for current node manager."
-          + "expected : " + nodeId.toString() + " found : "
-          + identifier.getNodeId().toString());
-    }
-    
-    if (masterKeyToUse != null) {
-      byte[] password = retrivePasswordInternal(identifier, masterKeyToUse);
-      LOG.debug("NMToken password retrieved successfully!!");
-      return password;
+    @Private
+    public synchronized void setMasterKey(MasterKey masterKey) {
+        // Update keys only if the key has changed.
+        if (super.currentMasterKey == null || super.currentMasterKey.getMasterKey()
+            .getKeyId() != masterKey.getKeyId()) {
+            LOG.info("Rolling master-key for container-tokens, got key with id "
+                     + masterKey.getKeyId());
+            if (super.currentMasterKey != null) {
+                updatePreviousMasterKey(super.currentMasterKey);
+            }
+            updateCurrentMasterKey(new MasterKeyData(masterKey,
+                                   createSecretKey(masterKey.getBytes().array())));
+        }
     }
 
-    throw new InvalidToken("Given NMToken for application : "
-        + appAttemptId.toString() + " seems to have been generated illegally.");
-  }
+    /**
+     * This method will be used to verify NMTokens generated by different master
+     * keys.
+     */
+    @Override
+    public synchronized byte[] retrievePassword(NMTokenIdentifier identifier)
+    throws InvalidToken {
+        int keyId = identifier.getKeyId();
+        ApplicationAttemptId appAttemptId = identifier.getApplicationAttemptId();
 
-  public synchronized void appFinished(ApplicationId appId) {
-    List<ApplicationAttemptId> appAttemptList = appToAppAttemptMap.get(appId);
-    if (appAttemptList != null) {
-      LOG.debug("Removing application attempts NMToken keys for application "
-          + appId);
-      for (ApplicationAttemptId appAttemptId : appAttemptList) {
-        removeAppAttemptKey(appAttemptId);
-      }
-      appToAppAttemptMap.remove(appId);
-    } else {
-      LOG.error("No application Attempt for application : " + appId
-          + " started on this NM.");
-    }
-  }
+        /*
+         * MasterKey used for retrieving password will be as follows. 1) By default
+         * older saved master key will be used. 2) If identifier's master key id
+         * matches that of previous master key id then previous key will be used. 3)
+         * If identifier's master key id matches that of current master key id then
+         * current key will be used.
+         */
+        MasterKeyData oldMasterKey = oldMasterKeys.get(appAttemptId);
+        MasterKeyData masterKeyToUse = oldMasterKey;
+        if (previousMasterKey != null
+            && keyId == previousMasterKey.getMasterKey().getKeyId()) {
+            masterKeyToUse = previousMasterKey;
+        } else if (keyId == currentMasterKey.getMasterKey().getKeyId()) {
+            masterKeyToUse = currentMasterKey;
+        }
 
-  /**
-   * This will be called by startContainer. It will add the master key into
-   * the cache used for starting this container. This should be called before
-   * validating the startContainer request.
-   */
-  public synchronized void appAttemptStartContainer(
-      NMTokenIdentifier identifier)
-      throws org.apache.hadoop.security.token.SecretManager.InvalidToken {
-    ApplicationAttemptId appAttemptId = identifier.getApplicationAttemptId();
-    if (!appToAppAttemptMap.containsKey(appAttemptId.getApplicationId())) {
-      // First application attempt for the given application
-      appToAppAttemptMap.put(appAttemptId.getApplicationId(),
-        new ArrayList<ApplicationAttemptId>());
-    }
-    MasterKeyData oldKey = oldMasterKeys.get(appAttemptId);
+        if (nodeId != null && !identifier.getNodeId().equals(nodeId)) {
+            throw new InvalidToken("Given NMToken for application : "
+                                   + appAttemptId.toString() + " is not valid for current node manager."
+                                   + "expected : " + nodeId.toString() + " found : "
+                                   + identifier.getNodeId().toString());
+        }
 
-    if (oldKey == null) {
-      // This is a new application attempt.
-      appToAppAttemptMap.get(appAttemptId.getApplicationId()).add(appAttemptId);
-    }
-    if (oldKey == null
-        || oldKey.getMasterKey().getKeyId() != identifier.getKeyId()) {
-      // Update key only if it is modified.
-      LOG.debug("NMToken key updated for application attempt : "
-          + identifier.getApplicationAttemptId().toString());
-      if (identifier.getKeyId() == currentMasterKey.getMasterKey()
-        .getKeyId()) {
-        updateAppAttemptKey(appAttemptId, currentMasterKey);
-      } else if (previousMasterKey != null
-          && identifier.getKeyId() == previousMasterKey.getMasterKey()
-            .getKeyId()) {
-        updateAppAttemptKey(appAttemptId, previousMasterKey);
-      } else {
-        throw new InvalidToken(
-          "Older NMToken should not be used while starting the container.");
-      }
-    }
-  }
-  
-  public synchronized void setNodeId(NodeId nodeId) {
-    LOG.debug("updating nodeId : " + nodeId);
-    this.nodeId = nodeId;
-  }
-  
-  @Private
-  @VisibleForTesting
-  public synchronized boolean
-      isAppAttemptNMTokenKeyPresent(ApplicationAttemptId appAttemptId) {
-    return oldMasterKeys.containsKey(appAttemptId);
-  }
-  
-  @Private
-  @VisibleForTesting
-  public synchronized NodeId getNodeId() {
-    return this.nodeId;
-  }
+        if (masterKeyToUse != null) {
+            byte[] password = retrivePasswordInternal(identifier, masterKeyToUse);
+            LOG.debug("NMToken password retrieved successfully!!");
+            return password;
+        }
 
-  private void updateAppAttemptKey(ApplicationAttemptId attempt,
-      MasterKeyData key) {
-    this.oldMasterKeys.put(attempt, key);
-    try {
-      stateStore.storeNMTokenApplicationMasterKey(attempt,
-          key.getMasterKey());
-    } catch (IOException e) {
-      LOG.error("Unable to store master key for application " + attempt, e);
+        throw new InvalidToken("Given NMToken for application : "
+                               + appAttemptId.toString() + " seems to have been generated illegally.");
     }
-  }
 
-  private void removeAppAttemptKey(ApplicationAttemptId attempt) {
-    this.oldMasterKeys.remove(attempt);
-    try {
-      stateStore.removeNMTokenApplicationMasterKey(attempt);
-    } catch (IOException e) {
-      LOG.error("Unable to remove master key for application " + attempt, e);
+    public synchronized void appFinished(ApplicationId appId) {
+        List<ApplicationAttemptId> appAttemptList = appToAppAttemptMap.get(appId);
+        if (appAttemptList != null) {
+            LOG.debug("Removing application attempts NMToken keys for application "
+                      + appId);
+            for (ApplicationAttemptId appAttemptId : appAttemptList) {
+                removeAppAttemptKey(appAttemptId);
+            }
+            appToAppAttemptMap.remove(appId);
+        } else {
+            LOG.error("No application Attempt for application : " + appId
+                      + " started on this NM.");
+        }
     }
-  }
+
+    /**
+     * This will be called by startContainer. It will add the master key into
+     * the cache used for starting this container. This should be called before
+     * validating the startContainer request.
+     */
+    public synchronized void appAttemptStartContainer(
+        NMTokenIdentifier identifier)
+    throws org.apache.hadoop.security.token.SecretManager.InvalidToken {
+        ApplicationAttemptId appAttemptId = identifier.getApplicationAttemptId();
+        if (!appToAppAttemptMap.containsKey(appAttemptId.getApplicationId())) {
+            // First application attempt for the given application
+            appToAppAttemptMap.put(appAttemptId.getApplicationId(),
+                                   new ArrayList<ApplicationAttemptId>());
+        }
+        MasterKeyData oldKey = oldMasterKeys.get(appAttemptId);
+
+        if (oldKey == null) {
+            // This is a new application attempt.
+            appToAppAttemptMap.get(appAttemptId.getApplicationId()).add(appAttemptId);
+        }
+        if (oldKey == null
+            || oldKey.getMasterKey().getKeyId() != identifier.getKeyId()) {
+            // Update key only if it is modified.
+            LOG.debug("NMToken key updated for application attempt : "
+                      + identifier.getApplicationAttemptId().toString());
+            if (identifier.getKeyId() == currentMasterKey.getMasterKey()
+                .getKeyId()) {
+                updateAppAttemptKey(appAttemptId, currentMasterKey);
+            } else if (previousMasterKey != null
+                       && identifier.getKeyId() == previousMasterKey.getMasterKey()
+                       .getKeyId()) {
+                updateAppAttemptKey(appAttemptId, previousMasterKey);
+            } else {
+                throw new InvalidToken(
+                    "Older NMToken should not be used while starting the container.");
+            }
+        }
+    }
+
+    public synchronized void setNodeId(NodeId nodeId) {
+        LOG.debug("updating nodeId : " + nodeId);
+        this.nodeId = nodeId;
+    }
+
+    @Private
+    @VisibleForTesting
+    public synchronized boolean
+    isAppAttemptNMTokenKeyPresent(ApplicationAttemptId appAttemptId) {
+        return oldMasterKeys.containsKey(appAttemptId);
+    }
+
+    @Private
+    @VisibleForTesting
+    public synchronized NodeId getNodeId() {
+        return this.nodeId;
+    }
+
+    private void updateAppAttemptKey(ApplicationAttemptId attempt,
+                                     MasterKeyData key) {
+        this.oldMasterKeys.put(attempt, key);
+        try {
+            stateStore.storeNMTokenApplicationMasterKey(attempt,
+                    key.getMasterKey());
+        } catch (IOException e) {
+            LOG.error("Unable to store master key for application " + attempt, e);
+        }
+    }
+
+    private void removeAppAttemptKey(ApplicationAttemptId attempt) {
+        this.oldMasterKeys.remove(attempt);
+        try {
+            stateStore.removeNMTokenApplicationMasterKey(attempt);
+        } catch (IOException e) {
+            LOG.error("Unable to remove master key for application " + attempt, e);
+        }
+    }
 }

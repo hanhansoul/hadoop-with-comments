@@ -40,79 +40,88 @@ import org.apache.hadoop.mapred.JobConf;
  * An abstract class for distributed tool for file related operations.
  */
 abstract class DistTool implements org.apache.hadoop.util.Tool {
-  protected static final Log LOG = LogFactory.getLog(DistTool.class);
+    protected static final Log LOG = LogFactory.getLog(DistTool.class);
 
-  protected JobConf jobconf;
+    protected JobConf jobconf;
 
-  /** {@inheritDoc} */
-  public void setConf(Configuration conf) {
-    if (jobconf != conf) {
-      jobconf = conf instanceof JobConf? (JobConf)conf: new JobConf(conf);
-    }
-  }
-
-  /** {@inheritDoc} */
-  public JobConf getConf() {return jobconf;}
-
-  protected DistTool(Configuration conf) {setConf(conf);}
-
-  private static final Random RANDOM = new Random();
-  protected static String getRandomId() {
-    return Integer.toString(RANDOM.nextInt(Integer.MAX_VALUE), 36);
-  }
-
-  /** Sanity check for source */
-  protected static void checkSource(Configuration conf, List<Path> srcs
-      ) throws InvalidInputException {
-    List<IOException> ioes = new ArrayList<IOException>();
-    for(Path p : srcs) {
-      try {
-        if (!p.getFileSystem(conf).exists(p)) {
-          ioes.add(new FileNotFoundException("Source "+p+" does not exist."));
+    /** {@inheritDoc} */
+    public void setConf(Configuration conf) {
+        if (jobconf != conf) {
+            jobconf = conf instanceof JobConf? (JobConf)conf: new JobConf(conf);
         }
-      }
-      catch(IOException e) {ioes.add(e);}
     }
-    if (!ioes.isEmpty()) {
-      throw new InvalidInputException(ioes);
+
+    /** {@inheritDoc} */
+    public JobConf getConf() {
+        return jobconf;
     }
-  }
 
-  protected static String readString(DataInput in) throws IOException {
-    if (in.readBoolean()) {
-      return Text.readString(in);
+    protected DistTool(Configuration conf) {
+        setConf(conf);
     }
-    return null;
-  }
 
-  protected static void writeString(DataOutput out, String s
-      ) throws IOException {
-    boolean b = s != null;
-    out.writeBoolean(b);
-    if (b) {Text.writeString(out, s);}
-  }
-
-  protected static List<String> readFile(Configuration conf, Path inputfile
-      ) throws IOException {
-    List<String> result = new ArrayList<String>();
-    FileSystem fs = inputfile.getFileSystem(conf);
-    BufferedReader input = null;
-    try {
-      input = new BufferedReader(new InputStreamReader(fs.open(inputfile)));
-      for(String line; (line = input.readLine()) != null;) {
-        result.add(line);
-      }
-    } finally {
-      input.close();
+    private static final Random RANDOM = new Random();
+    protected static String getRandomId() {
+        return Integer.toString(RANDOM.nextInt(Integer.MAX_VALUE), 36);
     }
-    return result;
-  }
 
-  /** An exception class for duplicated source files. */
-  public static class DuplicationException extends IOException {
-    private static final long serialVersionUID = 1L;
-    /** Error code for this exception */
-    public static final int ERROR_CODE = -2;
-    DuplicationException(String message) {super(message);}
-  }
+    /** Sanity check for source */
+    protected static void checkSource(Configuration conf, List<Path> srcs
+                                     ) throws InvalidInputException {
+        List<IOException> ioes = new ArrayList<IOException>();
+        for(Path p : srcs) {
+            try {
+                if (!p.getFileSystem(conf).exists(p)) {
+                    ioes.add(new FileNotFoundException("Source "+p+" does not exist."));
+                }
+            } catch(IOException e) {
+                ioes.add(e);
+            }
+        }
+        if (!ioes.isEmpty()) {
+            throw new InvalidInputException(ioes);
+        }
+    }
+
+    protected static String readString(DataInput in) throws IOException {
+        if (in.readBoolean()) {
+            return Text.readString(in);
+        }
+        return null;
+    }
+
+    protected static void writeString(DataOutput out, String s
+                                     ) throws IOException {
+        boolean b = s != null;
+        out.writeBoolean(b);
+        if (b) {
+            Text.writeString(out, s);
+        }
+    }
+
+    protected static List<String> readFile(Configuration conf, Path inputfile
+                                          ) throws IOException {
+        List<String> result = new ArrayList<String>();
+        FileSystem fs = inputfile.getFileSystem(conf);
+        BufferedReader input = null;
+        try {
+            input = new BufferedReader(new InputStreamReader(fs.open(inputfile)));
+            for(String line; (line = input.readLine()) != null;) {
+                result.add(line);
+            }
+        } finally {
+            input.close();
+        }
+        return result;
+    }
+
+    /** An exception class for duplicated source files. */
+    public static class DuplicationException extends IOException {
+        private static final long serialVersionUID = 1L;
+        /** Error code for this exception */
+        public static final int ERROR_CODE = -2;
+        DuplicationException(String message) {
+            super(message);
+        }
+    }
 }

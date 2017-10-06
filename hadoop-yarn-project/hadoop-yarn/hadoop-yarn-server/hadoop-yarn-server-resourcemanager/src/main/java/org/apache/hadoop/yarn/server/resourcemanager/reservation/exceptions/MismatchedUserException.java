@@ -23,24 +23,24 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 
 /**
  * Exception thrown when an update to an existing reservation is performed
- * by a user that is not the reservation owner. 
+ * by a user that is not the reservation owner.
  */
 @Public
 @Unstable
 public class MismatchedUserException extends PlanningException {
 
-  private static final long serialVersionUID = 8313222590561668413L;
+    private static final long serialVersionUID = 8313222590561668413L;
 
-  public MismatchedUserException(String message) {
-    super(message);
-  }
+    public MismatchedUserException(String message) {
+        super(message);
+    }
 
-  public MismatchedUserException(Throwable cause) {
-    super(cause);
-  }
+    public MismatchedUserException(Throwable cause) {
+        super(cause);
+    }
 
-  public MismatchedUserException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public MismatchedUserException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

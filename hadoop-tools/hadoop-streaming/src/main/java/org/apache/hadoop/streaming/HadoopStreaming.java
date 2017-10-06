@@ -22,51 +22,51 @@ import java.util.Arrays;
 
 import org.apache.hadoop.util.ToolRunner;
 
-/** The main entry point. Usually invoked with the script 
+/** The main entry point. Usually invoked with the script
  *  bin/hadoop jar hadoop-streaming.jar args.
  */
 public class HadoopStreaming {
 
-  public static void main(String[] args) throws Exception {
-    if (args.length < 1) {
-      System.err.println("No Arguments Given!");
-      printUsage();
-      System.exit(1);
+    public static void main(String[] args) throws Exception {
+        if (args.length < 1) {
+            System.err.println("No Arguments Given!");
+            printUsage();
+            System.exit(1);
+        }
+        int returnStatus = 0;
+        String cmd = args[0];
+        String[] remainingArgs = Arrays.copyOfRange(args, 1, args.length);
+        if (cmd.equalsIgnoreCase("dumptb")) {
+            DumpTypedBytes dumptb = new DumpTypedBytes();
+            returnStatus = ToolRunner.run(dumptb, remainingArgs);
+        } else if (cmd.equalsIgnoreCase("loadtb")) {
+            LoadTypedBytes loadtb = new LoadTypedBytes();
+            returnStatus = ToolRunner.run(loadtb, remainingArgs);
+        } else if (cmd.equalsIgnoreCase("streamjob")) {
+            StreamJob job = new StreamJob();
+            returnStatus = ToolRunner.run(job, remainingArgs);
+        } else { // for backward compatibility
+            StreamJob job = new StreamJob();
+            returnStatus = ToolRunner.run(job, args);
+        }
+        if (returnStatus != 0) {
+            System.err.println("Streaming Command Failed!");
+            System.exit(returnStatus);
+        }
     }
-    int returnStatus = 0;
-    String cmd = args[0];
-    String[] remainingArgs = Arrays.copyOfRange(args, 1, args.length);
-    if (cmd.equalsIgnoreCase("dumptb")) {
-      DumpTypedBytes dumptb = new DumpTypedBytes();
-      returnStatus = ToolRunner.run(dumptb, remainingArgs);
-    } else if (cmd.equalsIgnoreCase("loadtb")) {
-      LoadTypedBytes loadtb = new LoadTypedBytes();
-      returnStatus = ToolRunner.run(loadtb, remainingArgs);
-    } else if (cmd.equalsIgnoreCase("streamjob")) {
-      StreamJob job = new StreamJob();
-      returnStatus = ToolRunner.run(job, remainingArgs);
-    } else { // for backward compatibility
-      StreamJob job = new StreamJob();
-      returnStatus = ToolRunner.run(job, args);
+
+    private static void printUsage() {
+        System.out.println("Usage: $HADOOP_PREFIX/bin/hadoop jar hadoop-streaming.jar"
+                           + " [options]");
+        System.out.println("Options:");
+        System.out.println("  dumptb <glob-pattern> Dumps all files that match the"
+                           + " given pattern to ");
+        System.out.println("                        standard output as typed " +
+                           "bytes.");
+        System.out.println("  loadtb <path> Reads typed bytes from standard input" +
+                           " and stores them in");
+        System.out.println("                a sequence file in the specified path");
+        System.out.println("  [streamjob] <args> Runs streaming job with given" +
+                           " arguments");
     }
-    if (returnStatus != 0) {
-      System.err.println("Streaming Command Failed!");
-      System.exit(returnStatus);
-    }
-  }
-  
-  private static void printUsage() {
-    System.out.println("Usage: $HADOOP_PREFIX/bin/hadoop jar hadoop-streaming.jar"
-        + " [options]");
-    System.out.println("Options:");
-    System.out.println("  dumptb <glob-pattern> Dumps all files that match the" 
-        + " given pattern to ");
-    System.out.println("                        standard output as typed " +
-    		"bytes.");
-    System.out.println("  loadtb <path> Reads typed bytes from standard input" +
-        " and stores them in");
-    System.out.println("                a sequence file in the specified path");
-    System.out.println("  [streamjob] <args> Runs streaming job with given" +
-        " arguments");
-  }
 }

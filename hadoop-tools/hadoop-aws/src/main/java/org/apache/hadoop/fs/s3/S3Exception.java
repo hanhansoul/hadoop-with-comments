@@ -30,10 +30,10 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Stable
 public class S3Exception extends IOException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public S3Exception(Throwable t) {
-    super(t);
-  }
+    public S3Exception(Throwable t) {
+        super(t);
+    }
 
 }

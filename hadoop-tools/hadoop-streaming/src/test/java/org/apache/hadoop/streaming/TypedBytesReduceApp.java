@@ -27,32 +27,32 @@ import org.apache.hadoop.typedbytes.TypedBytesOutput;
 
 public class TypedBytesReduceApp {
 
-  public void go() throws IOException {
-    TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(System.in));
-    TypedBytesOutput tboutput = new TypedBytesOutput(new DataOutputStream(System.out));
-    
-    Object prevKey = null;
-    int sum = 0;
-    Object key = tbinput.read();
-    while (key != null) {
-      if (prevKey != null && !key.equals(prevKey)) {
-        tboutput.write(prevKey);  // write key
-        tboutput.write(sum);      // write value
-        sum = 0;
-      }
-      sum += (Integer) tbinput.read();
-      prevKey = key;
-      key = tbinput.read();
-    }
-    tboutput.write(prevKey);
-    tboutput.write(sum);
-    
-    System.out.flush();
-  }
+    public void go() throws IOException {
+        TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(System.in));
+        TypedBytesOutput tboutput = new TypedBytesOutput(new DataOutputStream(System.out));
 
-  public static void main(String[] args) throws IOException {
-    TypedBytesReduceApp app = new TypedBytesReduceApp();
-    app.go();
-  }
-  
+        Object prevKey = null;
+        int sum = 0;
+        Object key = tbinput.read();
+        while (key != null) {
+            if (prevKey != null && !key.equals(prevKey)) {
+                tboutput.write(prevKey);  // write key
+                tboutput.write(sum);      // write value
+                sum = 0;
+            }
+            sum += (Integer) tbinput.read();
+            prevKey = key;
+            key = tbinput.read();
+        }
+        tboutput.write(prevKey);
+        tboutput.write(sum);
+
+        System.out.flush();
+    }
+
+    public static void main(String[] args) throws IOException {
+        TypedBytesReduceApp app = new TypedBytesReduceApp();
+        app.go();
+    }
+
 }

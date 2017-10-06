@@ -27,19 +27,19 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Evolving
 public abstract class RemoveFromClusterNodeLabelsRequest {
-  public static RemoveFromClusterNodeLabelsRequest newInstance(
-      Set<String> labels) {
-    RemoveFromClusterNodeLabelsRequest request =
-        Records.newRecord(RemoveFromClusterNodeLabelsRequest.class);
-    request.setNodeLabels(labels);
-    return request;
-  }
+    public static RemoveFromClusterNodeLabelsRequest newInstance(
+        Set<String> labels) {
+        RemoveFromClusterNodeLabelsRequest request =
+            Records.newRecord(RemoveFromClusterNodeLabelsRequest.class);
+        request.setNodeLabels(labels);
+        return request;
+    }
 
-  @Public
-  @Evolving
-  public abstract void setNodeLabels(Set<String> labels);
+    @Public
+    @Evolving
+    public abstract void setNodeLabels(Set<String> labels);
 
-  @Public
-  @Evolving
-  public abstract Set<String> getNodeLabels();
+    @Public
+    @Evolving
+    public abstract Set<String> getNodeLabels();
 }

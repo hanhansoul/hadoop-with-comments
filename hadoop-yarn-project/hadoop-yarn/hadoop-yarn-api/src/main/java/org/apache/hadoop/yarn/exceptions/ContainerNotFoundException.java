@@ -32,17 +32,17 @@ import org.apache.hadoop.yarn.api.protocolrecords.GetContainerReportRequest;
 @Unstable
 public class ContainerNotFoundException extends YarnException {
 
-  private static final long serialVersionUID = 8694608L;
+    private static final long serialVersionUID = 8694608L;
 
-  public ContainerNotFoundException(Throwable cause) {
-    super(cause);
-  }
+    public ContainerNotFoundException(Throwable cause) {
+        super(cause);
+    }
 
-  public ContainerNotFoundException(String message) {
-    super(message);
-  }
+    public ContainerNotFoundException(String message) {
+        super(message);
+    }
 
-  public ContainerNotFoundException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ContainerNotFoundException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

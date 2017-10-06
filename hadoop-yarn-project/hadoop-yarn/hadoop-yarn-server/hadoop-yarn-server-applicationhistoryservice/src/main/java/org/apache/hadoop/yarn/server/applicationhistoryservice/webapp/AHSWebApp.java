@@ -30,39 +30,39 @@ import org.apache.hadoop.yarn.webapp.YarnWebParams;
 
 public class AHSWebApp extends WebApp implements YarnWebParams {
 
-  private final ApplicationHistoryClientService historyClientService;
-  private TimelineDataManager timelineDataManager;
+    private final ApplicationHistoryClientService historyClientService;
+    private TimelineDataManager timelineDataManager;
 
-  public AHSWebApp(TimelineDataManager timelineDataManager,
-      ApplicationHistoryClientService historyClientService) {
-    this.timelineDataManager = timelineDataManager;
-    this.historyClientService = historyClientService;
-  }
+    public AHSWebApp(TimelineDataManager timelineDataManager,
+                     ApplicationHistoryClientService historyClientService) {
+        this.timelineDataManager = timelineDataManager;
+        this.historyClientService = historyClientService;
+    }
 
-  public ApplicationHistoryClientService getApplicationHistoryClientService() {
-    return historyClientService;
-  }
+    public ApplicationHistoryClientService getApplicationHistoryClientService() {
+        return historyClientService;
+    }
 
-  public TimelineDataManager getTimelineDataManager() {
-    return timelineDataManager;
-  }
+    public TimelineDataManager getTimelineDataManager() {
+        return timelineDataManager;
+    }
 
-  @Override
-  public void setup() {
-    bind(YarnJacksonJaxbJsonProvider.class);
-    bind(AHSWebServices.class);
-    bind(TimelineWebServices.class);
-    bind(GenericExceptionHandler.class);
-    bind(ApplicationBaseProtocol.class).toInstance(historyClientService);
-    bind(TimelineDataManager.class).toInstance(timelineDataManager);
-    route("/", AHSController.class);
-    route(pajoin("/apps", APP_STATE), AHSController.class);
-    route(pajoin("/app", APPLICATION_ID), AHSController.class, "app");
-    route(pajoin("/appattempt", APPLICATION_ATTEMPT_ID), AHSController.class,
-      "appattempt");
-    route(pajoin("/container", CONTAINER_ID), AHSController.class, "container");
-    route(
-      pajoin("/logs", NM_NODENAME, CONTAINER_ID, ENTITY_STRING, APP_OWNER,
-        CONTAINER_LOG_TYPE), AHSController.class, "logs");
-  }
+    @Override
+    public void setup() {
+        bind(YarnJacksonJaxbJsonProvider.class);
+        bind(AHSWebServices.class);
+        bind(TimelineWebServices.class);
+        bind(GenericExceptionHandler.class);
+        bind(ApplicationBaseProtocol.class).toInstance(historyClientService);
+        bind(TimelineDataManager.class).toInstance(timelineDataManager);
+        route("/", AHSController.class);
+        route(pajoin("/apps", APP_STATE), AHSController.class);
+        route(pajoin("/app", APPLICATION_ID), AHSController.class, "app");
+        route(pajoin("/appattempt", APPLICATION_ATTEMPT_ID), AHSController.class,
+              "appattempt");
+        route(pajoin("/container", CONTAINER_ID), AHSController.class, "container");
+        route(
+            pajoin("/logs", NM_NODENAME, CONTAINER_ID, ENTITY_STRING, APP_OWNER,
+                   CONTAINER_LOG_TYPE), AHSController.class, "logs");
+    }
 }

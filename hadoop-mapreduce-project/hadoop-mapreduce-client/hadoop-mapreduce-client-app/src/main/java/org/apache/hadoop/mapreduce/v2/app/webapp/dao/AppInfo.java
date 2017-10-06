@@ -29,41 +29,41 @@ import org.apache.hadoop.yarn.util.Times;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppInfo {
 
-  protected String appId;
-  protected String name;
-  protected String user;
-  protected long startedOn;
-  protected long elapsedTime;
+    protected String appId;
+    protected String name;
+    protected String user;
+    protected long startedOn;
+    protected long elapsedTime;
 
-  public AppInfo() {
-  }
+    public AppInfo() {
+    }
 
-  public AppInfo(App app, AppContext context) {
-    this.appId = context.getApplicationID().toString();
-    this.name = context.getApplicationName().toString();
-    this.user = context.getUser().toString();
-    this.startedOn = context.getStartTime();
-    this.elapsedTime = Times.elapsed(this.startedOn, 0);
-  }
+    public AppInfo(App app, AppContext context) {
+        this.appId = context.getApplicationID().toString();
+        this.name = context.getApplicationName().toString();
+        this.user = context.getUser().toString();
+        this.startedOn = context.getStartTime();
+        this.elapsedTime = Times.elapsed(this.startedOn, 0);
+    }
 
-  public String getId() {
-    return this.appId;
-  }
+    public String getId() {
+        return this.appId;
+    }
 
-  public String getName() {
-    return this.name;
-  }
+    public String getName() {
+        return this.name;
+    }
 
-  public String getUser() {
-    return this.user;
-  }
+    public String getUser() {
+        return this.user;
+    }
 
-  public long getStartTime() {
-    return this.startedOn;
-  }
+    public long getStartTime() {
+        return this.startedOn;
+    }
 
-  public long getElapsedTime() {
-    return this.elapsedTime;
-  }
+    public long getElapsedTime() {
+        return this.elapsedTime;
+    }
 
 }

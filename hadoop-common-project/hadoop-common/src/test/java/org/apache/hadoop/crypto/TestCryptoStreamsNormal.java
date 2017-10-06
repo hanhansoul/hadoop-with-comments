@@ -30,94 +30,94 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Test crypto streams using normal stream which does not support the 
- * additional interfaces that the Hadoop FileSystem streams implement 
- * (Seekable, PositionedReadable, ByteBufferReadable, HasFileDescriptor, 
- * CanSetDropBehind, CanSetReadahead, HasEnhancedByteBufferAccess, Syncable, 
+ * Test crypto streams using normal stream which does not support the
+ * additional interfaces that the Hadoop FileSystem streams implement
+ * (Seekable, PositionedReadable, ByteBufferReadable, HasFileDescriptor,
+ * CanSetDropBehind, CanSetReadahead, HasEnhancedByteBufferAccess, Syncable,
  * CanSetDropBehind)
  */
 public class TestCryptoStreamsNormal extends CryptoStreamsTestBase {
-  /**
-   * Data storage.
-   * {@link #getOutputStream(int, byte[], byte[])} will write to this buffer.
-   * {@link #getInputStream(int, byte[], byte[])} will read from this buffer.
-   */
-  private byte[] buffer;
-  private int bufferLen;
-  
-  @BeforeClass
-  public static void init() throws Exception {
-    Configuration conf = new Configuration();
-    codec = CryptoCodec.getInstance(conf);
-  }
-  
-  @AfterClass
-  public static void shutdown() throws Exception {
-  }
+    /**
+     * Data storage.
+     * {@link #getOutputStream(int, byte[], byte[])} will write to this buffer.
+     * {@link #getInputStream(int, byte[], byte[])} will read from this buffer.
+     */
+    private byte[] buffer;
+    private int bufferLen;
 
-  @Override
-  protected OutputStream getOutputStream(int bufferSize, byte[] key, byte[] iv)
-      throws IOException {
-    OutputStream out = new ByteArrayOutputStream() {
-      @Override
-      public void flush() throws IOException {
-        buffer = buf;
-        bufferLen = count;
-      }
-      @Override
-      public void close() throws IOException {
-        buffer = buf;
-        bufferLen = count;
-      }
-    };
-    return new CryptoOutputStream(out, codec, bufferSize, key, iv);
-  }
+    @BeforeClass
+    public static void init() throws Exception {
+        Configuration conf = new Configuration();
+        codec = CryptoCodec.getInstance(conf);
+    }
 
-  @Override
-  protected InputStream getInputStream(int bufferSize, byte[] key, byte[] iv)
-      throws IOException {
-    ByteArrayInputStream in = new ByteArrayInputStream(buffer, 0, bufferLen);
-    return new CryptoInputStream(in, codec, bufferSize, 
-        key, iv);
-  }
-  
-  @Ignore("Wrapped stream doesn't support Syncable")
-  @Override
-  @Test(timeout=1000)
-  public void testSyncable() throws IOException {}
-  
-  @Ignore("Wrapped stream doesn't support PositionedRead")
-  @Override
-  @Test(timeout=1000)
-  public void testPositionedRead() throws IOException {}
+    @AfterClass
+    public static void shutdown() throws Exception {
+    }
 
-  @Ignore("Wrapped stream doesn't support ReadFully")
-  @Override
-  @Test(timeout=1000)
-  public void testReadFully() throws IOException {}
-  
-  @Ignore("Wrapped stream doesn't support Seek")
-  @Override
-  @Test(timeout=1000)
-  public void testSeek() throws IOException {}
-  
-  @Ignore("Wrapped stream doesn't support ByteBufferRead")
-  @Override
-  @Test(timeout=1000)
-  public void testByteBufferRead() throws IOException {}
-  
-  @Ignore("Wrapped stream doesn't support ByteBufferRead, Seek")
-  @Override
-  @Test(timeout=1000)
-  public void testCombinedOp() throws IOException {}
-  
-  @Ignore("Wrapped stream doesn't support SeekToNewSource")
-  @Override
-  @Test(timeout=1000)
-  public void testSeekToNewSource() throws IOException {}
-  
-  @Ignore("Wrapped stream doesn't support HasEnhancedByteBufferAccess")
-  @Override
-  @Test(timeout=1000)
-  public void testHasEnhancedByteBufferAccess() throws IOException {}
+    @Override
+    protected OutputStream getOutputStream(int bufferSize, byte[] key, byte[] iv)
+    throws IOException {
+        OutputStream out = new ByteArrayOutputStream() {
+            @Override
+            public void flush() throws IOException {
+                buffer = buf;
+                bufferLen = count;
+            }
+            @Override
+            public void close() throws IOException {
+                buffer = buf;
+                bufferLen = count;
+            }
+        };
+        return new CryptoOutputStream(out, codec, bufferSize, key, iv);
+    }
+
+    @Override
+    protected InputStream getInputStream(int bufferSize, byte[] key, byte[] iv)
+    throws IOException {
+        ByteArrayInputStream in = new ByteArrayInputStream(buffer, 0, bufferLen);
+        return new CryptoInputStream(in, codec, bufferSize,
+                                     key, iv);
+    }
+
+    @Ignore("Wrapped stream doesn't support Syncable")
+    @Override
+    @Test(timeout=1000)
+    public void testSyncable() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support PositionedRead")
+    @Override
+    @Test(timeout=1000)
+    public void testPositionedRead() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support ReadFully")
+    @Override
+    @Test(timeout=1000)
+    public void testReadFully() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support Seek")
+    @Override
+    @Test(timeout=1000)
+    public void testSeek() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support ByteBufferRead")
+    @Override
+    @Test(timeout=1000)
+    public void testByteBufferRead() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support ByteBufferRead, Seek")
+    @Override
+    @Test(timeout=1000)
+    public void testCombinedOp() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support SeekToNewSource")
+    @Override
+    @Test(timeout=1000)
+    public void testSeekToNewSource() throws IOException {}
+
+    @Ignore("Wrapped stream doesn't support HasEnhancedByteBufferAccess")
+    @Override
+    @Test(timeout=1000)
+    public void testHasEnhancedByteBufferAccess() throws IOException {}
 }

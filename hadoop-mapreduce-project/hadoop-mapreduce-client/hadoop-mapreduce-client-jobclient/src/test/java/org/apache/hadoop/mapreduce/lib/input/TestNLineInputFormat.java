@@ -29,95 +29,95 @@ import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.task.MapContextImpl;
 
 public class TestNLineInputFormat extends TestCase {
-  private static int MAX_LENGTH = 200;
-  
-  private static Configuration conf = new Configuration();
-  private static FileSystem localFs = null; 
+    private static int MAX_LENGTH = 200;
 
-  static {
-    try {
-      localFs = FileSystem.getLocal(conf);
-    } catch (IOException e) {
-      throw new RuntimeException("init failure", e);
-    }
-  }
+    private static Configuration conf = new Configuration();
+    private static FileSystem localFs = null;
 
-  private static Path workDir = 
-    new Path(new Path(System.getProperty("test.build.data", "."), "data"),
-             "TestNLineInputFormat");
-  
-  public void testFormat() throws Exception {
-    Job job = Job.getInstance(conf);
-    Path file = new Path(workDir, "test.txt");
-
-    localFs.delete(workDir, true);
-    FileInputFormat.setInputPaths(job, workDir);
-    int numLinesPerMap = 5;
-    NLineInputFormat.setNumLinesPerSplit(job, numLinesPerMap);
-    for (int length = 0; length < MAX_LENGTH;
-         length += 1) {
- 
-      // create a file with length entries
-      Writer writer = new OutputStreamWriter(localFs.create(file));
-      try {
-        for (int i = 0; i < length; i++) {
-          writer.write(Integer.toString(i)+" some more text");
-          writer.write("\n");
+    static {
+        try {
+            localFs = FileSystem.getLocal(conf);
+        } catch (IOException e) {
+            throw new RuntimeException("init failure", e);
         }
-      } finally {
-        writer.close();
-      }
-      int lastN = 0;
-      if (length != 0) {
-        lastN = length % 5;
-        if (lastN == 0) {
-          lastN = 5;
-        }
-      }
-      checkFormat(job, numLinesPerMap, lastN);
     }
-  }
 
-  void checkFormat(Job job, int expectedN, int lastN) 
-      throws IOException, InterruptedException {
-    NLineInputFormat format = new NLineInputFormat();
-    List<InputSplit> splits = format.getSplits(job);
-    int count = 0;
-    for (int i = 0; i < splits.size(); i++) {
-      assertEquals("There are no split locations", 0,
-                   splits.get(i).getLocations().length);
-      TaskAttemptContext context = MapReduceTestUtil.
-        createDummyMapTaskAttemptContext(job.getConfiguration());
-      RecordReader<LongWritable, Text> reader = format.createRecordReader(
-        splits.get(i), context);
-      Class<?> clazz = reader.getClass();
-      assertEquals("reader class is LineRecordReader.", 
-        LineRecordReader.class, clazz);
-      MapContext<LongWritable, Text, LongWritable, Text> mcontext = 
-        new MapContextImpl<LongWritable, Text, LongWritable, Text>(
-          job.getConfiguration(), context.getTaskAttemptID(), reader, null,
-          null, MapReduceTestUtil.createDummyReporter(), splits.get(i));
-      reader.initialize(splits.get(i), mcontext);
-         
-      try {
-        count = 0;
-        while (reader.nextKeyValue()) {
-          count++;
+    private static Path workDir =
+        new Path(new Path(System.getProperty("test.build.data", "."), "data"),
+                 "TestNLineInputFormat");
+
+    public void testFormat() throws Exception {
+        Job job = Job.getInstance(conf);
+        Path file = new Path(workDir, "test.txt");
+
+        localFs.delete(workDir, true);
+        FileInputFormat.setInputPaths(job, workDir);
+        int numLinesPerMap = 5;
+        NLineInputFormat.setNumLinesPerSplit(job, numLinesPerMap);
+        for (int length = 0; length < MAX_LENGTH;
+             length += 1) {
+
+            // create a file with length entries
+            Writer writer = new OutputStreamWriter(localFs.create(file));
+            try {
+                for (int i = 0; i < length; i++) {
+                    writer.write(Integer.toString(i)+" some more text");
+                    writer.write("\n");
+                }
+            } finally {
+                writer.close();
+            }
+            int lastN = 0;
+            if (length != 0) {
+                lastN = length % 5;
+                if (lastN == 0) {
+                    lastN = 5;
+                }
+            }
+            checkFormat(job, numLinesPerMap, lastN);
         }
-      } finally {
-        reader.close();
-      }
-      if ( i == splits.size() - 1) {
-        assertEquals("number of lines in split(" + i + ") is wrong" ,
-                     lastN, count);
-      } else {
-        assertEquals("number of lines in split(" + i + ") is wrong" ,
-                     expectedN, count);
-      }
     }
-  }
-  
-  public static void main(String[] args) throws Exception {
-    new TestNLineInputFormat().testFormat();
-  }
+
+    void checkFormat(Job job, int expectedN, int lastN)
+    throws IOException, InterruptedException {
+        NLineInputFormat format = new NLineInputFormat();
+        List<InputSplit> splits = format.getSplits(job);
+        int count = 0;
+        for (int i = 0; i < splits.size(); i++) {
+            assertEquals("There are no split locations", 0,
+                         splits.get(i).getLocations().length);
+            TaskAttemptContext context = MapReduceTestUtil.
+                                         createDummyMapTaskAttemptContext(job.getConfiguration());
+            RecordReader<LongWritable, Text> reader = format.createRecordReader(
+                        splits.get(i), context);
+            Class<?> clazz = reader.getClass();
+            assertEquals("reader class is LineRecordReader.",
+                         LineRecordReader.class, clazz);
+            MapContext<LongWritable, Text, LongWritable, Text> mcontext =
+                new MapContextImpl<LongWritable, Text, LongWritable, Text>(
+                job.getConfiguration(), context.getTaskAttemptID(), reader, null,
+                null, MapReduceTestUtil.createDummyReporter(), splits.get(i));
+            reader.initialize(splits.get(i), mcontext);
+
+            try {
+                count = 0;
+                while (reader.nextKeyValue()) {
+                    count++;
+                }
+            } finally {
+                reader.close();
+            }
+            if ( i == splits.size() - 1) {
+                assertEquals("number of lines in split(" + i + ") is wrong",
+                             lastN, count);
+            } else {
+                assertEquals("number of lines in split(" + i + ") is wrong",
+                             expectedN, count);
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        new TestNLineInputFormat().testFormat();
+    }
 }

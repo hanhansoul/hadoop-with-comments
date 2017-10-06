@@ -31,189 +31,195 @@ import junit.framework.TestCase;
 
 /** Unit tests for Writable. */
 public class TestWritable extends TestCase {
-private static final String TEST_CONFIG_PARAM = "frob.test";
-private static final String TEST_CONFIG_VALUE = "test";
-private static final String TEST_WRITABLE_CONFIG_PARAM = "test.writable";
-private static final String TEST_WRITABLE_CONFIG_VALUE = TEST_CONFIG_VALUE;
+    private static final String TEST_CONFIG_PARAM = "frob.test";
+    private static final String TEST_CONFIG_VALUE = "test";
+    private static final String TEST_WRITABLE_CONFIG_PARAM = "test.writable";
+    private static final String TEST_WRITABLE_CONFIG_VALUE = TEST_CONFIG_VALUE;
 
-  public TestWritable(String name) { super(name); }
-
-  /** Example class used in test cases below. */
-  public static class SimpleWritable implements Writable {
-    private static final Random RANDOM = new Random();
-
-    int state = RANDOM.nextInt();
-
-    @Override
-    public void write(DataOutput out) throws IOException {
-      out.writeInt(state);
+    public TestWritable(String name) {
+        super(name);
     }
 
-    @Override
-    public void readFields(DataInput in) throws IOException {
-      this.state = in.readInt();
+    /** Example class used in test cases below. */
+    public static class SimpleWritable implements Writable {
+        private static final Random RANDOM = new Random();
+
+        int state = RANDOM.nextInt();
+
+        @Override
+        public void write(DataOutput out) throws IOException {
+            out.writeInt(state);
+        }
+
+        @Override
+        public void readFields(DataInput in) throws IOException {
+            this.state = in.readInt();
+        }
+
+        public static SimpleWritable read(DataInput in) throws IOException {
+            SimpleWritable result = new SimpleWritable();
+            result.readFields(in);
+            return result;
+        }
+
+        /** Required by test code, below. */
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof SimpleWritable))
+                return false;
+            SimpleWritable other = (SimpleWritable)o;
+            return this.state == other.state;
+        }
     }
 
-    public static SimpleWritable read(DataInput in) throws IOException {
-      SimpleWritable result = new SimpleWritable();
-      result.readFields(in);
-      return result;
+    public static class SimpleWritableComparable extends SimpleWritable
+        implements WritableComparable<SimpleWritableComparable>, Configurable {
+        private Configuration conf;
+
+        public SimpleWritableComparable() {}
+
+        public void setConf(Configuration conf) {
+            this.conf = conf;
+        }
+
+        public Configuration getConf() {
+            return this.conf;
+        }
+
+        public int compareTo(SimpleWritableComparable o) {
+            return this.state - o.state;
+        }
     }
 
-    /** Required by test code, below. */
-    @Override
-    public boolean equals(Object o) {
-      if (!(o instanceof SimpleWritable))
-        return false;
-      SimpleWritable other = (SimpleWritable)o;
-      return this.state == other.state;
-    }
-  }
-
-  public static class SimpleWritableComparable extends SimpleWritable
-      implements WritableComparable<SimpleWritableComparable>, Configurable {
-    private Configuration conf;
-
-    public SimpleWritableComparable() {}
-
-    public void setConf(Configuration conf) {
-      this.conf = conf;
+    /** Test 1: Check that SimpleWritable. */
+    public void testSimpleWritable() throws Exception {
+        testWritable(new SimpleWritable());
     }
 
-    public Configuration getConf() {
-      return this.conf;
+    public void testByteWritable() throws Exception {
+        testWritable(new ByteWritable((byte)128));
     }
 
-    public int compareTo(SimpleWritableComparable o) {
-      return this.state - o.state;
+    public void testShortWritable() throws Exception {
+        testWritable(new ShortWritable((byte)256));
     }
-  }
 
-  /** Test 1: Check that SimpleWritable. */
-  public void testSimpleWritable() throws Exception {
-    testWritable(new SimpleWritable());
-  }
-  
-  public void testByteWritable() throws Exception {
-    testWritable(new ByteWritable((byte)128));
-  }
-  
-  public void testShortWritable() throws Exception {
-    testWritable(new ShortWritable((byte)256));
-  }
-
-  public void testDoubleWritable() throws Exception {
-    testWritable(new DoubleWritable(1.0));
-  }
-
-  /** Utility method for testing writables. */
-  public static Writable testWritable(Writable before) 
-  	throws Exception {
-  	return testWritable(before, null);
-  }
-  
-  /** Utility method for testing writables. */
-  public static Writable testWritable(Writable before
-  		, Configuration conf) throws Exception {
-    DataOutputBuffer dob = new DataOutputBuffer();
-    before.write(dob);
-
-    DataInputBuffer dib = new DataInputBuffer();
-    dib.reset(dob.getData(), dob.getLength());
-    
-    Writable after = (Writable)ReflectionUtils.newInstance(
-    		before.getClass(), conf);
-    after.readFields(dib);
-
-    assertEquals(before, after);
-    return after;
-  }
-	
-  private static class FrobComparator extends WritableComparator {
-    public FrobComparator() { super(Frob.class); }
-    @Override public int compare(byte[] b1, int s1, int l1,
-                                 byte[] b2, int s2, int l2) {
-      return 0;
+    public void testDoubleWritable() throws Exception {
+        testWritable(new DoubleWritable(1.0));
     }
-  }
 
-  private static class Frob implements WritableComparable<Frob> {
-    static {                                     // register default comparator
-      WritableComparator.define(Frob.class, new FrobComparator());
+    /** Utility method for testing writables. */
+    public static Writable testWritable(Writable before)
+    throws Exception {
+        return testWritable(before, null);
     }
-    @Override public void write(DataOutput out) throws IOException {}
-    @Override public void readFields(DataInput in) throws IOException {}
-    @Override public int compareTo(Frob o) { return 0; }
-  }
 
-  /** Test that comparator is defined and configured. */
-  public static void testGetComparator() throws Exception {
-    Configuration conf = new Configuration();
+    /** Utility method for testing writables. */
+    public static Writable testWritable(Writable before
+                                        , Configuration conf) throws Exception {
+        DataOutputBuffer dob = new DataOutputBuffer();
+        before.write(dob);
 
-    // Without conf.
-    WritableComparator frobComparator = WritableComparator.get(Frob.class);
-    assert(frobComparator instanceof FrobComparator);
-    assertNotNull(frobComparator.getConf());
-    assertNull(frobComparator.getConf().get(TEST_CONFIG_PARAM));
+        DataInputBuffer dib = new DataInputBuffer();
+        dib.reset(dob.getData(), dob.getLength());
 
-    // With conf.
-    conf.set(TEST_CONFIG_PARAM, TEST_CONFIG_VALUE);
-    frobComparator = WritableComparator.get(Frob.class, conf);
-    assert(frobComparator instanceof FrobComparator);
-    assertNotNull(frobComparator.getConf());
-    assertEquals(conf.get(TEST_CONFIG_PARAM), TEST_CONFIG_VALUE);
+        Writable after = (Writable)ReflectionUtils.newInstance(
+                             before.getClass(), conf);
+        after.readFields(dib);
 
-    // Without conf. should reuse configuration.
-    frobComparator = WritableComparator.get(Frob.class);
-    assert(frobComparator instanceof FrobComparator);
-    assertNotNull(frobComparator.getConf());
-    assertEquals(conf.get(TEST_CONFIG_PARAM), TEST_CONFIG_VALUE);
+        assertEquals(before, after);
+        return after;
+    }
 
-    // New conf. should use new configuration.
-    frobComparator = WritableComparator.get(Frob.class, new Configuration());
-    assert(frobComparator instanceof FrobComparator);
-    assertNotNull(frobComparator.getConf());
-    assertNull(frobComparator.getConf().get(TEST_CONFIG_PARAM));
-  }
+    private static class FrobComparator extends WritableComparator {
+        public FrobComparator() {
+            super(Frob.class);
+        }
+        @Override public int compare(byte[] b1, int s1, int l1,
+                                     byte[] b2, int s2, int l2) {
+            return 0;
+        }
+    }
 
-  /**
-   * Test a user comparator that relies on deserializing both arguments for each
-   * compare.
-   */
-  public void testShortWritableComparator() throws Exception {
-    ShortWritable writable1 = new ShortWritable((short)256);
-    ShortWritable writable2 = new ShortWritable((short) 128);
-    ShortWritable writable3 = new ShortWritable((short) 256);
-    
-    final String SHOULD_NOT_MATCH_WITH_RESULT_ONE = "Result should be 1, should not match the writables";
-    assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_ONE,
-        writable1.compareTo(writable2) == 1);
-    assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_ONE, WritableComparator.get(
-        ShortWritable.class).compare(writable1, writable2) == 1);
+    private static class Frob implements WritableComparable<Frob> {
+        static {                                     // register default comparator
+            WritableComparator.define(Frob.class, new FrobComparator());
+        }
+        @Override public void write(DataOutput out) throws IOException {}
+        @Override public void readFields(DataInput in) throws IOException {}
+        @Override public int compareTo(Frob o) {
+            return 0;
+        }
+    }
 
-    final String SHOULD_NOT_MATCH_WITH_RESULT_MINUS_ONE = "Result should be -1, should not match the writables";
-    assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_MINUS_ONE, writable2
-        .compareTo(writable1) == -1);
-    assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_MINUS_ONE, WritableComparator.get(
-        ShortWritable.class).compare(writable2, writable1) == -1);
+    /** Test that comparator is defined and configured. */
+    public static void testGetComparator() throws Exception {
+        Configuration conf = new Configuration();
 
-    final String SHOULD_MATCH = "Result should be 0, should match the writables";
-    assertTrue(SHOULD_MATCH, writable1.compareTo(writable1) == 0);
-    assertTrue(SHOULD_MATCH, WritableComparator.get(ShortWritable.class)
-        .compare(writable1, writable3) == 0);
-  }
+        // Without conf.
+        WritableComparator frobComparator = WritableComparator.get(Frob.class);
+        assert(frobComparator instanceof FrobComparator);
+        assertNotNull(frobComparator.getConf());
+        assertNull(frobComparator.getConf().get(TEST_CONFIG_PARAM));
 
-  /**
-   * Test that Writable's are configured by Comparator.
-   */
-  public void testConfigurableWritableComparator() throws Exception {
-    Configuration conf = new Configuration();
-    conf.set(TEST_WRITABLE_CONFIG_PARAM, TEST_WRITABLE_CONFIG_VALUE);
+        // With conf.
+        conf.set(TEST_CONFIG_PARAM, TEST_CONFIG_VALUE);
+        frobComparator = WritableComparator.get(Frob.class, conf);
+        assert(frobComparator instanceof FrobComparator);
+        assertNotNull(frobComparator.getConf());
+        assertEquals(conf.get(TEST_CONFIG_PARAM), TEST_CONFIG_VALUE);
 
-    WritableComparator wc = WritableComparator.get(SimpleWritableComparable.class, conf);
-    SimpleWritableComparable key = ((SimpleWritableComparable)wc.newKey());
-    assertNotNull(wc.getConf());
-    assertNotNull(key.getConf());
-    assertEquals(key.getConf().get(TEST_WRITABLE_CONFIG_PARAM), TEST_WRITABLE_CONFIG_VALUE);
-  }
+        // Without conf. should reuse configuration.
+        frobComparator = WritableComparator.get(Frob.class);
+        assert(frobComparator instanceof FrobComparator);
+        assertNotNull(frobComparator.getConf());
+        assertEquals(conf.get(TEST_CONFIG_PARAM), TEST_CONFIG_VALUE);
+
+        // New conf. should use new configuration.
+        frobComparator = WritableComparator.get(Frob.class, new Configuration());
+        assert(frobComparator instanceof FrobComparator);
+        assertNotNull(frobComparator.getConf());
+        assertNull(frobComparator.getConf().get(TEST_CONFIG_PARAM));
+    }
+
+    /**
+     * Test a user comparator that relies on deserializing both arguments for each
+     * compare.
+     */
+    public void testShortWritableComparator() throws Exception {
+        ShortWritable writable1 = new ShortWritable((short)256);
+        ShortWritable writable2 = new ShortWritable((short) 128);
+        ShortWritable writable3 = new ShortWritable((short) 256);
+
+        final String SHOULD_NOT_MATCH_WITH_RESULT_ONE = "Result should be 1, should not match the writables";
+        assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_ONE,
+                   writable1.compareTo(writable2) == 1);
+        assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_ONE, WritableComparator.get(
+                       ShortWritable.class).compare(writable1, writable2) == 1);
+
+        final String SHOULD_NOT_MATCH_WITH_RESULT_MINUS_ONE = "Result should be -1, should not match the writables";
+        assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_MINUS_ONE, writable2
+                   .compareTo(writable1) == -1);
+        assertTrue(SHOULD_NOT_MATCH_WITH_RESULT_MINUS_ONE, WritableComparator.get(
+                       ShortWritable.class).compare(writable2, writable1) == -1);
+
+        final String SHOULD_MATCH = "Result should be 0, should match the writables";
+        assertTrue(SHOULD_MATCH, writable1.compareTo(writable1) == 0);
+        assertTrue(SHOULD_MATCH, WritableComparator.get(ShortWritable.class)
+                   .compare(writable1, writable3) == 0);
+    }
+
+    /**
+     * Test that Writable's are configured by Comparator.
+     */
+    public void testConfigurableWritableComparator() throws Exception {
+        Configuration conf = new Configuration();
+        conf.set(TEST_WRITABLE_CONFIG_PARAM, TEST_WRITABLE_CONFIG_VALUE);
+
+        WritableComparator wc = WritableComparator.get(SimpleWritableComparable.class, conf);
+        SimpleWritableComparable key = ((SimpleWritableComparable)wc.newKey());
+        assertNotNull(wc.getConf());
+        assertNotNull(key.getConf());
+        assertEquals(key.getConf().get(TEST_WRITABLE_CONFIG_PARAM), TEST_WRITABLE_CONFIG_VALUE);
+    }
 }

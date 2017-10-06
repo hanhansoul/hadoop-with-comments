@@ -28,25 +28,25 @@ import org.junit.Assert;
  * resource at the same time.
  */
 public class DummySharedResource {
-  private DummyHAService holder = null;
-  private int violations = 0;
-  
-  public synchronized void take(DummyHAService newHolder) {
-    if (holder == null || holder == newHolder) {
-      holder = newHolder;
-    } else {
-      violations++;
-      throw new IllegalStateException("already held by: " + holder);
+    private DummyHAService holder = null;
+    private int violations = 0;
+
+    public synchronized void take(DummyHAService newHolder) {
+        if (holder == null || holder == newHolder) {
+            holder = newHolder;
+        } else {
+            violations++;
+            throw new IllegalStateException("already held by: " + holder);
+        }
     }
-  }
-  
-  public synchronized void release(DummyHAService oldHolder) {
-    if (holder == oldHolder) {
-      holder = null;
+
+    public synchronized void release(DummyHAService oldHolder) {
+        if (holder == oldHolder) {
+            holder = null;
+        }
     }
-  }
-  
-  public synchronized void assertNoViolations() {
-    Assert.assertEquals(0, violations);
-  }
+
+    public synchronized void assertNoViolations() {
+        Assert.assertEquals(0, violations);
+    }
 }

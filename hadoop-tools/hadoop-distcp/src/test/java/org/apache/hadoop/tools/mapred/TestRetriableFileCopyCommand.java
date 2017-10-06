@@ -32,29 +32,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class TestRetriableFileCopyCommand {
-  @SuppressWarnings("rawtypes")
-  @Test
-  public void testFailOnCloseError() throws Exception {
-    Mapper.Context context = mock(Mapper.Context.class);
-    doReturn(new Configuration()).when(context).getConfiguration();
+    @SuppressWarnings("rawtypes")
+    @Test
+    public void testFailOnCloseError() throws Exception {
+        Mapper.Context context = mock(Mapper.Context.class);
+        doReturn(new Configuration()).when(context).getConfiguration();
 
-    Exception expectedEx = new IOException("boom");
-    OutputStream out = mock(OutputStream.class);
-    doThrow(expectedEx).when(out).close();
+        Exception expectedEx = new IOException("boom");
+        OutputStream out = mock(OutputStream.class);
+        doThrow(expectedEx).when(out).close();
 
-    File f = File.createTempFile(this.getClass().getSimpleName(), null);
-    f.deleteOnExit();
-    FileStatus stat =
-        new FileStatus(1L, false, 1, 1024, 0, new Path(f.toURI()));
-    
-    Exception actualEx = null;
-    try {
-      new RetriableFileCopyCommand("testFailOnCloseError", FileAction.OVERWRITE)
-        .copyBytes(stat, 0, out, 512, context);
-    } catch (Exception e) {
-      actualEx = e;
+        File f = File.createTempFile(this.getClass().getSimpleName(), null);
+        f.deleteOnExit();
+        FileStatus stat =
+            new FileStatus(1L, false, 1, 1024, 0, new Path(f.toURI()));
+
+        Exception actualEx = null;
+        try {
+            new RetriableFileCopyCommand("testFailOnCloseError", FileAction.OVERWRITE)
+            .copyBytes(stat, 0, out, 512, context);
+        } catch (Exception e) {
+            actualEx = e;
+        }
+        assertNotNull("close didn't fail", actualEx);
+        assertEquals(expectedEx, actualEx);
     }
-    assertNotNull("close didn't fail", actualEx);
-    assertEquals(expectedEx, actualEx);
-  }  
 }

@@ -25,19 +25,19 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The response sent by the <code>ResourceManager</code> to Admin client on
  * node resource change.</p>
- * 
+ *
  * <p>Currently, this is empty.</p>
- * 
+ *
  * @see ResourceManagerAdministrationProtocol#updateNodeResource(
  *      UpdateNodeResourceRequest)
  */
 @Private
 @Evolving
 public abstract class UpdateNodeResourceResponse {
-  public static UpdateNodeResourceResponse newInstance(){
-    UpdateNodeResourceResponse response = 
-        Records.newRecord(UpdateNodeResourceResponse.class);
-    return response;
-  }
+    public static UpdateNodeResourceResponse newInstance() {
+        UpdateNodeResourceResponse response =
+            Records.newRecord(UpdateNodeResourceResponse.class);
+        return response;
+    }
 
 }

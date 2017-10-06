@@ -5,9 +5,9 @@
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -36,48 +36,48 @@ import org.apache.hadoop.security.token.Token;
  */
 @SuppressWarnings("serial")
 public class CancelDelegationTokenServlet extends DfsServlet {
-  private static final Log LOG = LogFactory.getLog(CancelDelegationTokenServlet.class);
-  public static final String PATH_SPEC = "/cancelDelegationToken";
-  public static final String TOKEN = "token";
-  
-  @Override
-  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
-      throws ServletException, IOException {
-    final UserGroupInformation ugi;
-    final ServletContext context = getServletContext();
-    final Configuration conf = NameNodeHttpServer.getConfFromContext(context);
-    try {
-      ugi = getUGI(req, conf);
-    } catch(IOException ioe) {
-      LOG.info("Request for token received with no authentication from "
-          + req.getRemoteAddr(), ioe);
-      resp.sendError(HttpServletResponse.SC_FORBIDDEN, 
-          "Unable to identify or authenticate user");
-      return;
-    }
-    final NameNode nn = NameNodeHttpServer.getNameNodeFromContext(
-        context);
-    String tokenString = req.getParameter(TOKEN);
-    if (tokenString == null) {
-      resp.sendError(HttpServletResponse.SC_MULTIPLE_CHOICES,
-                     "Token to renew not specified");
-    }
-    final Token<DelegationTokenIdentifier> token = 
-      new Token<DelegationTokenIdentifier>();
-    token.decodeFromUrlString(tokenString);
-    
-    try {
-      ugi.doAs(new PrivilegedExceptionAction<Void>() {
-        @Override
-        public Void run() throws Exception {
-          nn.getRpcServer().cancelDelegationToken(token);
-          return null;
+    private static final Log LOG = LogFactory.getLog(CancelDelegationTokenServlet.class);
+    public static final String PATH_SPEC = "/cancelDelegationToken";
+    public static final String TOKEN = "token";
+
+    @Override
+    protected void doGet(final HttpServletRequest req, final HttpServletResponse resp)
+    throws ServletException, IOException {
+        final UserGroupInformation ugi;
+        final ServletContext context = getServletContext();
+        final Configuration conf = NameNodeHttpServer.getConfFromContext(context);
+        try {
+            ugi = getUGI(req, conf);
+        } catch(IOException ioe) {
+            LOG.info("Request for token received with no authentication from "
+                     + req.getRemoteAddr(), ioe);
+            resp.sendError(HttpServletResponse.SC_FORBIDDEN,
+                           "Unable to identify or authenticate user");
+            return;
         }
-      });
-    } catch(Exception e) {
-      LOG.info("Exception while cancelling token. Re-throwing. ", e);
-      resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                     e.getMessage());
+        final NameNode nn = NameNodeHttpServer.getNameNodeFromContext(
+                                context);
+        String tokenString = req.getParameter(TOKEN);
+        if (tokenString == null) {
+            resp.sendError(HttpServletResponse.SC_MULTIPLE_CHOICES,
+                           "Token to renew not specified");
+        }
+        final Token<DelegationTokenIdentifier> token =
+            new Token<DelegationTokenIdentifier>();
+        token.decodeFromUrlString(tokenString);
+
+        try {
+            ugi.doAs(new PrivilegedExceptionAction<Void>() {
+                @Override
+                public Void run() throws Exception {
+                    nn.getRpcServer().cancelDelegationToken(token);
+                    return null;
+                }
+            });
+        } catch(Exception e) {
+            LOG.info("Exception while cancelling token. Re-throwing. ", e);
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                           e.getMessage());
+        }
     }
-  }
 }

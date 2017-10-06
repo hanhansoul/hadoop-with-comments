@@ -27,54 +27,54 @@ import org.apache.hadoop.yarn.util.Records;
  */
 @Public
 public abstract class ContainerResourceIncreaseRequest {
-  @Public
-  public static ContainerResourceIncreaseRequest newInstance(
-      ContainerId existingContainerId, Resource targetCapability) {
-    ContainerResourceIncreaseRequest context = Records
-        .newRecord(ContainerResourceIncreaseRequest.class);
-    context.setContainerId(existingContainerId);
-    context.setCapability(targetCapability);
-    return context;
-  }
-
-  @Public
-  public abstract ContainerId getContainerId();
-
-  @Public
-  public abstract void setContainerId(ContainerId containerId);
-
-  @Public
-  public abstract Resource getCapability();
-
-  @Public
-  public abstract void setCapability(Resource capability);
-
-  @Override
-  public int hashCode() {
-    return getCapability().hashCode() + getContainerId().hashCode();
-  }
-  
-  @Override
-  public boolean equals(Object other) {
-    if (other instanceof ContainerResourceIncreaseRequest) {
-      ContainerResourceIncreaseRequest ctx =
-          (ContainerResourceIncreaseRequest) other;
-      
-      if (getContainerId() == null && ctx.getContainerId() != null) {
-        return false;
-      } else if (!getContainerId().equals(ctx.getContainerId())) {
-        return false;
-      }
-      
-      if (getCapability() == null && ctx.getCapability() != null) {
-        return false;
-      } else if (!getCapability().equals(ctx.getCapability())) {
-        return false;
-      }
-      
-      return true;
-    } else {
-      return false;
+    @Public
+    public static ContainerResourceIncreaseRequest newInstance(
+        ContainerId existingContainerId, Resource targetCapability) {
+        ContainerResourceIncreaseRequest context = Records
+                .newRecord(ContainerResourceIncreaseRequest.class);
+        context.setContainerId(existingContainerId);
+        context.setCapability(targetCapability);
+        return context;
     }
-  }
+
+    @Public
+    public abstract ContainerId getContainerId();
+
+    @Public
+    public abstract void setContainerId(ContainerId containerId);
+
+    @Public
+    public abstract Resource getCapability();
+
+    @Public
+    public abstract void setCapability(Resource capability);
+
+    @Override
+    public int hashCode() {
+        return getCapability().hashCode() + getContainerId().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ContainerResourceIncreaseRequest) {
+            ContainerResourceIncreaseRequest ctx =
+                (ContainerResourceIncreaseRequest) other;
+
+            if (getContainerId() == null && ctx.getContainerId() != null) {
+                return false;
+            } else if (!getContainerId().equals(ctx.getContainerId())) {
+                return false;
+            }
+
+            if (getCapability() == null && ctx.getCapability() != null) {
+                return false;
+            } else if (!getCapability().equals(ctx.getCapability())) {
+                return false;
+            }
+
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

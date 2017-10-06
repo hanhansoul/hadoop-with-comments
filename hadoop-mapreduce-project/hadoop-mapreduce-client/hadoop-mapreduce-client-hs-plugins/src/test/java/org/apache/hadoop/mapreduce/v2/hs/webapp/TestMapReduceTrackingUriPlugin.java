@@ -29,18 +29,18 @@ import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.junit.Test;
 
 public class TestMapReduceTrackingUriPlugin {
-  @Test
-  public void testProducesHistoryServerUriForAppId() throws URISyntaxException {
-    final String historyAddress = "example.net:424242";
-    YarnConfiguration conf = new YarnConfiguration();
-    conf.set(JHAdminConfig.MR_HISTORY_WEBAPP_ADDRESS, historyAddress);
-    MapReduceTrackingUriPlugin plugin = new MapReduceTrackingUriPlugin();
-    plugin.setConf(conf);
-    ApplicationId id = ApplicationId.newInstance(6384623l, 5);
-    String jobSuffix = id.toString().replaceFirst("^application_", "job_");
-    URI expected =
-        new URI("http://" + historyAddress + "/jobhistory/job/" + jobSuffix);
-    URI actual = plugin.getTrackingUri(id);
-    assertEquals(expected, actual);
-  }
+    @Test
+    public void testProducesHistoryServerUriForAppId() throws URISyntaxException {
+        final String historyAddress = "example.net:424242";
+        YarnConfiguration conf = new YarnConfiguration();
+        conf.set(JHAdminConfig.MR_HISTORY_WEBAPP_ADDRESS, historyAddress);
+        MapReduceTrackingUriPlugin plugin = new MapReduceTrackingUriPlugin();
+        plugin.setConf(conf);
+        ApplicationId id = ApplicationId.newInstance(6384623l, 5);
+        String jobSuffix = id.toString().replaceFirst("^application_", "job_");
+        URI expected =
+            new URI("http://" + historyAddress + "/jobhistory/job/" + jobSuffix);
+        URI actual = plugin.getTrackingUri(id);
+        assertEquals(expected, actual);
+    }
 }

@@ -26,109 +26,109 @@ import org.apache.hadoop.mapreduce.v2.api.records.JobId;
  * system.
  */
 public class JobIndexInfo {
-  private long submitTime;
-  private long finishTime;
-  private String user;
-  private String queueName;
-  private String jobName;
-  private JobId jobId;
-  private int numMaps;
-  private int numReduces;
-  private String jobStatus;
-  private long jobStartTime;
-  
-  public JobIndexInfo() {
-  }
-  
-  public JobIndexInfo(long submitTime, long finishTime, String user,
-      String jobName, JobId jobId, int numMaps, int numReduces, String jobStatus) {
-    this(submitTime, finishTime, user, jobName, jobId, numMaps, numReduces,
-         jobStatus, JobConf.DEFAULT_QUEUE_NAME);
-  }
+    private long submitTime;
+    private long finishTime;
+    private String user;
+    private String queueName;
+    private String jobName;
+    private JobId jobId;
+    private int numMaps;
+    private int numReduces;
+    private String jobStatus;
+    private long jobStartTime;
 
-  public JobIndexInfo(long submitTime, long finishTime, String user,
-                      String jobName, JobId jobId, int numMaps, int numReduces,
-                      String jobStatus, String queueName) {
-    this.submitTime = submitTime;
-    this.finishTime = finishTime;
-    this.user = user;
-    this.jobName = jobName;
-    this.jobId = jobId;
-    this.numMaps = numMaps;
-    this.numReduces = numReduces;
-    this.jobStatus = jobStatus;
-    this.jobStartTime = -1;
-    this.queueName = queueName;
-  }
+    public JobIndexInfo() {
+    }
 
-  public long getSubmitTime() {
-    return submitTime;
-  }
-  public void setSubmitTime(long submitTime) {
-    this.submitTime = submitTime;
-  }
-  public long getFinishTime() {
-    return finishTime;
-  }
-  public void setFinishTime(long finishTime) {
-    this.finishTime = finishTime;
-  }
-  public String getUser() {
-    return user;
-  }
-  public void setUser(String user) {
-    this.user = user;
-  }
-  public String getQueueName() {
-    return queueName;
-  }
-  public void setQueueName(String queueName) {
-    this.queueName = queueName;
-  }
-  public String getJobName() {
-    return jobName;
-  }
-  public void setJobName(String jobName) {
-    this.jobName = jobName;
-  }
-  public JobId getJobId() {
-    return jobId;
-  }
-  public void setJobId(JobId jobId) {
-    this.jobId = jobId;
-  }
-  public int getNumMaps() {
-    return numMaps;
-  }
-  public void setNumMaps(int numMaps) {
-    this.numMaps = numMaps;
-  }
-  public int getNumReduces() {
-    return numReduces;
-  }
-  public void setNumReduces(int numReduces) {
-    this.numReduces = numReduces;
-  }
-  public String getJobStatus() {
-    return jobStatus;
-  }
-  public void setJobStatus(String jobStatus) {
-    this.jobStatus = jobStatus;
-  }
-  public long getJobStartTime() {
-      return jobStartTime;
-  }
-  public void setJobStartTime(long lTime) {
-      this.jobStartTime = lTime;
-  }
+    public JobIndexInfo(long submitTime, long finishTime, String user,
+                        String jobName, JobId jobId, int numMaps, int numReduces, String jobStatus) {
+        this(submitTime, finishTime, user, jobName, jobId, numMaps, numReduces,
+             jobStatus, JobConf.DEFAULT_QUEUE_NAME);
+    }
 
-  @Override
-  public String toString() {
-    return "JobIndexInfo [submitTime=" + submitTime + ", finishTime="
-        + finishTime + ", user=" + user + ", jobName=" + jobName + ", jobId="
-        + jobId + ", numMaps=" + numMaps + ", numReduces=" + numReduces
-        + ", jobStatus=" + jobStatus + "]";
-  }
-  
-  
+    public JobIndexInfo(long submitTime, long finishTime, String user,
+                        String jobName, JobId jobId, int numMaps, int numReduces,
+                        String jobStatus, String queueName) {
+        this.submitTime = submitTime;
+        this.finishTime = finishTime;
+        this.user = user;
+        this.jobName = jobName;
+        this.jobId = jobId;
+        this.numMaps = numMaps;
+        this.numReduces = numReduces;
+        this.jobStatus = jobStatus;
+        this.jobStartTime = -1;
+        this.queueName = queueName;
+    }
+
+    public long getSubmitTime() {
+        return submitTime;
+    }
+    public void setSubmitTime(long submitTime) {
+        this.submitTime = submitTime;
+    }
+    public long getFinishTime() {
+        return finishTime;
+    }
+    public void setFinishTime(long finishTime) {
+        this.finishTime = finishTime;
+    }
+    public String getUser() {
+        return user;
+    }
+    public void setUser(String user) {
+        this.user = user;
+    }
+    public String getQueueName() {
+        return queueName;
+    }
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
+    public String getJobName() {
+        return jobName;
+    }
+    public void setJobName(String jobName) {
+        this.jobName = jobName;
+    }
+    public JobId getJobId() {
+        return jobId;
+    }
+    public void setJobId(JobId jobId) {
+        this.jobId = jobId;
+    }
+    public int getNumMaps() {
+        return numMaps;
+    }
+    public void setNumMaps(int numMaps) {
+        this.numMaps = numMaps;
+    }
+    public int getNumReduces() {
+        return numReduces;
+    }
+    public void setNumReduces(int numReduces) {
+        this.numReduces = numReduces;
+    }
+    public String getJobStatus() {
+        return jobStatus;
+    }
+    public void setJobStatus(String jobStatus) {
+        this.jobStatus = jobStatus;
+    }
+    public long getJobStartTime() {
+        return jobStartTime;
+    }
+    public void setJobStartTime(long lTime) {
+        this.jobStartTime = lTime;
+    }
+
+    @Override
+    public String toString() {
+        return "JobIndexInfo [submitTime=" + submitTime + ", finishTime="
+               + finishTime + ", user=" + user + ", jobName=" + jobName + ", jobId="
+               + jobId + ", numMaps=" + numMaps + ", numReduces=" + numReduces
+               + ", jobStatus=" + jobStatus + "]";
+    }
+
+
 }

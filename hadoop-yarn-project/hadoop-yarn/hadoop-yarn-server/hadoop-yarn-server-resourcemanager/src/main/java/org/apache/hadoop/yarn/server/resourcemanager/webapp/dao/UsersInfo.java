@@ -30,17 +30,17 @@ import org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.UserInfo
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UsersInfo {
-  @XmlElement(name="user")
-  protected ArrayList<UserInfo> usersList = new ArrayList<UserInfo>();
+    @XmlElement(name="user")
+    protected ArrayList<UserInfo> usersList = new ArrayList<UserInfo>();
 
-  public UsersInfo() {
-  }
+    public UsersInfo() {
+    }
 
-  public UsersInfo(ArrayList<UserInfo> usersList) {
-    this.usersList = usersList;
-  }
+    public UsersInfo(ArrayList<UserInfo> usersList) {
+        this.usersList = usersList;
+    }
 
-  public ArrayList<UserInfo> getUsersList() {
-    return usersList;
-  }
+    public ArrayList<UserInfo> getUsersList() {
+        return usersList;
+    }
 }

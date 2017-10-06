@@ -31,39 +31,39 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.SettableFuture;
 
 public class TestQuorumCall {
-  @Test(timeout=10000)
-  public void testQuorums() throws Exception {
-    Map<String, SettableFuture<String>> futures = ImmutableMap.of(
-        "f1", SettableFuture.<String>create(),
-        "f2", SettableFuture.<String>create(),
-        "f3", SettableFuture.<String>create());
-    
-    QuorumCall<String, String> q = QuorumCall.create(futures);
-    assertEquals(0, q.countResponses());
-    
-    futures.get("f1").set("first future");
-    q.waitFor(1, 0, 0, 100000, "test"); // wait for 1 response
-    q.waitFor(0, 1, 0, 100000, "test"); // wait for 1 success
-    assertEquals(1, q.countResponses());
-    
-    
-    futures.get("f2").setException(new Exception("error"));
-    assertEquals(2, q.countResponses());
-    
-    futures.get("f3").set("second future");
-    q.waitFor(3, 0, 100, 100000, "test"); // wait for 3 responses
-    q.waitFor(0, 2, 100, 100000, "test"); // 2 successes
+    @Test(timeout=10000)
+    public void testQuorums() throws Exception {
+        Map<String, SettableFuture<String>> futures = ImmutableMap.of(
+                    "f1", SettableFuture.<String>create(),
+                    "f2", SettableFuture.<String>create(),
+                    "f3", SettableFuture.<String>create());
 
-    assertEquals(3, q.countResponses());
-    assertEquals("f1=first future,f3=second future",
-        Joiner.on(",").withKeyValueSeparator("=").join(
-            new TreeMap<String, String>(q.getResults())));
-    
-    try {
-      q.waitFor(0, 4, 100, 10, "test");
-      fail("Didn't time out waiting for more responses than came back");
-    } catch (TimeoutException te) {
-      // expected
+        QuorumCall<String, String> q = QuorumCall.create(futures);
+        assertEquals(0, q.countResponses());
+
+        futures.get("f1").set("first future");
+        q.waitFor(1, 0, 0, 100000, "test"); // wait for 1 response
+        q.waitFor(0, 1, 0, 100000, "test"); // wait for 1 success
+        assertEquals(1, q.countResponses());
+
+
+        futures.get("f2").setException(new Exception("error"));
+        assertEquals(2, q.countResponses());
+
+        futures.get("f3").set("second future");
+        q.waitFor(3, 0, 100, 100000, "test"); // wait for 3 responses
+        q.waitFor(0, 2, 100, 100000, "test"); // 2 successes
+
+        assertEquals(3, q.countResponses());
+        assertEquals("f1=first future,f3=second future",
+                     Joiner.on(",").withKeyValueSeparator("=").join(
+                         new TreeMap<String, String>(q.getResults())));
+
+        try {
+            q.waitFor(0, 4, 100, 10, "test");
+            fail("Didn't time out waiting for more responses than came back");
+        } catch (TimeoutException te) {
+            // expected
+        }
     }
-  }
 }

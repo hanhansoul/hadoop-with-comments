@@ -38,221 +38,221 @@ import com.google.protobuf.TextFormat;
 
 public class ContainerStartDataPBImpl extends ContainerStartData {
 
-  ContainerStartDataProto proto = ContainerStartDataProto.getDefaultInstance();
-  ContainerStartDataProto.Builder builder = null;
-  boolean viaProto = false;
+    ContainerStartDataProto proto = ContainerStartDataProto.getDefaultInstance();
+    ContainerStartDataProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private ContainerId containerId;
-  private Resource resource;
-  private NodeId nodeId;
-  private Priority priority;
+    private ContainerId containerId;
+    private Resource resource;
+    private NodeId nodeId;
+    private Priority priority;
 
-  public ContainerStartDataPBImpl() {
-    builder = ContainerStartDataProto.newBuilder();
-  }
-
-  public ContainerStartDataPBImpl(ContainerStartDataProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  @Override
-  public ContainerId getContainerId() {
-    if (this.containerId != null) {
-      return this.containerId;
+    public ContainerStartDataPBImpl() {
+        builder = ContainerStartDataProto.newBuilder();
     }
-    ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasContainerId()) {
-      return null;
+
+    public ContainerStartDataPBImpl(ContainerStartDataProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    this.containerId = convertFromProtoFormat(p.getContainerId());
-    return this.containerId;
-  }
 
-  @Override
-  public void setContainerId(ContainerId containerId) {
-    maybeInitBuilder();
-    if (containerId == null) {
-      builder.clearContainerId();
+    @Override
+    public ContainerId getContainerId() {
+        if (this.containerId != null) {
+            return this.containerId;
+        }
+        ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasContainerId()) {
+            return null;
+        }
+        this.containerId = convertFromProtoFormat(p.getContainerId());
+        return this.containerId;
     }
-    this.containerId = containerId;
-  }
 
-  @Override
-  public Resource getAllocatedResource() {
-    if (this.resource != null) {
-      return this.resource;
+    @Override
+    public void setContainerId(ContainerId containerId) {
+        maybeInitBuilder();
+        if (containerId == null) {
+            builder.clearContainerId();
+        }
+        this.containerId = containerId;
     }
-    ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasAllocatedResource()) {
-      return null;
+
+    @Override
+    public Resource getAllocatedResource() {
+        if (this.resource != null) {
+            return this.resource;
+        }
+        ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasAllocatedResource()) {
+            return null;
+        }
+        this.resource = convertFromProtoFormat(p.getAllocatedResource());
+        return this.resource;
     }
-    this.resource = convertFromProtoFormat(p.getAllocatedResource());
-    return this.resource;
-  }
 
-  @Override
-  public void setAllocatedResource(Resource resource) {
-    maybeInitBuilder();
-    if (resource == null) {
-      builder.clearAllocatedResource();
+    @Override
+    public void setAllocatedResource(Resource resource) {
+        maybeInitBuilder();
+        if (resource == null) {
+            builder.clearAllocatedResource();
+        }
+        this.resource = resource;
     }
-    this.resource = resource;
-  }
 
-  @Override
-  public NodeId getAssignedNode() {
-    if (this.nodeId != null) {
-      return this.nodeId;
+    @Override
+    public NodeId getAssignedNode() {
+        if (this.nodeId != null) {
+            return this.nodeId;
+        }
+        ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasAssignedNodeId()) {
+            return null;
+        }
+        this.nodeId = convertFromProtoFormat(p.getAssignedNodeId());
+        return this.nodeId;
     }
-    ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasAssignedNodeId()) {
-      return null;
+
+    @Override
+    public void setAssignedNode(NodeId nodeId) {
+        maybeInitBuilder();
+        if (nodeId == null) {
+            builder.clearAssignedNodeId();
+        }
+        this.nodeId = nodeId;
     }
-    this.nodeId = convertFromProtoFormat(p.getAssignedNodeId());
-    return this.nodeId;
-  }
 
-  @Override
-  public void setAssignedNode(NodeId nodeId) {
-    maybeInitBuilder();
-    if (nodeId == null) {
-      builder.clearAssignedNodeId();
+    @Override
+    public Priority getPriority() {
+        if (this.priority != null) {
+            return this.priority;
+        }
+        ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasPriority()) {
+            return null;
+        }
+        this.priority = convertFromProtoFormat(p.getPriority());
+        return this.priority;
     }
-    this.nodeId = nodeId;
-  }
 
-  @Override
-  public Priority getPriority() {
-    if (this.priority != null) {
-      return this.priority;
+    @Override
+    public void setPriority(Priority priority) {
+        maybeInitBuilder();
+        if (priority == null) {
+            builder.clearPriority();
+        }
+        this.priority = priority;
     }
-    ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasPriority()) {
-      return null;
+
+    @Override
+    public long getStartTime() {
+        ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
+        return p.getStartTime();
     }
-    this.priority = convertFromProtoFormat(p.getPriority());
-    return this.priority;
-  }
 
-  @Override
-  public void setPriority(Priority priority) {
-    maybeInitBuilder();
-    if (priority == null) {
-      builder.clearPriority();
+    @Override
+    public void setStartTime(long startTime) {
+        maybeInitBuilder();
+        builder.setStartTime(startTime);
     }
-    this.priority = priority;
-  }
 
-  @Override
-  public long getStartTime() {
-    ContainerStartDataProtoOrBuilder p = viaProto ? proto : builder;
-    return p.getStartTime();
-  }
-
-  @Override
-  public void setStartTime(long startTime) {
-    maybeInitBuilder();
-    builder.setStartTime(startTime);
-  }
-
-  public ContainerStartDataProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public ContainerStartDataProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.containerId != null
-        && !((ContainerIdPBImpl) this.containerId).getProto().equals(
-          builder.getContainerId())) {
-      builder.setContainerId(convertToProtoFormat(this.containerId));
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    if (this.resource != null
-        && !((ResourcePBImpl) this.resource).getProto().equals(
-          builder.getAllocatedResource())) {
-      builder.setAllocatedResource(convertToProtoFormat(this.resource));
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    if (this.nodeId != null
-        && !((NodeIdPBImpl) this.nodeId).getProto().equals(
-          builder.getAssignedNodeId())) {
-      builder.setAssignedNodeId(convertToProtoFormat(this.nodeId));
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    if (this.priority != null
-        && !((PriorityPBImpl) this.priority).getProto().equals(
-          builder.getPriority())) {
-      builder.setPriority(convertToProtoFormat(this.priority));
+
+    private void mergeLocalToBuilder() {
+        if (this.containerId != null
+            && !((ContainerIdPBImpl) this.containerId).getProto().equals(
+                builder.getContainerId())) {
+            builder.setContainerId(convertToProtoFormat(this.containerId));
+        }
+        if (this.resource != null
+            && !((ResourcePBImpl) this.resource).getProto().equals(
+                builder.getAllocatedResource())) {
+            builder.setAllocatedResource(convertToProtoFormat(this.resource));
+        }
+        if (this.nodeId != null
+            && !((NodeIdPBImpl) this.nodeId).getProto().equals(
+                builder.getAssignedNodeId())) {
+            builder.setAssignedNodeId(convertToProtoFormat(this.nodeId));
+        }
+        if (this.priority != null
+            && !((PriorityPBImpl) this.priority).getProto().equals(
+                builder.getPriority())) {
+            builder.setPriority(convertToProtoFormat(this.priority));
+        }
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+    private void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = ContainerStartDataProto.newBuilder(proto);
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = ContainerStartDataProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    viaProto = false;
-  }
 
-  private ContainerIdProto convertToProtoFormat(ContainerId containerId) {
-    return ((ContainerIdPBImpl) containerId).getProto();
-  }
+    private ContainerIdProto convertToProtoFormat(ContainerId containerId) {
+        return ((ContainerIdPBImpl) containerId).getProto();
+    }
 
-  private ContainerIdPBImpl
-      convertFromProtoFormat(ContainerIdProto containerId) {
-    return new ContainerIdPBImpl(containerId);
-  }
+    private ContainerIdPBImpl
+    convertFromProtoFormat(ContainerIdProto containerId) {
+        return new ContainerIdPBImpl(containerId);
+    }
 
-  private ResourceProto convertToProtoFormat(Resource resource) {
-    return ((ResourcePBImpl) resource).getProto();
-  }
+    private ResourceProto convertToProtoFormat(Resource resource) {
+        return ((ResourcePBImpl) resource).getProto();
+    }
 
-  private ResourcePBImpl convertFromProtoFormat(ResourceProto resource) {
-    return new ResourcePBImpl(resource);
-  }
+    private ResourcePBImpl convertFromProtoFormat(ResourceProto resource) {
+        return new ResourcePBImpl(resource);
+    }
 
-  private NodeIdProto convertToProtoFormat(NodeId nodeId) {
-    return ((NodeIdPBImpl) nodeId).getProto();
-  }
+    private NodeIdProto convertToProtoFormat(NodeId nodeId) {
+        return ((NodeIdPBImpl) nodeId).getProto();
+    }
 
-  private NodeIdPBImpl convertFromProtoFormat(NodeIdProto nodeId) {
-    return new NodeIdPBImpl(nodeId);
-  }
+    private NodeIdPBImpl convertFromProtoFormat(NodeIdProto nodeId) {
+        return new NodeIdPBImpl(nodeId);
+    }
 
-  private PriorityProto convertToProtoFormat(Priority priority) {
-    return ((PriorityPBImpl) priority).getProto();
-  }
+    private PriorityProto convertToProtoFormat(Priority priority) {
+        return ((PriorityPBImpl) priority).getProto();
+    }
 
-  private PriorityPBImpl convertFromProtoFormat(PriorityProto priority) {
-    return new PriorityPBImpl(priority);
-  }
+    private PriorityPBImpl convertFromProtoFormat(PriorityProto priority) {
+        return new PriorityPBImpl(priority);
+    }
 
 }

@@ -43,120 +43,120 @@ import com.google.common.base.Joiner;
 
 public class TestAtomicFileOutputStream {
 
-  private static final String TEST_STRING = "hello world";
-  private static final String TEST_STRING_2 = "goodbye world";
+    private static final String TEST_STRING = "hello world";
+    private static final String TEST_STRING_2 = "goodbye world";
 
-  private static final File TEST_DIR = PathUtils.getTestDir(TestAtomicFileOutputStream.class);
-  
-  private static final File DST_FILE = new File(TEST_DIR, "test.txt");
+    private static final File TEST_DIR = PathUtils.getTestDir(TestAtomicFileOutputStream.class);
 
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
-  
-  @Before
-  public void cleanupTestDir() throws IOException {
-    assertTrue(TEST_DIR.exists() || TEST_DIR.mkdirs());
-    FileUtil.fullyDeleteContents(TEST_DIR);
-  }
-  
-  /**
-   * Test case where there is no existing file
-   */
-  @Test
-  public void testWriteNewFile() throws IOException {
-    OutputStream fos = new AtomicFileOutputStream(DST_FILE);
-    assertFalse(DST_FILE.exists());
-    fos.write(TEST_STRING.getBytes());
-    fos.flush();
-    assertFalse(DST_FILE.exists());
-    fos.close();
-    assertTrue(DST_FILE.exists());
-    
-    String readBackData = DFSTestUtil.readFile(DST_FILE);
-    assertEquals(TEST_STRING, readBackData);
-  }
+    private static final File DST_FILE = new File(TEST_DIR, "test.txt");
 
-  /**
-   * Test case where there is no existing file
-   */
-  @Test
-  public void testOverwriteFile() throws IOException {
-    assertTrue("Creating empty dst file", DST_FILE.createNewFile());
-    
-    OutputStream fos = new AtomicFileOutputStream(DST_FILE);
-    
-    assertTrue("Empty file still exists", DST_FILE.exists());
-    fos.write(TEST_STRING.getBytes());
-    fos.flush();
-    
-    // Original contents still in place
-    assertEquals("", DFSTestUtil.readFile(DST_FILE));
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
-    fos.close();
-
-    // New contents replace original file
-    String readBackData = DFSTestUtil.readFile(DST_FILE);
-    assertEquals(TEST_STRING, readBackData);
-  }
-  
-  /**
-   * Test case where the flush() fails at close time - make sure
-   * that we clean up after ourselves and don't touch any
-   * existing file at the destination
-   */
-  @Test
-  public void testFailToFlush() throws IOException {
-    // Create a file at destination
-    FileOutputStream fos = new FileOutputStream(DST_FILE);
-    fos.write(TEST_STRING_2.getBytes());
-    fos.close();
-    
-    OutputStream failingStream = createFailingStream();
-    failingStream.write(TEST_STRING.getBytes());
-    try {
-      failingStream.close();
-      fail("Close didn't throw exception");
-    } catch (IOException ioe) {
-      // expected
+    @Before
+    public void cleanupTestDir() throws IOException {
+        assertTrue(TEST_DIR.exists() || TEST_DIR.mkdirs());
+        FileUtil.fullyDeleteContents(TEST_DIR);
     }
-    
-    // Should not have touched original file
-    assertEquals(TEST_STRING_2, DFSTestUtil.readFile(DST_FILE));
-    
-    assertEquals("Temporary file should have been cleaned up",
-        DST_FILE.getName(), Joiner.on(",").join(TEST_DIR.list()));
-  }
 
-  @Test
-  public void testFailToRename() throws IOException {
-    assumeTrue(Shell.WINDOWS);
-    OutputStream fos = null;
-    try {
-      fos = new AtomicFileOutputStream(DST_FILE);
-      fos.write(TEST_STRING.getBytes());
-      FileUtil.setWritable(TEST_DIR, false);
-      exception.expect(IOException.class);
-      exception.expectMessage("failure in native rename");
-      try {
+    /**
+     * Test case where there is no existing file
+     */
+    @Test
+    public void testWriteNewFile() throws IOException {
+        OutputStream fos = new AtomicFileOutputStream(DST_FILE);
+        assertFalse(DST_FILE.exists());
+        fos.write(TEST_STRING.getBytes());
+        fos.flush();
+        assertFalse(DST_FILE.exists());
         fos.close();
-      } finally {
-        fos = null;
-      }
-    } finally {
-      IOUtils.cleanup(null, fos);
-      FileUtil.setWritable(TEST_DIR, true);
-    }
-  }
+        assertTrue(DST_FILE.exists());
 
-  /**
-   * Create a stream that fails to flush at close time
-   */
-  private OutputStream createFailingStream() throws FileNotFoundException {
-    return new AtomicFileOutputStream(DST_FILE) {
-      @Override
-      public void flush() throws IOException {
-        throw new IOException("injected failure");
-      }
-    };
-  }
+        String readBackData = DFSTestUtil.readFile(DST_FILE);
+        assertEquals(TEST_STRING, readBackData);
+    }
+
+    /**
+     * Test case where there is no existing file
+     */
+    @Test
+    public void testOverwriteFile() throws IOException {
+        assertTrue("Creating empty dst file", DST_FILE.createNewFile());
+
+        OutputStream fos = new AtomicFileOutputStream(DST_FILE);
+
+        assertTrue("Empty file still exists", DST_FILE.exists());
+        fos.write(TEST_STRING.getBytes());
+        fos.flush();
+
+        // Original contents still in place
+        assertEquals("", DFSTestUtil.readFile(DST_FILE));
+
+        fos.close();
+
+        // New contents replace original file
+        String readBackData = DFSTestUtil.readFile(DST_FILE);
+        assertEquals(TEST_STRING, readBackData);
+    }
+
+    /**
+     * Test case where the flush() fails at close time - make sure
+     * that we clean up after ourselves and don't touch any
+     * existing file at the destination
+     */
+    @Test
+    public void testFailToFlush() throws IOException {
+        // Create a file at destination
+        FileOutputStream fos = new FileOutputStream(DST_FILE);
+        fos.write(TEST_STRING_2.getBytes());
+        fos.close();
+
+        OutputStream failingStream = createFailingStream();
+        failingStream.write(TEST_STRING.getBytes());
+        try {
+            failingStream.close();
+            fail("Close didn't throw exception");
+        } catch (IOException ioe) {
+            // expected
+        }
+
+        // Should not have touched original file
+        assertEquals(TEST_STRING_2, DFSTestUtil.readFile(DST_FILE));
+
+        assertEquals("Temporary file should have been cleaned up",
+                     DST_FILE.getName(), Joiner.on(",").join(TEST_DIR.list()));
+    }
+
+    @Test
+    public void testFailToRename() throws IOException {
+        assumeTrue(Shell.WINDOWS);
+        OutputStream fos = null;
+        try {
+            fos = new AtomicFileOutputStream(DST_FILE);
+            fos.write(TEST_STRING.getBytes());
+            FileUtil.setWritable(TEST_DIR, false);
+            exception.expect(IOException.class);
+            exception.expectMessage("failure in native rename");
+            try {
+                fos.close();
+            } finally {
+                fos = null;
+            }
+        } finally {
+            IOUtils.cleanup(null, fos);
+            FileUtil.setWritable(TEST_DIR, true);
+        }
+    }
+
+    /**
+     * Create a stream that fails to flush at close time
+     */
+    private OutputStream createFailingStream() throws FileNotFoundException {
+        return new AtomicFileOutputStream(DST_FILE) {
+            @Override
+            public void flush() throws IOException {
+                throw new IOException("injected failure");
+            }
+        };
+    }
 }

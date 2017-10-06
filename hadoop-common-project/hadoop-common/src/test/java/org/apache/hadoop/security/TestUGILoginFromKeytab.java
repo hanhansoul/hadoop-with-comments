@@ -37,55 +37,55 @@ import java.io.File;
  */
 public class TestUGILoginFromKeytab {
 
-  private MiniKdc kdc;
-  private File workDir;
+    private MiniKdc kdc;
+    private File workDir;
 
-  @Rule
-  public final TemporaryFolder folder = new TemporaryFolder();
+    @Rule
+    public final TemporaryFolder folder = new TemporaryFolder();
 
-  @Before
-  public void startMiniKdc() throws Exception {
-    // This setting below is required. If not enabled, UGI will abort
-    // any attempt to loginUserFromKeytab.
-    Configuration conf = new Configuration();
-    conf.set(CommonConfigurationKeys.HADOOP_SECURITY_AUTHENTICATION,
-        "kerberos");
-    UserGroupInformation.setConfiguration(conf);
-    workDir = folder.getRoot();
-    kdc = new MiniKdc(MiniKdc.createConf(), workDir);
-    kdc.start();
-  }
-
-  @After
-  public void stopMiniKdc() {
-    if (kdc != null) {
-      kdc.stop();
+    @Before
+    public void startMiniKdc() throws Exception {
+        // This setting below is required. If not enabled, UGI will abort
+        // any attempt to loginUserFromKeytab.
+        Configuration conf = new Configuration();
+        conf.set(CommonConfigurationKeys.HADOOP_SECURITY_AUTHENTICATION,
+                 "kerberos");
+        UserGroupInformation.setConfiguration(conf);
+        workDir = folder.getRoot();
+        kdc = new MiniKdc(MiniKdc.createConf(), workDir);
+        kdc.start();
     }
-  }
 
-  /**
-   * Login from keytab using the MiniKDC and verify the UGI can successfully
-   * relogin from keytab as well. This will catch regressions like HADOOP-10786.
-   */
-  @Test
-  public void testUGILoginFromKeytab() throws Exception {
-    UserGroupInformation.setShouldRenewImmediatelyForTests(true);
-    String principal = "foo";
-    File keytab = new File(workDir, "foo.keytab");
-    kdc.createPrincipal(keytab, principal);
+    @After
+    public void stopMiniKdc() {
+        if (kdc != null) {
+            kdc.stop();
+        }
+    }
 
-    UserGroupInformation.loginUserFromKeytab(principal, keytab.getPath());
-    UserGroupInformation ugi = UserGroupInformation.getLoginUser();
-    Assert.assertTrue("UGI should be configured to login from keytab",
-        ugi.isFromKeytab());
+    /**
+     * Login from keytab using the MiniKDC and verify the UGI can successfully
+     * relogin from keytab as well. This will catch regressions like HADOOP-10786.
+     */
+    @Test
+    public void testUGILoginFromKeytab() throws Exception {
+        UserGroupInformation.setShouldRenewImmediatelyForTests(true);
+        String principal = "foo";
+        File keytab = new File(workDir, "foo.keytab");
+        kdc.createPrincipal(keytab, principal);
 
-    // Verify relogin from keytab.
-    User user = ugi.getSubject().getPrincipals(User.class).iterator().next();
-    final long firstLogin = user.getLastLogin();
-    ugi.reloginFromKeytab();
-    final long secondLogin = user.getLastLogin();
-    Assert.assertTrue("User should have been able to relogin from keytab",
-        secondLogin > firstLogin);
-  }
+        UserGroupInformation.loginUserFromKeytab(principal, keytab.getPath());
+        UserGroupInformation ugi = UserGroupInformation.getLoginUser();
+        Assert.assertTrue("UGI should be configured to login from keytab",
+                          ugi.isFromKeytab());
+
+        // Verify relogin from keytab.
+        User user = ugi.getSubject().getPrincipals(User.class).iterator().next();
+        final long firstLogin = user.getLastLogin();
+        ugi.reloginFromKeytab();
+        final long secondLogin = user.getLastLogin();
+        Assert.assertTrue("User should have been able to relogin from keytab",
+                          secondLogin > firstLogin);
+    }
 
 }

@@ -24,23 +24,23 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Public
 @Evolving
 public class SplitLocationInfo {
-  private boolean inMemory;
-  private String location;
-  
-  public SplitLocationInfo(String location, boolean inMemory) {
-    this.location = location;
-    this.inMemory = inMemory;
-  }
-  
-  public boolean isOnDisk() {
-    return true;
-  }
-  
-  public boolean isInMemory() {
-    return inMemory;
-  }
+    private boolean inMemory;
+    private String location;
 
-  public String getLocation() {
-    return location;
-  }
+    public SplitLocationInfo(String location, boolean inMemory) {
+        this.location = location;
+        this.inMemory = inMemory;
+    }
+
+    public boolean isOnDisk() {
+        return true;
+    }
+
+    public boolean isInMemory() {
+        return inMemory;
+    }
+
+    public String getLocation() {
+        return location;
+    }
 }

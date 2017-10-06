@@ -28,34 +28,34 @@ import org.apache.hadoop.mapred.JobConf;
 
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public class CombineFileSplit extends 
-    org.apache.hadoop.mapreduce.lib.input.CombineFileSplit 
+public class CombineFileSplit extends
+    org.apache.hadoop.mapreduce.lib.input.CombineFileSplit
     implements InputSplit {
 
-  private JobConf job;
+    private JobConf job;
 
-  public CombineFileSplit() {
-  }
-  
-  public CombineFileSplit(JobConf job, Path[] files, long[] start, 
-          long[] lengths, String[] locations) {
-    super(files, start, lengths, locations);
-    this.job = job;
-  }
+    public CombineFileSplit() {
+    }
 
-  public CombineFileSplit(JobConf job, Path[] files, long[] lengths) {
-    super(files, lengths);
-    this.job = job;
-  }
-  
-  /**
-   * Copy constructor
-   */
-  public CombineFileSplit(CombineFileSplit old) throws IOException {
-    super(old);
-  }
+    public CombineFileSplit(JobConf job, Path[] files, long[] start,
+                            long[] lengths, String[] locations) {
+        super(files, start, lengths, locations);
+        this.job = job;
+    }
 
-  public JobConf getJob() {
-    return job;
-  }
+    public CombineFileSplit(JobConf job, Path[] files, long[] lengths) {
+        super(files, lengths);
+        this.job = job;
+    }
+
+    /**
+     * Copy constructor
+     */
+    public CombineFileSplit(CombineFileSplit old) throws IOException {
+        super(old);
+    }
+
+    public JobConf getJob() {
+        return job;
+    }
 }

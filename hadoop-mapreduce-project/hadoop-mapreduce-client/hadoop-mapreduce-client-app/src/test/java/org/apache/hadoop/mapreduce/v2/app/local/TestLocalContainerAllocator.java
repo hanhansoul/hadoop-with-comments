@@ -64,198 +64,198 @@ import org.junit.Test;
 
 public class TestLocalContainerAllocator {
 
-  @Test
-  public void testRMConnectionRetry() throws Exception {
-    // verify the connection exception is thrown
-    // if we haven't exhausted the retry interval
-    ApplicationMasterProtocol mockScheduler =
-        mock(ApplicationMasterProtocol.class);
-    when(mockScheduler.allocate(isA(AllocateRequest.class)))
-      .thenThrow(RPCUtil.getRemoteException(new IOException("forcefail")));
-    Configuration conf = new Configuration();
-    LocalContainerAllocator lca =
-        new StubbedLocalContainerAllocator(mockScheduler);
-    lca.init(conf);
-    lca.start();
-    try {
-      lca.heartbeat();
-      Assert.fail("heartbeat was supposed to throw");
-    } catch (YarnException e) {
-      // YarnException is expected
-    } finally {
-      lca.stop();
-    }
-
-    // verify YarnRuntimeException is thrown when the retry interval has expired
-    conf.setLong(MRJobConfig.MR_AM_TO_RM_WAIT_INTERVAL_MS, 0);
-    lca = new StubbedLocalContainerAllocator(mockScheduler);
-    lca.init(conf);
-    lca.start();
-    try {
-      lca.heartbeat();
-      Assert.fail("heartbeat was supposed to throw");
-    } catch (YarnRuntimeException e) {
-      // YarnRuntimeException is expected
-    } finally {
-      lca.stop();
-    }
-  }
-
-  @Test
-  public void testAllocResponseId() throws Exception {
-    ApplicationMasterProtocol scheduler = new MockScheduler();
-    Configuration conf = new Configuration();
-    LocalContainerAllocator lca =
-        new StubbedLocalContainerAllocator(scheduler);
-    lca.init(conf);
-    lca.start();
-
-    // do two heartbeats to verify the response ID is being tracked
-    lca.heartbeat();
-    lca.heartbeat();
-    lca.close();
-  }
-
-  @Test
-  public void testAMRMTokenUpdate() throws Exception {
-    Configuration conf = new Configuration();
-    ApplicationAttemptId attemptId = ApplicationAttemptId.newInstance(
-        ApplicationId.newInstance(1, 1), 1);
-    AMRMTokenIdentifier oldTokenId = new AMRMTokenIdentifier(attemptId, 1);
-    AMRMTokenIdentifier newTokenId = new AMRMTokenIdentifier(attemptId, 2);
-    Token<AMRMTokenIdentifier> oldToken = new Token<AMRMTokenIdentifier>(
-        oldTokenId.getBytes(), "oldpassword".getBytes(), oldTokenId.getKind(),
-        new Text());
-    Token<AMRMTokenIdentifier> newToken = new Token<AMRMTokenIdentifier>(
-        newTokenId.getBytes(), "newpassword".getBytes(), newTokenId.getKind(),
-        new Text());
-
-    MockScheduler scheduler = new MockScheduler();
-    scheduler.amToken = newToken;
-
-    final LocalContainerAllocator lca =
-        new StubbedLocalContainerAllocator(scheduler);
-    lca.init(conf);
-    lca.start();
-
-    UserGroupInformation testUgi = UserGroupInformation.createUserForTesting(
-        "someuser", new String[0]);
-    testUgi.addToken(oldToken);
-    testUgi.doAs(new PrivilegedExceptionAction<Void>() {
-          @Override
-          public Void run() throws Exception {
+    @Test
+    public void testRMConnectionRetry() throws Exception {
+        // verify the connection exception is thrown
+        // if we haven't exhausted the retry interval
+        ApplicationMasterProtocol mockScheduler =
+            mock(ApplicationMasterProtocol.class);
+        when(mockScheduler.allocate(isA(AllocateRequest.class)))
+        .thenThrow(RPCUtil.getRemoteException(new IOException("forcefail")));
+        Configuration conf = new Configuration();
+        LocalContainerAllocator lca =
+            new StubbedLocalContainerAllocator(mockScheduler);
+        lca.init(conf);
+        lca.start();
+        try {
             lca.heartbeat();
+            Assert.fail("heartbeat was supposed to throw");
+        } catch (YarnException e) {
+            // YarnException is expected
+        } finally {
+            lca.stop();
+        }
+
+        // verify YarnRuntimeException is thrown when the retry interval has expired
+        conf.setLong(MRJobConfig.MR_AM_TO_RM_WAIT_INTERVAL_MS, 0);
+        lca = new StubbedLocalContainerAllocator(mockScheduler);
+        lca.init(conf);
+        lca.start();
+        try {
+            lca.heartbeat();
+            Assert.fail("heartbeat was supposed to throw");
+        } catch (YarnRuntimeException e) {
+            // YarnRuntimeException is expected
+        } finally {
+            lca.stop();
+        }
+    }
+
+    @Test
+    public void testAllocResponseId() throws Exception {
+        ApplicationMasterProtocol scheduler = new MockScheduler();
+        Configuration conf = new Configuration();
+        LocalContainerAllocator lca =
+            new StubbedLocalContainerAllocator(scheduler);
+        lca.init(conf);
+        lca.start();
+
+        // do two heartbeats to verify the response ID is being tracked
+        lca.heartbeat();
+        lca.heartbeat();
+        lca.close();
+    }
+
+    @Test
+    public void testAMRMTokenUpdate() throws Exception {
+        Configuration conf = new Configuration();
+        ApplicationAttemptId attemptId = ApplicationAttemptId.newInstance(
+                                             ApplicationId.newInstance(1, 1), 1);
+        AMRMTokenIdentifier oldTokenId = new AMRMTokenIdentifier(attemptId, 1);
+        AMRMTokenIdentifier newTokenId = new AMRMTokenIdentifier(attemptId, 2);
+        Token<AMRMTokenIdentifier> oldToken = new Token<AMRMTokenIdentifier>(
+            oldTokenId.getBytes(), "oldpassword".getBytes(), oldTokenId.getKind(),
+            new Text());
+        Token<AMRMTokenIdentifier> newToken = new Token<AMRMTokenIdentifier>(
+            newTokenId.getBytes(), "newpassword".getBytes(), newTokenId.getKind(),
+            new Text());
+
+        MockScheduler scheduler = new MockScheduler();
+        scheduler.amToken = newToken;
+
+        final LocalContainerAllocator lca =
+            new StubbedLocalContainerAllocator(scheduler);
+        lca.init(conf);
+        lca.start();
+
+        UserGroupInformation testUgi = UserGroupInformation.createUserForTesting(
+                                           "someuser", new String[0]);
+        testUgi.addToken(oldToken);
+        testUgi.doAs(new PrivilegedExceptionAction<Void>() {
+            @Override
+            public Void run() throws Exception {
+                lca.heartbeat();
+                return null;
+            }
+        });
+        lca.close();
+
+        // verify there is only one AMRM token in the UGI and it matches the
+        // updated token from the RM
+        int tokenCount = 0;
+        Token<? extends TokenIdentifier> ugiToken = null;
+        for (Token<? extends TokenIdentifier> token : testUgi.getTokens()) {
+            if (AMRMTokenIdentifier.KIND_NAME.equals(token.getKind())) {
+                ugiToken = token;
+                ++tokenCount;
+            }
+        }
+
+        Assert.assertEquals("too many AMRM tokens", 1, tokenCount);
+        Assert.assertArrayEquals("token identifier not updated",
+                                 newToken.getIdentifier(), ugiToken.getIdentifier());
+        Assert.assertArrayEquals("token password not updated",
+                                 newToken.getPassword(), ugiToken.getPassword());
+        Assert.assertEquals("AMRM token service not updated",
+                            new Text(ClientRMProxy.getAMRMTokenService(conf)),
+                            ugiToken.getService());
+    }
+
+    private static class StubbedLocalContainerAllocator
+        extends LocalContainerAllocator {
+        private ApplicationMasterProtocol scheduler;
+
+        public StubbedLocalContainerAllocator(ApplicationMasterProtocol scheduler) {
+            super(mock(ClientService.class), createAppContext(),
+                  "nmhost", 1, 2, null);
+            this.scheduler = scheduler;
+        }
+
+        @Override
+        protected void register() {
+        }
+
+        @Override
+        protected void unregister() {
+        }
+
+        @Override
+        protected void startAllocatorThread() {
+            allocatorThread = new Thread();
+        }
+
+        @Override
+        protected ApplicationMasterProtocol createSchedulerProxy() {
+            return scheduler;
+        }
+
+        private static AppContext createAppContext() {
+            ApplicationId appId = ApplicationId.newInstance(1, 1);
+            ApplicationAttemptId attemptId =
+                ApplicationAttemptId.newInstance(appId, 1);
+            Job job = mock(Job.class);
+            @SuppressWarnings("rawtypes")
+            EventHandler eventHandler = mock(EventHandler.class);
+            AppContext ctx = mock(AppContext.class);
+            when(ctx.getApplicationID()).thenReturn(appId);
+            when(ctx.getApplicationAttemptId()).thenReturn(attemptId);
+            when(ctx.getJob(isA(JobId.class))).thenReturn(job);
+            when(ctx.getClusterInfo()).thenReturn(
+                new ClusterInfo(Resource.newInstance(10240, 1)));
+            when(ctx.getEventHandler()).thenReturn(eventHandler);
+            return ctx;
+        }
+    }
+
+    private static class MockScheduler implements ApplicationMasterProtocol {
+        int responseId = 0;
+        Token<AMRMTokenIdentifier> amToken = null;
+
+        @Override
+        public RegisterApplicationMasterResponse registerApplicationMaster(
+            RegisterApplicationMasterRequest request) throws YarnException,
+            IOException {
             return null;
-          }
-    });
-    lca.close();
+        }
 
-    // verify there is only one AMRM token in the UGI and it matches the
-    // updated token from the RM
-    int tokenCount = 0;
-    Token<? extends TokenIdentifier> ugiToken = null;
-    for (Token<? extends TokenIdentifier> token : testUgi.getTokens()) {
-      if (AMRMTokenIdentifier.KIND_NAME.equals(token.getKind())) {
-        ugiToken = token;
-        ++tokenCount;
-      }
-    }
+        @Override
+        public FinishApplicationMasterResponse finishApplicationMaster(
+            FinishApplicationMasterRequest request) throws YarnException,
+            IOException {
+            return null;
+        }
 
-    Assert.assertEquals("too many AMRM tokens", 1, tokenCount);
-    Assert.assertArrayEquals("token identifier not updated",
-        newToken.getIdentifier(), ugiToken.getIdentifier());
-    Assert.assertArrayEquals("token password not updated",
-        newToken.getPassword(), ugiToken.getPassword());
-    Assert.assertEquals("AMRM token service not updated",
-        new Text(ClientRMProxy.getAMRMTokenService(conf)),
-        ugiToken.getService());
-  }
-
-  private static class StubbedLocalContainerAllocator
-    extends LocalContainerAllocator {
-    private ApplicationMasterProtocol scheduler;
-
-    public StubbedLocalContainerAllocator(ApplicationMasterProtocol scheduler) {
-      super(mock(ClientService.class), createAppContext(),
-          "nmhost", 1, 2, null);
-      this.scheduler = scheduler;
-    }
-
-    @Override
-    protected void register() {
-    }
-
-    @Override
-    protected void unregister() {
-    }
-
-    @Override
-    protected void startAllocatorThread() {
-      allocatorThread = new Thread();
-    }
-
-    @Override
-    protected ApplicationMasterProtocol createSchedulerProxy() {
-      return scheduler;
-    }
-
-    private static AppContext createAppContext() {
-      ApplicationId appId = ApplicationId.newInstance(1, 1);
-      ApplicationAttemptId attemptId =
-          ApplicationAttemptId.newInstance(appId, 1);
-      Job job = mock(Job.class);
-      @SuppressWarnings("rawtypes")
-      EventHandler eventHandler = mock(EventHandler.class);
-      AppContext ctx = mock(AppContext.class);
-      when(ctx.getApplicationID()).thenReturn(appId);
-      when(ctx.getApplicationAttemptId()).thenReturn(attemptId);
-      when(ctx.getJob(isA(JobId.class))).thenReturn(job);
-      when(ctx.getClusterInfo()).thenReturn(
-        new ClusterInfo(Resource.newInstance(10240, 1)));
-      when(ctx.getEventHandler()).thenReturn(eventHandler);
-      return ctx;
-    }
-  }
-
-  private static class MockScheduler implements ApplicationMasterProtocol {
-    int responseId = 0;
-    Token<AMRMTokenIdentifier> amToken = null;
-
-    @Override
-    public RegisterApplicationMasterResponse registerApplicationMaster(
-        RegisterApplicationMasterRequest request) throws YarnException,
-        IOException {
-      return null;
-    }
-
-    @Override
-    public FinishApplicationMasterResponse finishApplicationMaster(
-        FinishApplicationMasterRequest request) throws YarnException,
-        IOException {
-      return null;
-    }
-
-    @Override
-    public AllocateResponse allocate(AllocateRequest request)
+        @Override
+        public AllocateResponse allocate(AllocateRequest request)
         throws YarnException, IOException {
-      Assert.assertEquals("response ID mismatch",
-          responseId, request.getResponseId());
-      ++responseId;
-      org.apache.hadoop.yarn.api.records.Token yarnToken = null;
-      if (amToken != null) {
-        yarnToken = org.apache.hadoop.yarn.api.records.Token.newInstance(
-            amToken.getIdentifier(), amToken.getKind().toString(),
-            amToken.getPassword(), amToken.getService().toString());
-      }
-      return AllocateResponse.newInstance(responseId,
-          Collections.<ContainerStatus>emptyList(),
-          Collections.<Container>emptyList(),
-          Collections.<NodeReport>emptyList(),
-          Resources.none(), null, 1, null,
-          Collections.<NMToken>emptyList(),
-          yarnToken,
-          Collections.<ContainerResourceIncrease>emptyList(),
-          Collections.<ContainerResourceDecrease>emptyList());
+            Assert.assertEquals("response ID mismatch",
+                                responseId, request.getResponseId());
+            ++responseId;
+            org.apache.hadoop.yarn.api.records.Token yarnToken = null;
+            if (amToken != null) {
+                yarnToken = org.apache.hadoop.yarn.api.records.Token.newInstance(
+                                amToken.getIdentifier(), amToken.getKind().toString(),
+                                amToken.getPassword(), amToken.getService().toString());
+            }
+            return AllocateResponse.newInstance(responseId,
+                                                Collections.<ContainerStatus>emptyList(),
+                                                Collections.<Container>emptyList(),
+                                                Collections.<NodeReport>emptyList(),
+                                                Resources.none(), null, 1, null,
+                                                Collections.<NMToken>emptyList(),
+                                                yarnToken,
+                                                Collections.<ContainerResourceIncrease>emptyList(),
+                                                Collections.<ContainerResourceDecrease>emptyList());
+        }
     }
-  }
 }

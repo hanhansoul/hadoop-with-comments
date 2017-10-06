@@ -46,114 +46,114 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class TestSetQuotaWithSnapshot {
-  protected static final long seed = 0;
-  protected static final short REPLICATION = 3;
-  protected static final long BLOCKSIZE = 1024;
-  
-  protected Configuration conf;
-  protected MiniDFSCluster cluster;
-  protected FSNamesystem fsn;
-  protected FSDirectory fsdir;
-  protected DistributedFileSystem hdfs;
-  
-  @Rule
-  public ExpectedException exception = ExpectedException.none();
+    protected static final long seed = 0;
+    protected static final short REPLICATION = 3;
+    protected static final long BLOCKSIZE = 1024;
 
-  @Before
-  public void setUp() throws Exception {
-    conf = new Configuration();
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCKSIZE);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(REPLICATION)
+    protected Configuration conf;
+    protected MiniDFSCluster cluster;
+    protected FSNamesystem fsn;
+    protected FSDirectory fsdir;
+    protected DistributedFileSystem hdfs;
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
+    @Before
+    public void setUp() throws Exception {
+        conf = new Configuration();
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCKSIZE);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(REPLICATION)
         .format(true).build();
-    cluster.waitActive();
+        cluster.waitActive();
 
-    fsn = cluster.getNamesystem();
-    fsdir = fsn.getFSDirectory();
-    hdfs = cluster.getFileSystem();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (cluster != null) {
-      cluster.shutdown();
+        fsn = cluster.getNamesystem();
+        fsdir = fsn.getFSDirectory();
+        hdfs = cluster.getFileSystem();
     }
-  }
-  
-  @Test (timeout=60000)
-  public void testSetQuota() throws Exception {
-    final Path dir = new Path("/TestSnapshot");
-    hdfs.mkdirs(dir);
-    // allow snapshot on dir and create snapshot s1
-    SnapshotTestHelper.createSnapshot(hdfs, dir, "s1");
-    
-    Path sub = new Path(dir, "sub");
-    hdfs.mkdirs(sub);
-    Path fileInSub = new Path(sub, "file");
-    DFSTestUtil.createFile(hdfs, fileInSub, BLOCKSIZE, REPLICATION, seed);
-    INodeDirectory subNode = INodeDirectory.valueOf(
-        fsdir.getINode(sub.toString()), sub);
-    // subNode should be a INodeDirectory, but not an INodeDirectoryWithSnapshot
-    assertFalse(subNode.isWithSnapshot());
-    
-    hdfs.setQuota(sub, Long.MAX_VALUE - 1, Long.MAX_VALUE - 1);
-    subNode = INodeDirectory.valueOf(fsdir.getINode(sub.toString()), sub);
-    assertTrue(subNode.isQuotaSet());
-    assertFalse(subNode.isWithSnapshot());
-  }
-  
-  /**
-   * Test clear quota of a snapshottable dir or a dir with snapshot.
-   */
-  @Test
-  public void testClearQuota() throws Exception {
-    final Path dir = new Path("/TestSnapshot");
-    hdfs.mkdirs(dir);
-    
-    hdfs.allowSnapshot(dir);
-    hdfs.setQuota(dir, HdfsConstants.QUOTA_DONT_SET,
-        HdfsConstants.QUOTA_DONT_SET);
-    INodeDirectory dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
-    assertTrue(dirNode.isSnapshottable());
-    assertEquals(0, dirNode.getDiffs().asList().size());
-    
-    hdfs.setQuota(dir, HdfsConstants.QUOTA_DONT_SET - 1,
-        HdfsConstants.QUOTA_DONT_SET - 1);
-    dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
-    assertTrue(dirNode.isSnapshottable());
-    assertEquals(0, dirNode.getDiffs().asList().size());
-    
-    hdfs.setQuota(dir, HdfsConstants.QUOTA_RESET, HdfsConstants.QUOTA_RESET);
-    dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
-    assertTrue(dirNode.isSnapshottable());
-    assertEquals(0, dirNode.getDiffs().asList().size());
-    
-    // allow snapshot on dir and create snapshot s1
-    SnapshotTestHelper.createSnapshot(hdfs, dir, "s1");
-    
-    // clear quota of dir
-    hdfs.setQuota(dir, HdfsConstants.QUOTA_RESET, HdfsConstants.QUOTA_RESET);
-    // dir should still be a snapshottable directory
-    dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
-    assertTrue(dirNode.isSnapshottable());
-    assertEquals(1, dirNode.getDiffs().asList().size());
-    SnapshottableDirectoryStatus[] status = hdfs.getSnapshottableDirListing();
-    assertEquals(1, status.length);
-    assertEquals(dir, status[0].getFullPath());
-    
-    final Path subDir = new Path(dir, "sub");
-    hdfs.mkdirs(subDir);
-    hdfs.createSnapshot(dir, "s2");
-    final Path file = new Path(subDir, "file");
-    DFSTestUtil.createFile(hdfs, file, BLOCKSIZE, REPLICATION, seed);
-    hdfs.setQuota(dir, HdfsConstants.QUOTA_RESET, HdfsConstants.QUOTA_RESET);
-    INode subNode = fsdir.getINode4Write(subDir.toString());
-    assertTrue(subNode.asDirectory().isWithSnapshot());
-    List<DirectoryDiff> diffList = subNode.asDirectory().getDiffs().asList();
-    assertEquals(1, diffList.size());
-    Snapshot s2 = dirNode.getSnapshot(DFSUtil.string2Bytes("s2"));
-    assertEquals(s2.getId(), diffList.get(0).getSnapshotId());
-    List<INode> createdList = diffList.get(0).getChildrenDiff().getList(ListType.CREATED);
-    assertEquals(1, createdList.size());
-    assertSame(fsdir.getINode4Write(file.toString()), createdList.get(0));
-  }
+
+    @After
+    public void tearDown() throws Exception {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
+    }
+
+    @Test (timeout=60000)
+    public void testSetQuota() throws Exception {
+        final Path dir = new Path("/TestSnapshot");
+        hdfs.mkdirs(dir);
+        // allow snapshot on dir and create snapshot s1
+        SnapshotTestHelper.createSnapshot(hdfs, dir, "s1");
+
+        Path sub = new Path(dir, "sub");
+        hdfs.mkdirs(sub);
+        Path fileInSub = new Path(sub, "file");
+        DFSTestUtil.createFile(hdfs, fileInSub, BLOCKSIZE, REPLICATION, seed);
+        INodeDirectory subNode = INodeDirectory.valueOf(
+                                     fsdir.getINode(sub.toString()), sub);
+        // subNode should be a INodeDirectory, but not an INodeDirectoryWithSnapshot
+        assertFalse(subNode.isWithSnapshot());
+
+        hdfs.setQuota(sub, Long.MAX_VALUE - 1, Long.MAX_VALUE - 1);
+        subNode = INodeDirectory.valueOf(fsdir.getINode(sub.toString()), sub);
+        assertTrue(subNode.isQuotaSet());
+        assertFalse(subNode.isWithSnapshot());
+    }
+
+    /**
+     * Test clear quota of a snapshottable dir or a dir with snapshot.
+     */
+    @Test
+    public void testClearQuota() throws Exception {
+        final Path dir = new Path("/TestSnapshot");
+        hdfs.mkdirs(dir);
+
+        hdfs.allowSnapshot(dir);
+        hdfs.setQuota(dir, HdfsConstants.QUOTA_DONT_SET,
+                      HdfsConstants.QUOTA_DONT_SET);
+        INodeDirectory dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
+        assertTrue(dirNode.isSnapshottable());
+        assertEquals(0, dirNode.getDiffs().asList().size());
+
+        hdfs.setQuota(dir, HdfsConstants.QUOTA_DONT_SET - 1,
+                      HdfsConstants.QUOTA_DONT_SET - 1);
+        dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
+        assertTrue(dirNode.isSnapshottable());
+        assertEquals(0, dirNode.getDiffs().asList().size());
+
+        hdfs.setQuota(dir, HdfsConstants.QUOTA_RESET, HdfsConstants.QUOTA_RESET);
+        dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
+        assertTrue(dirNode.isSnapshottable());
+        assertEquals(0, dirNode.getDiffs().asList().size());
+
+        // allow snapshot on dir and create snapshot s1
+        SnapshotTestHelper.createSnapshot(hdfs, dir, "s1");
+
+        // clear quota of dir
+        hdfs.setQuota(dir, HdfsConstants.QUOTA_RESET, HdfsConstants.QUOTA_RESET);
+        // dir should still be a snapshottable directory
+        dirNode = fsdir.getINode4Write(dir.toString()).asDirectory();
+        assertTrue(dirNode.isSnapshottable());
+        assertEquals(1, dirNode.getDiffs().asList().size());
+        SnapshottableDirectoryStatus[] status = hdfs.getSnapshottableDirListing();
+        assertEquals(1, status.length);
+        assertEquals(dir, status[0].getFullPath());
+
+        final Path subDir = new Path(dir, "sub");
+        hdfs.mkdirs(subDir);
+        hdfs.createSnapshot(dir, "s2");
+        final Path file = new Path(subDir, "file");
+        DFSTestUtil.createFile(hdfs, file, BLOCKSIZE, REPLICATION, seed);
+        hdfs.setQuota(dir, HdfsConstants.QUOTA_RESET, HdfsConstants.QUOTA_RESET);
+        INode subNode = fsdir.getINode4Write(subDir.toString());
+        assertTrue(subNode.asDirectory().isWithSnapshot());
+        List<DirectoryDiff> diffList = subNode.asDirectory().getDiffs().asList();
+        assertEquals(1, diffList.size());
+        Snapshot s2 = dirNode.getSnapshot(DFSUtil.string2Bytes("s2"));
+        assertEquals(s2.getId(), diffList.get(0).getSnapshotId());
+        List<INode> createdList = diffList.get(0).getChildrenDiff().getList(ListType.CREATED);
+        assertEquals(1, createdList.size());
+        assertSame(fsdir.getINode4Write(file.toString()), createdList.get(0));
+    }
 }

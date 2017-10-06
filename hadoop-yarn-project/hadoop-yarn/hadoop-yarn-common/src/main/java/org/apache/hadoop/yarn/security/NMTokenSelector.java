@@ -30,27 +30,27 @@ import org.apache.hadoop.security.token.TokenSelector;
 public class NMTokenSelector implements
     TokenSelector<NMTokenIdentifier> {
 
-  private static final Log LOG = LogFactory
-      .getLog(NMTokenSelector.class);
+    private static final Log LOG = LogFactory
+                                   .getLog(NMTokenSelector.class);
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public Token<NMTokenIdentifier> selectToken(Text service,
-      Collection<Token<? extends TokenIdentifier>> tokens) {
-    if (service == null) {
-      return null;
+    @SuppressWarnings("unchecked")
+    @Override
+    public Token<NMTokenIdentifier> selectToken(Text service,
+            Collection<Token<? extends TokenIdentifier>> tokens) {
+        if (service == null) {
+            return null;
+        }
+        for (Token<? extends TokenIdentifier> token : tokens) {
+            if (LOG.isDebugEnabled()) {
+                LOG.info("Looking for service: " + service + ". Current token is "
+                         + token);
+            }
+            if (NMTokenIdentifier.KIND.equals(token.getKind()) &&
+                service.equals(token.getService())) {
+                return (Token<NMTokenIdentifier>) token;
+            }
+        }
+        return null;
     }
-    for (Token<? extends TokenIdentifier> token : tokens) {
-      if (LOG.isDebugEnabled()) {
-        LOG.info("Looking for service: " + service + ". Current token is "
-            + token);
-      }
-      if (NMTokenIdentifier.KIND.equals(token.getKind()) && 
-          service.equals(token.getService())) {
-        return (Token<NMTokenIdentifier>) token;
-      }
-    }
-    return null;
-  }
 
 }

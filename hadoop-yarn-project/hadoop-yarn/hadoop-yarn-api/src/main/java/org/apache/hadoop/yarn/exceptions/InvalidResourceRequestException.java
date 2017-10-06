@@ -27,22 +27,22 @@ import org.apache.hadoop.yarn.api.records.ResourceRequest;
  * {@link ResourceRequest} in the
  * {@link ApplicationMasterProtocol#allocate(AllocateRequest)} API is out of the
  * range of the configured lower and upper limits on resources.
- * 
+ *
  */
 public class InvalidResourceRequestException extends YarnException {
 
-  private static final long serialVersionUID = 13498237L;
+    private static final long serialVersionUID = 13498237L;
 
-  public InvalidResourceRequestException(Throwable cause) {
-    super(cause);
-  }
+    public InvalidResourceRequestException(Throwable cause) {
+        super(cause);
+    }
 
-  public InvalidResourceRequestException(String message) {
-    super(message);
-  }
+    public InvalidResourceRequestException(String message) {
+        super(message);
+    }
 
-  public InvalidResourceRequestException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public InvalidResourceRequestException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }

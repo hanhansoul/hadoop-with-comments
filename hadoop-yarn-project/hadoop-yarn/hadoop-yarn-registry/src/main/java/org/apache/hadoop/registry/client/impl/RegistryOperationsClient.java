@@ -44,12 +44,12 @@ import org.apache.hadoop.registry.client.impl.zk.RegistryOperationsService;
 @InterfaceStability.Evolving
 public class RegistryOperationsClient extends RegistryOperationsService {
 
-  public RegistryOperationsClient(String name) {
-    super(name);
-  }
+    public RegistryOperationsClient(String name) {
+        super(name);
+    }
 
-  public RegistryOperationsClient(String name,
-      RegistryBindingSource bindingSource) {
-    super(name, bindingSource);
-  }
+    public RegistryOperationsClient(String name,
+                                    RegistryBindingSource bindingSource) {
+        super(name, bindingSource);
+    }
 }

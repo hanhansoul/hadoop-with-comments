@@ -26,17 +26,17 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class BadRequestException extends WebApplicationException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public BadRequestException() {
-    super(Status.BAD_REQUEST);
-  }
+    public BadRequestException() {
+        super(Status.BAD_REQUEST);
+    }
 
-  public BadRequestException(java.lang.Throwable cause) {
-    super(cause, Status.BAD_REQUEST);
-  }
+    public BadRequestException(java.lang.Throwable cause) {
+        super(cause, Status.BAD_REQUEST);
+    }
 
-  public BadRequestException(String msg) {
-    super(new Exception(msg), Status.BAD_REQUEST);
-  }
+    public BadRequestException(String msg) {
+        super(new Exception(msg), Status.BAD_REQUEST);
+    }
 }

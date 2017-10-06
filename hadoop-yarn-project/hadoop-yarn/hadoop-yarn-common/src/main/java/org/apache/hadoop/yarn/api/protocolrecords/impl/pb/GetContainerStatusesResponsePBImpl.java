@@ -45,180 +45,180 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetContainerStatusesResponsePBImpl extends
     GetContainerStatusesResponse {
-  GetContainerStatusesResponseProto proto = GetContainerStatusesResponseProto
-    .getDefaultInstance();
-  GetContainerStatusesResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetContainerStatusesResponseProto proto = GetContainerStatusesResponseProto
+            .getDefaultInstance();
+    GetContainerStatusesResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private List<ContainerStatus> containerStatuses = null;
-  private Map<ContainerId, SerializedException> failedRequests = null;
+    private List<ContainerStatus> containerStatuses = null;
+    private Map<ContainerId, SerializedException> failedRequests = null;
 
-  public GetContainerStatusesResponsePBImpl() {
-    builder = GetContainerStatusesResponseProto.newBuilder();
-  }
-
-  public GetContainerStatusesResponsePBImpl(
-      GetContainerStatusesResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public GetContainerStatusesResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public GetContainerStatusesResponsePBImpl() {
+        builder = GetContainerStatusesResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.containerStatuses != null) {
-      addLocalContainerStatusesToProto();
+    public GetContainerStatusesResponsePBImpl(
+        GetContainerStatusesResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    if (this.failedRequests != null) {
-      addFailedRequestsToProto();
+
+    public GetContainerStatusesResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetContainerStatusesResponseProto.newBuilder(proto);
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    viaProto = false;
-  }
 
-  private void addLocalContainerStatusesToProto() {
-    maybeInitBuilder();
-    builder.clearStatus();
-    if (this.containerStatuses == null)
-      return;
-    List<ContainerStatusProto> protoList =
-        new ArrayList<ContainerStatusProto>();
-    for (ContainerStatus status : containerStatuses) {
-      protoList.add(convertToProtoFormat(status));
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    builder.addAllStatus(protoList);
-  }
 
-  private void addFailedRequestsToProto() {
-    maybeInitBuilder();
-    builder.clearFailedRequests();
-    if (this.failedRequests == null)
-      return;
-    List<ContainerExceptionMapProto> protoList =
-        new ArrayList<ContainerExceptionMapProto>();
-    for (Map.Entry<ContainerId, SerializedException> entry : this.failedRequests
-      .entrySet()) {
-      protoList.add(ContainerExceptionMapProto.newBuilder()
-        .setContainerId(convertToProtoFormat(entry.getKey()))
-        .setException(convertToProtoFormat(entry.getValue())).build());
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    builder.addAllFailedRequests(protoList);
-  }
 
-  private void initLocalContainerStatuses() {
-    if (this.containerStatuses != null) {
-      return;
+    private void mergeLocalToBuilder() {
+        if (this.containerStatuses != null) {
+            addLocalContainerStatusesToProto();
+        }
+        if (this.failedRequests != null) {
+            addFailedRequestsToProto();
+        }
     }
-    GetContainerStatusesResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<ContainerStatusProto> statuses = p.getStatusList();
-    this.containerStatuses = new ArrayList<ContainerStatus>();
-    for (ContainerStatusProto status : statuses) {
-      this.containerStatuses.add(convertFromProtoFormat(status));
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-  }
 
-  private void initFailedRequests() {
-    if (this.failedRequests != null) {
-      return;
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetContainerStatusesResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    GetContainerStatusesResponseProtoOrBuilder p = viaProto ? proto : builder;
-    List<ContainerExceptionMapProto> protoList = p.getFailedRequestsList();
-    this.failedRequests = new HashMap<ContainerId, SerializedException>();
-    for (ContainerExceptionMapProto ce : protoList) {
-      this.failedRequests.put(convertFromProtoFormat(ce.getContainerId()),
-        convertFromProtoFormat(ce.getException()));
+
+    private void addLocalContainerStatusesToProto() {
+        maybeInitBuilder();
+        builder.clearStatus();
+        if (this.containerStatuses == null)
+            return;
+        List<ContainerStatusProto> protoList =
+            new ArrayList<ContainerStatusProto>();
+        for (ContainerStatus status : containerStatuses) {
+            protoList.add(convertToProtoFormat(status));
+        }
+        builder.addAllStatus(protoList);
     }
-  }
 
-  @Override
-  public List<ContainerStatus> getContainerStatuses() {
-    initLocalContainerStatuses();
-    return this.containerStatuses;
-  }
+    private void addFailedRequestsToProto() {
+        maybeInitBuilder();
+        builder.clearFailedRequests();
+        if (this.failedRequests == null)
+            return;
+        List<ContainerExceptionMapProto> protoList =
+            new ArrayList<ContainerExceptionMapProto>();
+        for (Map.Entry<ContainerId, SerializedException> entry : this.failedRequests
+             .entrySet()) {
+            protoList.add(ContainerExceptionMapProto.newBuilder()
+                          .setContainerId(convertToProtoFormat(entry.getKey()))
+                          .setException(convertToProtoFormat(entry.getValue())).build());
+        }
+        builder.addAllFailedRequests(protoList);
+    }
 
-  @Override
-  public void setContainerStatuses(List<ContainerStatus> statuses) {
-    maybeInitBuilder();
-    if (statuses == null)
-      builder.clearStatus();
-    this.containerStatuses = statuses;
-  }
+    private void initLocalContainerStatuses() {
+        if (this.containerStatuses != null) {
+            return;
+        }
+        GetContainerStatusesResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<ContainerStatusProto> statuses = p.getStatusList();
+        this.containerStatuses = new ArrayList<ContainerStatus>();
+        for (ContainerStatusProto status : statuses) {
+            this.containerStatuses.add(convertFromProtoFormat(status));
+        }
+    }
 
-  @Override
-  public Map<ContainerId, SerializedException> getFailedRequests() {
-    initFailedRequests();
-    return this.failedRequests;
-  }
+    private void initFailedRequests() {
+        if (this.failedRequests != null) {
+            return;
+        }
+        GetContainerStatusesResponseProtoOrBuilder p = viaProto ? proto : builder;
+        List<ContainerExceptionMapProto> protoList = p.getFailedRequestsList();
+        this.failedRequests = new HashMap<ContainerId, SerializedException>();
+        for (ContainerExceptionMapProto ce : protoList) {
+            this.failedRequests.put(convertFromProtoFormat(ce.getContainerId()),
+                                    convertFromProtoFormat(ce.getException()));
+        }
+    }
 
-  @Override
-  public void setFailedRequests(
-      Map<ContainerId, SerializedException> failedRequests) {
-    maybeInitBuilder();
-    if (failedRequests == null)
-      builder.clearFailedRequests();
-    this.failedRequests = failedRequests;
-  }
+    @Override
+    public List<ContainerStatus> getContainerStatuses() {
+        initLocalContainerStatuses();
+        return this.containerStatuses;
+    }
 
-  private ContainerStatusPBImpl convertFromProtoFormat(ContainerStatusProto p) {
-    return new ContainerStatusPBImpl(p);
-  }
+    @Override
+    public void setContainerStatuses(List<ContainerStatus> statuses) {
+        maybeInitBuilder();
+        if (statuses == null)
+            builder.clearStatus();
+        this.containerStatuses = statuses;
+    }
 
-  private ContainerStatusProto convertToProtoFormat(ContainerStatus t) {
-    return ((ContainerStatusPBImpl) t).getProto();
-  }
+    @Override
+    public Map<ContainerId, SerializedException> getFailedRequests() {
+        initFailedRequests();
+        return this.failedRequests;
+    }
 
-  private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
-    return new ContainerIdPBImpl(p);
-  }
+    @Override
+    public void setFailedRequests(
+        Map<ContainerId, SerializedException> failedRequests) {
+        maybeInitBuilder();
+        if (failedRequests == null)
+            builder.clearFailedRequests();
+        this.failedRequests = failedRequests;
+    }
 
-  private ContainerIdProto convertToProtoFormat(ContainerId t) {
-    return ((ContainerIdPBImpl) t).getProto();
-  }
+    private ContainerStatusPBImpl convertFromProtoFormat(ContainerStatusProto p) {
+        return new ContainerStatusPBImpl(p);
+    }
 
-  private SerializedExceptionPBImpl convertFromProtoFormat(
-      SerializedExceptionProto p) {
-    return new SerializedExceptionPBImpl(p);
-  }
+    private ContainerStatusProto convertToProtoFormat(ContainerStatus t) {
+        return ((ContainerStatusPBImpl) t).getProto();
+    }
 
-  private SerializedExceptionProto convertToProtoFormat(SerializedException t) {
-    return ((SerializedExceptionPBImpl) t).getProto();
-  }
+    private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
+        return new ContainerIdPBImpl(p);
+    }
+
+    private ContainerIdProto convertToProtoFormat(ContainerId t) {
+        return ((ContainerIdPBImpl) t).getProto();
+    }
+
+    private SerializedExceptionPBImpl convertFromProtoFormat(
+        SerializedExceptionProto p) {
+        return new SerializedExceptionPBImpl(p);
+    }
+
+    private SerializedExceptionProto convertToProtoFormat(SerializedException t) {
+        return ((SerializedExceptionPBImpl) t).getProto();
+    }
 }

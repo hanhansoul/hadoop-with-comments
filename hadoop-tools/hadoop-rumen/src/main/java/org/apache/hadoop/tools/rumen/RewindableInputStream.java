@@ -26,53 +26,53 @@ import java.io.InputStream;
  * made more memory efficient by grow the internal buffer adaptively.
  */
 public class RewindableInputStream extends InputStream {
-  private InputStream input;
+    private InputStream input;
 
-  /**
-   * Constructor.
-   * 
-   * @param input
-   */
-  public RewindableInputStream(InputStream input) {
-    this(input, 1024 * 1024);
-  }
-
-  /**
-   * Constructor
-   * 
-   * @param input
-   *          input stream.
-   * @param maxBytesToRemember
-   *          Maximum number of bytes we need to remember at the beginning of
-   *          the stream. If {@link #rewind()} is called after so many bytes are
-   *          read from the stream, {@link #rewind()} would fail.
-   */
-  public RewindableInputStream(InputStream input, int maxBytesToRemember) {
-    this.input = new BufferedInputStream(input, maxBytesToRemember);
-    this.input.mark(maxBytesToRemember);
-  }
-
-  @Override
-  public int read() throws IOException {
-    return input.read();
-  }
-
-  @Override
-  public int read(byte[] buffer, int offset, int length) throws IOException {
-    return input.read(buffer, offset, length);
-  }
-
-  @Override
-  public void close() throws IOException {
-    input.close();
-  }
-
-  public InputStream rewind() throws IOException {
-    try {
-      input.reset();
-      return this;
-    } catch (IOException e) {
-      throw new IOException("Unable to rewind the stream", e);
+    /**
+     * Constructor.
+     *
+     * @param input
+     */
+    public RewindableInputStream(InputStream input) {
+        this(input, 1024 * 1024);
     }
-  }
+
+    /**
+     * Constructor
+     *
+     * @param input
+     *          input stream.
+     * @param maxBytesToRemember
+     *          Maximum number of bytes we need to remember at the beginning of
+     *          the stream. If {@link #rewind()} is called after so many bytes are
+     *          read from the stream, {@link #rewind()} would fail.
+     */
+    public RewindableInputStream(InputStream input, int maxBytesToRemember) {
+        this.input = new BufferedInputStream(input, maxBytesToRemember);
+        this.input.mark(maxBytesToRemember);
+    }
+
+    @Override
+    public int read() throws IOException {
+        return input.read();
+    }
+
+    @Override
+    public int read(byte[] buffer, int offset, int length) throws IOException {
+        return input.read(buffer, offset, length);
+    }
+
+    @Override
+    public void close() throws IOException {
+        input.close();
+    }
+
+    public InputStream rewind() throws IOException {
+        try {
+            input.reset();
+            return this;
+        } catch (IOException e) {
+            throw new IOException("Unable to rewind the stream", e);
+        }
+    }
 }

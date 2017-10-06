@@ -33,99 +33,99 @@ import org.apache.hadoop.mapreduce.jobhistory.JhCounters;
  */
 public class ParsedTask extends LoggedTask {
 
-  private static final Log LOG = LogFactory.getLog(ParsedTask.class);
+    private static final Log LOG = LogFactory.getLog(ParsedTask.class);
 
-  private String diagnosticInfo;
-  private String failedDueToAttempt;
-  private Map<String, Long> countersMap = new HashMap<String, Long>();
+    private String diagnosticInfo;
+    private String failedDueToAttempt;
+    private Map<String, Long> countersMap = new HashMap<String, Long>();
 
-  ParsedTask() {
-    super();
-  }
-
-  public void incorporateCounters(JhCounters counters) {
-    Map<String, Long> countersMap =
-        JobHistoryUtils.extractCounters(counters);
-    putCounters(countersMap);
-
-    super.incorporateCounters(counters);
-  }
-
-  /** Set the task counters */
-  public void putCounters(Map<String, Long> counters) {
-    this.countersMap = counters;
-  }
-
-  /**
-   * @return the task counters
-   */
-  public Map<String, Long> obtainCounters() {
-    return countersMap;
-  }
-
-  /** Set the task diagnostic-info */
-  public void putDiagnosticInfo(String msg) {
-    diagnosticInfo = msg;
-  }
-
-  /**
-   * @return the diagnostic-info of this task.
-   *         If the task is successful, returns null.
-   */
-  public String obtainDiagnosticInfo() {
-    return diagnosticInfo;
-  }
-
-  /**
-   * Set the failed-due-to-attemptId info of this task.
-   */
-  public void putFailedDueToAttemptId(String attempt) {
-    failedDueToAttempt = attempt;
-  }
-
-  /**
-   * @return the failed-due-to-attemptId info of this task.
-   *         If the task is successful, returns null.
-   */
-  public String obtainFailedDueToAttemptId() {
-    return failedDueToAttempt;
-  }
-
-  /**
-   * @return the list of attempts of this task.
-   */
-  public List<ParsedTaskAttempt> obtainTaskAttempts() {
-    List<LoggedTaskAttempt> attempts = getAttempts();
-    return convertTaskAttempts(attempts);
-  }
-
-  List<ParsedTaskAttempt> convertTaskAttempts(
-      List<LoggedTaskAttempt> attempts) {
-    List<ParsedTaskAttempt> result = new ArrayList<ParsedTaskAttempt>();
-
-    for (LoggedTaskAttempt t : attempts) {
-      if (t instanceof ParsedTaskAttempt) {
-        result.add((ParsedTaskAttempt)t);
-      } else {
-        throw new RuntimeException(
-            "Unexpected type of taskAttempts in the list...");
-      }
+    ParsedTask() {
+        super();
     }
-    return result;
-  }
 
-  /** Dump the extra info of ParsedTask */
-  void dumpParsedTask() {
-    LOG.info("ParsedTask details:" + obtainCounters()
-        + "\n" + obtainFailedDueToAttemptId()
-        + "\nPreferred Locations are:");
-    List<LoggedLocation> loc = getPreferredLocations();
-    for (LoggedLocation l : loc) {
-      LOG.info(l.getLayers() + ";" + l.toString());
+    public void incorporateCounters(JhCounters counters) {
+        Map<String, Long> countersMap =
+            JobHistoryUtils.extractCounters(counters);
+        putCounters(countersMap);
+
+        super.incorporateCounters(counters);
     }
-    List<ParsedTaskAttempt> attempts = obtainTaskAttempts();
-    for (ParsedTaskAttempt attempt : attempts) {
-      attempt.dumpParsedTaskAttempt();
+
+    /** Set the task counters */
+    public void putCounters(Map<String, Long> counters) {
+        this.countersMap = counters;
     }
-  }
+
+    /**
+     * @return the task counters
+     */
+    public Map<String, Long> obtainCounters() {
+        return countersMap;
+    }
+
+    /** Set the task diagnostic-info */
+    public void putDiagnosticInfo(String msg) {
+        diagnosticInfo = msg;
+    }
+
+    /**
+     * @return the diagnostic-info of this task.
+     *         If the task is successful, returns null.
+     */
+    public String obtainDiagnosticInfo() {
+        return diagnosticInfo;
+    }
+
+    /**
+     * Set the failed-due-to-attemptId info of this task.
+     */
+    public void putFailedDueToAttemptId(String attempt) {
+        failedDueToAttempt = attempt;
+    }
+
+    /**
+     * @return the failed-due-to-attemptId info of this task.
+     *         If the task is successful, returns null.
+     */
+    public String obtainFailedDueToAttemptId() {
+        return failedDueToAttempt;
+    }
+
+    /**
+     * @return the list of attempts of this task.
+     */
+    public List<ParsedTaskAttempt> obtainTaskAttempts() {
+        List<LoggedTaskAttempt> attempts = getAttempts();
+        return convertTaskAttempts(attempts);
+    }
+
+    List<ParsedTaskAttempt> convertTaskAttempts(
+        List<LoggedTaskAttempt> attempts) {
+        List<ParsedTaskAttempt> result = new ArrayList<ParsedTaskAttempt>();
+
+        for (LoggedTaskAttempt t : attempts) {
+            if (t instanceof ParsedTaskAttempt) {
+                result.add((ParsedTaskAttempt)t);
+            } else {
+                throw new RuntimeException(
+                    "Unexpected type of taskAttempts in the list...");
+            }
+        }
+        return result;
+    }
+
+    /** Dump the extra info of ParsedTask */
+    void dumpParsedTask() {
+        LOG.info("ParsedTask details:" + obtainCounters()
+                 + "\n" + obtainFailedDueToAttemptId()
+                 + "\nPreferred Locations are:");
+        List<LoggedLocation> loc = getPreferredLocations();
+        for (LoggedLocation l : loc) {
+            LOG.info(l.getLayers() + ";" + l.toString());
+        }
+        List<ParsedTaskAttempt> attempts = obtainTaskAttempts();
+        for (ParsedTaskAttempt attempt : attempts) {
+            attempt.dumpParsedTaskAttempt();
+        }
+    }
 }

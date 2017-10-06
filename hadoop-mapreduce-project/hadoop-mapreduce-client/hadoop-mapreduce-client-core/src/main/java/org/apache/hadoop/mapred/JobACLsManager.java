@@ -33,95 +33,95 @@ import org.apache.hadoop.security.authorize.AccessControlList;
 @InterfaceAudience.Private
 public class JobACLsManager {
 
-  static final Log LOG = LogFactory.getLog(JobACLsManager.class);
-  Configuration conf;
-  private final AccessControlList adminAcl;
+    static final Log LOG = LogFactory.getLog(JobACLsManager.class);
+    Configuration conf;
+    private final AccessControlList adminAcl;
 
-  public JobACLsManager(Configuration conf) {
-    adminAcl = new AccessControlList(conf.get(MRConfig.MR_ADMINS, " "));
-    this.conf = conf;
-  }
-
-  public boolean areACLsEnabled() {
-    return conf.getBoolean(MRConfig.MR_ACLS_ENABLED, false);
-  }
-
-  /**
-   * Construct the jobACLs from the configuration so that they can be kept in
-   * the memory. If authorization is disabled on the JT, nothing is constructed
-   * and an empty map is returned.
-   * 
-   * @return JobACL to AccessControlList map.
-   */
-  public Map<JobACL, AccessControlList> constructJobACLs(Configuration conf) {
-
-    Map<JobACL, AccessControlList> acls =
-        new HashMap<JobACL, AccessControlList>();
-
-    // Don't construct anything if authorization is disabled.
-    if (!areACLsEnabled()) {
-      return acls;
+    public JobACLsManager(Configuration conf) {
+        adminAcl = new AccessControlList(conf.get(MRConfig.MR_ADMINS, " "));
+        this.conf = conf;
     }
 
-    for (JobACL aclName : JobACL.values()) {
-      String aclConfigName = aclName.getAclName();
-      String aclConfigured = conf.get(aclConfigName);
-      if (aclConfigured == null) {
-        // If ACLs are not configured at all, we grant no access to anyone. So
-        // jobOwner and cluster administrator _only_ can do 'stuff'
-        aclConfigured = " ";
-      }
-      acls.put(aclName, new AccessControlList(aclConfigured));
-    }
-    return acls;
-  }
-
-  /**
-    * Is the calling user an admin for the mapreduce cluster
-    * i.e. member of mapreduce.cluster.administrators
-    * @return true, if user is an admin
-    */
-   boolean isMRAdmin(UserGroupInformation callerUGI) {
-     if (adminAcl.isUserAllowed(callerUGI)) {
-       return true;
-     }
-     return false;
-   }
-
-  /**
-   * If authorization is enabled, checks whether the user (in the callerUGI)
-   * is authorized to perform the operation specified by 'jobOperation' on
-   * the job by checking if the user is jobOwner or part of job ACL for the
-   * specific job operation.
-   * <ul>
-   * <li>The owner of the job can do any operation on the job</li>
-   * <li>For all other users/groups job-acls are checked</li>
-   * </ul>
-   * @param callerUGI
-   * @param jobOperation
-   * @param jobOwner
-   * @param jobACL
-   * @throws AccessControlException
-   */
-  public boolean checkAccess(UserGroupInformation callerUGI,
-      JobACL jobOperation, String jobOwner, AccessControlList jobACL) {
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("checkAccess job acls, jobOwner: " + jobOwner + " jobacl: "
-          + jobOperation.toString() + " user: " + callerUGI.getShortUserName());
-    }
-    String user = callerUGI.getShortUserName();
-    if (!areACLsEnabled()) {
-      return true;
+    public boolean areACLsEnabled() {
+        return conf.getBoolean(MRConfig.MR_ACLS_ENABLED, false);
     }
 
-    // Allow Job-owner for any operation on the job
-    if (isMRAdmin(callerUGI)
-        || user.equals(jobOwner)
-        || jobACL.isUserAllowed(callerUGI)) {
-      return true;
+    /**
+     * Construct the jobACLs from the configuration so that they can be kept in
+     * the memory. If authorization is disabled on the JT, nothing is constructed
+     * and an empty map is returned.
+     *
+     * @return JobACL to AccessControlList map.
+     */
+    public Map<JobACL, AccessControlList> constructJobACLs(Configuration conf) {
+
+        Map<JobACL, AccessControlList> acls =
+            new HashMap<JobACL, AccessControlList>();
+
+        // Don't construct anything if authorization is disabled.
+        if (!areACLsEnabled()) {
+            return acls;
+        }
+
+        for (JobACL aclName : JobACL.values()) {
+            String aclConfigName = aclName.getAclName();
+            String aclConfigured = conf.get(aclConfigName);
+            if (aclConfigured == null) {
+                // If ACLs are not configured at all, we grant no access to anyone. So
+                // jobOwner and cluster administrator _only_ can do 'stuff'
+                aclConfigured = " ";
+            }
+            acls.put(aclName, new AccessControlList(aclConfigured));
+        }
+        return acls;
     }
 
-    return false;
-  }
+    /**
+      * Is the calling user an admin for the mapreduce cluster
+      * i.e. member of mapreduce.cluster.administrators
+      * @return true, if user is an admin
+      */
+    boolean isMRAdmin(UserGroupInformation callerUGI) {
+        if (adminAcl.isUserAllowed(callerUGI)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * If authorization is enabled, checks whether the user (in the callerUGI)
+     * is authorized to perform the operation specified by 'jobOperation' on
+     * the job by checking if the user is jobOwner or part of job ACL for the
+     * specific job operation.
+     * <ul>
+     * <li>The owner of the job can do any operation on the job</li>
+     * <li>For all other users/groups job-acls are checked</li>
+     * </ul>
+     * @param callerUGI
+     * @param jobOperation
+     * @param jobOwner
+     * @param jobACL
+     * @throws AccessControlException
+     */
+    public boolean checkAccess(UserGroupInformation callerUGI,
+                               JobACL jobOperation, String jobOwner, AccessControlList jobACL) {
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("checkAccess job acls, jobOwner: " + jobOwner + " jobacl: "
+                      + jobOperation.toString() + " user: " + callerUGI.getShortUserName());
+        }
+        String user = callerUGI.getShortUserName();
+        if (!areACLsEnabled()) {
+            return true;
+        }
+
+        // Allow Job-owner for any operation on the job
+        if (isMRAdmin(callerUGI)
+            || user.equals(jobOwner)
+            || jobACL.isUserAllowed(callerUGI)) {
+            return true;
+        }
+
+        return false;
+    }
 }

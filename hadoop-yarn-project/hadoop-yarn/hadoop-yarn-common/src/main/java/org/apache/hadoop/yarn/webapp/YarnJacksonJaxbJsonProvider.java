@@ -42,21 +42,21 @@ import com.google.inject.Singleton;
 @Private
 public class YarnJacksonJaxbJsonProvider extends JacksonJaxbJsonProvider {
 
-  public YarnJacksonJaxbJsonProvider() {
-    super();
-  }
+    public YarnJacksonJaxbJsonProvider() {
+        super();
+    }
 
-  @Override
-  public ObjectMapper locateMapper(Class<?> type, MediaType mediaType) {
-    ObjectMapper mapper = super.locateMapper(type, mediaType);
-    configObjectMapper(mapper);
-    return mapper;
-  }
+    @Override
+    public ObjectMapper locateMapper(Class<?> type, MediaType mediaType) {
+        ObjectMapper mapper = super.locateMapper(type, mediaType);
+        configObjectMapper(mapper);
+        return mapper;
+    }
 
-  public static void configObjectMapper(ObjectMapper mapper) {
-    AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
-    mapper.setAnnotationIntrospector(introspector);
-    mapper.setSerializationInclusion(Inclusion.NON_NULL);
-  }
+    public static void configObjectMapper(ObjectMapper mapper) {
+        AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
+        mapper.setAnnotationIntrospector(introspector);
+        mapper.setSerializationInclusion(Inclusion.NON_NULL);
+    }
 
 }

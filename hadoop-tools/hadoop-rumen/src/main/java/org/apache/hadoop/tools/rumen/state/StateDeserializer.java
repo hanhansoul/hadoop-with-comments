@@ -31,29 +31,29 @@ import org.codehaus.jackson.node.ObjectNode;
  * Rumen JSON deserializer for deserializing the {@link State} object.
  */
 public class StateDeserializer extends StdDeserializer<StatePair> {
-  public StateDeserializer() {
-      super(StatePair.class);
-  }
-  
-  @Override
-  public StatePair deserialize(JsonParser parser, 
-                               DeserializationContext context)
-  throws IOException, JsonProcessingException {
-    ObjectMapper mapper = (ObjectMapper) parser.getCodec();
-    // set the state-pair object tree
-    ObjectNode statePairObject = (ObjectNode) mapper.readTree(parser);
-    Class<?> stateClass = null;
-    
-    try {
-      stateClass = 
-        Class.forName(statePairObject.get("className").getTextValue().trim());
-    } catch (ClassNotFoundException cnfe) {
-      throw new RuntimeException("Invalid classname!", cnfe);
+    public StateDeserializer() {
+        super(StatePair.class);
     }
-    
-    String stateJsonString = statePairObject.get("state").toString();
-    State state = (State) mapper.readValue(stateJsonString, stateClass);
-    
-    return new StatePair(state);
-  }
+
+    @Override
+    public StatePair deserialize(JsonParser parser,
+                                 DeserializationContext context)
+    throws IOException, JsonProcessingException {
+        ObjectMapper mapper = (ObjectMapper) parser.getCodec();
+        // set the state-pair object tree
+        ObjectNode statePairObject = (ObjectNode) mapper.readTree(parser);
+        Class<?> stateClass = null;
+
+        try {
+            stateClass =
+                Class.forName(statePairObject.get("className").getTextValue().trim());
+        } catch (ClassNotFoundException cnfe) {
+            throw new RuntimeException("Invalid classname!", cnfe);
+        }
+
+        String stateJsonString = statePairObject.get("state").toString();
+        State state = (State) mapper.readValue(stateJsonString, stateClass);
+
+        return new StatePair(state);
+    }
 }

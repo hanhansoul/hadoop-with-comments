@@ -23,14 +23,14 @@ import org.apache.hadoop.yarn.api.records.NodeId;
 
 public class RMNodeCleanContainerEvent extends RMNodeEvent {
 
-  private ContainerId contId;
+    private ContainerId contId;
 
-  public RMNodeCleanContainerEvent(NodeId nodeId, ContainerId contId) {
-    super(nodeId, RMNodeEventType.CLEANUP_CONTAINER);
-    this.contId = contId;
-  }
+    public RMNodeCleanContainerEvent(NodeId nodeId, ContainerId contId) {
+        super(nodeId, RMNodeEventType.CLEANUP_CONTAINER);
+        this.contId = contId;
+    }
 
-  public ContainerId getContainerId() {
-    return this.contId;
-  }
+    public ContainerId getContainerId() {
+        return this.contId;
+    }
 }

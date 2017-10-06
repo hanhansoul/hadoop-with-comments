@@ -30,23 +30,23 @@ import java.io.IOException;
  * before checksumming is added around it.
  */
 public class RawlocalFSContract extends LocalFSContract {
-  public RawlocalFSContract(Configuration conf) {
-    super(conf);
-  }
+    public RawlocalFSContract(Configuration conf) {
+        super(conf);
+    }
 
-  public static final String RAW_CONTRACT_XML = "contract/localfs.xml";
+    public static final String RAW_CONTRACT_XML = "contract/localfs.xml";
 
-  @Override
-  protected String getContractXml() {
-    return RAW_CONTRACT_XML;
-  }
+    @Override
+    protected String getContractXml() {
+        return RAW_CONTRACT_XML;
+    }
 
-  @Override
-  protected FileSystem getLocalFS() throws IOException {
-    return FileSystem.getLocal(getConf()).getRawFileSystem();
-  }
+    @Override
+    protected FileSystem getLocalFS() throws IOException {
+        return FileSystem.getLocal(getConf()).getRawFileSystem();
+    }
 
-  public File getTestDirectory() {
-    return new File(getTestDataDir());
-  }
+    public File getTestDirectory() {
+        return new File(getTestDataDir());
+    }
 }

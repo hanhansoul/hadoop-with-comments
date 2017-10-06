@@ -32,35 +32,35 @@ import org.apache.hadoop.yarn.util.Records;
  *
  * The request will ask for all nodes in the given {@link NodeState}s.
  *
- * @see ApplicationClientProtocol#getClusterNodes(GetClusterNodesRequest) 
+ * @see ApplicationClientProtocol#getClusterNodes(GetClusterNodesRequest)
  */
 @Public
 @Stable
 public abstract class GetClusterNodesRequest {
-  @Public
-  @Stable 
-  public static GetClusterNodesRequest newInstance(EnumSet<NodeState> states) {
-    GetClusterNodesRequest request =
-        Records.newRecord(GetClusterNodesRequest.class);
-    request.setNodeStates(states);
-    return request;
-  }
-  
-  @Public
-  @Stable 
-  public static GetClusterNodesRequest newInstance() {
-    GetClusterNodesRequest request =
-        Records.newRecord(GetClusterNodesRequest.class);
-    return request;
-  }
-  
-  /**
-   * The state to filter the cluster nodes with.
-   */
-  public abstract EnumSet<NodeState> getNodeStates();
-  
-  /**
-   * The state to filter the cluster nodes with.
-   */
-  public abstract void setNodeStates(EnumSet<NodeState> states);
+    @Public
+    @Stable
+    public static GetClusterNodesRequest newInstance(EnumSet<NodeState> states) {
+        GetClusterNodesRequest request =
+            Records.newRecord(GetClusterNodesRequest.class);
+        request.setNodeStates(states);
+        return request;
+    }
+
+    @Public
+    @Stable
+    public static GetClusterNodesRequest newInstance() {
+        GetClusterNodesRequest request =
+            Records.newRecord(GetClusterNodesRequest.class);
+        return request;
+    }
+
+    /**
+     * The state to filter the cluster nodes with.
+     */
+    public abstract EnumSet<NodeState> getNodeStates();
+
+    /**
+     * The state to filter the cluster nodes with.
+     */
+    public abstract void setNodeStates(EnumSet<NodeState> states);
 }

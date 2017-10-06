@@ -32,92 +32,92 @@ import org.codehaus.jackson.annotate.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class RegistryPathStatus {
 
-  /**
-   * Short path in the registry to this entry
-   */
-  public final String path;
+    /**
+     * Short path in the registry to this entry
+     */
+    public final String path;
 
-  /**
-   * Timestamp
-   */
-  public final long time;
+    /**
+     * Timestamp
+     */
+    public final long time;
 
-  /**
-   * Entry size in bytes, as returned by the storage infrastructure.
-   * In zookeeper, even "empty" nodes have a non-zero size.
-   */
-  public final long size;
+    /**
+     * Entry size in bytes, as returned by the storage infrastructure.
+     * In zookeeper, even "empty" nodes have a non-zero size.
+     */
+    public final long size;
 
-  /**
-   * Number of child nodes
-   */
-  public final int children;
+    /**
+     * Number of child nodes
+     */
+    public final int children;
 
-  /**
-   * Construct an instance
-   * @param path full path
-   * @param time time
-   * @param size entry size
-   * @param children number of children
-   */
-  public RegistryPathStatus(
-      @JsonProperty("path") String path,
-      @JsonProperty("time") long time,
-      @JsonProperty("size") long size,
-      @JsonProperty("children") int children) {
-    this.path = path;
-    this.time = time;
-    this.size = size;
-    this.children = children;
-  }
-
-  /**
-   * Equality operator checks size, time and path of the entries.
-   * It does <i>not</i> check {@link #children}.
-   * @param other the other entry
-   * @return true if the entries are considered equal.
-   */
-  @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (other == null || getClass() != other.getClass()) {
-      return false;
+    /**
+     * Construct an instance
+     * @param path full path
+     * @param time time
+     * @param size entry size
+     * @param children number of children
+     */
+    public RegistryPathStatus(
+        @JsonProperty("path") String path,
+        @JsonProperty("time") long time,
+        @JsonProperty("size") long size,
+        @JsonProperty("children") int children) {
+        this.path = path;
+        this.time = time;
+        this.size = size;
+        this.children = children;
     }
 
-    RegistryPathStatus status = (RegistryPathStatus) other;
+    /**
+     * Equality operator checks size, time and path of the entries.
+     * It does <i>not</i> check {@link #children}.
+     * @param other the other entry
+     * @return true if the entries are considered equal.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
 
-    if (size != status.size) {
-      return false;
-    }
-    if (time != status.time) {
-      return false;
-    }
-    if (path != null ? !path.equals(status.path) : status.path != null) {
-      return false;
-    }
-    return true;
-  }
+        RegistryPathStatus status = (RegistryPathStatus) other;
 
-  /**
-   * The hash code is derived from the path.
-   * @return hash code for storing the path in maps.
-   */
-  @Override
-  public int hashCode() {
-    return path != null ? path.hashCode() : 0;
-  }
+        if (size != status.size) {
+            return false;
+        }
+        if (time != status.time) {
+            return false;
+        }
+        if (path != null ? !path.equals(status.path) : status.path != null) {
+            return false;
+        }
+        return true;
+    }
 
-  @Override
-  public String toString() {
-    final StringBuilder sb =
-        new StringBuilder("RegistryPathStatus{");
-    sb.append("path='").append(path).append('\'');
-    sb.append(", time=").append(time);
-    sb.append(", size=").append(size);
-    sb.append(", children=").append(children);
-    sb.append('}');
-    return sb.toString();
-  }
+    /**
+     * The hash code is derived from the path.
+     * @return hash code for storing the path in maps.
+     */
+    @Override
+    public int hashCode() {
+        return path != null ? path.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb =
+            new StringBuilder("RegistryPathStatus{");
+        sb.append("path='").append(path).append('\'');
+        sb.append(", time=").append(time);
+        sb.append(", size=").append(size);
+        sb.append(", children=").append(children);
+        sb.append('}');
+        return sb.toString();
+    }
 }

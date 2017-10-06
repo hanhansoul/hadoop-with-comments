@@ -43,28 +43,28 @@ import java.io.IOException;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public interface MergeManager<K, V> {
-  /**
-   * To wait until merge has some freed resources available so that it can
-   * accept shuffled data.  This will be called before a network connection is
-   * established to get the map output.
-   */
-  public void waitForResource() throws InterruptedException;
+    /**
+     * To wait until merge has some freed resources available so that it can
+     * accept shuffled data.  This will be called before a network connection is
+     * established to get the map output.
+     */
+    public void waitForResource() throws InterruptedException;
 
-  /**
-   * To reserve resources for data to be shuffled.  This will be called after
-   * a network connection is made to shuffle the data.
-   * @param mapId mapper from which data will be shuffled.
-   * @param requestedSize size in bytes of data that will be shuffled.
-   * @param fetcher id of the map output fetcher that will shuffle the data.
-   * @return a MapOutput object that can be used by shuffle to shuffle data.  If
-   * required resources cannot be reserved immediately, a null can be returned.
-   */
-  public MapOutput<K, V> reserve(TaskAttemptID mapId, long requestedSize,
-                                 int fetcher) throws IOException;
+    /**
+     * To reserve resources for data to be shuffled.  This will be called after
+     * a network connection is made to shuffle the data.
+     * @param mapId mapper from which data will be shuffled.
+     * @param requestedSize size in bytes of data that will be shuffled.
+     * @param fetcher id of the map output fetcher that will shuffle the data.
+     * @return a MapOutput object that can be used by shuffle to shuffle data.  If
+     * required resources cannot be reserved immediately, a null can be returned.
+     */
+    public MapOutput<K, V> reserve(TaskAttemptID mapId, long requestedSize,
+                                   int fetcher) throws IOException;
 
-  /**
-   * Called at the end of shuffle.
-   * @return a key value iterator object.
-   */
-  public RawKeyValueIterator close() throws Throwable;
+    /**
+     * Called at the end of shuffle.
+     * @return a key value iterator object.
+     */
+    public RawKeyValueIterator close() throws Throwable;
 }

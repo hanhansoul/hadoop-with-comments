@@ -28,32 +28,32 @@ import org.junit.BeforeClass;
 import static org.hamcrest.CoreMatchers.*;
 
 public class TestParallelShortCircuitRead extends TestParallelReadUtil {
-  private static TemporarySocketDirectory sockDir;
+    private static TemporarySocketDirectory sockDir;
 
-  @BeforeClass
-  static public void setupCluster() throws Exception {
-    if (DomainSocket.getLoadingFailureReason() != null) return;
-    DFSInputStream.tcpReadsDisabledForTesting = true;
-    sockDir = new TemporarySocketDirectory();
-    HdfsConfiguration conf = new HdfsConfiguration();
-    conf.set(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY,
-      new File(sockDir.getDir(), "TestParallelLocalRead.%d.sock").getAbsolutePath());
-    conf.setBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY, true);
-    conf.setBoolean(DFSConfigKeys.
-        DFS_CLIENT_READ_SHORTCIRCUIT_SKIP_CHECKSUM_KEY, false);
-    DomainSocket.disableBindPathValidation();
-    setupCluster(1, conf);
-  }
+    @BeforeClass
+    static public void setupCluster() throws Exception {
+        if (DomainSocket.getLoadingFailureReason() != null) return;
+        DFSInputStream.tcpReadsDisabledForTesting = true;
+        sockDir = new TemporarySocketDirectory();
+        HdfsConfiguration conf = new HdfsConfiguration();
+        conf.set(DFSConfigKeys.DFS_DOMAIN_SOCKET_PATH_KEY,
+                 new File(sockDir.getDir(), "TestParallelLocalRead.%d.sock").getAbsolutePath());
+        conf.setBoolean(DFSConfigKeys.DFS_CLIENT_READ_SHORTCIRCUIT_KEY, true);
+        conf.setBoolean(DFSConfigKeys.
+                        DFS_CLIENT_READ_SHORTCIRCUIT_SKIP_CHECKSUM_KEY, false);
+        DomainSocket.disableBindPathValidation();
+        setupCluster(1, conf);
+    }
 
-  @Before
-  public void before() {
-    Assume.assumeThat(DomainSocket.getLoadingFailureReason(), equalTo(null));
-  }
+    @Before
+    public void before() {
+        Assume.assumeThat(DomainSocket.getLoadingFailureReason(), equalTo(null));
+    }
 
-  @AfterClass
-  static public void teardownCluster() throws Exception {
-    if (DomainSocket.getLoadingFailureReason() != null) return;
-    sockDir.close();
-    TestParallelReadUtil.teardownCluster();
-  }
+    @AfterClass
+    static public void teardownCluster() throws Exception {
+        if (DomainSocket.getLoadingFailureReason() != null) return;
+        sockDir.close();
+        TestParallelReadUtil.teardownCluster();
+    }
 }

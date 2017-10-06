@@ -37,72 +37,72 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class NMToken {
 
-  @Private
-  @Unstable
-  public static NMToken newInstance(NodeId nodeId, Token token) {
-    NMToken nmToken = Records.newRecord(NMToken.class);
-    nmToken.setNodeId(nodeId);
-    nmToken.setToken(token);
-    return nmToken;
-  }
+    @Private
+    @Unstable
+    public static NMToken newInstance(NodeId nodeId, Token token) {
+        NMToken nmToken = Records.newRecord(NMToken.class);
+        nmToken.setNodeId(nodeId);
+        nmToken.setToken(token);
+        return nmToken;
+    }
 
-  /**
-   * Get the {@link NodeId} of the <code>NodeManager</code> for which the NMToken
-   * is used to authenticate.
-   * @return the {@link NodeId} of the <code>NodeManager</code> for which the
-   * NMToken is used to authenticate.
-   */
-  @Public
-  @Stable
-  public abstract NodeId getNodeId();
-  
-  @Public
-  @Stable
-  public abstract void setNodeId(NodeId nodeId);
+    /**
+     * Get the {@link NodeId} of the <code>NodeManager</code> for which the NMToken
+     * is used to authenticate.
+     * @return the {@link NodeId} of the <code>NodeManager</code> for which the
+     * NMToken is used to authenticate.
+     */
+    @Public
+    @Stable
+    public abstract NodeId getNodeId();
 
-  /**
-   * Get the {@link Token} used for authenticating with <code>NodeManager</code>
-   * @return the {@link Token} used for authenticating with <code>NodeManager</code>
-   */
-  @Public
-  @Stable
-  public abstract Token getToken();
-  
-  @Public
-  @Stable
-  public abstract void setToken(Token token);
+    @Public
+    @Stable
+    public abstract void setNodeId(NodeId nodeId);
+
+    /**
+     * Get the {@link Token} used for authenticating with <code>NodeManager</code>
+     * @return the {@link Token} used for authenticating with <code>NodeManager</code>
+     */
+    @Public
+    @Stable
+    public abstract Token getToken();
+
+    @Public
+    @Stable
+    public abstract void setToken(Token token);
 
 
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result =
-        prime * result + ((getNodeId() == null) ? 0 : getNodeId().hashCode());
-    result =
-        prime * result + ((getToken() == null) ? 0 : getToken().hashCode());
-    return result;
-  }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result =
+            prime * result + ((getNodeId() == null) ? 0 : getNodeId().hashCode());
+        result =
+            prime * result + ((getToken() == null) ? 0 : getToken().hashCode());
+        return result;
+    }
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    NMToken other = (NMToken) obj;
-    if (getNodeId() == null) {
-      if (other.getNodeId() != null)
-        return false;
-    } else if (!getNodeId().equals(other.getNodeId()))
-      return false;
-    if (getToken() == null) {
-      if (other.getToken() != null)
-        return false;
-    } else if (!getToken().equals(other.getToken()))
-      return false;
-    return true;
-  }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NMToken other = (NMToken) obj;
+        if (getNodeId() == null) {
+            if (other.getNodeId() != null)
+                return false;
+        } else if (!getNodeId().equals(other.getNodeId()))
+            return false;
+        if (getToken() == null) {
+            if (other.getToken() != null)
+                return false;
+        } else if (!getToken().equals(other.getToken()))
+            return false;
+        return true;
+    }
 }

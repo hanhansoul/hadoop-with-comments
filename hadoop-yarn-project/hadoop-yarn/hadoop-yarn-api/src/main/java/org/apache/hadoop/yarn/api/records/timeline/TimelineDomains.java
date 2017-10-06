@@ -38,49 +38,49 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class TimelineDomains {
 
-  private List<TimelineDomain> domains = new ArrayList<TimelineDomain>();
+    private List<TimelineDomain> domains = new ArrayList<TimelineDomain>();
 
-  public TimelineDomains() {
-  }
+    public TimelineDomains() {
+    }
 
-  /**
-   * Get a list of domains
-   * 
-   * @return a list of domains
-   */
-  @XmlElement(name = "domains")
-  public List<TimelineDomain> getDomains() {
-    return domains;
-  }
+    /**
+     * Get a list of domains
+     *
+     * @return a list of domains
+     */
+    @XmlElement(name = "domains")
+    public List<TimelineDomain> getDomains() {
+        return domains;
+    }
 
-  /**
-   * Add a single domain into the existing domain list
-   * 
-   * @param domain
-   *          a single domain
-   */
-  public void addDomain(TimelineDomain domain) {
-    domains.add(domain);
-  }
+    /**
+     * Add a single domain into the existing domain list
+     *
+     * @param domain
+     *          a single domain
+     */
+    public void addDomain(TimelineDomain domain) {
+        domains.add(domain);
+    }
 
-  /**
-   * All a list of domains into the existing domain list
-   * 
-   * @param domains
-   *          a list of domains
-   */
-  public void addDomains(List<TimelineDomain> domains) {
-    this.domains.addAll(domains);
-  }
+    /**
+     * All a list of domains into the existing domain list
+     *
+     * @param domains
+     *          a list of domains
+     */
+    public void addDomains(List<TimelineDomain> domains) {
+        this.domains.addAll(domains);
+    }
 
-  /**
-   * Set the domain list to the given list of domains
-   * 
-   * @param domains
-   *          a list of domains
-   */
-  public void setDomains(List<TimelineDomain> domains) {
-    this.domains = domains;
-  }
+    /**
+     * Set the domain list to the given list of domains
+     *
+     * @param domains
+     *          a list of domains
+     */
+    public void setDomains(List<TimelineDomain> domains) {
+        this.domains = domains;
+    }
 
 }

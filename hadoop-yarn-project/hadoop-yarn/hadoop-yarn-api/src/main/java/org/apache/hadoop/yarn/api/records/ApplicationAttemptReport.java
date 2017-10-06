@@ -27,7 +27,7 @@ import org.apache.hadoop.yarn.util.Records;
  * <p>
  * <code>ApplicationAttemptReport</code> is a report of an application attempt.
  * </p>
- * 
+ *
  * <p>
  * It includes details such as:
  * <ul>
@@ -41,139 +41,139 @@ import org.apache.hadoop.yarn.util.Records;
  * <li>{@link ContainerId} of the master Container.</li>
  * </ul>
  * </p>
- * 
+ *
  */
 @Public
 @Unstable
 public abstract class ApplicationAttemptReport {
 
-  @Private
-  @Unstable
-  public static ApplicationAttemptReport newInstance(
-      ApplicationAttemptId applicationAttemptId, String host, int rpcPort,
-      String url, String oUrl, String diagnostics,
-      YarnApplicationAttemptState state, ContainerId amContainerId) {
-    ApplicationAttemptReport report =
-        Records.newRecord(ApplicationAttemptReport.class);
-    report.setApplicationAttemptId(applicationAttemptId);
-    report.setHost(host);
-    report.setRpcPort(rpcPort);
-    report.setTrackingUrl(url);
-    report.setOriginalTrackingUrl(oUrl);
-    report.setDiagnostics(diagnostics);
-    report.setYarnApplicationAttemptState(state);
-    report.setAMContainerId(amContainerId);
-    return report;
-  }
+    @Private
+    @Unstable
+    public static ApplicationAttemptReport newInstance(
+        ApplicationAttemptId applicationAttemptId, String host, int rpcPort,
+        String url, String oUrl, String diagnostics,
+        YarnApplicationAttemptState state, ContainerId amContainerId) {
+        ApplicationAttemptReport report =
+            Records.newRecord(ApplicationAttemptReport.class);
+        report.setApplicationAttemptId(applicationAttemptId);
+        report.setHost(host);
+        report.setRpcPort(rpcPort);
+        report.setTrackingUrl(url);
+        report.setOriginalTrackingUrl(oUrl);
+        report.setDiagnostics(diagnostics);
+        report.setYarnApplicationAttemptState(state);
+        report.setAMContainerId(amContainerId);
+        return report;
+    }
 
-  /**
-   * Get the <em>YarnApplicationAttemptState</em> of the application attempt.
-   * 
-   * @return <em>YarnApplicationAttemptState</em> of the application attempt
-   */
-  @Public
-  @Unstable
-  public abstract YarnApplicationAttemptState getYarnApplicationAttemptState();
+    /**
+     * Get the <em>YarnApplicationAttemptState</em> of the application attempt.
+     *
+     * @return <em>YarnApplicationAttemptState</em> of the application attempt
+     */
+    @Public
+    @Unstable
+    public abstract YarnApplicationAttemptState getYarnApplicationAttemptState();
 
-  @Private
-  @Unstable
-  public abstract void setYarnApplicationAttemptState(
-      YarnApplicationAttemptState yarnApplicationAttemptState);
+    @Private
+    @Unstable
+    public abstract void setYarnApplicationAttemptState(
+        YarnApplicationAttemptState yarnApplicationAttemptState);
 
-  /**
-   * Get the <em>RPC port</em> of this attempt <code>ApplicationMaster</code>.
-   * 
-   * @return <em>RPC port</em> of this attempt <code>ApplicationMaster</code>
-   */
-  @Public
-  @Unstable
-  public abstract int getRpcPort();
+    /**
+     * Get the <em>RPC port</em> of this attempt <code>ApplicationMaster</code>.
+     *
+     * @return <em>RPC port</em> of this attempt <code>ApplicationMaster</code>
+     */
+    @Public
+    @Unstable
+    public abstract int getRpcPort();
 
-  @Private
-  @Unstable
-  public abstract void setRpcPort(int rpcPort);
+    @Private
+    @Unstable
+    public abstract void setRpcPort(int rpcPort);
 
-  /**
-   * Get the <em>host</em> on which this attempt of
-   * <code>ApplicationMaster</code> is running.
-   * 
-   * @return <em>host</em> on which this attempt of
-   *         <code>ApplicationMaster</code> is running
-   */
-  @Public
-  @Unstable
-  public abstract String getHost();
+    /**
+     * Get the <em>host</em> on which this attempt of
+     * <code>ApplicationMaster</code> is running.
+     *
+     * @return <em>host</em> on which this attempt of
+     *         <code>ApplicationMaster</code> is running
+     */
+    @Public
+    @Unstable
+    public abstract String getHost();
 
-  @Private
-  @Unstable
-  public abstract void setHost(String host);
+    @Private
+    @Unstable
+    public abstract void setHost(String host);
 
-  /**
-   * Get the <em>diagnositic information</em> of the application attempt in case
-   * of errors.
-   * 
-   * @return <em>diagnositic information</em> of the application attempt in case
-   *         of errors
-   */
-  @Public
-  @Unstable
-  public abstract String getDiagnostics();
+    /**
+     * Get the <em>diagnositic information</em> of the application attempt in case
+     * of errors.
+     *
+     * @return <em>diagnositic information</em> of the application attempt in case
+     *         of errors
+     */
+    @Public
+    @Unstable
+    public abstract String getDiagnostics();
 
-  @Private
-  @Unstable
-  public abstract void setDiagnostics(String diagnostics);
+    @Private
+    @Unstable
+    public abstract void setDiagnostics(String diagnostics);
 
-  /**
-   * Get the <em>tracking url</em> for the application attempt.
-   * 
-   * @return <em>tracking url</em> for the application attempt
-   */
-  @Public
-  @Unstable
-  public abstract String getTrackingUrl();
+    /**
+     * Get the <em>tracking url</em> for the application attempt.
+     *
+     * @return <em>tracking url</em> for the application attempt
+     */
+    @Public
+    @Unstable
+    public abstract String getTrackingUrl();
 
-  @Private
-  @Unstable
-  public abstract void setTrackingUrl(String url);
+    @Private
+    @Unstable
+    public abstract void setTrackingUrl(String url);
 
-  /**
-   * Get the <em>original tracking url</em> for the application attempt.
-   * 
-   * @return <em>original tracking url</em> for the application attempt
-   */
-  @Public
-  @Unstable
-  public abstract String getOriginalTrackingUrl();
+    /**
+     * Get the <em>original tracking url</em> for the application attempt.
+     *
+     * @return <em>original tracking url</em> for the application attempt
+     */
+    @Public
+    @Unstable
+    public abstract String getOriginalTrackingUrl();
 
-  @Private
-  @Unstable
-  public abstract void setOriginalTrackingUrl(String oUrl);
+    @Private
+    @Unstable
+    public abstract void setOriginalTrackingUrl(String oUrl);
 
-  /**
-   * Get the <code>ApplicationAttemptId</code> of this attempt of the
-   * application
-   * 
-   * @return <code>ApplicationAttemptId</code> of the attempt
-   */
-  @Public
-  @Unstable
-  public abstract ApplicationAttemptId getApplicationAttemptId();
+    /**
+     * Get the <code>ApplicationAttemptId</code> of this attempt of the
+     * application
+     *
+     * @return <code>ApplicationAttemptId</code> of the attempt
+     */
+    @Public
+    @Unstable
+    public abstract ApplicationAttemptId getApplicationAttemptId();
 
-  @Private
-  @Unstable
-  public abstract void setApplicationAttemptId(
-      ApplicationAttemptId applicationAttemptId);
+    @Private
+    @Unstable
+    public abstract void setApplicationAttemptId(
+        ApplicationAttemptId applicationAttemptId);
 
-  /**
-   * Get the <code>ContainerId</code> of AMContainer for this attempt
-   * 
-   * @return <code>ContainerId</code> of the attempt
-   */
-  @Public
-  @Unstable
-  public abstract ContainerId getAMContainerId();
+    /**
+     * Get the <code>ContainerId</code> of AMContainer for this attempt
+     *
+     * @return <code>ContainerId</code> of the attempt
+     */
+    @Public
+    @Unstable
+    public abstract ContainerId getAMContainerId();
 
-  @Private
-  @Unstable
-  public abstract void setAMContainerId(ContainerId amContainerId);
+    @Private
+    @Unstable
+    public abstract void setAMContainerId(ContainerId amContainerId);
 }

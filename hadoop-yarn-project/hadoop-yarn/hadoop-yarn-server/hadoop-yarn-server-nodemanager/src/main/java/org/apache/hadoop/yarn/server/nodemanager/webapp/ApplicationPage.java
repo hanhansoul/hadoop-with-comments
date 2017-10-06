@@ -42,57 +42,57 @@ import com.google.inject.Inject;
 
 public class ApplicationPage extends NMView implements YarnWebParams {
 
-  @Override protected void preHead(Page.HTML<_> html) {
-    commonPreHead(html);
+    @Override protected void preHead(Page.HTML<_> html) {
+        commonPreHead(html);
 
-    set(DATATABLES_ID, "containers");
-    set(initID(DATATABLES, "containers"), containersTableInit());
-    setTableStyles(html, "containers");
-  }
+        set(DATATABLES_ID, "containers");
+        set(initID(DATATABLES, "containers"), containersTableInit());
+        setTableStyles(html, "containers");
+    }
 
-  private String containersTableInit() {
-    return tableInit().append(",aoColumns:[null]}").toString();
-  }
-
-  @Override
-  protected Class<? extends SubView> content() {
-    return ApplicationBlock.class;
-  }
-
-  public static class ApplicationBlock extends HtmlBlock implements
-      YarnWebParams {
-
-    private final Context nmContext;
-    private final Configuration conf;
-    private final RecordFactory recordFactory;
-
-    @Inject
-    public ApplicationBlock(Context nmContext, Configuration conf) {
-      this.conf = conf;
-      this.nmContext = nmContext;
-      this.recordFactory = RecordFactoryProvider.getRecordFactory(this.conf);
+    private String containersTableInit() {
+        return tableInit().append(",aoColumns:[null]}").toString();
     }
 
     @Override
-    protected void render(Block html) {
-      ApplicationId applicationID =
-          ConverterUtils.toApplicationId(this.recordFactory,
-              $(APPLICATION_ID));
-      Application app = this.nmContext.getApplications().get(applicationID);
-      AppInfo info = new AppInfo(app);
-      info("Application's information")
+    protected Class<? extends SubView> content() {
+        return ApplicationBlock.class;
+    }
+
+    public static class ApplicationBlock extends HtmlBlock implements
+        YarnWebParams {
+
+        private final Context nmContext;
+        private final Configuration conf;
+        private final RecordFactory recordFactory;
+
+        @Inject
+        public ApplicationBlock(Context nmContext, Configuration conf) {
+            this.conf = conf;
+            this.nmContext = nmContext;
+            this.recordFactory = RecordFactoryProvider.getRecordFactory(this.conf);
+        }
+
+        @Override
+        protected void render(Block html) {
+            ApplicationId applicationID =
+                ConverterUtils.toApplicationId(this.recordFactory,
+                                               $(APPLICATION_ID));
+            Application app = this.nmContext.getApplications().get(applicationID);
+            AppInfo info = new AppInfo(app);
+            info("Application's information")
             ._("ApplicationId", info.getId())
             ._("ApplicationState", info.getState())
             ._("User", info.getUser());
-      TABLE<Hamlet> containersListBody = html._(InfoBlock.class)
-          .table("#containers");
-      for (String containerIdStr : info.getContainers()) {
-        containersListBody
-               .tr().td()
-                 .a(url("container", containerIdStr), containerIdStr)
-                 ._()._();
-      }
-      containersListBody._();
+            TABLE<Hamlet> containersListBody = html._(InfoBlock.class)
+                                               .table("#containers");
+            for (String containerIdStr : info.getContainers()) {
+                containersListBody
+                .tr().td()
+                .a(url("container", containerIdStr), containerIdStr)
+                ._()._();
+            }
+            containersListBody._();
+        }
     }
-  }
 }

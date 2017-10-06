@@ -24,61 +24,61 @@ import org.apache.hadoop.oncrpc.XDR;
 import org.apache.hadoop.oncrpc.security.Verifier;
 
 public class MKNOD3Response extends NFS3Response {
-  private final FileHandle objFileHandle;
-  private final Nfs3FileAttributes objPostOpAttr;
-  private final WccData dirWcc;
-  
-  public MKNOD3Response(int status) {
-    this(status, null, null, new WccData(null, null));
-  }
-  
-  public MKNOD3Response(int status, FileHandle handle,
-      Nfs3FileAttributes attrs, WccData dirWcc) {
-    super(status);
-    this.objFileHandle = handle;
-    this.objPostOpAttr = attrs;
-    this.dirWcc = dirWcc;
-  }
-  
-  public FileHandle getObjFileHandle() {
-    return objFileHandle;
-  }
+    private final FileHandle objFileHandle;
+    private final Nfs3FileAttributes objPostOpAttr;
+    private final WccData dirWcc;
 
-  public Nfs3FileAttributes getObjPostOpAttr() {
-    return objPostOpAttr;
-  }
-
-  public WccData getDirWcc() {
-    return dirWcc;
-  }
-
-  public static MKNOD3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    FileHandle objFileHandle = new FileHandle();
-    Nfs3FileAttributes objPostOpAttr = null;
-    WccData dirWcc;
-
-    if (status == Nfs3Status.NFS3_OK) {
-      xdr.readBoolean();
-      objFileHandle.deserialize(xdr);
-      xdr.readBoolean();
-      objPostOpAttr = Nfs3FileAttributes.deserialize(xdr);
+    public MKNOD3Response(int status) {
+        this(status, null, null, new WccData(null, null));
     }
-    dirWcc = WccData.deserialize(xdr);
-    return new MKNOD3Response(status, objFileHandle, objPostOpAttr, dirWcc);
-  }
 
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    if (this.getStatus() == Nfs3Status.NFS3_OK) {
-      out.writeBoolean(true);
-      objFileHandle.serialize(out);
-      out.writeBoolean(true);
-      objPostOpAttr.serialize(out);
+    public MKNOD3Response(int status, FileHandle handle,
+                          Nfs3FileAttributes attrs, WccData dirWcc) {
+        super(status);
+        this.objFileHandle = handle;
+        this.objPostOpAttr = attrs;
+        this.dirWcc = dirWcc;
     }
-    dirWcc.serialize(out);
-    
-    return out;
-  }
+
+    public FileHandle getObjFileHandle() {
+        return objFileHandle;
+    }
+
+    public Nfs3FileAttributes getObjPostOpAttr() {
+        return objPostOpAttr;
+    }
+
+    public WccData getDirWcc() {
+        return dirWcc;
+    }
+
+    public static MKNOD3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        FileHandle objFileHandle = new FileHandle();
+        Nfs3FileAttributes objPostOpAttr = null;
+        WccData dirWcc;
+
+        if (status == Nfs3Status.NFS3_OK) {
+            xdr.readBoolean();
+            objFileHandle.deserialize(xdr);
+            xdr.readBoolean();
+            objPostOpAttr = Nfs3FileAttributes.deserialize(xdr);
+        }
+        dirWcc = WccData.deserialize(xdr);
+        return new MKNOD3Response(status, objFileHandle, objPostOpAttr, dirWcc);
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        if (this.getStatus() == Nfs3Status.NFS3_OK) {
+            out.writeBoolean(true);
+            objFileHandle.serialize(out);
+            out.writeBoolean(true);
+            objPostOpAttr.serialize(out);
+        }
+        dirWcc.serialize(out);
+
+        return out;
+    }
 }

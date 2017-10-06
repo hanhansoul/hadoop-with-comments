@@ -24,20 +24,20 @@ import org.apache.hadoop.mapreduce.v2.api.records.TaskState;
 
 public class JobTaskEvent extends JobEvent {
 
-  private TaskId taskID;
-  private TaskState taskState;
+    private TaskId taskID;
+    private TaskState taskState;
 
-  public JobTaskEvent(TaskId taskID, TaskState taskState) {
-    super(taskID.getJobId(), JobEventType.JOB_TASK_COMPLETED);
-    this.taskID = taskID;
-    this.taskState = taskState;
-  }
+    public JobTaskEvent(TaskId taskID, TaskState taskState) {
+        super(taskID.getJobId(), JobEventType.JOB_TASK_COMPLETED);
+        this.taskID = taskID;
+        this.taskState = taskState;
+    }
 
-  public TaskId getTaskID() {
-    return taskID;
-  }
+    public TaskId getTaskID() {
+        return taskID;
+    }
 
-  public TaskState getState() {
-    return taskState;
-  }
+    public TaskState getState() {
+        return taskState;
+    }
 }

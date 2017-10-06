@@ -27,21 +27,21 @@ import org.apache.hadoop.mapred.TaskCompletionEvent;
 @InterfaceStability.Unstable
 public interface ShuffleScheduler<K,V> {
 
-  /**
-   * Wait until the shuffle finishes or until the timeout.
-   * @param millis maximum wait time
-   * @return true if the shuffle is done
-   * @throws InterruptedException
-   */
-  public boolean waitUntilDone(int millis) throws InterruptedException;
+    /**
+     * Wait until the shuffle finishes or until the timeout.
+     * @param millis maximum wait time
+     * @return true if the shuffle is done
+     * @throws InterruptedException
+     */
+    public boolean waitUntilDone(int millis) throws InterruptedException;
 
-  /**
-   * Interpret a {@link TaskCompletionEvent} from the event stream.
-   * @param tce Intermediate output metadata
-   */
-  public void resolve(TaskCompletionEvent tce)
+    /**
+     * Interpret a {@link TaskCompletionEvent} from the event stream.
+     * @param tce Intermediate output metadata
+     */
+    public void resolve(TaskCompletionEvent tce)
     throws IOException, InterruptedException;
 
-  public void close() throws InterruptedException;
+    public void close() throws InterruptedException;
 
 }

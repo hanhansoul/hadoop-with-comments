@@ -48,199 +48,199 @@ import java.util.concurrent.Future;
 @InterfaceAudience.LimitedPrivate("YARN")
 @InterfaceStability.Evolving
 public class RMRegistryOperationsService extends RegistryAdminService {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(RMRegistryOperationsService.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(RMRegistryOperationsService.class);
 
-  private PurgePolicy purgeOnCompletionPolicy = PurgePolicy.PurgeAll;
+    private PurgePolicy purgeOnCompletionPolicy = PurgePolicy.PurgeAll;
 
-  public RMRegistryOperationsService(String name) {
-    this(name, null);
-  }
+    public RMRegistryOperationsService(String name) {
+        this(name, null);
+    }
 
-  public RMRegistryOperationsService(String name,
-      RegistryBindingSource bindingSource) {
-    super(name, bindingSource);
-  }
+    public RMRegistryOperationsService(String name,
+                                       RegistryBindingSource bindingSource) {
+        super(name, bindingSource);
+    }
 
 
-  /**
-   * Extend the parent service initialization by verifying that the
-   * service knows —in a secure cluster— the realm in which it is executing.
-   * It needs this to properly build up the user names and hence their
-   * access rights.
-   *
-   * @param conf configuration of the service
-   * @throws Exception
-   */
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    super.serviceInit(conf);
+    /**
+     * Extend the parent service initialization by verifying that the
+     * service knows —in a secure cluster— the realm in which it is executing.
+     * It needs this to properly build up the user names and hence their
+     * access rights.
+     *
+     * @param conf configuration of the service
+     * @throws Exception
+     */
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        super.serviceInit(conf);
 
-    verifyRealmValidity();
-  }
+        verifyRealmValidity();
+    }
 
-  public PurgePolicy getPurgeOnCompletionPolicy() {
-    return purgeOnCompletionPolicy;
-  }
+    public PurgePolicy getPurgeOnCompletionPolicy() {
+        return purgeOnCompletionPolicy;
+    }
 
-  public void setPurgeOnCompletionPolicy(PurgePolicy purgeOnCompletionPolicy) {
-    this.purgeOnCompletionPolicy = purgeOnCompletionPolicy;
-  }
+    public void setPurgeOnCompletionPolicy(PurgePolicy purgeOnCompletionPolicy) {
+        this.purgeOnCompletionPolicy = purgeOnCompletionPolicy;
+    }
 
-  public void onApplicationAttemptRegistered(ApplicationAttemptId attemptId,
-      String host, int rpcport, String trackingurl) throws IOException {
+    public void onApplicationAttemptRegistered(ApplicationAttemptId attemptId,
+            String host, int rpcport, String trackingurl) throws IOException {
 
-  }
+    }
 
-  public void onApplicationLaunched(ApplicationId id) throws IOException {
+    public void onApplicationLaunched(ApplicationId id) throws IOException {
 
-  }
+    }
 
-  /**
-   * Actions to take as an AM registers itself with the RM.
-   * @param attemptId attempt ID
-   * @throws IOException problems
-   */
-  public void onApplicationMasterRegistered(ApplicationAttemptId attemptId) throws
-      IOException {
-  }
+    /**
+     * Actions to take as an AM registers itself with the RM.
+     * @param attemptId attempt ID
+     * @throws IOException problems
+     */
+    public void onApplicationMasterRegistered(ApplicationAttemptId attemptId) throws
+        IOException {
+    }
 
-  /**
-   * Actions to take when the AM container is completed
-   * @param containerId  container ID
-   * @throws IOException problems
-   */
-  public void onAMContainerFinished(ContainerId containerId) throws
-      IOException {
-    LOG.info("AM Container {} finished, purging application attempt records",
-        containerId);
+    /**
+     * Actions to take when the AM container is completed
+     * @param containerId  container ID
+     * @throws IOException problems
+     */
+    public void onAMContainerFinished(ContainerId containerId) throws
+        IOException {
+        LOG.info("AM Container {} finished, purging application attempt records",
+                 containerId);
 
-    // remove all application attempt entries
-    purgeAppAttemptRecords(containerId.getApplicationAttemptId());
+        // remove all application attempt entries
+        purgeAppAttemptRecords(containerId.getApplicationAttemptId());
 
-    // also treat as a container finish to remove container
-    // level records for the AM container
-    onContainerFinished(containerId);
-  }
+        // also treat as a container finish to remove container
+        // level records for the AM container
+        onContainerFinished(containerId);
+    }
 
-  /**
-   * remove all application attempt entries
-   * @param attemptId attempt ID
-   */
-  protected void purgeAppAttemptRecords(ApplicationAttemptId attemptId) {
-    purgeRecordsAsync("/",
-        attemptId.toString(),
-        PersistencePolicies.APPLICATION_ATTEMPT);
-  }
+    /**
+     * remove all application attempt entries
+     * @param attemptId attempt ID
+     */
+    protected void purgeAppAttemptRecords(ApplicationAttemptId attemptId) {
+        purgeRecordsAsync("/",
+                          attemptId.toString(),
+                          PersistencePolicies.APPLICATION_ATTEMPT);
+    }
 
-  /**
-   * Actions to take when an application attempt is completed
-   * @param attemptId  application  ID
-   * @throws IOException problems
-   */
-  public void onApplicationAttemptUnregistered(ApplicationAttemptId attemptId)
-      throws IOException {
-    LOG.info("Application attempt {} unregistered, purging app attempt records",
-        attemptId);
-    purgeAppAttemptRecords(attemptId);
-  }
+    /**
+     * Actions to take when an application attempt is completed
+     * @param attemptId  application  ID
+     * @throws IOException problems
+     */
+    public void onApplicationAttemptUnregistered(ApplicationAttemptId attemptId)
+    throws IOException {
+        LOG.info("Application attempt {} unregistered, purging app attempt records",
+                 attemptId);
+        purgeAppAttemptRecords(attemptId);
+    }
 
-  /**
-   * Actions to take when an application is completed
-   * @param id  application  ID
-   * @throws IOException problems
-   */
-  public void onApplicationCompleted(ApplicationId id)
-      throws IOException {
-    LOG.info("Application {} completed, purging application-level records",
-        id);
-    purgeRecordsAsync("/",
-        id.toString(),
-        PersistencePolicies.APPLICATION);
-  }
+    /**
+     * Actions to take when an application is completed
+     * @param id  application  ID
+     * @throws IOException problems
+     */
+    public void onApplicationCompleted(ApplicationId id)
+    throws IOException {
+        LOG.info("Application {} completed, purging application-level records",
+                 id);
+        purgeRecordsAsync("/",
+                          id.toString(),
+                          PersistencePolicies.APPLICATION);
+    }
 
-  public void onApplicationAttemptAdded(ApplicationAttemptId appAttemptId) {
-  }
+    public void onApplicationAttemptAdded(ApplicationAttemptId appAttemptId) {
+    }
 
-  /**
-   * This is the event where the user is known, so the user directory
-   * can be created
-   * @param applicationId application  ID
-   * @param user username
-   * @throws IOException problems
-   */
-  public void onStateStoreEvent(ApplicationId applicationId, String user) throws
-      IOException {
-    initUserRegistryAsync(user);
-  }
+    /**
+     * This is the event where the user is known, so the user directory
+     * can be created
+     * @param applicationId application  ID
+     * @param user username
+     * @throws IOException problems
+     */
+    public void onStateStoreEvent(ApplicationId applicationId, String user) throws
+        IOException {
+        initUserRegistryAsync(user);
+    }
 
-  /**
-   * Actions to take when the AM container is completed
-   * @param id  container ID
-   * @throws IOException problems
-   */
-  public void onContainerFinished(ContainerId id) throws IOException {
-    LOG.info("Container {} finished, purging container-level records",
-        id);
-    purgeRecordsAsync("/",
-        id.toString(),
-        PersistencePolicies.CONTAINER);
-  }
+    /**
+     * Actions to take when the AM container is completed
+     * @param id  container ID
+     * @throws IOException problems
+     */
+    public void onContainerFinished(ContainerId id) throws IOException {
+        LOG.info("Container {} finished, purging container-level records",
+                 id);
+        purgeRecordsAsync("/",
+                          id.toString(),
+                          PersistencePolicies.CONTAINER);
+    }
 
-  /**
-   * Queue an async operation to purge all matching records under a base path.
-   * <ol>
-   *   <li>Uses a depth first search</li>
-   *   <li>A match is on ID and persistence policy, or, if policy==-1, any match</li>
-   *   <li>If a record matches then it is deleted without any child searches</li>
-   *   <li>Deletions will be asynchronous if a callback is provided</li>
-   * </ol>
-   * @param path base path
-   * @param id ID for service record.id
-   * @param persistencePolicyMatch ID for the persistence policy to match:
-   * no match, no delete.
-   * @return a future that returns the #of records deleted
-   */
-  @VisibleForTesting
-  public Future<Integer> purgeRecordsAsync(String path,
-      String id,
-      String persistencePolicyMatch) {
+    /**
+     * Queue an async operation to purge all matching records under a base path.
+     * <ol>
+     *   <li>Uses a depth first search</li>
+     *   <li>A match is on ID and persistence policy, or, if policy==-1, any match</li>
+     *   <li>If a record matches then it is deleted without any child searches</li>
+     *   <li>Deletions will be asynchronous if a callback is provided</li>
+     * </ol>
+     * @param path base path
+     * @param id ID for service record.id
+     * @param persistencePolicyMatch ID for the persistence policy to match:
+     * no match, no delete.
+     * @return a future that returns the #of records deleted
+     */
+    @VisibleForTesting
+    public Future<Integer> purgeRecordsAsync(String path,
+            String id,
+            String persistencePolicyMatch) {
 
-    return purgeRecordsAsync(path,
-        id, persistencePolicyMatch,
-        purgeOnCompletionPolicy,
-        new DeleteCompletionCallback());
-  }
+        return purgeRecordsAsync(path,
+                                 id, persistencePolicyMatch,
+                                 purgeOnCompletionPolicy,
+                                 new DeleteCompletionCallback());
+    }
 
-  /**
-   * Queue an async operation to purge all matching records under a base path.
-   * <ol>
-   *   <li>Uses a depth first search</li>
-   *   <li>A match is on ID and persistence policy, or, if policy==-1, any match</li>
-   *   <li>If a record matches then it is deleted without any child searches</li>
-   *   <li>Deletions will be asynchronous if a callback is provided</li>
-   * </ol>
-   * @param path base path
-   * @param id ID for service record.id
-   * @param persistencePolicyMatch ID for the persistence policy to match:
-   * no match, no delete.
-   * @param purgePolicy how to react to children under the entry
-   * @param callback an optional callback
-   * @return a future that returns the #of records deleted
-   */
-  @VisibleForTesting
-  public Future<Integer> purgeRecordsAsync(String path,
-      String id,
-      String persistencePolicyMatch,
-      PurgePolicy purgePolicy,
-      BackgroundCallback callback) {
-    LOG.info(" records under {} with ID {} and policy {}: {}",
-        path, id, persistencePolicyMatch);
-    return submit(
-        new AsyncPurge(path,
-            new SelectByYarnPersistence(id, persistencePolicyMatch),
-            purgePolicy,
-            callback));
-  }
+    /**
+     * Queue an async operation to purge all matching records under a base path.
+     * <ol>
+     *   <li>Uses a depth first search</li>
+     *   <li>A match is on ID and persistence policy, or, if policy==-1, any match</li>
+     *   <li>If a record matches then it is deleted without any child searches</li>
+     *   <li>Deletions will be asynchronous if a callback is provided</li>
+     * </ol>
+     * @param path base path
+     * @param id ID for service record.id
+     * @param persistencePolicyMatch ID for the persistence policy to match:
+     * no match, no delete.
+     * @param purgePolicy how to react to children under the entry
+     * @param callback an optional callback
+     * @return a future that returns the #of records deleted
+     */
+    @VisibleForTesting
+    public Future<Integer> purgeRecordsAsync(String path,
+            String id,
+            String persistencePolicyMatch,
+            PurgePolicy purgePolicy,
+            BackgroundCallback callback) {
+        LOG.info(" records under {} with ID {} and policy {}: {}",
+                 path, id, persistencePolicyMatch);
+        return submit(
+                   new AsyncPurge(path,
+                                  new SelectByYarnPersistence(id, persistencePolicyMatch),
+                                  purgePolicy,
+                                  callback));
+    }
 
 }

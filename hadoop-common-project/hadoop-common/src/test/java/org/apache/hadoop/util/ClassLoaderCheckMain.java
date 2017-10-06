@@ -22,13 +22,13 @@ package org.apache.hadoop.util;
  * {@link ApplicationClassLoader}.
  */
 public class ClassLoaderCheckMain {
-  public static void main(String[] args) {
-    // ClassLoaderCheckMain should be loaded by the application classloader
-    ClassLoaderCheck.checkClassLoader(ClassLoaderCheckMain.class, true);
-    // ClassLoaderCheckSecond should NOT be loaded by the application
-    // classloader
-    ClassLoaderCheck.checkClassLoader(ClassLoaderCheckSecond.class, false);
-    // ClassLoaderCheckThird should be loaded by the application classloader
-    ClassLoaderCheck.checkClassLoader(ClassLoaderCheckThird.class, true);
-  }
+    public static void main(String[] args) {
+        // ClassLoaderCheckMain should be loaded by the application classloader
+        ClassLoaderCheck.checkClassLoader(ClassLoaderCheckMain.class, true);
+        // ClassLoaderCheckSecond should NOT be loaded by the application
+        // classloader
+        ClassLoaderCheck.checkClassLoader(ClassLoaderCheckSecond.class, false);
+        // ClassLoaderCheckThird should be loaded by the application classloader
+        ClassLoaderCheck.checkClassLoader(ClassLoaderCheckThird.class, true);
+    }
 }

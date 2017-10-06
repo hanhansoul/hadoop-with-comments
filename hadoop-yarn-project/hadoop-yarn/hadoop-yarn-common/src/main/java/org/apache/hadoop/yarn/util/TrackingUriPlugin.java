@@ -34,13 +34,13 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 @InterfaceStability.Unstable
 public abstract class TrackingUriPlugin extends Configured {
 
-  /**
-   * Given an application ID, return a tracking URI.
-   * @param id the ID for which a URI is returned
-   * @return the tracking URI
-   * @throws URISyntaxException
-   */
-  public abstract URI getTrackingUri(ApplicationId id)
-      throws URISyntaxException;
+    /**
+     * Given an application ID, return a tracking URI.
+     * @param id the ID for which a URI is returned
+     * @return the tracking URI
+     * @throws URISyntaxException
+     */
+    public abstract URI getTrackingUri(ApplicationId id)
+    throws URISyntaxException;
 
 }

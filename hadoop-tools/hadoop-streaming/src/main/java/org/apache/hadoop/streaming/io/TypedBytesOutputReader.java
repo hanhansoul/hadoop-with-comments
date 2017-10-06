@@ -28,53 +28,53 @@ import org.apache.hadoop.typedbytes.TypedBytesWritable;
 /**
  * OutputReader that reads the client's output as typed bytes.
  */
-public class TypedBytesOutputReader extends 
-  OutputReader<TypedBytesWritable, TypedBytesWritable> {
+public class TypedBytesOutputReader extends
+    OutputReader<TypedBytesWritable, TypedBytesWritable> {
 
-  private byte[] bytes;
-  private DataInput clientIn;
-  private TypedBytesWritable key;
-  private TypedBytesWritable value;
-  private TypedBytesInput in;
-  
-  @Override
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    super.initialize(pipeMapRed);
-    clientIn = pipeMapRed.getClientInput();
-    key = new TypedBytesWritable();
-    value = new TypedBytesWritable();
-    in = new TypedBytesInput(clientIn);
-  }
-  
-  @Override
-  public boolean readKeyValue() throws IOException {
-    bytes = in.readRaw();
-    if (bytes == null) {
-      return false;
-    }
-    key.set(bytes, 0, bytes.length);
-    bytes = in.readRaw();
-    value.set(bytes, 0, bytes.length);
-    return true;
-  }
-  
-  @Override
-  public TypedBytesWritable getCurrentKey() throws IOException {
-    return key;
-  }
-  
-  @Override
-  public TypedBytesWritable getCurrentValue() throws IOException {
-    return value;
-  }
+    private byte[] bytes;
+    private DataInput clientIn;
+    private TypedBytesWritable key;
+    private TypedBytesWritable value;
+    private TypedBytesInput in;
 
-  @Override
-  public String getLastOutput() {
-    if (bytes != null) {
-      return new TypedBytesWritable(bytes).toString();
-    } else {
-      return null;
+    @Override
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        super.initialize(pipeMapRed);
+        clientIn = pipeMapRed.getClientInput();
+        key = new TypedBytesWritable();
+        value = new TypedBytesWritable();
+        in = new TypedBytesInput(clientIn);
     }
-  }
+
+    @Override
+    public boolean readKeyValue() throws IOException {
+        bytes = in.readRaw();
+        if (bytes == null) {
+            return false;
+        }
+        key.set(bytes, 0, bytes.length);
+        bytes = in.readRaw();
+        value.set(bytes, 0, bytes.length);
+        return true;
+    }
+
+    @Override
+    public TypedBytesWritable getCurrentKey() throws IOException {
+        return key;
+    }
+
+    @Override
+    public TypedBytesWritable getCurrentValue() throws IOException {
+        return value;
+    }
+
+    @Override
+    public String getLastOutput() {
+        if (bytes != null) {
+            return new TypedBytesWritable(bytes).toString();
+        } else {
+            return null;
+        }
+    }
 
 }

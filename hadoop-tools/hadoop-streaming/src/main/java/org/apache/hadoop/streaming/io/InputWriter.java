@@ -26,23 +26,23 @@ import org.apache.hadoop.streaming.PipeMapRed;
  * Abstract base for classes that write the client's input.
  */
 public abstract class InputWriter<K, V> {
-  
-  /**
-   * Initializes the InputWriter. This method has to be called before calling
-   * any of the other methods.
-   */
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    // nothing here yet, but that might change in the future
-  }
-  
-  /**
-   * Writes an input key.
-   */
-  public abstract void writeKey(K key) throws IOException;
 
-  /**
-   * Writes an input value.
-   */
-  public abstract void writeValue(V value) throws IOException;
+    /**
+     * Initializes the InputWriter. This method has to be called before calling
+     * any of the other methods.
+     */
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        // nothing here yet, but that might change in the future
+    }
+
+    /**
+     * Writes an input key.
+     */
+    public abstract void writeKey(K key) throws IOException;
+
+    /**
+     * Writes an input value.
+     */
+    public abstract void writeValue(V value) throws IOException;
 
 }

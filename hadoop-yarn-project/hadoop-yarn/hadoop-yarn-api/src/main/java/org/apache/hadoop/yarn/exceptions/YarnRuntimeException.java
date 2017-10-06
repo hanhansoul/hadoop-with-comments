@@ -31,10 +31,14 @@ import org.apache.hadoop.classification.InterfaceStability.Unstable;
 @Unstable
 public class YarnRuntimeException extends RuntimeException {
 
-  private static final long serialVersionUID = -7153142425412203936L;
-  public YarnRuntimeException(Throwable cause) { super(cause); }
-  public YarnRuntimeException(String message) { super(message); }
-  public YarnRuntimeException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    private static final long serialVersionUID = -7153142425412203936L;
+    public YarnRuntimeException(Throwable cause) {
+        super(cause);
+    }
+    public YarnRuntimeException(String message) {
+        super(message);
+    }
+    public YarnRuntimeException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

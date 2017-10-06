@@ -31,35 +31,35 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceStability.Evolving
 public interface UserResolver {
 
-  /**
-   * Configure the user map given the URI and configuration. The resolver's
-   * contract will define how the resource will be interpreted, but the default
-   * will typically interpret the URI as a {@link org.apache.hadoop.fs.Path}
-   * listing target users.
-   * This method should be called only if {@link #needsTargetUsersList()}
-   * returns true.
-   * @param userdesc URI from which user information may be loaded per the
-   * subclass contract.
-   * @param conf The tool configuration.
-   * @return true if the resource provided was used in building the list of
-   * target users
-   */
-  public boolean setTargetUsers(URI userdesc, Configuration conf)
+    /**
+     * Configure the user map given the URI and configuration. The resolver's
+     * contract will define how the resource will be interpreted, but the default
+     * will typically interpret the URI as a {@link org.apache.hadoop.fs.Path}
+     * listing target users.
+     * This method should be called only if {@link #needsTargetUsersList()}
+     * returns true.
+     * @param userdesc URI from which user information may be loaded per the
+     * subclass contract.
+     * @param conf The tool configuration.
+     * @return true if the resource provided was used in building the list of
+     * target users
+     */
+    public boolean setTargetUsers(URI userdesc, Configuration conf)
     throws IOException;
 
-  /**
-   * Map the given UGI to another per the subclass contract.
-   * @param ugi User information from the trace.
-   */
-  public UserGroupInformation getTargetUgi(UserGroupInformation ugi);
+    /**
+     * Map the given UGI to another per the subclass contract.
+     * @param ugi User information from the trace.
+     */
+    public UserGroupInformation getTargetUgi(UserGroupInformation ugi);
 
-  /**
-   * Indicates whether this user resolver needs a list of target users to be
-   * provided.
-   *
-   * @return true if a list of target users is to be provided for this
-   * user resolver
-   */
-  public boolean needsTargetUsersList();
+    /**
+     * Indicates whether this user resolver needs a list of target users to be
+     * provided.
+     *
+     * @return true if a list of target users is to be provided for this
+     * user resolver
+     */
+    public boolean needsTargetUsersList();
 
 }

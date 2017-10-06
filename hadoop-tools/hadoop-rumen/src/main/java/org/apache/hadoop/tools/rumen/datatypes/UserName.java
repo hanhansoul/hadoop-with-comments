@@ -21,20 +21,20 @@ package org.apache.hadoop.tools.rumen.datatypes;
  * Represents a user's name.
  */
 public class UserName extends DefaultAnonymizableDataType {
-  private final String userName;
-  
-  public UserName(String userName) {
-    super();
-    this.userName = userName;
-  }
-  
-  @Override
-  public String getValue() {
-    return userName;
-  }
-  
-  @Override
-  protected String getPrefix() {
-    return "user";
-  }
+    private final String userName;
+
+    public UserName(String userName) {
+        super();
+        this.userName = userName;
+    }
+
+    @Override
+    public String getValue() {
+        return userName;
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "user";
+    }
 }

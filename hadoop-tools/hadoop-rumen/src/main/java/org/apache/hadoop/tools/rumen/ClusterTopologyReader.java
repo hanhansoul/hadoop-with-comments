@@ -28,54 +28,54 @@ import org.apache.hadoop.fs.Path;
  * {@link LoggedNetworkTopology} object.
  */
 public class ClusterTopologyReader {
-  private LoggedNetworkTopology topology;
+    private LoggedNetworkTopology topology;
 
-  private void readTopology(JsonObjectMapperParser<LoggedNetworkTopology> parser)
-      throws IOException {
-    try {
-      topology = parser.getNext();
-      if (topology == null) {
-        throw new IOException(
-            "Input file does not contain valid topology data.");
-      }
-    } finally {
-      parser.close();
+    private void readTopology(JsonObjectMapperParser<LoggedNetworkTopology> parser)
+    throws IOException {
+        try {
+            topology = parser.getNext();
+            if (topology == null) {
+                throw new IOException(
+                    "Input file does not contain valid topology data.");
+            }
+        } finally {
+            parser.close();
+        }
     }
-  }
 
-  /**
-   * Constructor.
-   * 
-   * @param path
-   *          Path to the JSON-encoded topology file, possibly compressed.
-   * @param conf
-   * @throws IOException
-   */
-  public ClusterTopologyReader(Path path, Configuration conf)
-      throws IOException {
-    JsonObjectMapperParser<LoggedNetworkTopology> parser = new JsonObjectMapperParser<LoggedNetworkTopology>(
-        path, LoggedNetworkTopology.class, conf);
-    readTopology(parser);
-  }
+    /**
+     * Constructor.
+     *
+     * @param path
+     *          Path to the JSON-encoded topology file, possibly compressed.
+     * @param conf
+     * @throws IOException
+     */
+    public ClusterTopologyReader(Path path, Configuration conf)
+    throws IOException {
+        JsonObjectMapperParser<LoggedNetworkTopology> parser = new JsonObjectMapperParser<LoggedNetworkTopology>(
+            path, LoggedNetworkTopology.class, conf);
+        readTopology(parser);
+    }
 
-  /**
-   * Constructor.
-   * 
-   * @param input
-   *          The input stream for the JSON-encoded topology data.
-   */
-  public ClusterTopologyReader(InputStream input) throws IOException {
-    JsonObjectMapperParser<LoggedNetworkTopology> parser = new JsonObjectMapperParser<LoggedNetworkTopology>(
-        input, LoggedNetworkTopology.class);
-    readTopology(parser);
-  }
+    /**
+     * Constructor.
+     *
+     * @param input
+     *          The input stream for the JSON-encoded topology data.
+     */
+    public ClusterTopologyReader(InputStream input) throws IOException {
+        JsonObjectMapperParser<LoggedNetworkTopology> parser = new JsonObjectMapperParser<LoggedNetworkTopology>(
+            input, LoggedNetworkTopology.class);
+        readTopology(parser);
+    }
 
-  /**
-   * Get the {@link LoggedNetworkTopology} object.
-   * 
-   * @return The {@link LoggedNetworkTopology} object parsed from the input.
-   */
-  public LoggedNetworkTopology get() {
-    return topology;
-  }
+    /**
+     * Get the {@link LoggedNetworkTopology} object.
+     *
+     * @return The {@link LoggedNetworkTopology} object parsed from the input.
+     */
+    public LoggedNetworkTopology get() {
+        return topology;
+    }
 }

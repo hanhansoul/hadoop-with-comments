@@ -26,51 +26,51 @@ import org.apache.hadoop.yarn.server.resourcemanager.security.AMRMTokenSecretMan
 import org.apache.hadoop.yarn.util.Records;
 
 /**
- * Contains all the state data that needs to be stored persistently 
+ * Contains all the state data that needs to be stored persistently
  * for {@link AMRMTokenSecretManager}
  */
 @Public
 @Unstable
 public abstract class AMRMTokenSecretManagerState {
-  public static AMRMTokenSecretManagerState newInstance(
-      MasterKey currentMasterKey, MasterKey nextMasterKey) {
-    AMRMTokenSecretManagerState data =
-        Records.newRecord(AMRMTokenSecretManagerState.class);
-    data.setCurrentMasterKey(currentMasterKey);
-    data.setNextMasterKey(nextMasterKey);
-    return data;
-  }
+    public static AMRMTokenSecretManagerState newInstance(
+        MasterKey currentMasterKey, MasterKey nextMasterKey) {
+        AMRMTokenSecretManagerState data =
+            Records.newRecord(AMRMTokenSecretManagerState.class);
+        data.setCurrentMasterKey(currentMasterKey);
+        data.setNextMasterKey(nextMasterKey);
+        return data;
+    }
 
-  public static AMRMTokenSecretManagerState newInstance(
-      AMRMTokenSecretManagerState state) {
-    AMRMTokenSecretManagerState data =
-        Records.newRecord(AMRMTokenSecretManagerState.class);
-    data.setCurrentMasterKey(state.getCurrentMasterKey());
-    data.setNextMasterKey(state.getNextMasterKey());
-    return data;
-  }
+    public static AMRMTokenSecretManagerState newInstance(
+        AMRMTokenSecretManagerState state) {
+        AMRMTokenSecretManagerState data =
+            Records.newRecord(AMRMTokenSecretManagerState.class);
+        data.setCurrentMasterKey(state.getCurrentMasterKey());
+        data.setNextMasterKey(state.getNextMasterKey());
+        return data;
+    }
 
-  /**
-   * {@link AMRMTokenSecretManager} current Master key
-   */
-  @Public
-  @Unstable
-  public abstract MasterKey getCurrentMasterKey();
+    /**
+     * {@link AMRMTokenSecretManager} current Master key
+     */
+    @Public
+    @Unstable
+    public abstract MasterKey getCurrentMasterKey();
 
-  @Public
-  @Unstable
-  public abstract void setCurrentMasterKey(MasterKey currentMasterKey);
+    @Public
+    @Unstable
+    public abstract void setCurrentMasterKey(MasterKey currentMasterKey);
 
-  /**
-   * {@link AMRMTokenSecretManager} next Master key
-   */
-  @Public
-  @Unstable
-  public abstract MasterKey getNextMasterKey();
+    /**
+     * {@link AMRMTokenSecretManager} next Master key
+     */
+    @Public
+    @Unstable
+    public abstract MasterKey getNextMasterKey();
 
-  @Public
-  @Unstable
-  public abstract void setNextMasterKey(MasterKey nextMasterKey);
+    @Public
+    @Unstable
+    public abstract void setNextMasterKey(MasterKey nextMasterKey);
 
-  public abstract AMRMTokenSecretManagerStateProto getProto();
+    public abstract AMRMTokenSecretManagerStateProto getProto();
 }

@@ -33,37 +33,37 @@ import org.apache.hadoop.io.compress.Compressor;
  * will be applied if the path has the right suffix.
  */
 public class DefaultOutputter<T> implements Outputter<T> {
-  JsonObjectMapperWriter<T> writer;
-  Compressor compressor;
-  
-  @Override
-  public void init(Path path, Configuration conf) throws IOException {
-    FileSystem fs = path.getFileSystem(conf);
-    CompressionCodec codec = new CompressionCodecFactory(conf).getCodec(path);
-    OutputStream output;
-    if (codec != null) {
-      compressor = CodecPool.getCompressor(codec);
-      output = codec.createOutputStream(fs.create(path), compressor);
-    } else {
-      output = fs.create(path);
-    }
-    writer = new JsonObjectMapperWriter<T>(output, 
-        conf.getBoolean("rumen.output.pretty.print", true));
-  }
+    JsonObjectMapperWriter<T> writer;
+    Compressor compressor;
 
-  @Override
-  public void output(T object) throws IOException {
-    writer.write(object);
-  }
-
-  @Override
-  public void close() throws IOException {
-    try {
-      writer.close();
-    } finally {
-      if (compressor != null) {
-        CodecPool.returnCompressor(compressor);
-      }
+    @Override
+    public void init(Path path, Configuration conf) throws IOException {
+        FileSystem fs = path.getFileSystem(conf);
+        CompressionCodec codec = new CompressionCodecFactory(conf).getCodec(path);
+        OutputStream output;
+        if (codec != null) {
+            compressor = CodecPool.getCompressor(codec);
+            output = codec.createOutputStream(fs.create(path), compressor);
+        } else {
+            output = fs.create(path);
+        }
+        writer = new JsonObjectMapperWriter<T>(output,
+                                               conf.getBoolean("rumen.output.pretty.print", true));
     }
-  }
+
+    @Override
+    public void output(T object) throws IOException {
+        writer.write(object);
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            writer.close();
+        } finally {
+            if (compressor != null) {
+                CodecPool.returnCompressor(compressor);
+            }
+        }
+    }
 }

@@ -41,81 +41,81 @@ import org.slf4j.MDC;
 
 public class TestMDCFilter extends HTestCase {
 
-  @Test
-  public void mdc() throws Exception {
-    HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
-    Mockito.when(request.getUserPrincipal()).thenReturn(null);
-    Mockito.when(request.getMethod()).thenReturn("METHOD");
-    Mockito.when(request.getPathInfo()).thenReturn("/pathinfo");
+    @Test
+    public void mdc() throws Exception {
+        HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
+        Mockito.when(request.getUserPrincipal()).thenReturn(null);
+        Mockito.when(request.getMethod()).thenReturn("METHOD");
+        Mockito.when(request.getPathInfo()).thenReturn("/pathinfo");
 
-    ServletResponse response = Mockito.mock(ServletResponse.class);
+        ServletResponse response = Mockito.mock(ServletResponse.class);
 
-    final AtomicBoolean invoked = new AtomicBoolean();
+        final AtomicBoolean invoked = new AtomicBoolean();
 
-    FilterChain chain = new FilterChain() {
-      @Override
-      public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-        throws IOException, ServletException {
-        assertEquals(MDC.get("hostname"), null);
-        assertEquals(MDC.get("user"), null);
-        assertEquals(MDC.get("method"), "METHOD");
-        assertEquals(MDC.get("path"), "/pathinfo");
-        invoked.set(true);
-      }
-    };
+        FilterChain chain = new FilterChain() {
+            @Override
+            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IOException, ServletException {
+                assertEquals(MDC.get("hostname"), null);
+                assertEquals(MDC.get("user"), null);
+                assertEquals(MDC.get("method"), "METHOD");
+                assertEquals(MDC.get("path"), "/pathinfo");
+                invoked.set(true);
+            }
+        };
 
-    MDC.clear();
-    Filter filter = new MDCFilter();
-    filter.init(null);
+        MDC.clear();
+        Filter filter = new MDCFilter();
+        filter.init(null);
 
-    filter.doFilter(request, response, chain);
-    assertTrue(invoked.get());
-    assertNull(MDC.get("hostname"));
-    assertNull(MDC.get("user"));
-    assertNull(MDC.get("method"));
-    assertNull(MDC.get("path"));
+        filter.doFilter(request, response, chain);
+        assertTrue(invoked.get());
+        assertNull(MDC.get("hostname"));
+        assertNull(MDC.get("user"));
+        assertNull(MDC.get("method"));
+        assertNull(MDC.get("path"));
 
-    Mockito.when(request.getUserPrincipal()).thenReturn(new Principal() {
-      @Override
-      public String getName() {
-        return "name";
-      }
-    });
+        Mockito.when(request.getUserPrincipal()).thenReturn(new Principal() {
+            @Override
+            public String getName() {
+                return "name";
+            }
+        });
 
-    invoked.set(false);
-    chain = new FilterChain() {
-      @Override
-      public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-        throws IOException, ServletException {
-        assertEquals(MDC.get("hostname"), null);
-        assertEquals(MDC.get("user"), "name");
-        assertEquals(MDC.get("method"), "METHOD");
-        assertEquals(MDC.get("path"), "/pathinfo");
-        invoked.set(true);
-      }
-    };
-    filter.doFilter(request, response, chain);
-    assertTrue(invoked.get());
+        invoked.set(false);
+        chain = new FilterChain() {
+            @Override
+            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IOException, ServletException {
+                assertEquals(MDC.get("hostname"), null);
+                assertEquals(MDC.get("user"), "name");
+                assertEquals(MDC.get("method"), "METHOD");
+                assertEquals(MDC.get("path"), "/pathinfo");
+                invoked.set(true);
+            }
+        };
+        filter.doFilter(request, response, chain);
+        assertTrue(invoked.get());
 
-    HostnameFilter.HOSTNAME_TL.set("HOST");
+        HostnameFilter.HOSTNAME_TL.set("HOST");
 
-    invoked.set(false);
-    chain = new FilterChain() {
-      @Override
-      public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
-        throws IOException, ServletException {
-        assertEquals(MDC.get("hostname"), "HOST");
-        assertEquals(MDC.get("user"), "name");
-        assertEquals(MDC.get("method"), "METHOD");
-        assertEquals(MDC.get("path"), "/pathinfo");
-        invoked.set(true);
-      }
-    };
-    filter.doFilter(request, response, chain);
-    assertTrue(invoked.get());
+        invoked.set(false);
+        chain = new FilterChain() {
+            @Override
+            public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IOException, ServletException {
+                assertEquals(MDC.get("hostname"), "HOST");
+                assertEquals(MDC.get("user"), "name");
+                assertEquals(MDC.get("method"), "METHOD");
+                assertEquals(MDC.get("path"), "/pathinfo");
+                invoked.set(true);
+            }
+        };
+        filter.doFilter(request, response, chain);
+        assertTrue(invoked.get());
 
-    HostnameFilter.HOSTNAME_TL.remove();
+        HostnameFilter.HOSTNAME_TL.remove();
 
-    filter.destroy();
-  }
+        filter.destroy();
+    }
 }

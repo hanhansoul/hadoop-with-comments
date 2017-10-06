@@ -22,15 +22,15 @@ package org.apache.hadoop.fs.swift.exceptions;
  */
 public class SwiftConnectionClosedException extends SwiftException {
 
-  public static final String MESSAGE =
-    "Connection to Swift service has been closed";
+    public static final String MESSAGE =
+        "Connection to Swift service has been closed";
 
-  public SwiftConnectionClosedException() {
-    super(MESSAGE);
-  }
+    public SwiftConnectionClosedException() {
+        super(MESSAGE);
+    }
 
-  public SwiftConnectionClosedException(String reason) {
-    super(MESSAGE + ": " + reason);
-  }
+    public SwiftConnectionClosedException(String reason) {
+        super(MESSAGE + ": " + reason);
+    }
 
 }

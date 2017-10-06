@@ -20,48 +20,48 @@ package org.apache.hadoop.mapred;
 
 // Workaround for ProgressSplitBlock being package access
 public class WrappedProgressSplitsBlock extends ProgressSplitsBlock {
-  private WrappedPeriodicStatsAccumulator wrappedProgressWallclockTime;
-  private WrappedPeriodicStatsAccumulator wrappedProgressCPUTime;
-  private WrappedPeriodicStatsAccumulator wrappedProgressVirtualMemoryKbytes;
-  private WrappedPeriodicStatsAccumulator wrappedProgressPhysicalMemoryKbytes;
+    private WrappedPeriodicStatsAccumulator wrappedProgressWallclockTime;
+    private WrappedPeriodicStatsAccumulator wrappedProgressCPUTime;
+    private WrappedPeriodicStatsAccumulator wrappedProgressVirtualMemoryKbytes;
+    private WrappedPeriodicStatsAccumulator wrappedProgressPhysicalMemoryKbytes;
 
-  public WrappedProgressSplitsBlock(int numberSplits) {
-    super(numberSplits);
-  }
-
-  public int[][] burst() {
-    return super.burst();
-  }
-
-  public WrappedPeriodicStatsAccumulator getProgressWallclockTime() {
-    if (wrappedProgressWallclockTime == null) {
-      wrappedProgressWallclockTime = new WrappedPeriodicStatsAccumulator(
-          progressWallclockTime);
+    public WrappedProgressSplitsBlock(int numberSplits) {
+        super(numberSplits);
     }
-    return wrappedProgressWallclockTime;
-  }
 
-  public WrappedPeriodicStatsAccumulator getProgressCPUTime() {
-    if (wrappedProgressCPUTime == null) {
-      wrappedProgressCPUTime = new WrappedPeriodicStatsAccumulator(
-          progressCPUTime);
+    public int[][] burst() {
+        return super.burst();
     }
-    return wrappedProgressCPUTime;
-  }
 
-  public WrappedPeriodicStatsAccumulator getProgressVirtualMemoryKbytes() {
-    if (wrappedProgressVirtualMemoryKbytes == null) {
-      wrappedProgressVirtualMemoryKbytes = new WrappedPeriodicStatsAccumulator(
-          progressVirtualMemoryKbytes);
+    public WrappedPeriodicStatsAccumulator getProgressWallclockTime() {
+        if (wrappedProgressWallclockTime == null) {
+            wrappedProgressWallclockTime = new WrappedPeriodicStatsAccumulator(
+                progressWallclockTime);
+        }
+        return wrappedProgressWallclockTime;
     }
-    return wrappedProgressVirtualMemoryKbytes;
-  }
 
-  public WrappedPeriodicStatsAccumulator getProgressPhysicalMemoryKbytes() {
-    if (wrappedProgressPhysicalMemoryKbytes == null) {
-      wrappedProgressPhysicalMemoryKbytes = new WrappedPeriodicStatsAccumulator(
-          progressPhysicalMemoryKbytes);
+    public WrappedPeriodicStatsAccumulator getProgressCPUTime() {
+        if (wrappedProgressCPUTime == null) {
+            wrappedProgressCPUTime = new WrappedPeriodicStatsAccumulator(
+                progressCPUTime);
+        }
+        return wrappedProgressCPUTime;
     }
-    return wrappedProgressPhysicalMemoryKbytes;
-  }
+
+    public WrappedPeriodicStatsAccumulator getProgressVirtualMemoryKbytes() {
+        if (wrappedProgressVirtualMemoryKbytes == null) {
+            wrappedProgressVirtualMemoryKbytes = new WrappedPeriodicStatsAccumulator(
+                progressVirtualMemoryKbytes);
+        }
+        return wrappedProgressVirtualMemoryKbytes;
+    }
+
+    public WrappedPeriodicStatsAccumulator getProgressPhysicalMemoryKbytes() {
+        if (wrappedProgressPhysicalMemoryKbytes == null) {
+            wrappedProgressPhysicalMemoryKbytes = new WrappedPeriodicStatsAccumulator(
+                progressPhysicalMemoryKbytes);
+        }
+        return wrappedProgressPhysicalMemoryKbytes;
+    }
 }

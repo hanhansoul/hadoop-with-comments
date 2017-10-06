@@ -40,43 +40,43 @@ import org.apache.hadoop.yarn.server.security.ApplicationACLsManager;
  */
 public interface Context {
 
-  /**
-   * Return the nodeId. Usable only when the ContainerManager is started.
-   * 
-   * @return the NodeId
-   */
-  NodeId getNodeId();
+    /**
+     * Return the nodeId. Usable only when the ContainerManager is started.
+     *
+     * @return the NodeId
+     */
+    NodeId getNodeId();
 
-  /**
-   * Return the node http-address. Usable only after the Webserver is started.
-   * 
-   * @return the http-port
-   */
-  int getHttpPort();
+    /**
+     * Return the node http-address. Usable only after the Webserver is started.
+     *
+     * @return the http-port
+     */
+    int getHttpPort();
 
-  ConcurrentMap<ApplicationId, Application> getApplications();
+    ConcurrentMap<ApplicationId, Application> getApplications();
 
-  Map<ApplicationId, Credentials> getSystemCredentialsForApps();
+    Map<ApplicationId, Credentials> getSystemCredentialsForApps();
 
-  ConcurrentMap<ContainerId, Container> getContainers();
+    ConcurrentMap<ContainerId, Container> getContainers();
 
-  NMContainerTokenSecretManager getContainerTokenSecretManager();
-  
-  NMTokenSecretManagerInNM getNMTokenSecretManager();
+    NMContainerTokenSecretManager getContainerTokenSecretManager();
 
-  NodeHealthStatus getNodeHealthStatus();
+    NMTokenSecretManagerInNM getNMTokenSecretManager();
 
-  ContainerManagementProtocol getContainerManager();
+    NodeHealthStatus getNodeHealthStatus();
 
-  LocalDirsHandlerService getLocalDirsHandler();
+    ContainerManagementProtocol getContainerManager();
 
-  ApplicationACLsManager getApplicationACLsManager();
+    LocalDirsHandlerService getLocalDirsHandler();
 
-  NMStateStoreService getNMStateStore();
+    ApplicationACLsManager getApplicationACLsManager();
 
-  boolean getDecommissioned();
+    NMStateStoreService getNMStateStore();
 
-  void setDecommissioned(boolean isDecommissioned);
+    boolean getDecommissioned();
 
-  NodeStatusUpdater getNodeStatusUpdater();
+    void setDecommissioned(boolean isDecommissioned);
+
+    NodeStatusUpdater getNodeStatusUpdater();
 }

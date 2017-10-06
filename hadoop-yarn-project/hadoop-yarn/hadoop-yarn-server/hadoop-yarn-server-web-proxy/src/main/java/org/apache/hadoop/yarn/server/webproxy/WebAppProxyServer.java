@@ -34,85 +34,85 @@ import org.apache.hadoop.yarn.exceptions.YarnRuntimeException;
 
 /**
  * ProxyServer will sit in between the end user and AppMaster
- * web interfaces. 
+ * web interfaces.
  */
 public class WebAppProxyServer extends CompositeService {
 
-  /**
-   * Priority of the ResourceManager shutdown hook.
-   */
-  public static final int SHUTDOWN_HOOK_PRIORITY = 30;
+    /**
+     * Priority of the ResourceManager shutdown hook.
+     */
+    public static final int SHUTDOWN_HOOK_PRIORITY = 30;
 
-  private static final Log LOG = LogFactory.getLog(WebAppProxyServer.class);
-  
-  private WebAppProxy proxy = null;
-  
-  public WebAppProxyServer() {
-    super(WebAppProxyServer.class.getName());
-  }
+    private static final Log LOG = LogFactory.getLog(WebAppProxyServer.class);
 
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    Configuration config = new YarnConfiguration(conf);
-    try {
-      doSecureLogin(conf);      
-    } catch(IOException ie) {
-      throw new YarnRuntimeException("Proxy Server Failed to login", ie);
+    private WebAppProxy proxy = null;
+
+    public WebAppProxyServer() {
+        super(WebAppProxyServer.class.getName());
     }
-    proxy = new WebAppProxy();
-    addService(proxy);
-    super.serviceInit(config);
-  }
 
-  /**
-   * Log in as the Kerberose principal designated for the proxy
-   * @param conf the configuration holding this information in it.
-   * @throws IOException on any error.
-   */
-  protected void doSecureLogin(Configuration conf) throws IOException {
-    InetSocketAddress socAddr = getBindAddress(conf);  
-    SecurityUtil.login(conf, YarnConfiguration.PROXY_KEYTAB,
-        YarnConfiguration.PROXY_PRINCIPAL, socAddr.getHostName());
-  }
-
-  /**
-   * Retrieve PROXY bind address from configuration
-   *
-   * @param conf
-   * @return InetSocketAddress
-   */
-  public static InetSocketAddress getBindAddress(Configuration conf) {
-    return conf.getSocketAddr(YarnConfiguration.PROXY_ADDRESS,
-      YarnConfiguration.DEFAULT_PROXY_ADDRESS,
-      YarnConfiguration.DEFAULT_PROXY_PORT);
-  }
-
-  public static void main(String[] args) {
-    Thread.setDefaultUncaughtExceptionHandler(new YarnUncaughtExceptionHandler());
-    StringUtils.startupShutdownMessage(WebAppProxyServer.class, args, LOG);
-    try {
-      YarnConfiguration configuration = new YarnConfiguration();
-      WebAppProxyServer proxyServer = startServer(configuration);
-      proxyServer.proxy.join();
-    } catch (Throwable t) {
-      LOG.fatal("Error starting Proxy server", t);
-      System.exit(-1);
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        Configuration config = new YarnConfiguration(conf);
+        try {
+            doSecureLogin(conf);
+        } catch(IOException ie) {
+            throw new YarnRuntimeException("Proxy Server Failed to login", ie);
+        }
+        proxy = new WebAppProxy();
+        addService(proxy);
+        super.serviceInit(config);
     }
-  }
 
-  /**
-   * Start proxy server.
-   * 
-   * @return proxy server instance.
-   */
-  protected static WebAppProxyServer startServer(Configuration configuration)
-      throws Exception {
-    WebAppProxyServer proxy = new WebAppProxyServer();
-    ShutdownHookManager.get().addShutdownHook(
-        new CompositeServiceShutdownHook(proxy), SHUTDOWN_HOOK_PRIORITY);
-    proxy.init(configuration);
-    proxy.start();
-    return proxy;
-  }
+    /**
+     * Log in as the Kerberose principal designated for the proxy
+     * @param conf the configuration holding this information in it.
+     * @throws IOException on any error.
+     */
+    protected void doSecureLogin(Configuration conf) throws IOException {
+        InetSocketAddress socAddr = getBindAddress(conf);
+        SecurityUtil.login(conf, YarnConfiguration.PROXY_KEYTAB,
+                           YarnConfiguration.PROXY_PRINCIPAL, socAddr.getHostName());
+    }
+
+    /**
+     * Retrieve PROXY bind address from configuration
+     *
+     * @param conf
+     * @return InetSocketAddress
+     */
+    public static InetSocketAddress getBindAddress(Configuration conf) {
+        return conf.getSocketAddr(YarnConfiguration.PROXY_ADDRESS,
+                                  YarnConfiguration.DEFAULT_PROXY_ADDRESS,
+                                  YarnConfiguration.DEFAULT_PROXY_PORT);
+    }
+
+    public static void main(String[] args) {
+        Thread.setDefaultUncaughtExceptionHandler(new YarnUncaughtExceptionHandler());
+        StringUtils.startupShutdownMessage(WebAppProxyServer.class, args, LOG);
+        try {
+            YarnConfiguration configuration = new YarnConfiguration();
+            WebAppProxyServer proxyServer = startServer(configuration);
+            proxyServer.proxy.join();
+        } catch (Throwable t) {
+            LOG.fatal("Error starting Proxy server", t);
+            System.exit(-1);
+        }
+    }
+
+    /**
+     * Start proxy server.
+     *
+     * @return proxy server instance.
+     */
+    protected static WebAppProxyServer startServer(Configuration configuration)
+    throws Exception {
+        WebAppProxyServer proxy = new WebAppProxyServer();
+        ShutdownHookManager.get().addShutdownHook(
+            new CompositeServiceShutdownHook(proxy), SHUTDOWN_HOOK_PRIORITY);
+        proxy.init(configuration);
+        proxy.start();
+        return proxy;
+    }
 
 }

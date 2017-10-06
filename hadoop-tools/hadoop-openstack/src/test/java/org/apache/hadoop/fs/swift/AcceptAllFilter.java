@@ -24,8 +24,8 @@ import org.apache.hadoop.fs.PathFilter;
  * A path filter that accepts everything
  */
 public class AcceptAllFilter implements PathFilter {
-  @Override
-  public boolean accept(Path file) {
-    return true;
-  }
+    @Override
+    public boolean accept(Path file) {
+        return true;
+    }
 }

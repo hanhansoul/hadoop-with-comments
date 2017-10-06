@@ -46,184 +46,184 @@ import static org.junit.Assert.fail;
  * </p>
  * <p>
  * To test a given {@link FileSystem} implementation create a subclass of this
- * test and override {@link #setUp()} to initialize the <code>fc</code> 
+ * test and override {@link #setUp()} to initialize the <code>fc</code>
  * {@link FileContext} instance variable.
- * 
- * Since this a junit 4 you can also do a single setup before 
+ *
+ * Since this a junit 4 you can also do a single setup before
  * the start of any tests.
  * E.g.
  *     @BeforeClass   public static void clusterSetupAtBegining()
  *     @AfterClass    public static void ClusterShutdownAtEnd()
  * </p>
  */
-public abstract class FileContextPermissionBase {  
-  
-  {
-    try {
-      ((org.apache.commons.logging.impl.Log4JLogger)FileSystem.LOG).getLogger()
-      .setLevel(org.apache.log4j.Level.DEBUG);
-    }
-    catch(Exception e) {
-      System.out.println("Cannot change log level\n"
-          + StringUtils.stringifyException(e));
-    }
-  }
-  
-  protected FileContextTestHelper fileContextTestHelper;
-  protected FileContext fc;
+public abstract class FileContextPermissionBase {
 
-  protected FileContextTestHelper getFileContextHelper() {
-      return new FileContextTestHelper(); 
-  }
-  
-  protected abstract FileContext getFileContext() throws Exception;
-  
-  @Before
-  public void setUp() throws Exception {
-    fileContextTestHelper = getFileContextHelper();
-    fc = getFileContext();
-    fc.mkdir(fileContextTestHelper.getTestRootPath(fc), FileContext.DEFAULT_PERM, true);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    fc.delete(fileContextTestHelper.getTestRootPath(fc), true);
-  }
-  
-  private void cleanupFile(FileContext fc, Path name) throws IOException {
-    Assert.assertTrue(exists(fc, name));
-    fc.delete(name, true);
-    Assert.assertTrue(!exists(fc, name));
-  }
-
-  @Test
-  public void testCreatePermission() throws IOException {
-    if (Path.WINDOWS) {
-      System.out.println("Cannot run test for Windows");
-      return;
-    }
-    String filename = "foo";
-    Path f = fileContextTestHelper.getTestRootPath(fc, filename);
-    fileContextTestHelper.createFile(fc, filename);
-    doFilePermissionCheck(FileContext.FILE_DEFAULT_PERM.applyUMask(fc.getUMask()),
-                        fc.getFileStatus(f).getPermission());
-  }
-  
-  
-  @Test
-  public void testSetPermission() throws IOException {
-    if (Path.WINDOWS) {
-      System.out.println("Cannot run test for Windows");
-      return;
+    {
+        try {
+            ((org.apache.commons.logging.impl.Log4JLogger)FileSystem.LOG).getLogger()
+            .setLevel(org.apache.log4j.Level.DEBUG);
+        } catch(Exception e) {
+            System.out.println("Cannot change log level\n"
+                               + StringUtils.stringifyException(e));
+        }
     }
 
-    String filename = "foo";
-    Path f = fileContextTestHelper.getTestRootPath(fc, filename);
-    createFile(fc, f);
+    protected FileContextTestHelper fileContextTestHelper;
+    protected FileContext fc;
 
-    try {
-      // create files and manipulate them.
-      FsPermission all = new FsPermission((short)0777);
-      FsPermission none = new FsPermission((short)0);
-
-      fc.setPermission(f, none);
-      doFilePermissionCheck(none, fc.getFileStatus(f).getPermission());
-
-      fc.setPermission(f, all);
-      doFilePermissionCheck(all, fc.getFileStatus(f).getPermission());
-    }
-    finally {cleanupFile(fc, f);}
-  }
-
-  @Test
-  public void testSetOwner() throws IOException {
-    if (Path.WINDOWS) {
-      System.out.println("Cannot run test for Windows");
-      return;
+    protected FileContextTestHelper getFileContextHelper() {
+        return new FileContextTestHelper();
     }
 
-    String filename = "bar";
-    Path f = fileContextTestHelper.getTestRootPath(fc, filename);
-    createFile(fc, f);
-    List<String> groups = null;
-    try {
-      groups = getGroups();
-      System.out.println(filename + ": " + fc.getFileStatus(f).getPermission());
-    }
-    catch(IOException e) {
-      System.out.println(StringUtils.stringifyException(e));
-      System.out.println("Cannot run test");
-      return;
-    }
-    if (groups == null || groups.size() < 1) {
-      System.out.println("Cannot run test: need at least one group.  groups="
-                         + groups);
-      return;
+    protected abstract FileContext getFileContext() throws Exception;
+
+    @Before
+    public void setUp() throws Exception {
+        fileContextTestHelper = getFileContextHelper();
+        fc = getFileContext();
+        fc.mkdir(fileContextTestHelper.getTestRootPath(fc), FileContext.DEFAULT_PERM, true);
     }
 
-    // create files and manipulate them.
-    try {
-      String g0 = groups.get(0);
-      fc.setOwner(f, null, g0);
-      Assert.assertEquals(g0, fc.getFileStatus(f).getGroup());
-
-      if (groups.size() > 1) {
-        String g1 = groups.get(1);
-        fc.setOwner(f, null, g1);
-        Assert.assertEquals(g1, fc.getFileStatus(f).getGroup());
-      } else {
-        System.out.println("Not testing changing the group since user " +
-                           "belongs to only one group.");
-      }
-      
-      try {
-        fc.setOwner(f, null, null);
-        fail("Exception expected.");
-      } catch (IllegalArgumentException iae) {
-        // okay
-      }
-    } 
-    finally {cleanupFile(fc, f);}
-  }
-  
-  @Test
-  public void testUgi() throws IOException, InterruptedException {
-    
-    UserGroupInformation otherUser = UserGroupInformation
-        .createRemoteUser("otherUser");
-    FileContext newFc = otherUser.doAs(new PrivilegedExceptionAction<FileContext>() {
-
-      @Override
-      public FileContext run() throws Exception {
-        FileContext newFc = FileContext.getFileContext();
-        return newFc;
-      }
-      
-    });
-    assertEquals("otherUser",newFc.getUgi().getUserName());
-  }
-
-  static List<String> getGroups() throws IOException {
-    List<String> a = new ArrayList<String>();
-    String s = Shell.execCommand(Shell.getGroupsCommand());
-    for(StringTokenizer t = new StringTokenizer(s); t.hasMoreTokens(); ) {
-      a.add(t.nextToken());
+    @After
+    public void tearDown() throws Exception {
+        fc.delete(fileContextTestHelper.getTestRootPath(fc), true);
     }
-    return a;
-  }
-  
-  
-  void doFilePermissionCheck(FsPermission expectedPerm, FsPermission actualPerm) {
-  Assert.assertEquals(expectedPerm.applyUMask(getFileMask()), actualPerm);
-  }
-  
-  
-  /*
-   * Override the method below if the file system being tested masks our
-   * certain bits for file masks.
-   */
-  static final FsPermission FILE_MASK_ZERO = new FsPermission((short) 0);
-  FsPermission getFileMask() {
-    return FILE_MASK_ZERO;
-  }
+
+    private void cleanupFile(FileContext fc, Path name) throws IOException {
+        Assert.assertTrue(exists(fc, name));
+        fc.delete(name, true);
+        Assert.assertTrue(!exists(fc, name));
+    }
+
+    @Test
+    public void testCreatePermission() throws IOException {
+        if (Path.WINDOWS) {
+            System.out.println("Cannot run test for Windows");
+            return;
+        }
+        String filename = "foo";
+        Path f = fileContextTestHelper.getTestRootPath(fc, filename);
+        fileContextTestHelper.createFile(fc, filename);
+        doFilePermissionCheck(FileContext.FILE_DEFAULT_PERM.applyUMask(fc.getUMask()),
+                              fc.getFileStatus(f).getPermission());
+    }
+
+
+    @Test
+    public void testSetPermission() throws IOException {
+        if (Path.WINDOWS) {
+            System.out.println("Cannot run test for Windows");
+            return;
+        }
+
+        String filename = "foo";
+        Path f = fileContextTestHelper.getTestRootPath(fc, filename);
+        createFile(fc, f);
+
+        try {
+            // create files and manipulate them.
+            FsPermission all = new FsPermission((short)0777);
+            FsPermission none = new FsPermission((short)0);
+
+            fc.setPermission(f, none);
+            doFilePermissionCheck(none, fc.getFileStatus(f).getPermission());
+
+            fc.setPermission(f, all);
+            doFilePermissionCheck(all, fc.getFileStatus(f).getPermission());
+        } finally {
+            cleanupFile(fc, f);
+        }
+    }
+
+    @Test
+    public void testSetOwner() throws IOException {
+        if (Path.WINDOWS) {
+            System.out.println("Cannot run test for Windows");
+            return;
+        }
+
+        String filename = "bar";
+        Path f = fileContextTestHelper.getTestRootPath(fc, filename);
+        createFile(fc, f);
+        List<String> groups = null;
+        try {
+            groups = getGroups();
+            System.out.println(filename + ": " + fc.getFileStatus(f).getPermission());
+        } catch(IOException e) {
+            System.out.println(StringUtils.stringifyException(e));
+            System.out.println("Cannot run test");
+            return;
+        }
+        if (groups == null || groups.size() < 1) {
+            System.out.println("Cannot run test: need at least one group.  groups="
+                               + groups);
+            return;
+        }
+
+        // create files and manipulate them.
+        try {
+            String g0 = groups.get(0);
+            fc.setOwner(f, null, g0);
+            Assert.assertEquals(g0, fc.getFileStatus(f).getGroup());
+
+            if (groups.size() > 1) {
+                String g1 = groups.get(1);
+                fc.setOwner(f, null, g1);
+                Assert.assertEquals(g1, fc.getFileStatus(f).getGroup());
+            } else {
+                System.out.println("Not testing changing the group since user " +
+                                   "belongs to only one group.");
+            }
+
+            try {
+                fc.setOwner(f, null, null);
+                fail("Exception expected.");
+            } catch (IllegalArgumentException iae) {
+                // okay
+            }
+        } finally {
+            cleanupFile(fc, f);
+        }
+    }
+
+    @Test
+    public void testUgi() throws IOException, InterruptedException {
+
+        UserGroupInformation otherUser = UserGroupInformation
+                                         .createRemoteUser("otherUser");
+        FileContext newFc = otherUser.doAs(new PrivilegedExceptionAction<FileContext>() {
+
+            @Override
+            public FileContext run() throws Exception {
+                FileContext newFc = FileContext.getFileContext();
+                return newFc;
+            }
+
+        });
+        assertEquals("otherUser",newFc.getUgi().getUserName());
+    }
+
+    static List<String> getGroups() throws IOException {
+        List<String> a = new ArrayList<String>();
+        String s = Shell.execCommand(Shell.getGroupsCommand());
+        for(StringTokenizer t = new StringTokenizer(s); t.hasMoreTokens(); ) {
+            a.add(t.nextToken());
+        }
+        return a;
+    }
+
+
+    void doFilePermissionCheck(FsPermission expectedPerm, FsPermission actualPerm) {
+        Assert.assertEquals(expectedPerm.applyUMask(getFileMask()), actualPerm);
+    }
+
+
+    /*
+     * Override the method below if the file system being tested masks our
+     * certain bits for file masks.
+     */
+    static final FsPermission FILE_MASK_ZERO = new FsPermission((short) 0);
+    FsPermission getFileMask() {
+        return FILE_MASK_ZERO;
+    }
 }

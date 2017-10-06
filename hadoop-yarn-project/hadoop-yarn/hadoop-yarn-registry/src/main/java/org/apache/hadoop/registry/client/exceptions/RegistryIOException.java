@@ -32,27 +32,27 @@ import org.apache.hadoop.fs.PathIOException;
 @InterfaceStability.Evolving
 public class RegistryIOException extends PathIOException {
 
-  /**
-   * Build an exception from any other Path IO Exception.
-   * This propagates the path of the original exception
-   * @param message more specific text
-   * @param cause cause
-   */
-  public RegistryIOException(String message, PathIOException cause) {
-    super(cause.getPath() != null ? cause.getPath().toString() : "",
-        message,
-        cause);
-  }
+    /**
+     * Build an exception from any other Path IO Exception.
+     * This propagates the path of the original exception
+     * @param message more specific text
+     * @param cause cause
+     */
+    public RegistryIOException(String message, PathIOException cause) {
+        super(cause.getPath() != null ? cause.getPath().toString() : "",
+              message,
+              cause);
+    }
 
-  public RegistryIOException(String path, Throwable cause) {
-    super(path, cause);
-  }
+    public RegistryIOException(String path, Throwable cause) {
+        super(path, cause);
+    }
 
-  public RegistryIOException(String path, String error) {
-    super(path, error);
-  }
+    public RegistryIOException(String path, String error) {
+        super(path, error);
+    }
 
-  public RegistryIOException(String path, String error, Throwable cause) {
-    super(path, error, cause);
-  }
+    public RegistryIOException(String path, String error, Throwable cause) {
+        super(path, error, cause);
+    }
 }

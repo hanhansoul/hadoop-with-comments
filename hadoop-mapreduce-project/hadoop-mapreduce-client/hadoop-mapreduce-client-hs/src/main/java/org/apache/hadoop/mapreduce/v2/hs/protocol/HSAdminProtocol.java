@@ -27,7 +27,7 @@ import org.apache.hadoop.tools.GetUserMappingsProtocol;
 
 /**
  * Protocol use
- * 
+ *
  */
 @KerberosInfo(serverPrincipal = CommonConfigurationKeys.HADOOP_SECURITY_SERVICE_USER_NAME_KEY)
 @Private

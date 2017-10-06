@@ -46,226 +46,226 @@ import java.util.Vector;
 
 public class TestLog4Json extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestLog4Json.class);
-  private static final JsonFactory factory = new MappingJsonFactory();
+    private static final Log LOG = LogFactory.getLog(TestLog4Json.class);
+    private static final JsonFactory factory = new MappingJsonFactory();
 
-  @Test
-  public void testConstruction() throws Throwable {
-    Log4Json l4j = new Log4Json();
-    String outcome = l4j.toJson(new StringWriter(),
-        "name", 0, "DEBUG", "thread1",
-        "hello, world", null).toString();
-    println("testConstruction", outcome);
-  }
-
-  @Test
-  public void testException() throws Throwable {
-    Exception e =
-        new NoRouteToHostException("that box caught fire 3 years ago");
-    ThrowableInformation ti = new ThrowableInformation(e);
-    Log4Json l4j = new Log4Json();
-    long timeStamp = Time.now();
-    String outcome = l4j.toJson(new StringWriter(),
-        "testException",
-        timeStamp,
-        "INFO",
-        "quoted\"",
-        "new line\n and {}",
-        ti)
-        .toString();
-    println("testException", outcome);
-  }
-
-  @Test
-  public void testNestedException() throws Throwable {
-    Exception e =
-        new NoRouteToHostException("that box caught fire 3 years ago");
-    Exception ioe = new IOException("Datacenter problems", e);
-    ThrowableInformation ti = new ThrowableInformation(ioe);
-    Log4Json l4j = new Log4Json();
-    long timeStamp = Time.now();
-    String outcome = l4j.toJson(new StringWriter(),
-        "testNestedException",
-        timeStamp,
-        "INFO",
-        "quoted\"",
-        "new line\n and {}",
-        ti)
-        .toString();
-    println("testNestedException", outcome);
-    ContainerNode rootNode = Log4Json.parse(outcome);
-    assertEntryEquals(rootNode, Log4Json.LEVEL, "INFO");
-    assertEntryEquals(rootNode, Log4Json.NAME, "testNestedException");
-    assertEntryEquals(rootNode, Log4Json.TIME, timeStamp);
-    assertEntryEquals(rootNode, Log4Json.EXCEPTION_CLASS,
-        ioe.getClass().getName());
-    JsonNode node = assertNodeContains(rootNode, Log4Json.STACK);
-    assertTrue("Not an array: " + node, node.isArray());
-    node = assertNodeContains(rootNode, Log4Json.DATE);
-    assertTrue("Not a string: " + node, node.isTextual());
-    //rather than try and make assertions about the format of the text
-    //message equalling another ISO date, this test asserts that the hypen
-    //and colon characters are in the string.
-    String dateText = node.getTextValue();
-    assertTrue("No '-' in " + dateText, dateText.contains("-"));
-    assertTrue("No '-' in " + dateText, dateText.contains(":"));
-
-  }
-
-
-  /**
-   * Create a log instance and and log to it
-   * @throws Throwable if it all goes wrong
-   */
-  @Test
-  public void testLog() throws Throwable {
-    String message = "test message";
-    Throwable throwable = null;
-    String json = logOut(message, throwable);
-    println("testLog", json);
-  }
-
-  /**
-   * Create a log instance and and log to it
-   * @throws Throwable if it all goes wrong
-   */
-  @Test
-  public void testLogExceptions() throws Throwable {
-    String message = "test message";
-    Throwable inner = new IOException("Directory / not found");
-    Throwable throwable = new IOException("startup failure", inner);
-    String json = logOut(message, throwable);
-    println("testLogExceptions", json);
-  }
-
-
-  void assertEntryEquals(ContainerNode rootNode, String key, String value) {
-    JsonNode node = assertNodeContains(rootNode, key);
-    assertEquals(value, node.getTextValue());
-  }
-
-  private JsonNode assertNodeContains(ContainerNode rootNode, String key) {
-    JsonNode node = rootNode.get(key);
-    if (node == null) {
-      fail("No entry of name \"" + key + "\" found in " + rootNode.toString());
-    }
-    return node;
-  }
-
-  void assertEntryEquals(ContainerNode rootNode, String key, long value) {
-    JsonNode node = assertNodeContains(rootNode, key);
-    assertEquals(value, node.getNumberValue());
-  }
-
-  /**
-   * Print out what's going on. The logging APIs aren't used and the text
-   * delimited for more details
-   *
-   * @param name name of operation
-   * @param text text to print
-   */
-  private void println(String name, String text) {
-    System.out.println(name + ": #" + text + "#");
-  }
-
-  private String logOut(String message, Throwable throwable) {
-    StringWriter writer = new StringWriter();
-    Logger logger = createLogger(writer);
-    logger.info(message, throwable);
-    //remove and close the appender
-    logger.removeAllAppenders();
-    return writer.toString();
-  }
-
-  public Logger createLogger(Writer writer) {
-    TestLoggerRepository repo = new TestLoggerRepository();
-    Logger logger = repo.getLogger("test");
-    Log4Json layout = new Log4Json();
-    WriterAppender appender = new WriterAppender(layout, writer);
-    logger.addAppender(appender);
-    return logger;
-  }
-
-  /**
-   * This test logger avoids integrating with the main runtimes Logger hierarchy
-   * in ways the reader does not want to know.
-   */
-  private static class TestLogger extends Logger {
-    private TestLogger(String name, LoggerRepository repo) {
-      super(name);
-      repository = repo;
-      setLevel(Level.INFO);
+    @Test
+    public void testConstruction() throws Throwable {
+        Log4Json l4j = new Log4Json();
+        String outcome = l4j.toJson(new StringWriter(),
+                                    "name", 0, "DEBUG", "thread1",
+                                    "hello, world", null).toString();
+        println("testConstruction", outcome);
     }
 
-  }
-
-  public static class TestLoggerRepository implements LoggerRepository {
-    @Override
-    public void addHierarchyEventListener(HierarchyEventListener listener) {
+    @Test
+    public void testException() throws Throwable {
+        Exception e =
+            new NoRouteToHostException("that box caught fire 3 years ago");
+        ThrowableInformation ti = new ThrowableInformation(e);
+        Log4Json l4j = new Log4Json();
+        long timeStamp = Time.now();
+        String outcome = l4j.toJson(new StringWriter(),
+                                    "testException",
+                                    timeStamp,
+                                    "INFO",
+                                    "quoted\"",
+                                    "new line\n and {}",
+                                    ti)
+                         .toString();
+        println("testException", outcome);
     }
 
-    @Override
-    public boolean isDisabled(int level) {
-      return false;
+    @Test
+    public void testNestedException() throws Throwable {
+        Exception e =
+            new NoRouteToHostException("that box caught fire 3 years ago");
+        Exception ioe = new IOException("Datacenter problems", e);
+        ThrowableInformation ti = new ThrowableInformation(ioe);
+        Log4Json l4j = new Log4Json();
+        long timeStamp = Time.now();
+        String outcome = l4j.toJson(new StringWriter(),
+                                    "testNestedException",
+                                    timeStamp,
+                                    "INFO",
+                                    "quoted\"",
+                                    "new line\n and {}",
+                                    ti)
+                         .toString();
+        println("testNestedException", outcome);
+        ContainerNode rootNode = Log4Json.parse(outcome);
+        assertEntryEquals(rootNode, Log4Json.LEVEL, "INFO");
+        assertEntryEquals(rootNode, Log4Json.NAME, "testNestedException");
+        assertEntryEquals(rootNode, Log4Json.TIME, timeStamp);
+        assertEntryEquals(rootNode, Log4Json.EXCEPTION_CLASS,
+                          ioe.getClass().getName());
+        JsonNode node = assertNodeContains(rootNode, Log4Json.STACK);
+        assertTrue("Not an array: " + node, node.isArray());
+        node = assertNodeContains(rootNode, Log4Json.DATE);
+        assertTrue("Not a string: " + node, node.isTextual());
+        //rather than try and make assertions about the format of the text
+        //message equalling another ISO date, this test asserts that the hypen
+        //and colon characters are in the string.
+        String dateText = node.getTextValue();
+        assertTrue("No '-' in " + dateText, dateText.contains("-"));
+        assertTrue("No '-' in " + dateText, dateText.contains(":"));
+
     }
 
-    @Override
-    public void setThreshold(Level level) {
+
+    /**
+     * Create a log instance and and log to it
+     * @throws Throwable if it all goes wrong
+     */
+    @Test
+    public void testLog() throws Throwable {
+        String message = "test message";
+        Throwable throwable = null;
+        String json = logOut(message, throwable);
+        println("testLog", json);
     }
 
-    @Override
-    public void setThreshold(String val) {
+    /**
+     * Create a log instance and and log to it
+     * @throws Throwable if it all goes wrong
+     */
+    @Test
+    public void testLogExceptions() throws Throwable {
+        String message = "test message";
+        Throwable inner = new IOException("Directory / not found");
+        Throwable throwable = new IOException("startup failure", inner);
+        String json = logOut(message, throwable);
+        println("testLogExceptions", json);
     }
 
-    @Override
-    public void emitNoAppenderWarning(Category cat) {
+
+    void assertEntryEquals(ContainerNode rootNode, String key, String value) {
+        JsonNode node = assertNodeContains(rootNode, key);
+        assertEquals(value, node.getTextValue());
     }
 
-    @Override
-    public Level getThreshold() {
-      return Level.ALL;
+    private JsonNode assertNodeContains(ContainerNode rootNode, String key) {
+        JsonNode node = rootNode.get(key);
+        if (node == null) {
+            fail("No entry of name \"" + key + "\" found in " + rootNode.toString());
+        }
+        return node;
     }
 
-    @Override
-    public Logger getLogger(String name) {
-      return new TestLogger(name, this);
+    void assertEntryEquals(ContainerNode rootNode, String key, long value) {
+        JsonNode node = assertNodeContains(rootNode, key);
+        assertEquals(value, node.getNumberValue());
     }
 
-    @Override
-    public Logger getLogger(String name, LoggerFactory factory) {
-      return new TestLogger(name, this);
+    /**
+     * Print out what's going on. The logging APIs aren't used and the text
+     * delimited for more details
+     *
+     * @param name name of operation
+     * @param text text to print
+     */
+    private void println(String name, String text) {
+        System.out.println(name + ": #" + text + "#");
     }
 
-    @Override
-    public Logger getRootLogger() {
-      return new TestLogger("root", this);
+    private String logOut(String message, Throwable throwable) {
+        StringWriter writer = new StringWriter();
+        Logger logger = createLogger(writer);
+        logger.info(message, throwable);
+        //remove and close the appender
+        logger.removeAllAppenders();
+        return writer.toString();
     }
 
-    @Override
-    public Logger exists(String name) {
-      return null;
+    public Logger createLogger(Writer writer) {
+        TestLoggerRepository repo = new TestLoggerRepository();
+        Logger logger = repo.getLogger("test");
+        Log4Json layout = new Log4Json();
+        WriterAppender appender = new WriterAppender(layout, writer);
+        logger.addAppender(appender);
+        return logger;
     }
 
-    @Override
-    public void shutdown() {
+    /**
+     * This test logger avoids integrating with the main runtimes Logger hierarchy
+     * in ways the reader does not want to know.
+     */
+    private static class TestLogger extends Logger {
+        private TestLogger(String name, LoggerRepository repo) {
+            super(name);
+            repository = repo;
+            setLevel(Level.INFO);
+        }
+
     }
 
-    @Override
-    public Enumeration getCurrentLoggers() {
-      return new Vector().elements();
-    }
+    public static class TestLoggerRepository implements LoggerRepository {
+        @Override
+        public void addHierarchyEventListener(HierarchyEventListener listener) {
+        }
 
-    @Override
-    public Enumeration getCurrentCategories() {
-      return new Vector().elements();
-    }
+        @Override
+        public boolean isDisabled(int level) {
+            return false;
+        }
 
-    @Override
-    public void fireAddAppenderEvent(Category logger, Appender appender) {
-    }
+        @Override
+        public void setThreshold(Level level) {
+        }
 
-    @Override
-    public void resetConfiguration() {
+        @Override
+        public void setThreshold(String val) {
+        }
+
+        @Override
+        public void emitNoAppenderWarning(Category cat) {
+        }
+
+        @Override
+        public Level getThreshold() {
+            return Level.ALL;
+        }
+
+        @Override
+        public Logger getLogger(String name) {
+            return new TestLogger(name, this);
+        }
+
+        @Override
+        public Logger getLogger(String name, LoggerFactory factory) {
+            return new TestLogger(name, this);
+        }
+
+        @Override
+        public Logger getRootLogger() {
+            return new TestLogger("root", this);
+        }
+
+        @Override
+        public Logger exists(String name) {
+            return null;
+        }
+
+        @Override
+        public void shutdown() {
+        }
+
+        @Override
+        public Enumeration getCurrentLoggers() {
+            return new Vector().elements();
+        }
+
+        @Override
+        public Enumeration getCurrentCategories() {
+            return new Vector().elements();
+        }
+
+        @Override
+        public void fireAddAppenderEvent(Category logger, Appender appender) {
+        }
+
+        @Override
+        public void resetConfiguration() {
+        }
     }
-  }
 }

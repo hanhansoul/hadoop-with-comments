@@ -42,150 +42,150 @@ import static org.apache.hadoop.registry.client.api.RegistryConstants.*;
  * Verify that the Mini ZK service can be started up securely
  */
 public class TestSecureRegistry extends AbstractSecureRegistryTest {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(TestSecureRegistry.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(TestSecureRegistry.class);
 
-  @Before
-  public void beforeTestSecureZKService() throws Throwable {
-      enableKerberosDebugging();
-  }
+    @Before
+    public void beforeTestSecureZKService() throws Throwable {
+        enableKerberosDebugging();
+    }
 
-  @After
-  public void afterTestSecureZKService() throws Throwable {
-    disableKerberosDebugging();
-    RegistrySecurity.clearZKSaslClientProperties();
-  }
+    @After
+    public void afterTestSecureZKService() throws Throwable {
+        disableKerberosDebugging();
+        RegistrySecurity.clearZKSaslClientProperties();
+    }
 
-  /**
-  * this is a cut and paste of some of the ZK internal code that was
-   * failing on windows and swallowing its exceptions
-   */
-  @Test
-  public void testLowlevelZKSaslLogin() throws Throwable {
-    RegistrySecurity.bindZKToServerJAASContext(ZOOKEEPER_SERVER_CONTEXT);
-    String serverSection =
-        System.getProperty(ZooKeeperSaslServer.LOGIN_CONTEXT_NAME_KEY,
-            ZooKeeperSaslServer.DEFAULT_LOGIN_CONTEXT_NAME);
-    assertEquals(ZOOKEEPER_SERVER_CONTEXT, serverSection);
+    /**
+    * this is a cut and paste of some of the ZK internal code that was
+     * failing on windows and swallowing its exceptions
+     */
+    @Test
+    public void testLowlevelZKSaslLogin() throws Throwable {
+        RegistrySecurity.bindZKToServerJAASContext(ZOOKEEPER_SERVER_CONTEXT);
+        String serverSection =
+            System.getProperty(ZooKeeperSaslServer.LOGIN_CONTEXT_NAME_KEY,
+                               ZooKeeperSaslServer.DEFAULT_LOGIN_CONTEXT_NAME);
+        assertEquals(ZOOKEEPER_SERVER_CONTEXT, serverSection);
 
-    AppConfigurationEntry entries[];
-    entries = javax.security.auth.login.Configuration.getConfiguration()
-                                                     .getAppConfigurationEntry(
-                                                         serverSection);
+        AppConfigurationEntry entries[];
+        entries = javax.security.auth.login.Configuration.getConfiguration()
+                  .getAppConfigurationEntry(
+                      serverSection);
 
-    assertNotNull("null entries", entries);
+        assertNotNull("null entries", entries);
 
-    SaslServerCallbackHandler saslServerCallbackHandler =
-        new SaslServerCallbackHandler(
+        SaslServerCallbackHandler saslServerCallbackHandler =
+            new SaslServerCallbackHandler(
             javax.security.auth.login.Configuration.getConfiguration());
-    Login login = new Login(serverSection, saslServerCallbackHandler);
-    try {
-      login.startThreadIfNeeded();
-    } finally {
-      login.shutdown();
+        Login login = new Login(serverSection, saslServerCallbackHandler);
+        try {
+            login.startThreadIfNeeded();
+        } finally {
+            login.shutdown();
+        }
     }
-  }
 
-  @Test
-  public void testCreateSecureZK() throws Throwable {
-    startSecureZK();
-    secureZK.stop();
-  }
-
-  @Test
-  public void testInsecureClientToZK() throws Throwable {
-    startSecureZK();
-    userZookeeperToCreateRoot();
-    RegistrySecurity.clearZKSaslClientProperties();
-
-    CuratorService curatorService =
-        startCuratorServiceInstance("insecure client", false);
-
-    curatorService.zkList("/");
-    curatorService.zkMkPath("", CreateMode.PERSISTENT, false,
-        RegistrySecurity.WorldReadWriteACL);
-  }
-
-  /**
-   * test that ZK can write as itself
-   * @throws Throwable
-   */
-  @Test
-  public void testZookeeperCanWrite() throws Throwable {
-
-    System.setProperty("curator-log-events", "true");
-    startSecureZK();
-    CuratorService curator = null;
-    LoginContext login = login(ZOOKEEPER_LOCALHOST,
-        ZOOKEEPER_CLIENT_CONTEXT,
-        keytab_zk);
-    try {
-      logLoginDetails(ZOOKEEPER, login);
-      RegistrySecurity.setZKSaslClientProperties(ZOOKEEPER,
-                                                ZOOKEEPER_CLIENT_CONTEXT);
-      curator = startCuratorServiceInstance("ZK", true);
-      LOG.info(curator.toString());
-
-      addToTeardown(curator);
-      curator.zkMkPath("/", CreateMode.PERSISTENT, false,
-          RegistrySecurity.WorldReadWriteACL);
-      curator.zkList("/");
-      curator.zkMkPath("/zookeeper", CreateMode.PERSISTENT, false,
-          RegistrySecurity.WorldReadWriteACL);
-    } finally {
-      logout(login);
-      ServiceOperations.stop(curator);
+    @Test
+    public void testCreateSecureZK() throws Throwable {
+        startSecureZK();
+        secureZK.stop();
     }
-  }
 
-  /**
-   * Start a curator service instance
-   * @param name name
-   * @param secure flag to indicate the cluster is secure
-   * @return an inited and started curator service
-   */
-  protected CuratorService startCuratorServiceInstance(String name,
-      boolean secure) {
-    Configuration clientConf = new Configuration();
-    clientConf.set(KEY_REGISTRY_ZK_ROOT, "/");
-    clientConf.setBoolean(KEY_REGISTRY_SECURE, secure);
-    describe(LOG, "Starting Curator service");
-    CuratorService curatorService = new CuratorService(name, secureZK);
-    curatorService.init(clientConf);
-    curatorService.start();
-    LOG.info("Curator Binding {}",
-        curatorService.bindingDiagnosticDetails());
-    return curatorService;
-  }
+    @Test
+    public void testInsecureClientToZK() throws Throwable {
+        startSecureZK();
+        userZookeeperToCreateRoot();
+        RegistrySecurity.clearZKSaslClientProperties();
 
-  /**
-   * have the ZK user create the root dir.
-   * This logs out the ZK user after and stops its curator instance,
-   * to avoid contamination
-   * @throws Throwable
-   */
-  public void userZookeeperToCreateRoot() throws Throwable {
+        CuratorService curatorService =
+            startCuratorServiceInstance("insecure client", false);
 
-    System.setProperty("curator-log-events", "true");
-    CuratorService curator = null;
-    LoginContext login = login(ZOOKEEPER_LOCALHOST,
-        ZOOKEEPER_CLIENT_CONTEXT,
-        keytab_zk);
-    try {
-      logLoginDetails(ZOOKEEPER, login);
-      RegistrySecurity.setZKSaslClientProperties(ZOOKEEPER,
-          ZOOKEEPER_CLIENT_CONTEXT);
-      curator = startCuratorServiceInstance("ZK", true);
-      LOG.info(curator.toString());
-
-      addToTeardown(curator);
-      curator.zkMkPath("/", CreateMode.PERSISTENT, false,
-          RegistrySecurity.WorldReadWriteACL);
-      ZKPathDumper pathDumper = curator.dumpPath(true);
-      LOG.info(pathDumper.toString());
-    } finally {
-      logout(login);
-      ServiceOperations.stop(curator);
+        curatorService.zkList("/");
+        curatorService.zkMkPath("", CreateMode.PERSISTENT, false,
+                                RegistrySecurity.WorldReadWriteACL);
     }
-  }
+
+    /**
+     * test that ZK can write as itself
+     * @throws Throwable
+     */
+    @Test
+    public void testZookeeperCanWrite() throws Throwable {
+
+        System.setProperty("curator-log-events", "true");
+        startSecureZK();
+        CuratorService curator = null;
+        LoginContext login = login(ZOOKEEPER_LOCALHOST,
+                                   ZOOKEEPER_CLIENT_CONTEXT,
+                                   keytab_zk);
+        try {
+            logLoginDetails(ZOOKEEPER, login);
+            RegistrySecurity.setZKSaslClientProperties(ZOOKEEPER,
+                    ZOOKEEPER_CLIENT_CONTEXT);
+            curator = startCuratorServiceInstance("ZK", true);
+            LOG.info(curator.toString());
+
+            addToTeardown(curator);
+            curator.zkMkPath("/", CreateMode.PERSISTENT, false,
+                             RegistrySecurity.WorldReadWriteACL);
+            curator.zkList("/");
+            curator.zkMkPath("/zookeeper", CreateMode.PERSISTENT, false,
+                             RegistrySecurity.WorldReadWriteACL);
+        } finally {
+            logout(login);
+            ServiceOperations.stop(curator);
+        }
+    }
+
+    /**
+     * Start a curator service instance
+     * @param name name
+     * @param secure flag to indicate the cluster is secure
+     * @return an inited and started curator service
+     */
+    protected CuratorService startCuratorServiceInstance(String name,
+            boolean secure) {
+        Configuration clientConf = new Configuration();
+        clientConf.set(KEY_REGISTRY_ZK_ROOT, "/");
+        clientConf.setBoolean(KEY_REGISTRY_SECURE, secure);
+        describe(LOG, "Starting Curator service");
+        CuratorService curatorService = new CuratorService(name, secureZK);
+        curatorService.init(clientConf);
+        curatorService.start();
+        LOG.info("Curator Binding {}",
+                 curatorService.bindingDiagnosticDetails());
+        return curatorService;
+    }
+
+    /**
+     * have the ZK user create the root dir.
+     * This logs out the ZK user after and stops its curator instance,
+     * to avoid contamination
+     * @throws Throwable
+     */
+    public void userZookeeperToCreateRoot() throws Throwable {
+
+        System.setProperty("curator-log-events", "true");
+        CuratorService curator = null;
+        LoginContext login = login(ZOOKEEPER_LOCALHOST,
+                                   ZOOKEEPER_CLIENT_CONTEXT,
+                                   keytab_zk);
+        try {
+            logLoginDetails(ZOOKEEPER, login);
+            RegistrySecurity.setZKSaslClientProperties(ZOOKEEPER,
+                    ZOOKEEPER_CLIENT_CONTEXT);
+            curator = startCuratorServiceInstance("ZK", true);
+            LOG.info(curator.toString());
+
+            addToTeardown(curator);
+            curator.zkMkPath("/", CreateMode.PERSISTENT, false,
+                             RegistrySecurity.WorldReadWriteACL);
+            ZKPathDumper pathDumper = curator.dumpPath(true);
+            LOG.info(pathDumper.toString());
+        } finally {
+            logout(login);
+            ServiceOperations.stop(curator);
+        }
+    }
 }

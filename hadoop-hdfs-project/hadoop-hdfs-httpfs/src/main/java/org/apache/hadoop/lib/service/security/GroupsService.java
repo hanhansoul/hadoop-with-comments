@@ -30,29 +30,29 @@ import java.util.List;
 
 @InterfaceAudience.Private
 public class GroupsService extends BaseService implements Groups {
-  private static final String PREFIX = "groups";
+    private static final String PREFIX = "groups";
 
-  private org.apache.hadoop.security.Groups hGroups;
+    private org.apache.hadoop.security.Groups hGroups;
 
-  public GroupsService() {
-    super(PREFIX);
-  }
+    public GroupsService() {
+        super(PREFIX);
+    }
 
-  @Override
-  protected void init() throws ServiceException {
-    Configuration hConf = new Configuration(false);
-    ConfigurationUtils.copy(getServiceConfig(), hConf);
-    hGroups = new org.apache.hadoop.security.Groups(hConf);
-  }
+    @Override
+    protected void init() throws ServiceException {
+        Configuration hConf = new Configuration(false);
+        ConfigurationUtils.copy(getServiceConfig(), hConf);
+        hGroups = new org.apache.hadoop.security.Groups(hConf);
+    }
 
-  @Override
-  public Class getInterface() {
-    return Groups.class;
-  }
+    @Override
+    public Class getInterface() {
+        return Groups.class;
+    }
 
-  @Override
-  public List<String> getGroups(String user) throws IOException {
-    return hGroups.getGroups(user);
-  }
+    @Override
+    public List<String> getGroups(String user) throws IOException {
+        return hGroups.getGroups(user);
+    }
 
 }

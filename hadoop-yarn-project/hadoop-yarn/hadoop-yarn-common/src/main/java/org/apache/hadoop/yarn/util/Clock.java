@@ -28,5 +28,5 @@ import org.apache.hadoop.classification.InterfaceStability.Stable;
 @Stable
 public interface Clock {
 
-  long getTime();
+    long getTime();
 }

@@ -25,19 +25,19 @@ import java.io.IOException;
  * for various specific problems.
  */
 public class SwiftException extends IOException {
-  public SwiftException() {
-    super();
-  }
+    public SwiftException() {
+        super();
+    }
 
-  public SwiftException(String message) {
-    super(message);
-  }
+    public SwiftException(String message) {
+        super(message);
+    }
 
-  public SwiftException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public SwiftException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-  public SwiftException(Throwable cause) {
-    super(cause);
-  }
+    public SwiftException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -52,155 +52,155 @@ import com.google.inject.Inject;
  * Render a block of HTML for a give job.
  */
 public class HsJobBlock extends HtmlBlock {
-  final AppContext appContext;
+    final AppContext appContext;
 
-  @Inject HsJobBlock(AppContext appctx) {
-    appContext = appctx;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.yarn.webapp.view.HtmlBlock#render(org.apache.hadoop.yarn.webapp.view.HtmlBlock.Block)
-   */
-  @Override protected void render(Block html) {
-    String jid = $(JOB_ID);
-    if (jid.isEmpty()) {
-      html.
-        p()._("Sorry, can't do anything without a JobID.")._();
-      return;
-    }
-    JobId jobID = MRApps.toJobID(jid);
-    Job j = appContext.getJob(jobID);
-    if (j == null) {
-      html.
-        p()._("Sorry, ", jid, " not found.")._();
-      return;
-    }
-    List<AMInfo> amInfos = j.getAMInfos();
-    JobInfo job = new JobInfo(j);
-    ResponseInfo infoBlock = info("Job Overview").
-        _("Job Name:", job.getName()).
-        _("User Name:", job.getUserName()).
-        _("Queue:", job.getQueueName()).
-        _("State:", job.getState()).
-        _("Uberized:", job.isUber()).
-        _("Submitted:", new Date(job.getSubmitTime())).
-        _("Started:", new Date(job.getStartTime())).
-        _("Finished:", new Date(job.getFinishTime())).
-        _("Elapsed:", StringUtils.formatTime(
-            Times.elapsed(job.getStartTime(), job.getFinishTime(), false)));
-    
-    String amString =
-        amInfos.size() == 1 ? "ApplicationMaster" : "ApplicationMasters"; 
-    
-    // todo - switch to use JobInfo
-    List<String> diagnostics = j.getDiagnostics();
-    if(diagnostics != null && !diagnostics.isEmpty()) {
-      StringBuffer b = new StringBuffer();
-      for(String diag: diagnostics) {
-        b.append(diag);
-      }
-      infoBlock._("Diagnostics:", b.toString());
+    @Inject HsJobBlock(AppContext appctx) {
+        appContext = appctx;
     }
 
-    if(job.getNumMaps() > 0) {
-      infoBlock._("Average Map Time", StringUtils.formatTime(job.getAvgMapTime()));
-    }
-    if(job.getNumReduces() > 0) {
-      infoBlock._("Average Shuffle Time", StringUtils.formatTime(job.getAvgShuffleTime()));
-      infoBlock._("Average Merge Time", StringUtils.formatTime(job.getAvgMergeTime()));
-      infoBlock._("Average Reduce Time", StringUtils.formatTime(job.getAvgReduceTime()));
-    }
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.yarn.webapp.view.HtmlBlock#render(org.apache.hadoop.yarn.webapp.view.HtmlBlock.Block)
+     */
+    @Override protected void render(Block html) {
+        String jid = $(JOB_ID);
+        if (jid.isEmpty()) {
+            html.
+            p()._("Sorry, can't do anything without a JobID.")._();
+            return;
+        }
+        JobId jobID = MRApps.toJobID(jid);
+        Job j = appContext.getJob(jobID);
+        if (j == null) {
+            html.
+            p()._("Sorry, ", jid, " not found.")._();
+            return;
+        }
+        List<AMInfo> amInfos = j.getAMInfos();
+        JobInfo job = new JobInfo(j);
+        ResponseInfo infoBlock = info("Job Overview").
+                                 _("Job Name:", job.getName()).
+                                 _("User Name:", job.getUserName()).
+                                 _("Queue:", job.getQueueName()).
+                                 _("State:", job.getState()).
+                                 _("Uberized:", job.isUber()).
+                                 _("Submitted:", new Date(job.getSubmitTime())).
+                                 _("Started:", new Date(job.getStartTime())).
+                                 _("Finished:", new Date(job.getFinishTime())).
+                                 _("Elapsed:", StringUtils.formatTime(
+                                       Times.elapsed(job.getStartTime(), job.getFinishTime(), false)));
 
-    for (ConfEntryInfo entry : job.getAcls()) {
-      infoBlock._("ACL "+entry.getName()+":", entry.getValue());
-    }
-    DIV<Hamlet> div = html.
-      _(InfoBlock.class).
-      div(_INFO_WRAP);
-    
-      // MRAppMasters Table
+        String amString =
+            amInfos.size() == 1 ? "ApplicationMaster" : "ApplicationMasters";
+
+        // todo - switch to use JobInfo
+        List<String> diagnostics = j.getDiagnostics();
+        if(diagnostics != null && !diagnostics.isEmpty()) {
+            StringBuffer b = new StringBuffer();
+            for(String diag: diagnostics) {
+                b.append(diag);
+            }
+            infoBlock._("Diagnostics:", b.toString());
+        }
+
+        if(job.getNumMaps() > 0) {
+            infoBlock._("Average Map Time", StringUtils.formatTime(job.getAvgMapTime()));
+        }
+        if(job.getNumReduces() > 0) {
+            infoBlock._("Average Shuffle Time", StringUtils.formatTime(job.getAvgShuffleTime()));
+            infoBlock._("Average Merge Time", StringUtils.formatTime(job.getAvgMergeTime()));
+            infoBlock._("Average Reduce Time", StringUtils.formatTime(job.getAvgReduceTime()));
+        }
+
+        for (ConfEntryInfo entry : job.getAcls()) {
+            infoBlock._("ACL "+entry.getName()+":", entry.getValue());
+        }
+        DIV<Hamlet> div = html.
+                          _(InfoBlock.class).
+                          div(_INFO_WRAP);
+
+        // MRAppMasters Table
         TABLE<DIV<Hamlet>> table = div.table("#job");
         table.
-          tr().
-            th(amString).
-          _().
-          tr().
-            th(_TH, "Attempt Number").
-            th(_TH, "Start Time").
-            th(_TH, "Node").
-            th(_TH, "Logs").
-            _();
+        tr().
+        th(amString).
+        _().
+        tr().
+        th(_TH, "Attempt Number").
+        th(_TH, "Start Time").
+        th(_TH, "Node").
+        th(_TH, "Logs").
+        _();
         boolean odd = false;
-          for (AMInfo amInfo : amInfos) {
+        for (AMInfo amInfo : amInfos) {
             AMAttemptInfo attempt = new AMAttemptInfo(amInfo,
-                job.getId(), job.getUserName(), "", "");
+                    job.getId(), job.getUserName(), "", "");
             table.tr((odd = !odd) ? _ODD : _EVEN).
-              td(String.valueOf(attempt.getAttemptId())).
-              td(new Date(attempt.getStartTime()).toString()).
-              td().a(".nodelink", url(MRWebAppUtil.getYARNWebappScheme(),
-                  attempt.getNodeHttpAddress()),
-                  attempt.getNodeHttpAddress())._().
-              td().a(".logslink", url(attempt.getShortLogsLink()), 
-                      "logs")._().
+            td(String.valueOf(attempt.getAttemptId())).
+            td(new Date(attempt.getStartTime()).toString()).
+            td().a(".nodelink", url(MRWebAppUtil.getYARNWebappScheme(),
+                                    attempt.getNodeHttpAddress()),
+                   attempt.getNodeHttpAddress())._().
+            td().a(".logslink", url(attempt.getShortLogsLink()),
+                   "logs")._().
             _();
-          }
-          table._();
-          div._();
-          
-        
-        html.div(_INFO_WRAP).        
-      
-      // Tasks table
+        }
+        table._();
+        div._();
+
+
+        html.div(_INFO_WRAP).
+
+        // Tasks table
         table("#job").
-          tr().
-            th(_TH, "Task Type").
-            th(_TH, "Total").
-            th(_TH, "Complete")._().
-          tr(_ODD).
-            th().
-              a(url("tasks", jid, "m"), "Map")._().
-            td(String.valueOf(String.valueOf(job.getMapsTotal()))).
-            td(String.valueOf(String.valueOf(job.getMapsCompleted())))._().
-          tr(_EVEN).
-            th().
-              a(url("tasks", jid, "r"), "Reduce")._().
-            td(String.valueOf(String.valueOf(job.getReducesTotal()))).
-            td(String.valueOf(String.valueOf(job.getReducesCompleted())))._()
-          ._().
+        tr().
+        th(_TH, "Task Type").
+        th(_TH, "Total").
+        th(_TH, "Complete")._().
+        tr(_ODD).
+        th().
+        a(url("tasks", jid, "m"), "Map")._().
+        td(String.valueOf(String.valueOf(job.getMapsTotal()))).
+        td(String.valueOf(String.valueOf(job.getMapsCompleted())))._().
+        tr(_EVEN).
+        th().
+        a(url("tasks", jid, "r"), "Reduce")._().
+        td(String.valueOf(String.valueOf(job.getReducesTotal()))).
+        td(String.valueOf(String.valueOf(job.getReducesCompleted())))._()
+        ._().
 
         // Attempts table
         table("#job").
         tr().
-          th(_TH, "Attempt Type").
-          th(_TH, "Failed").
-          th(_TH, "Killed").
-          th(_TH, "Successful")._().
+        th(_TH, "Attempt Type").
+        th(_TH, "Failed").
+        th(_TH, "Killed").
+        th(_TH, "Successful")._().
         tr(_ODD).
-          th("Maps").
-          td().a(url("attempts", jid, "m",
-              TaskAttemptStateUI.FAILED.toString()), 
-              String.valueOf(job.getFailedMapAttempts()))._().
-          td().a(url("attempts", jid, "m",
-              TaskAttemptStateUI.KILLED.toString()), 
-              String.valueOf(job.getKilledMapAttempts()))._().
-          td().a(url("attempts", jid, "m",
-              TaskAttemptStateUI.SUCCESSFUL.toString()), 
-              String.valueOf(job.getSuccessfulMapAttempts()))._().
+        th("Maps").
+        td().a(url("attempts", jid, "m",
+                   TaskAttemptStateUI.FAILED.toString()),
+               String.valueOf(job.getFailedMapAttempts()))._().
+        td().a(url("attempts", jid, "m",
+                   TaskAttemptStateUI.KILLED.toString()),
+               String.valueOf(job.getKilledMapAttempts()))._().
+        td().a(url("attempts", jid, "m",
+                   TaskAttemptStateUI.SUCCESSFUL.toString()),
+               String.valueOf(job.getSuccessfulMapAttempts()))._().
         _().
         tr(_EVEN).
-          th("Reduces").
-          td().a(url("attempts", jid, "r",
-              TaskAttemptStateUI.FAILED.toString()), 
-              String.valueOf(job.getFailedReduceAttempts()))._().
-          td().a(url("attempts", jid, "r",
-              TaskAttemptStateUI.KILLED.toString()), 
-              String.valueOf(job.getKilledReduceAttempts()))._().
-          td().a(url("attempts", jid, "r",
-              TaskAttemptStateUI.SUCCESSFUL.toString()), 
-              String.valueOf(job.getSuccessfulReduceAttempts()))._().
-         _().
-       _().
-     _();
-  }
+        th("Reduces").
+        td().a(url("attempts", jid, "r",
+                   TaskAttemptStateUI.FAILED.toString()),
+               String.valueOf(job.getFailedReduceAttempts()))._().
+        td().a(url("attempts", jid, "r",
+                   TaskAttemptStateUI.KILLED.toString()),
+               String.valueOf(job.getKilledReduceAttempts()))._().
+        td().a(url("attempts", jid, "r",
+                   TaskAttemptStateUI.SUCCESSFUL.toString()),
+               String.valueOf(job.getSuccessfulReduceAttempts()))._().
+        _().
+        _().
+        _();
+    }
 }

@@ -23,7 +23,7 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.application.Ap
 
 public class ContainerLocalizationImpl implements ContainerLocalization {
 
-  public ContainerLocalizationImpl(Dispatcher dispatcher, Application app,
-      LocalizationProtocol localization) {
-  }
+    public ContainerLocalizationImpl(Dispatcher dispatcher, Application app,
+                                     LocalizationProtocol localization) {
+    }
 }

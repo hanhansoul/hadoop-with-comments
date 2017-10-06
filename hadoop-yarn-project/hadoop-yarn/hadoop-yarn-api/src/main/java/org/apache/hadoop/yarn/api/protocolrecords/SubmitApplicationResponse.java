@@ -28,19 +28,19 @@ import org.apache.hadoop.yarn.util.Records;
 /**
  * <p>The response sent by the <code>ResourceManager</code> to a client on
  * application submission.</p>
- * 
+ *
  * <p>Currently, this is empty.</p>
- * 
+ *
  * @see ApplicationClientProtocol#submitApplication(SubmitApplicationRequest)
  */
 @Public
 @Stable
 public abstract class SubmitApplicationResponse {
-  @Private
-  @Unstable
-  public static SubmitApplicationResponse newInstance() {
-    SubmitApplicationResponse response =
-        Records.newRecord(SubmitApplicationResponse.class);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static SubmitApplicationResponse newInstance() {
+        SubmitApplicationResponse response =
+            Records.newRecord(SubmitApplicationResponse.class);
+        return response;
+    }
 }

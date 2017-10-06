@@ -28,17 +28,17 @@ import org.apache.hadoop.yarn.api.records.Resource;
 /**
  * Initialization context for {@link AuxiliaryService} when starting a
  * container.
- * 
+ *
  */
 @Public
 @Evolving
 public class ContainerInitializationContext extends ContainerContext {
 
-  @Private
-  @Unstable
-  public ContainerInitializationContext(String user, ContainerId containerId,
-      Resource resource) {
-    super(user, containerId, resource);
-  }
+    @Private
+    @Unstable
+    public ContainerInitializationContext(String user, ContainerId containerId,
+                                          Resource resource) {
+        super(user, containerId, resource);
+    }
 
 }

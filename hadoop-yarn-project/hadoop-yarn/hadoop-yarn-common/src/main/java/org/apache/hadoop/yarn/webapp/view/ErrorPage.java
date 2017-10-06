@@ -29,42 +29,42 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class ErrorPage extends HtmlPage {
 
-  @Override
-  protected void render(Page.HTML<_> html) {
-    set(JQueryUI.ACCORDION_ID, "msg");
-    String title = "Sorry, got error "+ status();
-    html.
-      title(title).
-      link(root_url("static","yarn.css")).
-      _(JQueryUI.class). // an embedded sub-view
-      style("#msg { margin: 1em auto; width: 88%; }",
-            "#msg h1 { padding: 0.2em 1.5em; font: bold 1.3em serif; }").
-      div("#msg").
+    @Override
+    protected void render(Page.HTML<_> html) {
+        set(JQueryUI.ACCORDION_ID, "msg");
+        String title = "Sorry, got error "+ status();
+        html.
+        title(title).
+        link(root_url("static","yarn.css")).
+        _(JQueryUI.class). // an embedded sub-view
+        style("#msg { margin: 1em auto; width: 88%; }",
+              "#msg h1 { padding: 0.2em 1.5em; font: bold 1.3em serif; }").
+        div("#msg").
         h1(title).
         div().
-          _("Please consult").
-          a("http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
-            "RFC 2616")._(" for meanings of the error code.")._().
+        _("Please consult").
+        a("http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html",
+          "RFC 2616")._(" for meanings of the error code.")._().
         h1("Error Details").
         pre().
-          _(errorDetails())._()._()._();
-  }
-
-  protected String errorDetails() {
-    if (!$(ERROR_DETAILS).isEmpty()) {
-      return $(ERROR_DETAILS);
+        _(errorDetails())._()._()._();
     }
-    if (error() != null) {
-      return toStackTrace(error(), 1024 * 64);
-    }
-    return "No exception was thrown.";
-  }
 
-  public static String toStackTrace(Throwable error, int cutoff) {
-    // default initial size is 32 chars
-    CharArrayWriter buffer = new CharArrayWriter(8 * 1024);
-    error.printStackTrace(new PrintWriter(buffer));
-    return buffer.size() < cutoff ? buffer.toString()
-        : buffer.toString().substring(0, cutoff);
-  }
+    protected String errorDetails() {
+        if (!$(ERROR_DETAILS).isEmpty()) {
+            return $(ERROR_DETAILS);
+        }
+        if (error() != null) {
+            return toStackTrace(error(), 1024 * 64);
+        }
+        return "No exception was thrown.";
+    }
+
+    public static String toStackTrace(Throwable error, int cutoff) {
+        // default initial size is 32 chars
+        CharArrayWriter buffer = new CharArrayWriter(8 * 1024);
+        error.printStackTrace(new PrintWriter(buffer));
+        return buffer.size() < cutoff ? buffer.toString()
+               : buffer.toString().substring(0, cutoff);
+    }
 }

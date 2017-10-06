@@ -25,15 +25,15 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.localizer.Reso
  */
 public class LocalizerEvent extends AbstractEvent<LocalizerEventType> {
 
-  private final String localizerId;
+    private final String localizerId;
 
-  public LocalizerEvent(LocalizerEventType type, String localizerId) {
-    super(type);
-    this.localizerId = localizerId;
-  }
+    public LocalizerEvent(LocalizerEventType type, String localizerId) {
+        super(type);
+        this.localizerId = localizerId;
+    }
 
-  public String getLocalizerId() {
-    return localizerId;
-  }
+    public String getLocalizerId() {
+        return localizerId;
+    }
 
 }

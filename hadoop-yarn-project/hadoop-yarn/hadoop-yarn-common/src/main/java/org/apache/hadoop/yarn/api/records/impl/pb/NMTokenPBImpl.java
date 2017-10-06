@@ -30,113 +30,113 @@ import org.apache.hadoop.yarn.proto.YarnServiceProtos.NMTokenProtoOrBuilder;
 
 @Private
 @Unstable
-public class NMTokenPBImpl extends NMToken{
-  
-  NMTokenProto proto = NMTokenProto.getDefaultInstance();
-  NMTokenProto.Builder builder = null;
-  boolean viaProto = false;
+public class NMTokenPBImpl extends NMToken {
 
-  private Token token = null;
-  private NodeId nodeId = null;
+    NMTokenProto proto = NMTokenProto.getDefaultInstance();
+    NMTokenProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public NMTokenPBImpl() {
-    builder = NMTokenProto.newBuilder();
-  }
-  
-  public NMTokenPBImpl(NMTokenProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
+    private Token token = null;
+    private NodeId nodeId = null;
 
-  @Override
-  public synchronized NodeId getNodeId() {
-    NMTokenProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.nodeId != null) {
-      return nodeId;
+    public NMTokenPBImpl() {
+        builder = NMTokenProto.newBuilder();
     }
-    if (!p.hasNodeId()) {
-      return null;
-    }
-    this.nodeId = convertFromProtoFormat(p.getNodeId()); 
-    return nodeId;
-  }
 
-  @Override
-  public synchronized void setNodeId(NodeId nodeId) {
-    maybeInitBuilder();
-    if (nodeId == null) {
-      builder.clearNodeId();
+    public NMTokenPBImpl(NMTokenProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    this.nodeId = nodeId;
-  }
 
-  @Override
-  public synchronized Token getToken() {
-    NMTokenProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.token != null) {
-      return this.token;
+    @Override
+    public synchronized NodeId getNodeId() {
+        NMTokenProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.nodeId != null) {
+            return nodeId;
+        }
+        if (!p.hasNodeId()) {
+            return null;
+        }
+        this.nodeId = convertFromProtoFormat(p.getNodeId());
+        return nodeId;
     }
-    if (!p.hasToken()) {
-      return null;
-    }
-    this.token = convertFromProtoFormat(p.getToken()); 
-    return token;
-  }
 
-  @Override
-  public synchronized void setToken(Token token) {
-    maybeInitBuilder();
-    if (token == null) {
-      builder.clearToken();
+    @Override
+    public synchronized void setNodeId(NodeId nodeId) {
+        maybeInitBuilder();
+        if (nodeId == null) {
+            builder.clearNodeId();
+        }
+        this.nodeId = nodeId;
     }
-    this.token = token;
-  }
 
-  public synchronized NMTokenProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
+    @Override
+    public synchronized Token getToken() {
+        NMTokenProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.token != null) {
+            return this.token;
+        }
+        if (!p.hasToken()) {
+            return null;
+        }
+        this.token = convertFromProtoFormat(p.getToken());
+        return token;
+    }
 
-  private synchronized void mergeLocalToProto() {
-    if (viaProto) {
-      maybeInitBuilder();
+    @Override
+    public synchronized void setToken(Token token) {
+        maybeInitBuilder();
+        if (token == null) {
+            builder.clearToken();
+        }
+        this.token = token;
     }
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
 
-  private synchronized void mergeLocalToBuilder() {
-    if (this.nodeId != null) {
-      builder.setNodeId(convertToProtoFormat(nodeId));
+    public synchronized NMTokenProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    if (this.token != null) {
-      builder.setToken(convertToProtoFormat(token));
+
+    private synchronized void mergeLocalToProto() {
+        if (viaProto) {
+            maybeInitBuilder();
+        }
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-  }
-  
-  private synchronized void maybeInitBuilder() {
-    if(viaProto || builder == null) {
-      builder = NMTokenProto.newBuilder(proto);
+
+    private synchronized void mergeLocalToBuilder() {
+        if (this.nodeId != null) {
+            builder.setNodeId(convertToProtoFormat(nodeId));
+        }
+        if (this.token != null) {
+            builder.setToken(convertToProtoFormat(token));
+        }
     }
-    viaProto = false;
-  }
-  
-  private synchronized NodeId convertFromProtoFormat(NodeIdProto p) {
-    return new NodeIdPBImpl(p);
-  }
-  
-  private synchronized NodeIdProto convertToProtoFormat(NodeId nodeId) {
-    return ((NodeIdPBImpl)nodeId).getProto();
-  }
-  
-  private synchronized TokenProto convertToProtoFormat(Token token) {
-    return ((TokenPBImpl)token).getProto();
-  }
-  
-  private synchronized Token convertFromProtoFormat(TokenProto proto) {
-    return new TokenPBImpl(proto);
-  }
+
+    private synchronized void maybeInitBuilder() {
+        if(viaProto || builder == null) {
+            builder = NMTokenProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
+
+    private synchronized NodeId convertFromProtoFormat(NodeIdProto p) {
+        return new NodeIdPBImpl(p);
+    }
+
+    private synchronized NodeIdProto convertToProtoFormat(NodeId nodeId) {
+        return ((NodeIdPBImpl)nodeId).getProto();
+    }
+
+    private synchronized TokenProto convertToProtoFormat(Token token) {
+        return ((TokenPBImpl)token).getProto();
+    }
+
+    private synchronized Token convertFromProtoFormat(TokenProto proto) {
+        return new TokenPBImpl(proto);
+    }
 }

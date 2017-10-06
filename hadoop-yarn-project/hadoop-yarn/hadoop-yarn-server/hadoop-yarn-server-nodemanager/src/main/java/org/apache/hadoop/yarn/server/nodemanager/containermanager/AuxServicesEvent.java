@@ -24,58 +24,58 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ContainerId;
 import org.apache.hadoop.yarn.event.AbstractEvent;
 import org.apache.hadoop.yarn.server.nodemanager.containermanager.container
-    .Container;
+.Container;
 
 public class AuxServicesEvent extends AbstractEvent<AuxServicesEventType> {
 
-  private final String user;
-  private final String serviceId;
-  private final ByteBuffer serviceData;
-  private final ApplicationId appId;
-  private final Container container;
+    private final String user;
+    private final String serviceId;
+    private final ByteBuffer serviceData;
+    private final ApplicationId appId;
+    private final Container container;
 
-  public AuxServicesEvent(AuxServicesEventType eventType, ApplicationId appId) {
-    this(eventType, null, appId, null, null);
-  }
+    public AuxServicesEvent(AuxServicesEventType eventType, ApplicationId appId) {
+        this(eventType, null, appId, null, null);
+    }
 
-  public AuxServicesEvent(AuxServicesEventType eventType, Container container) {
-    this(eventType, null, container.getContainerId().getApplicationAttemptId()
-        .getApplicationId(), null, null, container);
-  }
+    public AuxServicesEvent(AuxServicesEventType eventType, Container container) {
+        this(eventType, null, container.getContainerId().getApplicationAttemptId()
+             .getApplicationId(), null, null, container);
+    }
 
-  public AuxServicesEvent(AuxServicesEventType eventType, String user,
-      ApplicationId appId, String serviceId, ByteBuffer serviceData) {
-    this(eventType, user, appId, serviceId, serviceData, null);
-  }
     public AuxServicesEvent(AuxServicesEventType eventType, String user,
-      ApplicationId appId, String serviceId, ByteBuffer serviceData,
-        Container container) {
-    super(eventType);
-    this.user = user;
-    this.appId = appId;
-    this.serviceId = serviceId;
-    this.serviceData = serviceData;
-    this.container = container;
-  }
+                            ApplicationId appId, String serviceId, ByteBuffer serviceData) {
+        this(eventType, user, appId, serviceId, serviceData, null);
+    }
+    public AuxServicesEvent(AuxServicesEventType eventType, String user,
+                            ApplicationId appId, String serviceId, ByteBuffer serviceData,
+                            Container container) {
+        super(eventType);
+        this.user = user;
+        this.appId = appId;
+        this.serviceId = serviceId;
+        this.serviceData = serviceData;
+        this.container = container;
+    }
 
-  public String getServiceID() {
-    return serviceId;
-  }
+    public String getServiceID() {
+        return serviceId;
+    }
 
-  public ByteBuffer getServiceData() {
-    return serviceData;
-  }
+    public ByteBuffer getServiceData() {
+        return serviceData;
+    }
 
-  public String getUser() {
-    return user;
-  }
+    public String getUser() {
+        return user;
+    }
 
-  public ApplicationId getApplicationID() {
-    return appId;
-  }
+    public ApplicationId getApplicationID() {
+        return appId;
+    }
 
-  public Container getContainer() {
-    return container;
-  }
+    public Container getContainer() {
+        return container;
+    }
 
 }

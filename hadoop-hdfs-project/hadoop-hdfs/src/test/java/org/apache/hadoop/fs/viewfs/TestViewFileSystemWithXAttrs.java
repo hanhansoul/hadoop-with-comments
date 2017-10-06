@@ -40,112 +40,112 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestViewFileSystemWithXAttrs {
 
-  private static MiniDFSCluster cluster;
-  private static Configuration clusterConf = new Configuration();
-  private static FileSystem fHdfs;
-  private static FileSystem fHdfs2;
-  private FileSystem fsView;
-  private Configuration fsViewConf;
-  private FileSystem fsTarget, fsTarget2;
-  private Path targetTestRoot, targetTestRoot2, mountOnNn1, mountOnNn2;
-  private FileSystemTestHelper fileSystemTestHelper =
-      new FileSystemTestHelper("/tmp/TestViewFileSystemWithXAttrs");
+    private static MiniDFSCluster cluster;
+    private static Configuration clusterConf = new Configuration();
+    private static FileSystem fHdfs;
+    private static FileSystem fHdfs2;
+    private FileSystem fsView;
+    private Configuration fsViewConf;
+    private FileSystem fsTarget, fsTarget2;
+    private Path targetTestRoot, targetTestRoot2, mountOnNn1, mountOnNn2;
+    private FileSystemTestHelper fileSystemTestHelper =
+        new FileSystemTestHelper("/tmp/TestViewFileSystemWithXAttrs");
 
-  // XAttrs
-  protected static final String name1 = "user.a1";
-  protected static final byte[] value1 = {0x31, 0x32, 0x33};
-  protected static final String name2 = "user.a2";
-  protected static final byte[] value2 = {0x37, 0x38, 0x39};
+    // XAttrs
+    protected static final String name1 = "user.a1";
+    protected static final byte[] value1 = {0x31, 0x32, 0x33};
+    protected static final String name2 = "user.a2";
+    protected static final byte[] value2 = {0x37, 0x38, 0x39};
 
-  @BeforeClass
-  public static void clusterSetupAtBeginning() throws IOException {
-    cluster = new MiniDFSCluster.Builder(clusterConf)
+    @BeforeClass
+    public static void clusterSetupAtBeginning() throws IOException {
+        cluster = new MiniDFSCluster.Builder(clusterConf)
         .nnTopology(MiniDFSNNTopology.simpleFederatedTopology(2))
         .numDataNodes(2)
         .build();
-    cluster.waitClusterUp();
+        cluster.waitClusterUp();
 
-    fHdfs = cluster.getFileSystem(0);
-    fHdfs2 = cluster.getFileSystem(1);
-  }
+        fHdfs = cluster.getFileSystem(0);
+        fHdfs2 = cluster.getFileSystem(1);
+    }
 
-  @AfterClass
-  public static void ClusterShutdownAtEnd() throws Exception {
-    cluster.shutdown();
-  }
+    @AfterClass
+    public static void ClusterShutdownAtEnd() throws Exception {
+        cluster.shutdown();
+    }
 
-  @Before
-  public void setUp() throws Exception {
-    fsTarget = fHdfs;
-    fsTarget2 = fHdfs2;
-    targetTestRoot = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget);
-    targetTestRoot2 = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget2);
+    @Before
+    public void setUp() throws Exception {
+        fsTarget = fHdfs;
+        fsTarget2 = fHdfs2;
+        targetTestRoot = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget);
+        targetTestRoot2 = fileSystemTestHelper.getAbsoluteTestRootPath(fsTarget2);
 
-    fsTarget.delete(targetTestRoot, true);
-    fsTarget2.delete(targetTestRoot2, true);
-    fsTarget.mkdirs(targetTestRoot);
-    fsTarget2.mkdirs(targetTestRoot2);
+        fsTarget.delete(targetTestRoot, true);
+        fsTarget2.delete(targetTestRoot2, true);
+        fsTarget.mkdirs(targetTestRoot);
+        fsTarget2.mkdirs(targetTestRoot2);
 
-    fsViewConf = ViewFileSystemTestSetup.createConfig();
-    setupMountPoints();
-    fsView = FileSystem.get(FsConstants.VIEWFS_URI, fsViewConf);
-  }
+        fsViewConf = ViewFileSystemTestSetup.createConfig();
+        setupMountPoints();
+        fsView = FileSystem.get(FsConstants.VIEWFS_URI, fsViewConf);
+    }
 
-  private void setupMountPoints() {
-    mountOnNn1 = new Path("/mountOnNn1");
-    mountOnNn2 = new Path("/mountOnNn2");
-    ConfigUtil.addLink(fsViewConf, mountOnNn1.toString(),
-        targetTestRoot.toUri());
-    ConfigUtil.addLink(fsViewConf, mountOnNn2.toString(),
-        targetTestRoot2.toUri());
-  }
+    private void setupMountPoints() {
+        mountOnNn1 = new Path("/mountOnNn1");
+        mountOnNn2 = new Path("/mountOnNn2");
+        ConfigUtil.addLink(fsViewConf, mountOnNn1.toString(),
+                           targetTestRoot.toUri());
+        ConfigUtil.addLink(fsViewConf, mountOnNn2.toString(),
+                           targetTestRoot2.toUri());
+    }
 
-  @After
-  public void tearDown() throws Exception {
-    fsTarget.delete(fileSystemTestHelper.getTestRootPath(fsTarget), true);
-    fsTarget2.delete(fileSystemTestHelper.getTestRootPath(fsTarget2), true);
-  }
+    @After
+    public void tearDown() throws Exception {
+        fsTarget.delete(fileSystemTestHelper.getTestRootPath(fsTarget), true);
+        fsTarget2.delete(fileSystemTestHelper.getTestRootPath(fsTarget2), true);
+    }
 
-  /**
-   * Verify a ViewFileSystem wrapped over multiple federated NameNodes will
-   * dispatch the XAttr operations to the correct NameNode.
-   */
-  @Test
-  public void testXAttrOnMountEntry() throws Exception {
-    // Set XAttrs on the first namespace and verify they are correct
-    fsView.setXAttr(mountOnNn1, name1, value1);
-    fsView.setXAttr(mountOnNn1, name2, value2);
-    assertEquals(2, fsView.getXAttrs(mountOnNn1).size());
-    assertArrayEquals(value1, fsView.getXAttr(mountOnNn1, name1));
-    assertArrayEquals(value2, fsView.getXAttr(mountOnNn1, name2));
-    // Double-check by getting the XAttrs using FileSystem
-    // instead of ViewFileSystem
-    assertArrayEquals(value1, fHdfs.getXAttr(targetTestRoot, name1));
-    assertArrayEquals(value2, fHdfs.getXAttr(targetTestRoot, name2));
+    /**
+     * Verify a ViewFileSystem wrapped over multiple federated NameNodes will
+     * dispatch the XAttr operations to the correct NameNode.
+     */
+    @Test
+    public void testXAttrOnMountEntry() throws Exception {
+        // Set XAttrs on the first namespace and verify they are correct
+        fsView.setXAttr(mountOnNn1, name1, value1);
+        fsView.setXAttr(mountOnNn1, name2, value2);
+        assertEquals(2, fsView.getXAttrs(mountOnNn1).size());
+        assertArrayEquals(value1, fsView.getXAttr(mountOnNn1, name1));
+        assertArrayEquals(value2, fsView.getXAttr(mountOnNn1, name2));
+        // Double-check by getting the XAttrs using FileSystem
+        // instead of ViewFileSystem
+        assertArrayEquals(value1, fHdfs.getXAttr(targetTestRoot, name1));
+        assertArrayEquals(value2, fHdfs.getXAttr(targetTestRoot, name2));
 
-    // Paranoid check: verify the other namespace does not
-    // have XAttrs set on the same path.
-    assertEquals(0, fsView.getXAttrs(mountOnNn2).size());
-    assertEquals(0, fHdfs2.getXAttrs(targetTestRoot2).size());
+        // Paranoid check: verify the other namespace does not
+        // have XAttrs set on the same path.
+        assertEquals(0, fsView.getXAttrs(mountOnNn2).size());
+        assertEquals(0, fHdfs2.getXAttrs(targetTestRoot2).size());
 
-    // Remove the XAttr entries on the first namespace
-    fsView.removeXAttr(mountOnNn1, name1);
-    fsView.removeXAttr(mountOnNn1, name2);
-    assertEquals(0, fsView.getXAttrs(mountOnNn1).size());
-    assertEquals(0, fHdfs.getXAttrs(targetTestRoot).size());
+        // Remove the XAttr entries on the first namespace
+        fsView.removeXAttr(mountOnNn1, name1);
+        fsView.removeXAttr(mountOnNn1, name2);
+        assertEquals(0, fsView.getXAttrs(mountOnNn1).size());
+        assertEquals(0, fHdfs.getXAttrs(targetTestRoot).size());
 
-    // Now set XAttrs on the second namespace
-    fsView.setXAttr(mountOnNn2, name1, value1);
-    fsView.setXAttr(mountOnNn2, name2, value2);
-    assertEquals(2, fsView.getXAttrs(mountOnNn2).size());
-    assertArrayEquals(value1, fsView.getXAttr(mountOnNn2, name1));
-    assertArrayEquals(value2, fsView.getXAttr(mountOnNn2, name2));
-    assertArrayEquals(value1, fHdfs2.getXAttr(targetTestRoot2, name1));
-    assertArrayEquals(value2, fHdfs2.getXAttr(targetTestRoot2, name2));
+        // Now set XAttrs on the second namespace
+        fsView.setXAttr(mountOnNn2, name1, value1);
+        fsView.setXAttr(mountOnNn2, name2, value2);
+        assertEquals(2, fsView.getXAttrs(mountOnNn2).size());
+        assertArrayEquals(value1, fsView.getXAttr(mountOnNn2, name1));
+        assertArrayEquals(value2, fsView.getXAttr(mountOnNn2, name2));
+        assertArrayEquals(value1, fHdfs2.getXAttr(targetTestRoot2, name1));
+        assertArrayEquals(value2, fHdfs2.getXAttr(targetTestRoot2, name2));
 
-    fsView.removeXAttr(mountOnNn2, name1);
-    fsView.removeXAttr(mountOnNn2, name2);
-    assertEquals(0, fsView.getXAttrs(mountOnNn2).size());
-    assertEquals(0, fHdfs2.getXAttrs(targetTestRoot2).size());
-  }
+        fsView.removeXAttr(mountOnNn2, name1);
+        fsView.removeXAttr(mountOnNn2, name2);
+        assertEquals(0, fsView.getXAttrs(mountOnNn2).size());
+        assertEquals(0, fHdfs2.getXAttrs(targetTestRoot2).size());
+    }
 }

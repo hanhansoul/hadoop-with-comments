@@ -40,78 +40,78 @@ import org.xml.sax.SAXException;
  */
 public class JobConfigurationParser {
 
-  /**
-   * Parse the job configuration file (as an input stream) and return a
-   * {@link Properties} collection. The input stream will not be closed after
-   * return from the call.
-   * 
-   * @param input
-   *          The input data.
-   * @return A {@link Properties} collection extracted from the job
-   *         configuration xml.
-   * @throws IOException
-   */
-  static Properties parse(InputStream input) throws IOException {
-    Properties result = new Properties();
+    /**
+     * Parse the job configuration file (as an input stream) and return a
+     * {@link Properties} collection. The input stream will not be closed after
+     * return from the call.
+     *
+     * @param input
+     *          The input data.
+     * @return A {@link Properties} collection extracted from the job
+     *         configuration xml.
+     * @throws IOException
+     */
+    static Properties parse(InputStream input) throws IOException {
+        Properties result = new Properties();
 
-    try {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-      DocumentBuilder db = dbf.newDocumentBuilder();
+            DocumentBuilder db = dbf.newDocumentBuilder();
 
-      Document doc = db.parse(input);
+            Document doc = db.parse(input);
 
-      Element root = doc.getDocumentElement();
+            Element root = doc.getDocumentElement();
 
-      if (!"configuration".equals(root.getTagName())) {
-        System.out.print("root is not a configuration node");
-        return null;
-      }
+            if (!"configuration".equals(root.getTagName())) {
+                System.out.print("root is not a configuration node");
+                return null;
+            }
 
-      NodeList props = root.getChildNodes();
+            NodeList props = root.getChildNodes();
 
-      for (int i = 0; i < props.getLength(); ++i) {
-        Node propNode = props.item(i);
-        if (!(propNode instanceof Element))
-          continue;
-        Element prop = (Element) propNode;
-        if (!"property".equals(prop.getTagName())) {
-          System.out.print("bad conf file: element not <property>");
+            for (int i = 0; i < props.getLength(); ++i) {
+                Node propNode = props.item(i);
+                if (!(propNode instanceof Element))
+                    continue;
+                Element prop = (Element) propNode;
+                if (!"property".equals(prop.getTagName())) {
+                    System.out.print("bad conf file: element not <property>");
+                }
+                NodeList fields = prop.getChildNodes();
+                String attr = null;
+                String value = null;
+                @SuppressWarnings("unused")
+                boolean finalParameter = false;
+                for (int j = 0; j < fields.getLength(); j++) {
+                    Node fieldNode = fields.item(j);
+                    if (!(fieldNode instanceof Element)) {
+                        continue;
+                    }
+
+                    Element field = (Element) fieldNode;
+                    if ("name".equals(field.getTagName()) && field.hasChildNodes()) {
+                        attr = ((Text) field.getFirstChild()).getData().trim();
+                    }
+                    if ("value".equals(field.getTagName()) && field.hasChildNodes()) {
+                        value = ((Text) field.getFirstChild()).getData();
+                    }
+                    if ("final".equals(field.getTagName()) && field.hasChildNodes()) {
+                        finalParameter =
+                            "true".equals(((Text) field.getFirstChild()).getData());
+                    }
+                }
+
+                if (attr != null && value != null) {
+                    result.put(attr, value);
+                }
+            }
+        } catch (ParserConfigurationException e) {
+            return null;
+        } catch (SAXException e) {
+            return null;
         }
-        NodeList fields = prop.getChildNodes();
-        String attr = null;
-        String value = null;
-        @SuppressWarnings("unused")
-        boolean finalParameter = false;
-        for (int j = 0; j < fields.getLength(); j++) {
-          Node fieldNode = fields.item(j);
-          if (!(fieldNode instanceof Element)) {
-            continue;
-          }
 
-          Element field = (Element) fieldNode;
-          if ("name".equals(field.getTagName()) && field.hasChildNodes()) {
-            attr = ((Text) field.getFirstChild()).getData().trim();
-          }
-          if ("value".equals(field.getTagName()) && field.hasChildNodes()) {
-            value = ((Text) field.getFirstChild()).getData();
-          }
-          if ("final".equals(field.getTagName()) && field.hasChildNodes()) {
-            finalParameter =
-                "true".equals(((Text) field.getFirstChild()).getData());
-          }
-        }
-
-        if (attr != null && value != null) {
-          result.put(attr, value);
-        }
-      }
-    } catch (ParserConfigurationException e) {
-      return null;
-    } catch (SAXException e) {
-      return null;
+        return result;
     }
-
-    return result;
-  }
 }

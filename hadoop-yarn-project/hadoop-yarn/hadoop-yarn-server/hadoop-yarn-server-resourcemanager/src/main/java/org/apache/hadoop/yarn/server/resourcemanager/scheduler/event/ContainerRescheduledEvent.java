@@ -22,14 +22,14 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmcontainer.RMContainer;
 
 public class ContainerRescheduledEvent extends SchedulerEvent {
 
-  private RMContainer container;
+    private RMContainer container;
 
-  public ContainerRescheduledEvent(RMContainer container) {
-    super(SchedulerEventType.CONTAINER_RESCHEDULED);
-    this.container = container;
-  }
+    public ContainerRescheduledEvent(RMContainer container) {
+        super(SchedulerEventType.CONTAINER_RESCHEDULED);
+        this.container = container;
+    }
 
-  public RMContainer getContainer() {
-    return container;
-  }
+    public RMContainer getContainer() {
+        return container;
+    }
 }

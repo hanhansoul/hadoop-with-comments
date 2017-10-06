@@ -30,16 +30,16 @@ import org.apache.hadoop.yarn.event.EventHandler;
  * time to time, to launch the speculations.
  */
 public interface Speculator
-              extends EventHandler<SpeculatorEvent> {
+    extends EventHandler<SpeculatorEvent> {
 
-  enum EventType {
-    ATTEMPT_STATUS_UPDATE,
-    ATTEMPT_START,
-    TASK_CONTAINER_NEED_UPDATE,
-    JOB_CREATE
-  }
+    enum EventType {
+        ATTEMPT_STATUS_UPDATE,
+        ATTEMPT_START,
+        TASK_CONTAINER_NEED_UPDATE,
+        JOB_CREATE
+    }
 
-  // This will be implemented if we go to a model where the events are
-  //  processed within the TaskAttempts' state transitions' code.
-  public void handleAttempt(TaskAttemptStatus status);
+    // This will be implemented if we go to a model where the events are
+    //  processed within the TaskAttempts' state transitions' code.
+    public void handleAttempt(TaskAttemptStatus status);
 }

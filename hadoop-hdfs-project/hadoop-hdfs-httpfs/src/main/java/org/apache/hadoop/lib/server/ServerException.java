@@ -27,71 +27,71 @@ import org.apache.hadoop.lib.lang.XException;
 @InterfaceAudience.Private
 public class ServerException extends XException {
 
-  /**
-   * Error codes use by the {@link Server} class.
-   */
-  @InterfaceAudience.Private
-  public static enum ERROR implements XException.ERROR {
-    S01("Dir [{0}] does not exist"),
-    S02("[{0}] is not a directory"),
-    S03("Could not load file from classpath [{0}], {1}"),
-    S04("Service [{0}] does not implement declared interface [{1}]"),
-    S05("[{0}] is not a file"),
-    S06("Could not load file [{0}], {1}"),
-    S07("Could not instanciate service class [{0}], {1}"),
-    S08("Could not load service classes, {0}"),
-    S09("Could not set service [{0}] programmatically -server shutting down-, {1}"),
-    S10("Service [{0}] requires service [{1}]"),
-    S11("Service [{0}] exception during status change to [{1}] -server shutting down-, {2}"),
-    S12("Could not start service [{0}], {1}"),
-    S13("Missing system property [{0}]"),
-    S14("Could not initialize server, {0}")
-    ;
-
-    private String msg;
-
     /**
-     * Constructor for the error code enum.
-     *
-     * @param msg message template.
+     * Error codes use by the {@link Server} class.
      */
-    private ERROR(String msg) {
-      this.msg = msg;
+    @InterfaceAudience.Private
+    public static enum ERROR implements XException.ERROR {
+        S01("Dir [{0}] does not exist"),
+        S02("[{0}] is not a directory"),
+        S03("Could not load file from classpath [{0}], {1}"),
+        S04("Service [{0}] does not implement declared interface [{1}]"),
+        S05("[{0}] is not a file"),
+        S06("Could not load file [{0}], {1}"),
+        S07("Could not instanciate service class [{0}], {1}"),
+        S08("Could not load service classes, {0}"),
+        S09("Could not set service [{0}] programmatically -server shutting down-, {1}"),
+        S10("Service [{0}] requires service [{1}]"),
+        S11("Service [{0}] exception during status change to [{1}] -server shutting down-, {2}"),
+        S12("Could not start service [{0}], {1}"),
+        S13("Missing system property [{0}]"),
+        S14("Could not initialize server, {0}")
+        ;
+
+        private String msg;
+
+        /**
+         * Constructor for the error code enum.
+         *
+         * @param msg message template.
+         */
+        private ERROR(String msg) {
+            this.msg = msg;
+        }
+
+        /**
+         * Returns the message template for the error code.
+         *
+         * @return the message template for the error code.
+         */
+        @Override
+        public String getTemplate() {
+            return msg;
+        }
     }
 
     /**
-     * Returns the message template for the error code.
+     * Constructor for sub-classes.
      *
-     * @return the message template for the error code.
+     * @param error error code for the XException.
+     * @param params parameters to use when creating the error message
+     * with the error code template.
      */
-    @Override
-    public String getTemplate() {
-      return msg;
+    protected ServerException(XException.ERROR error, Object... params) {
+        super(error, params);
     }
-  }
 
-  /**
-   * Constructor for sub-classes.
-   *
-   * @param error error code for the XException.
-   * @param params parameters to use when creating the error message
-   * with the error code template.
-   */
-  protected ServerException(XException.ERROR error, Object... params) {
-    super(error, params);
-  }
-
-  /**
-   * Creates an server exception using the specified error code.
-   * The exception message is resolved using the error code template
-   * and the passed parameters.
-   *
-   * @param error error code for the XException.
-   * @param params parameters to use when creating the error message
-   * with the error code template.
-   */
-  public ServerException(ERROR error, Object... params) {
-    super(error, params);
-  }
+    /**
+     * Creates an server exception using the specified error code.
+     * The exception message is resolved using the error code template
+     * and the passed parameters.
+     *
+     * @param error error code for the XException.
+     * @param params parameters to use when creating the error message
+     * with the error code template.
+     */
+    public ServerException(ERROR error, Object... params) {
+        super(error, params);
+    }
 
 }

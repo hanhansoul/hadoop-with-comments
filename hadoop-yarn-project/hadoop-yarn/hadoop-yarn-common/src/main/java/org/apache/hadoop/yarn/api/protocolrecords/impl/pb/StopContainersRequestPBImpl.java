@@ -35,113 +35,113 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class StopContainersRequestPBImpl extends StopContainersRequest {
-  StopContainersRequestProto proto = StopContainersRequestProto
-    .getDefaultInstance();
-  StopContainersRequestProto.Builder builder = null;
-  boolean viaProto = false;
+    StopContainersRequestProto proto = StopContainersRequestProto
+                                       .getDefaultInstance();
+    StopContainersRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private List<ContainerId> containerIds = null;
+    private List<ContainerId> containerIds = null;
 
-  public StopContainersRequestPBImpl() {
-    builder = StopContainersRequestProto.newBuilder();
-  }
-
-  public StopContainersRequestPBImpl(StopContainersRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public StopContainersRequestProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public StopContainersRequestPBImpl() {
+        builder = StopContainersRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.containerIds != null) {
-      addLocalContainerIdsToProto();
+    public StopContainersRequestPBImpl(StopContainersRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = StopContainersRequestProto.newBuilder(proto);
+    public StopContainersRequestProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  private void addLocalContainerIdsToProto() {
-    maybeInitBuilder();
-    builder.clearContainerId();
-    if (this.containerIds == null)
-      return;
-    List<ContainerIdProto> protoList = new ArrayList<ContainerIdProto>();
-    for (ContainerId id : containerIds) {
-      protoList.add(convertToProtoFormat(id));
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    builder.addAllContainerId(protoList);
-  }
 
-  private void initLocalContainerIds() {
-    if (this.containerIds != null) {
-      return;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    StopContainersRequestProtoOrBuilder p = viaProto ? proto : builder;
-    List<ContainerIdProto> containerIds = p.getContainerIdList();
-    this.containerIds = new ArrayList<ContainerId>();
-    for (ContainerIdProto id : containerIds) {
-      this.containerIds.add(convertFromProtoFormat(id));
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-  }
 
-  @Override
-  public List<ContainerId> getContainerIds() {
-    initLocalContainerIds();
-    return this.containerIds;
-  }
+    private void mergeLocalToBuilder() {
+        if (this.containerIds != null) {
+            addLocalContainerIdsToProto();
+        }
+    }
 
-  @Override
-  public void setContainerIds(List<ContainerId> containerIds) {
-    maybeInitBuilder();
-    if (containerIds == null)
-      builder.clearContainerId();
-    this.containerIds = containerIds;
-  }
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
 
-  private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
-    return new ContainerIdPBImpl(p);
-  }
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = StopContainersRequestProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
-  private ContainerIdProto convertToProtoFormat(ContainerId t) {
-    return ((ContainerIdPBImpl) t).getProto();
-  }
+    private void addLocalContainerIdsToProto() {
+        maybeInitBuilder();
+        builder.clearContainerId();
+        if (this.containerIds == null)
+            return;
+        List<ContainerIdProto> protoList = new ArrayList<ContainerIdProto>();
+        for (ContainerId id : containerIds) {
+            protoList.add(convertToProtoFormat(id));
+        }
+        builder.addAllContainerId(protoList);
+    }
+
+    private void initLocalContainerIds() {
+        if (this.containerIds != null) {
+            return;
+        }
+        StopContainersRequestProtoOrBuilder p = viaProto ? proto : builder;
+        List<ContainerIdProto> containerIds = p.getContainerIdList();
+        this.containerIds = new ArrayList<ContainerId>();
+        for (ContainerIdProto id : containerIds) {
+            this.containerIds.add(convertFromProtoFormat(id));
+        }
+    }
+
+    @Override
+    public List<ContainerId> getContainerIds() {
+        initLocalContainerIds();
+        return this.containerIds;
+    }
+
+    @Override
+    public void setContainerIds(List<ContainerId> containerIds) {
+        maybeInitBuilder();
+        if (containerIds == null)
+            builder.clearContainerId();
+        this.containerIds = containerIds;
+    }
+
+    private ContainerIdPBImpl convertFromProtoFormat(ContainerIdProto p) {
+        return new ContainerIdPBImpl(p);
+    }
+
+    private ContainerIdProto convertToProtoFormat(ContainerId t) {
+        return ((ContainerIdPBImpl) t).getProto();
+    }
 }

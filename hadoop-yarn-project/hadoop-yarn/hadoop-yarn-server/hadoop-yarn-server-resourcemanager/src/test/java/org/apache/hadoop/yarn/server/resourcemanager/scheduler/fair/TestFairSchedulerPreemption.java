@@ -40,152 +40,152 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestFairSchedulerPreemption extends FairSchedulerTestBase {
-  private final static String ALLOC_FILE = new File(TEST_DIR,
-      TestFairSchedulerPreemption.class.getName() + ".xml").getAbsolutePath();
+    private final static String ALLOC_FILE = new File(TEST_DIR,
+            TestFairSchedulerPreemption.class.getName() + ".xml").getAbsolutePath();
 
-  private MockClock clock;
+    private MockClock clock;
 
-  private static class StubbedFairScheduler extends FairScheduler {
-    public int lastPreemptMemory = -1;
+    private static class StubbedFairScheduler extends FairScheduler {
+        public int lastPreemptMemory = -1;
+
+        @Override
+        protected void preemptResources(Resource toPreempt) {
+            lastPreemptMemory = toPreempt.getMemory();
+        }
+
+        public void resetLastPreemptResources() {
+            lastPreemptMemory = -1;
+        }
+    }
 
     @Override
-    protected void preemptResources(Resource toPreempt) {
-      lastPreemptMemory = toPreempt.getMemory();
+    protected Configuration createConfiguration() {
+        Configuration conf = super.createConfiguration();
+        conf.setClass(YarnConfiguration.RM_SCHEDULER, StubbedFairScheduler.class,
+                      ResourceScheduler.class);
+        conf.setBoolean(FairSchedulerConfiguration.PREEMPTION, true);
+        conf.set(FairSchedulerConfiguration.ALLOCATION_FILE, ALLOC_FILE);
+        return conf;
     }
 
-    public void resetLastPreemptResources() {
-      lastPreemptMemory = -1;
+    @Before
+    public void setup() throws IOException {
+        conf = createConfiguration();
+        clock = new MockClock();
     }
-  }
 
-  @Override
-  protected Configuration createConfiguration() {
-    Configuration conf = super.createConfiguration();
-    conf.setClass(YarnConfiguration.RM_SCHEDULER, StubbedFairScheduler.class,
-        ResourceScheduler.class);
-    conf.setBoolean(FairSchedulerConfiguration.PREEMPTION, true);
-    conf.set(FairSchedulerConfiguration.ALLOCATION_FILE, ALLOC_FILE);
-    return conf;
-  }
-
-  @Before
-  public void setup() throws IOException {
-    conf = createConfiguration();
-    clock = new MockClock();
-  }
-
-  @After
-  public void teardown() {
-    if (resourceManager != null) {
-      resourceManager.stop();
-      resourceManager = null;
+    @After
+    public void teardown() {
+        if (resourceManager != null) {
+            resourceManager.stop();
+            resourceManager = null;
+        }
+        conf = null;
     }
-    conf = null;
-  }
 
-  private void startResourceManager(float utilizationThreshold) {
-    conf.setFloat(FairSchedulerConfiguration.PREEMPTION_THRESHOLD,
-        utilizationThreshold);
-    resourceManager = new MockRM(conf);
-    resourceManager.start();
+    private void startResourceManager(float utilizationThreshold) {
+        conf.setFloat(FairSchedulerConfiguration.PREEMPTION_THRESHOLD,
+                      utilizationThreshold);
+        resourceManager = new MockRM(conf);
+        resourceManager.start();
 
-    assertTrue(
-        resourceManager.getResourceScheduler() instanceof StubbedFairScheduler);
-    scheduler = (FairScheduler)resourceManager.getResourceScheduler();
+        assertTrue(
+            resourceManager.getResourceScheduler() instanceof StubbedFairScheduler);
+        scheduler = (FairScheduler)resourceManager.getResourceScheduler();
 
-    scheduler.setClock(clock);
-    scheduler.updateInterval = 60 * 1000;
-  }
-
-  private void registerNodeAndSubmitApp(
-      int memory, int vcores, int appContainers, int appMemory) {
-    RMNode node1 = MockNodes.newNodeInfo(
-        1, Resources.createResource(memory, vcores), 1, "node1");
-    NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
-    scheduler.handle(nodeEvent1);
-
-    assertEquals("Incorrect amount of resources in the cluster",
-        memory, scheduler.rootMetrics.getAvailableMB());
-    assertEquals("Incorrect amount of resources in the cluster",
-        vcores, scheduler.rootMetrics.getAvailableVirtualCores());
-
-    createSchedulingRequest(appMemory, "queueA", "user1", appContainers);
-    scheduler.update();
-    // Sufficient node check-ins to fully schedule containers
-    for (int i = 0; i < 3; i++) {
-      NodeUpdateSchedulerEvent nodeUpdate1 = new NodeUpdateSchedulerEvent(node1);
-      scheduler.handle(nodeUpdate1);
+        scheduler.setClock(clock);
+        scheduler.updateInterval = 60 * 1000;
     }
-    assertEquals("app1's request is not met",
-        memory - appContainers * appMemory,
-        scheduler.rootMetrics.getAvailableMB());
-  }
 
-  @Test
-  public void testPreemptionWithFreeResources() throws Exception {
-    PrintWriter out = new PrintWriter(new FileWriter(ALLOC_FILE));
-    out.println("<?xml version=\"1.0\"?>");
-    out.println("<allocations>");
-    out.println("<queue name=\"default\">");
-    out.println("<maxResources>0mb,0vcores</maxResources>");
-    out.println("</queue>");
-    out.println("<queue name=\"queueA\">");
-    out.println("<weight>1</weight>");
-    out.println("<minResources>1024mb,0vcores</minResources>");
-    out.println("</queue>");
-    out.println("<queue name=\"queueB\">");
-    out.println("<weight>1</weight>");
-    out.println("<minResources>1024mb,0vcores</minResources>");
-    out.println("</queue>");
-    out.print("<defaultMinSharePreemptionTimeout>5</defaultMinSharePreemptionTimeout>");
-    out.print("<fairSharePreemptionTimeout>10</fairSharePreemptionTimeout>");
-    out.println("</allocations>");
-    out.close();
+    private void registerNodeAndSubmitApp(
+        int memory, int vcores, int appContainers, int appMemory) {
+        RMNode node1 = MockNodes.newNodeInfo(
+                           1, Resources.createResource(memory, vcores), 1, "node1");
+        NodeAddedSchedulerEvent nodeEvent1 = new NodeAddedSchedulerEvent(node1);
+        scheduler.handle(nodeEvent1);
 
-    startResourceManager(0f);
-    // Create node with 4GB memory and 4 vcores
-    registerNodeAndSubmitApp(4 * 1024, 4, 2, 1024);
+        assertEquals("Incorrect amount of resources in the cluster",
+                     memory, scheduler.rootMetrics.getAvailableMB());
+        assertEquals("Incorrect amount of resources in the cluster",
+                     vcores, scheduler.rootMetrics.getAvailableVirtualCores());
 
-    // Verify submitting another request triggers preemption
-    createSchedulingRequest(1024, "queueB", "user1", 1, 1);
-    scheduler.update();
-    clock.tick(6);
+        createSchedulingRequest(appMemory, "queueA", "user1", appContainers);
+        scheduler.update();
+        // Sufficient node check-ins to fully schedule containers
+        for (int i = 0; i < 3; i++) {
+            NodeUpdateSchedulerEvent nodeUpdate1 = new NodeUpdateSchedulerEvent(node1);
+            scheduler.handle(nodeUpdate1);
+        }
+        assertEquals("app1's request is not met",
+                     memory - appContainers * appMemory,
+                     scheduler.rootMetrics.getAvailableMB());
+    }
 
-    ((StubbedFairScheduler) scheduler).resetLastPreemptResources();
-    scheduler.preemptTasksIfNecessary();
-    assertEquals("preemptResources() should have been called", 1024,
-        ((StubbedFairScheduler) scheduler).lastPreemptMemory);
+    @Test
+    public void testPreemptionWithFreeResources() throws Exception {
+        PrintWriter out = new PrintWriter(new FileWriter(ALLOC_FILE));
+        out.println("<?xml version=\"1.0\"?>");
+        out.println("<allocations>");
+        out.println("<queue name=\"default\">");
+        out.println("<maxResources>0mb,0vcores</maxResources>");
+        out.println("</queue>");
+        out.println("<queue name=\"queueA\">");
+        out.println("<weight>1</weight>");
+        out.println("<minResources>1024mb,0vcores</minResources>");
+        out.println("</queue>");
+        out.println("<queue name=\"queueB\">");
+        out.println("<weight>1</weight>");
+        out.println("<minResources>1024mb,0vcores</minResources>");
+        out.println("</queue>");
+        out.print("<defaultMinSharePreemptionTimeout>5</defaultMinSharePreemptionTimeout>");
+        out.print("<fairSharePreemptionTimeout>10</fairSharePreemptionTimeout>");
+        out.println("</allocations>");
+        out.close();
 
-    resourceManager.stop();
+        startResourceManager(0f);
+        // Create node with 4GB memory and 4 vcores
+        registerNodeAndSubmitApp(4 * 1024, 4, 2, 1024);
 
-    startResourceManager(0.8f);
-    // Create node with 4GB memory and 4 vcores
-    registerNodeAndSubmitApp(4 * 1024, 4, 3, 1024);
+        // Verify submitting another request triggers preemption
+        createSchedulingRequest(1024, "queueB", "user1", 1, 1);
+        scheduler.update();
+        clock.tick(6);
 
-    // Verify submitting another request doesn't trigger preemption
-    createSchedulingRequest(1024, "queueB", "user1", 1, 1);
-    scheduler.update();
-    clock.tick(6);
+        ((StubbedFairScheduler) scheduler).resetLastPreemptResources();
+        scheduler.preemptTasksIfNecessary();
+        assertEquals("preemptResources() should have been called", 1024,
+                     ((StubbedFairScheduler) scheduler).lastPreemptMemory);
 
-    ((StubbedFairScheduler) scheduler).resetLastPreemptResources();
-    scheduler.preemptTasksIfNecessary();
-    assertEquals("preemptResources() should not have been called", -1,
-        ((StubbedFairScheduler) scheduler).lastPreemptMemory);
+        resourceManager.stop();
 
-    resourceManager.stop();
+        startResourceManager(0.8f);
+        // Create node with 4GB memory and 4 vcores
+        registerNodeAndSubmitApp(4 * 1024, 4, 3, 1024);
 
-    startResourceManager(0.7f);
-    // Create node with 4GB memory and 4 vcores
-    registerNodeAndSubmitApp(4 * 1024, 4, 3, 1024);
+        // Verify submitting another request doesn't trigger preemption
+        createSchedulingRequest(1024, "queueB", "user1", 1, 1);
+        scheduler.update();
+        clock.tick(6);
 
-    // Verify submitting another request triggers preemption
-    createSchedulingRequest(1024, "queueB", "user1", 1, 1);
-    scheduler.update();
-    clock.tick(6);
+        ((StubbedFairScheduler) scheduler).resetLastPreemptResources();
+        scheduler.preemptTasksIfNecessary();
+        assertEquals("preemptResources() should not have been called", -1,
+                     ((StubbedFairScheduler) scheduler).lastPreemptMemory);
 
-    ((StubbedFairScheduler) scheduler).resetLastPreemptResources();
-    scheduler.preemptTasksIfNecessary();
-    assertEquals("preemptResources() should have been called", 1024,
-        ((StubbedFairScheduler) scheduler).lastPreemptMemory);
-  }
+        resourceManager.stop();
+
+        startResourceManager(0.7f);
+        // Create node with 4GB memory and 4 vcores
+        registerNodeAndSubmitApp(4 * 1024, 4, 3, 1024);
+
+        // Verify submitting another request triggers preemption
+        createSchedulingRequest(1024, "queueB", "user1", 1, 1);
+        scheduler.update();
+        clock.tick(6);
+
+        ((StubbedFairScheduler) scheduler).resetLastPreemptResources();
+        scheduler.preemptTasksIfNecessary();
+        assertEquals("preemptResources() should have been called", 1024,
+                     ((StubbedFairScheduler) scheduler).lastPreemptMemory);
+    }
 }

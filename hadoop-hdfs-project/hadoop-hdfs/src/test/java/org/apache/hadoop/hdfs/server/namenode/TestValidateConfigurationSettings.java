@@ -34,117 +34,117 @@ import java.net.BindException;
 import java.util.Random;
 
 /**
- * This class tests the validation of the configuration object when passed 
+ * This class tests the validation of the configuration object when passed
  * to the NameNode
  */
 public class TestValidateConfigurationSettings {
 
-  @After
-  public void cleanUp() {
-    FileUtil.fullyDeleteContents(new File(MiniDFSCluster.getBaseDirectory()));
-  }
-
-  /**
-   * Tests setting the rpc port to the same as the web port to test that 
-   * an exception
-   * is thrown when trying to re-use the same port
-   */
-  @Test(expected = BindException.class, timeout = 300000)
-  public void testThatMatchingRPCandHttpPortsThrowException() 
-      throws IOException {
-
-    NameNode nameNode = null;
-    try {
-      Configuration conf = new HdfsConfiguration();
-      File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
-      conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
-          nameDir.getAbsolutePath());
-
-      Random rand = new Random();
-      final int port = 30000 + rand.nextInt(30000);
-
-      // set both of these to the same port. It should fail.
-      FileSystem.setDefaultUri(conf, "hdfs://localhost:" + port);
-      conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY, "127.0.0.1:" + port);
-      DFSTestUtil.formatNameNode(conf);
-      nameNode = new NameNode(conf);
-    } finally {
-      if (nameNode != null) {
-        nameNode.stop();
-      }
+    @After
+    public void cleanUp() {
+        FileUtil.fullyDeleteContents(new File(MiniDFSCluster.getBaseDirectory()));
     }
-  }
 
-  /**
-   * Tests setting the rpc port to a different as the web port that an 
-   * exception is NOT thrown 
-   */
-  @Test(timeout = 300000)
-  public void testThatDifferentRPCandHttpPortsAreOK() 
-      throws IOException {
+    /**
+     * Tests setting the rpc port to the same as the web port to test that
+     * an exception
+     * is thrown when trying to re-use the same port
+     */
+    @Test(expected = BindException.class, timeout = 300000)
+    public void testThatMatchingRPCandHttpPortsThrowException()
+    throws IOException {
 
-    Configuration conf = new HdfsConfiguration();
-    File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
-    conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
-        nameDir.getAbsolutePath());
+        NameNode nameNode = null;
+        try {
+            Configuration conf = new HdfsConfiguration();
+            File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
+            conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
+                     nameDir.getAbsolutePath());
 
-    Random rand = new Random();
+            Random rand = new Random();
+            final int port = 30000 + rand.nextInt(30000);
 
-    // A few retries in case the ports we choose are in use.
-    for (int i = 0; i < 5; ++i) {
-      final int port1 = 30000 + rand.nextInt(10000);
-      final int port2 = port1 + 1 + rand.nextInt(10000);
-
-      FileSystem.setDefaultUri(conf, "hdfs://localhost:" + port1);
-      conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY, "127.0.0.1:" + port2);
-      DFSTestUtil.formatNameNode(conf);
-      NameNode nameNode = null;
-
-      try {
-        nameNode = new NameNode(conf); // should be OK!
-        break;
-      } catch(BindException be) {
-        continue;     // Port in use? Try another.
-      } finally {
-        if (nameNode != null) {
-          nameNode.stop();
+            // set both of these to the same port. It should fail.
+            FileSystem.setDefaultUri(conf, "hdfs://localhost:" + port);
+            conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY, "127.0.0.1:" + port);
+            DFSTestUtil.formatNameNode(conf);
+            nameNode = new NameNode(conf);
+        } finally {
+            if (nameNode != null) {
+                nameNode.stop();
+            }
         }
-      }
     }
-  }
 
-  /**
-   * HDFS-3013: NameNode format command doesn't pick up
-   * dfs.namenode.name.dir.NameServiceId configuration.
-   */
-  @Test(timeout = 300000)
-  public void testGenericKeysForNameNodeFormat()
-      throws IOException {
-    Configuration conf = new HdfsConfiguration();
+    /**
+     * Tests setting the rpc port to a different as the web port that an
+     * exception is NOT thrown
+     */
+    @Test(timeout = 300000)
+    public void testThatDifferentRPCandHttpPortsAreOK()
+    throws IOException {
 
-    // Set ephemeral ports 
-    conf.set(DFSConfigKeys.DFS_NAMENODE_RPC_ADDRESS_KEY,
-        "127.0.0.1:0");
-    conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY,
-        "127.0.0.1:0");
-    
-    conf.set(DFSConfigKeys.DFS_NAMESERVICES, "ns1");
-    
-    // Set a nameservice-specific configuration for name dir
-    File dir = new File(MiniDFSCluster.getBaseDirectory(),
-        "testGenericKeysForNameNodeFormat");
-    if (dir.exists()) {
-      FileUtil.fullyDelete(dir);
+        Configuration conf = new HdfsConfiguration();
+        File nameDir = new File(MiniDFSCluster.getBaseDirectory(), "name");
+        conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY,
+                 nameDir.getAbsolutePath());
+
+        Random rand = new Random();
+
+        // A few retries in case the ports we choose are in use.
+        for (int i = 0; i < 5; ++i) {
+            final int port1 = 30000 + rand.nextInt(10000);
+            final int port2 = port1 + 1 + rand.nextInt(10000);
+
+            FileSystem.setDefaultUri(conf, "hdfs://localhost:" + port1);
+            conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY, "127.0.0.1:" + port2);
+            DFSTestUtil.formatNameNode(conf);
+            NameNode nameNode = null;
+
+            try {
+                nameNode = new NameNode(conf); // should be OK!
+                break;
+            } catch(BindException be) {
+                continue;     // Port in use? Try another.
+            } finally {
+                if (nameNode != null) {
+                    nameNode.stop();
+                }
+            }
+        }
     }
-    conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY + ".ns1",
-        dir.getAbsolutePath());
-    
-    // Format and verify the right dir is formatted.
-    DFSTestUtil.formatNameNode(conf);
-    GenericTestUtils.assertExists(dir);
 
-    // Ensure that the same dir is picked up by the running NN
-    NameNode nameNode = new NameNode(conf);
-    nameNode.stop();
-  }
+    /**
+     * HDFS-3013: NameNode format command doesn't pick up
+     * dfs.namenode.name.dir.NameServiceId configuration.
+     */
+    @Test(timeout = 300000)
+    public void testGenericKeysForNameNodeFormat()
+    throws IOException {
+        Configuration conf = new HdfsConfiguration();
+
+        // Set ephemeral ports
+        conf.set(DFSConfigKeys.DFS_NAMENODE_RPC_ADDRESS_KEY,
+                 "127.0.0.1:0");
+        conf.set(DFSConfigKeys.DFS_NAMENODE_HTTP_ADDRESS_KEY,
+                 "127.0.0.1:0");
+
+        conf.set(DFSConfigKeys.DFS_NAMESERVICES, "ns1");
+
+        // Set a nameservice-specific configuration for name dir
+        File dir = new File(MiniDFSCluster.getBaseDirectory(),
+                            "testGenericKeysForNameNodeFormat");
+        if (dir.exists()) {
+            FileUtil.fullyDelete(dir);
+        }
+        conf.set(DFSConfigKeys.DFS_NAMENODE_NAME_DIR_KEY + ".ns1",
+                 dir.getAbsolutePath());
+
+        // Format and verify the right dir is formatted.
+        DFSTestUtil.formatNameNode(conf);
+        GenericTestUtils.assertExists(dir);
+
+        // Ensure that the same dir is picked up by the running NN
+        NameNode nameNode = new NameNode(conf);
+        nameNode.stop();
+    }
 }

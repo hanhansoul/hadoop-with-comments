@@ -22,33 +22,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 class HistogramRawTestData {
-  List<Long> data = new ArrayList<Long>();
+    List<Long> data = new ArrayList<Long>();
 
-  List<Integer> percentiles = new ArrayList<Integer>();
+    List<Integer> percentiles = new ArrayList<Integer>();
 
-  int scale;
+    int scale;
 
-  public List<Integer> getPercentiles() {
-    return percentiles;
-  }
+    public List<Integer> getPercentiles() {
+        return percentiles;
+    }
 
-  public void setPercentiles(List<Integer> percentiles) {
-    this.percentiles = percentiles;
-  }
+    public void setPercentiles(List<Integer> percentiles) {
+        this.percentiles = percentiles;
+    }
 
-  public int getScale() {
-    return scale;
-  }
+    public int getScale() {
+        return scale;
+    }
 
-  public void setScale(int scale) {
-    this.scale = scale;
-  }
+    public void setScale(int scale) {
+        this.scale = scale;
+    }
 
-  public List<Long> getData() {
-    return data;
-  }
+    public List<Long> getData() {
+        return data;
+    }
 
-  public void setData(List<Long> data) {
-    this.data = data;
-  }
+    public void setData(List<Long> data) {
+        this.data = data;
+    }
 }

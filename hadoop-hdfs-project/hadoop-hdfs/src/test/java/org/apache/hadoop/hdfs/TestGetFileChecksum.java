@@ -26,50 +26,50 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestGetFileChecksum {
-  private static final int BLOCKSIZE = 1024;
-  private static final short REPLICATION = 3;
+    private static final int BLOCKSIZE = 1024;
+    private static final short REPLICATION = 3;
 
-  private Configuration conf;
-  private MiniDFSCluster cluster;
-  private DistributedFileSystem dfs;
+    private Configuration conf;
+    private MiniDFSCluster cluster;
+    private DistributedFileSystem dfs;
 
-  @Before
-  public void setUp() throws Exception {
-    conf = new Configuration();
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCKSIZE);
-    cluster = new MiniDFSCluster.Builder(conf).numDataNodes(REPLICATION)
+    @Before
+    public void setUp() throws Exception {
+        conf = new Configuration();
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, BLOCKSIZE);
+        cluster = new MiniDFSCluster.Builder(conf).numDataNodes(REPLICATION)
         .build();
-    cluster.waitActive();
-    dfs = cluster.getFileSystem();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (cluster != null) {
-      cluster.shutdown();
-    }
-  }
-
-  public void testGetFileChecksum(final Path foo, final int appendLength)
-      throws Exception {
-    final int appendRounds = 16;
-    FileChecksum[] fc = new FileChecksum[appendRounds + 1];
-    DFSTestUtil.createFile(dfs, foo, appendLength, REPLICATION, 0L);
-    fc[0] = dfs.getFileChecksum(foo);
-    for (int i = 0; i < appendRounds; i++) {
-      DFSTestUtil.appendFile(dfs, foo, appendLength);
-      fc[i + 1] = dfs.getFileChecksum(foo);
+        cluster.waitActive();
+        dfs = cluster.getFileSystem();
     }
 
-    for (int i = 0; i < appendRounds + 1; i++) {
-      FileChecksum checksum = dfs.getFileChecksum(foo, appendLength * (i+1));
-      Assert.assertTrue(checksum.equals(fc[i]));
+    @After
+    public void tearDown() throws Exception {
+        if (cluster != null) {
+            cluster.shutdown();
+        }
     }
-  }
 
-  @Test
-  public void testGetFileChecksum() throws Exception {
-    testGetFileChecksum(new Path("/foo"), BLOCKSIZE / 4);
-    testGetFileChecksum(new Path("/bar"), BLOCKSIZE / 4 - 1);
-  }
+    public void testGetFileChecksum(final Path foo, final int appendLength)
+    throws Exception {
+        final int appendRounds = 16;
+        FileChecksum[] fc = new FileChecksum[appendRounds + 1];
+        DFSTestUtil.createFile(dfs, foo, appendLength, REPLICATION, 0L);
+        fc[0] = dfs.getFileChecksum(foo);
+        for (int i = 0; i < appendRounds; i++) {
+            DFSTestUtil.appendFile(dfs, foo, appendLength);
+            fc[i + 1] = dfs.getFileChecksum(foo);
+        }
+
+        for (int i = 0; i < appendRounds + 1; i++) {
+            FileChecksum checksum = dfs.getFileChecksum(foo, appendLength * (i+1));
+            Assert.assertTrue(checksum.equals(fc[i]));
+        }
+    }
+
+    @Test
+    public void testGetFileChecksum() throws Exception {
+        testGetFileChecksum(new Path("/foo"), BLOCKSIZE / 4);
+        testGetFileChecksum(new Path("/bar"), BLOCKSIZE / 4 - 1);
+    }
 }

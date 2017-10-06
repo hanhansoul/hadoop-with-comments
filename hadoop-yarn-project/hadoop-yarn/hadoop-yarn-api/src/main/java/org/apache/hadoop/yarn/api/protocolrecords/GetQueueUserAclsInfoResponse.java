@@ -35,7 +35,7 @@ import org.apache.hadoop.yarn.util.Records;
  *
  * <p>The response contains a list of {@link QueueUserACLInfo} which
  * provides information about {@link QueueACL} per queue.</p>
- * 
+ *
  * @see QueueACL
  * @see QueueUserACLInfo
  * @see ApplicationClientProtocol#getQueueUserAcls(GetQueueUserAclsInfoRequest)
@@ -44,27 +44,27 @@ import org.apache.hadoop.yarn.util.Records;
 @Stable
 public abstract class GetQueueUserAclsInfoResponse {
 
-  @Private
-  @Unstable
-  public static GetQueueUserAclsInfoResponse newInstance(
-      List<QueueUserACLInfo> queueUserAclsList) {
-    GetQueueUserAclsInfoResponse response =
-        Records.newRecord(GetQueueUserAclsInfoResponse.class);
-    response.setUserAclsInfoList(queueUserAclsList);
-    return response;
-  }
+    @Private
+    @Unstable
+    public static GetQueueUserAclsInfoResponse newInstance(
+        List<QueueUserACLInfo> queueUserAclsList) {
+        GetQueueUserAclsInfoResponse response =
+            Records.newRecord(GetQueueUserAclsInfoResponse.class);
+        response.setUserAclsInfoList(queueUserAclsList);
+        return response;
+    }
 
-  /**
-   * Get the <code>QueueUserACLInfo</code> per queue for the user.
-   * @return <code>QueueUserACLInfo</code> per queue for the user
-   */
-  @Public
-  @Stable
-  public abstract List<QueueUserACLInfo> getUserAclsInfoList();
-  
-  @Private
-  @Unstable
-  public abstract void setUserAclsInfoList(
-      List<QueueUserACLInfo> queueUserAclsList);
-  
+    /**
+     * Get the <code>QueueUserACLInfo</code> per queue for the user.
+     * @return <code>QueueUserACLInfo</code> per queue for the user
+     */
+    @Public
+    @Stable
+    public abstract List<QueueUserACLInfo> getUserAclsInfoList();
+
+    @Private
+    @Unstable
+    public abstract void setUserAclsInfoList(
+        List<QueueUserACLInfo> queueUserAclsList);
+
 }

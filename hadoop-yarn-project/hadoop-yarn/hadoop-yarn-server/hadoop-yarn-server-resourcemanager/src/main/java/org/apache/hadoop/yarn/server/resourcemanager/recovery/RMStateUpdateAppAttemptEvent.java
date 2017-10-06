@@ -22,14 +22,14 @@ import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore.Appli
 
 public class RMStateUpdateAppAttemptEvent extends RMStateStoreEvent {
 
-  ApplicationAttemptState attemptState;
+    ApplicationAttemptState attemptState;
 
-  public RMStateUpdateAppAttemptEvent(ApplicationAttemptState attemptState) {
-    super(RMStateStoreEventType.UPDATE_APP_ATTEMPT);
-    this.attemptState = attemptState;
-  }
+    public RMStateUpdateAppAttemptEvent(ApplicationAttemptState attemptState) {
+        super(RMStateStoreEventType.UPDATE_APP_ATTEMPT);
+        this.attemptState = attemptState;
+    }
 
-  public ApplicationAttemptState getAppAttemptState() {
-    return attemptState;
-  }
+    public ApplicationAttemptState getAppAttemptState() {
+        return attemptState;
+    }
 }

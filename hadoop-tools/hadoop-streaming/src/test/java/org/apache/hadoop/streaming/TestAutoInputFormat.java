@@ -41,73 +41,73 @@ import static org.junit.Assert.*;
 
 public class TestAutoInputFormat {
 
-  private static Configuration conf = new Configuration();
+    private static Configuration conf = new Configuration();
 
-  private static final int LINES_COUNT = 3;
+    private static final int LINES_COUNT = 3;
 
-  private static final int RECORDS_COUNT = 3;
+    private static final int RECORDS_COUNT = 3;
 
-  private static final int SPLITS_COUNT = 2;
+    private static final int SPLITS_COUNT = 2;
 
-  @SuppressWarnings( { "unchecked", "deprecation" })
-  @Test
-  public void testFormat() throws IOException {
-    JobConf job = new JobConf(conf);
-    FileSystem fs = FileSystem.getLocal(conf);
-    Path dir = new Path(System.getProperty("test.build.data", ".") + "/mapred");
-    Path txtFile = new Path(dir, "auto.txt");
-    Path seqFile = new Path(dir, "auto.seq");
+    @SuppressWarnings( { "unchecked", "deprecation" })
+    @Test
+    public void testFormat() throws IOException {
+        JobConf job = new JobConf(conf);
+        FileSystem fs = FileSystem.getLocal(conf);
+        Path dir = new Path(System.getProperty("test.build.data", ".") + "/mapred");
+        Path txtFile = new Path(dir, "auto.txt");
+        Path seqFile = new Path(dir, "auto.seq");
 
-    fs.delete(dir, true);
+        fs.delete(dir, true);
 
-    FileInputFormat.setInputPaths(job, dir);
+        FileInputFormat.setInputPaths(job, dir);
 
-    Writer txtWriter = new OutputStreamWriter(fs.create(txtFile));
-    try {
-      for (int i = 0; i < LINES_COUNT; i++) {
-        txtWriter.write("" + (10 * i));
-        txtWriter.write("\n");
-      }
-    } finally {
-      txtWriter.close();
-    }
-
-    SequenceFile.Writer seqWriter = SequenceFile.createWriter(fs, conf,
-      seqFile, IntWritable.class, LongWritable.class);
-    try {
-      for (int i = 0; i < RECORDS_COUNT; i++) {
-        IntWritable key = new IntWritable(11 * i);
-        LongWritable value = new LongWritable(12 * i);
-        seqWriter.append(key, value);
-      }
-    } finally {
-      seqWriter.close();
-    }
-
-    AutoInputFormat format = new AutoInputFormat();
-    InputSplit[] splits = format.getSplits(job, SPLITS_COUNT);
-    for (InputSplit split : splits) {
-      RecordReader reader = format.getRecordReader(split, job, Reporter.NULL);
-      Object key = reader.createKey();
-      Object value = reader.createValue();
-      try {
-        while (reader.next(key, value)) {
-          if (key instanceof LongWritable) {
-            assertEquals("Wrong value class.", Text.class, value.getClass());
-            assertTrue("Invalid value", Integer.parseInt(((Text) value)
-              .toString()) % 10 == 0);
-          } else {
-            assertEquals("Wrong key class.", IntWritable.class, key.getClass());
-            assertEquals("Wrong value class.", LongWritable.class, value
-              .getClass());
-            assertTrue("Invalid key.", ((IntWritable) key).get() % 11 == 0);
-            assertTrue("Invalid value.", ((LongWritable) value).get() % 12 == 0);
-          }
+        Writer txtWriter = new OutputStreamWriter(fs.create(txtFile));
+        try {
+            for (int i = 0; i < LINES_COUNT; i++) {
+                txtWriter.write("" + (10 * i));
+                txtWriter.write("\n");
+            }
+        } finally {
+            txtWriter.close();
         }
-      } finally {
-        reader.close();
-      }
+
+        SequenceFile.Writer seqWriter = SequenceFile.createWriter(fs, conf,
+                                        seqFile, IntWritable.class, LongWritable.class);
+        try {
+            for (int i = 0; i < RECORDS_COUNT; i++) {
+                IntWritable key = new IntWritable(11 * i);
+                LongWritable value = new LongWritable(12 * i);
+                seqWriter.append(key, value);
+            }
+        } finally {
+            seqWriter.close();
+        }
+
+        AutoInputFormat format = new AutoInputFormat();
+        InputSplit[] splits = format.getSplits(job, SPLITS_COUNT);
+        for (InputSplit split : splits) {
+            RecordReader reader = format.getRecordReader(split, job, Reporter.NULL);
+            Object key = reader.createKey();
+            Object value = reader.createValue();
+            try {
+                while (reader.next(key, value)) {
+                    if (key instanceof LongWritable) {
+                        assertEquals("Wrong value class.", Text.class, value.getClass());
+                        assertTrue("Invalid value", Integer.parseInt(((Text) value)
+                                   .toString()) % 10 == 0);
+                    } else {
+                        assertEquals("Wrong key class.", IntWritable.class, key.getClass());
+                        assertEquals("Wrong value class.", LongWritable.class, value
+                                     .getClass());
+                        assertTrue("Invalid key.", ((IntWritable) key).get() % 11 == 0);
+                        assertTrue("Invalid value.", ((LongWritable) value).get() % 12 == 0);
+                    }
+                }
+            } finally {
+                reader.close();
+            }
+        }
     }
-  }
 
 }

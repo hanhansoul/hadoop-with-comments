@@ -31,24 +31,24 @@ import org.apache.hadoop.mapreduce.CounterGroup;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CounterGroupInfo {
 
-  protected String counterGroupName;
-  @XmlElement(name = "counter")
-  protected ArrayList<CounterInfo> counter;
+    protected String counterGroupName;
+    @XmlElement(name = "counter")
+    protected ArrayList<CounterInfo> counter;
 
-  public CounterGroupInfo() {
-  }
-
-  public CounterGroupInfo(String name, CounterGroup group, CounterGroup mg,
-      CounterGroup rg) {
-    this.counterGroupName = name;
-    this.counter = new ArrayList<CounterInfo>();
-
-    for (Counter c : group) {
-      Counter mc = mg == null ? null : mg.findCounter(c.getName());
-      Counter rc = rg == null ? null : rg.findCounter(c.getName());
-      CounterInfo cinfo = new CounterInfo(c, mc, rc);
-      this.counter.add(cinfo);
+    public CounterGroupInfo() {
     }
-  }
+
+    public CounterGroupInfo(String name, CounterGroup group, CounterGroup mg,
+                            CounterGroup rg) {
+        this.counterGroupName = name;
+        this.counter = new ArrayList<CounterInfo>();
+
+        for (Counter c : group) {
+            Counter mc = mg == null ? null : mg.findCounter(c.getName());
+            Counter rc = rg == null ? null : rg.findCounter(c.getName());
+            CounterInfo cinfo = new CounterInfo(c, mc, rc);
+            this.counter.add(cinfo);
+        }
+    }
 
 }

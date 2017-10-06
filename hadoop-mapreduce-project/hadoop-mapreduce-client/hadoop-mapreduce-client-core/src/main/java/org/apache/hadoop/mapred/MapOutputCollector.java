@@ -28,38 +28,38 @@ import org.apache.hadoop.mapred.Task.TaskReporter;
 @InterfaceAudience.LimitedPrivate({"MapReduce"})
 @InterfaceStability.Unstable
 public interface MapOutputCollector<K, V> {
-  public void init(Context context
-                  ) throws IOException, ClassNotFoundException;
-  public void collect(K key, V value, int partition
-                     ) throws IOException, InterruptedException;
-  public void close() throws IOException, InterruptedException;
-    
-  public void flush() throws IOException, InterruptedException, 
-                             ClassNotFoundException;
+    public void init(Context context
+                    ) throws IOException, ClassNotFoundException;
+    public void collect(K key, V value, int partition
+                       ) throws IOException, InterruptedException;
+    public void close() throws IOException, InterruptedException;
 
-  @InterfaceAudience.LimitedPrivate({"MapReduce"})
-  @InterfaceStability.Unstable
-  public static class Context {
-    private final MapTask mapTask;
-    private final JobConf jobConf;
-    private final TaskReporter reporter;
+    public void flush() throws IOException, InterruptedException,
+               ClassNotFoundException;
 
-    public Context(MapTask mapTask, JobConf jobConf, TaskReporter reporter) {
-      this.mapTask = mapTask;
-      this.jobConf = jobConf;
-      this.reporter = reporter;
+    @InterfaceAudience.LimitedPrivate({"MapReduce"})
+    @InterfaceStability.Unstable
+    public static class Context {
+        private final MapTask mapTask;
+        private final JobConf jobConf;
+        private final TaskReporter reporter;
+
+        public Context(MapTask mapTask, JobConf jobConf, TaskReporter reporter) {
+            this.mapTask = mapTask;
+            this.jobConf = jobConf;
+            this.reporter = reporter;
+        }
+
+        public MapTask getMapTask() {
+            return mapTask;
+        }
+
+        public JobConf getJobConf() {
+            return jobConf;
+        }
+
+        public TaskReporter getReporter() {
+            return reporter;
+        }
     }
-
-    public MapTask getMapTask() {
-      return mapTask;
-    }
-
-    public JobConf getJobConf() {
-      return jobConf;
-    }
-
-    public TaskReporter getReporter() {
-      return reporter;
-    }
-  }
 }

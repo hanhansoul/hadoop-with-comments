@@ -23,14 +23,14 @@ import org.apache.hadoop.yarn.server.resourcemanager.recovery.RMStateStore.RMSta
 
 public class RMAppRecoverEvent extends RMAppEvent {
 
-  private final RMState state;
+    private final RMState state;
 
-  public RMAppRecoverEvent(ApplicationId appId, RMState state) {
-    super(appId, RMAppEventType.RECOVER);
-    this.state = state;
-  }
+    public RMAppRecoverEvent(ApplicationId appId, RMState state) {
+        super(appId, RMAppEventType.RECOVER);
+        this.state = state;
+    }
 
-  public RMState getRMState() {
-    return state;
-  }
+    public RMState getRMState() {
+        return state;
+    }
 }

@@ -35,31 +35,31 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 public class TestEditLogFileInputStream {
-  private static final byte[] FAKE_LOG_DATA = TestEditLog.HADOOP20_SOME_EDITS;
+    private static final byte[] FAKE_LOG_DATA = TestEditLog.HADOOP20_SOME_EDITS;
 
-  @Test
-  public void testReadURL() throws Exception {
-    HttpURLConnection conn = mock(HttpURLConnection.class);
-    doReturn(new ByteArrayInputStream(FAKE_LOG_DATA)).when(conn).getInputStream();
-    doReturn(HttpURLConnection.HTTP_OK).when(conn).getResponseCode();
-    doReturn(Integer.toString(FAKE_LOG_DATA.length)).when(conn).getHeaderField("Content-Length");
+    @Test
+    public void testReadURL() throws Exception {
+        HttpURLConnection conn = mock(HttpURLConnection.class);
+        doReturn(new ByteArrayInputStream(FAKE_LOG_DATA)).when(conn).getInputStream();
+        doReturn(HttpURLConnection.HTTP_OK).when(conn).getResponseCode();
+        doReturn(Integer.toString(FAKE_LOG_DATA.length)).when(conn).getHeaderField("Content-Length");
 
-    URLConnectionFactory factory = mock(URLConnectionFactory.class);
-    doReturn(conn).when(factory).openConnection(Mockito.<URL> any(),
-        anyBoolean());
+        URLConnectionFactory factory = mock(URLConnectionFactory.class);
+        doReturn(conn).when(factory).openConnection(Mockito.<URL> any(),
+                anyBoolean());
 
-    URL url = new URL("http://localhost/fakeLog");
-    EditLogInputStream elis = EditLogFileInputStream.fromUrl(factory, url,
-        HdfsConstants.INVALID_TXID, HdfsConstants.INVALID_TXID, false);
-    // Read the edit log and verify that we got all of the data.
-    EnumMap<FSEditLogOpCodes, Holder<Integer>> counts = FSImageTestUtil
-        .countEditLogOpTypes(elis);
-    assertThat(counts.get(FSEditLogOpCodes.OP_ADD).held, is(1));
-    assertThat(counts.get(FSEditLogOpCodes.OP_SET_GENSTAMP_V1).held, is(1));
-    assertThat(counts.get(FSEditLogOpCodes.OP_CLOSE).held, is(1));
+        URL url = new URL("http://localhost/fakeLog");
+        EditLogInputStream elis = EditLogFileInputStream.fromUrl(factory, url,
+                                  HdfsConstants.INVALID_TXID, HdfsConstants.INVALID_TXID, false);
+        // Read the edit log and verify that we got all of the data.
+        EnumMap<FSEditLogOpCodes, Holder<Integer>> counts = FSImageTestUtil
+                .countEditLogOpTypes(elis);
+        assertThat(counts.get(FSEditLogOpCodes.OP_ADD).held, is(1));
+        assertThat(counts.get(FSEditLogOpCodes.OP_SET_GENSTAMP_V1).held, is(1));
+        assertThat(counts.get(FSEditLogOpCodes.OP_CLOSE).held, is(1));
 
-    // Check that length header was picked up.
-    assertEquals(FAKE_LOG_DATA.length, elis.length());
-    elis.close();
-  }
+        // Check that length header was picked up.
+        assertEquals(FAKE_LOG_DATA.length, elis.length());
+        elis.close();
+    }
 }

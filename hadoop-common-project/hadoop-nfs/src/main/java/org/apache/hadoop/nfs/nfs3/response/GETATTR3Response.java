@@ -26,33 +26,33 @@ import org.apache.hadoop.oncrpc.security.Verifier;
  * GETATTR3 Response
  */
 public class GETATTR3Response extends NFS3Response {
-  private Nfs3FileAttributes postOpAttr;
-  public GETATTR3Response(int status) {
-    this(status, new Nfs3FileAttributes());
-  }
-  
-  public GETATTR3Response(int status, Nfs3FileAttributes attrs) {
-    super(status);
-    this.postOpAttr = attrs;
-  }
-  
-  public void setPostOpAttr(Nfs3FileAttributes postOpAttr) {
-    this.postOpAttr = postOpAttr;
-  }
-  
-  public static GETATTR3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    Nfs3FileAttributes attr = (status == Nfs3Status.NFS3_OK) ? Nfs3FileAttributes
-        .deserialize(xdr) : new Nfs3FileAttributes();
-    return new GETATTR3Response(status, attr);
-  }
-
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    if (getStatus() == Nfs3Status.NFS3_OK) {
-      postOpAttr.serialize(out);
+    private Nfs3FileAttributes postOpAttr;
+    public GETATTR3Response(int status) {
+        this(status, new Nfs3FileAttributes());
     }
-    return out;
-  }
+
+    public GETATTR3Response(int status, Nfs3FileAttributes attrs) {
+        super(status);
+        this.postOpAttr = attrs;
+    }
+
+    public void setPostOpAttr(Nfs3FileAttributes postOpAttr) {
+        this.postOpAttr = postOpAttr;
+    }
+
+    public static GETATTR3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        Nfs3FileAttributes attr = (status == Nfs3Status.NFS3_OK) ? Nfs3FileAttributes
+                                  .deserialize(xdr) : new Nfs3FileAttributes();
+        return new GETATTR3Response(status, attr);
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        if (getStatus() == Nfs3Status.NFS3_OK) {
+            postOpAttr.serialize(out);
+        }
+        return out;
+    }
 }

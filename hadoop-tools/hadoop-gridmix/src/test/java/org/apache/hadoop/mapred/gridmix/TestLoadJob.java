@@ -32,50 +32,50 @@ import java.io.IOException;
  */
 public class TestLoadJob extends CommonJobTest {
 
-  public static final Log LOG = LogFactory.getLog(Gridmix.class);
+    public static final Log LOG = LogFactory.getLog(Gridmix.class);
 
-  static {
-    ((Log4JLogger) LogFactory.getLog("org.apache.hadoop.mapred.gridmix"))
-            .getLogger().setLevel(Level.DEBUG);
-    ((Log4JLogger) LogFactory.getLog(StressJobFactory.class)).getLogger()
-            .setLevel(Level.DEBUG);
-  }
-
-
-  @BeforeClass
-  public static void init() throws IOException {
-    GridmixTestUtils.initCluster(TestLoadJob.class);
-  }
-
-  @AfterClass
-  public static void shutDown() throws IOException {
-    GridmixTestUtils.shutdownCluster();
-  }
+    static {
+        ((Log4JLogger) LogFactory.getLog("org.apache.hadoop.mapred.gridmix"))
+        .getLogger().setLevel(Level.DEBUG);
+        ((Log4JLogger) LogFactory.getLog(StressJobFactory.class)).getLogger()
+        .setLevel(Level.DEBUG);
+    }
 
 
-  /*
-  * test serial policy  with LoadJob. Task should execute without exceptions
-  */
-  @Test (timeout=500000)
-  public void testSerialSubmit() throws Exception {
-    policy = GridmixJobSubmissionPolicy.SERIAL;
-    LOG.info("Serial started at " + System.currentTimeMillis());
-    doSubmission(JobCreator.LOADJOB.name(), false);
+    @BeforeClass
+    public static void init() throws IOException {
+        GridmixTestUtils.initCluster(TestLoadJob.class);
+    }
 
-    LOG.info("Serial ended at " + System.currentTimeMillis());
-  }
+    @AfterClass
+    public static void shutDown() throws IOException {
+        GridmixTestUtils.shutdownCluster();
+    }
 
-  /*
-   * test reply policy with LoadJob
-   */
-  @Test  (timeout=500000)
-  public void testReplaySubmit() throws Exception {
-    policy = GridmixJobSubmissionPolicy.REPLAY;
-    LOG.info(" Replay started at " + System.currentTimeMillis());
-    doSubmission(JobCreator.LOADJOB.name(), false);
 
-    LOG.info(" Replay ended at " + System.currentTimeMillis());
-  }
+    /*
+    * test serial policy  with LoadJob. Task should execute without exceptions
+    */
+    @Test (timeout=500000)
+    public void testSerialSubmit() throws Exception {
+        policy = GridmixJobSubmissionPolicy.SERIAL;
+        LOG.info("Serial started at " + System.currentTimeMillis());
+        doSubmission(JobCreator.LOADJOB.name(), false);
+
+        LOG.info("Serial ended at " + System.currentTimeMillis());
+    }
+
+    /*
+     * test reply policy with LoadJob
+     */
+    @Test  (timeout=500000)
+    public void testReplaySubmit() throws Exception {
+        policy = GridmixJobSubmissionPolicy.REPLAY;
+        LOG.info(" Replay started at " + System.currentTimeMillis());
+        doSubmission(JobCreator.LOADJOB.name(), false);
+
+        LOG.info(" Replay ended at " + System.currentTimeMillis());
+    }
 
 
 }

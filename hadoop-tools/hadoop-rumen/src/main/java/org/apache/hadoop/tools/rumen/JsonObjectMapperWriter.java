@@ -37,39 +37,39 @@ import org.codehaus.jackson.map.module.SimpleModule;
  * @param <T> The type of the objects to be written.
  */
 public class JsonObjectMapperWriter<T> implements Closeable {
-  private JsonGenerator writer;
-  
-  public JsonObjectMapperWriter(OutputStream output, boolean prettyPrint) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(
-        SerializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
+    private JsonGenerator writer;
 
-    // define a module
-    SimpleModule module = new SimpleModule("Default Serializer",  
-                                           new Version(0, 1, 1, "FINAL"));
-    // add various serializers to the module
-    //   add default (all-pass) serializer for all rumen specific data types
-    module.addSerializer(DataType.class, new DefaultRumenSerializer());
-    //   add a serializer to use object.toString() while serializing
-    module.addSerializer(ID.class, new ObjectStringSerializer<ID>());
-    
-    // register the module with the object-mapper
-    mapper.registerModule(module);
+    public JsonObjectMapperWriter(OutputStream output, boolean prettyPrint) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(
+            SerializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS, true);
 
-    mapper.getJsonFactory();
-    writer = mapper.getJsonFactory().createJsonGenerator(
-        output, JsonEncoding.UTF8);
-    if (prettyPrint) {
-      writer.useDefaultPrettyPrinter();
+        // define a module
+        SimpleModule module = new SimpleModule("Default Serializer",
+                                               new Version(0, 1, 1, "FINAL"));
+        // add various serializers to the module
+        //   add default (all-pass) serializer for all rumen specific data types
+        module.addSerializer(DataType.class, new DefaultRumenSerializer());
+        //   add a serializer to use object.toString() while serializing
+        module.addSerializer(ID.class, new ObjectStringSerializer<ID>());
+
+        // register the module with the object-mapper
+        mapper.registerModule(module);
+
+        mapper.getJsonFactory();
+        writer = mapper.getJsonFactory().createJsonGenerator(
+                     output, JsonEncoding.UTF8);
+        if (prettyPrint) {
+            writer.useDefaultPrettyPrinter();
+        }
     }
-  }
-  
-  public void write(T object) throws IOException {
-    writer.writeObject(object);
-  }
-  
-  @Override
-  public void close() throws IOException {
-    writer.close();
-  }
+
+    public void write(T object) throws IOException {
+        writer.writeObject(object);
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
 }

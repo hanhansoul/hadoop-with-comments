@@ -27,19 +27,29 @@ import org.apache.hadoop.fs.FileSystem;
   */
 public class EmptyInputFormat<K, V> implements InputFormat<K, V> {
 
-  public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
-    return new InputSplit[0];
-  }
+    public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
+        return new InputSplit[0];
+    }
 
-  public RecordReader<K, V> getRecordReader(InputSplit split, JobConf job,
-                              Reporter reporter) throws IOException {
-    return new RecordReader<K,V>() {
-      public boolean next(K key, V value) throws IOException { return false; }
-      public K createKey() { return null; }
-      public V createValue() { return null; }
-      public long getPos() throws IOException { return 0L; }
-      public void close() throws IOException { }
-      public float getProgress() throws IOException { return 0.0f; }
-    };
-  }
+    public RecordReader<K, V> getRecordReader(InputSplit split, JobConf job,
+            Reporter reporter) throws IOException {
+        return new RecordReader<K,V>() {
+            public boolean next(K key, V value) throws IOException {
+                return false;
+            }
+            public K createKey() {
+                return null;
+            }
+            public V createValue() {
+                return null;
+            }
+            public long getPos() throws IOException {
+                return 0L;
+            }
+            public void close() throws IOException { }
+            public float getProgress() throws IOException {
+                return 0.0f;
+            }
+        };
+    }
 }

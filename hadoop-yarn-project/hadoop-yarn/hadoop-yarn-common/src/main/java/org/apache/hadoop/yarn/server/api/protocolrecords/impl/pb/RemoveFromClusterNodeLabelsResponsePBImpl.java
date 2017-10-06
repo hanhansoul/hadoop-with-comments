@@ -26,44 +26,44 @@ import com.google.protobuf.TextFormat;
 public class RemoveFromClusterNodeLabelsResponsePBImpl extends
     RemoveFromClusterNodeLabelsResponse {
 
-  RemoveFromClusterNodeLabelsResponseProto proto =
-      RemoveFromClusterNodeLabelsResponseProto.getDefaultInstance();
-  RemoveFromClusterNodeLabelsResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    RemoveFromClusterNodeLabelsResponseProto proto =
+        RemoveFromClusterNodeLabelsResponseProto.getDefaultInstance();
+    RemoveFromClusterNodeLabelsResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public RemoveFromClusterNodeLabelsResponsePBImpl() {
-    builder = RemoveFromClusterNodeLabelsResponseProto.newBuilder();
-  }
-
-  public RemoveFromClusterNodeLabelsResponsePBImpl(
-      RemoveFromClusterNodeLabelsResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public RemoveFromClusterNodeLabelsResponseProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public RemoveFromClusterNodeLabelsResponsePBImpl() {
+        builder = RemoveFromClusterNodeLabelsResponseProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    public RemoveFromClusterNodeLabelsResponsePBImpl(
+        RemoveFromClusterNodeLabelsResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public RemoveFromClusterNodeLabelsResponseProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

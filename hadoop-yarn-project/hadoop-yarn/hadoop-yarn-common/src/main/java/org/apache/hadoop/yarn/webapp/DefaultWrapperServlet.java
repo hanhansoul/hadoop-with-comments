@@ -36,20 +36,20 @@ import com.google.inject.Singleton;
 @Singleton
 public class DefaultWrapperServlet extends HttpServlet {
 
-private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-@Private
-public void doGet(HttpServletRequest req, HttpServletResponse resp)
-throws ServletException, IOException {
-  RequestDispatcher rd = getServletContext().getNamedDispatcher("default");
+    @Private
+    public void doGet(HttpServletRequest req, HttpServletResponse resp)
+    throws ServletException, IOException {
+        RequestDispatcher rd = getServletContext().getNamedDispatcher("default");
 
-  HttpServletRequest wrapped = new HttpServletRequestWrapper(req) {
-    public String getServletPath() {
-    return "";
+        HttpServletRequest wrapped = new HttpServletRequestWrapper(req) {
+            public String getServletPath() {
+                return "";
+            }
+        };
+
+        rd.forward(wrapped, resp);
     }
-  };
-
-  rd.forward(wrapped, resp);
-  }
 
 }

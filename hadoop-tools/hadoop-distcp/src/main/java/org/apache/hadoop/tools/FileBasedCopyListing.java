@@ -37,64 +37,64 @@ import java.util.List;
  */
 public class FileBasedCopyListing extends CopyListing {
 
-  private final CopyListing globbedListing;
-  /**
-   * Constructor, to initialize base-class.
-   * @param configuration The input Configuration object.
-   * @param credentials - Credentials object on which the FS delegation tokens are cached. If null
-   * delegation token caching is skipped
-   */
-  public FileBasedCopyListing(Configuration configuration, Credentials credentials) {
-    super(configuration, credentials);
-    globbedListing = new GlobbedCopyListing(getConf(), credentials);
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  protected void validatePaths(DistCpOptions options)
-      throws IOException, InvalidInputException {
-  }
-
-  /**
-   * Implementation of CopyListing::buildListing().
-   *   Iterates over all source paths mentioned in the input-file.
-   * @param pathToListFile Path on HDFS where the listing file is written.
-   * @param options Input Options for DistCp (indicating source/target paths.)
-   * @throws IOException
-   */
-  @Override
-  public void doBuildListing(Path pathToListFile, DistCpOptions options) throws IOException {
-    DistCpOptions newOption = new DistCpOptions(options);
-    newOption.setSourcePaths(fetchFileList(options.getSourceFileListing()));
-    globbedListing.buildListing(pathToListFile, newOption);
-  }
-
-  private List<Path> fetchFileList(Path sourceListing) throws IOException {
-    List<Path> result = new ArrayList<Path>();
-    FileSystem fs = sourceListing.getFileSystem(getConf());
-    BufferedReader input = null;
-    try {
-      input = new BufferedReader(new InputStreamReader(fs.open(sourceListing)));
-      String line = input.readLine();
-      while (line != null) {
-        result.add(new Path(line));
-        line = input.readLine();
-      }
-    } finally {
-      IOUtils.closeStream(input);
+    private final CopyListing globbedListing;
+    /**
+     * Constructor, to initialize base-class.
+     * @param configuration The input Configuration object.
+     * @param credentials - Credentials object on which the FS delegation tokens are cached. If null
+     * delegation token caching is skipped
+     */
+    public FileBasedCopyListing(Configuration configuration, Credentials credentials) {
+        super(configuration, credentials);
+        globbedListing = new GlobbedCopyListing(getConf(), credentials);
     }
-    return result;
-  }
 
-  /** {@inheritDoc} */
-  @Override
-  protected long getBytesToCopy() {
-    return globbedListing.getBytesToCopy();
-  }
+    /** {@inheritDoc} */
+    @Override
+    protected void validatePaths(DistCpOptions options)
+    throws IOException, InvalidInputException {
+    }
 
-  /** {@inheritDoc} */
-  @Override
-  protected long getNumberOfPaths() {
-    return globbedListing.getNumberOfPaths();
-  }
+    /**
+     * Implementation of CopyListing::buildListing().
+     *   Iterates over all source paths mentioned in the input-file.
+     * @param pathToListFile Path on HDFS where the listing file is written.
+     * @param options Input Options for DistCp (indicating source/target paths.)
+     * @throws IOException
+     */
+    @Override
+    public void doBuildListing(Path pathToListFile, DistCpOptions options) throws IOException {
+        DistCpOptions newOption = new DistCpOptions(options);
+        newOption.setSourcePaths(fetchFileList(options.getSourceFileListing()));
+        globbedListing.buildListing(pathToListFile, newOption);
+    }
+
+    private List<Path> fetchFileList(Path sourceListing) throws IOException {
+        List<Path> result = new ArrayList<Path>();
+        FileSystem fs = sourceListing.getFileSystem(getConf());
+        BufferedReader input = null;
+        try {
+            input = new BufferedReader(new InputStreamReader(fs.open(sourceListing)));
+            String line = input.readLine();
+            while (line != null) {
+                result.add(new Path(line));
+                line = input.readLine();
+            }
+        } finally {
+            IOUtils.closeStream(input);
+        }
+        return result;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected long getBytesToCopy() {
+        return globbedListing.getBytesToCopy();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected long getNumberOfPaths() {
+        return globbedListing.getNumberOfPaths();
+    }
 }

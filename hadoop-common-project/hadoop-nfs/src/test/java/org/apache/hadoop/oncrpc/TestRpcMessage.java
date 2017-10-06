@@ -24,31 +24,31 @@ import org.junit.Test;
  * Test for {@link RpcMessage}
  */
 public class TestRpcMessage {
-  private RpcMessage getRpcMessage(int xid, RpcMessage.Type msgType) {
-    return new RpcMessage(xid, msgType) {
-      @Override
-      public XDR write(XDR xdr) {
-        return null;
-      }
-    };
-  }
-  
-  @Test
-  public void testRpcMessage() {
-    RpcMessage msg = getRpcMessage(0, RpcMessage.Type.RPC_CALL);
-    Assert.assertEquals(0, msg.getXid());
-    Assert.assertEquals(RpcMessage.Type.RPC_CALL, msg.getMessageType());
-  }
-  
-  @Test
-  public void testValidateMessage() {
-    RpcMessage msg = getRpcMessage(0, RpcMessage.Type.RPC_CALL);
-    msg.validateMessageType(RpcMessage.Type.RPC_CALL);
-  }
-  
-  @Test(expected = IllegalArgumentException.class)
-  public void testValidateMessageException() {
-    RpcMessage msg = getRpcMessage(0, RpcMessage.Type.RPC_CALL);
-    msg.validateMessageType(RpcMessage.Type.RPC_REPLY);
-  }
+    private RpcMessage getRpcMessage(int xid, RpcMessage.Type msgType) {
+        return new RpcMessage(xid, msgType) {
+            @Override
+            public XDR write(XDR xdr) {
+                return null;
+            }
+        };
+    }
+
+    @Test
+    public void testRpcMessage() {
+        RpcMessage msg = getRpcMessage(0, RpcMessage.Type.RPC_CALL);
+        Assert.assertEquals(0, msg.getXid());
+        Assert.assertEquals(RpcMessage.Type.RPC_CALL, msg.getMessageType());
+    }
+
+    @Test
+    public void testValidateMessage() {
+        RpcMessage msg = getRpcMessage(0, RpcMessage.Type.RPC_CALL);
+        msg.validateMessageType(RpcMessage.Type.RPC_CALL);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testValidateMessageException() {
+        RpcMessage msg = getRpcMessage(0, RpcMessage.Type.RPC_CALL);
+        msg.validateMessageType(RpcMessage.Type.RPC_REPLY);
+    }
 }

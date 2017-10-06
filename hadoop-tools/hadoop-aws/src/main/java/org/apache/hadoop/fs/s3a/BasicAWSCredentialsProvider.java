@@ -24,28 +24,28 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.AWSCredentials;
 
 public class BasicAWSCredentialsProvider implements AWSCredentialsProvider {
-  private String accessKey;
-  private String secretKey;
+    private String accessKey;
+    private String secretKey;
 
-  public BasicAWSCredentialsProvider(String accessKey, String secretKey) {
-    this.accessKey = accessKey;
-    this.secretKey = secretKey;
-  }
-
-  public AWSCredentials getCredentials() {
-    if (accessKey != null && secretKey != null) {
-      return new BasicAWSCredentials(accessKey, secretKey);
+    public BasicAWSCredentialsProvider(String accessKey, String secretKey) {
+        this.accessKey = accessKey;
+        this.secretKey = secretKey;
     }
 
-    throw new AmazonClientException(
-        "Access key or secret key is null");
-  }
+    public AWSCredentials getCredentials() {
+        if (accessKey != null && secretKey != null) {
+            return new BasicAWSCredentials(accessKey, secretKey);
+        }
 
-  public void refresh() {}
+        throw new AmazonClientException(
+            "Access key or secret key is null");
+    }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
+    public void refresh() {}
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
 }

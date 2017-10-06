@@ -24,12 +24,12 @@ import org.apache.hadoop.util.Progressable;
 
 @InterfaceAudience.Public
 @InterfaceStability.Stable
-public interface TaskAttemptContext 
-       extends org.apache.hadoop.mapreduce.TaskAttemptContext {
+public interface TaskAttemptContext
+    extends org.apache.hadoop.mapreduce.TaskAttemptContext {
 
-  public TaskAttemptID getTaskAttemptID();
+    public TaskAttemptID getTaskAttemptID();
 
-  public Progressable getProgressible();
-  
-  public JobConf getJobConf();
+    public Progressable getProgressible();
+
+    public JobConf getJobConf();
 }

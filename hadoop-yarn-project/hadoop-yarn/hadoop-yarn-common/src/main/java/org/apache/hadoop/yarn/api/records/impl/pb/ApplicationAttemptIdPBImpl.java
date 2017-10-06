@@ -30,60 +30,60 @@ import com.google.common.base.Preconditions;
 @Private
 @Unstable
 public class ApplicationAttemptIdPBImpl extends ApplicationAttemptId {
-  ApplicationAttemptIdProto proto = null;
-  ApplicationAttemptIdProto.Builder builder = null;
-  private ApplicationId applicationId = null;
+    ApplicationAttemptIdProto proto = null;
+    ApplicationAttemptIdProto.Builder builder = null;
+    private ApplicationId applicationId = null;
 
-  public ApplicationAttemptIdPBImpl() {
-    builder = ApplicationAttemptIdProto.newBuilder();
-  }
-
-  public ApplicationAttemptIdPBImpl(ApplicationAttemptIdProto proto) {
-    this.proto = proto;
-    this.applicationId = convertFromProtoFormat(proto.getApplicationId());
-  }
-  
-  public ApplicationAttemptIdProto getProto() {
-    return proto;
-  }
-
-  @Override
-  public int getAttemptId() {
-    Preconditions.checkNotNull(proto);
-    return proto.getAttemptId();
-  }
-
-  @Override
-  protected void setAttemptId(int attemptId) {
-    Preconditions.checkNotNull(builder);
-    builder.setAttemptId(attemptId);
-  }
-
-  @Override
-  public ApplicationId getApplicationId() {
-    return this.applicationId;
-  }
-
-  @Override
-  public void setApplicationId(ApplicationId appId) {
-    if (appId != null) {
-      Preconditions.checkNotNull(builder);
-      builder.setApplicationId(convertToProtoFormat(appId));
+    public ApplicationAttemptIdPBImpl() {
+        builder = ApplicationAttemptIdProto.newBuilder();
     }
-    this.applicationId = appId;
-  }
 
-  private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
-    return new ApplicationIdPBImpl(p);
-  }
+    public ApplicationAttemptIdPBImpl(ApplicationAttemptIdProto proto) {
+        this.proto = proto;
+        this.applicationId = convertFromProtoFormat(proto.getApplicationId());
+    }
 
-  private ApplicationIdProto convertToProtoFormat(ApplicationId t) {
-    return ((ApplicationIdPBImpl)t).getProto();
-  }
+    public ApplicationAttemptIdProto getProto() {
+        return proto;
+    }
 
-  @Override
-  protected void build() {
-    proto = builder.build();
-    builder = null;
-  }
-}  
+    @Override
+    public int getAttemptId() {
+        Preconditions.checkNotNull(proto);
+        return proto.getAttemptId();
+    }
+
+    @Override
+    protected void setAttemptId(int attemptId) {
+        Preconditions.checkNotNull(builder);
+        builder.setAttemptId(attemptId);
+    }
+
+    @Override
+    public ApplicationId getApplicationId() {
+        return this.applicationId;
+    }
+
+    @Override
+    public void setApplicationId(ApplicationId appId) {
+        if (appId != null) {
+            Preconditions.checkNotNull(builder);
+            builder.setApplicationId(convertToProtoFormat(appId));
+        }
+        this.applicationId = appId;
+    }
+
+    private ApplicationIdPBImpl convertFromProtoFormat(ApplicationIdProto p) {
+        return new ApplicationIdPBImpl(p);
+    }
+
+    private ApplicationIdProto convertToProtoFormat(ApplicationId t) {
+        return ((ApplicationIdPBImpl)t).getProto();
+    }
+
+    @Override
+    protected void build() {
+        proto = builder.build();
+        builder = null;
+    }
+}

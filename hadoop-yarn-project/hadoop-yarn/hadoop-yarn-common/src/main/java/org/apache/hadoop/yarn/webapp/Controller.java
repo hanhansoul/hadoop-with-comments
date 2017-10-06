@@ -41,214 +41,230 @@ import com.google.inject.servlet.RequestScoped;
 
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public abstract class Controller implements Params {
-  public static final Logger LOG = LoggerFactory.getLogger(Controller.class);
-  static final ObjectMapper jsonMapper = new ObjectMapper();
+    public static final Logger LOG = LoggerFactory.getLogger(Controller.class);
+    static final ObjectMapper jsonMapper = new ObjectMapper();
 
-  @RequestScoped
-  public static class RequestContext{
-    final Injector injector;
-    final HttpServletRequest request;
-    final HttpServletResponse response;
-    private Map<String, String> moreParams;
-    private Map<String, Cookie> cookies;
-    int status = 200; // pre 3.0 servlet-api doesn't have getStatus
-    boolean rendered = false;
-    Throwable error;
-    boolean devMode = false;
-    String prefix;
+    @RequestScoped
+    public static class RequestContext {
+        final Injector injector;
+        final HttpServletRequest request;
+        final HttpServletResponse response;
+        private Map<String, String> moreParams;
+        private Map<String, Cookie> cookies;
+        int status = 200; // pre 3.0 servlet-api doesn't have getStatus
+        boolean rendered = false;
+        Throwable error;
+        boolean devMode = false;
+        String prefix;
 
-    @Inject RequestContext(Injector injector, HttpServletRequest request,
-                           HttpServletResponse response) {
-      this.injector = injector;
-      this.request = request;
-      this.response = response;
+        @Inject RequestContext(Injector injector, HttpServletRequest request,
+                               HttpServletResponse response) {
+            this.injector = injector;
+            this.request = request;
+            this.response = response;
+        }
+
+        public int status() {
+            return status;
+        }
+
+        public void setStatus(int status) {
+            this.status = status;
+            response.setStatus(status);
+        }
+
+        public void setRendered(boolean rendered) {
+            this.rendered = rendered;
+        }
+
+        public Map<String, String> moreParams() {
+            if (moreParams == null) {
+                moreParams = Maps.newHashMap();
+            }
+            return moreParams; // OK
+        }
+
+        public Map<String, Cookie> cookies() {
+            if (cookies == null) {
+                cookies = Maps.newHashMap();
+                Cookie[] rcookies = request.getCookies();
+                if (rcookies != null) {
+                    for (Cookie cookie : rcookies) {
+                        cookies.put(cookie.getName(), cookie);
+                    }
+                }
+            }
+            return cookies; // OK
+        }
+
+        public void set(String key, String value) {
+            moreParams().put(key, value);
+        }
+
+        public String get(String key, String defaultValue) {
+            String value = moreParams().get(key);
+            if (value == null) {
+                value = request.getParameter(key);
+            }
+            return value == null ? defaultValue : value;
+        }
+
+        public String prefix() {
+            return prefix;
+        }
     }
 
-    public int status() { return status; }
+    private RequestContext context;
+    @Inject Injector injector;
+
+    public Controller() {
+        // Makes injection in subclasses optional.
+        // Time will tell if this buy us more than the NPEs :)
+    }
+
+    public Controller(RequestContext ctx) {
+        context = ctx;
+    }
+
+    public RequestContext context() {
+        if (context == null) {
+            if (injector == null) {
+                // One of the downsides of making injection in subclasses optional.
+                throw new WebAppException(join("Error accessing RequestContext from\n",
+                                               "a child constructor, either move the usage of the Controller\n",
+                                               "methods out of the constructor or inject the RequestContext\n",
+                                               "into the constructor"));
+            }
+            context = injector.getInstance(RequestContext.class);
+        }
+        return context;
+    }
+
+    public Throwable error() {
+        return context().error;
+    }
+
+    public int status() {
+        return context().status;
+    }
 
     public void setStatus(int status) {
-      this.status = status;
-      response.setStatus(status);
+        context().setStatus(status);
     }
 
-    public void setRendered(boolean rendered) {
-      this.rendered = rendered;
+    public boolean inDevMode() {
+        return context().devMode;
     }
 
-    public Map<String, String> moreParams() {
-      if (moreParams == null) {
-        moreParams = Maps.newHashMap();
-      }
-      return moreParams; // OK
+    public Injector injector() {
+        return context().injector;
     }
 
-    public Map<String, Cookie> cookies() {
-      if (cookies == null) {
-        cookies = Maps.newHashMap();
-        Cookie[] rcookies = request.getCookies();
-        if (rcookies != null) {
-          for (Cookie cookie : rcookies) {
-            cookies.put(cookie.getName(), cookie);
-          }
-        }
-      }
-      return cookies; // OK
+    public <T> T getInstance(Class<T> cls) {
+        return injector.getInstance(cls);
+    }
+
+    public HttpServletRequest request() {
+        return context().request;
+    }
+
+    public HttpServletResponse response() {
+        return context().response;
     }
 
     public void set(String key, String value) {
-      moreParams().put(key, value);
+        context().set(key, value);
     }
 
     public String get(String key, String defaultValue) {
-      String value = moreParams().get(key);
-      if (value == null) {
-        value = request.getParameter(key);
-      }
-      return value == null ? defaultValue : value;
+        return context().get(key, defaultValue);
     }
 
-    public String prefix() { return prefix; }
-  }
-
-  private RequestContext context;
-  @Inject Injector injector;
-
-  public Controller() {
-    // Makes injection in subclasses optional.
-    // Time will tell if this buy us more than the NPEs :)
-  }
-
-  public Controller(RequestContext ctx) {
-    context = ctx;
-  }
-
-  public RequestContext context() {
-    if (context == null) {
-      if (injector == null) {
-        // One of the downsides of making injection in subclasses optional.
-        throw new WebAppException(join("Error accessing RequestContext from\n",
-            "a child constructor, either move the usage of the Controller\n",
-            "methods out of the constructor or inject the RequestContext\n",
-            "into the constructor"));
-      }
-      context = injector.getInstance(RequestContext.class);
+    public String $(String key) {
+        return get(key, "");
     }
-    return context;
-  }
 
-  public Throwable error() { return context().error; }
-
-  public int status() { return context().status; }
-
-  public void setStatus(int status) {
-    context().setStatus(status);
-  }
-
-  public boolean inDevMode() { return context().devMode; }
-
-  public Injector injector() { return context().injector; }
-
-  public <T> T getInstance(Class<T> cls) {
-    return injector.getInstance(cls);
-  }
-
-  public HttpServletRequest request() { return context().request; }
-
-  public HttpServletResponse response() { return context().response; }
-
-  public void set(String key, String value) {
-    context().set(key, value);
-  }
-
-  public String get(String key, String defaultValue) {
-    return context().get(key, defaultValue);
-  }
-
-  public String $(String key) {
-    return get(key, "");
-  }
-
-  public void setTitle(String title) {
-    set(TITLE, title);
-  }
-
-  public void setTitle(String title, String url) {
-    setTitle(title);
-    set(TITLE_LINK, url);
-  }
-
-  public ResponseInfo info(String about) {
-    return getInstance(ResponseInfo.class).about(about);
-  }
-
-  /**
-   * Get the cookies
-   * @return the cookies map
-   */
-  public Map<String, Cookie> cookies() {
-    return context().cookies();
-  }
-
- /**
-   * Create an url from url components
-   * @param parts components to join
-   * @return an url string
-   */
-  public String url(String... parts) {
-    return ujoin(context().prefix, parts);
-  }
-
-  /**
-   * The default action.
-   */
-  public abstract void index();
-
-  public void echo() {
-    render(DefaultPage.class);
-  }
-
-  protected void render(Class<? extends View> cls) {
-    context().rendered = true;
-    getInstance(cls).render();
-  }
-
-  /**
-   * Convenience method for REST APIs (without explicit views)
-   * @param object - the object as the response (in JSON)
-   */
-  protected void renderJSON(Object object) {
-    LOG.debug("{}: {}", MimeType.JSON, object);
-    context().rendered = true;
-    context().response.setContentType(MimeType.JSON);
-    try {
-      jsonMapper.writeValue(writer(), object);
-    } catch (Exception e) {
-      throw new WebAppException(e);
+    public void setTitle(String title) {
+        set(TITLE, title);
     }
-  }
 
-  protected void renderJSON(Class<? extends ToJSON> cls) {
-    context().rendered = true;
-    response().setContentType(MimeType.JSON);
-    getInstance(cls).toJSON(writer());
-  }
-
-  /**
-   * Convenience method for hello world :)
-   * @param s - the content to render as plain text
-   */
-  protected void renderText(String s) {
-    LOG.debug("{}: {}", MimeType.TEXT, s);
-    context().rendered = true;
-    response().setContentType(MimeType.TEXT);
-    writer().print(s);
-  }
-
-  protected PrintWriter writer() {
-    try {
-      return response().getWriter();
-    } catch (Exception e) {
-      throw new WebAppException(e);
+    public void setTitle(String title, String url) {
+        setTitle(title);
+        set(TITLE_LINK, url);
     }
-  }
+
+    public ResponseInfo info(String about) {
+        return getInstance(ResponseInfo.class).about(about);
+    }
+
+    /**
+     * Get the cookies
+     * @return the cookies map
+     */
+    public Map<String, Cookie> cookies() {
+        return context().cookies();
+    }
+
+    /**
+      * Create an url from url components
+      * @param parts components to join
+      * @return an url string
+      */
+    public String url(String... parts) {
+        return ujoin(context().prefix, parts);
+    }
+
+    /**
+     * The default action.
+     */
+    public abstract void index();
+
+    public void echo() {
+        render(DefaultPage.class);
+    }
+
+    protected void render(Class<? extends View> cls) {
+        context().rendered = true;
+        getInstance(cls).render();
+    }
+
+    /**
+     * Convenience method for REST APIs (without explicit views)
+     * @param object - the object as the response (in JSON)
+     */
+    protected void renderJSON(Object object) {
+        LOG.debug("{}: {}", MimeType.JSON, object);
+        context().rendered = true;
+        context().response.setContentType(MimeType.JSON);
+        try {
+            jsonMapper.writeValue(writer(), object);
+        } catch (Exception e) {
+            throw new WebAppException(e);
+        }
+    }
+
+    protected void renderJSON(Class<? extends ToJSON> cls) {
+        context().rendered = true;
+        response().setContentType(MimeType.JSON);
+        getInstance(cls).toJSON(writer());
+    }
+
+    /**
+     * Convenience method for hello world :)
+     * @param s - the content to render as plain text
+     */
+    protected void renderText(String s) {
+        LOG.debug("{}: {}", MimeType.TEXT, s);
+        context().rendered = true;
+        response().setContentType(MimeType.TEXT);
+        writer().print(s);
+    }
+
+    protected PrintWriter writer() {
+        try {
+            return response().getWriter();
+        } catch (Exception e) {
+            throw new WebAppException(e);
+        }
+    }
 }

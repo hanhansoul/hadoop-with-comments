@@ -63,361 +63,361 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestHsWebServicesAcls {
-  private static String FRIENDLY_USER = "friendly";
-  private static String ENEMY_USER = "enemy";
+    private static String FRIENDLY_USER = "friendly";
+    private static String ENEMY_USER = "enemy";
 
-  private JobConf conf;
-  private HistoryContext ctx;
-  private String jobIdStr;
-  private String taskIdStr;
-  private String taskAttemptIdStr;
-  private HsWebServices hsWebServices;
+    private JobConf conf;
+    private HistoryContext ctx;
+    private String jobIdStr;
+    private String taskIdStr;
+    private String taskAttemptIdStr;
+    private HsWebServices hsWebServices;
 
-  @Before
-  public void setup() throws IOException {
-    this.conf = new JobConf();
-    this.conf.set(CommonConfigurationKeys.HADOOP_SECURITY_GROUP_MAPPING,
-        NullGroupsProvider.class.getName());
-    this.conf.setBoolean(MRConfig.MR_ACLS_ENABLED, true);
-    Groups.getUserToGroupsMappingService(conf);
-    this.ctx = buildHistoryContext(this.conf);
-    WebApp webApp = mock(HsWebApp.class);
-    when(webApp.name()).thenReturn("hsmockwebapp");
-    this.hsWebServices= new HsWebServices(ctx, conf, webApp);
-    this.hsWebServices.setResponse(mock(HttpServletResponse.class));
+    @Before
+    public void setup() throws IOException {
+        this.conf = new JobConf();
+        this.conf.set(CommonConfigurationKeys.HADOOP_SECURITY_GROUP_MAPPING,
+                      NullGroupsProvider.class.getName());
+        this.conf.setBoolean(MRConfig.MR_ACLS_ENABLED, true);
+        Groups.getUserToGroupsMappingService(conf);
+        this.ctx = buildHistoryContext(this.conf);
+        WebApp webApp = mock(HsWebApp.class);
+        when(webApp.name()).thenReturn("hsmockwebapp");
+        this.hsWebServices= new HsWebServices(ctx, conf, webApp);
+        this.hsWebServices.setResponse(mock(HttpServletResponse.class));
 
-    Job job = ctx.getAllJobs().values().iterator().next();
-    this.jobIdStr = job.getID().toString();
-    Task task = job.getTasks().values().iterator().next();
-    this.taskIdStr = task.getID().toString();
-    this.taskAttemptIdStr =
-        task.getAttempts().keySet().iterator().next().toString();
-  }
-
-  @Test
-  public void testGetJobAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
-
-    try {
-      hsWebServices.getJob(hsr, jobIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        Job job = ctx.getAllJobs().values().iterator().next();
+        this.jobIdStr = job.getID().toString();
+        Task task = job.getTasks().values().iterator().next();
+        this.taskIdStr = task.getID().toString();
+        this.taskAttemptIdStr =
+            task.getAttempts().keySet().iterator().next().toString();
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJob(hsr, jobIdStr);
-  }
+    @Test
+    public void testGetJobAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobCountersAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJob(hsr, jobIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobCounters(hsr, jobIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJob(hsr, jobIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobCounters(hsr, jobIdStr);
-  }
+    @Test
+    public void testGetJobCountersAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobConfAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJobCounters(hsr, jobIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobConf(hsr, jobIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobCounters(hsr, jobIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobConf(hsr, jobIdStr);
-  }
+    @Test
+    public void testGetJobConfAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobTasksAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJobConf(hsr, jobIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobTasks(hsr, jobIdStr, "m");
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobConf(hsr, jobIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobTasks(hsr, jobIdStr, "m");
-  }
+    @Test
+    public void testGetJobTasksAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobTaskAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJobTasks(hsr, jobIdStr, "m");
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobTask(hsr, jobIdStr, this.taskIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobTasks(hsr, jobIdStr, "m");
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobTask(hsr, this.jobIdStr, this.taskIdStr);
-  }
+    @Test
+    public void testGetJobTaskAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetSingleTaskCountersAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJobTask(hsr, jobIdStr, this.taskIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getSingleTaskCounters(hsr, this.jobIdStr, this.taskIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobTask(hsr, this.jobIdStr, this.taskIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getSingleTaskCounters(hsr, this.jobIdStr, this.taskIdStr);
-  }
+    @Test
+    public void testGetSingleTaskCountersAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobTaskAttemptsAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getSingleTaskCounters(hsr, this.jobIdStr, this.taskIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobTaskAttempts(hsr, this.jobIdStr, this.taskIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getSingleTaskCounters(hsr, this.jobIdStr, this.taskIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobTaskAttempts(hsr, this.jobIdStr, this.taskIdStr);
-  }
+    @Test
+    public void testGetJobTaskAttemptsAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobTaskAttemptIdAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJobTaskAttempts(hsr, this.jobIdStr, this.taskIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobTaskAttemptId(hsr, this.jobIdStr, this.taskIdStr,
-          this.taskAttemptIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobTaskAttempts(hsr, this.jobIdStr, this.taskIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobTaskAttemptId(hsr, this.jobIdStr, this.taskIdStr,
-        this.taskAttemptIdStr);
-  }
+    @Test
+    public void testGetJobTaskAttemptIdAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  @Test
-  public void testGetJobTaskAttemptIdCountersAcls() {
-    HttpServletRequest hsr = mock(HttpServletRequest.class);
-    when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
+        try {
+            hsWebServices.getJobTaskAttemptId(hsr, this.jobIdStr, this.taskIdStr,
+                                              this.taskAttemptIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-    try {
-      hsWebServices.getJobTaskAttemptIdCounters(hsr, this.jobIdStr,
-          this.taskIdStr, this.taskAttemptIdStr);
-      fail("enemy can access job");
-    } catch (WebApplicationException e) {
-      assertEquals(Status.UNAUTHORIZED,
-          Status.fromStatusCode(e.getResponse().getStatus()));
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobTaskAttemptId(hsr, this.jobIdStr, this.taskIdStr,
+                                          this.taskAttemptIdStr);
     }
 
-    when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
-    hsWebServices.getJobTaskAttemptIdCounters(hsr, this.jobIdStr,
-        this.taskIdStr, this.taskAttemptIdStr);
-  }
+    @Test
+    public void testGetJobTaskAttemptIdCountersAcls() {
+        HttpServletRequest hsr = mock(HttpServletRequest.class);
+        when(hsr.getRemoteUser()).thenReturn(ENEMY_USER);
 
-  private static HistoryContext buildHistoryContext(final Configuration conf)
-      throws IOException {
-    HistoryContext ctx = new MockHistoryContext(1, 1, 1);
-    Map<JobId, Job> jobs = ctx.getAllJobs();
-    JobId jobId = jobs.keySet().iterator().next();
-    Job mockJob = new MockJobForAcls(jobs.get(jobId), conf);
-    jobs.put(jobId, mockJob);
-    return ctx;
-  }
+        try {
+            hsWebServices.getJobTaskAttemptIdCounters(hsr, this.jobIdStr,
+                    this.taskIdStr, this.taskAttemptIdStr);
+            fail("enemy can access job");
+        } catch (WebApplicationException e) {
+            assertEquals(Status.UNAUTHORIZED,
+                         Status.fromStatusCode(e.getResponse().getStatus()));
+        }
 
-  private static class NullGroupsProvider
-      implements GroupMappingServiceProvider {
-    @Override
-    public List<String> getGroups(String user) throws IOException {
-      return Collections.emptyList();
+        when(hsr.getRemoteUser()).thenReturn(FRIENDLY_USER);
+        hsWebServices.getJobTaskAttemptIdCounters(hsr, this.jobIdStr,
+                this.taskIdStr, this.taskAttemptIdStr);
     }
 
-    @Override
-    public void cacheGroupsRefresh() throws IOException {
+    private static HistoryContext buildHistoryContext(final Configuration conf)
+    throws IOException {
+        HistoryContext ctx = new MockHistoryContext(1, 1, 1);
+        Map<JobId, Job> jobs = ctx.getAllJobs();
+        JobId jobId = jobs.keySet().iterator().next();
+        Job mockJob = new MockJobForAcls(jobs.get(jobId), conf);
+        jobs.put(jobId, mockJob);
+        return ctx;
     }
 
-    @Override
-    public void cacheGroupsAdd(List<String> groups) throws IOException {
-    }
-  }
+    private static class NullGroupsProvider
+        implements GroupMappingServiceProvider {
+        @Override
+        public List<String> getGroups(String user) throws IOException {
+            return Collections.emptyList();
+        }
 
-  private static class MockJobForAcls implements Job {
-    private Job mockJob;
-    private Configuration conf;
-    private Map<JobACL, AccessControlList> jobAcls;
-    private JobACLsManager aclsMgr;
+        @Override
+        public void cacheGroupsRefresh() throws IOException {
+        }
 
-    public MockJobForAcls(Job mockJob, Configuration conf) {
-      this.mockJob = mockJob;
-      this.conf = conf;
-      AccessControlList viewAcl = new AccessControlList(FRIENDLY_USER);
-      this.jobAcls = new HashMap<JobACL, AccessControlList>();
-      this.jobAcls.put(JobACL.VIEW_JOB, viewAcl);
-      this.aclsMgr = new JobACLsManager(conf); 
+        @Override
+        public void cacheGroupsAdd(List<String> groups) throws IOException {
+        }
     }
 
-    @Override
-    public JobId getID() {
-      return mockJob.getID();
-    }
+    private static class MockJobForAcls implements Job {
+        private Job mockJob;
+        private Configuration conf;
+        private Map<JobACL, AccessControlList> jobAcls;
+        private JobACLsManager aclsMgr;
 
-    @Override
-    public String getName() {
-      return mockJob.getName();
-    }
+        public MockJobForAcls(Job mockJob, Configuration conf) {
+            this.mockJob = mockJob;
+            this.conf = conf;
+            AccessControlList viewAcl = new AccessControlList(FRIENDLY_USER);
+            this.jobAcls = new HashMap<JobACL, AccessControlList>();
+            this.jobAcls.put(JobACL.VIEW_JOB, viewAcl);
+            this.aclsMgr = new JobACLsManager(conf);
+        }
 
-    @Override
-    public JobState getState() {
-      return mockJob.getState();
-    }
+        @Override
+        public JobId getID() {
+            return mockJob.getID();
+        }
 
-    @Override
-    public JobReport getReport() {
-      return mockJob.getReport();
-    }
+        @Override
+        public String getName() {
+            return mockJob.getName();
+        }
 
-    @Override
-    public Counters getAllCounters() {
-      return mockJob.getAllCounters();
-    }
+        @Override
+        public JobState getState() {
+            return mockJob.getState();
+        }
 
-    @Override
-    public Map<TaskId, Task> getTasks() {
-      return mockJob.getTasks();
-    }
+        @Override
+        public JobReport getReport() {
+            return mockJob.getReport();
+        }
 
-    @Override
-    public Map<TaskId, Task> getTasks(TaskType taskType) {
-      return mockJob.getTasks(taskType);
-    }
+        @Override
+        public Counters getAllCounters() {
+            return mockJob.getAllCounters();
+        }
 
-    @Override
-    public Task getTask(TaskId taskID) {
-      return mockJob.getTask(taskID);
-    }
+        @Override
+        public Map<TaskId, Task> getTasks() {
+            return mockJob.getTasks();
+        }
 
-    @Override
-    public List<String> getDiagnostics() {
-      return mockJob.getDiagnostics();
-    }
+        @Override
+        public Map<TaskId, Task> getTasks(TaskType taskType) {
+            return mockJob.getTasks(taskType);
+        }
 
-    @Override
-    public int getTotalMaps() {
-      return mockJob.getTotalMaps();
-    }
+        @Override
+        public Task getTask(TaskId taskID) {
+            return mockJob.getTask(taskID);
+        }
 
-    @Override
-    public int getTotalReduces() {
-      return mockJob.getTotalReduces();
-    }
+        @Override
+        public List<String> getDiagnostics() {
+            return mockJob.getDiagnostics();
+        }
 
-    @Override
-    public int getCompletedMaps() {
-      return mockJob.getCompletedMaps();
-    }
+        @Override
+        public int getTotalMaps() {
+            return mockJob.getTotalMaps();
+        }
 
-    @Override
-    public int getCompletedReduces() {
-      return mockJob.getCompletedReduces();
-    }
+        @Override
+        public int getTotalReduces() {
+            return mockJob.getTotalReduces();
+        }
 
-    @Override
-    public float getProgress() {
-      return mockJob.getProgress();
-    }
+        @Override
+        public int getCompletedMaps() {
+            return mockJob.getCompletedMaps();
+        }
 
-    @Override
-    public boolean isUber() {
-      return mockJob.isUber();
-    }
+        @Override
+        public int getCompletedReduces() {
+            return mockJob.getCompletedReduces();
+        }
 
-    @Override
-    public String getUserName() {
-      return mockJob.getUserName();
-    }
+        @Override
+        public float getProgress() {
+            return mockJob.getProgress();
+        }
 
-    @Override
-    public String getQueueName() {
-      return mockJob.getQueueName();
-    }
+        @Override
+        public boolean isUber() {
+            return mockJob.isUber();
+        }
 
-    @Override
-    public Path getConfFile() {
-      return new Path("/some/path/to/conf");
-    }
+        @Override
+        public String getUserName() {
+            return mockJob.getUserName();
+        }
 
-    @Override
-    public Configuration loadConfFile() throws IOException {
-      return conf;
-    }
+        @Override
+        public String getQueueName() {
+            return mockJob.getQueueName();
+        }
 
-    @Override
-    public Map<JobACL, AccessControlList> getJobACLs() {
-      return jobAcls;
-    }
+        @Override
+        public Path getConfFile() {
+            return new Path("/some/path/to/conf");
+        }
 
-    @Override
-    public TaskAttemptCompletionEvent[] getTaskAttemptCompletionEvents(
-        int fromEventId, int maxEvents) {
-      return mockJob.getTaskAttemptCompletionEvents(fromEventId, maxEvents);
-    }
+        @Override
+        public Configuration loadConfFile() throws IOException {
+            return conf;
+        }
 
-    @Override
-    public TaskCompletionEvent[] getMapAttemptCompletionEvents(
-        int startIndex, int maxEvents) {
-      return mockJob.getMapAttemptCompletionEvents(startIndex, maxEvents);
-    }
+        @Override
+        public Map<JobACL, AccessControlList> getJobACLs() {
+            return jobAcls;
+        }
 
-    @Override
-    public List<AMInfo> getAMInfos() {
-      return mockJob.getAMInfos();
-    }
+        @Override
+        public TaskAttemptCompletionEvent[] getTaskAttemptCompletionEvents(
+            int fromEventId, int maxEvents) {
+            return mockJob.getTaskAttemptCompletionEvents(fromEventId, maxEvents);
+        }
 
-    @Override
-    public boolean checkAccess(UserGroupInformation callerUGI,
-        JobACL jobOperation) {
-      return aclsMgr.checkAccess(callerUGI, jobOperation,
-          this.getUserName(), jobAcls.get(jobOperation));
-    }
+        @Override
+        public TaskCompletionEvent[] getMapAttemptCompletionEvents(
+            int startIndex, int maxEvents) {
+            return mockJob.getMapAttemptCompletionEvents(startIndex, maxEvents);
+        }
 
-    @Override
-    public void setQueueName(String queueName) {
+        @Override
+        public List<AMInfo> getAMInfos() {
+            return mockJob.getAMInfos();
+        }
+
+        @Override
+        public boolean checkAccess(UserGroupInformation callerUGI,
+                                   JobACL jobOperation) {
+            return aclsMgr.checkAccess(callerUGI, jobOperation,
+                                       this.getUserName(), jobAcls.get(jobOperation));
+        }
+
+        @Override
+        public void setQueueName(String queueName) {
+        }
     }
-  }
 }

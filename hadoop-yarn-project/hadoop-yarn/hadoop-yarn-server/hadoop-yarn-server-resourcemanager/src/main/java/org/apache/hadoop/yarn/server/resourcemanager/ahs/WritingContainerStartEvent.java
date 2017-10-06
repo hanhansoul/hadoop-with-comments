@@ -23,27 +23,27 @@ import org.apache.hadoop.yarn.server.applicationhistoryservice.records.Container
 
 public class WritingContainerStartEvent extends WritingApplicationHistoryEvent {
 
-  private ContainerId containerId;
-  private ContainerStartData containerStart;
+    private ContainerId containerId;
+    private ContainerStartData containerStart;
 
-  public WritingContainerStartEvent(ContainerId containerId,
-      ContainerStartData containerStart) {
-    super(WritingHistoryEventType.CONTAINER_START);
-    this.containerId = containerId;
-    this.containerStart = containerStart;
-  }
+    public WritingContainerStartEvent(ContainerId containerId,
+                                      ContainerStartData containerStart) {
+        super(WritingHistoryEventType.CONTAINER_START);
+        this.containerId = containerId;
+        this.containerStart = containerStart;
+    }
 
-  @Override
-  public int hashCode() {
-    return containerId.getApplicationAttemptId().getApplicationId().hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return containerId.getApplicationAttemptId().getApplicationId().hashCode();
+    }
 
-  public ContainerId getContainerId() {
-    return containerId;
-  }
+    public ContainerId getContainerId() {
+        return containerId;
+    }
 
-  public ContainerStartData getContainerStartData() {
-    return containerStart;
-  }
+    public ContainerStartData getContainerStartData() {
+        return containerStart;
+    }
 
 }

@@ -36,104 +36,104 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Cont
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ContainerInfo {
 
-  protected String id;
-  protected String state;
-  protected int exitCode;
-  protected String diagnostics;
-  protected String user;
-  protected long totalMemoryNeededMB;
-  protected long totalVCoresNeeded;
-  protected String containerLogsLink;
-  protected String nodeId;
-  @XmlTransient
-  protected String containerLogsShortLink;
-  @XmlTransient
-  protected String exitStatus;
+    protected String id;
+    protected String state;
+    protected int exitCode;
+    protected String diagnostics;
+    protected String user;
+    protected long totalMemoryNeededMB;
+    protected long totalVCoresNeeded;
+    protected String containerLogsLink;
+    protected String nodeId;
+    @XmlTransient
+    protected String containerLogsShortLink;
+    @XmlTransient
+    protected String exitStatus;
 
-  public ContainerInfo() {
-  } // JAXB needs this
+    public ContainerInfo() {
+    } // JAXB needs this
 
-  public ContainerInfo(final Context nmContext, final Container container) {
-    this(nmContext, container, "", "");
-  }
+    public ContainerInfo(final Context nmContext, final Container container) {
+        this(nmContext, container, "", "");
+    }
 
-  public ContainerInfo(final Context nmContext, final Container container,
-       String requestUri, String pathPrefix) {
+    public ContainerInfo(final Context nmContext, final Container container,
+                         String requestUri, String pathPrefix) {
 
-    this.id = container.getContainerId().toString();
-    this.nodeId = nmContext.getNodeId().toString();
-    ContainerStatus containerData = container.cloneAndGetContainerStatus();
-    this.exitCode = containerData.getExitStatus();
-    this.exitStatus =
-        (this.exitCode == ContainerExitStatus.INVALID) ?
+        this.id = container.getContainerId().toString();
+        this.nodeId = nmContext.getNodeId().toString();
+        ContainerStatus containerData = container.cloneAndGetContainerStatus();
+        this.exitCode = containerData.getExitStatus();
+        this.exitStatus =
+            (this.exitCode == ContainerExitStatus.INVALID) ?
             "N/A" : String.valueOf(exitCode);
-    this.state = container.getContainerState().toString();
-    this.diagnostics = containerData.getDiagnostics();
-    if (this.diagnostics == null || this.diagnostics.isEmpty()) {
-      this.diagnostics = "";
+        this.state = container.getContainerState().toString();
+        this.diagnostics = containerData.getDiagnostics();
+        if (this.diagnostics == null || this.diagnostics.isEmpty()) {
+            this.diagnostics = "";
+        }
+
+        this.user = container.getUser();
+        Resource res = container.getResource();
+        if (res != null) {
+            this.totalMemoryNeededMB = res.getMemory();
+            this.totalVCoresNeeded = res.getVirtualCores();
+        }
+        this.containerLogsShortLink = ujoin("containerlogs", this.id,
+                                            container.getUser());
+
+        if (requestUri == null) {
+            requestUri = "";
+        }
+        if (pathPrefix == null) {
+            pathPrefix = "";
+        }
+        this.containerLogsLink = join(requestUri, pathPrefix,
+                                      this.containerLogsShortLink);
     }
 
-    this.user = container.getUser();
-    Resource res = container.getResource();
-    if (res != null) {
-      this.totalMemoryNeededMB = res.getMemory();
-      this.totalVCoresNeeded = res.getVirtualCores();
+    public String getId() {
+        return this.id;
     }
-    this.containerLogsShortLink = ujoin("containerlogs", this.id,
-        container.getUser());
 
-    if (requestUri == null) {
-      requestUri = "";
+    public String getNodeId() {
+        return this.nodeId;
     }
-    if (pathPrefix == null) {
-      pathPrefix = "";
+
+    public String getState() {
+        return this.state;
     }
-    this.containerLogsLink = join(requestUri, pathPrefix,
-        this.containerLogsShortLink);
-  }
 
-  public String getId() {
-    return this.id;
-  }
+    public int getExitCode() {
+        return this.exitCode;
+    }
 
-  public String getNodeId() {
-    return this.nodeId;
-  }
+    public String getExitStatus() {
+        return this.exitStatus;
+    }
 
-  public String getState() {
-    return this.state;
-  }
+    public String getDiagnostics() {
+        return this.diagnostics;
+    }
 
-  public int getExitCode() {
-    return this.exitCode;
-  }
+    public String getUser() {
+        return this.user;
+    }
 
-  public String getExitStatus() {
-    return this.exitStatus;
-  }
+    public String getShortLogLink() {
+        return this.containerLogsShortLink;
+    }
 
-  public String getDiagnostics() {
-    return this.diagnostics;
-  }
+    public String getLogLink() {
+        return this.containerLogsLink;
+    }
 
-  public String getUser() {
-    return this.user;
-  }
+    public long getMemoryNeeded() {
+        return this.totalMemoryNeededMB;
+    }
 
-  public String getShortLogLink() {
-    return this.containerLogsShortLink;
-  }
-
-  public String getLogLink() {
-    return this.containerLogsLink;
-  }
-
-  public long getMemoryNeeded() {
-    return this.totalMemoryNeededMB;
-  }
-
-  public long getVCoresNeeded() {
-    return this.totalVCoresNeeded;
-  }
+    public long getVCoresNeeded() {
+        return this.totalVCoresNeeded;
+    }
 
 }

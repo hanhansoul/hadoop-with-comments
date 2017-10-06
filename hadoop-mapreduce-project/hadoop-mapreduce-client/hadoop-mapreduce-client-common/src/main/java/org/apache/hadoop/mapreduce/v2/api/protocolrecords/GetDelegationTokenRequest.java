@@ -24,6 +24,6 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Public
 @Evolving
 public interface GetDelegationTokenRequest {
-  String getRenewer();
-  void setRenewer(String renewer);
+    String getRenewer();
+    void setRenewer(String renewer);
 }

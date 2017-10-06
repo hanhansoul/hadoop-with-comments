@@ -31,9 +31,9 @@ import org.apache.hadoop.classification.InterfaceStability.Evolving;
 @Evolving
 public class UTCClock implements Clock {
 
-  private final TimeZone utcZone = TimeZone.getTimeZone("UTC");
+    private final TimeZone utcZone = TimeZone.getTimeZone("UTC");
 
-  public long getTime() {
-    return Calendar.getInstance(utcZone).getTimeInMillis();
-  }
+    public long getTime() {
+        return Calendar.getInstance(utcZone).getTimeInMillis();
+    }
 }

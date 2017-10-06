@@ -26,46 +26,46 @@ import org.apache.hadoop.oncrpc.XDR;
  * SYMLINK3 Request
  */
 public class SYMLINK3Request extends RequestWithHandle {
-  private final String name;     // The name of the link
-  private final SetAttr3 symAttr;
-  private final String symData;  // It contains the target
-  
-  public static SYMLINK3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    SetAttr3 symAttr = new SetAttr3();
-    symAttr.deserialize(xdr);
-    String symData = xdr.readString();
-    return new SYMLINK3Request(handle, name, symAttr, symData);
-  }
+    private final String name;     // The name of the link
+    private final SetAttr3 symAttr;
+    private final String symData;  // It contains the target
 
-  public SYMLINK3Request(FileHandle handle, String name, SetAttr3 symAttr,
-      String symData) {
-    super(handle);
-    this.name = name;
-    this.symAttr = symAttr;
-    this.symData = symData;
-  }
-  
-  public String getName() {
-    return name;
-  }
+    public static SYMLINK3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        SetAttr3 symAttr = new SetAttr3();
+        symAttr.deserialize(xdr);
+        String symData = xdr.readString();
+        return new SYMLINK3Request(handle, name, symAttr, symData);
+    }
 
-  public SetAttr3 getSymAttr() {
-    return symAttr;
-  }
+    public SYMLINK3Request(FileHandle handle, String name, SetAttr3 symAttr,
+                           String symData) {
+        super(handle);
+        this.name = name;
+        this.symAttr = symAttr;
+        this.symData = symData;
+    }
 
-  public String getSymData() {
-    return symData;
-  }
+    public String getName() {
+        return name;
+    }
 
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.getBytes().length);
-    xdr.writeFixedOpaque(name.getBytes());
-    symAttr.serialize(xdr);
-    xdr.writeInt(symData.getBytes().length);
-    xdr.writeFixedOpaque(symData.getBytes());
-  }
+    public SetAttr3 getSymAttr() {
+        return symAttr;
+    }
+
+    public String getSymData() {
+        return symData;
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.getBytes().length);
+        xdr.writeFixedOpaque(name.getBytes());
+        symAttr.serialize(xdr);
+        xdr.writeInt(symData.getBytes().length);
+        xdr.writeFixedOpaque(symData.getBytes());
+    }
 }

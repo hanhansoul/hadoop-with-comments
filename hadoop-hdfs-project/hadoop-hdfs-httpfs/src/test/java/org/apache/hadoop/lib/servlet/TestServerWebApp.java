@@ -31,69 +31,69 @@ import java.net.InetSocketAddress;
 
 public class TestServerWebApp extends HTestCase {
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getHomeDirNotDef() {
-    ServerWebApp.getHomeDir("TestServerWebApp00");
-  }
+    @Test(expected = IllegalArgumentException.class)
+    public void getHomeDirNotDef() {
+        ServerWebApp.getHomeDir("TestServerWebApp00");
+    }
 
-  @Test
-  public void getHomeDir() {
-    System.setProperty("TestServerWebApp0.home.dir", "/tmp");
-    assertEquals(ServerWebApp.getHomeDir("TestServerWebApp0"), "/tmp");
-    assertEquals(ServerWebApp.getDir("TestServerWebApp0", ".log.dir", "/tmp/log"), "/tmp/log");
-    System.setProperty("TestServerWebApp0.log.dir", "/tmplog");
-    assertEquals(ServerWebApp.getDir("TestServerWebApp0", ".log.dir", "/tmp/log"), "/tmplog");
-  }
+    @Test
+    public void getHomeDir() {
+        System.setProperty("TestServerWebApp0.home.dir", "/tmp");
+        assertEquals(ServerWebApp.getHomeDir("TestServerWebApp0"), "/tmp");
+        assertEquals(ServerWebApp.getDir("TestServerWebApp0", ".log.dir", "/tmp/log"), "/tmp/log");
+        System.setProperty("TestServerWebApp0.log.dir", "/tmplog");
+        assertEquals(ServerWebApp.getDir("TestServerWebApp0", ".log.dir", "/tmp/log"), "/tmplog");
+    }
 
-  @Test
-  @TestDir
-  public void lifecycle() throws Exception {
-    String dir = TestDirHelper.getTestDir().getAbsolutePath();
-    System.setProperty("TestServerWebApp1.home.dir", dir);
-    System.setProperty("TestServerWebApp1.config.dir", dir);
-    System.setProperty("TestServerWebApp1.log.dir", dir);
-    System.setProperty("TestServerWebApp1.temp.dir", dir);
-    ServerWebApp server = new ServerWebApp("TestServerWebApp1") {
-    };
+    @Test
+    @TestDir
+    public void lifecycle() throws Exception {
+        String dir = TestDirHelper.getTestDir().getAbsolutePath();
+        System.setProperty("TestServerWebApp1.home.dir", dir);
+        System.setProperty("TestServerWebApp1.config.dir", dir);
+        System.setProperty("TestServerWebApp1.log.dir", dir);
+        System.setProperty("TestServerWebApp1.temp.dir", dir);
+        ServerWebApp server = new ServerWebApp("TestServerWebApp1") {
+        };
 
-    assertEquals(server.getStatus(), Server.Status.UNDEF);
-    server.contextInitialized(null);
-    assertEquals(server.getStatus(), Server.Status.NORMAL);
-    server.contextDestroyed(null);
-    assertEquals(server.getStatus(), Server.Status.SHUTDOWN);
-  }
+        assertEquals(server.getStatus(), Server.Status.UNDEF);
+        server.contextInitialized(null);
+        assertEquals(server.getStatus(), Server.Status.NORMAL);
+        server.contextDestroyed(null);
+        assertEquals(server.getStatus(), Server.Status.SHUTDOWN);
+    }
 
-  @Test(expected = RuntimeException.class)
-  @TestDir
-  public void failedInit() throws Exception {
-    String dir = TestDirHelper.getTestDir().getAbsolutePath();
-    System.setProperty("TestServerWebApp2.home.dir", dir);
-    System.setProperty("TestServerWebApp2.config.dir", dir);
-    System.setProperty("TestServerWebApp2.log.dir", dir);
-    System.setProperty("TestServerWebApp2.temp.dir", dir);
-    System.setProperty("testserverwebapp2.services", "FOO");
-    ServerWebApp server = new ServerWebApp("TestServerWebApp2") {
-    };
+    @Test(expected = RuntimeException.class)
+    @TestDir
+    public void failedInit() throws Exception {
+        String dir = TestDirHelper.getTestDir().getAbsolutePath();
+        System.setProperty("TestServerWebApp2.home.dir", dir);
+        System.setProperty("TestServerWebApp2.config.dir", dir);
+        System.setProperty("TestServerWebApp2.log.dir", dir);
+        System.setProperty("TestServerWebApp2.temp.dir", dir);
+        System.setProperty("testserverwebapp2.services", "FOO");
+        ServerWebApp server = new ServerWebApp("TestServerWebApp2") {
+        };
 
-    server.contextInitialized(null);
-  }
+        server.contextInitialized(null);
+    }
 
-  @Test
-  @TestDir
-  public void testResolveAuthority() throws Exception {
-    String dir = TestDirHelper.getTestDir().getAbsolutePath();
-    System.setProperty("TestServerWebApp3.home.dir", dir);
-    System.setProperty("TestServerWebApp3.config.dir", dir);
-    System.setProperty("TestServerWebApp3.log.dir", dir);
-    System.setProperty("TestServerWebApp3.temp.dir", dir);
-    System.setProperty("testserverwebapp3.http.hostname", "localhost");
-    System.setProperty("testserverwebapp3.http.port", "14000");
-    ServerWebApp server = new ServerWebApp("TestServerWebApp3") {
-    };
+    @Test
+    @TestDir
+    public void testResolveAuthority() throws Exception {
+        String dir = TestDirHelper.getTestDir().getAbsolutePath();
+        System.setProperty("TestServerWebApp3.home.dir", dir);
+        System.setProperty("TestServerWebApp3.config.dir", dir);
+        System.setProperty("TestServerWebApp3.log.dir", dir);
+        System.setProperty("TestServerWebApp3.temp.dir", dir);
+        System.setProperty("testserverwebapp3.http.hostname", "localhost");
+        System.setProperty("testserverwebapp3.http.port", "14000");
+        ServerWebApp server = new ServerWebApp("TestServerWebApp3") {
+        };
 
-    InetSocketAddress address = server.resolveAuthority();
-    Assert.assertEquals("localhost", address.getHostName());
-    Assert.assertEquals(14000, address.getPort());
-  }
+        InetSocketAddress address = server.resolveAuthority();
+        Assert.assertEquals("localhost", address.getHostName());
+        Assert.assertEquals(14000, address.getPort());
+    }
 
 }

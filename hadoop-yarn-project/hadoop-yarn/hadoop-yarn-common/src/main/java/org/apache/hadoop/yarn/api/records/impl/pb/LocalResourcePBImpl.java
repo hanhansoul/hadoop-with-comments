@@ -35,184 +35,184 @@ import com.google.protobuf.TextFormat;
 @Private
 @Unstable
 public class LocalResourcePBImpl extends LocalResource {
-  LocalResourceProto proto = LocalResourceProto.getDefaultInstance();
-  LocalResourceProto.Builder builder = null;
-  boolean viaProto = false;
+    LocalResourceProto proto = LocalResourceProto.getDefaultInstance();
+    LocalResourceProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private URL url = null;
+    private URL url = null;
 
-  public LocalResourcePBImpl() {
-    builder = LocalResourceProto.newBuilder();
-  }
-
-  public LocalResourcePBImpl(LocalResourceProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public synchronized LocalResourceProto getProto() {
-    mergeLocalToBuilder();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public LocalResourcePBImpl() {
+        builder = LocalResourceProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private synchronized void mergeLocalToBuilder() {
-    LocalResourceProtoOrBuilder l = viaProto ? proto : builder;
-    if (this.url != null
-        && !(l.getResource().equals(((URLPBImpl) url).getProto()))) {
-      maybeInitBuilder();
-      l = builder;
-      builder.setResource(convertToProtoFormat(this.url));
+    public LocalResourcePBImpl(LocalResourceProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-  }
 
-  private synchronized void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = LocalResourceProto.newBuilder(proto);
+    public synchronized LocalResourceProto getProto() {
+        mergeLocalToBuilder();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public synchronized long getSize() {
-    LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getSize());
-  }
-
-  @Override
-  public synchronized void setSize(long size) {
-    maybeInitBuilder();
-    builder.setSize((size));
-  }
-  @Override
-  public synchronized long getTimestamp() {
-    LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
-    return (p.getTimestamp());
-  }
-
-  @Override
-  public synchronized void setTimestamp(long timestamp) {
-    maybeInitBuilder();
-    builder.setTimestamp((timestamp));
-  }
-  @Override
-  public synchronized LocalResourceType getType() {
-    LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasType()) {
-      return null;
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
     }
-    return convertFromProtoFormat(p.getType());
-  }
 
-  @Override
-  public synchronized void setType(LocalResourceType type) {
-    maybeInitBuilder();
-    if (type == null) {
-      builder.clearType();
-      return;
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
     }
-    builder.setType(convertToProtoFormat(type));
-  }
-  @Override
-  public synchronized URL getResource() {
-    LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.url != null) {
-      return this.url;
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
     }
-    if (!p.hasResource()) {
-      return null;
+
+    private synchronized void mergeLocalToBuilder() {
+        LocalResourceProtoOrBuilder l = viaProto ? proto : builder;
+        if (this.url != null
+            && !(l.getResource().equals(((URLPBImpl) url).getProto()))) {
+            maybeInitBuilder();
+            l = builder;
+            builder.setResource(convertToProtoFormat(this.url));
+        }
     }
-    this.url = convertFromProtoFormat(p.getResource());
-    return this.url;
-  }
 
-  @Override
-  public synchronized void setResource(URL resource) {
-    maybeInitBuilder();
-    if (resource == null) 
-      builder.clearResource();
-    this.url = resource;
-  }
-  @Override
-  public synchronized LocalResourceVisibility getVisibility() {
-    LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasVisibility()) {
-      return null;
+    private synchronized void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = LocalResourceProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-    return convertFromProtoFormat(p.getVisibility());
-  }
 
-  @Override
-  public synchronized void setVisibility(LocalResourceVisibility visibility) {
-    maybeInitBuilder();
-    if (visibility == null) {
-      builder.clearVisibility();
-      return;
+    @Override
+    public synchronized long getSize() {
+        LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getSize());
     }
-    builder.setVisibility(convertToProtoFormat(visibility));
-  }
-  
-  @Override
-  public synchronized String getPattern() {
-    LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasPattern()) {
-      return null;
+
+    @Override
+    public synchronized void setSize(long size) {
+        maybeInitBuilder();
+        builder.setSize((size));
     }
-    return p.getPattern();
-  }
-
-  @Override
-  public synchronized void setPattern(String pattern) {
-    maybeInitBuilder();
-    if (pattern == null) {
-      builder.clearPattern();
-      return;
+    @Override
+    public synchronized long getTimestamp() {
+        LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
+        return (p.getTimestamp());
     }
-    builder.setPattern(pattern);
-  }
 
-  private LocalResourceTypeProto convertToProtoFormat(LocalResourceType e) {
-    return ProtoUtils.convertToProtoFormat(e);
-  }
+    @Override
+    public synchronized void setTimestamp(long timestamp) {
+        maybeInitBuilder();
+        builder.setTimestamp((timestamp));
+    }
+    @Override
+    public synchronized LocalResourceType getType() {
+        LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasType()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getType());
+    }
 
-  private LocalResourceType convertFromProtoFormat(LocalResourceTypeProto e) {
-    return ProtoUtils.convertFromProtoFormat(e);
-  }
+    @Override
+    public synchronized void setType(LocalResourceType type) {
+        maybeInitBuilder();
+        if (type == null) {
+            builder.clearType();
+            return;
+        }
+        builder.setType(convertToProtoFormat(type));
+    }
+    @Override
+    public synchronized URL getResource() {
+        LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.url != null) {
+            return this.url;
+        }
+        if (!p.hasResource()) {
+            return null;
+        }
+        this.url = convertFromProtoFormat(p.getResource());
+        return this.url;
+    }
 
-  private URLPBImpl convertFromProtoFormat(URLProto p) {
-    return new URLPBImpl(p);
-  }
+    @Override
+    public synchronized void setResource(URL resource) {
+        maybeInitBuilder();
+        if (resource == null)
+            builder.clearResource();
+        this.url = resource;
+    }
+    @Override
+    public synchronized LocalResourceVisibility getVisibility() {
+        LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasVisibility()) {
+            return null;
+        }
+        return convertFromProtoFormat(p.getVisibility());
+    }
 
-  private URLProto convertToProtoFormat(URL t) {
-    return ((URLPBImpl)t).getProto();
-  }
+    @Override
+    public synchronized void setVisibility(LocalResourceVisibility visibility) {
+        maybeInitBuilder();
+        if (visibility == null) {
+            builder.clearVisibility();
+            return;
+        }
+        builder.setVisibility(convertToProtoFormat(visibility));
+    }
 
-  private LocalResourceVisibilityProto convertToProtoFormat(LocalResourceVisibility e) {
-    return ProtoUtils.convertToProtoFormat(e);
-  }
+    @Override
+    public synchronized String getPattern() {
+        LocalResourceProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasPattern()) {
+            return null;
+        }
+        return p.getPattern();
+    }
 
-  private LocalResourceVisibility convertFromProtoFormat(LocalResourceVisibilityProto e) {
-    return ProtoUtils.convertFromProtoFormat(e);
-  }
-}  
+    @Override
+    public synchronized void setPattern(String pattern) {
+        maybeInitBuilder();
+        if (pattern == null) {
+            builder.clearPattern();
+            return;
+        }
+        builder.setPattern(pattern);
+    }
+
+    private LocalResourceTypeProto convertToProtoFormat(LocalResourceType e) {
+        return ProtoUtils.convertToProtoFormat(e);
+    }
+
+    private LocalResourceType convertFromProtoFormat(LocalResourceTypeProto e) {
+        return ProtoUtils.convertFromProtoFormat(e);
+    }
+
+    private URLPBImpl convertFromProtoFormat(URLProto p) {
+        return new URLPBImpl(p);
+    }
+
+    private URLProto convertToProtoFormat(URL t) {
+        return ((URLPBImpl)t).getProto();
+    }
+
+    private LocalResourceVisibilityProto convertToProtoFormat(LocalResourceVisibility e) {
+        return ProtoUtils.convertToProtoFormat(e);
+    }
+
+    private LocalResourceVisibility convertFromProtoFormat(LocalResourceVisibilityProto e) {
+        return ProtoUtils.convertFromProtoFormat(e);
+    }
+}

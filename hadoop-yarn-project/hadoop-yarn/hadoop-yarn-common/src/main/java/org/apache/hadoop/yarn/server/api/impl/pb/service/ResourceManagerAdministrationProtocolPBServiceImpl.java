@@ -83,189 +83,189 @@ import com.google.protobuf.ServiceException;
 @Private
 public class ResourceManagerAdministrationProtocolPBServiceImpl implements ResourceManagerAdministrationProtocolPB {
 
-  private ResourceManagerAdministrationProtocol real;
-  
-  public ResourceManagerAdministrationProtocolPBServiceImpl(ResourceManagerAdministrationProtocol impl) {
-    this.real = impl;
-  }
-  
-  @Override
-  public RefreshQueuesResponseProto refreshQueues(RpcController controller,
-      RefreshQueuesRequestProto proto) throws ServiceException {
-    RefreshQueuesRequestPBImpl request = new RefreshQueuesRequestPBImpl(proto);
-    try {
-      RefreshQueuesResponse response = real.refreshQueues(request);
-      return ((RefreshQueuesResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
+    private ResourceManagerAdministrationProtocol real;
 
-  @Override
-  public RefreshAdminAclsResponseProto refreshAdminAcls(
-      RpcController controller, RefreshAdminAclsRequestProto proto)
-      throws ServiceException {
-    RefreshAdminAclsRequestPBImpl request = 
-      new RefreshAdminAclsRequestPBImpl(proto);
-    try {
-      RefreshAdminAclsResponse response = real.refreshAdminAcls(request);
-      return ((RefreshAdminAclsResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    public ResourceManagerAdministrationProtocolPBServiceImpl(ResourceManagerAdministrationProtocol impl) {
+        this.real = impl;
     }
-  }
 
-  @Override
-  public RefreshNodesResponseProto refreshNodes(RpcController controller,
-      RefreshNodesRequestProto proto) throws ServiceException {
-    RefreshNodesRequestPBImpl request = new RefreshNodesRequestPBImpl(proto);
-    try {
-      RefreshNodesResponse response = real.refreshNodes(request);
-      return ((RefreshNodesResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshQueuesResponseProto refreshQueues(RpcController controller,
+            RefreshQueuesRequestProto proto) throws ServiceException {
+        RefreshQueuesRequestPBImpl request = new RefreshQueuesRequestPBImpl(proto);
+        try {
+            RefreshQueuesResponse response = real.refreshQueues(request);
+            return ((RefreshQueuesResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public RefreshSuperUserGroupsConfigurationResponseProto 
-  refreshSuperUserGroupsConfiguration(
-      RpcController controller,
-      RefreshSuperUserGroupsConfigurationRequestProto proto)
-      throws ServiceException {
-    RefreshSuperUserGroupsConfigurationRequestPBImpl request = 
-      new RefreshSuperUserGroupsConfigurationRequestPBImpl(proto);
-    try {
-      RefreshSuperUserGroupsConfigurationResponse response = 
-        real.refreshSuperUserGroupsConfiguration(request);
-      return ((RefreshSuperUserGroupsConfigurationResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshAdminAclsResponseProto refreshAdminAcls(
+        RpcController controller, RefreshAdminAclsRequestProto proto)
+    throws ServiceException {
+        RefreshAdminAclsRequestPBImpl request =
+            new RefreshAdminAclsRequestPBImpl(proto);
+        try {
+            RefreshAdminAclsResponse response = real.refreshAdminAcls(request);
+            return ((RefreshAdminAclsResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public RefreshUserToGroupsMappingsResponseProto refreshUserToGroupsMappings(
-      RpcController controller, RefreshUserToGroupsMappingsRequestProto proto)
-      throws ServiceException {
-    RefreshUserToGroupsMappingsRequestPBImpl request = 
-      new RefreshUserToGroupsMappingsRequestPBImpl(proto);
-    try {
-      RefreshUserToGroupsMappingsResponse response = 
-        real.refreshUserToGroupsMappings(request);
-      return ((RefreshUserToGroupsMappingsResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshNodesResponseProto refreshNodes(RpcController controller,
+            RefreshNodesRequestProto proto) throws ServiceException {
+        RefreshNodesRequestPBImpl request = new RefreshNodesRequestPBImpl(proto);
+        try {
+            RefreshNodesResponse response = real.refreshNodes(request);
+            return ((RefreshNodesResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public RefreshServiceAclsResponseProto refreshServiceAcls(
-      RpcController controller, RefreshServiceAclsRequestProto proto)
-      throws ServiceException {
-    RefreshServiceAclsRequestPBImpl request = 
-        new RefreshServiceAclsRequestPBImpl(proto);
-      try {
-        RefreshServiceAclsResponse response = 
-          real.refreshServiceAcls(request);
-        return ((RefreshServiceAclsResponsePBImpl)response).getProto();
-      } catch (YarnException e) {
-        throw new ServiceException(e);
-      } catch (IOException e) {
-        throw new ServiceException(e);
-      }
-  }
+    @Override
+    public RefreshSuperUserGroupsConfigurationResponseProto
+    refreshSuperUserGroupsConfiguration(
+        RpcController controller,
+        RefreshSuperUserGroupsConfigurationRequestProto proto)
+    throws ServiceException {
+        RefreshSuperUserGroupsConfigurationRequestPBImpl request =
+            new RefreshSuperUserGroupsConfigurationRequestPBImpl(proto);
+        try {
+            RefreshSuperUserGroupsConfigurationResponse response =
+                real.refreshSuperUserGroupsConfiguration(request);
+            return ((RefreshSuperUserGroupsConfigurationResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
 
-  @Override
-  public GetGroupsForUserResponseProto getGroupsForUser(
-      RpcController controller, GetGroupsForUserRequestProto request)
-      throws ServiceException {
-    String user = request.getUser();
-    try {
-      String[] groups = real.getGroupsForUser(user);
-      GetGroupsForUserResponseProto.Builder responseBuilder =
-          GetGroupsForUserResponseProto.newBuilder();
-      for (String group : groups) {
-        responseBuilder.addGroups(group);
-      }
-      return responseBuilder.build();
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshUserToGroupsMappingsResponseProto refreshUserToGroupsMappings(
+        RpcController controller, RefreshUserToGroupsMappingsRequestProto proto)
+    throws ServiceException {
+        RefreshUserToGroupsMappingsRequestPBImpl request =
+            new RefreshUserToGroupsMappingsRequestPBImpl(proto);
+        try {
+            RefreshUserToGroupsMappingsResponse response =
+                real.refreshUserToGroupsMappings(request);
+            return ((RefreshUserToGroupsMappingsResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
-  
-  @Override
-  public UpdateNodeResourceResponseProto updateNodeResource(RpcController controller,
-      UpdateNodeResourceRequestProto proto) throws ServiceException {
-    UpdateNodeResourceRequestPBImpl request = 
-        new UpdateNodeResourceRequestPBImpl(proto);
-    try {
-      UpdateNodeResourceResponse response = real.updateNodeResource(request);
-      return ((UpdateNodeResourceResponsePBImpl)response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
-    }
-  }
 
-  @Override
-  public AddToClusterNodeLabelsResponseProto addToClusterNodeLabels(
-      RpcController controller, AddToClusterNodeLabelsRequestProto proto)
-      throws ServiceException {
-    AddToClusterNodeLabelsRequestPBImpl request =
-        new AddToClusterNodeLabelsRequestPBImpl(proto);
-    try {
-      AddToClusterNodeLabelsResponse response =
-          real.addToClusterNodeLabels(request);
-      return ((AddToClusterNodeLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public RefreshServiceAclsResponseProto refreshServiceAcls(
+        RpcController controller, RefreshServiceAclsRequestProto proto)
+    throws ServiceException {
+        RefreshServiceAclsRequestPBImpl request =
+            new RefreshServiceAclsRequestPBImpl(proto);
+        try {
+            RefreshServiceAclsResponse response =
+                real.refreshServiceAcls(request);
+            return ((RefreshServiceAclsResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public RemoveFromClusterNodeLabelsResponseProto removeFromClusterNodeLabels(
-      RpcController controller, RemoveFromClusterNodeLabelsRequestProto proto)
-      throws ServiceException {
-    RemoveFromClusterNodeLabelsRequestPBImpl request =
-        new RemoveFromClusterNodeLabelsRequestPBImpl(proto);
-    try {
-      RemoveFromClusterNodeLabelsResponse response =
-          real.removeFromClusterNodeLabels(request);
-      return ((RemoveFromClusterNodeLabelsResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public GetGroupsForUserResponseProto getGroupsForUser(
+        RpcController controller, GetGroupsForUserRequestProto request)
+    throws ServiceException {
+        String user = request.getUser();
+        try {
+            String[] groups = real.getGroupsForUser(user);
+            GetGroupsForUserResponseProto.Builder responseBuilder =
+                GetGroupsForUserResponseProto.newBuilder();
+            for (String group : groups) {
+                responseBuilder.addGroups(group);
+            }
+            return responseBuilder.build();
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
 
-  @Override
-  public ReplaceLabelsOnNodeResponseProto replaceLabelsOnNodes(
-      RpcController controller, ReplaceLabelsOnNodeRequestProto proto)
-      throws ServiceException {
-    ReplaceLabelsOnNodeRequestPBImpl request =
-        new ReplaceLabelsOnNodeRequestPBImpl(proto);
-    try {
-      ReplaceLabelsOnNodeResponse response = real.replaceLabelsOnNode(request);
-      return ((ReplaceLabelsOnNodeResponsePBImpl) response).getProto();
-    } catch (YarnException e) {
-      throw new ServiceException(e);
-    } catch (IOException e) {
-      throw new ServiceException(e);
+    @Override
+    public UpdateNodeResourceResponseProto updateNodeResource(RpcController controller,
+            UpdateNodeResourceRequestProto proto) throws ServiceException {
+        UpdateNodeResourceRequestPBImpl request =
+            new UpdateNodeResourceRequestPBImpl(proto);
+        try {
+            UpdateNodeResourceResponse response = real.updateNodeResource(request);
+            return ((UpdateNodeResourceResponsePBImpl)response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
     }
-  }
+
+    @Override
+    public AddToClusterNodeLabelsResponseProto addToClusterNodeLabels(
+        RpcController controller, AddToClusterNodeLabelsRequestProto proto)
+    throws ServiceException {
+        AddToClusterNodeLabelsRequestPBImpl request =
+            new AddToClusterNodeLabelsRequestPBImpl(proto);
+        try {
+            AddToClusterNodeLabelsResponse response =
+                real.addToClusterNodeLabels(request);
+            return ((AddToClusterNodeLabelsResponsePBImpl) response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public RemoveFromClusterNodeLabelsResponseProto removeFromClusterNodeLabels(
+        RpcController controller, RemoveFromClusterNodeLabelsRequestProto proto)
+    throws ServiceException {
+        RemoveFromClusterNodeLabelsRequestPBImpl request =
+            new RemoveFromClusterNodeLabelsRequestPBImpl(proto);
+        try {
+            RemoveFromClusterNodeLabelsResponse response =
+                real.removeFromClusterNodeLabels(request);
+            return ((RemoveFromClusterNodeLabelsResponsePBImpl) response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
+
+    @Override
+    public ReplaceLabelsOnNodeResponseProto replaceLabelsOnNodes(
+        RpcController controller, ReplaceLabelsOnNodeRequestProto proto)
+    throws ServiceException {
+        ReplaceLabelsOnNodeRequestPBImpl request =
+            new ReplaceLabelsOnNodeRequestPBImpl(proto);
+        try {
+            ReplaceLabelsOnNodeResponse response = real.replaceLabelsOnNode(request);
+            return ((ReplaceLabelsOnNodeResponsePBImpl) response).getProto();
+        } catch (YarnException e) {
+            throw new ServiceException(e);
+        } catch (IOException e) {
+            throw new ServiceException(e);
+        }
+    }
 }

@@ -33,109 +33,109 @@ import java.io.FileNotFoundException;
  */
 public class TestSwiftFileSystemDirectories extends SwiftFileSystemBaseTest {
 
-  /**
-   * Asserts that a zero byte file has a status of file and not
-   * directory or symlink
-   *
-   * @throws Exception on failures
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testZeroByteFilesAreDirectories() throws Exception {
-    Path src = path("/test/testZeroByteFilesAreFiles");
-    //create a zero byte file
-    SwiftTestUtils.touch(fs, src);
-    SwiftTestUtils.assertIsDirectory(fs, src);
-  }
-
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testNoStatusForMissingDirectories() throws Throwable {
-    Path missing = path("/test/testNoStatusForMissingDirectories");
-    assertPathDoesNotExist("leftover?", missing);
-    try {
-      FileStatus[] statuses = fs.listStatus(missing);
-      //not expected
-      fail("Expected a FileNotFoundException, got the status " + statuses);
-    } catch (FileNotFoundException expected) {
-      //expected
+    /**
+     * Asserts that a zero byte file has a status of file and not
+     * directory or symlink
+     *
+     * @throws Exception on failures
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testZeroByteFilesAreDirectories() throws Exception {
+        Path src = path("/test/testZeroByteFilesAreFiles");
+        //create a zero byte file
+        SwiftTestUtils.touch(fs, src);
+        SwiftTestUtils.assertIsDirectory(fs, src);
     }
-  }
 
-  /**
-   * test that a dir off root has a listStatus() call that
-   * works as expected. and that when a child is added. it changes
-   *
-   * @throws Exception on failures
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDirectoriesOffRootHaveMatchingFileStatus() throws Exception {
-    Path test = path("/test");
-    fs.delete(test, true);
-    mkdirs(test);
-    assertExists("created test directory", test);
-    FileStatus[] statuses = fs.listStatus(test);
-    String statusString = statusToString(test.toString(), statuses);
-    assertEquals("Wrong number of elements in file status " + statusString, 0,
-                 statuses.length);
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testNoStatusForMissingDirectories() throws Throwable {
+        Path missing = path("/test/testNoStatusForMissingDirectories");
+        assertPathDoesNotExist("leftover?", missing);
+        try {
+            FileStatus[] statuses = fs.listStatus(missing);
+            //not expected
+            fail("Expected a FileNotFoundException, got the status " + statuses);
+        } catch (FileNotFoundException expected) {
+            //expected
+        }
+    }
 
-    Path src = path("/test/file");
+    /**
+     * test that a dir off root has a listStatus() call that
+     * works as expected. and that when a child is added. it changes
+     *
+     * @throws Exception on failures
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDirectoriesOffRootHaveMatchingFileStatus() throws Exception {
+        Path test = path("/test");
+        fs.delete(test, true);
+        mkdirs(test);
+        assertExists("created test directory", test);
+        FileStatus[] statuses = fs.listStatus(test);
+        String statusString = statusToString(test.toString(), statuses);
+        assertEquals("Wrong number of elements in file status " + statusString, 0,
+                     statuses.length);
 
-    //create a zero byte file
-    SwiftTestUtils.touch(fs, src);
-    //stat it
-    statuses = fs.listStatus(test);
-    statusString = statusToString(test.toString(), statuses);
-    assertEquals("Wrong number of elements in file status " + statusString, 1,
-                 statuses.length);
-    SwiftFileStatus stat = (SwiftFileStatus) statuses[0];
-    assertTrue("isDir(): Not a directory: " + stat, stat.isDir());
-    extraStatusAssertions(stat);
-  }
+        Path src = path("/test/file");
 
-  /**
-   * test that a dir two levels down has a listStatus() call that
-   * works as expected.
-   *
-   * @throws Exception on failures
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testDirectoriesLowerDownHaveMatchingFileStatus() throws Exception {
-    Path test = path("/test/testDirectoriesLowerDownHaveMatchingFileStatus");
-    fs.delete(test, true);
-    mkdirs(test);
-    assertExists("created test sub directory", test);
-    FileStatus[] statuses = fs.listStatus(test);
-    String statusString = statusToString(test.toString(), statuses);
-    assertEquals("Wrong number of elements in file status " + statusString,0,
-                 statuses.length);
-  }
+        //create a zero byte file
+        SwiftTestUtils.touch(fs, src);
+        //stat it
+        statuses = fs.listStatus(test);
+        statusString = statusToString(test.toString(), statuses);
+        assertEquals("Wrong number of elements in file status " + statusString, 1,
+                     statuses.length);
+        SwiftFileStatus stat = (SwiftFileStatus) statuses[0];
+        assertTrue("isDir(): Not a directory: " + stat, stat.isDir());
+        extraStatusAssertions(stat);
+    }
 
-  private String statusToString(String pathname,
-                                FileStatus[] statuses) {
-    assertNotNull(statuses);
-    return SwiftTestUtils.dumpStats(pathname,statuses);
-  }
+    /**
+     * test that a dir two levels down has a listStatus() call that
+     * works as expected.
+     *
+     * @throws Exception on failures
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testDirectoriesLowerDownHaveMatchingFileStatus() throws Exception {
+        Path test = path("/test/testDirectoriesLowerDownHaveMatchingFileStatus");
+        fs.delete(test, true);
+        mkdirs(test);
+        assertExists("created test sub directory", test);
+        FileStatus[] statuses = fs.listStatus(test);
+        String statusString = statusToString(test.toString(), statuses);
+        assertEquals("Wrong number of elements in file status " + statusString,0,
+                     statuses.length);
+    }
 
-  /**
-   * method for subclasses to add extra assertions
-   * @param stat status to look at
-   */
-  protected void extraStatusAssertions(SwiftFileStatus stat) {
+    private String statusToString(String pathname,
+                                  FileStatus[] statuses) {
+        assertNotNull(statuses);
+        return SwiftTestUtils.dumpStats(pathname,statuses);
+    }
 
-  }
+    /**
+     * method for subclasses to add extra assertions
+     * @param stat status to look at
+     */
+    protected void extraStatusAssertions(SwiftFileStatus stat) {
 
-  /**
-   * Asserts that a zero byte file has a status of file and not
-   * directory or symlink
-   *
-   * @throws Exception on failures
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testMultiByteFilesAreFiles() throws Exception {
-    Path src = path("/test/testMultiByteFilesAreFiles");
-    SwiftTestUtils.writeTextFile(fs, src, "testMultiByteFilesAreFiles", false);
-    assertIsFile(src);
-    FileStatus status = fs.getFileStatus(src);
-    assertFalse(status.isDir());
-  }
+    }
+
+    /**
+     * Asserts that a zero byte file has a status of file and not
+     * directory or symlink
+     *
+     * @throws Exception on failures
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testMultiByteFilesAreFiles() throws Exception {
+        Path src = path("/test/testMultiByteFilesAreFiles");
+        SwiftTestUtils.writeTextFile(fs, src, "testMultiByteFilesAreFiles", false);
+        assertIsFile(src);
+        FileStatus status = fs.getFileStatus(src);
+        assertFalse(status.isDir());
+    }
 
 }

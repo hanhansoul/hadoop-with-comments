@@ -27,71 +27,71 @@ import java.io.IOException;
  * Test creating files, overwrite options &c
  */
 public abstract class AbstractContractDeleteTest extends
-                                                 AbstractFSContractTestBase {
+    AbstractFSContractTestBase {
 
-  @Test
-  public void testDeleteEmptyDirNonRecursive() throws Throwable {
-    Path path = path("testDeleteEmptyDirNonRecursive");
-    mkdirs(path);
-    assertDeleted(path, false);
-  }
-
-  @Test
-  public void testDeleteEmptyDirRecursive() throws Throwable {
-    Path path = path("testDeleteEmptyDirRecursive");
-    mkdirs(path);
-    assertDeleted(path, true);
-  }
-
-  @Test
-  public void testDeleteNonexistentPathRecursive() throws Throwable {
-    Path path = path("testDeleteNonexistentPathRecursive");
-    ContractTestUtils.assertPathDoesNotExist(getFileSystem(), "leftover", path);
-    ContractTestUtils.rejectRootOperation(path);
-    assertFalse("Returned true attempting to delete"
-                + " a nonexistent path " + path,
-                getFileSystem().delete(path, false));
-  }
-
-
-  @Test
-  public void testDeleteNonexistentPathNonRecursive() throws Throwable {
-    Path path = path("testDeleteNonexistentPathNonRecursive");
-    ContractTestUtils.assertPathDoesNotExist(getFileSystem(), "leftover", path);
-    ContractTestUtils.rejectRootOperation(path);
-    assertFalse("Returned true attempting to recursively delete"
-                + " a nonexistent path " + path,
-                getFileSystem().delete(path, false));
-  }
-
-  @Test
-  public void testDeleteNonEmptyDirNonRecursive() throws Throwable {
-    Path path = path("testDeleteNonEmptyDirNonRecursive");
-    mkdirs(path);
-    Path file = new Path(path, "childfile");
-    ContractTestUtils.writeTextFile(getFileSystem(), file, "goodbye, world",
-                                    true);
-    try {
-      ContractTestUtils.rejectRootOperation(path);
-      boolean deleted = getFileSystem().delete(path, false);
-      fail("non recursive delete should have raised an exception," +
-           " but completed with exit code " + deleted);
-    } catch (IOException expected) {
-      //expected
-      handleExpectedException(expected);
+    @Test
+    public void testDeleteEmptyDirNonRecursive() throws Throwable {
+        Path path = path("testDeleteEmptyDirNonRecursive");
+        mkdirs(path);
+        assertDeleted(path, false);
     }
-    ContractTestUtils.assertIsDirectory(getFileSystem(), path);
-  }
 
-  @Test
-  public void testDeleteNonEmptyDirRecursive() throws Throwable {
-    Path path = path("testDeleteNonEmptyDirNonRecursive");
-    mkdirs(path);
-    Path file = new Path(path, "childfile");
-    ContractTestUtils.writeTextFile(getFileSystem(), file, "goodbye, world",
-                                    true);
-    assertDeleted(path, true);
-    ContractTestUtils.assertPathDoesNotExist(getFileSystem(), "not deleted", file);
-  }
+    @Test
+    public void testDeleteEmptyDirRecursive() throws Throwable {
+        Path path = path("testDeleteEmptyDirRecursive");
+        mkdirs(path);
+        assertDeleted(path, true);
+    }
+
+    @Test
+    public void testDeleteNonexistentPathRecursive() throws Throwable {
+        Path path = path("testDeleteNonexistentPathRecursive");
+        ContractTestUtils.assertPathDoesNotExist(getFileSystem(), "leftover", path);
+        ContractTestUtils.rejectRootOperation(path);
+        assertFalse("Returned true attempting to delete"
+                    + " a nonexistent path " + path,
+                    getFileSystem().delete(path, false));
+    }
+
+
+    @Test
+    public void testDeleteNonexistentPathNonRecursive() throws Throwable {
+        Path path = path("testDeleteNonexistentPathNonRecursive");
+        ContractTestUtils.assertPathDoesNotExist(getFileSystem(), "leftover", path);
+        ContractTestUtils.rejectRootOperation(path);
+        assertFalse("Returned true attempting to recursively delete"
+                    + " a nonexistent path " + path,
+                    getFileSystem().delete(path, false));
+    }
+
+    @Test
+    public void testDeleteNonEmptyDirNonRecursive() throws Throwable {
+        Path path = path("testDeleteNonEmptyDirNonRecursive");
+        mkdirs(path);
+        Path file = new Path(path, "childfile");
+        ContractTestUtils.writeTextFile(getFileSystem(), file, "goodbye, world",
+                                        true);
+        try {
+            ContractTestUtils.rejectRootOperation(path);
+            boolean deleted = getFileSystem().delete(path, false);
+            fail("non recursive delete should have raised an exception," +
+                 " but completed with exit code " + deleted);
+        } catch (IOException expected) {
+            //expected
+            handleExpectedException(expected);
+        }
+        ContractTestUtils.assertIsDirectory(getFileSystem(), path);
+    }
+
+    @Test
+    public void testDeleteNonEmptyDirRecursive() throws Throwable {
+        Path path = path("testDeleteNonEmptyDirNonRecursive");
+        mkdirs(path);
+        Path file = new Path(path, "childfile");
+        ContractTestUtils.writeTextFile(getFileSystem(), file, "goodbye, world",
+                                        true);
+        assertDeleted(path, true);
+        ContractTestUtils.assertPathDoesNotExist(getFileSystem(), "not deleted", file);
+    }
 
 }

@@ -25,38 +25,38 @@ package org.apache.hadoop.fs.swift.auth;
  * DO NOT RENAME OR MODIFY FIELDS AND THEIR ACCESSORS.
  */
 public class PasswordAuthenticationRequest extends AuthenticationRequest {
-  /**
-   * Credentials for login
-   */
-  private PasswordCredentials passwordCredentials;
+    /**
+     * Credentials for login
+     */
+    private PasswordCredentials passwordCredentials;
 
-  /**
-   * @param tenantName tenant
-   * @param passwordCredentials password credentials
-   */
-  public PasswordAuthenticationRequest(String tenantName, PasswordCredentials passwordCredentials) {
-    this.tenantName = tenantName;
-    this.passwordCredentials = passwordCredentials;
-  }
+    /**
+     * @param tenantName tenant
+     * @param passwordCredentials password credentials
+     */
+    public PasswordAuthenticationRequest(String tenantName, PasswordCredentials passwordCredentials) {
+        this.tenantName = tenantName;
+        this.passwordCredentials = passwordCredentials;
+    }
 
-  /**
-   * @return credentials for login into Keystone
-   */
-  public PasswordCredentials getPasswordCredentials() {
-    return passwordCredentials;
-  }
+    /**
+     * @return credentials for login into Keystone
+     */
+    public PasswordCredentials getPasswordCredentials() {
+        return passwordCredentials;
+    }
 
-  /**
-   * @param passwordCredentials credentials for login into Keystone
-   */
-  public void setPasswordCredentials(PasswordCredentials passwordCredentials) {
-    this.passwordCredentials = passwordCredentials;
-  }
+    /**
+     * @param passwordCredentials credentials for login into Keystone
+     */
+    public void setPasswordCredentials(PasswordCredentials passwordCredentials) {
+        this.passwordCredentials = passwordCredentials;
+    }
 
-  @Override
-  public String toString() {
-    return "Authenticate as " +
-           "tenant '" + tenantName + "' "
-           + passwordCredentials;
-  }
+    @Override
+    public String toString() {
+        return "Authenticate as " +
+               "tenant '" + tenantName + "' "
+               + passwordCredentials;
+    }
 }

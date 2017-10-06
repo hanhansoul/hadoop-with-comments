@@ -24,15 +24,15 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 
 public class ContainerEvent extends AbstractEvent<ContainerEventType> {
 
-  private final ContainerId containerID;
+    private final ContainerId containerID;
 
-  public ContainerEvent(ContainerId cID, ContainerEventType eventType) {
-    super(eventType);
-    this.containerID = cID;
-  }
+    public ContainerEvent(ContainerId cID, ContainerEventType eventType) {
+        super(eventType);
+        this.containerID = cID;
+    }
 
-  public ContainerId getContainerID() {
-    return containerID;
-  }
+    public ContainerId getContainerID() {
+        return containerID;
+    }
 
 }

@@ -47,72 +47,72 @@ import org.junit.Test;
 
 public class TestApplicationMasterServiceProtocolOnHA
     extends ProtocolHATestBase {
-  private ApplicationMasterProtocol amClient;
-  private ApplicationAttemptId attemptId ;
+    private ApplicationMasterProtocol amClient;
+    private ApplicationAttemptId attemptId ;
 
-  @Before
-  public void initialize() throws Exception {
-    startHACluster(0, false, false, true);
-    attemptId = this.cluster.createFakeApplicationAttemptId();
-    amClient = ClientRMProxy
-        .createRMProxy(this.conf, ApplicationMasterProtocol.class);
+    @Before
+    public void initialize() throws Exception {
+        startHACluster(0, false, false, true);
+        attemptId = this.cluster.createFakeApplicationAttemptId();
+        amClient = ClientRMProxy
+                   .createRMProxy(this.conf, ApplicationMasterProtocol.class);
 
-    Token<AMRMTokenIdentifier> appToken =
-        this.cluster.getResourceManager().getRMContext()
-          .getAMRMTokenSecretManager().createAndGetAMRMToken(attemptId);
-    appToken.setService(ClientRMProxy.getAMRMTokenService(conf));
-    UserGroupInformation.setLoginUser(UserGroupInformation
-        .createRemoteUser(UserGroupInformation.getCurrentUser()
-            .getUserName()));
-    UserGroupInformation.getCurrentUser().addToken(appToken);
-    syncToken(appToken);
-  }
-
-  @After
-  public void shutDown() {
-    if(this.amClient != null) {
-      RPC.stopProxy(this.amClient);
+        Token<AMRMTokenIdentifier> appToken =
+            this.cluster.getResourceManager().getRMContext()
+            .getAMRMTokenSecretManager().createAndGetAMRMToken(attemptId);
+        appToken.setService(ClientRMProxy.getAMRMTokenService(conf));
+        UserGroupInformation.setLoginUser(UserGroupInformation
+                                          .createRemoteUser(UserGroupInformation.getCurrentUser()
+                                                  .getUserName()));
+        UserGroupInformation.getCurrentUser().addToken(appToken);
+        syncToken(appToken);
     }
-  }
 
-  @Test(timeout = 15000)
-  public void testRegisterApplicationMasterOnHA() throws YarnException,
-      IOException {
-    RegisterApplicationMasterRequest request =
-        RegisterApplicationMasterRequest.newInstance("localhost", 0, "");
-    RegisterApplicationMasterResponse response =
-        amClient.registerApplicationMaster(request);
-    Assert.assertEquals(response,
-        this.cluster.createFakeRegisterApplicationMasterResponse());
-  }
-
-  @Test(timeout = 15000)
-  public void testFinishApplicationMasterOnHA() throws YarnException,
-      IOException {
-    FinishApplicationMasterRequest request =
-        FinishApplicationMasterRequest.newInstance(
-            FinalApplicationStatus.SUCCEEDED, "", "");
-    FinishApplicationMasterResponse response =
-        amClient.finishApplicationMaster(request);
-    Assert.assertEquals(response,
-        this.cluster.createFakeFinishApplicationMasterResponse());
-  }
-
-  @Test(timeout = 15000)
-  public void testAllocateOnHA() throws YarnException, IOException {
-    AllocateRequest request = AllocateRequest.newInstance(0, 50f,
-        new ArrayList<ResourceRequest>(),
-        new ArrayList<ContainerId>(),
-        ResourceBlacklistRequest.newInstance(new ArrayList<String>(),
-            new ArrayList<String>()));
-    AllocateResponse response = amClient.allocate(request);
-    Assert.assertEquals(response, this.cluster.createFakeAllocateResponse());
-  }
-
-  private void syncToken(Token<AMRMTokenIdentifier> token) throws IOException {
-    for (int i = 0; i < this.cluster.getNumOfResourceManager(); i++) {
-      this.cluster.getResourceManager(i).getRMContext()
-          .getAMRMTokenSecretManager().addPersistedPassword(token);
+    @After
+    public void shutDown() {
+        if(this.amClient != null) {
+            RPC.stopProxy(this.amClient);
+        }
     }
-  }
+
+    @Test(timeout = 15000)
+    public void testRegisterApplicationMasterOnHA() throws YarnException,
+        IOException {
+        RegisterApplicationMasterRequest request =
+            RegisterApplicationMasterRequest.newInstance("localhost", 0, "");
+        RegisterApplicationMasterResponse response =
+            amClient.registerApplicationMaster(request);
+        Assert.assertEquals(response,
+                            this.cluster.createFakeRegisterApplicationMasterResponse());
+    }
+
+    @Test(timeout = 15000)
+    public void testFinishApplicationMasterOnHA() throws YarnException,
+        IOException {
+        FinishApplicationMasterRequest request =
+            FinishApplicationMasterRequest.newInstance(
+                FinalApplicationStatus.SUCCEEDED, "", "");
+        FinishApplicationMasterResponse response =
+            amClient.finishApplicationMaster(request);
+        Assert.assertEquals(response,
+                            this.cluster.createFakeFinishApplicationMasterResponse());
+    }
+
+    @Test(timeout = 15000)
+    public void testAllocateOnHA() throws YarnException, IOException {
+        AllocateRequest request = AllocateRequest.newInstance(0, 50f,
+                                  new ArrayList<ResourceRequest>(),
+                                  new ArrayList<ContainerId>(),
+                                  ResourceBlacklistRequest.newInstance(new ArrayList<String>(),
+                                          new ArrayList<String>()));
+        AllocateResponse response = amClient.allocate(request);
+        Assert.assertEquals(response, this.cluster.createFakeAllocateResponse());
+    }
+
+    private void syncToken(Token<AMRMTokenIdentifier> token) throws IOException {
+        for (int i = 0; i < this.cluster.getNumOfResourceManager(); i++) {
+            this.cluster.getResourceManager(i).getRMContext()
+            .getAMRMTokenSecretManager().addPersistedPassword(token);
+        }
+    }
 }

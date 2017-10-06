@@ -44,120 +44,120 @@ import org.junit.Test;
  * to get confused.
  */
 public class TestReadPastBuffer extends SwiftFileSystemBaseTest {
-  protected static final Log LOG =
-    LogFactory.getLog(TestReadPastBuffer.class);
-  public static final int SWIFT_READ_BLOCKSIZE = 4096;
-  public static final int SEEK_FILE_LEN = SWIFT_READ_BLOCKSIZE * 2;
+    protected static final Log LOG =
+        LogFactory.getLog(TestReadPastBuffer.class);
+    public static final int SWIFT_READ_BLOCKSIZE = 4096;
+    public static final int SEEK_FILE_LEN = SWIFT_READ_BLOCKSIZE * 2;
 
-  private Path testPath;
-  private Path readFile;
-  private Path zeroByteFile;
-  private FSDataInputStream instream;
+    private Path testPath;
+    private Path readFile;
+    private Path zeroByteFile;
+    private FSDataInputStream instream;
 
 
-  /**
-   * Get a configuration which a small blocksize reported to callers
-   * @return a configuration for this test
-   */
-  @Override
-  public Configuration getConf() {
-    Configuration conf = super.getConf();
-    /*
-     * set to 4KB
+    /**
+     * Get a configuration which a small blocksize reported to callers
+     * @return a configuration for this test
      */
-    conf.setInt(SwiftProtocolConstants.SWIFT_BLOCKSIZE, SWIFT_READ_BLOCKSIZE);
-    return conf;
-  }
+    @Override
+    public Configuration getConf() {
+        Configuration conf = super.getConf();
+        /*
+         * set to 4KB
+         */
+        conf.setInt(SwiftProtocolConstants.SWIFT_BLOCKSIZE, SWIFT_READ_BLOCKSIZE);
+        return conf;
+    }
 
-  /**
-   * Setup creates dirs under test/hadoop
-   *
-   * @throws Exception
-   */
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    byte[] block = SwiftTestUtils.dataset(SEEK_FILE_LEN, 0, 255);
+    /**
+     * Setup creates dirs under test/hadoop
+     *
+     * @throws Exception
+     */
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+        byte[] block = SwiftTestUtils.dataset(SEEK_FILE_LEN, 0, 255);
 
-    //delete the test directory
-    testPath = path("/test");
-    readFile = new Path(testPath, "TestReadPastBuffer.txt");
-    createFile(readFile, block);
-  }
+        //delete the test directory
+        testPath = path("/test");
+        readFile = new Path(testPath, "TestReadPastBuffer.txt");
+        createFile(readFile, block);
+    }
 
-  @After
-  public void cleanFile() {
-    IOUtils.closeStream(instream);
-    instream = null;
-  }
+    @After
+    public void cleanFile() {
+        IOUtils.closeStream(instream);
+        instream = null;
+    }
 
-  /**
-   * Create a config with a 1KB request size
-   * @return a config
-   */
-  @Override
-  protected Configuration createConfiguration() {
-    Configuration conf = super.createConfiguration();
-    conf.set(SwiftProtocolConstants.SWIFT_REQUEST_SIZE, "1");
-    return conf;
-  }
+    /**
+     * Create a config with a 1KB request size
+     * @return a config
+     */
+    @Override
+    protected Configuration createConfiguration() {
+        Configuration conf = super.createConfiguration();
+        conf.set(SwiftProtocolConstants.SWIFT_REQUEST_SIZE, "1");
+        return conf;
+    }
 
-  /**
-   * Seek past the buffer then read
-   * @throws Throwable problems
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testSeekAndReadPastEndOfFile() throws Throwable {
-    instream = fs.open(readFile);
-    assertEquals(0, instream.getPos());
-    //expect that seek to 0 works
-    //go just before the end
-    instream.seek(SEEK_FILE_LEN - 2);
-    assertTrue("Premature EOF", instream.read() != -1);
-    assertTrue("Premature EOF", instream.read() != -1);
-    assertMinusOne("read past end of file", instream.read());
-  }
+    /**
+     * Seek past the buffer then read
+     * @throws Throwable problems
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testSeekAndReadPastEndOfFile() throws Throwable {
+        instream = fs.open(readFile);
+        assertEquals(0, instream.getPos());
+        //expect that seek to 0 works
+        //go just before the end
+        instream.seek(SEEK_FILE_LEN - 2);
+        assertTrue("Premature EOF", instream.read() != -1);
+        assertTrue("Premature EOF", instream.read() != -1);
+        assertMinusOne("read past end of file", instream.read());
+    }
 
-  /**
-   * Seek past the buffer and attempt a read(buffer)
-   * @throws Throwable failures
-   */
-  @Test(timeout = SWIFT_TEST_TIMEOUT)
-  public void testSeekBulkReadPastEndOfFile() throws Throwable {
-    instream = fs.open(readFile);
-    assertEquals(0, instream.getPos());
-    //go just before the end
-    instream.seek(SEEK_FILE_LEN - 1);
-    byte[] buffer = new byte[1];
-    int result = instream.read(buffer, 0, 1);
-    //next byte is expected to fail
-    result = instream.read(buffer, 0, 1);
-    assertMinusOne("read past end of file", result);
-    //and this one
-    result = instream.read(buffer, 0, 1);
-    assertMinusOne("read past end of file", result);
+    /**
+     * Seek past the buffer and attempt a read(buffer)
+     * @throws Throwable failures
+     */
+    @Test(timeout = SWIFT_TEST_TIMEOUT)
+    public void testSeekBulkReadPastEndOfFile() throws Throwable {
+        instream = fs.open(readFile);
+        assertEquals(0, instream.getPos());
+        //go just before the end
+        instream.seek(SEEK_FILE_LEN - 1);
+        byte[] buffer = new byte[1];
+        int result = instream.read(buffer, 0, 1);
+        //next byte is expected to fail
+        result = instream.read(buffer, 0, 1);
+        assertMinusOne("read past end of file", result);
+        //and this one
+        result = instream.read(buffer, 0, 1);
+        assertMinusOne("read past end of file", result);
 
-    //now do an 0-byte read and expect it to
-    //to be checked first
-    result = instream.read(buffer, 0, 0);
-    assertEquals("EOF checks coming before read range check", 0, result);
+        //now do an 0-byte read and expect it to
+        //to be checked first
+        result = instream.read(buffer, 0, 0);
+        assertEquals("EOF checks coming before read range check", 0, result);
 
-  }
+    }
 
 
 
-  /**
-   * Read past the buffer size byte by byte and verify that it refreshed
-   * @throws Throwable
-   */
-  @Test
-  public void testReadPastBufferSize() throws Throwable {
-    instream = fs.open(readFile);
+    /**
+     * Read past the buffer size byte by byte and verify that it refreshed
+     * @throws Throwable
+     */
+    @Test
+    public void testReadPastBufferSize() throws Throwable {
+        instream = fs.open(readFile);
 
-    while (instream.read() != -1);
-    //here we have gone past the end of a file and its buffer. Now try again
-    assertMinusOne("reading after the (large) file was read: "+ instream,
-                   instream.read());
-  }
+        while (instream.read() != -1);
+        //here we have gone past the end of a file and its buffer. Now try again
+        assertMinusOne("reading after the (large) file was read: "+ instream,
+                       instream.read());
+    }
 }
 

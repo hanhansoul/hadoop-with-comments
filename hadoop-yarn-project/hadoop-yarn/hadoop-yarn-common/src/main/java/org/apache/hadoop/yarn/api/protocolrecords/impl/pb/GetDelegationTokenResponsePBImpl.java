@@ -33,99 +33,99 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class GetDelegationTokenResponsePBImpl extends GetDelegationTokenResponse {
 
-  Token appToken;
+    Token appToken;
 
 
-  GetDelegationTokenResponseProto proto = 
-      GetDelegationTokenResponseProto.getDefaultInstance();
-  GetDelegationTokenResponseProto.Builder builder = null;
-  boolean viaProto = false;
+    GetDelegationTokenResponseProto proto =
+        GetDelegationTokenResponseProto.getDefaultInstance();
+    GetDelegationTokenResponseProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public GetDelegationTokenResponsePBImpl() {
-    builder = GetDelegationTokenResponseProto.newBuilder();
-  }
-
-  public GetDelegationTokenResponsePBImpl (
-      GetDelegationTokenResponseProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  @Override
-  public Token getRMDelegationToken() {
-    GetDelegationTokenResponseProtoOrBuilder p = viaProto ? proto : builder;
-    if (this.appToken != null) {
-      return this.appToken;
+    public GetDelegationTokenResponsePBImpl() {
+        builder = GetDelegationTokenResponseProto.newBuilder();
     }
-    if (!p.hasToken()) {
-      return null;
+
+    public GetDelegationTokenResponsePBImpl (
+        GetDelegationTokenResponseProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    this.appToken = convertFromProtoFormat(p.getToken());
-    return this.appToken;  
-  }
 
-  @Override
-  public void setRMDelegationToken(Token appToken) {
-    maybeInitBuilder();
-    if (appToken == null) 
-      builder.clearToken();
-    this.appToken = appToken;
-  }
-
-  public GetDelegationTokenResponseProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    @Override
+    public Token getRMDelegationToken() {
+        GetDelegationTokenResponseProtoOrBuilder p = viaProto ? proto : builder;
+        if (this.appToken != null) {
+            return this.appToken;
+        }
+        if (!p.hasToken()) {
+            return null;
+        }
+        this.appToken = convertFromProtoFormat(p.getToken());
+        return this.appToken;
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
-
-  private void mergeLocalToBuilder() {
-    if (appToken != null) {
-      builder.setToken(convertToProtoFormat(this.appToken));
+    @Override
+    public void setRMDelegationToken(Token appToken) {
+        maybeInitBuilder();
+        if (appToken == null)
+            builder.clearToken();
+        this.appToken = appToken;
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto) 
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = GetDelegationTokenResponseProto.newBuilder(proto);
+    public GetDelegationTokenResponseProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    viaProto = false;
-  }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
+
+    private void mergeLocalToBuilder() {
+        if (appToken != null) {
+            builder.setToken(convertToProtoFormat(this.appToken));
+        }
+    }
+
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
+    }
+
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = GetDelegationTokenResponseProto.newBuilder(proto);
+        }
+        viaProto = false;
+    }
 
 
-  private TokenPBImpl convertFromProtoFormat(TokenProto p) {
-    return new TokenPBImpl(p);
-  }
+    private TokenPBImpl convertFromProtoFormat(TokenProto p) {
+        return new TokenPBImpl(p);
+    }
 
-  private TokenProto convertToProtoFormat(Token t) {
-    return ((TokenPBImpl)t).getProto();
-  }
+    private TokenProto convertToProtoFormat(Token t) {
+        return ((TokenPBImpl)t).getProto();
+    }
 }

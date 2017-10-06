@@ -35,37 +35,37 @@ import org.apache.hadoop.yarn.util.Clock;
 
 @SuppressWarnings({ "rawtypes" })
 public class ReduceTaskImpl extends TaskImpl {
-  
-  private final int numMapTasks;
 
-  public ReduceTaskImpl(JobId jobId, int partition,
-      EventHandler eventHandler, Path jobFile, JobConf conf,
-      int numMapTasks, TaskAttemptListener taskAttemptListener,
-      Token<JobTokenIdentifier> jobToken,
-      Credentials credentials, Clock clock,
-      int appAttemptId, MRAppMetrics metrics, AppContext appContext) {
-    super(jobId, TaskType.REDUCE, partition, eventHandler, jobFile, conf,
-        taskAttemptListener, jobToken, credentials, clock,
-        appAttemptId, metrics, appContext);
-    this.numMapTasks = numMapTasks;
-  }
+    private final int numMapTasks;
 
-  @Override
-  protected int getMaxAttempts() {
-    return conf.getInt(MRJobConfig.REDUCE_MAX_ATTEMPTS, 4);
-  }
+    public ReduceTaskImpl(JobId jobId, int partition,
+                          EventHandler eventHandler, Path jobFile, JobConf conf,
+                          int numMapTasks, TaskAttemptListener taskAttemptListener,
+                          Token<JobTokenIdentifier> jobToken,
+                          Credentials credentials, Clock clock,
+                          int appAttemptId, MRAppMetrics metrics, AppContext appContext) {
+        super(jobId, TaskType.REDUCE, partition, eventHandler, jobFile, conf,
+              taskAttemptListener, jobToken, credentials, clock,
+              appAttemptId, metrics, appContext);
+        this.numMapTasks = numMapTasks;
+    }
 
-  @Override
-  protected TaskAttemptImpl createAttempt() {
-    return new ReduceTaskAttemptImpl(getID(), nextAttemptNumber,
-        eventHandler, jobFile,
-        partition, numMapTasks, conf, taskAttemptListener,
-        jobToken, credentials, clock, appContext);
-  }
+    @Override
+    protected int getMaxAttempts() {
+        return conf.getInt(MRJobConfig.REDUCE_MAX_ATTEMPTS, 4);
+    }
 
-  @Override
-  public TaskType getType() {
-    return TaskType.REDUCE;
-  }
+    @Override
+    protected TaskAttemptImpl createAttempt() {
+        return new ReduceTaskAttemptImpl(getID(), nextAttemptNumber,
+                                         eventHandler, jobFile,
+                                         partition, numMapTasks, conf, taskAttemptListener,
+                                         jobToken, credentials, clock, appContext);
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.REDUCE;
+    }
 
 }

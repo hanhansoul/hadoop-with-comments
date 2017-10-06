@@ -27,17 +27,17 @@ import org.apache.hadoop.lib.lang.XException;
 @InterfaceAudience.Private
 public class ServiceException extends ServerException {
 
-  /**
-   * Creates an service exception using the specified error code.
-   * The exception message is resolved using the error code template
-   * and the passed parameters.
-   *
-   * @param error error code for the XException.
-   * @param params parameters to use when creating the error message
-   * with the error code template.
-   */
-  public ServiceException(XException.ERROR error, Object... params) {
-    super(error, params);
-  }
+    /**
+     * Creates an service exception using the specified error code.
+     * The exception message is resolved using the error code template
+     * and the passed parameters.
+     *
+     * @param error error code for the XException.
+     * @param params parameters to use when creating the error message
+     * with the error code template.
+     */
+    public ServiceException(XException.ERROR error, Object... params) {
+        super(error, params);
+    }
 
 }

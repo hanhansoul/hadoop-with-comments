@@ -39,75 +39,75 @@ import java.io.File;
 import java.io.IOException;
 
 public class AbstractZKRegistryTest extends RegistryTestHelper {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(AbstractZKRegistryTest.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(AbstractZKRegistryTest.class);
 
-  private static final AddingCompositeService servicesToTeardown =
-      new AddingCompositeService("teardown");
-  // static initializer guarantees it is always started
-  // ahead of any @BeforeClass methods
-  static {
-    servicesToTeardown.init(new Configuration());
-    servicesToTeardown.start();
-  }
+    private static final AddingCompositeService servicesToTeardown =
+        new AddingCompositeService("teardown");
+    // static initializer guarantees it is always started
+    // ahead of any @BeforeClass methods
+    static {
+        servicesToTeardown.init(new Configuration());
+        servicesToTeardown.start();
+    }
 
-  @Rule
-  public final Timeout testTimeout = new Timeout(10000);
+    @Rule
+    public final Timeout testTimeout = new Timeout(10000);
 
-  @Rule
-  public TestName methodName = new TestName();
+    @Rule
+    public TestName methodName = new TestName();
 
-  protected static void addToTeardown(Service svc) {
-    servicesToTeardown.addService(svc);
-  }
+    protected static void addToTeardown(Service svc) {
+        servicesToTeardown.addService(svc);
+    }
 
-  @AfterClass
-  public static void teardownServices() throws IOException {
-    describe(LOG, "teardown of static services");
-    servicesToTeardown.close();
-  }
+    @AfterClass
+    public static void teardownServices() throws IOException {
+        describe(LOG, "teardown of static services");
+        servicesToTeardown.close();
+    }
 
-  protected static MicroZookeeperService zookeeper;
+    protected static MicroZookeeperService zookeeper;
 
 
-  @BeforeClass
-  public static void createZKServer() throws Exception {
-    File zkDir = new File("target/zookeeper");
-    FileUtils.deleteDirectory(zkDir);
-    assertTrue(zkDir.mkdirs());
-    zookeeper = new MicroZookeeperService("InMemoryZKService");
-    YarnConfiguration conf = new YarnConfiguration();
-    conf.set(MicroZookeeperServiceKeys.KEY_ZKSERVICE_DIR, zkDir.getAbsolutePath());
-    zookeeper.init(conf);
-    zookeeper.start();
-    addToTeardown(zookeeper);
-  }
+    @BeforeClass
+    public static void createZKServer() throws Exception {
+        File zkDir = new File("target/zookeeper");
+        FileUtils.deleteDirectory(zkDir);
+        assertTrue(zkDir.mkdirs());
+        zookeeper = new MicroZookeeperService("InMemoryZKService");
+        YarnConfiguration conf = new YarnConfiguration();
+        conf.set(MicroZookeeperServiceKeys.KEY_ZKSERVICE_DIR, zkDir.getAbsolutePath());
+        zookeeper.init(conf);
+        zookeeper.start();
+        addToTeardown(zookeeper);
+    }
 
-  /**
-   * give our thread a name
-   */
-  @Before
-  public void nameThread() {
-    Thread.currentThread().setName("JUnit");
-  }
+    /**
+     * give our thread a name
+     */
+    @Before
+    public void nameThread() {
+        Thread.currentThread().setName("JUnit");
+    }
 
-  /**
-   * Returns the connection string to use
-   *
-   * @return connection string
-   */
-  public String getConnectString() {
-    return zookeeper.getConnectionString();
-  }
+    /**
+     * Returns the connection string to use
+     *
+     * @return connection string
+     */
+    public String getConnectString() {
+        return zookeeper.getConnectionString();
+    }
 
-  public YarnConfiguration createRegistryConfiguration() {
-    YarnConfiguration conf = new YarnConfiguration();
-    conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_CONNECTION_TIMEOUT, 1000);
-    conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_RETRY_INTERVAL, 500);
-    conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_RETRY_TIMES, 10);
-    conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_RETRY_CEILING, 10);
-    conf.set(RegistryConstants.KEY_REGISTRY_ZK_QUORUM,
-        zookeeper.getConnectionString());
-    return conf;
-  }
+    public YarnConfiguration createRegistryConfiguration() {
+        YarnConfiguration conf = new YarnConfiguration();
+        conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_CONNECTION_TIMEOUT, 1000);
+        conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_RETRY_INTERVAL, 500);
+        conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_RETRY_TIMES, 10);
+        conf.setInt(RegistryConstants.KEY_REGISTRY_ZK_RETRY_CEILING, 10);
+        conf.set(RegistryConstants.KEY_REGISTRY_ZK_QUORUM,
+                 zookeeper.getConnectionString());
+        return conf;
+    }
 }

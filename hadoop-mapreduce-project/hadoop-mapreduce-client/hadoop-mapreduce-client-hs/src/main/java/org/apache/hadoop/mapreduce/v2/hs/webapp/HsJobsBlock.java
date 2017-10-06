@@ -37,72 +37,72 @@ import com.google.inject.Inject;
  * Render all of the jobs that the history server is aware of.
  */
 public class HsJobsBlock extends HtmlBlock {
-  final AppContext appContext;
-  final SimpleDateFormat dateFormat =
-    new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
+    final AppContext appContext;
+    final SimpleDateFormat dateFormat =
+        new SimpleDateFormat("yyyy.MM.dd HH:mm:ss z");
 
-  @Inject HsJobsBlock(AppContext appCtx) {
-    appContext = appCtx;
-  }
-
-  /*
-   * (non-Javadoc)
-   * @see org.apache.hadoop.yarn.webapp.view.HtmlBlock#render(org.apache.hadoop.yarn.webapp.view.HtmlBlock.Block)
-   */
-  @Override protected void render(Block html) {
-    TBODY<TABLE<Hamlet>> tbody = html.
-      h2("Retired Jobs").
-      table("#jobs").
-        thead().
-          tr().
-            th("Submit Time").
-            th("Start Time").
-            th("Finish Time").
-            th(".id", "Job ID").
-            th(".name", "Name").
-            th("User").
-            th("Queue").
-            th(".state", "State").
-            th("Maps Total").
-            th("Maps Completed").
-            th("Reduces Total").
-            th("Reduces Completed")._()._().
-        tbody();
-    LOG.info("Getting list of all Jobs.");
-    // Write all the data into a JavaScript array of arrays for JQuery
-    // DataTables to display
-    StringBuilder jobsTableData = new StringBuilder("[\n");
-    for (Job j : appContext.getAllJobs().values()) {
-      JobInfo job = new JobInfo(j);
-      jobsTableData.append("[\"")
-      .append(dateFormat.format(new Date(job.getSubmitTime()))).append("\",\"")
-      .append(dateFormat.format(new Date(job.getStartTime()))).append("\",\"")
-      .append(dateFormat.format(new Date(job.getFinishTime()))).append("\",\"")
-      .append("<a href='").append(url("job", job.getId())).append("'>")
-      .append(job.getId()).append("</a>\",\"")
-      .append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
-        job.getName()))).append("\",\"")
-      .append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
-        job.getUserName()))).append("\",\"")
-      .append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
-        job.getQueueName()))).append("\",\"")
-      .append(job.getState()).append("\",\"")
-      .append(String.valueOf(job.getMapsTotal())).append("\",\"")
-      .append(String.valueOf(job.getMapsCompleted())).append("\",\"")
-      .append(String.valueOf(job.getReducesTotal())).append("\",\"")
-      .append(String.valueOf(job.getReducesCompleted())).append("\"],\n");
+    @Inject HsJobsBlock(AppContext appCtx) {
+        appContext = appCtx;
     }
 
-    //Remove the last comma and close off the array of arrays
-    if(jobsTableData.charAt(jobsTableData.length() - 2) == ',') {
-      jobsTableData.delete(jobsTableData.length()-2, jobsTableData.length()-1);
-    }
-    jobsTableData.append("]");
-    html.script().$type("text/javascript").
-    _("var jobsTableData=" + jobsTableData)._();
-    tbody._().
-    tfoot().
-      tr().
+    /*
+     * (non-Javadoc)
+     * @see org.apache.hadoop.yarn.webapp.view.HtmlBlock#render(org.apache.hadoop.yarn.webapp.view.HtmlBlock.Block)
+     */
+    @Override protected void render(Block html) {
+        TBODY<TABLE<Hamlet>> tbody = html.
+                                     h2("Retired Jobs").
+                                     table("#jobs").
+                                     thead().
+                                     tr().
+                                     th("Submit Time").
+                                     th("Start Time").
+                                     th("Finish Time").
+                                     th(".id", "Job ID").
+                                     th(".name", "Name").
+                                     th("User").
+                                     th("Queue").
+                                     th(".state", "State").
+                                     th("Maps Total").
+                                     th("Maps Completed").
+                                     th("Reduces Total").
+                                     th("Reduces Completed")._()._().
+                                     tbody();
+        LOG.info("Getting list of all Jobs.");
+        // Write all the data into a JavaScript array of arrays for JQuery
+        // DataTables to display
+        StringBuilder jobsTableData = new StringBuilder("[\n");
+        for (Job j : appContext.getAllJobs().values()) {
+            JobInfo job = new JobInfo(j);
+            jobsTableData.append("[\"")
+            .append(dateFormat.format(new Date(job.getSubmitTime()))).append("\",\"")
+            .append(dateFormat.format(new Date(job.getStartTime()))).append("\",\"")
+            .append(dateFormat.format(new Date(job.getFinishTime()))).append("\",\"")
+            .append("<a href='").append(url("job", job.getId())).append("'>")
+            .append(job.getId()).append("</a>\",\"")
+            .append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
+                        job.getName()))).append("\",\"")
+            .append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
+                        job.getUserName()))).append("\",\"")
+            .append(StringEscapeUtils.escapeJavaScript(StringEscapeUtils.escapeHtml(
+                        job.getQueueName()))).append("\",\"")
+            .append(job.getState()).append("\",\"")
+            .append(String.valueOf(job.getMapsTotal())).append("\",\"")
+            .append(String.valueOf(job.getMapsCompleted())).append("\",\"")
+            .append(String.valueOf(job.getReducesTotal())).append("\",\"")
+            .append(String.valueOf(job.getReducesCompleted())).append("\"],\n");
+        }
+
+        //Remove the last comma and close off the array of arrays
+        if(jobsTableData.charAt(jobsTableData.length() - 2) == ',') {
+            jobsTableData.delete(jobsTableData.length()-2, jobsTableData.length()-1);
+        }
+        jobsTableData.append("]");
+        html.script().$type("text/javascript").
+        _("var jobsTableData=" + jobsTableData)._();
+        tbody._().
+        tfoot().
+        tr().
         th().input("search_init").$type(InputType.text).$name("submit_time").$value("Submit Time")._()._().
         th().input("search_init").$type(InputType.text).$name("start_time").$value("Start Time")._()._().
         th().input("search_init").$type(InputType.text).$name("finish_time").$value("Finish Time")._()._().
@@ -116,7 +116,7 @@ public class HsJobsBlock extends HtmlBlock {
         th().input("search_init").$type(InputType.text).$name("start_time").$value("Reduces Total")._()._().
         th().input("search_init").$type(InputType.text).$name("start_time").$value("Reduces Completed")._()._().
         _().
-      _().
-    _();
-  }
+        _().
+        _();
+    }
 }

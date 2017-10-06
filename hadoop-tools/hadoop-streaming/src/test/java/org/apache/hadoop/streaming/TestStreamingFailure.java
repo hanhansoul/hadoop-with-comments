@@ -25,31 +25,29 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * This class tests if hadoopStreaming returns Exception 
+ * This class tests if hadoopStreaming returns Exception
  * on failure when submitted an invalid/failed job
  * The test case provides an invalid input file for map/reduce job as
  * a unit test case
  */
-public class TestStreamingFailure extends TestStreaming
-{
+public class TestStreamingFailure extends TestStreaming {
 
-  protected File INVALID_INPUT_FILE;
+    protected File INVALID_INPUT_FILE;
 
-  public TestStreamingFailure() throws IOException
-  {
-    INVALID_INPUT_FILE = new File("invalid_input.txt");
-  }
+    public TestStreamingFailure() throws IOException {
+        INVALID_INPUT_FILE = new File("invalid_input.txt");
+    }
 
-  @Override
-  protected void setInputOutput() {
-    inputFile = INVALID_INPUT_FILE.getAbsolutePath();
-    outDir = OUTPUT_DIR.getAbsolutePath();
-  }
+    @Override
+    protected void setInputOutput() {
+        inputFile = INVALID_INPUT_FILE.getAbsolutePath();
+        outDir = OUTPUT_DIR.getAbsolutePath();
+    }
 
-  @Override
-  @Test
-  public void testCommandLine() throws IOException {
-    int returnStatus = runStreamJob();
-    assertEquals("Streaming Job Failure code expected", 5, returnStatus);
-  }
+    @Override
+    @Test
+    public void testCommandLine() throws IOException {
+        int returnStatus = runStreamJob();
+        assertEquals("Streaming Job Failure code expected", 5, returnStatus);
+    }
 }

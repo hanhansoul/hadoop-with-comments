@@ -27,39 +27,39 @@ import com.google.inject.Inject;
 
 public class NavBlock extends HtmlBlock implements YarnWebParams {
 
-  private Configuration conf;
+    private Configuration conf;
 
-  @Inject
-  public NavBlock(Configuration conf) {
-	 this.conf = conf;
-  }
-  
-  @Override
-  protected void render(Block html) {
-	
-    String RMWebAppURL =
-        WebAppUtils.getResolvedRMWebAppURLWithScheme(this.conf);
-	  html
-      .div("#nav")
-      .h3()._("ResourceManager")._()
+    @Inject
+    public NavBlock(Configuration conf) {
+        this.conf = conf;
+    }
+
+    @Override
+    protected void render(Block html) {
+
+        String RMWebAppURL =
+            WebAppUtils.getResolvedRMWebAppURLWithScheme(this.conf);
+        html
+        .div("#nav")
+        .h3()._("ResourceManager")._()
         .ul()
-          .li().a(RMWebAppURL, "RM Home")._()._()
-      .h3()._("NodeManager")._() // TODO: Problem if no header like this
+        .li().a(RMWebAppURL, "RM Home")._()._()
+        .h3()._("NodeManager")._() // TODO: Problem if no header like this
         .ul()
-          .li()
-            .a(url("node"), "Node Information")._()
-          .li()
-            .a(url("allApplications"), "List of Applications")
-            ._()
-          .li()
-            .a(url("allContainers"), "List of Containers")._()
+        .li()
+        .a(url("node"), "Node Information")._()
+        .li()
+        .a(url("allApplications"), "List of Applications")
         ._()
-      .h3("Tools")
+        .li()
+        .a(url("allContainers"), "List of Containers")._()
+        ._()
+        .h3("Tools")
         .ul()
-          .li().a("/conf", "Configuration")._()
-          .li().a("/logs", "Local logs")._()
-          .li().a("/stacks", "Server stacks")._()
-          .li().a("/metrics", "Server metrics")._()._()._();
-  }
+        .li().a("/conf", "Configuration")._()
+        .li().a("/logs", "Local logs")._()
+        .li().a("/stacks", "Server stacks")._()
+        .li().a("/metrics", "Server metrics")._()._()._();
+    }
 
 }

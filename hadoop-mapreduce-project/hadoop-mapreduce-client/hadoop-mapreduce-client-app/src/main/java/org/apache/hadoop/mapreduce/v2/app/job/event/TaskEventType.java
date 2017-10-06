@@ -23,20 +23,20 @@ package org.apache.hadoop.mapreduce.v2.app.job.event;
  */
 public enum TaskEventType {
 
-  //Producer:Client, Job
-  T_KILL,
+    //Producer:Client, Job
+    T_KILL,
 
-  //Producer:Job
-  T_SCHEDULE,
-  T_RECOVER,
+    //Producer:Job
+    T_SCHEDULE,
+    T_RECOVER,
 
-  //Producer:Speculator
-  T_ADD_SPEC_ATTEMPT,
+    //Producer:Speculator
+    T_ADD_SPEC_ATTEMPT,
 
-  //Producer:TaskAttempt
-  T_ATTEMPT_LAUNCHED,
-  T_ATTEMPT_COMMIT_PENDING,
-  T_ATTEMPT_FAILED,
-  T_ATTEMPT_SUCCEEDED,
-  T_ATTEMPT_KILLED
+    //Producer:TaskAttempt
+    T_ATTEMPT_LAUNCHED,
+    T_ATTEMPT_COMMIT_PENDING,
+    T_ATTEMPT_FAILED,
+    T_ATTEMPT_SUCCEEDED,
+    T_ATTEMPT_KILLED
 }

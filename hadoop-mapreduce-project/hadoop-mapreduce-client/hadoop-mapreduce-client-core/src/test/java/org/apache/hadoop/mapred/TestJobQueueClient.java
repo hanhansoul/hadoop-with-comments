@@ -29,26 +29,26 @@ import org.junit.Test;
 
 
 public class TestJobQueueClient {
-  /**
-   * Test that print job queue recursively prints child queues
-   */
-  @Test
-  @SuppressWarnings("deprecation")
-  public void testPrintJobQueueInfo() throws IOException {
-    JobQueueClient queueClient = new JobQueueClient();
-    JobQueueInfo parent = new JobQueueInfo();
-    JobQueueInfo child = new JobQueueInfo();
-    JobQueueInfo grandChild = new JobQueueInfo();
-    child.addChild(grandChild);
-    parent.addChild(child);
-    grandChild.setQueueName("GrandChildQueue");
+    /**
+     * Test that print job queue recursively prints child queues
+     */
+    @Test
+    @SuppressWarnings("deprecation")
+    public void testPrintJobQueueInfo() throws IOException {
+        JobQueueClient queueClient = new JobQueueClient();
+        JobQueueInfo parent = new JobQueueInfo();
+        JobQueueInfo child = new JobQueueInfo();
+        JobQueueInfo grandChild = new JobQueueInfo();
+        child.addChild(grandChild);
+        parent.addChild(child);
+        grandChild.setQueueName("GrandChildQueue");
 
-    ByteArrayOutputStream bbos = new ByteArrayOutputStream();
-    PrintWriter writer = new PrintWriter(bbos);
-    queueClient.printJobQueueInfo(parent, writer);
+        ByteArrayOutputStream bbos = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(bbos);
+        queueClient.printJobQueueInfo(parent, writer);
 
-    Assert.assertTrue("printJobQueueInfo did not print grandchild's name",
-      bbos.toString().contains("GrandChildQueue"));
-  }
+        Assert.assertTrue("printJobQueueInfo did not print grandchild's name",
+                          bbos.toString().contains("GrandChildQueue"));
+    }
 
 }

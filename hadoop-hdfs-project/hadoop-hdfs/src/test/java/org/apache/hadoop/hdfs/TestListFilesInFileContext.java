@@ -46,159 +46,159 @@ import org.junit.Test;
  * This class tests the FileStatus API.
  */
 public class TestListFilesInFileContext {
-  {
-    ((Log4JLogger)FileSystem.LOG).getLogger().setLevel(Level.ALL);
-  }
+    {
+        ((Log4JLogger)FileSystem.LOG).getLogger().setLevel(Level.ALL);
+    }
 
-  static final long seed = 0xDEADBEEFL;
+    static final long seed = 0xDEADBEEFL;
 
-  final private static Configuration conf = new Configuration();
-  private static MiniDFSCluster cluster;
-  private static FileContext fc;
-  final private static Path TEST_DIR = new Path("/main_");
-  final private static int FILE_LEN = 10;
-  final private static Path FILE1 = new Path(TEST_DIR, "file1");
-  final private static Path DIR1 = new Path(TEST_DIR, "dir1");
-  final private static Path FILE2 = new Path(DIR1, "file2");
-  final private static Path FILE3 = new Path(DIR1, "file3");
+    final private static Configuration conf = new Configuration();
+    private static MiniDFSCluster cluster;
+    private static FileContext fc;
+    final private static Path TEST_DIR = new Path("/main_");
+    final private static int FILE_LEN = 10;
+    final private static Path FILE1 = new Path(TEST_DIR, "file1");
+    final private static Path DIR1 = new Path(TEST_DIR, "dir1");
+    final private static Path FILE2 = new Path(DIR1, "file2");
+    final private static Path FILE3 = new Path(DIR1, "file3");
 
-  @BeforeClass
-  public static void testSetUp() throws Exception {
-    cluster = new MiniDFSCluster.Builder(conf).build();
-    fc = FileContext.getFileContext(cluster.getConfiguration(0));
-    fc.delete(TEST_DIR, true);
-  }
-  
-  private static void writeFile(FileContext fc, Path name, int fileSize)
-  throws IOException {
-    // Create and write a file that contains three blocks of data
-    FSDataOutputStream stm = fc.create(name, EnumSet.of(CreateFlag.CREATE),
-        Options.CreateOpts.createParent());
-    byte[] buffer = new byte[fileSize];
-    Random rand = new Random(seed);
-    rand.nextBytes(buffer);
-    stm.write(buffer);
-    stm.close();
-  }
-  
-  @AfterClass
-  public static void testShutdown() throws Exception {
-    cluster.shutdown();
-  }
+    @BeforeClass
+    public static void testSetUp() throws Exception {
+        cluster = new MiniDFSCluster.Builder(conf).build();
+        fc = FileContext.getFileContext(cluster.getConfiguration(0));
+        fc.delete(TEST_DIR, true);
+    }
 
-  /** Test when input path is a file */
-  @Test
-  public void testFile() throws IOException {
-    fc.mkdir(TEST_DIR, FsPermission.getDefault(), true);
-    writeFile(fc, FILE1, FILE_LEN);
+    private static void writeFile(FileContext fc, Path name, int fileSize)
+    throws IOException {
+        // Create and write a file that contains three blocks of data
+        FSDataOutputStream stm = fc.create(name, EnumSet.of(CreateFlag.CREATE),
+                                           Options.CreateOpts.createParent());
+        byte[] buffer = new byte[fileSize];
+        Random rand = new Random(seed);
+        rand.nextBytes(buffer);
+        stm.write(buffer);
+        stm.close();
+    }
 
-    RemoteIterator<LocatedFileStatus> itor = fc.util().listFiles(
-        FILE1, true);
-    LocatedFileStatus stat = itor.next();
-    assertFalse(itor.hasNext());
-    assertTrue(stat.isFile());
-    assertEquals(FILE_LEN, stat.getLen());
-    assertEquals(fc.makeQualified(FILE1), stat.getPath());
-    assertEquals(1, stat.getBlockLocations().length);
-    
-    itor = fc.util().listFiles(FILE1, false);
-    stat = itor.next();
-    assertFalse(itor.hasNext());
-    assertTrue(stat.isFile());
-    assertEquals(FILE_LEN, stat.getLen());
-    assertEquals(fc.makeQualified(FILE1), stat.getPath());
-    assertEquals(1, stat.getBlockLocations().length);
-  }
+    @AfterClass
+    public static void testShutdown() throws Exception {
+        cluster.shutdown();
+    }
 
-  @After
-  public void cleanDir() throws IOException {
-    fc.delete(TEST_DIR, true);
-  }
+    /** Test when input path is a file */
+    @Test
+    public void testFile() throws IOException {
+        fc.mkdir(TEST_DIR, FsPermission.getDefault(), true);
+        writeFile(fc, FILE1, FILE_LEN);
 
-  /** Test when input path is a directory */
-  @Test
-  public void testDirectory() throws IOException {
-    fc.mkdir(DIR1, FsPermission.getDefault(), true);
+        RemoteIterator<LocatedFileStatus> itor = fc.util().listFiles(
+                    FILE1, true);
+        LocatedFileStatus stat = itor.next();
+        assertFalse(itor.hasNext());
+        assertTrue(stat.isFile());
+        assertEquals(FILE_LEN, stat.getLen());
+        assertEquals(fc.makeQualified(FILE1), stat.getPath());
+        assertEquals(1, stat.getBlockLocations().length);
 
-    // test empty directory
-    RemoteIterator<LocatedFileStatus> itor = fc.util().listFiles(
-        DIR1, true);
-    assertFalse(itor.hasNext());
-    itor = fc.util().listFiles(DIR1, false);
-    assertFalse(itor.hasNext());
-    
-    // testing directory with 1 file
-    writeFile(fc, FILE2, FILE_LEN);
-    
-    itor = fc.util().listFiles(DIR1, true);
-    LocatedFileStatus stat = itor.next();
-    assertFalse(itor.hasNext());
-    assertTrue(stat.isFile());
-    assertEquals(FILE_LEN, stat.getLen());
-    assertEquals(fc.makeQualified(FILE2), stat.getPath());
-    assertEquals(1, stat.getBlockLocations().length);
-    
-    itor = fc.util().listFiles(DIR1, false);
-    stat = itor.next();
-    assertFalse(itor.hasNext());
-    assertTrue(stat.isFile());
-    assertEquals(FILE_LEN, stat.getLen());
-    assertEquals(fc.makeQualified(FILE2), stat.getPath());
-    assertEquals(1, stat.getBlockLocations().length);
+        itor = fc.util().listFiles(FILE1, false);
+        stat = itor.next();
+        assertFalse(itor.hasNext());
+        assertTrue(stat.isFile());
+        assertEquals(FILE_LEN, stat.getLen());
+        assertEquals(fc.makeQualified(FILE1), stat.getPath());
+        assertEquals(1, stat.getBlockLocations().length);
+    }
 
-    // test more complicated directory
-    writeFile(fc, FILE1, FILE_LEN);
-    writeFile(fc, FILE3, FILE_LEN);
+    @After
+    public void cleanDir() throws IOException {
+        fc.delete(TEST_DIR, true);
+    }
 
-    itor = fc.util().listFiles(TEST_DIR, true);
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE2), stat.getPath());
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE3), stat.getPath());
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE1), stat.getPath());
-    assertFalse(itor.hasNext());
-    
-    itor = fc.util().listFiles(TEST_DIR, false);
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE1), stat.getPath());
-    assertFalse(itor.hasNext());
-  }
+    /** Test when input path is a directory */
+    @Test
+    public void testDirectory() throws IOException {
+        fc.mkdir(DIR1, FsPermission.getDefault(), true);
 
-  /** Test when input patch has a symbolic links as its children */
-  @Test
-  public void testSymbolicLinks() throws IOException {
-    writeFile(fc, FILE1, FILE_LEN);
-    writeFile(fc, FILE2, FILE_LEN);
-    writeFile(fc, FILE3, FILE_LEN);
-    
-    Path dir4 = new Path(TEST_DIR, "dir4");
-    Path dir5 = new Path(dir4, "dir5");
-    Path file4 = new Path(dir4, "file4");
-    
-    fc.createSymlink(DIR1, dir5, true);
-    fc.createSymlink(FILE1, file4, true);
-    
-    RemoteIterator<LocatedFileStatus> itor = fc.util().listFiles(dir4, true);
-    LocatedFileStatus stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE2), stat.getPath());
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE3), stat.getPath());
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE1), stat.getPath());
-    assertFalse(itor.hasNext());
-    
-    itor = fc.util().listFiles(dir4, false);
-    stat = itor.next();
-    assertTrue(stat.isFile());
-    assertEquals(fc.makeQualified(FILE1), stat.getPath());
-    assertFalse(itor.hasNext());
-  }
+        // test empty directory
+        RemoteIterator<LocatedFileStatus> itor = fc.util().listFiles(
+                    DIR1, true);
+        assertFalse(itor.hasNext());
+        itor = fc.util().listFiles(DIR1, false);
+        assertFalse(itor.hasNext());
+
+        // testing directory with 1 file
+        writeFile(fc, FILE2, FILE_LEN);
+
+        itor = fc.util().listFiles(DIR1, true);
+        LocatedFileStatus stat = itor.next();
+        assertFalse(itor.hasNext());
+        assertTrue(stat.isFile());
+        assertEquals(FILE_LEN, stat.getLen());
+        assertEquals(fc.makeQualified(FILE2), stat.getPath());
+        assertEquals(1, stat.getBlockLocations().length);
+
+        itor = fc.util().listFiles(DIR1, false);
+        stat = itor.next();
+        assertFalse(itor.hasNext());
+        assertTrue(stat.isFile());
+        assertEquals(FILE_LEN, stat.getLen());
+        assertEquals(fc.makeQualified(FILE2), stat.getPath());
+        assertEquals(1, stat.getBlockLocations().length);
+
+        // test more complicated directory
+        writeFile(fc, FILE1, FILE_LEN);
+        writeFile(fc, FILE3, FILE_LEN);
+
+        itor = fc.util().listFiles(TEST_DIR, true);
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE2), stat.getPath());
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE3), stat.getPath());
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE1), stat.getPath());
+        assertFalse(itor.hasNext());
+
+        itor = fc.util().listFiles(TEST_DIR, false);
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE1), stat.getPath());
+        assertFalse(itor.hasNext());
+    }
+
+    /** Test when input patch has a symbolic links as its children */
+    @Test
+    public void testSymbolicLinks() throws IOException {
+        writeFile(fc, FILE1, FILE_LEN);
+        writeFile(fc, FILE2, FILE_LEN);
+        writeFile(fc, FILE3, FILE_LEN);
+
+        Path dir4 = new Path(TEST_DIR, "dir4");
+        Path dir5 = new Path(dir4, "dir5");
+        Path file4 = new Path(dir4, "file4");
+
+        fc.createSymlink(DIR1, dir5, true);
+        fc.createSymlink(FILE1, file4, true);
+
+        RemoteIterator<LocatedFileStatus> itor = fc.util().listFiles(dir4, true);
+        LocatedFileStatus stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE2), stat.getPath());
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE3), stat.getPath());
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE1), stat.getPath());
+        assertFalse(itor.hasNext());
+
+        itor = fc.util().listFiles(dir4, false);
+        stat = itor.next();
+        assertTrue(stat.isFile());
+        assertEquals(fc.makeQualified(FILE1), stat.getPath());
+        assertFalse(itor.hasNext());
+    }
 }

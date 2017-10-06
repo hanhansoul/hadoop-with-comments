@@ -32,88 +32,88 @@ import org.apache.hadoop.mapreduce.jobhistory.JhCounters;
  */
 public class ParsedTaskAttempt extends LoggedTaskAttempt {
 
-  private static final Log LOG = LogFactory.getLog(ParsedTaskAttempt.class);
+    private static final Log LOG = LogFactory.getLog(ParsedTaskAttempt.class);
 
-  private String diagnosticInfo;
-  private String trackerName;
-  private Integer httpPort, shufflePort;
-  private Map<String, Long> countersMap = new HashMap<String, Long>();
+    private String diagnosticInfo;
+    private String trackerName;
+    private Integer httpPort, shufflePort;
+    private Map<String, Long> countersMap = new HashMap<String, Long>();
 
-  ParsedTaskAttempt() {
-    super();
-  }
+    ParsedTaskAttempt() {
+        super();
+    }
 
-  /** incorporate event counters */
-  public void incorporateCounters(JhCounters counters) {
+    /** incorporate event counters */
+    public void incorporateCounters(JhCounters counters) {
 
-    Map<String, Long> countersMap =
-      JobHistoryUtils.extractCounters(counters);
-    putCounters(countersMap);
+        Map<String, Long> countersMap =
+            JobHistoryUtils.extractCounters(counters);
+        putCounters(countersMap);
 
-    super.incorporateCounters(counters);
-  }
+        super.incorporateCounters(counters);
+    }
 
-  /** Set the task attempt counters */
-  public void putCounters(Map<String, Long> counters) {
-    this.countersMap = counters;
-  }
+    /** Set the task attempt counters */
+    public void putCounters(Map<String, Long> counters) {
+        this.countersMap = counters;
+    }
 
-  /**
-   * @return the task attempt counters
-   */
-  public Map<String, Long> obtainCounters() {
-    return countersMap;
-  }
+    /**
+     * @return the task attempt counters
+     */
+    public Map<String, Long> obtainCounters() {
+        return countersMap;
+    }
 
-  /** Set the task attempt diagnostic-info */
-  public void putDiagnosticInfo(String msg) {
-    diagnosticInfo = msg;
-  }
+    /** Set the task attempt diagnostic-info */
+    public void putDiagnosticInfo(String msg) {
+        diagnosticInfo = msg;
+    }
 
-  /**
-   * @return the diagnostic-info of this task attempt.
-   *         If the attempt is successful, returns null.
-   */
-  public String obtainDiagnosticInfo() {
-    return diagnosticInfo;
-  }
+    /**
+     * @return the diagnostic-info of this task attempt.
+     *         If the attempt is successful, returns null.
+     */
+    public String obtainDiagnosticInfo() {
+        return diagnosticInfo;
+    }
 
-  void putTrackerName(String trackerName) {
-    this.trackerName = trackerName;
-  }
+    void putTrackerName(String trackerName) {
+        this.trackerName = trackerName;
+    }
 
-  public String obtainTrackerName() {
-    return trackerName;
-  }
+    public String obtainTrackerName() {
+        return trackerName;
+    }
 
-  void putHttpPort(int port) {
-    httpPort = port;
-  }
+    void putHttpPort(int port) {
+        httpPort = port;
+    }
 
-  /**
-   * @return http port if set. Returns null otherwise.
-   */
-  public Integer obtainHttpPort() {
-    return httpPort;
-  }
+    /**
+     * @return http port if set. Returns null otherwise.
+     */
+    public Integer obtainHttpPort() {
+        return httpPort;
+    }
 
-  void putShufflePort(int port) {
-    shufflePort = port;
-  }
+    void putShufflePort(int port) {
+        shufflePort = port;
+    }
 
-  /**
-   * @return shuffle port if set. Returns null otherwise.
-   */
-  public Integer obtainShufflePort() {
-    return shufflePort;
-  }
+    /**
+     * @return shuffle port if set. Returns null otherwise.
+     */
+    public Integer obtainShufflePort() {
+        return shufflePort;
+    }
 
-  /** Dump the extra info of ParsedTaskAttempt */
-  void dumpParsedTaskAttempt() {
-    LOG.info("ParsedTaskAttempt details:" + obtainCounters()
-        + ";DiagnosticInfo=" + obtainDiagnosticInfo() + "\n"
-        + obtainTrackerName() + ";" + obtainHttpPort() + ";"
-        + obtainShufflePort() + ";rack=" + getHostName().getRackName()
-        + ";host=" + getHostName().getHostName());
-  }
+    /** Dump the extra info of ParsedTaskAttempt */
+    void dumpParsedTaskAttempt() {
+        LOG.info("ParsedTaskAttempt details:" + obtainCounters()
+                 + ";DiagnosticInfo=" + obtainDiagnosticInfo() + "\n"
+                 + obtainTrackerName() + ";" + obtainHttpPort() + ";"
+                 + obtainShufflePort() + ";rack=" + getHostName().getRackName()
+                 + ";host=" + getHostName().getHostName());
+    }
 }

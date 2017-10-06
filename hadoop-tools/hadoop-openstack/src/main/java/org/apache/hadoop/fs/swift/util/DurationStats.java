@@ -23,132 +23,132 @@ package org.apache.hadoop.fs.swift.util;
  */
 public class DurationStats {
 
-  final String operation;
-  int n;
-  long sum;
-  long min;
-  long max;
-  double mean, m2;
+    final String operation;
+    int n;
+    long sum;
+    long min;
+    long max;
+    double mean, m2;
 
-  /**
-   * Construct statistics for a given operation.
-   * @param operation operation
-   */
-  public DurationStats(String operation) {
-    this.operation = operation;
-    reset();
-  }
-
-  /**
-   * construct from anothr stats entry;
-   * all value are copied.
-   * @param that the source statistics
-   */
-  public DurationStats(DurationStats that) {
-    operation = that.operation;
-    n = that.n;
-    sum = that.sum;
-    min = that.min;
-    max = that.max;
-    mean = that.mean;
-    m2 = that.m2;
-  }
-
-  /**
-   * Add a duration
-   * @param duration the new duration
-   */
-  public void add(Duration duration) {
-    add(duration.value());
-  }
-
-  /**
-   * Add a number
-   * @param x the number
-   */
-  public void add(long x) {
-    n++;
-    sum += x;
-    double delta = x - mean;
-    mean += delta / n;
-    m2 += delta * (x - mean);
-    if (x < min) {
-      min = x;
+    /**
+     * Construct statistics for a given operation.
+     * @param operation operation
+     */
+    public DurationStats(String operation) {
+        this.operation = operation;
+        reset();
     }
-    if (x > max) {
-      max = x;
+
+    /**
+     * construct from anothr stats entry;
+     * all value are copied.
+     * @param that the source statistics
+     */
+    public DurationStats(DurationStats that) {
+        operation = that.operation;
+        n = that.n;
+        sum = that.sum;
+        min = that.min;
+        max = that.max;
+        mean = that.mean;
+        m2 = that.m2;
     }
-  }
 
-  /**
-   * Reset the data
-   */
-  public void reset() {
-    n = 0;
-    sum = 0;
-    sum = 0;
-    min = 10000000;
-    max = 0;
-    mean = 0;
-    m2 = 0;
-  }
+    /**
+     * Add a duration
+     * @param duration the new duration
+     */
+    public void add(Duration duration) {
+        add(duration.value());
+    }
 
-  /**
-   * Get the number of entries sampled
-   * @return the number of durations added
-   */
-  public int getCount() {
-    return n;
-  }
+    /**
+     * Add a number
+     * @param x the number
+     */
+    public void add(long x) {
+        n++;
+        sum += x;
+        double delta = x - mean;
+        mean += delta / n;
+        m2 += delta * (x - mean);
+        if (x < min) {
+            min = x;
+        }
+        if (x > max) {
+            max = x;
+        }
+    }
 
-  /**
-   * Get the sum of all durations
-   * @return all the durations
-   */
-  public long getSum() {
-    return sum;
-  }
+    /**
+     * Reset the data
+     */
+    public void reset() {
+        n = 0;
+        sum = 0;
+        sum = 0;
+        min = 10000000;
+        max = 0;
+        mean = 0;
+        m2 = 0;
+    }
 
-  /**
-   * Get the arithmetic mean of the aggregate statistics
-   * @return the arithmetic mean
-   */
-  public double getArithmeticMean() {
-    return mean;
-  }
+    /**
+     * Get the number of entries sampled
+     * @return the number of durations added
+     */
+    public int getCount() {
+        return n;
+    }
 
-  /**
-   * Variance, sigma^2
-   * @return variance, or, if no samples are there, 0.
-   */
-  public double getVariance() {
-    return n > 0 ? (m2 / (n - 1)) : 0;
-  }
+    /**
+     * Get the sum of all durations
+     * @return all the durations
+     */
+    public long getSum() {
+        return sum;
+    }
 
-  /**
-   * Get the std deviation, sigma
-   * @return the stddev, 0 may mean there are no samples.
-   */
-  public double getDeviation() {
-    double variance = getVariance();
-    return (variance > 0) ? Math.sqrt(variance) : 0;
-  }
+    /**
+     * Get the arithmetic mean of the aggregate statistics
+     * @return the arithmetic mean
+     */
+    public double getArithmeticMean() {
+        return mean;
+    }
 
-  /**
-   * Covert to a useful string
-   * @return a human readable summary
-   */
-  @Override
-  public String toString() {
-    return String.format(
-      "%s count=%d total=%.3fs mean=%.3fs stddev=%.3fs min=%.3fs max=%.3fs",
-      operation,
-      n,
-      sum / 1000.0,
-      mean / 1000.0,
-      getDeviation() / 1000000.0,
-      min / 1000.0,
-      max / 1000.0);
-  }
+    /**
+     * Variance, sigma^2
+     * @return variance, or, if no samples are there, 0.
+     */
+    public double getVariance() {
+        return n > 0 ? (m2 / (n - 1)) : 0;
+    }
+
+    /**
+     * Get the std deviation, sigma
+     * @return the stddev, 0 may mean there are no samples.
+     */
+    public double getDeviation() {
+        double variance = getVariance();
+        return (variance > 0) ? Math.sqrt(variance) : 0;
+    }
+
+    /**
+     * Covert to a useful string
+     * @return a human readable summary
+     */
+    @Override
+    public String toString() {
+        return String.format(
+                   "%s count=%d total=%.3fs mean=%.3fs stddev=%.3fs min=%.3fs max=%.3fs",
+                   operation,
+                   n,
+                   sum / 1000.0,
+                   mean / 1000.0,
+                   getDeviation() / 1000000.0,
+                   min / 1000.0,
+                   max / 1000.0);
+    }
 
 }

@@ -24,8 +24,8 @@ import org.apache.hadoop.tools.rumen.datatypes.DefaultDataType;
  * A simple job property parser that acts like a pass-through filter.
  */
 public class DefaultJobPropertiesParser implements JobPropertyParser {
-  @Override
-  public DataType<?> parseJobProperty(String key, String value) {
-    return new DefaultDataType(value);
-  }
+    @Override
+    public DataType<?> parseJobProperty(String key, String value) {
+        return new DefaultDataType(value);
+    }
 }

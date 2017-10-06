@@ -24,17 +24,17 @@ import org.apache.hadoop.oncrpc.XDR;
 import org.junit.Test;
 
 public class TestFileHandle {
-  @Test
-  public void testConstructor() {
-    FileHandle handle = new FileHandle(1024);
-    XDR xdr = new XDR();
-    handle.serialize(xdr);
-    Assert.assertEquals(handle.getFileId(), 1024);
+    @Test
+    public void testConstructor() {
+        FileHandle handle = new FileHandle(1024);
+        XDR xdr = new XDR();
+        handle.serialize(xdr);
+        Assert.assertEquals(handle.getFileId(), 1024);
 
-    // Deserialize it back 
-    FileHandle handle2 = new FileHandle();
-    handle2.deserialize(xdr.asReadOnlyWrap());
-    Assert.assertEquals("Failed: Assert 1024 is id ", 1024, 
-            handle.getFileId());
-  }
+        // Deserialize it back
+        FileHandle handle2 = new FileHandle();
+        handle2.deserialize(xdr.asReadOnlyWrap());
+        Assert.assertEquals("Failed: Assert 1024 is id ", 1024,
+                            handle.getFileId());
+    }
 }

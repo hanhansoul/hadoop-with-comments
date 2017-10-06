@@ -36,59 +36,59 @@ import static org.junit.Assert.*;
 
 public class TestDumpTypedBytes {
 
-  @Test
-  public void testDumping() throws Exception {
-    Configuration conf = new Configuration();
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
+    @Test
+    public void testDumping() throws Exception {
+        Configuration conf = new Configuration();
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(2)
         .build();
-    FileSystem fs = cluster.getFileSystem();
-    PrintStream psBackup = System.out;
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    PrintStream psOut = new PrintStream(out);
-    System.setOut(psOut);
-    DumpTypedBytes dumptb = new DumpTypedBytes(conf);
+        FileSystem fs = cluster.getFileSystem();
+        PrintStream psBackup = System.out;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream psOut = new PrintStream(out);
+        System.setOut(psOut);
+        DumpTypedBytes dumptb = new DumpTypedBytes(conf);
 
-    try {
-      Path root = new Path("/typedbytestest");
-      assertTrue(fs.mkdirs(root));
-      assertTrue(fs.exists(root));
-      OutputStreamWriter writer = new OutputStreamWriter(fs.create(new Path(
-        root, "test.txt")));
-      try {
-        for (int i = 0; i < 100; i++) {
-          writer.write("" + (10 * i) + "\n");
+        try {
+            Path root = new Path("/typedbytestest");
+            assertTrue(fs.mkdirs(root));
+            assertTrue(fs.exists(root));
+            OutputStreamWriter writer = new OutputStreamWriter(fs.create(new Path(
+                        root, "test.txt")));
+            try {
+                for (int i = 0; i < 100; i++) {
+                    writer.write("" + (10 * i) + "\n");
+                }
+            } finally {
+                writer.close();
+            }
+
+            String[] args = new String[1];
+            args[0] = "/typedbytestest";
+            int ret = dumptb.run(args);
+            assertEquals("Return value != 0.", 0, ret);
+
+            ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+            TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(in));
+            int counter = 0;
+            Object key = tbinput.read();
+            while (key != null) {
+                assertEquals(Long.class, key.getClass()); // offset
+                Object value = tbinput.read();
+                assertEquals(String.class, value.getClass());
+                assertTrue("Invalid output.",
+                           Integer.parseInt(value.toString()) % 10 == 0);
+                counter++;
+                key = tbinput.read();
+            }
+            assertEquals("Wrong number of outputs.", 100, counter);
+        } finally {
+            try {
+                fs.close();
+            } catch (Exception e) {
+            }
+            System.setOut(psBackup);
+            cluster.shutdown();
         }
-      } finally {
-        writer.close();
-      }
-
-      String[] args = new String[1];
-      args[0] = "/typedbytestest";
-      int ret = dumptb.run(args);
-      assertEquals("Return value != 0.", 0, ret);
-
-      ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-      TypedBytesInput tbinput = new TypedBytesInput(new DataInputStream(in));
-      int counter = 0;
-      Object key = tbinput.read();
-      while (key != null) {
-        assertEquals(Long.class, key.getClass()); // offset
-        Object value = tbinput.read();
-        assertEquals(String.class, value.getClass());
-        assertTrue("Invalid output.",
-          Integer.parseInt(value.toString()) % 10 == 0);
-        counter++;
-        key = tbinput.read();
-      }
-      assertEquals("Wrong number of outputs.", 100, counter);
-    } finally {
-      try {
-        fs.close();
-      } catch (Exception e) {
-      }
-      System.setOut(psBackup);
-      cluster.shutdown();
     }
-  }
 
 }

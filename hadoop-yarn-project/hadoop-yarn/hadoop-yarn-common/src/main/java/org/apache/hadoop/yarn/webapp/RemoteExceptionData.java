@@ -38,29 +38,29 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RemoteExceptionData {
 
-  private String exception;
-  private String message;
-  private String javaClassName;
+    private String exception;
+    private String message;
+    private String javaClassName;
 
-  public RemoteExceptionData() {
-  }
+    public RemoteExceptionData() {
+    }
 
-  public RemoteExceptionData(String excep, String message, String className) {
-    this.exception = excep;
-    this.message = message;
-    this.javaClassName = className;
-  }
+    public RemoteExceptionData(String excep, String message, String className) {
+        this.exception = excep;
+        this.message = message;
+        this.javaClassName = className;
+    }
 
-  public String getException() {
-    return exception;
-  }
+    public String getException() {
+        return exception;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 
-  public String getJavaClassName() {
-    return javaClassName;
-  }
+    public String getJavaClassName() {
+        return javaClassName;
+    }
 
 }

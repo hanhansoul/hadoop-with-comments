@@ -28,32 +28,32 @@ import org.apache.commons.logging.LogFactory;
  * Resolves all UGIs to the submitting user.
  */
 public class SubmitterUserResolver implements UserResolver {
-  public static final Log LOG = LogFactory.getLog(SubmitterUserResolver.class);
-  
-  private UserGroupInformation ugi = null;
+    public static final Log LOG = LogFactory.getLog(SubmitterUserResolver.class);
 
-  public SubmitterUserResolver() throws IOException {
-    LOG.info(" Current user resolver is SubmitterUserResolver ");
-    ugi = UserGroupInformation.getLoginUser();
-  }
+    private UserGroupInformation ugi = null;
 
-  public synchronized boolean setTargetUsers(URI userdesc, Configuration conf)
-      throws IOException {
-    return false;
-  }
+    public SubmitterUserResolver() throws IOException {
+        LOG.info(" Current user resolver is SubmitterUserResolver ");
+        ugi = UserGroupInformation.getLoginUser();
+    }
 
-  public synchronized UserGroupInformation getTargetUgi(
-      UserGroupInformation ugi) {
-    return this.ugi;
-  }
+    public synchronized boolean setTargetUsers(URI userdesc, Configuration conf)
+    throws IOException {
+        return false;
+    }
 
-  /**
-   * {@inheritDoc}
-   * <p>
-   * Since {@link SubmitterUserResolver} returns the user name who is running
-   * gridmix, it doesn't need a target list of users.
-   */
-  public boolean needsTargetUsersList() {
-    return false;
-  }
+    public synchronized UserGroupInformation getTargetUgi(
+        UserGroupInformation ugi) {
+        return this.ugi;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Since {@link SubmitterUserResolver} returns the user name who is running
+     * gridmix, it doesn't need a target list of users.
+     */
+    public boolean needsTargetUsersList() {
+        return false;
+    }
 }

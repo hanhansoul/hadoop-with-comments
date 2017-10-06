@@ -27,7 +27,7 @@ import org.apache.hadoop.mapred.gridmix.Statistics.ClusterStats;
 import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
 
 /**
- * Summarizes the Hadoop cluster used in this {@link Gridmix} run. 
+ * Summarizes the Hadoop cluster used in this {@link Gridmix} run.
  * Statistics that are reported are
  * <ul>
  *   <li>Total number of active trackers in the cluster</li>
@@ -35,82 +35,82 @@ import org.apache.hadoop.mapreduce.server.jobtracker.JTConfig;
  *   <li>Max map task capacity of the cluster</li>
  *   <li>Max reduce task capacity of the cluster</li>
  * </ul>
- * 
- * Apart from these statistics, {@link JobTracker} and {@link FileSystem} 
+ *
+ * Apart from these statistics, {@link JobTracker} and {@link FileSystem}
  * addresses are also recorded in the summary.
  */
 class ClusterSummarizer implements StatListener<ClusterStats> {
-  static final Log LOG = LogFactory.getLog(ClusterSummarizer.class);
-  
-  private int numBlacklistedTrackers;
-  private int numActiveTrackers;
-  private int maxMapTasks;
-  private int maxReduceTasks;
-  private String jobTrackerInfo = Summarizer.NA;
-  private String namenodeInfo = Summarizer.NA;
-  
-  @Override
-  @SuppressWarnings("deprecation")
-  public void update(ClusterStats item) {
-    try {
-      numBlacklistedTrackers = item.getStatus().getBlacklistedTrackers();
-      numActiveTrackers = item.getStatus().getTaskTrackers();
-      maxMapTasks = item.getStatus().getMaxMapTasks();
-      maxReduceTasks = item.getStatus().getMaxReduceTasks();
-    } catch (Exception e) {
-      long time = System.currentTimeMillis();
-      LOG.info("Error in processing cluster status at " 
-               + FastDateFormat.getInstance().format(time));
+    static final Log LOG = LogFactory.getLog(ClusterSummarizer.class);
+
+    private int numBlacklistedTrackers;
+    private int numActiveTrackers;
+    private int maxMapTasks;
+    private int maxReduceTasks;
+    private String jobTrackerInfo = Summarizer.NA;
+    private String namenodeInfo = Summarizer.NA;
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void update(ClusterStats item) {
+        try {
+            numBlacklistedTrackers = item.getStatus().getBlacklistedTrackers();
+            numActiveTrackers = item.getStatus().getTaskTrackers();
+            maxMapTasks = item.getStatus().getMaxMapTasks();
+            maxReduceTasks = item.getStatus().getMaxReduceTasks();
+        } catch (Exception e) {
+            long time = System.currentTimeMillis();
+            LOG.info("Error in processing cluster status at "
+                     + FastDateFormat.getInstance().format(time));
+        }
     }
-  }
-  
-  /**
-   * Summarizes the cluster used for this {@link Gridmix} run.
-   */
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Cluster Summary:-");
-    builder.append("\nJobTracker: ").append(getJobTrackerInfo());
-    builder.append("\nFileSystem: ").append(getNamenodeInfo());
-    builder.append("\nNumber of blacklisted trackers: ")
-           .append(getNumBlacklistedTrackers());
-    builder.append("\nNumber of active trackers: ")
-           .append(getNumActiveTrackers());
-    builder.append("\nMax map task capacity: ")
-           .append(getMaxMapTasks());
-    builder.append("\nMax reduce task capacity: ").append(getMaxReduceTasks());
-    builder.append("\n\n");
-    return builder.toString();
-  }
-  
-  void start(Configuration conf) {
-    jobTrackerInfo = conf.get(JTConfig.JT_IPC_ADDRESS);
-    namenodeInfo = conf.get(CommonConfigurationKeys.FS_DEFAULT_NAME_KEY);
-  }
-  
-  // Getters
-  protected int getNumBlacklistedTrackers() {
-    return numBlacklistedTrackers;
-  }
-  
-  protected int getNumActiveTrackers() {
-    return numActiveTrackers;
-  }
-  
-  protected int getMaxMapTasks() {
-    return maxMapTasks;
-  }
-  
-  protected int getMaxReduceTasks() {
-    return maxReduceTasks;
-  }
-  
-  protected String getJobTrackerInfo() {
-    return jobTrackerInfo;
-  }
-  
-  protected String getNamenodeInfo() {
-    return namenodeInfo;
-  }
+
+    /**
+     * Summarizes the cluster used for this {@link Gridmix} run.
+     */
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Cluster Summary:-");
+        builder.append("\nJobTracker: ").append(getJobTrackerInfo());
+        builder.append("\nFileSystem: ").append(getNamenodeInfo());
+        builder.append("\nNumber of blacklisted trackers: ")
+        .append(getNumBlacklistedTrackers());
+        builder.append("\nNumber of active trackers: ")
+        .append(getNumActiveTrackers());
+        builder.append("\nMax map task capacity: ")
+        .append(getMaxMapTasks());
+        builder.append("\nMax reduce task capacity: ").append(getMaxReduceTasks());
+        builder.append("\n\n");
+        return builder.toString();
+    }
+
+    void start(Configuration conf) {
+        jobTrackerInfo = conf.get(JTConfig.JT_IPC_ADDRESS);
+        namenodeInfo = conf.get(CommonConfigurationKeys.FS_DEFAULT_NAME_KEY);
+    }
+
+    // Getters
+    protected int getNumBlacklistedTrackers() {
+        return numBlacklistedTrackers;
+    }
+
+    protected int getNumActiveTrackers() {
+        return numActiveTrackers;
+    }
+
+    protected int getMaxMapTasks() {
+        return maxMapTasks;
+    }
+
+    protected int getMaxReduceTasks() {
+        return maxReduceTasks;
+    }
+
+    protected String getJobTrackerInfo() {
+        return jobTrackerInfo;
+    }
+
+    protected String getNamenodeInfo() {
+        return namenodeInfo;
+    }
 }

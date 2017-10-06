@@ -38,11 +38,11 @@ import org.apache.hadoop.yarn.util.resource.Resources;
  * validWindow, the integral of the allocations for a user (sum of the currently
  * submitted allocation and all prior allocations for the user) does not exceed
  * validWindow * maxAvg.
- * 
+ *
  * This allows flexibility, in the sense that an allocation can instantaneously
  * use large portions of the available capacity, but prevents abuses by bounding
  * the average use over time.
- * 
+ *
  * By controlling maxInst, maxAvg, validWindow the administrator configuring
  * this policy can obtain a behavior ranging from instantaneously enforced
  * capacity (akin to existing queues), or fully flexible allocations (likely
@@ -52,202 +52,202 @@ import org.apache.hadoop.yarn.util.resource.Resources;
 @Unstable
 public class CapacityOverTimePolicy implements SharingPolicy {
 
-  private CapacitySchedulerConfiguration conf;
-  private long validWindow;
-  private float maxInst;
-  private float maxAvg;
+    private CapacitySchedulerConfiguration conf;
+    private long validWindow;
+    private float maxInst;
+    private float maxAvg;
 
-  // For now this is CapacityScheduler specific, but given a hierarchy in the
-  // configuration structure of the schedulers (e.g., SchedulerConfiguration)
-  // it should be easy to remove this limitation
-  @Override
-  public void init(String reservationQueuePath, Configuration conf) {
-    if (!(conf instanceof CapacitySchedulerConfiguration)) {
-      throw new IllegalArgumentException("Unexpected conf type: "
-          + conf.getClass().getSimpleName() + " only supported conf is: "
-          + CapacitySchedulerConfiguration.class.getSimpleName());
-    }
-    this.conf = (CapacitySchedulerConfiguration) conf;
-    validWindow = this.conf.getReservationWindow(reservationQueuePath);
-    maxInst = this.conf.getInstantaneousMaxCapacity(reservationQueuePath) / 100;
-    maxAvg = this.conf.getAverageCapacity(reservationQueuePath) / 100;
-  };
+    // For now this is CapacityScheduler specific, but given a hierarchy in the
+    // configuration structure of the schedulers (e.g., SchedulerConfiguration)
+    // it should be easy to remove this limitation
+    @Override
+    public void init(String reservationQueuePath, Configuration conf) {
+        if (!(conf instanceof CapacitySchedulerConfiguration)) {
+            throw new IllegalArgumentException("Unexpected conf type: "
+                                               + conf.getClass().getSimpleName() + " only supported conf is: "
+                                               + CapacitySchedulerConfiguration.class.getSimpleName());
+        }
+        this.conf = (CapacitySchedulerConfiguration) conf;
+        validWindow = this.conf.getReservationWindow(reservationQueuePath);
+        maxInst = this.conf.getInstantaneousMaxCapacity(reservationQueuePath) / 100;
+        maxAvg = this.conf.getAverageCapacity(reservationQueuePath) / 100;
+    };
 
-  @Override
-  public void validate(Plan plan, ReservationAllocation reservation)
-      throws PlanningException {
+    @Override
+    public void validate(Plan plan, ReservationAllocation reservation)
+    throws PlanningException {
 
-    // this is entire method invoked under a write-lock on the plan, no need
-    // to synchronize accesses to the plan further
+        // this is entire method invoked under a write-lock on the plan, no need
+        // to synchronize accesses to the plan further
 
-    // Try to verify whether there is already a reservation with this ID in
-    // the system (remove its contribution during validation to simulate a
-    // try-n-swap
-    // update).
-    ReservationAllocation oldReservation =
-        plan.getReservationById(reservation.getReservationId());
+        // Try to verify whether there is already a reservation with this ID in
+        // the system (remove its contribution during validation to simulate a
+        // try-n-swap
+        // update).
+        ReservationAllocation oldReservation =
+            plan.getReservationById(reservation.getReservationId());
 
-    // sanity check that the update of a reservation is not changing username
-    if (oldReservation != null
-        && !oldReservation.getUser().equals(reservation.getUser())) {
-      throw new MismatchedUserException(
-          "Updating an existing reservation with mismatched user:"
-              + oldReservation.getUser() + " != " + reservation.getUser());
-    }
+        // sanity check that the update of a reservation is not changing username
+        if (oldReservation != null
+            && !oldReservation.getUser().equals(reservation.getUser())) {
+            throw new MismatchedUserException(
+                "Updating an existing reservation with mismatched user:"
+                + oldReservation.getUser() + " != " + reservation.getUser());
+        }
 
-    long startTime = reservation.getStartTime();
-    long endTime = reservation.getEndTime();
-    long step = plan.getStep();
+        long startTime = reservation.getStartTime();
+        long endTime = reservation.getEndTime();
+        long step = plan.getStep();
 
-    Resource planTotalCapacity = plan.getTotalCapacity();
+        Resource planTotalCapacity = plan.getTotalCapacity();
 
-    Resource maxAvgRes = Resources.multiply(planTotalCapacity, maxAvg);
-    Resource maxInsRes = Resources.multiply(planTotalCapacity, maxInst);
+        Resource maxAvgRes = Resources.multiply(planTotalCapacity, maxAvg);
+        Resource maxInsRes = Resources.multiply(planTotalCapacity, maxInst);
 
-    // define variable that will store integral of resources (need diff class to
-    // avoid overflow issues for long/large allocations)
-    IntegralResource runningTot = new IntegralResource(0L, 0L);
-    IntegralResource maxAllowed = new IntegralResource(maxAvgRes);
-    maxAllowed.multiplyBy(validWindow / step);
+        // define variable that will store integral of resources (need diff class to
+        // avoid overflow issues for long/large allocations)
+        IntegralResource runningTot = new IntegralResource(0L, 0L);
+        IntegralResource maxAllowed = new IntegralResource(maxAvgRes);
+        maxAllowed.multiplyBy(validWindow / step);
 
-    // check that the resources offered to the user during any window of length
-    // "validWindow" overlapping this allocation are within maxAllowed
-    // also enforce instantaneous and physical constraints during this pass
-    for (long t = startTime - validWindow; t < endTime + validWindow; t += step) {
+        // check that the resources offered to the user during any window of length
+        // "validWindow" overlapping this allocation are within maxAllowed
+        // also enforce instantaneous and physical constraints during this pass
+        for (long t = startTime - validWindow; t < endTime + validWindow; t += step) {
 
-      Resource currExistingAllocTot = plan.getTotalCommittedResources(t);
-      Resource currExistingAllocForUser =
-          plan.getConsumptionForUser(reservation.getUser(), t);
-      Resource currNewAlloc = reservation.getResourcesAtTime(t);
-      Resource currOldAlloc = Resources.none();
-      if (oldReservation != null) {
-        currOldAlloc = oldReservation.getResourcesAtTime(t);
-      }
+            Resource currExistingAllocTot = plan.getTotalCommittedResources(t);
+            Resource currExistingAllocForUser =
+                plan.getConsumptionForUser(reservation.getUser(), t);
+            Resource currNewAlloc = reservation.getResourcesAtTime(t);
+            Resource currOldAlloc = Resources.none();
+            if (oldReservation != null) {
+                currOldAlloc = oldReservation.getResourcesAtTime(t);
+            }
 
-      // throw exception if the cluster is overcommitted
-      // tot_allocated - old + new > capacity
-      Resource inst =
-          Resources.subtract(Resources.add(currExistingAllocTot, currNewAlloc),
-              currOldAlloc);
-      if (Resources.greaterThan(plan.getResourceCalculator(),
-          planTotalCapacity, inst, planTotalCapacity)) {
-        throw new ResourceOverCommitException(" Resources at time " + t
-            + " would be overcommitted (" + inst + " over "
-            + plan.getTotalCapacity() + ") by accepting reservation: "
-            + reservation.getReservationId());
-      }
+            // throw exception if the cluster is overcommitted
+            // tot_allocated - old + new > capacity
+            Resource inst =
+                Resources.subtract(Resources.add(currExistingAllocTot, currNewAlloc),
+                                   currOldAlloc);
+            if (Resources.greaterThan(plan.getResourceCalculator(),
+                                      planTotalCapacity, inst, planTotalCapacity)) {
+                throw new ResourceOverCommitException(" Resources at time " + t
+                                                      + " would be overcommitted (" + inst + " over "
+                                                      + plan.getTotalCapacity() + ") by accepting reservation: "
+                                                      + reservation.getReservationId());
+            }
 
-      // throw exception if instantaneous limits are violated
-      // tot_alloc_to_this_user - old + new > inst_limit
-      if (Resources.greaterThan(plan.getResourceCalculator(),
-          planTotalCapacity, Resources.subtract(
-              Resources.add(currExistingAllocForUser, currNewAlloc),
-              currOldAlloc), maxInsRes)) {
-        throw new PlanningQuotaException("Instantaneous quota capacity "
-            + maxInst + " would be passed at time " + t
-            + " by accepting reservation: " + reservation.getReservationId());
-      }
+            // throw exception if instantaneous limits are violated
+            // tot_alloc_to_this_user - old + new > inst_limit
+            if (Resources.greaterThan(plan.getResourceCalculator(),
+                                      planTotalCapacity, Resources.subtract(
+                                          Resources.add(currExistingAllocForUser, currNewAlloc),
+                                          currOldAlloc), maxInsRes)) {
+                throw new PlanningQuotaException("Instantaneous quota capacity "
+                                                 + maxInst + " would be passed at time " + t
+                                                 + " by accepting reservation: " + reservation.getReservationId());
+            }
 
-      // throw exception if the running integral of utilization over validWindow
-      // is violated. We perform a delta check, adding/removing instants at the
-      // boundary of the window from runningTot.
+            // throw exception if the running integral of utilization over validWindow
+            // is violated. We perform a delta check, adding/removing instants at the
+            // boundary of the window from runningTot.
 
-      // runningTot = previous_runningTot + currExistingAllocForUser +
-      // currNewAlloc - currOldAlloc - pastNewAlloc - pastOldAlloc;
+            // runningTot = previous_runningTot + currExistingAllocForUser +
+            // currNewAlloc - currOldAlloc - pastNewAlloc - pastOldAlloc;
 
-      // Where:
-      // 1) currNewAlloc, currExistingAllocForUser represent the contribution of
-      // the instant in time added in this pass.
-      // 2) pastNewAlloc, pastOldAlloc are the contributions relative to time
-      // instants that are being retired from the the window
-      // 3) currOldAlloc is the contribution (if any) of the previous version of
-      // this reservation (the one we are updating)
+            // Where:
+            // 1) currNewAlloc, currExistingAllocForUser represent the contribution of
+            // the instant in time added in this pass.
+            // 2) pastNewAlloc, pastOldAlloc are the contributions relative to time
+            // instants that are being retired from the the window
+            // 3) currOldAlloc is the contribution (if any) of the previous version of
+            // this reservation (the one we are updating)
 
-      runningTot.add(currExistingAllocForUser);
-      runningTot.add(currNewAlloc);
-      runningTot.subtract(currOldAlloc);
+            runningTot.add(currExistingAllocForUser);
+            runningTot.add(currNewAlloc);
+            runningTot.subtract(currOldAlloc);
 
-      // expire contributions from instant in time before (t - validWindow)
-      if (t > startTime) {
-        Resource pastOldAlloc =
-            plan.getConsumptionForUser(reservation.getUser(), t - validWindow);
-        Resource pastNewAlloc = reservation.getResourcesAtTime(t - validWindow);
+            // expire contributions from instant in time before (t - validWindow)
+            if (t > startTime) {
+                Resource pastOldAlloc =
+                    plan.getConsumptionForUser(reservation.getUser(), t - validWindow);
+                Resource pastNewAlloc = reservation.getResourcesAtTime(t - validWindow);
 
-        // runningTot = runningTot - pastExistingAlloc - pastNewAlloc;
-        runningTot.subtract(pastOldAlloc);
-        runningTot.subtract(pastNewAlloc);
-      }
+                // runningTot = runningTot - pastExistingAlloc - pastNewAlloc;
+                runningTot.subtract(pastOldAlloc);
+                runningTot.subtract(pastNewAlloc);
+            }
 
-      // check integral
-      // runningTot > maxAvg * validWindow
-      // NOTE: we need to use comparator of IntegralResource directly, as
-      // Resource and ResourceCalculator assume "int" amount of resources,
-      // which is not sufficient when comparing integrals (out-of-bound)
-      if (maxAllowed.compareTo(runningTot) < 0) {
-        throw new PlanningQuotaException(
-            "Integral (avg over time) quota capacity " + maxAvg
-                + " over a window of " + validWindow / 1000 + " seconds, "
-                + " would be passed at time " + t + "(" + new Date(t)
-                + ") by accepting reservation: "
-                + reservation.getReservationId());
-      }
-    }
-  }
-
-  @Override
-  public long getValidWindow() {
-    return validWindow;
-  }
-
-  /**
-   * This class provides support for Resource-like book-keeping, based on
-   * long(s), as using Resource to store the "integral" of the allocation over
-   * time leads to integer overflows for large allocations/clusters. (Evolving
-   * Resource to use long is too disruptive at this point.)
-   * 
-   * The comparison/multiplication behaviors of IntegralResource are consistent
-   * with the DefaultResourceCalculator.
-   */
-  private static class IntegralResource {
-    long memory;
-    long vcores;
-
-    public IntegralResource(Resource resource) {
-      this.memory = resource.getMemory();
-      this.vcores = resource.getVirtualCores();
-    }
-
-    public IntegralResource(long mem, long vcores) {
-      this.memory = mem;
-      this.vcores = vcores;
-    }
-
-    public void add(Resource r) {
-      memory += r.getMemory();
-      vcores += r.getVirtualCores();
-    }
-
-    public void subtract(Resource r) {
-      memory -= r.getMemory();
-      vcores -= r.getVirtualCores();
-    }
-
-    public void multiplyBy(long window) {
-      memory = memory * window;
-      vcores = vcores * window;
-    }
-
-    public long compareTo(IntegralResource other) {
-      long diff = memory - other.memory;
-      if (diff == 0) {
-        diff = vcores - other.vcores;
-      }
-      return diff;
+            // check integral
+            // runningTot > maxAvg * validWindow
+            // NOTE: we need to use comparator of IntegralResource directly, as
+            // Resource and ResourceCalculator assume "int" amount of resources,
+            // which is not sufficient when comparing integrals (out-of-bound)
+            if (maxAllowed.compareTo(runningTot) < 0) {
+                throw new PlanningQuotaException(
+                    "Integral (avg over time) quota capacity " + maxAvg
+                    + " over a window of " + validWindow / 1000 + " seconds, "
+                    + " would be passed at time " + t + "(" + new Date(t)
+                    + ") by accepting reservation: "
+                    + reservation.getReservationId());
+            }
+        }
     }
 
     @Override
-    public String toString() {
-      return "<memory:" + memory + ", vCores:" + vcores + ">";
+    public long getValidWindow() {
+        return validWindow;
     }
-  }
+
+    /**
+     * This class provides support for Resource-like book-keeping, based on
+     * long(s), as using Resource to store the "integral" of the allocation over
+     * time leads to integer overflows for large allocations/clusters. (Evolving
+     * Resource to use long is too disruptive at this point.)
+     *
+     * The comparison/multiplication behaviors of IntegralResource are consistent
+     * with the DefaultResourceCalculator.
+     */
+    private static class IntegralResource {
+        long memory;
+        long vcores;
+
+        public IntegralResource(Resource resource) {
+            this.memory = resource.getMemory();
+            this.vcores = resource.getVirtualCores();
+        }
+
+        public IntegralResource(long mem, long vcores) {
+            this.memory = mem;
+            this.vcores = vcores;
+        }
+
+        public void add(Resource r) {
+            memory += r.getMemory();
+            vcores += r.getVirtualCores();
+        }
+
+        public void subtract(Resource r) {
+            memory -= r.getMemory();
+            vcores -= r.getVirtualCores();
+        }
+
+        public void multiplyBy(long window) {
+            memory = memory * window;
+            vcores = vcores * window;
+        }
+
+        public long compareTo(IntegralResource other) {
+            long diff = memory - other.memory;
+            if (diff == 0) {
+                diff = vcores - other.vcores;
+            }
+            return diff;
+        }
+
+        @Override
+        public String toString() {
+            return "<memory:" + memory + ", vCores:" + vcores + ">";
+        }
+    }
 }

@@ -31,162 +31,162 @@ import org.apache.hadoop.yarn.server.nodemanager.api.protocolrecords.LocalizerSt
 public class LocalizerStatusPBImpl
     extends ProtoBase<LocalizerStatusProto> implements LocalizerStatus {
 
-  LocalizerStatusProto proto =
-    LocalizerStatusProto.getDefaultInstance();
-  LocalizerStatusProto.Builder builder = null;
-  boolean viaProto = false;
+    LocalizerStatusProto proto =
+        LocalizerStatusProto.getDefaultInstance();
+    LocalizerStatusProto.Builder builder = null;
+    boolean viaProto = false;
 
-  private List<LocalResourceStatus> resources = null;
+    private List<LocalResourceStatus> resources = null;
 
-  public LocalizerStatusPBImpl() {
-    builder = LocalizerStatusProto.newBuilder();
-  }
-
-  public LocalizerStatusPBImpl(LocalizerStatusProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-
-  public LocalizerStatusProto getProto() {
-    mergeLocalToProto();
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  private void mergeLocalToBuilder() {
-    if (this.resources != null) {
-      addResourcesToProto();
+    public LocalizerStatusPBImpl() {
+        builder = LocalizerStatusProto.newBuilder();
     }
-  }
 
-  private void mergeLocalToProto() {
-    if (viaProto)
-      maybeInitBuilder();
-    mergeLocalToBuilder();
-    proto = builder.build();
-    viaProto = true;
-  }
-
-  private void maybeInitBuilder() {
-    if (viaProto || builder == null) {
-      builder = LocalizerStatusProto.newBuilder(proto);
+    public LocalizerStatusPBImpl(LocalizerStatusProto proto) {
+        this.proto = proto;
+        viaProto = true;
     }
-    viaProto = false;
-  }
 
-  @Override
-  public String getLocalizerId() {
-    LocalizerStatusProtoOrBuilder p = viaProto ? proto : builder;
-    if (!p.hasLocalizerId()) {
-      return null;
+    public LocalizerStatusProto getProto() {
+        mergeLocalToProto();
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
     }
-    return (p.getLocalizerId());
-  }
 
-  @Override
-  public List<LocalResourceStatus> getResources() {
-    initResources();
-    return this.resources;
-  }
-
-  @Override
-  public void setLocalizerId(String localizerId) {
-    maybeInitBuilder();
-    if (localizerId == null) {
-      builder.clearLocalizerId();
-      return;
+    private void mergeLocalToBuilder() {
+        if (this.resources != null) {
+            addResourcesToProto();
+        }
     }
-    builder.setLocalizerId(localizerId);
-  }
 
-  private void initResources() {
-    if (this.resources != null) {
-      return;
+    private void mergeLocalToProto() {
+        if (viaProto)
+            maybeInitBuilder();
+        mergeLocalToBuilder();
+        proto = builder.build();
+        viaProto = true;
     }
-    LocalizerStatusProtoOrBuilder p = viaProto ? proto : builder;
-    List<LocalResourceStatusProto> list = p.getResourcesList();
-    this.resources = new ArrayList<LocalResourceStatus>();
 
-    for (LocalResourceStatusProto c : list) {
-      this.resources.add(convertFromProtoFormat(c));
+    private void maybeInitBuilder() {
+        if (viaProto || builder == null) {
+            builder = LocalizerStatusProto.newBuilder(proto);
+        }
+        viaProto = false;
     }
-  }
 
-  private void addResourcesToProto() {
-    maybeInitBuilder();
-    builder.clearResources();
-    if (this.resources == null) 
-      return;
-    Iterable<LocalResourceStatusProto> iterable =
+    @Override
+    public String getLocalizerId() {
+        LocalizerStatusProtoOrBuilder p = viaProto ? proto : builder;
+        if (!p.hasLocalizerId()) {
+            return null;
+        }
+        return (p.getLocalizerId());
+    }
+
+    @Override
+    public List<LocalResourceStatus> getResources() {
+        initResources();
+        return this.resources;
+    }
+
+    @Override
+    public void setLocalizerId(String localizerId) {
+        maybeInitBuilder();
+        if (localizerId == null) {
+            builder.clearLocalizerId();
+            return;
+        }
+        builder.setLocalizerId(localizerId);
+    }
+
+    private void initResources() {
+        if (this.resources != null) {
+            return;
+        }
+        LocalizerStatusProtoOrBuilder p = viaProto ? proto : builder;
+        List<LocalResourceStatusProto> list = p.getResourcesList();
+        this.resources = new ArrayList<LocalResourceStatus>();
+
+        for (LocalResourceStatusProto c : list) {
+            this.resources.add(convertFromProtoFormat(c));
+        }
+    }
+
+    private void addResourcesToProto() {
+        maybeInitBuilder();
+        builder.clearResources();
+        if (this.resources == null)
+            return;
+        Iterable<LocalResourceStatusProto> iterable =
         new Iterable<LocalResourceStatusProto>() {
-      @Override
-      public Iterator<LocalResourceStatusProto> iterator() {
-        return new Iterator<LocalResourceStatusProto>() {
+            @Override
+            public Iterator<LocalResourceStatusProto> iterator() {
+                return new Iterator<LocalResourceStatusProto>() {
 
-          Iterator<LocalResourceStatus> iter = resources.iterator();
+                    Iterator<LocalResourceStatus> iter = resources.iterator();
 
-          @Override
-          public boolean hasNext() {
-            return iter.hasNext();
-          }
+                    @Override
+                    public boolean hasNext() {
+                        return iter.hasNext();
+                    }
 
-          @Override
-          public LocalResourceStatusProto next() {
-            return convertToProtoFormat(iter.next());
-          }
+                    @Override
+                    public LocalResourceStatusProto next() {
+                        return convertToProtoFormat(iter.next());
+                    }
 
-          @Override
-          public void remove() {
-            throw new UnsupportedOperationException();
+                    @Override
+                    public void remove() {
+                        throw new UnsupportedOperationException();
 
-          }
+                    }
+                };
+
+            }
         };
+        builder.addAllResources(iterable);
+    }
 
-      }
-    };
-    builder.addAllResources(iterable);
-  }
+    @Override
+    public void addAllResources(List<LocalResourceStatus> resources) {
+        if (resources == null)
+            return;
+        initResources();
+        this.resources.addAll(resources);
+    }
 
-  @Override
-  public void addAllResources(List<LocalResourceStatus> resources) {
-    if (resources == null)
-      return;
-    initResources();
-    this.resources.addAll(resources);
-  }
+    @Override
+    public LocalResourceStatus getResourceStatus(int index) {
+        initResources();
+        return this.resources.get(index);
+    }
 
-  @Override
-  public LocalResourceStatus getResourceStatus(int index) {
-    initResources();
-    return this.resources.get(index);
-  }
+    @Override
+    public void addResourceStatus(LocalResourceStatus resource) {
+        initResources();
+        this.resources.add(resource);
+    }
 
-  @Override
-  public void addResourceStatus(LocalResourceStatus resource) {
-    initResources();
-    this.resources.add(resource);
-  }
+    @Override
+    public void removeResource(int index) {
+        initResources();
+        this.resources.remove(index);
+    }
 
-  @Override
-  public void removeResource(int index) {
-    initResources();
-    this.resources.remove(index);
-  }
+    @Override
+    public void clearResources() {
+        initResources();
+        this.resources.clear();
+    }
 
-  @Override
-  public void clearResources() {
-    initResources();
-    this.resources.clear();
-  }
+    private LocalResourceStatus
+    convertFromProtoFormat(LocalResourceStatusProto p) {
+        return new LocalResourceStatusPBImpl(p);
+    }
 
-  private LocalResourceStatus
-      convertFromProtoFormat(LocalResourceStatusProto p) {
-    return new LocalResourceStatusPBImpl(p);
-  }
-
-  private LocalResourceStatusProto convertToProtoFormat(LocalResourceStatus s) {
-    return ((LocalResourceStatusPBImpl)s).getProto();
-  }
+    private LocalResourceStatusProto convertToProtoFormat(LocalResourceStatus s) {
+        return ((LocalResourceStatusPBImpl)s).getProto();
+    }
 
 }

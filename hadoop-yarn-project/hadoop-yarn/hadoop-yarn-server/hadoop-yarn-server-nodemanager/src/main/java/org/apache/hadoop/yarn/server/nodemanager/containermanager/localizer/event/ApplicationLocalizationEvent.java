@@ -22,15 +22,15 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.application.Ap
 
 public class ApplicationLocalizationEvent extends LocalizationEvent {
 
-  final Application app;
+    final Application app;
 
-  public ApplicationLocalizationEvent(LocalizationEventType type, Application app) {
-    super(type);
-    this.app = app;
-  }
+    public ApplicationLocalizationEvent(LocalizationEventType type, Application app) {
+        super(type);
+        this.app = app;
+    }
 
-  public Application getApplication() {
-    return app;
-  }
+    public Application getApplication() {
+        return app;
+    }
 
 }

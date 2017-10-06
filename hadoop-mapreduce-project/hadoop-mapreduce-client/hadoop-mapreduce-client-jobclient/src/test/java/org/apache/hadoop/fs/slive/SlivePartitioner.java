@@ -27,12 +27,12 @@ import org.apache.hadoop.mapred.Partitioner;
  * number of the reducers.
  */
 public class SlivePartitioner implements Partitioner<Text, Text> {
-  @Override // JobConfigurable
-  public void configure(JobConf conf) {}
+    @Override // JobConfigurable
+    public void configure(JobConf conf) {}
 
-  @Override // Partitioner
-  public int getPartition(Text key, Text value, int numPartitions) {
-    OperationOutput oo = new OperationOutput(key, value);
-    return (oo.getOperationType().hashCode() & Integer.MAX_VALUE) % numPartitions;
-  }
+    @Override // Partitioner
+    public int getPartition(Text key, Text value, int numPartitions) {
+        OperationOutput oo = new OperationOutput(key, value);
+        return (oo.getOperationType().hashCode() & Integer.MAX_VALUE) % numPartitions;
+    }
 }

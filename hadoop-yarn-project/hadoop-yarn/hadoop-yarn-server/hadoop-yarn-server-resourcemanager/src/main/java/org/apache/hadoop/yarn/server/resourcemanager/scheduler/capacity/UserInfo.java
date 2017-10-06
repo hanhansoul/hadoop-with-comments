@@ -28,33 +28,33 @@ import org.apache.hadoop.yarn.server.resourcemanager.webapp.dao.ResourceInfo;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UserInfo {
-  protected String  username;
-  protected ResourceInfo resourcesUsed;
-  protected int numPendingApplications;
-  protected int numActiveApplications;
+    protected String  username;
+    protected ResourceInfo resourcesUsed;
+    protected int numPendingApplications;
+    protected int numActiveApplications;
 
-  UserInfo() {}
+    UserInfo() {}
 
-  UserInfo(String username, Resource resUsed, int activeApps, int pendingApps) {
-    this.username = username;
-    this.resourcesUsed = new ResourceInfo(resUsed);
-    this.numActiveApplications = activeApps;
-    this.numPendingApplications = pendingApps;
-  }
+    UserInfo(String username, Resource resUsed, int activeApps, int pendingApps) {
+        this.username = username;
+        this.resourcesUsed = new ResourceInfo(resUsed);
+        this.numActiveApplications = activeApps;
+        this.numPendingApplications = pendingApps;
+    }
 
-  public String getUsername() {
-    return username;
-  }
+    public String getUsername() {
+        return username;
+    }
 
-  public ResourceInfo getResourcesUsed() {
-    return resourcesUsed;
-  }
+    public ResourceInfo getResourcesUsed() {
+        return resourcesUsed;
+    }
 
-  public int getNumPendingApplications() {
-    return numPendingApplications;
-  }
+    public int getNumPendingApplications() {
+        return numPendingApplications;
+    }
 
-  public int getNumActiveApplications() {
-    return numActiveApplications;
-  }
+    public int getNumActiveApplications() {
+        return numActiveApplications;
+    }
 }

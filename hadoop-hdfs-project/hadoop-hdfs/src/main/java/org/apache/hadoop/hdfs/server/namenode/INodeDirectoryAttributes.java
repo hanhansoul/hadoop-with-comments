@@ -27,62 +27,62 @@ import com.google.common.base.Preconditions;
  */
 @InterfaceAudience.Private
 public interface INodeDirectoryAttributes extends INodeAttributes {
-  public Quota.Counts getQuotaCounts();
+    public Quota.Counts getQuotaCounts();
 
-  public boolean metadataEquals(INodeDirectoryAttributes other);
-  
-  /** A copy of the inode directory attributes */
-  public static class SnapshotCopy extends INodeAttributes.SnapshotCopy
-      implements INodeDirectoryAttributes {
-    public SnapshotCopy(byte[] name, PermissionStatus permissions,
-        AclFeature aclFeature, long modificationTime, 
-        XAttrFeature xAttrsFeature) {
-      super(name, permissions, aclFeature, modificationTime, 0L, xAttrsFeature);
+    public boolean metadataEquals(INodeDirectoryAttributes other);
+
+    /** A copy of the inode directory attributes */
+    public static class SnapshotCopy extends INodeAttributes.SnapshotCopy
+        implements INodeDirectoryAttributes {
+        public SnapshotCopy(byte[] name, PermissionStatus permissions,
+                            AclFeature aclFeature, long modificationTime,
+                            XAttrFeature xAttrsFeature) {
+            super(name, permissions, aclFeature, modificationTime, 0L, xAttrsFeature);
+        }
+
+        public SnapshotCopy(INodeDirectory dir) {
+            super(dir);
+        }
+
+        @Override
+        public Quota.Counts getQuotaCounts() {
+            return Quota.Counts.newInstance(-1, -1);
+        }
+
+        @Override
+        public boolean metadataEquals(INodeDirectoryAttributes other) {
+            return other != null
+                   && getQuotaCounts().equals(other.getQuotaCounts())
+                   && getPermissionLong() == other.getPermissionLong()
+                   && getAclFeature() == other.getAclFeature()
+                   && getXAttrFeature() == other.getXAttrFeature();
+        }
     }
 
-    public SnapshotCopy(INodeDirectory dir) {
-      super(dir);
-    }
-
-    @Override
-    public Quota.Counts getQuotaCounts() {
-      return Quota.Counts.newInstance(-1, -1);
-    }
-
-    @Override
-    public boolean metadataEquals(INodeDirectoryAttributes other) {
-      return other != null
-          && getQuotaCounts().equals(other.getQuotaCounts())
-          && getPermissionLong() == other.getPermissionLong()
-          && getAclFeature() == other.getAclFeature()
-          && getXAttrFeature() == other.getXAttrFeature();
-    }
-  }
-
-  public static class CopyWithQuota extends INodeDirectoryAttributes.SnapshotCopy {
-    private final long nsQuota;
-    private final long dsQuota;
+    public static class CopyWithQuota extends INodeDirectoryAttributes.SnapshotCopy {
+        private final long nsQuota;
+        private final long dsQuota;
 
 
-    public CopyWithQuota(byte[] name, PermissionStatus permissions,
-        AclFeature aclFeature, long modificationTime, long nsQuota,
-        long dsQuota, XAttrFeature xAttrsFeature) {
-      super(name, permissions, aclFeature, modificationTime, xAttrsFeature);
-      this.nsQuota = nsQuota;
-      this.dsQuota = dsQuota;
-    }
+        public CopyWithQuota(byte[] name, PermissionStatus permissions,
+                             AclFeature aclFeature, long modificationTime, long nsQuota,
+                             long dsQuota, XAttrFeature xAttrsFeature) {
+            super(name, permissions, aclFeature, modificationTime, xAttrsFeature);
+            this.nsQuota = nsQuota;
+            this.dsQuota = dsQuota;
+        }
 
-    public CopyWithQuota(INodeDirectory dir) {
-      super(dir);
-      Preconditions.checkArgument(dir.isQuotaSet());
-      final Quota.Counts q = dir.getQuotaCounts();
-      this.nsQuota = q.get(Quota.NAMESPACE);
-      this.dsQuota = q.get(Quota.DISKSPACE);
+        public CopyWithQuota(INodeDirectory dir) {
+            super(dir);
+            Preconditions.checkArgument(dir.isQuotaSet());
+            final Quota.Counts q = dir.getQuotaCounts();
+            this.nsQuota = q.get(Quota.NAMESPACE);
+            this.dsQuota = q.get(Quota.DISKSPACE);
+        }
+
+        @Override
+        public Quota.Counts getQuotaCounts() {
+            return Quota.Counts.newInstance(nsQuota, dsQuota);
+        }
     }
-    
-    @Override
-    public Quota.Counts getQuotaCounts() {
-      return Quota.Counts.newInstance(nsQuota, dsQuota);
-    }
-  }
 }

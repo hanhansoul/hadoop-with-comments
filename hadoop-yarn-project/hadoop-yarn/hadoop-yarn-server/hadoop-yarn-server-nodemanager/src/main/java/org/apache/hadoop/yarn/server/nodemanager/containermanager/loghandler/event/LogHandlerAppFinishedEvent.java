@@ -22,15 +22,15 @@ import org.apache.hadoop.yarn.api.records.ApplicationId;
 
 public class LogHandlerAppFinishedEvent extends LogHandlerEvent {
 
-  private final ApplicationId applicationId;
+    private final ApplicationId applicationId;
 
-  public LogHandlerAppFinishedEvent(ApplicationId appId) {
-    super(LogHandlerEventType.APPLICATION_FINISHED);
-    this.applicationId = appId;
-  }
+    public LogHandlerAppFinishedEvent(ApplicationId appId) {
+        super(LogHandlerEventType.APPLICATION_FINISHED);
+        this.applicationId = appId;
+    }
 
-  public ApplicationId getApplicationId() {
-    return this.applicationId;
-  }
+    public ApplicationId getApplicationId() {
+        return this.applicationId;
+    }
 
 }

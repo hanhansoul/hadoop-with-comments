@@ -29,61 +29,61 @@ import org.apache.hadoop.fs.permission.FsPermission;
  */
 @InterfaceAudience.Private
 public class FsPermissionExtension extends FsPermission {
-  private final static short ACL_BIT = 1 << 12;
-  private final static short ENCRYPTED_BIT = 1 << 13;
-  private final boolean aclBit;
-  private final boolean encryptedBit;
+    private final static short ACL_BIT = 1 << 12;
+    private final static short ENCRYPTED_BIT = 1 << 13;
+    private final boolean aclBit;
+    private final boolean encryptedBit;
 
-  /**
-   * Constructs a new FsPermissionExtension based on the given FsPermission.
-   *
-   * @param perm FsPermission containing permission bits
-   */
-  public FsPermissionExtension(FsPermission perm, boolean hasAcl,
-      boolean isEncrypted) {
-    super(perm.toShort());
-    aclBit = hasAcl;
-    encryptedBit = isEncrypted;
-  }
+    /**
+     * Constructs a new FsPermissionExtension based on the given FsPermission.
+     *
+     * @param perm FsPermission containing permission bits
+     */
+    public FsPermissionExtension(FsPermission perm, boolean hasAcl,
+                                 boolean isEncrypted) {
+        super(perm.toShort());
+        aclBit = hasAcl;
+        encryptedBit = isEncrypted;
+    }
 
-  /**
-   * Creates a new FsPermissionExtension by calling the base class constructor.
-   *
-   * @param perm short containing permission bits
-   */
-  public FsPermissionExtension(short perm) {
-    super(perm);
-    aclBit = (perm & ACL_BIT) != 0;
-    encryptedBit = (perm & ENCRYPTED_BIT) != 0;
-  }
+    /**
+     * Creates a new FsPermissionExtension by calling the base class constructor.
+     *
+     * @param perm short containing permission bits
+     */
+    public FsPermissionExtension(short perm) {
+        super(perm);
+        aclBit = (perm & ACL_BIT) != 0;
+        encryptedBit = (perm & ENCRYPTED_BIT) != 0;
+    }
 
-  @Override
-  public short toExtendedShort() {
-    return (short)(toShort() |
-        (aclBit ? ACL_BIT : 0) | (encryptedBit ? ENCRYPTED_BIT : 0));
-  }
+    @Override
+    public short toExtendedShort() {
+        return (short)(toShort() |
+                       (aclBit ? ACL_BIT : 0) | (encryptedBit ? ENCRYPTED_BIT : 0));
+    }
 
-  @Override
-  public boolean getAclBit() {
-    return aclBit;
-  }
+    @Override
+    public boolean getAclBit() {
+        return aclBit;
+    }
 
-  @Override
-  public boolean getEncryptedBit() {
-    return encryptedBit;
-  }
+    @Override
+    public boolean getEncryptedBit() {
+        return encryptedBit;
+    }
 
-  @Override
-  public boolean equals(Object o) {
-    // This intentionally delegates to the base class.  This is only overridden
-    // to suppress a FindBugs warning.
-    return super.equals(o);
-  }
+    @Override
+    public boolean equals(Object o) {
+        // This intentionally delegates to the base class.  This is only overridden
+        // to suppress a FindBugs warning.
+        return super.equals(o);
+    }
 
-  @Override
-  public int hashCode() {
-    // This intentionally delegates to the base class.  This is only overridden
-    // to suppress a FindBugs warning.
-    return super.hashCode();
-  }
+    @Override
+    public int hashCode() {
+        // This intentionally delegates to the base class.  This is only overridden
+        // to suppress a FindBugs warning.
+        return super.hashCode();
+    }
 }

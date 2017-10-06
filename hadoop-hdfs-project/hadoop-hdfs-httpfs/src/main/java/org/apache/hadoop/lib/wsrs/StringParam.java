@@ -24,47 +24,47 @@ import java.util.regex.Pattern;
 
 @InterfaceAudience.Private
 public abstract class StringParam extends Param<String> {
-  private Pattern pattern;
+    private Pattern pattern;
 
-  public StringParam(String name, String defaultValue) {
-    this(name, defaultValue, null);
-  }
+    public StringParam(String name, String defaultValue) {
+        this(name, defaultValue, null);
+    }
 
-  public StringParam(String name, String defaultValue, Pattern pattern) {
-    super(name, defaultValue);
-    this.pattern = pattern;
-    parseParam(defaultValue);
-  }
+    public StringParam(String name, String defaultValue, Pattern pattern) {
+        super(name, defaultValue);
+        this.pattern = pattern;
+        parseParam(defaultValue);
+    }
 
-  @Override
-  public String parseParam(String str) {
-    try {
-      if (str != null) {
-        str = str.trim();
-        if (str.length() > 0) {
-          value = parse(str);
+    @Override
+    public String parseParam(String str) {
+        try {
+            if (str != null) {
+                str = str.trim();
+                if (str.length() > 0) {
+                    value = parse(str);
+                }
+            }
+        } catch (Exception ex) {
+            throw new IllegalArgumentException(
+                MessageFormat.format("Parameter [{0}], invalid value [{1}], value must be [{2}]",
+                                     getName(), str, getDomain()));
         }
-      }
-    } catch (Exception ex) {
-      throw new IllegalArgumentException(
-        MessageFormat.format("Parameter [{0}], invalid value [{1}], value must be [{2}]",
-                             getName(), str, getDomain()));
+        return value;
     }
-    return value;
-  }
 
-  @Override
-  protected String parse(String str) throws Exception {
-    if (pattern != null) {
-      if (!pattern.matcher(str).matches()) {
-        throw new IllegalArgumentException("Invalid value");
-      }
+    @Override
+    protected String parse(String str) throws Exception {
+        if (pattern != null) {
+            if (!pattern.matcher(str).matches()) {
+                throw new IllegalArgumentException("Invalid value");
+            }
+        }
+        return str;
     }
-    return str;
-  }
 
-  @Override
-  protected String getDomain() {
-    return (pattern == null) ? "a string" : pattern.pattern();
-  }
+    @Override
+    protected String getDomain() {
+        return (pattern == null) ? "a string" : pattern.pattern();
+    }
 }

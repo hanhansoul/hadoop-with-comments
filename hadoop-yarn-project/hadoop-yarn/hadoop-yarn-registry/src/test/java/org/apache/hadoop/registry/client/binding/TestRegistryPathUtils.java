@@ -30,149 +30,149 @@ import org.junit.Test;
 public class TestRegistryPathUtils extends Assert {
 
 
-  public static final String EURO = "\u20AC";
+    public static final String EURO = "\u20AC";
 
-  @Test
-  public void testFormatAscii() throws Throwable {
+    @Test
+    public void testFormatAscii() throws Throwable {
 
-    String in = "hostname01101101-1";
-    assertConverted(in, in);
-  }
-
-  /*
-  * Euro symbol
-   */
-  @Test
-  public void testFormatEuroSymbol() throws Throwable {
-    assertConverted("xn--lzg", EURO);
-  }
-
-  @Test
-  public void testFormatIdempotent() throws Throwable {
-    assertConverted("xn--lzg", RegistryPathUtils.encodeForRegistry(EURO));
-  }
-
-  @Test
-  public void testFormatCyrillicSpaced() throws Throwable {
-    assertConverted("xn--pa 3-k4di", "\u0413PA\u0414 3");
-  }
-
-  protected void assertConverted(String expected, String in) {
-    String out = RegistryPathUtils.encodeForRegistry(in);
-    assertEquals("Conversion of " + in, expected, out);
-  }
-
-  @Test
-  public void testPaths() throws Throwable {
-    assertCreatedPathEquals("/", "/", "");
-    assertCreatedPathEquals("/", "", "");
-    assertCreatedPathEquals("/", "", "/");
-    assertCreatedPathEquals("/", "/", "/");
-
-    assertCreatedPathEquals("/a", "/a", "");
-    assertCreatedPathEquals("/a", "/", "a");
-    assertCreatedPathEquals("/a/b", "/a", "b");
-    assertCreatedPathEquals("/a/b", "/a/", "b");
-    assertCreatedPathEquals("/a/b", "/a", "/b");
-    assertCreatedPathEquals("/a/b", "/a", "/b/");
-    assertCreatedPathEquals("/a", "/a", "/");
-    assertCreatedPathEquals("/alice", "/", "/alice");
-    assertCreatedPathEquals("/alice", "/alice", "/");
-  }
-
-
-
-
-  @Test
-  public void testComplexPaths() throws Throwable {
-    assertCreatedPathEquals("/", "", "");
-    assertCreatedPathEquals("/yarn/registry/users/hadoop/org-apache-hadoop",
-        "/yarn/registry",
-        "users/hadoop/org-apache-hadoop/");
-  }
-
-
-  private static void assertCreatedPathEquals(String expected, String base,
-      String path) throws IOException {
-    String fullPath = createFullPath(base, path);
-    assertEquals("\"" + base + "\" + \"" + path + "\" =\"" + fullPath + "\"",
-        expected, fullPath);
-  }
-
-  @Test
-  public void testSplittingEmpty() throws Throwable {
-    assertEquals(0, split("").size());
-    assertEquals(0, split("/").size());
-    assertEquals(0, split("///").size());
-  }
-
-
-  @Test
-  public void testSplitting() throws Throwable {
-    assertEquals(1, split("/a").size());
-    assertEquals(0, split("/").size());
-    assertEquals(3, split("/a/b/c").size());
-    assertEquals(3, split("/a/b/c/").size());
-    assertEquals(3, split("a/b/c").size());
-    assertEquals(3, split("/a/b//c").size());
-    assertEquals(3, split("//a/b/c/").size());
-    List<String> split = split("//a/b/c/");
-    assertEquals("a", split.get(0));
-    assertEquals("b", split.get(1));
-    assertEquals("c", split.get(2));
-  }
-
-  @Test
-  public void testParentOf() throws Throwable {
-    assertEquals("/", parentOf("/a"));
-    assertEquals("/", parentOf("/a/"));
-    assertEquals("/a", parentOf("/a/b"));
-    assertEquals("/a/b", parentOf("/a/b/c"));
-  }
-
-  @Test
-  public void testLastPathEntry() throws Throwable {
-    assertEquals("",lastPathEntry("/"));
-    assertEquals("",lastPathEntry("//"));
-    assertEquals("c",lastPathEntry("/a/b/c"));
-    assertEquals("c",lastPathEntry("/a/b/c/"));
-  }
-
-  @Test(expected = PathNotFoundException.class)
-  public void testParentOfRoot() throws Throwable {
-    parentOf("/");
-  }
-
-  @Test
-  public void testValidPaths() throws Throwable {
-    assertValidPath("/");
-    assertValidPath("/a/b/c");
-    assertValidPath("/users/drwho/org-apache-hadoop/registry/appid-55-55");
-    assertValidPath("/a50");
-  }
-
-  @Test
-  public void testInvalidPaths() throws Throwable {
-    assertInvalidPath("/a_b");
-    assertInvalidPath("/UpperAndLowerCase");
-    assertInvalidPath("/space in string");
-// Is this valid?    assertInvalidPath("/50");
-  }
-
-
-  private void assertValidPath(String path) throws InvalidPathnameException {
-    validateZKPath(path);
-  }
-
-
-  private void assertInvalidPath(String path) throws InvalidPathnameException {
-    try {
-      validateElementsAsDNS(path);
-      fail("path considered valid: " + path);
-    } catch (InvalidPathnameException expected) {
-      // expected
+        String in = "hostname01101101-1";
+        assertConverted(in, in);
     }
-  }
+
+    /*
+    * Euro symbol
+     */
+    @Test
+    public void testFormatEuroSymbol() throws Throwable {
+        assertConverted("xn--lzg", EURO);
+    }
+
+    @Test
+    public void testFormatIdempotent() throws Throwable {
+        assertConverted("xn--lzg", RegistryPathUtils.encodeForRegistry(EURO));
+    }
+
+    @Test
+    public void testFormatCyrillicSpaced() throws Throwable {
+        assertConverted("xn--pa 3-k4di", "\u0413PA\u0414 3");
+    }
+
+    protected void assertConverted(String expected, String in) {
+        String out = RegistryPathUtils.encodeForRegistry(in);
+        assertEquals("Conversion of " + in, expected, out);
+    }
+
+    @Test
+    public void testPaths() throws Throwable {
+        assertCreatedPathEquals("/", "/", "");
+        assertCreatedPathEquals("/", "", "");
+        assertCreatedPathEquals("/", "", "/");
+        assertCreatedPathEquals("/", "/", "/");
+
+        assertCreatedPathEquals("/a", "/a", "");
+        assertCreatedPathEquals("/a", "/", "a");
+        assertCreatedPathEquals("/a/b", "/a", "b");
+        assertCreatedPathEquals("/a/b", "/a/", "b");
+        assertCreatedPathEquals("/a/b", "/a", "/b");
+        assertCreatedPathEquals("/a/b", "/a", "/b/");
+        assertCreatedPathEquals("/a", "/a", "/");
+        assertCreatedPathEquals("/alice", "/", "/alice");
+        assertCreatedPathEquals("/alice", "/alice", "/");
+    }
+
+
+
+
+    @Test
+    public void testComplexPaths() throws Throwable {
+        assertCreatedPathEquals("/", "", "");
+        assertCreatedPathEquals("/yarn/registry/users/hadoop/org-apache-hadoop",
+                                "/yarn/registry",
+                                "users/hadoop/org-apache-hadoop/");
+    }
+
+
+    private static void assertCreatedPathEquals(String expected, String base,
+            String path) throws IOException {
+        String fullPath = createFullPath(base, path);
+        assertEquals("\"" + base + "\" + \"" + path + "\" =\"" + fullPath + "\"",
+                     expected, fullPath);
+    }
+
+    @Test
+    public void testSplittingEmpty() throws Throwable {
+        assertEquals(0, split("").size());
+        assertEquals(0, split("/").size());
+        assertEquals(0, split("///").size());
+    }
+
+
+    @Test
+    public void testSplitting() throws Throwable {
+        assertEquals(1, split("/a").size());
+        assertEquals(0, split("/").size());
+        assertEquals(3, split("/a/b/c").size());
+        assertEquals(3, split("/a/b/c/").size());
+        assertEquals(3, split("a/b/c").size());
+        assertEquals(3, split("/a/b//c").size());
+        assertEquals(3, split("//a/b/c/").size());
+        List<String> split = split("//a/b/c/");
+        assertEquals("a", split.get(0));
+        assertEquals("b", split.get(1));
+        assertEquals("c", split.get(2));
+    }
+
+    @Test
+    public void testParentOf() throws Throwable {
+        assertEquals("/", parentOf("/a"));
+        assertEquals("/", parentOf("/a/"));
+        assertEquals("/a", parentOf("/a/b"));
+        assertEquals("/a/b", parentOf("/a/b/c"));
+    }
+
+    @Test
+    public void testLastPathEntry() throws Throwable {
+        assertEquals("",lastPathEntry("/"));
+        assertEquals("",lastPathEntry("//"));
+        assertEquals("c",lastPathEntry("/a/b/c"));
+        assertEquals("c",lastPathEntry("/a/b/c/"));
+    }
+
+    @Test(expected = PathNotFoundException.class)
+    public void testParentOfRoot() throws Throwable {
+        parentOf("/");
+    }
+
+    @Test
+    public void testValidPaths() throws Throwable {
+        assertValidPath("/");
+        assertValidPath("/a/b/c");
+        assertValidPath("/users/drwho/org-apache-hadoop/registry/appid-55-55");
+        assertValidPath("/a50");
+    }
+
+    @Test
+    public void testInvalidPaths() throws Throwable {
+        assertInvalidPath("/a_b");
+        assertInvalidPath("/UpperAndLowerCase");
+        assertInvalidPath("/space in string");
+// Is this valid?    assertInvalidPath("/50");
+    }
+
+
+    private void assertValidPath(String path) throws InvalidPathnameException {
+        validateZKPath(path);
+    }
+
+
+    private void assertInvalidPath(String path) throws InvalidPathnameException {
+        try {
+            validateElementsAsDNS(path);
+            fail("path considered valid: " + path);
+        } catch (InvalidPathnameException expected) {
+            // expected
+        }
+    }
 
 
 }

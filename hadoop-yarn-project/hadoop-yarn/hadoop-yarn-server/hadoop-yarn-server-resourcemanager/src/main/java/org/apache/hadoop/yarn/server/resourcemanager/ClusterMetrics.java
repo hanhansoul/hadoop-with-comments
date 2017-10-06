@@ -35,116 +35,116 @@ import com.google.common.annotations.VisibleForTesting;
 @InterfaceAudience.Private
 @Metrics(context="yarn")
 public class ClusterMetrics {
-  
-  private static AtomicBoolean isInitialized = new AtomicBoolean(false);
-  
-  @Metric("# of active NMs") MutableGaugeInt numActiveNMs;
-  @Metric("# of decommissioned NMs") MutableGaugeInt numDecommissionedNMs;
-  @Metric("# of lost NMs") MutableGaugeInt numLostNMs;
-  @Metric("# of unhealthy NMs") MutableGaugeInt numUnhealthyNMs;
-  @Metric("# of Rebooted NMs") MutableGaugeInt numRebootedNMs;
-  
-  private static final MetricsInfo RECORD_INFO = info("ClusterMetrics",
-  "Metrics for the Yarn Cluster");
-  
-  private static volatile ClusterMetrics INSTANCE = null;
-  private static MetricsRegistry registry;
-  
-  public static ClusterMetrics getMetrics() {
-    if(!isInitialized.get()){
-      synchronized (ClusterMetrics.class) {
-        if(INSTANCE == null){
-          INSTANCE = new ClusterMetrics();
-          registerMetrics();
-          isInitialized.set(true);
+
+    private static AtomicBoolean isInitialized = new AtomicBoolean(false);
+
+    @Metric("# of active NMs") MutableGaugeInt numActiveNMs;
+    @Metric("# of decommissioned NMs") MutableGaugeInt numDecommissionedNMs;
+    @Metric("# of lost NMs") MutableGaugeInt numLostNMs;
+    @Metric("# of unhealthy NMs") MutableGaugeInt numUnhealthyNMs;
+    @Metric("# of Rebooted NMs") MutableGaugeInt numRebootedNMs;
+
+    private static final MetricsInfo RECORD_INFO = info("ClusterMetrics",
+            "Metrics for the Yarn Cluster");
+
+    private static volatile ClusterMetrics INSTANCE = null;
+    private static MetricsRegistry registry;
+
+    public static ClusterMetrics getMetrics() {
+        if(!isInitialized.get()) {
+            synchronized (ClusterMetrics.class) {
+                if(INSTANCE == null) {
+                    INSTANCE = new ClusterMetrics();
+                    registerMetrics();
+                    isInitialized.set(true);
+                }
+            }
         }
-      }
+        return INSTANCE;
     }
-    return INSTANCE;
-  }
 
-  private static void registerMetrics() {
-    registry = new MetricsRegistry(RECORD_INFO);
-    registry.tag(RECORD_INFO, "ResourceManager");
-    MetricsSystem ms = DefaultMetricsSystem.instance();
-    if (ms != null) {
-      ms.register("ClusterMetrics", "Metrics for the Yarn Cluster", INSTANCE);
+    private static void registerMetrics() {
+        registry = new MetricsRegistry(RECORD_INFO);
+        registry.tag(RECORD_INFO, "ResourceManager");
+        MetricsSystem ms = DefaultMetricsSystem.instance();
+        if (ms != null) {
+            ms.register("ClusterMetrics", "Metrics for the Yarn Cluster", INSTANCE);
+        }
     }
-  }
 
-  @VisibleForTesting
-  synchronized static void destroy() {
-    isInitialized.set(false);
-    INSTANCE = null;
-  }
-  
-  //Active Nodemanagers
-  public int getNumActiveNMs() {
-    return numActiveNMs.value();
-  }
-  
-  //Decommisioned NMs
-  public int getNumDecommisionedNMs() {
-    return numDecommissionedNMs.value();
-  }
+    @VisibleForTesting
+    synchronized static void destroy() {
+        isInitialized.set(false);
+        INSTANCE = null;
+    }
 
-  public void incrDecommisionedNMs() {
-    numDecommissionedNMs.incr();
-  }
+    //Active Nodemanagers
+    public int getNumActiveNMs() {
+        return numActiveNMs.value();
+    }
 
-  public void setDecommisionedNMs(int num) {
-    numDecommissionedNMs.set(num);
-  }
+    //Decommisioned NMs
+    public int getNumDecommisionedNMs() {
+        return numDecommissionedNMs.value();
+    }
 
-  public void decrDecommisionedNMs() {
-    numDecommissionedNMs.decr();
-  }
-  
-  //Lost NMs
-  public int getNumLostNMs() {
-    return numLostNMs.value();
-  }
+    public void incrDecommisionedNMs() {
+        numDecommissionedNMs.incr();
+    }
 
-  public void incrNumLostNMs() {
-    numLostNMs.incr();
-  }
-  
-  public void decrNumLostNMs() {
-    numLostNMs.decr();
-  }
-  
-  //Unhealthy NMs
-  public int getUnhealthyNMs() {
-    return numUnhealthyNMs.value();
-  }
+    public void setDecommisionedNMs(int num) {
+        numDecommissionedNMs.set(num);
+    }
 
-  public void incrNumUnhealthyNMs() {
-    numUnhealthyNMs.incr();
-  }
-  
-  public void decrNumUnhealthyNMs() {
-    numUnhealthyNMs.decr();
-  }
-  
-  //Rebooted NMs
-  public int getNumRebootedNMs() {
-    return numRebootedNMs.value();
-  }
-  
-  public void incrNumRebootedNMs() {
-    numRebootedNMs.incr();
-  }
-  
-  public void decrNumRebootedNMs() {
-    numRebootedNMs.decr();
-  }
+    public void decrDecommisionedNMs() {
+        numDecommissionedNMs.decr();
+    }
 
-  public void incrNumActiveNodes() {
-    numActiveNMs.incr();
-  }
+    //Lost NMs
+    public int getNumLostNMs() {
+        return numLostNMs.value();
+    }
 
-  public void decrNumActiveNodes() {
-    numActiveNMs.decr();
-  }
+    public void incrNumLostNMs() {
+        numLostNMs.incr();
+    }
+
+    public void decrNumLostNMs() {
+        numLostNMs.decr();
+    }
+
+    //Unhealthy NMs
+    public int getUnhealthyNMs() {
+        return numUnhealthyNMs.value();
+    }
+
+    public void incrNumUnhealthyNMs() {
+        numUnhealthyNMs.incr();
+    }
+
+    public void decrNumUnhealthyNMs() {
+        numUnhealthyNMs.decr();
+    }
+
+    //Rebooted NMs
+    public int getNumRebootedNMs() {
+        return numRebootedNMs.value();
+    }
+
+    public void incrNumRebootedNMs() {
+        numRebootedNMs.incr();
+    }
+
+    public void decrNumRebootedNMs() {
+        numRebootedNMs.decr();
+    }
+
+    public void incrNumActiveNodes() {
+        numActiveNMs.incr();
+    }
+
+    public void decrNumActiveNodes() {
+        numActiveNMs.decr();
+    }
 
 }

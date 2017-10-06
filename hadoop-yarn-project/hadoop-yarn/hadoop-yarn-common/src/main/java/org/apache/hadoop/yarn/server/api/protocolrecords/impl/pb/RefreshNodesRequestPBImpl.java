@@ -29,42 +29,42 @@ import com.google.protobuf.TextFormat;
 @Unstable
 public class RefreshNodesRequestPBImpl extends RefreshNodesRequest {
 
-  RefreshNodesRequestProto proto = RefreshNodesRequestProto.getDefaultInstance();
-  RefreshNodesRequestProto.Builder builder = null;
-  boolean viaProto = false;
-  
-  public RefreshNodesRequestPBImpl() {
-    builder = RefreshNodesRequestProto.newBuilder();
-  }
+    RefreshNodesRequestProto proto = RefreshNodesRequestProto.getDefaultInstance();
+    RefreshNodesRequestProto.Builder builder = null;
+    boolean viaProto = false;
 
-  public RefreshNodesRequestPBImpl(RefreshNodesRequestProto proto) {
-    this.proto = proto;
-    viaProto = true;
-  }
-  
-  public RefreshNodesRequestProto getProto() {
-    proto = viaProto ? proto : builder.build();
-    viaProto = true;
-    return proto;
-  }
-
-  @Override
-  public int hashCode() {
-    return getProto().hashCode();
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)
-      return false;
-    if (other.getClass().isAssignableFrom(this.getClass())) {
-      return this.getProto().equals(this.getClass().cast(other).getProto());
+    public RefreshNodesRequestPBImpl() {
+        builder = RefreshNodesRequestProto.newBuilder();
     }
-    return false;
-  }
 
-  @Override
-  public String toString() {
-    return TextFormat.shortDebugString(getProto());
-  }
+    public RefreshNodesRequestPBImpl(RefreshNodesRequestProto proto) {
+        this.proto = proto;
+        viaProto = true;
+    }
+
+    public RefreshNodesRequestProto getProto() {
+        proto = viaProto ? proto : builder.build();
+        viaProto = true;
+        return proto;
+    }
+
+    @Override
+    public int hashCode() {
+        return getProto().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null)
+            return false;
+        if (other.getClass().isAssignableFrom(this.getClass())) {
+            return this.getProto().equals(this.getClass().cast(other).getProto());
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return TextFormat.shortDebugString(getProto());
+    }
 }

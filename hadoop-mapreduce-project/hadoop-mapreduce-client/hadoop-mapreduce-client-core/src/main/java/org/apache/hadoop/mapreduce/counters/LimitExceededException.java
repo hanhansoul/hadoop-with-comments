@@ -24,14 +24,14 @@ import org.apache.hadoop.mapred.Counters.CountersExceededException;
 @InterfaceAudience.Private
 public class LimitExceededException extends CountersExceededException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public LimitExceededException(String msg) {
-    super(msg);
-  }
+    public LimitExceededException(String msg) {
+        super(msg);
+    }
 
-  // Only allows chaining of related exceptions
-  public LimitExceededException(LimitExceededException cause) {
-    super(cause);
-  }
+    // Only allows chaining of related exceptions
+    public LimitExceededException(LimitExceededException cause) {
+        super(cause);
+    }
 }

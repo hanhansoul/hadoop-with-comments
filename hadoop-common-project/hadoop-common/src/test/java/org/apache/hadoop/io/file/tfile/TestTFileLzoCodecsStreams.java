@@ -23,17 +23,17 @@ import java.io.IOException;
 import org.apache.hadoop.io.file.tfile.Compression.Algorithm;
 
 public class TestTFileLzoCodecsStreams extends TestTFileStreams {
-  /**
-   * Test LZO compression codec, using the same test cases as in the ByteArrays.
-   */
-  @Override
-  public void setUp() throws IOException {
-    skip = !(Algorithm.LZO.isSupported());
-    if (skip) {
-      System.out.println("Skipped");
+    /**
+     * Test LZO compression codec, using the same test cases as in the ByteArrays.
+     */
+    @Override
+    public void setUp() throws IOException {
+        skip = !(Algorithm.LZO.isSupported());
+        if (skip) {
+            System.out.println("Skipped");
+        }
+        init(Compression.Algorithm.LZO.getName(), "memcmp");
+        if (!skip)
+            super.setUp();
     }
-    init(Compression.Algorithm.LZO.getName(), "memcmp");
-    if (!skip) 
-      super.setUp();
-  }
 }

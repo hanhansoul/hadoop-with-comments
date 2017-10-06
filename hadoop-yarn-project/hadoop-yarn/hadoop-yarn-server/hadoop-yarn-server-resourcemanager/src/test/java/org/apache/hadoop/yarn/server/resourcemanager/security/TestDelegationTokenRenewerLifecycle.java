@@ -34,16 +34,16 @@ import org.junit.Test;
  */
 public class TestDelegationTokenRenewerLifecycle {
 
-  @Test
-  public void testStartupFailure() throws Exception {
-    Configuration conf = new Configuration();
-    DelegationTokenRenewer delegationTokenRenewer =
-        new DelegationTokenRenewer();
-    RMContext mockContext = mock(RMContext.class);
-    ClientRMService mockClientRMService = mock(ClientRMService.class);
-    when(mockContext.getClientRMService()).thenReturn(mockClientRMService);
-    delegationTokenRenewer.setRMContext(mockContext);
-    delegationTokenRenewer.init(conf);
-    delegationTokenRenewer.stop();
-  }
+    @Test
+    public void testStartupFailure() throws Exception {
+        Configuration conf = new Configuration();
+        DelegationTokenRenewer delegationTokenRenewer =
+            new DelegationTokenRenewer();
+        RMContext mockContext = mock(RMContext.class);
+        ClientRMService mockClientRMService = mock(ClientRMService.class);
+        when(mockContext.getClientRMService()).thenReturn(mockClientRMService);
+        delegationTokenRenewer.setRMContext(mockContext);
+        delegationTokenRenewer.init(conf);
+        delegationTokenRenewer.stop();
+    }
 }

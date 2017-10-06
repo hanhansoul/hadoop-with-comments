@@ -47,55 +47,55 @@ import com.google.common.base.Preconditions;
 @Unstable
 public class ServerProxy {
 
-  protected static RetryPolicy createRetryPolicy(Configuration conf,
-      String maxWaitTimeStr, long defMaxWaitTime,
-      String connectRetryIntervalStr, long defRetryInterval) {
-    long maxWaitTime = conf.getLong(maxWaitTimeStr, defMaxWaitTime);
-    long retryIntervalMS =
-        conf.getLong(connectRetryIntervalStr, defRetryInterval);
+    protected static RetryPolicy createRetryPolicy(Configuration conf,
+            String maxWaitTimeStr, long defMaxWaitTime,
+            String connectRetryIntervalStr, long defRetryInterval) {
+        long maxWaitTime = conf.getLong(maxWaitTimeStr, defMaxWaitTime);
+        long retryIntervalMS =
+            conf.getLong(connectRetryIntervalStr, defRetryInterval);
 
-    Preconditions.checkArgument((maxWaitTime == -1 || maxWaitTime > 0),
-        "Invalid Configuration. " + maxWaitTimeStr + " should be either"
-            + " positive value or -1.");
-    Preconditions.checkArgument(retryIntervalMS > 0, "Invalid Configuration. "
-        + connectRetryIntervalStr + "should be a positive value.");
+        Preconditions.checkArgument((maxWaitTime == -1 || maxWaitTime > 0),
+                                    "Invalid Configuration. " + maxWaitTimeStr + " should be either"
+                                    + " positive value or -1.");
+        Preconditions.checkArgument(retryIntervalMS > 0, "Invalid Configuration. "
+                                    + connectRetryIntervalStr + "should be a positive value.");
 
-    RetryPolicy retryPolicy = null;
-    if (maxWaitTime == -1) {
-      // wait forever.
-      retryPolicy = RetryPolicies.RETRY_FOREVER;
-    } else {
-      retryPolicy =
-          RetryPolicies.retryUpToMaximumTimeWithFixedSleep(maxWaitTime,
-              retryIntervalMS, TimeUnit.MILLISECONDS);
+        RetryPolicy retryPolicy = null;
+        if (maxWaitTime == -1) {
+            // wait forever.
+            retryPolicy = RetryPolicies.RETRY_FOREVER;
+        } else {
+            retryPolicy =
+                RetryPolicies.retryUpToMaximumTimeWithFixedSleep(maxWaitTime,
+                        retryIntervalMS, TimeUnit.MILLISECONDS);
+        }
+
+        Map<Class<? extends Exception>, RetryPolicy> exceptionToPolicyMap =
+            new HashMap<Class<? extends Exception>, RetryPolicy>();
+        exceptionToPolicyMap.put(EOFException.class, retryPolicy);
+        exceptionToPolicyMap.put(ConnectException.class, retryPolicy);
+        exceptionToPolicyMap.put(NoRouteToHostException.class, retryPolicy);
+        exceptionToPolicyMap.put(UnknownHostException.class, retryPolicy);
+        exceptionToPolicyMap.put(ConnectTimeoutException.class, retryPolicy);
+        exceptionToPolicyMap.put(RetriableException.class, retryPolicy);
+        exceptionToPolicyMap.put(SocketException.class, retryPolicy);
+        exceptionToPolicyMap.put(NMNotYetReadyException.class, retryPolicy);
+
+        return RetryPolicies.retryByException(RetryPolicies.TRY_ONCE_THEN_FAIL,
+                                              exceptionToPolicyMap);
     }
 
-    Map<Class<? extends Exception>, RetryPolicy> exceptionToPolicyMap =
-        new HashMap<Class<? extends Exception>, RetryPolicy>();
-    exceptionToPolicyMap.put(EOFException.class, retryPolicy);
-    exceptionToPolicyMap.put(ConnectException.class, retryPolicy);
-    exceptionToPolicyMap.put(NoRouteToHostException.class, retryPolicy);
-    exceptionToPolicyMap.put(UnknownHostException.class, retryPolicy);
-    exceptionToPolicyMap.put(ConnectTimeoutException.class, retryPolicy);
-    exceptionToPolicyMap.put(RetriableException.class, retryPolicy);
-    exceptionToPolicyMap.put(SocketException.class, retryPolicy);
-    exceptionToPolicyMap.put(NMNotYetReadyException.class, retryPolicy);
-
-    return RetryPolicies.retryByException(RetryPolicies.TRY_ONCE_THEN_FAIL,
-      exceptionToPolicyMap);
-  }
-
-  @SuppressWarnings("unchecked")
-  protected static <T> T createRetriableProxy(final Configuration conf,
-      final Class<T> protocol, final UserGroupInformation user,
-      final YarnRPC rpc, final InetSocketAddress serverAddress,
-      RetryPolicy retryPolicy) {
-    T proxy = user.doAs(new PrivilegedAction<T>() {
-      @Override
-      public T run() {
-        return (T) rpc.getProxy(protocol, serverAddress, conf);
-      }
-    });
-    return (T) RetryProxy.create(protocol, proxy, retryPolicy);
-  }
+    @SuppressWarnings("unchecked")
+    protected static <T> T createRetriableProxy(final Configuration conf,
+            final Class<T> protocol, final UserGroupInformation user,
+            final YarnRPC rpc, final InetSocketAddress serverAddress,
+            RetryPolicy retryPolicy) {
+        T proxy = user.doAs(new PrivilegedAction<T>() {
+            @Override
+            public T run() {
+                return (T) rpc.getProxy(protocol, serverAddress, conf);
+            }
+        });
+        return (T) RetryProxy.create(protocol, proxy, retryPolicy);
+    }
 }

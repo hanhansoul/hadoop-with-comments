@@ -33,25 +33,25 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 @Unstable
 public class LocalConfigurationProvider extends ConfigurationProvider {
 
-  @Override
-  public InputStream getConfigurationInputStream(Configuration bootstrapConf,
-      String name) throws IOException, YarnException {
-    if (name == null || name.isEmpty()) {
-      throw new YarnException(
-          "Illegal argument! The parameter should not be null or empty");
-    } else if (YarnConfiguration.RM_CONFIGURATION_FILES.contains(name)) {
-      return bootstrapConf.getConfResourceAsInputStream(name);
+    @Override
+    public InputStream getConfigurationInputStream(Configuration bootstrapConf,
+            String name) throws IOException, YarnException {
+        if (name == null || name.isEmpty()) {
+            throw new YarnException(
+                "Illegal argument! The parameter should not be null or empty");
+        } else if (YarnConfiguration.RM_CONFIGURATION_FILES.contains(name)) {
+            return bootstrapConf.getConfResourceAsInputStream(name);
+        }
+        return new FileInputStream(name);
     }
-    return new FileInputStream(name);
-  }
 
-  @Override
-  public void initInternal(Configuration bootstrapConf) throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void initInternal(Configuration bootstrapConf) throws Exception {
+        // Do nothing
+    }
 
-  @Override
-  public void closeInternal() throws Exception {
-    // Do nothing
-  }
+    @Override
+    public void closeInternal() throws Exception {
+        // Do nothing
+    }
 }

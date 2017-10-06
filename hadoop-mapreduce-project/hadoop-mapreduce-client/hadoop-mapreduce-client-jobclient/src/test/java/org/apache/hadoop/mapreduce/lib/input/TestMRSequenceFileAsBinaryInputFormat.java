@@ -35,82 +35,82 @@ import org.apache.hadoop.mapreduce.task.MapContextImpl;
 import junit.framework.TestCase;
 
 public class TestMRSequenceFileAsBinaryInputFormat extends TestCase {
-  private static final int RECORDS = 10000;
+    private static final int RECORDS = 10000;
 
-  public void testBinary() throws IOException, InterruptedException {
-    Job job = Job.getInstance();
-    FileSystem fs = FileSystem.getLocal(job.getConfiguration());
-    Path dir = new Path(System.getProperty("test.build.data",".") + "/mapred");
-    Path file = new Path(dir, "testbinary.seq");
-    Random r = new Random();
-    long seed = r.nextLong();
-    r.setSeed(seed);
+    public void testBinary() throws IOException, InterruptedException {
+        Job job = Job.getInstance();
+        FileSystem fs = FileSystem.getLocal(job.getConfiguration());
+        Path dir = new Path(System.getProperty("test.build.data",".") + "/mapred");
+        Path file = new Path(dir, "testbinary.seq");
+        Random r = new Random();
+        long seed = r.nextLong();
+        r.setSeed(seed);
 
-    fs.delete(dir, true);
-    FileInputFormat.setInputPaths(job, dir);
+        fs.delete(dir, true);
+        FileInputFormat.setInputPaths(job, dir);
 
-    Text tkey = new Text();
-    Text tval = new Text();
+        Text tkey = new Text();
+        Text tval = new Text();
 
-    SequenceFile.Writer writer = new SequenceFile.Writer(fs,
-      job.getConfiguration(), file, Text.class, Text.class);
-    try {
-      for (int i = 0; i < RECORDS; ++i) {
-        tkey.set(Integer.toString(r.nextInt(), 36));
-        tval.set(Long.toString(r.nextLong(), 36));
-        writer.append(tkey, tval);
-      }
-    } finally {
-      writer.close();
-    }
-    TaskAttemptContext context = MapReduceTestUtil.
-      createDummyMapTaskAttemptContext(job.getConfiguration());
-    InputFormat<BytesWritable,BytesWritable> bformat =
-      new SequenceFileAsBinaryInputFormat();
-
-    int count = 0;
-    r.setSeed(seed);
-    BytesWritable bkey = new BytesWritable();
-    BytesWritable bval = new BytesWritable();
-    Text cmpkey = new Text();
-    Text cmpval = new Text();
-    DataInputBuffer buf = new DataInputBuffer();
-    FileInputFormat.setInputPaths(job, file);
-    for (InputSplit split : bformat.getSplits(job)) {
-      RecordReader<BytesWritable, BytesWritable> reader =
-            bformat.createRecordReader(split, context);
-      MapContext<BytesWritable, BytesWritable, BytesWritable, BytesWritable> 
-        mcontext = new MapContextImpl<BytesWritable, BytesWritable,
-          BytesWritable, BytesWritable>(job.getConfiguration(), 
-          context.getTaskAttemptID(), reader, null, null, 
-          MapReduceTestUtil.createDummyReporter(), 
-          split);
-      reader.initialize(split, mcontext);
-      try {
-        while (reader.nextKeyValue()) {
-          bkey = reader.getCurrentKey();
-          bval = reader.getCurrentValue();
-          tkey.set(Integer.toString(r.nextInt(), 36));
-          tval.set(Long.toString(r.nextLong(), 36));
-          buf.reset(bkey.getBytes(), bkey.getLength());
-          cmpkey.readFields(buf);
-          buf.reset(bval.getBytes(), bval.getLength());
-          cmpval.readFields(buf);
-          assertTrue(
-            "Keys don't match: " + "*" + cmpkey.toString() + ":" +
-            tkey.toString() + "*",
-            cmpkey.toString().equals(tkey.toString()));
-          assertTrue(
-            "Vals don't match: " + "*" + cmpval.toString() + ":" +
-            tval.toString() + "*",
-            cmpval.toString().equals(tval.toString()));
-          ++count;
+        SequenceFile.Writer writer = new SequenceFile.Writer(fs,
+                job.getConfiguration(), file, Text.class, Text.class);
+        try {
+            for (int i = 0; i < RECORDS; ++i) {
+                tkey.set(Integer.toString(r.nextInt(), 36));
+                tval.set(Long.toString(r.nextLong(), 36));
+                writer.append(tkey, tval);
+            }
+        } finally {
+            writer.close();
         }
-      } finally {
-        reader.close();
-      }
+        TaskAttemptContext context = MapReduceTestUtil.
+                                     createDummyMapTaskAttemptContext(job.getConfiguration());
+        InputFormat<BytesWritable,BytesWritable> bformat =
+            new SequenceFileAsBinaryInputFormat();
+
+        int count = 0;
+        r.setSeed(seed);
+        BytesWritable bkey = new BytesWritable();
+        BytesWritable bval = new BytesWritable();
+        Text cmpkey = new Text();
+        Text cmpval = new Text();
+        DataInputBuffer buf = new DataInputBuffer();
+        FileInputFormat.setInputPaths(job, file);
+        for (InputSplit split : bformat.getSplits(job)) {
+            RecordReader<BytesWritable, BytesWritable> reader =
+                bformat.createRecordReader(split, context);
+            MapContext<BytesWritable, BytesWritable, BytesWritable, BytesWritable>
+            mcontext = new MapContextImpl<BytesWritable, BytesWritable,
+            BytesWritable, BytesWritable>(job.getConfiguration(),
+                                          context.getTaskAttemptID(), reader, null, null,
+                                          MapReduceTestUtil.createDummyReporter(),
+                                          split);
+            reader.initialize(split, mcontext);
+            try {
+                while (reader.nextKeyValue()) {
+                    bkey = reader.getCurrentKey();
+                    bval = reader.getCurrentValue();
+                    tkey.set(Integer.toString(r.nextInt(), 36));
+                    tval.set(Long.toString(r.nextLong(), 36));
+                    buf.reset(bkey.getBytes(), bkey.getLength());
+                    cmpkey.readFields(buf);
+                    buf.reset(bval.getBytes(), bval.getLength());
+                    cmpval.readFields(buf);
+                    assertTrue(
+                        "Keys don't match: " + "*" + cmpkey.toString() + ":" +
+                        tkey.toString() + "*",
+                        cmpkey.toString().equals(tkey.toString()));
+                    assertTrue(
+                        "Vals don't match: " + "*" + cmpval.toString() + ":" +
+                        tval.toString() + "*",
+                        cmpval.toString().equals(tval.toString()));
+                    ++count;
+                }
+            } finally {
+                reader.close();
+            }
+        }
+        assertEquals("Some records not found", RECORDS, count);
     }
-    assertEquals("Some records not found", RECORDS, count);
-  }
 
 }

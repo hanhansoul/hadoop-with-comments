@@ -50,99 +50,99 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
  * The launcher for the containers. This service should be started only after
  * the {@link ResourceLocalizationService} is started as it depends on creation
  * of system directories on the local file-system.
- * 
+ *
  */
 public class ContainersLauncher extends AbstractService
     implements EventHandler<ContainersLauncherEvent> {
 
-  private static final Log LOG = LogFactory.getLog(ContainersLauncher.class);
+    private static final Log LOG = LogFactory.getLog(ContainersLauncher.class);
 
-  private final Context context;
-  private final ContainerExecutor exec;
-  private final Dispatcher dispatcher;
-  private final ContainerManagerImpl containerManager;
+    private final Context context;
+    private final ContainerExecutor exec;
+    private final Dispatcher dispatcher;
+    private final ContainerManagerImpl containerManager;
 
-  private LocalDirsHandlerService dirsHandler;
-  @VisibleForTesting
-  public ExecutorService containerLauncher =
-    Executors.newCachedThreadPool(
-        new ThreadFactoryBuilder()
-          .setNameFormat("ContainersLauncher #%d")
-          .build());
-  @VisibleForTesting
-  public final Map<ContainerId, ContainerLaunch> running =
-    Collections.synchronizedMap(new HashMap<ContainerId, ContainerLaunch>());
+    private LocalDirsHandlerService dirsHandler;
+    @VisibleForTesting
+    public ExecutorService containerLauncher =
+        Executors.newCachedThreadPool(
+            new ThreadFactoryBuilder()
+            .setNameFormat("ContainersLauncher #%d")
+            .build());
+    @VisibleForTesting
+    public final Map<ContainerId, ContainerLaunch> running =
+        Collections.synchronizedMap(new HashMap<ContainerId, ContainerLaunch>());
 
-  public ContainersLauncher(Context context, Dispatcher dispatcher,
-      ContainerExecutor exec, LocalDirsHandlerService dirsHandler,
-      ContainerManagerImpl containerManager) {
-    super("containers-launcher");
-    this.exec = exec;
-    this.context = context;
-    this.dispatcher = dispatcher;
-    this.dirsHandler = dirsHandler;
-    this.containerManager = containerManager;
-  }
-
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    try {
-      //TODO Is this required?
-      FileContext.getLocalFSFileContext(conf);
-    } catch (UnsupportedFileSystemException e) {
-      throw new YarnRuntimeException("Failed to start ContainersLauncher", e);
+    public ContainersLauncher(Context context, Dispatcher dispatcher,
+                              ContainerExecutor exec, LocalDirsHandlerService dirsHandler,
+                              ContainerManagerImpl containerManager) {
+        super("containers-launcher");
+        this.exec = exec;
+        this.context = context;
+        this.dispatcher = dispatcher;
+        this.dirsHandler = dirsHandler;
+        this.containerManager = containerManager;
     }
-    super.serviceInit(conf);
-  }
 
-  @Override
-  protected  void serviceStop() throws Exception {
-    containerLauncher.shutdownNow();
-    super.serviceStop();
-  }
-
-  @Override
-  public void handle(ContainersLauncherEvent event) {
-    // TODO: ContainersLauncher launches containers one by one!!
-    Container container = event.getContainer();
-    ContainerId containerId = container.getContainerId();
-    switch (event.getType()) {
-      case LAUNCH_CONTAINER:
-        Application app =
-          context.getApplications().get(
-              containerId.getApplicationAttemptId().getApplicationId());
-
-        ContainerLaunch launch =
-            new ContainerLaunch(context, getConfig(), dispatcher, exec, app,
-              event.getContainer(), dirsHandler, containerManager);
-        containerLauncher.submit(launch);
-        running.put(containerId, launch);
-        break;
-      case RECOVER_CONTAINER:
-        app = context.getApplications().get(
-            containerId.getApplicationAttemptId().getApplicationId());
-        launch = new RecoveredContainerLaunch(context, getConfig(), dispatcher,
-            exec, app, event.getContainer(), dirsHandler, containerManager);
-        containerLauncher.submit(launch);
-        running.put(containerId, launch);
-        break;
-      case CLEANUP_CONTAINER:
-        ContainerLaunch launcher = running.remove(containerId);
-        if (launcher == null) {
-          // Container not launched. So nothing needs to be done.
-          return;
-        }
-
-        // Cleanup a container whether it is running/killed/completed, so that
-        // no sub-processes are alive.
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
         try {
-          launcher.cleanupContainer();
-        } catch (IOException e) {
-          LOG.warn("Got exception while cleaning container " + containerId
-              + ". Ignoring.");
+            //TODO Is this required?
+            FileContext.getLocalFSFileContext(conf);
+        } catch (UnsupportedFileSystemException e) {
+            throw new YarnRuntimeException("Failed to start ContainersLauncher", e);
         }
-        break;
+        super.serviceInit(conf);
     }
-  }
+
+    @Override
+    protected  void serviceStop() throws Exception {
+        containerLauncher.shutdownNow();
+        super.serviceStop();
+    }
+
+    @Override
+    public void handle(ContainersLauncherEvent event) {
+        // TODO: ContainersLauncher launches containers one by one!!
+        Container container = event.getContainer();
+        ContainerId containerId = container.getContainerId();
+        switch (event.getType()) {
+            case LAUNCH_CONTAINER:
+                Application app =
+                    context.getApplications().get(
+                        containerId.getApplicationAttemptId().getApplicationId());
+
+                ContainerLaunch launch =
+                    new ContainerLaunch(context, getConfig(), dispatcher, exec, app,
+                                        event.getContainer(), dirsHandler, containerManager);
+                containerLauncher.submit(launch);
+                running.put(containerId, launch);
+                break;
+            case RECOVER_CONTAINER:
+                app = context.getApplications().get(
+                          containerId.getApplicationAttemptId().getApplicationId());
+                launch = new RecoveredContainerLaunch(context, getConfig(), dispatcher,
+                                                      exec, app, event.getContainer(), dirsHandler, containerManager);
+                containerLauncher.submit(launch);
+                running.put(containerId, launch);
+                break;
+            case CLEANUP_CONTAINER:
+                ContainerLaunch launcher = running.remove(containerId);
+                if (launcher == null) {
+                    // Container not launched. So nothing needs to be done.
+                    return;
+                }
+
+                // Cleanup a container whether it is running/killed/completed, so that
+                // no sub-processes are alive.
+                try {
+                    launcher.cleanupContainer();
+                } catch (IOException e) {
+                    LOG.warn("Got exception while cleaning container " + containerId
+                             + ". Ignoring.");
+                }
+                break;
+        }
+    }
 
 }

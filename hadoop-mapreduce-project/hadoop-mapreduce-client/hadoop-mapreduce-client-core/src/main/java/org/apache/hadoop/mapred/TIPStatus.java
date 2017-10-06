@@ -25,5 +25,5 @@ import org.apache.hadoop.classification.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public enum TIPStatus {
-  PENDING, RUNNING, COMPLETE, KILLED, FAILED;
+    PENDING, RUNNING, COMPLETE, KILLED, FAILED;
 }

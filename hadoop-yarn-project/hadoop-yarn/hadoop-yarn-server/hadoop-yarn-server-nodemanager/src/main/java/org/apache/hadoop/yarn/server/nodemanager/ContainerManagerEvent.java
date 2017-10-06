@@ -23,7 +23,7 @@ import org.apache.hadoop.yarn.event.AbstractEvent;
 public class ContainerManagerEvent extends
     AbstractEvent<ContainerManagerEventType> {
 
-  public ContainerManagerEvent(ContainerManagerEventType type) {
-    super(type);
-  }
+    public ContainerManagerEvent(ContainerManagerEventType type) {
+        super(type);
+    }
 }

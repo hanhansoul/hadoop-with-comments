@@ -30,47 +30,48 @@ import org.junit.runners.Parameterized;
 @RunWith(value = Parameterized.class)
 public class TestServerConstructor extends HTestCase {
 
-  @Parameterized.Parameters
-  public static Collection constructorFailParams() {
-    return Arrays.asList(new Object[][]{
-      {null, null, null, null, null, null},
-      {"", null, null, null, null, null},
-      {null, null, null, null, null, null},
-      {"server", null, null, null, null, null},
-      {"server", "", null, null, null, null},
-      {"server", "foo", null, null, null, null},
-      {"server", "/tmp", null, null, null, null},
-      {"server", "/tmp", "", null, null, null},
-      {"server", "/tmp", "foo", null, null, null},
-      {"server", "/tmp", "/tmp", null, null, null},
-      {"server", "/tmp", "/tmp", "", null, null},
-      {"server", "/tmp", "/tmp", "foo", null, null},
-      {"server", "/tmp", "/tmp", "/tmp", null, null},
-      {"server", "/tmp", "/tmp", "/tmp", "", null},
-      {"server", "/tmp", "/tmp", "/tmp", "foo", null}});
-  }
+    @Parameterized.Parameters
+    public static Collection constructorFailParams() {
+        return Arrays.asList(new Object[][] {
+            {null, null, null, null, null, null},
+            {"", null, null, null, null, null},
+            {null, null, null, null, null, null},
+            {"server", null, null, null, null, null},
+            {"server", "", null, null, null, null},
+            {"server", "foo", null, null, null, null},
+            {"server", "/tmp", null, null, null, null},
+            {"server", "/tmp", "", null, null, null},
+            {"server", "/tmp", "foo", null, null, null},
+            {"server", "/tmp", "/tmp", null, null, null},
+            {"server", "/tmp", "/tmp", "", null, null},
+            {"server", "/tmp", "/tmp", "foo", null, null},
+            {"server", "/tmp", "/tmp", "/tmp", null, null},
+            {"server", "/tmp", "/tmp", "/tmp", "", null},
+            {"server", "/tmp", "/tmp", "/tmp", "foo", null}
+        });
+    }
 
-  private String name;
-  private String homeDir;
-  private String configDir;
-  private String logDir;
-  private String tempDir;
-  private Configuration conf;
+    private String name;
+    private String homeDir;
+    private String configDir;
+    private String logDir;
+    private String tempDir;
+    private Configuration conf;
 
-  public TestServerConstructor(String name, String homeDir, String configDir, String logDir, String tempDir,
-                               Configuration conf) {
-    this.name = name;
-    this.homeDir = homeDir;
-    this.configDir = configDir;
-    this.logDir = logDir;
-    this.tempDir = tempDir;
-    this.conf = conf;
-  }
+    public TestServerConstructor(String name, String homeDir, String configDir, String logDir, String tempDir,
+                                 Configuration conf) {
+        this.name = name;
+        this.homeDir = homeDir;
+        this.configDir = configDir;
+        this.logDir = logDir;
+        this.tempDir = tempDir;
+        this.conf = conf;
+    }
 
 
-  @Test(expected = IllegalArgumentException.class)
-  public void constructorFail() {
-    new Server(name, homeDir, configDir, logDir, tempDir, conf);
-  }
+    @Test(expected = IllegalArgumentException.class)
+    public void constructorFail() {
+        new Server(name, homeDir, configDir, logDir, tempDir, conf);
+    }
 
 }

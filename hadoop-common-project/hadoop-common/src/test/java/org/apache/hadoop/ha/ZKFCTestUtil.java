@@ -20,15 +20,15 @@ package org.apache.hadoop.ha;
 import org.apache.hadoop.test.MultithreadedTestUtil;
 
 public class ZKFCTestUtil {
-  
-  public static void waitForHealthState(ZKFailoverController zkfc,
-      HealthMonitor.State state,
-      MultithreadedTestUtil.TestContext ctx) throws Exception {
-    while (zkfc.getLastHealthState() != state) {
-      if (ctx != null) {
-        ctx.checkException();
-      }
-      Thread.sleep(50);
+
+    public static void waitForHealthState(ZKFailoverController zkfc,
+                                          HealthMonitor.State state,
+                                          MultithreadedTestUtil.TestContext ctx) throws Exception {
+        while (zkfc.getLastHealthState() != state) {
+            if (ctx != null) {
+                ctx.checkException();
+            }
+            Thread.sleep(50);
+        }
     }
-  }
 }

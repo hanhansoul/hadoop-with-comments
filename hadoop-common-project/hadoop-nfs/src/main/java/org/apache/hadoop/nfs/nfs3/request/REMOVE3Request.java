@@ -26,27 +26,27 @@ import org.apache.hadoop.oncrpc.XDR;
  * REMOVE3 Request
  */
 public class REMOVE3Request extends RequestWithHandle {
-  private final String name;
+    private final String name;
 
-  public static REMOVE3Request deserialize(XDR xdr) throws IOException {
-    FileHandle handle = readHandle(xdr);
-    String name = xdr.readString();
-    return new REMOVE3Request(handle, name);
-  }
+    public static REMOVE3Request deserialize(XDR xdr) throws IOException {
+        FileHandle handle = readHandle(xdr);
+        String name = xdr.readString();
+        return new REMOVE3Request(handle, name);
+    }
 
-  public REMOVE3Request(FileHandle handle, String name) {
-    super(handle);
-    this.name = name;
-  }
-  
-  public String getName() {
-    return this.name;
-  }
+    public REMOVE3Request(FileHandle handle, String name) {
+        super(handle);
+        this.name = name;
+    }
 
-  @Override
-  public void serialize(XDR xdr) {
-    handle.serialize(xdr);
-    xdr.writeInt(name.getBytes().length);
-    xdr.writeFixedOpaque(name.getBytes());
-  }
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
+    public void serialize(XDR xdr) {
+        handle.serialize(xdr);
+        xdr.writeInt(name.getBytes().length);
+        xdr.writeFixedOpaque(name.getBytes());
+    }
 }

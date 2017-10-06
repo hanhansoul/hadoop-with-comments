@@ -21,5 +21,5 @@ package org.apache.hadoop.mapred.gridmix;
  * Used to track progress of tasks.
  */
 public interface Progressive {
-  public float getProgress();
+    public float getProgress();
 }

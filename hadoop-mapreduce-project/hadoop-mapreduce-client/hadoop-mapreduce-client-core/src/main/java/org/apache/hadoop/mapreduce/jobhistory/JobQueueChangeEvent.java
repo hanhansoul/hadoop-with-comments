@@ -23,41 +23,41 @@ import org.apache.hadoop.mapreduce.JobID;
 
 @SuppressWarnings("deprecation")
 public class JobQueueChangeEvent implements HistoryEvent {
-  private JobQueueChange datum = new JobQueueChange();
-  
-  public JobQueueChangeEvent(JobID id, String queueName) {
-    datum.jobid = new Utf8(id.toString());
-    datum.jobQueueName = new Utf8(queueName);
-  }
-  
-  JobQueueChangeEvent() { }
-  
-  @Override
-  public EventType getEventType() {
-    return EventType.JOB_QUEUE_CHANGED;
-  }
+    private JobQueueChange datum = new JobQueueChange();
 
-  @Override
-  public Object getDatum() {
-    return datum;
-  }
-
-  @Override
-  public void setDatum(Object datum) {
-    this.datum = (JobQueueChange) datum;
-  }
-  
-  /** Get the Job ID */
-  public JobID getJobId() {
-    return JobID.forName(datum.jobid.toString());
-  }
-  
-  /** Get the new Job queue name */
-  public String getJobQueueName() {
-    if (datum.jobQueueName != null) {
-      return datum.jobQueueName.toString();
+    public JobQueueChangeEvent(JobID id, String queueName) {
+        datum.jobid = new Utf8(id.toString());
+        datum.jobQueueName = new Utf8(queueName);
     }
-    return null;
-  }
+
+    JobQueueChangeEvent() { }
+
+    @Override
+    public EventType getEventType() {
+        return EventType.JOB_QUEUE_CHANGED;
+    }
+
+    @Override
+    public Object getDatum() {
+        return datum;
+    }
+
+    @Override
+    public void setDatum(Object datum) {
+        this.datum = (JobQueueChange) datum;
+    }
+
+    /** Get the Job ID */
+    public JobID getJobId() {
+        return JobID.forName(datum.jobid.toString());
+    }
+
+    /** Get the new Job queue name */
+    public String getJobQueueName() {
+        if (datum.jobQueueName != null) {
+            return datum.jobQueueName.toString();
+        }
+        return null;
+    }
 
 }

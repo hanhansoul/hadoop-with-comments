@@ -37,34 +37,34 @@ import org.apache.hadoop.yarn.util.Clock;
 @InterfaceAudience.Private
 public interface AppContext {
 
-  ApplicationId getApplicationID();
+    ApplicationId getApplicationID();
 
-  ApplicationAttemptId getApplicationAttemptId();
+    ApplicationAttemptId getApplicationAttemptId();
 
-  String getApplicationName();
+    String getApplicationName();
 
-  long getStartTime();
+    long getStartTime();
 
-  CharSequence getUser();
+    CharSequence getUser();
 
-  Job getJob(JobId jobID);
+    Job getJob(JobId jobID);
 
-  Map<JobId, Job> getAllJobs();
+    Map<JobId, Job> getAllJobs();
 
-  @SuppressWarnings("rawtypes")
-  EventHandler getEventHandler();
+    @SuppressWarnings("rawtypes")
+    EventHandler getEventHandler();
 
-  Clock getClock();
-  
-  ClusterInfo getClusterInfo();
-  
-  Set<String> getBlacklistedNodes();
-  
-  ClientToAMTokenSecretManager getClientToAMTokenSecretManager();
+    Clock getClock();
 
-  boolean isLastAMRetry();
+    ClusterInfo getClusterInfo();
 
-  boolean hasSuccessfullyUnregistered();
+    Set<String> getBlacklistedNodes();
 
-  String getNMHostname();
+    ClientToAMTokenSecretManager getClientToAMTokenSecretManager();
+
+    boolean isLastAMRetry();
+
+    boolean hasSuccessfullyUnregistered();
+
+    String getNMHostname();
 }

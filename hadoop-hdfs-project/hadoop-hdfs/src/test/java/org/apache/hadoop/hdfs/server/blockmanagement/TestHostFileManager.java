@@ -33,125 +33,125 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 public class TestHostFileManager {
-  private static InetSocketAddress entry(String e) {
-    return HostFileManager.parseEntry("dummy", "dummy", e);
-  }
+    private static InetSocketAddress entry(String e) {
+        return HostFileManager.parseEntry("dummy", "dummy", e);
+    }
 
-  @Test
-  public void testDeduplication() {
-    HostFileManager.HostSet s = new HostFileManager.HostSet();
-    // These entries will be de-duped, since they refer to the same IP
-    // address + port combo.
-    s.add(entry("127.0.0.1:12345"));
-    s.add(entry("localhost:12345"));
-    Assert.assertEquals(1, s.size());
-    s.add(entry("127.0.0.1:12345"));
-    Assert.assertEquals(1, s.size());
+    @Test
+    public void testDeduplication() {
+        HostFileManager.HostSet s = new HostFileManager.HostSet();
+        // These entries will be de-duped, since they refer to the same IP
+        // address + port combo.
+        s.add(entry("127.0.0.1:12345"));
+        s.add(entry("localhost:12345"));
+        Assert.assertEquals(1, s.size());
+        s.add(entry("127.0.0.1:12345"));
+        Assert.assertEquals(1, s.size());
 
-    // The following entries should not be de-duped.
-    s.add(entry("127.0.0.1:12346"));
-    Assert.assertEquals(2, s.size());
-    s.add(entry("127.0.0.1"));
-    Assert.assertEquals(3, s.size());
-    s.add(entry("127.0.0.10"));
-    Assert.assertEquals(4, s.size());
-  }
+        // The following entries should not be de-duped.
+        s.add(entry("127.0.0.1:12346"));
+        Assert.assertEquals(2, s.size());
+        s.add(entry("127.0.0.1"));
+        Assert.assertEquals(3, s.size());
+        s.add(entry("127.0.0.10"));
+        Assert.assertEquals(4, s.size());
+    }
 
-  @Test
-  public void testRelation() {
-    HostFileManager.HostSet s = new HostFileManager.HostSet();
-    s.add(entry("127.0.0.1:123"));
-    Assert.assertTrue(s.match(entry("127.0.0.1:123")));
-    Assert.assertFalse(s.match(entry("127.0.0.1:12")));
-    Assert.assertFalse(s.match(entry("127.0.0.1")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.1:12")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.1")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.1:123")));
-    Assert.assertFalse(s.match(entry("127.0.0.2")));
-    Assert.assertFalse(s.match(entry("127.0.0.2:123")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.2")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.2:123")));
+    @Test
+    public void testRelation() {
+        HostFileManager.HostSet s = new HostFileManager.HostSet();
+        s.add(entry("127.0.0.1:123"));
+        Assert.assertTrue(s.match(entry("127.0.0.1:123")));
+        Assert.assertFalse(s.match(entry("127.0.0.1:12")));
+        Assert.assertFalse(s.match(entry("127.0.0.1")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.1:12")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.1")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.1:123")));
+        Assert.assertFalse(s.match(entry("127.0.0.2")));
+        Assert.assertFalse(s.match(entry("127.0.0.2:123")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.2")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.2:123")));
 
-    s.add(entry("127.0.0.1"));
-    Assert.assertTrue(s.match(entry("127.0.0.1:123")));
-    Assert.assertTrue(s.match(entry("127.0.0.1:12")));
-    Assert.assertTrue(s.match(entry("127.0.0.1")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.1:12")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.1")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.1:123")));
-    Assert.assertFalse(s.match(entry("127.0.0.2")));
-    Assert.assertFalse(s.match(entry("127.0.0.2:123")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.2")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.2:123")));
+        s.add(entry("127.0.0.1"));
+        Assert.assertTrue(s.match(entry("127.0.0.1:123")));
+        Assert.assertTrue(s.match(entry("127.0.0.1:12")));
+        Assert.assertTrue(s.match(entry("127.0.0.1")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.1:12")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.1")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.1:123")));
+        Assert.assertFalse(s.match(entry("127.0.0.2")));
+        Assert.assertFalse(s.match(entry("127.0.0.2:123")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.2")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.2:123")));
 
-    s.add(entry("127.0.0.2:123"));
-    Assert.assertTrue(s.match(entry("127.0.0.1:123")));
-    Assert.assertTrue(s.match(entry("127.0.0.1:12")));
-    Assert.assertTrue(s.match(entry("127.0.0.1")));
-    Assert.assertFalse(s.matchedBy(entry("127.0.0.1:12")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.1")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.1:123")));
-    Assert.assertFalse(s.match(entry("127.0.0.2")));
-    Assert.assertTrue(s.match(entry("127.0.0.2:123")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.2")));
-    Assert.assertTrue(s.matchedBy(entry("127.0.0.2:123")));
-  }
+        s.add(entry("127.0.0.2:123"));
+        Assert.assertTrue(s.match(entry("127.0.0.1:123")));
+        Assert.assertTrue(s.match(entry("127.0.0.1:12")));
+        Assert.assertTrue(s.match(entry("127.0.0.1")));
+        Assert.assertFalse(s.matchedBy(entry("127.0.0.1:12")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.1")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.1:123")));
+        Assert.assertFalse(s.match(entry("127.0.0.2")));
+        Assert.assertTrue(s.match(entry("127.0.0.2:123")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.2")));
+        Assert.assertTrue(s.matchedBy(entry("127.0.0.2:123")));
+    }
 
-  @Test
-  @SuppressWarnings("unchecked")
-  public void testIncludeExcludeLists() throws IOException {
-    BlockManager bm = mock(BlockManager.class);
-    FSNamesystem fsn = mock(FSNamesystem.class);
-    Configuration conf = new Configuration();
-    HostFileManager hm = mock(HostFileManager.class);
-    HostFileManager.HostSet includedNodes = new HostFileManager.HostSet();
-    HostFileManager.HostSet excludedNodes = new HostFileManager.HostSet();
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testIncludeExcludeLists() throws IOException {
+        BlockManager bm = mock(BlockManager.class);
+        FSNamesystem fsn = mock(FSNamesystem.class);
+        Configuration conf = new Configuration();
+        HostFileManager hm = mock(HostFileManager.class);
+        HostFileManager.HostSet includedNodes = new HostFileManager.HostSet();
+        HostFileManager.HostSet excludedNodes = new HostFileManager.HostSet();
 
-    includedNodes.add(entry("127.0.0.1:12345"));
-    includedNodes.add(entry("localhost:12345"));
-    includedNodes.add(entry("127.0.0.1:12345"));
+        includedNodes.add(entry("127.0.0.1:12345"));
+        includedNodes.add(entry("localhost:12345"));
+        includedNodes.add(entry("127.0.0.1:12345"));
 
-    includedNodes.add(entry("127.0.0.2"));
-    excludedNodes.add(entry("127.0.0.1:12346"));
-    excludedNodes.add(entry("127.0.30.1:12346"));
+        includedNodes.add(entry("127.0.0.2"));
+        excludedNodes.add(entry("127.0.0.1:12346"));
+        excludedNodes.add(entry("127.0.30.1:12346"));
 
-    Assert.assertEquals(2, includedNodes.size());
-    Assert.assertEquals(2, excludedNodes.size());
+        Assert.assertEquals(2, includedNodes.size());
+        Assert.assertEquals(2, excludedNodes.size());
 
-    doReturn(includedNodes).when(hm).getIncludes();
-    doReturn(excludedNodes).when(hm).getExcludes();
+        doReturn(includedNodes).when(hm).getIncludes();
+        doReturn(excludedNodes).when(hm).getExcludes();
 
-    DatanodeManager dm = new DatanodeManager(bm, fsn, conf);
-    Whitebox.setInternalState(dm, "hostFileManager", hm);
-    Map<String, DatanodeDescriptor> dnMap = (Map<String,
-            DatanodeDescriptor>) Whitebox.getInternalState(dm, "datanodeMap");
+        DatanodeManager dm = new DatanodeManager(bm, fsn, conf);
+        Whitebox.setInternalState(dm, "hostFileManager", hm);
+        Map<String, DatanodeDescriptor> dnMap = (Map<String,
+                                                DatanodeDescriptor>) Whitebox.getInternalState(dm, "datanodeMap");
 
-    // After the de-duplication, there should be only one DN from the included
-    // nodes declared as dead.
-    Assert.assertEquals(2, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.ALL).size());
-    Assert.assertEquals(2, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.DEAD).size());
-    dnMap.put("uuid-foo", new DatanodeDescriptor(new DatanodeID("127.0.0.1",
-            "localhost", "uuid-foo", 12345, 1020, 1021, 1022)));
-    Assert.assertEquals(1, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.DEAD).size());
-    dnMap.put("uuid-bar", new DatanodeDescriptor(new DatanodeID("127.0.0.2",
-            "127.0.0.2", "uuid-bar", 12345, 1020, 1021, 1022)));
-    Assert.assertEquals(0, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.DEAD).size());
-    DatanodeDescriptor spam = new DatanodeDescriptor(new DatanodeID("127.0.0" +
-            ".3", "127.0.0.3", "uuid-spam", 12345, 1020, 1021, 1022));
-    spam.setLastUpdate(0);
-    includedNodes.add(entry("127.0.0.3:12345"));
-    dnMap.put("uuid-spam", spam);
-    Assert.assertEquals(1, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.DEAD).size());
-    dnMap.remove("uuid-spam");
-    Assert.assertEquals(1, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.DEAD).size());
-    excludedNodes.add(entry("127.0.0.3"));
-    Assert.assertEquals(0, dm.getDatanodeListForReport(HdfsConstants
-            .DatanodeReportType.DEAD).size());
-  }
+        // After the de-duplication, there should be only one DN from the included
+        // nodes declared as dead.
+        Assert.assertEquals(2, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.ALL).size());
+        Assert.assertEquals(2, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.DEAD).size());
+        dnMap.put("uuid-foo", new DatanodeDescriptor(new DatanodeID("127.0.0.1",
+                  "localhost", "uuid-foo", 12345, 1020, 1021, 1022)));
+        Assert.assertEquals(1, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.DEAD).size());
+        dnMap.put("uuid-bar", new DatanodeDescriptor(new DatanodeID("127.0.0.2",
+                  "127.0.0.2", "uuid-bar", 12345, 1020, 1021, 1022)));
+        Assert.assertEquals(0, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.DEAD).size());
+        DatanodeDescriptor spam = new DatanodeDescriptor(new DatanodeID("127.0.0" +
+                ".3", "127.0.0.3", "uuid-spam", 12345, 1020, 1021, 1022));
+        spam.setLastUpdate(0);
+        includedNodes.add(entry("127.0.0.3:12345"));
+        dnMap.put("uuid-spam", spam);
+        Assert.assertEquals(1, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.DEAD).size());
+        dnMap.remove("uuid-spam");
+        Assert.assertEquals(1, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.DEAD).size());
+        excludedNodes.add(entry("127.0.0.3"));
+        Assert.assertEquals(0, dm.getDatanodeListForReport(HdfsConstants
+                            .DatanodeReportType.DEAD).size());
+    }
 }

@@ -29,9 +29,9 @@ import org.apache.hadoop.yarn.api.protocolrecords.StartContainersRequest;
  */
 public class InvalidContainerException extends YarnException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public InvalidContainerException(String msg) {
-    super(msg);
-  }
+    public InvalidContainerException(String msg) {
+        super(msg);
+    }
 }

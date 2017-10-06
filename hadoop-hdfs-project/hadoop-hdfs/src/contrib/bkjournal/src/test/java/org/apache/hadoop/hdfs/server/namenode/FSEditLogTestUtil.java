@@ -24,16 +24,16 @@ import org.apache.hadoop.hdfs.server.namenode.FSEditLogOp.OpInstanceCache;
  * Utilities for testing edit logs
  */
 public class FSEditLogTestUtil {
-  private static OpInstanceCache cache = new OpInstanceCache();
+    private static OpInstanceCache cache = new OpInstanceCache();
 
-  public static FSEditLogOp getNoOpInstance() {
-    return FSEditLogOp.LogSegmentOp.getInstance(cache,
-        FSEditLogOpCodes.OP_END_LOG_SEGMENT);
-  }
+    public static FSEditLogOp getNoOpInstance() {
+        return FSEditLogOp.LogSegmentOp.getInstance(cache,
+                FSEditLogOpCodes.OP_END_LOG_SEGMENT);
+    }
 
-  public static long countTransactionsInStream(EditLogInputStream in) 
-      throws IOException {
-    FSEditLogLoader.EditLogValidation validation = FSEditLogLoader.validateEditLog(in);
-    return (validation.getEndTxId() - in.getFirstTxId()) + 1;
-  }
+    public static long countTransactionsInStream(EditLogInputStream in)
+    throws IOException {
+        FSEditLogLoader.EditLogValidation validation = FSEditLogLoader.validateEditLog(in);
+        return (validation.getEndTxId() - in.getFirstTxId()) + 1;
+    }
 }

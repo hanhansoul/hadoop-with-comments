@@ -31,20 +31,20 @@ import org.apache.hadoop.security.authorize.Service;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class MRAMPolicyProvider extends PolicyProvider {
-  
-  private static final Service[] mapReduceApplicationMasterServices = 
-      new Service[] {
-    new Service(
-        MRJobConfig.MR_AM_SECURITY_SERVICE_AUTHORIZATION_TASK_UMBILICAL,
-        TaskUmbilicalProtocol.class),
-    new Service(
-        MRJobConfig.MR_AM_SECURITY_SERVICE_AUTHORIZATION_CLIENT,
-        MRClientProtocolPB.class)
-  };
 
-  @Override
-  public Service[] getServices() {
-    return mapReduceApplicationMasterServices;
-  }
+    private static final Service[] mapReduceApplicationMasterServices =
+        new Service[] {
+        new Service(
+            MRJobConfig.MR_AM_SECURITY_SERVICE_AUTHORIZATION_TASK_UMBILICAL,
+            TaskUmbilicalProtocol.class),
+        new Service(
+            MRJobConfig.MR_AM_SECURITY_SERVICE_AUTHORIZATION_CLIENT,
+            MRClientProtocolPB.class)
+    };
+
+    @Override
+    public Service[] getServices() {
+        return mapReduceApplicationMasterServices;
+    }
 
 }

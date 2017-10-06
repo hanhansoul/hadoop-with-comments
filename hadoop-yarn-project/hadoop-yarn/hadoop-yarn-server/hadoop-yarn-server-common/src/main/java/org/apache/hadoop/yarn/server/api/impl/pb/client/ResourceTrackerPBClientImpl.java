@@ -44,44 +44,44 @@ import com.google.protobuf.ServiceException;
 
 public class ResourceTrackerPBClientImpl implements ResourceTracker, Closeable {
 
-private ResourceTrackerPB proxy;
-  
-  public ResourceTrackerPBClientImpl(long clientVersion, InetSocketAddress addr, Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, ResourceTrackerPB.class, ProtobufRpcEngine.class);
-    proxy = (ResourceTrackerPB)RPC.getProxy(
-        ResourceTrackerPB.class, clientVersion, addr, conf);
-  }
+    private ResourceTrackerPB proxy;
 
-  @Override
-  public void close() {
-    if(this.proxy != null) {
-      RPC.stopProxy(this.proxy);
+    public ResourceTrackerPBClientImpl(long clientVersion, InetSocketAddress addr, Configuration conf) throws IOException {
+        RPC.setProtocolEngine(conf, ResourceTrackerPB.class, ProtobufRpcEngine.class);
+        proxy = (ResourceTrackerPB)RPC.getProxy(
+                    ResourceTrackerPB.class, clientVersion, addr, conf);
     }
-  }
 
-  @Override
-  public RegisterNodeManagerResponse registerNodeManager(
-      RegisterNodeManagerRequest request) throws YarnException,
-      IOException {
-    RegisterNodeManagerRequestProto requestProto = ((RegisterNodeManagerRequestPBImpl)request).getProto();
-    try {
-      return new RegisterNodeManagerResponsePBImpl(proxy.registerNodeManager(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public void close() {
+        if(this.proxy != null) {
+            RPC.stopProxy(this.proxy);
+        }
     }
-  }
 
-  @Override
-  public NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
-      throws YarnException, IOException {
-    NodeHeartbeatRequestProto requestProto = ((NodeHeartbeatRequestPBImpl)request).getProto();
-    try {
-      return new NodeHeartbeatResponsePBImpl(proxy.nodeHeartbeat(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public RegisterNodeManagerResponse registerNodeManager(
+        RegisterNodeManagerRequest request) throws YarnException,
+        IOException {
+        RegisterNodeManagerRequestProto requestProto = ((RegisterNodeManagerRequestPBImpl)request).getProto();
+        try {
+            return new RegisterNodeManagerResponsePBImpl(proxy.registerNodeManager(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
+
+    @Override
+    public NodeHeartbeatResponse nodeHeartbeat(NodeHeartbeatRequest request)
+    throws YarnException, IOException {
+        NodeHeartbeatRequestProto requestProto = ((NodeHeartbeatRequestPBImpl)request).getProto();
+        try {
+            return new NodeHeartbeatResponsePBImpl(proxy.nodeHeartbeat(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
+    }
 
 }

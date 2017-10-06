@@ -55,137 +55,137 @@ import org.junit.Test;
 
 public class TestMRJobsWithHistoryService {
 
-  private static final Log LOG =
-    LogFactory.getLog(TestMRJobsWithHistoryService.class);
+    private static final Log LOG =
+        LogFactory.getLog(TestMRJobsWithHistoryService.class);
 
-  private static final EnumSet<RMAppState> TERMINAL_RM_APP_STATES =
-    EnumSet.of(RMAppState.FINISHED, RMAppState.FAILED, RMAppState.KILLED);
+    private static final EnumSet<RMAppState> TERMINAL_RM_APP_STATES =
+        EnumSet.of(RMAppState.FINISHED, RMAppState.FAILED, RMAppState.KILLED);
 
-  private static MiniMRYarnCluster mrCluster;
+    private static MiniMRYarnCluster mrCluster;
 
-  private static Configuration conf = new Configuration();
-  private static FileSystem localFs;
-  static {
-    try {
-      localFs = FileSystem.getLocal(conf);
-    } catch (IOException io) {
-      throw new RuntimeException("problem getting local fs", io);
-    }
-  }
-
-  private static Path TEST_ROOT_DIR = new Path("target",
-      TestMRJobs.class.getName() + "-tmpDir").makeQualified(localFs);
-  static Path APP_JAR = new Path(TEST_ROOT_DIR, "MRAppJar.jar");
-
-  @Before
-  public void setup() throws InterruptedException, IOException {
-
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-               + " not found. Not running test.");
-      return;
+    private static Configuration conf = new Configuration();
+    private static FileSystem localFs;
+    static {
+        try {
+            localFs = FileSystem.getLocal(conf);
+        } catch (IOException io) {
+            throw new RuntimeException("problem getting local fs", io);
+        }
     }
 
-    if (mrCluster == null) {
-      mrCluster = new MiniMRYarnCluster(getClass().getName());
-      mrCluster.init(new Configuration());
-      mrCluster.start();
+    private static Path TEST_ROOT_DIR = new Path("target",
+            TestMRJobs.class.getName() + "-tmpDir").makeQualified(localFs);
+    static Path APP_JAR = new Path(TEST_ROOT_DIR, "MRAppJar.jar");
+
+    @Before
+    public void setup() throws InterruptedException, IOException {
+
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
+
+        if (mrCluster == null) {
+            mrCluster = new MiniMRYarnCluster(getClass().getName());
+            mrCluster.init(new Configuration());
+            mrCluster.start();
+        }
+
+        // Copy MRAppJar and make it private. TODO: FIXME. This is a hack to
+        // workaround the absent public discache.
+        localFs.copyFromLocalFile(new Path(MiniMRYarnCluster.APPJAR), APP_JAR);
+        localFs.setPermission(APP_JAR, new FsPermission("700"));
     }
 
-    // Copy MRAppJar and make it private. TODO: FIXME. This is a hack to
-    // workaround the absent public discache.
-    localFs.copyFromLocalFile(new Path(MiniMRYarnCluster.APPJAR), APP_JAR);
-    localFs.setPermission(APP_JAR, new FsPermission("700"));
-  }
+    @After
+    public void tearDown() {
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
 
-  @After
-  public void tearDown() {
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-          + " not found. Not running test.");
-      return;
+        if (mrCluster != null) {
+            mrCluster.stop();
+        }
     }
 
-    if (mrCluster != null) {
-      mrCluster.stop();
+    @Test (timeout = 90000)
+    public void testJobHistoryData() throws IOException, InterruptedException,
+        AvroRemoteException, ClassNotFoundException {
+        if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
+            LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
+                     + " not found. Not running test.");
+            return;
+        }
+
+
+
+        SleepJob sleepJob = new SleepJob();
+        sleepJob.setConf(mrCluster.getConfig());
+        // Job with 3 maps and 2 reduces
+        Job job = sleepJob.createJob(3, 2, 1000, 1, 500, 1);
+        job.setJarByClass(SleepJob.class);
+        job.addFileToClassPath(APP_JAR); // The AppMaster jar itself.
+        job.waitForCompletion(true);
+        Counters counterMR = job.getCounters();
+        JobId jobId = TypeConverter.toYarn(job.getJobID());
+        ApplicationId appID = jobId.getAppId();
+        int pollElapsed = 0;
+        while (true) {
+            Thread.sleep(1000);
+            pollElapsed += 1000;
+
+            if (TERMINAL_RM_APP_STATES.contains(
+                    mrCluster.getResourceManager().getRMContext().getRMApps().get(appID)
+                    .getState())) {
+                break;
+            }
+
+            if (pollElapsed >= 60000) {
+                LOG.warn("application did not reach terminal state within 60 seconds");
+                break;
+            }
+        }
+        Assert.assertEquals(RMAppState.FINISHED, mrCluster.getResourceManager()
+                            .getRMContext().getRMApps().get(appID).getState());
+        Counters counterHS = job.getCounters();
+        //TODO the Assert below worked. need to check
+        //Should we compare each field or convert to V2 counter and compare
+        LOG.info("CounterHS " + counterHS);
+        LOG.info("CounterMR " + counterMR);
+        Assert.assertEquals(counterHS, counterMR);
+
+        HSClientProtocol historyClient = instantiateHistoryProxy();
+        GetJobReportRequest gjReq = Records.newRecord(GetJobReportRequest.class);
+        gjReq.setJobId(jobId);
+        JobReport jobReport = historyClient.getJobReport(gjReq).getJobReport();
+        verifyJobReport(jobReport, jobId);
     }
-  }
 
-  @Test (timeout = 90000)
-  public void testJobHistoryData() throws IOException, InterruptedException,
-      AvroRemoteException, ClassNotFoundException {
-    if (!(new File(MiniMRYarnCluster.APPJAR)).exists()) {
-      LOG.info("MRAppJar " + MiniMRYarnCluster.APPJAR
-          + " not found. Not running test.");
-      return;
+    private void verifyJobReport(JobReport jobReport, JobId jobId) {
+        List<AMInfo> amInfos = jobReport.getAMInfos();
+        Assert.assertEquals(1, amInfos.size());
+        AMInfo amInfo = amInfos.get(0);
+        ApplicationAttemptId appAttemptId = ApplicationAttemptId.newInstance(jobId.getAppId(), 1);
+        ContainerId amContainerId = ContainerId.newContainerId(appAttemptId, 1);
+        Assert.assertEquals(appAttemptId, amInfo.getAppAttemptId());
+        Assert.assertEquals(amContainerId, amInfo.getContainerId());
+        Assert.assertTrue(jobReport.getSubmitTime() > 0);
+        Assert.assertTrue(jobReport.getStartTime() > 0
+                          && jobReport.getStartTime() >= jobReport.getSubmitTime());
+        Assert.assertTrue(jobReport.getFinishTime() > 0
+                          && jobReport.getFinishTime() >= jobReport.getStartTime());
     }
 
-
-    
-    SleepJob sleepJob = new SleepJob();
-    sleepJob.setConf(mrCluster.getConfig());
-    // Job with 3 maps and 2 reduces
-    Job job = sleepJob.createJob(3, 2, 1000, 1, 500, 1);
-    job.setJarByClass(SleepJob.class);
-    job.addFileToClassPath(APP_JAR); // The AppMaster jar itself.
-    job.waitForCompletion(true);
-    Counters counterMR = job.getCounters();
-    JobId jobId = TypeConverter.toYarn(job.getJobID());
-    ApplicationId appID = jobId.getAppId();
-    int pollElapsed = 0;
-    while (true) {
-      Thread.sleep(1000);
-      pollElapsed += 1000;
-
-      if (TERMINAL_RM_APP_STATES.contains(
-          mrCluster.getResourceManager().getRMContext().getRMApps().get(appID)
-          .getState())) {
-        break;
-      }
-
-      if (pollElapsed >= 60000) {
-        LOG.warn("application did not reach terminal state within 60 seconds");
-        break;
-      }
+    private HSClientProtocol instantiateHistoryProxy() {
+        final String serviceAddr =
+            mrCluster.getConfig().get(JHAdminConfig.MR_HISTORY_ADDRESS);
+        final YarnRPC rpc = YarnRPC.create(conf);
+        HSClientProtocol historyClient =
+            (HSClientProtocol) rpc.getProxy(HSClientProtocol.class,
+                                            NetUtils.createSocketAddr(serviceAddr), mrCluster.getConfig());
+        return historyClient;
     }
-    Assert.assertEquals(RMAppState.FINISHED, mrCluster.getResourceManager()
-      .getRMContext().getRMApps().get(appID).getState());
-    Counters counterHS = job.getCounters();
-    //TODO the Assert below worked. need to check
-    //Should we compare each field or convert to V2 counter and compare
-    LOG.info("CounterHS " + counterHS);
-    LOG.info("CounterMR " + counterMR);
-    Assert.assertEquals(counterHS, counterMR);
-    
-    HSClientProtocol historyClient = instantiateHistoryProxy();
-    GetJobReportRequest gjReq = Records.newRecord(GetJobReportRequest.class);
-    gjReq.setJobId(jobId);
-    JobReport jobReport = historyClient.getJobReport(gjReq).getJobReport();
-    verifyJobReport(jobReport, jobId);
-  }
-
-  private void verifyJobReport(JobReport jobReport, JobId jobId) {
-    List<AMInfo> amInfos = jobReport.getAMInfos();
-    Assert.assertEquals(1, amInfos.size());
-    AMInfo amInfo = amInfos.get(0);
-    ApplicationAttemptId appAttemptId = ApplicationAttemptId.newInstance(jobId.getAppId(), 1);
-    ContainerId amContainerId = ContainerId.newContainerId(appAttemptId, 1);
-    Assert.assertEquals(appAttemptId, amInfo.getAppAttemptId());
-    Assert.assertEquals(amContainerId, amInfo.getContainerId());
-    Assert.assertTrue(jobReport.getSubmitTime() > 0);
-    Assert.assertTrue(jobReport.getStartTime() > 0
-        && jobReport.getStartTime() >= jobReport.getSubmitTime());
-    Assert.assertTrue(jobReport.getFinishTime() > 0
-        && jobReport.getFinishTime() >= jobReport.getStartTime());
-  }
-  
-  private HSClientProtocol instantiateHistoryProxy() {
-    final String serviceAddr =
-        mrCluster.getConfig().get(JHAdminConfig.MR_HISTORY_ADDRESS);
-    final YarnRPC rpc = YarnRPC.create(conf);
-    HSClientProtocol historyClient =
-        (HSClientProtocol) rpc.getProxy(HSClientProtocol.class,
-            NetUtils.createSocketAddr(serviceAddr), mrCluster.getConfig());
-    return historyClient;
-  }
 }

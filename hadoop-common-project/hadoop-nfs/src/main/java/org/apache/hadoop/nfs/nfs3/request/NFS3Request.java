@@ -26,20 +26,20 @@ import org.apache.hadoop.oncrpc.XDR;
  * An NFS request that uses {@link FileHandle} to identify a file.
  */
 public abstract class NFS3Request {
-  
-  /**
-   * Deserialize a handle from an XDR object
-   */
-  static FileHandle readHandle(XDR xdr) throws IOException {
-    FileHandle handle = new FileHandle();
-    if (!handle.deserialize(xdr)) {
-      throw new IOException("can't deserialize file handle");
+
+    /**
+     * Deserialize a handle from an XDR object
+     */
+    static FileHandle readHandle(XDR xdr) throws IOException {
+        FileHandle handle = new FileHandle();
+        if (!handle.deserialize(xdr)) {
+            throw new IOException("can't deserialize file handle");
+        }
+        return handle;
     }
-    return handle;
-  }
-  
-  /**
-   * Subclass should implement. Usually handle is the first to be serialized
-   */
-  public abstract void serialize(XDR xdr);
+
+    /**
+     * Subclass should implement. Usually handle is the first to be serialized
+     */
+    public abstract void serialize(XDR xdr);
 }

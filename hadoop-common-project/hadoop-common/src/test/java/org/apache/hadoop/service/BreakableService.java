@@ -37,86 +37,86 @@ import org.apache.hadoop.service.Service;
 
 public class BreakableService extends AbstractService {
 
-  private boolean failOnInit;
-  private boolean failOnStart;
-  private boolean failOnStop;
-  private int[] counts = new int[4];
+    private boolean failOnInit;
+    private boolean failOnStart;
+    private boolean failOnStop;
+    private int[] counts = new int[4];
 
-  public BreakableService() {
-    this(false, false, false);
-  }
-
-  public BreakableService(boolean failOnInit,
-                          boolean failOnStart,
-                          boolean failOnStop) {
-    super("BreakableService");
-    this.failOnInit = failOnInit;
-    this.failOnStart = failOnStart;
-    this.failOnStop = failOnStop;
-    inc(STATE.NOTINITED);
-  }
-
-  private int convert(STATE state) {
-    return state.getValue();
-  }
-
-  private void inc(STATE state) {
-    int index = convert(state);
-    counts[index] ++;
-  }
-
-  public int getCount(STATE state) {
-    return counts[convert(state)];
-  }
-
-  private void maybeFail(boolean fail, String action) {
-    if (fail) {
-      throw new BrokenLifecycleEvent(this, action);
+    public BreakableService() {
+        this(false, false, false);
     }
-  }
 
-  @Override
-  protected void serviceInit(Configuration conf) throws Exception {
-    inc(STATE.INITED);
-    maybeFail(failOnInit, "init");
-    super.serviceInit(conf);
-  }
-
-  @Override
-  protected void serviceStart() {
-    inc(STATE.STARTED);
-    maybeFail(failOnStart, "start");
-  }
-
-  @Override
-  protected void serviceStop() {
-    inc(STATE.STOPPED);
-    maybeFail(failOnStop, "stop");
-  }
-
-  public void setFailOnInit(boolean failOnInit) {
-    this.failOnInit = failOnInit;
-  }
-
-  public void setFailOnStart(boolean failOnStart) {
-    this.failOnStart = failOnStart;
-  }
-
-  public void setFailOnStop(boolean failOnStop) {
-    this.failOnStop = failOnStop;
-  }
-
-  /**
-   * The exception explicitly raised on a failure
-   */
-  public static class BrokenLifecycleEvent extends RuntimeException {
-
-    final STATE state;
-
-    public BrokenLifecycleEvent(Service service, String action) {
-      super("Lifecycle Failure during " + action + " state is "
-            + service.getServiceState());
-      state = service.getServiceState();
+    public BreakableService(boolean failOnInit,
+                            boolean failOnStart,
+                            boolean failOnStop) {
+        super("BreakableService");
+        this.failOnInit = failOnInit;
+        this.failOnStart = failOnStart;
+        this.failOnStop = failOnStop;
+        inc(STATE.NOTINITED);
     }
-  }
+
+    private int convert(STATE state) {
+        return state.getValue();
+    }
+
+    private void inc(STATE state) {
+        int index = convert(state);
+        counts[index] ++;
+    }
+
+    public int getCount(STATE state) {
+        return counts[convert(state)];
+    }
+
+    private void maybeFail(boolean fail, String action) {
+        if (fail) {
+            throw new BrokenLifecycleEvent(this, action);
+        }
+    }
+
+    @Override
+    protected void serviceInit(Configuration conf) throws Exception {
+        inc(STATE.INITED);
+        maybeFail(failOnInit, "init");
+        super.serviceInit(conf);
+    }
+
+    @Override
+    protected void serviceStart() {
+        inc(STATE.STARTED);
+        maybeFail(failOnStart, "start");
+    }
+
+    @Override
+    protected void serviceStop() {
+        inc(STATE.STOPPED);
+        maybeFail(failOnStop, "stop");
+    }
+
+    public void setFailOnInit(boolean failOnInit) {
+        this.failOnInit = failOnInit;
+    }
+
+    public void setFailOnStart(boolean failOnStart) {
+        this.failOnStart = failOnStart;
+    }
+
+    public void setFailOnStop(boolean failOnStop) {
+        this.failOnStop = failOnStop;
+    }
+
+    /**
+     * The exception explicitly raised on a failure
+     */
+    public static class BrokenLifecycleEvent extends RuntimeException {
+
+        final STATE state;
+
+        public BrokenLifecycleEvent(Service service, String action) {
+            super("Lifecycle Failure during " + action + " state is "
+                  + service.getServiceState());
+            state = service.getServiceState();
+        }
+    }
 }

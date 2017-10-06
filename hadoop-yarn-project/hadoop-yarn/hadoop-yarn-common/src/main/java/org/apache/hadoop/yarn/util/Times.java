@@ -27,50 +27,50 @@ import org.apache.hadoop.classification.InterfaceAudience.Private;
 
 @Private
 public class Times {
-  private static final Log LOG = LogFactory.getLog(Times.class);
+    private static final Log LOG = LogFactory.getLog(Times.class);
 
-  static final ThreadLocal<SimpleDateFormat> dateFormat =
-      new ThreadLocal<SimpleDateFormat>() {
+    static final ThreadLocal<SimpleDateFormat> dateFormat =
+    new ThreadLocal<SimpleDateFormat>() {
         @Override protected SimpleDateFormat initialValue() {
-          return new SimpleDateFormat("d-MMM-yyyy HH:mm:ss");
+            return new SimpleDateFormat("d-MMM-yyyy HH:mm:ss");
         }
-      };
+    };
 
-  public static long elapsed(long started, long finished) {
-    return Times.elapsed(started, finished, true);
-  }
-
-  // A valid elapsed is supposed to be non-negative. If finished/current time
-  // is ahead of the started time, return -1 to indicate invalid elapsed time,
-  // and record a warning log.
-  public static long elapsed(long started, long finished, boolean isRunning) {
-    if (finished > 0 && started > 0) {
-      long elapsed = finished - started;
-      if (elapsed >= 0) {
-        return elapsed;
-      } else {
-        LOG.warn("Finished time " + finished
-            + " is ahead of started time " + started);
-        return -1;
-      }
+    public static long elapsed(long started, long finished) {
+        return Times.elapsed(started, finished, true);
     }
-    if (isRunning) {
-      long current = System.currentTimeMillis();
-      long elapsed = started > 0 ? current - started : 0;
-      if (elapsed >= 0) {
-        return elapsed;
-      } else {
-        LOG.warn("Current time " + current
-            + " is ahead of started time " + started);
-        return -1;
-      }
-    } else {
-      return -1;
-    }
-  }
 
-  public static String format(long ts) {
-    return ts > 0 ? String.valueOf(dateFormat.get().format(new Date(ts)))
-                  : "N/A";
-  }
+    // A valid elapsed is supposed to be non-negative. If finished/current time
+    // is ahead of the started time, return -1 to indicate invalid elapsed time,
+    // and record a warning log.
+    public static long elapsed(long started, long finished, boolean isRunning) {
+        if (finished > 0 && started > 0) {
+            long elapsed = finished - started;
+            if (elapsed >= 0) {
+                return elapsed;
+            } else {
+                LOG.warn("Finished time " + finished
+                         + " is ahead of started time " + started);
+                return -1;
+            }
+        }
+        if (isRunning) {
+            long current = System.currentTimeMillis();
+            long elapsed = started > 0 ? current - started : 0;
+            if (elapsed >= 0) {
+                return elapsed;
+            } else {
+                LOG.warn("Current time " + current
+                         + " is ahead of started time " + started);
+                return -1;
+            }
+        } else {
+            return -1;
+        }
+    }
+
+    public static String format(long ts) {
+        return ts > 0 ? String.valueOf(dateFormat.get().format(new Date(ts)))
+               : "N/A";
+    }
 }

@@ -35,89 +35,89 @@ import static org.apache.hadoop.fs.contract.ContractTestUtils.dataset;
  * you don't care about the data.
  */
 public abstract class AbstractContractRootDirectoryTest extends AbstractFSContractTestBase {
-  private static final Logger LOG =
-      LoggerFactory.getLogger(AbstractContractRootDirectoryTest.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(AbstractContractRootDirectoryTest.class);
 
-  @Override
-  public void setup() throws Exception {
-    super.setup();
-    skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
-  }
-
-  @Test
-  public void testMkDirDepth1() throws Throwable {
-    FileSystem fs = getFileSystem();
-    Path dir = new Path("/testmkdirdepth1");
-    assertPathDoesNotExist("directory already exists", dir);
-    fs.mkdirs(dir);
-    ContractTestUtils.assertIsDirectory(getFileSystem(), dir);
-    assertPathExists("directory already exists", dir);
-    assertDeleted(dir, true);
-  }
-
-  @Test
-  public void testRmEmptyRootDirNonRecursive() throws Throwable {
-    //extra sanity checks here to avoid support calls about complete loss of data
-    skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
-    Path root = new Path("/");
-    ContractTestUtils.assertIsDirectory(getFileSystem(), root);
-    boolean deleted = getFileSystem().delete(root, true);
-    LOG.info("rm / of empty dir result is {}", deleted);
-    ContractTestUtils.assertIsDirectory(getFileSystem(), root);
-  }
-
-  @Test
-  public void testRmNonEmptyRootDirNonRecursive() throws Throwable {
-    //extra sanity checks here to avoid support calls about complete loss of data
-    skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
-    Path root = new Path("/");
-    String touchfile = "/testRmNonEmptyRootDirNonRecursive";
-    Path file = new Path(touchfile);
-    ContractTestUtils.touch(getFileSystem(), file);
-    ContractTestUtils.assertIsDirectory(getFileSystem(), root);
-    try {
-      boolean deleted = getFileSystem().delete(root, false);
-      fail("non recursive delete should have raised an exception," +
-           " but completed with exit code " + deleted);
-    } catch (IOException e) {
-      //expected
-      handleExpectedException(e);
-    } finally {
-      getFileSystem().delete(file, false);
+    @Override
+    public void setup() throws Exception {
+        super.setup();
+        skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
     }
-    ContractTestUtils.assertIsDirectory(getFileSystem(), root);
-  }
 
-  @Test
-  public void testRmRootRecursive() throws Throwable {
-    //extra sanity checks here to avoid support calls about complete loss of data
-    skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
-    Path root = new Path("/");
-    ContractTestUtils.assertIsDirectory(getFileSystem(), root);
-    Path file = new Path("/testRmRootRecursive");
-    ContractTestUtils.touch(getFileSystem(), file);
-    boolean deleted = getFileSystem().delete(root, true);
-    ContractTestUtils.assertIsDirectory(getFileSystem(), root);
-    LOG.info("rm -rf / result is {}", deleted);
-    if (deleted) {
-      assertPathDoesNotExist("expected file to be deleted", file);
-    } else {
-      assertPathExists("expected file to be preserved", file);;
+    @Test
+    public void testMkDirDepth1() throws Throwable {
+        FileSystem fs = getFileSystem();
+        Path dir = new Path("/testmkdirdepth1");
+        assertPathDoesNotExist("directory already exists", dir);
+        fs.mkdirs(dir);
+        ContractTestUtils.assertIsDirectory(getFileSystem(), dir);
+        assertPathExists("directory already exists", dir);
+        assertDeleted(dir, true);
     }
-  }
 
-  @Test
-  public void testCreateFileOverRoot() throws Throwable {
-    Path root = new Path("/");
-    byte[] dataset = dataset(1024, ' ', 'z');
-    try {
-      createFile(getFileSystem(), root, false, dataset);
-      fail("expected an exception, got a file created over root: " + ls(root));
-    } catch (IOException e) {
-      //expected
-      handleExpectedException(e);
+    @Test
+    public void testRmEmptyRootDirNonRecursive() throws Throwable {
+        //extra sanity checks here to avoid support calls about complete loss of data
+        skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
+        Path root = new Path("/");
+        ContractTestUtils.assertIsDirectory(getFileSystem(), root);
+        boolean deleted = getFileSystem().delete(root, true);
+        LOG.info("rm / of empty dir result is {}", deleted);
+        ContractTestUtils.assertIsDirectory(getFileSystem(), root);
     }
-    assertIsDirectory(root);
-  }
+
+    @Test
+    public void testRmNonEmptyRootDirNonRecursive() throws Throwable {
+        //extra sanity checks here to avoid support calls about complete loss of data
+        skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
+        Path root = new Path("/");
+        String touchfile = "/testRmNonEmptyRootDirNonRecursive";
+        Path file = new Path(touchfile);
+        ContractTestUtils.touch(getFileSystem(), file);
+        ContractTestUtils.assertIsDirectory(getFileSystem(), root);
+        try {
+            boolean deleted = getFileSystem().delete(root, false);
+            fail("non recursive delete should have raised an exception," +
+                 " but completed with exit code " + deleted);
+        } catch (IOException e) {
+            //expected
+            handleExpectedException(e);
+        } finally {
+            getFileSystem().delete(file, false);
+        }
+        ContractTestUtils.assertIsDirectory(getFileSystem(), root);
+    }
+
+    @Test
+    public void testRmRootRecursive() throws Throwable {
+        //extra sanity checks here to avoid support calls about complete loss of data
+        skipIfUnsupported(TEST_ROOT_TESTS_ENABLED);
+        Path root = new Path("/");
+        ContractTestUtils.assertIsDirectory(getFileSystem(), root);
+        Path file = new Path("/testRmRootRecursive");
+        ContractTestUtils.touch(getFileSystem(), file);
+        boolean deleted = getFileSystem().delete(root, true);
+        ContractTestUtils.assertIsDirectory(getFileSystem(), root);
+        LOG.info("rm -rf / result is {}", deleted);
+        if (deleted) {
+            assertPathDoesNotExist("expected file to be deleted", file);
+        } else {
+            assertPathExists("expected file to be preserved", file);;
+        }
+    }
+
+    @Test
+    public void testCreateFileOverRoot() throws Throwable {
+        Path root = new Path("/");
+        byte[] dataset = dataset(1024, ' ', 'z');
+        try {
+            createFile(getFileSystem(), root, false, dataset);
+            fail("expected an exception, got a file created over root: " + ls(root));
+        } catch (IOException e) {
+            //expected
+            handleExpectedException(e);
+        }
+        assertIsDirectory(root);
+    }
 
 }

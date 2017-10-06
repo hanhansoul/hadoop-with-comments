@@ -29,19 +29,19 @@ import org.apache.hadoop.yarn.api.records.ApplicationSubmissionContext;
  */
 @Public
 @Unstable
-public class ApplicationIdNotProvidedException extends YarnException{
+public class ApplicationIdNotProvidedException extends YarnException {
 
-  private static final long serialVersionUID = 911754350L;
+    private static final long serialVersionUID = 911754350L;
 
-  public ApplicationIdNotProvidedException(Throwable cause) {
-    super(cause);
-  }
+    public ApplicationIdNotProvidedException(Throwable cause) {
+        super(cause);
+    }
 
-  public ApplicationIdNotProvidedException(String message) {
-    super(message);
-  }
+    public ApplicationIdNotProvidedException(String message) {
+        super(message);
+    }
 
-  public ApplicationIdNotProvidedException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public ApplicationIdNotProvidedException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

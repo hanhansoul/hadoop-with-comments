@@ -28,32 +28,32 @@ import javax.ws.rs.ext.ExceptionMapper;
 
 @InterfaceAudience.Private
 public class ExceptionProvider implements ExceptionMapper<Throwable> {
-  private static Logger LOG = LoggerFactory.getLogger(ExceptionProvider.class);
+    private static Logger LOG = LoggerFactory.getLogger(ExceptionProvider.class);
 
-  private static final String ENTER = System.getProperty("line.separator");
+    private static final String ENTER = System.getProperty("line.separator");
 
-  protected Response createResponse(Response.Status status, Throwable throwable) {
-    return HttpExceptionUtils.createJerseyExceptionResponse(status, throwable);
-  }
-
-  protected String getOneLineMessage(Throwable throwable) {
-    String message = throwable.getMessage();
-    if (message != null) {
-      int i = message.indexOf(ENTER);
-      if (i > -1) {
-        message = message.substring(0, i);
-      }
+    protected Response createResponse(Response.Status status, Throwable throwable) {
+        return HttpExceptionUtils.createJerseyExceptionResponse(status, throwable);
     }
-    return message;
-  }
 
-  protected void log(Response.Status status, Throwable throwable) {
-    LOG.debug("{}", throwable.getMessage(), throwable);
-  }
+    protected String getOneLineMessage(Throwable throwable) {
+        String message = throwable.getMessage();
+        if (message != null) {
+            int i = message.indexOf(ENTER);
+            if (i > -1) {
+                message = message.substring(0, i);
+            }
+        }
+        return message;
+    }
 
-  @Override
-  public Response toResponse(Throwable throwable) {
-    return createResponse(Response.Status.BAD_REQUEST, throwable);
-  }
+    protected void log(Response.Status status, Throwable throwable) {
+        LOG.debug("{}", throwable.getMessage(), throwable);
+    }
+
+    @Override
+    public Response toResponse(Throwable throwable) {
+        return createResponse(Response.Status.BAD_REQUEST, throwable);
+    }
 
 }

@@ -28,27 +28,27 @@ import java.io.OutputStream;
 
 @InterfaceAudience.Private
 public class InputStreamEntity implements StreamingOutput {
-  private InputStream is;
-  private long offset;
-  private long len;
+    private InputStream is;
+    private long offset;
+    private long len;
 
-  public InputStreamEntity(InputStream is, long offset, long len) {
-    this.is = is;
-    this.offset = offset;
-    this.len = len;
-  }
-
-  public InputStreamEntity(InputStream is) {
-    this(is, 0, -1);
-  }
-
-  @Override
-  public void write(OutputStream os) throws IOException {
-    IOUtils.skipFully(is, offset);
-    if (len == -1) {
-      IOUtils.copyBytes(is, os, 4096, true);
-    } else {
-      IOUtils.copyBytes(is, os, len, true);
+    public InputStreamEntity(InputStream is, long offset, long len) {
+        this.is = is;
+        this.offset = offset;
+        this.len = len;
     }
-  }
+
+    public InputStreamEntity(InputStream is) {
+        this(is, 0, -1);
+    }
+
+    @Override
+    public void write(OutputStream os) throws IOException {
+        IOUtils.skipFully(is, offset);
+        if (len == -1) {
+            IOUtils.copyBytes(is, os, 4096, true);
+        } else {
+            IOUtils.copyBytes(is, os, len, true);
+        }
+    }
 }

@@ -34,77 +34,77 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestMD5FileUtils {
-  private static final File TEST_DIR = PathUtils.getTestDir(TestMD5FileUtils.class);
-  private static final File TEST_FILE = new File(TEST_DIR,
-      "testMd5File.dat");
-  
-  private static final int TEST_DATA_LEN = 128 * 1024; // 128KB test data
-  private static final byte[] TEST_DATA =
-    DFSTestUtil.generateSequentialBytes(0, TEST_DATA_LEN);
-  private static final MD5Hash TEST_MD5 = MD5Hash.digest(TEST_DATA);
-  
-  @Before
-  public void setup() throws IOException {
-    FileUtil.fullyDelete(TEST_DIR);
-    assertTrue(TEST_DIR.mkdirs());
-    
-    // Write a file out
-    FileOutputStream fos = new FileOutputStream(TEST_FILE);
-    fos.write(TEST_DATA);
-    fos.close();
-  }
-  
-  @Test
-  public void testComputeMd5ForFile() throws Exception {
-    MD5Hash computedDigest = MD5FileUtils.computeMd5ForFile(TEST_FILE);
-    assertEquals(TEST_MD5, computedDigest);    
-  }
+    private static final File TEST_DIR = PathUtils.getTestDir(TestMD5FileUtils.class);
+    private static final File TEST_FILE = new File(TEST_DIR,
+            "testMd5File.dat");
 
-  @Test
-  public void testVerifyMD5FileGood() throws Exception {
-    MD5FileUtils.saveMD5File(TEST_FILE, TEST_MD5);
-    MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
-  }
+    private static final int TEST_DATA_LEN = 128 * 1024; // 128KB test data
+    private static final byte[] TEST_DATA =
+        DFSTestUtil.generateSequentialBytes(0, TEST_DATA_LEN);
+    private static final MD5Hash TEST_MD5 = MD5Hash.digest(TEST_DATA);
 
-  /**
-   * Test when .md5 file does not exist at all
-   */
-  @Test(expected=IOException.class)
-  public void testVerifyMD5FileMissing() throws Exception {
-    MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
-  }
+    @Before
+    public void setup() throws IOException {
+        FileUtil.fullyDelete(TEST_DIR);
+        assertTrue(TEST_DIR.mkdirs());
 
-  /**
-   * Test when .md5 file exists but incorrect checksum
-   */
-  @Test
-  public void testVerifyMD5FileBadDigest() throws Exception {
-    MD5FileUtils.saveMD5File(TEST_FILE, MD5Hash.digest(new byte[0]));
-    try {
-      MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
-      fail("Did not throw");
-    } catch (IOException ioe) {
-      // Expected
+        // Write a file out
+        FileOutputStream fos = new FileOutputStream(TEST_FILE);
+        fos.write(TEST_DATA);
+        fos.close();
     }
-  }
-  
-  /**
-   * Test when .md5 file exists but has a bad format
-   */
-  @Test
-  public void testVerifyMD5FileBadFormat() throws Exception {
-    FileWriter writer = new FileWriter(MD5FileUtils.getDigestFileForFile(TEST_FILE));
-    try {
-      writer.write("this is not an md5 file");
-    } finally {
-      writer.close();
+
+    @Test
+    public void testComputeMd5ForFile() throws Exception {
+        MD5Hash computedDigest = MD5FileUtils.computeMd5ForFile(TEST_FILE);
+        assertEquals(TEST_MD5, computedDigest);
     }
-    
-    try {
-      MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
-      fail("Did not throw");
-    } catch (IOException ioe) {
-      // expected
+
+    @Test
+    public void testVerifyMD5FileGood() throws Exception {
+        MD5FileUtils.saveMD5File(TEST_FILE, TEST_MD5);
+        MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
     }
-  }  
+
+    /**
+     * Test when .md5 file does not exist at all
+     */
+    @Test(expected=IOException.class)
+    public void testVerifyMD5FileMissing() throws Exception {
+        MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
+    }
+
+    /**
+     * Test when .md5 file exists but incorrect checksum
+     */
+    @Test
+    public void testVerifyMD5FileBadDigest() throws Exception {
+        MD5FileUtils.saveMD5File(TEST_FILE, MD5Hash.digest(new byte[0]));
+        try {
+            MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
+            fail("Did not throw");
+        } catch (IOException ioe) {
+            // Expected
+        }
+    }
+
+    /**
+     * Test when .md5 file exists but has a bad format
+     */
+    @Test
+    public void testVerifyMD5FileBadFormat() throws Exception {
+        FileWriter writer = new FileWriter(MD5FileUtils.getDigestFileForFile(TEST_FILE));
+        try {
+            writer.write("this is not an md5 file");
+        } finally {
+            writer.close();
+        }
+
+        try {
+            MD5FileUtils.verifySavedMD5(TEST_FILE, TEST_MD5);
+            fail("Did not throw");
+        } catch (IOException ioe) {
+            // expected
+        }
+    }
 }

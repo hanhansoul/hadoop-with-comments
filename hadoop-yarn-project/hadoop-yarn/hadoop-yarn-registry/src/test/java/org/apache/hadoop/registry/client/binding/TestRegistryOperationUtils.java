@@ -27,30 +27,30 @@ import org.junit.Test;
  */
 public class TestRegistryOperationUtils extends Assert {
 
-  @Test
-  public void testUsernameExtractionEnvVarOverrride() throws Throwable {
-    String whoami = RegistryUtils.getCurrentUsernameUnencoded("drwho");
-    assertEquals("drwho", whoami);
+    @Test
+    public void testUsernameExtractionEnvVarOverrride() throws Throwable {
+        String whoami = RegistryUtils.getCurrentUsernameUnencoded("drwho");
+        assertEquals("drwho", whoami);
 
-  }
+    }
 
-  @Test
-  public void testUsernameExtractionCurrentuser() throws Throwable {
-    String whoami = RegistryUtils.getCurrentUsernameUnencoded("");
-    String ugiUser = UserGroupInformation.getCurrentUser().getShortUserName();
-    assertEquals(ugiUser, whoami);
-  }
+    @Test
+    public void testUsernameExtractionCurrentuser() throws Throwable {
+        String whoami = RegistryUtils.getCurrentUsernameUnencoded("");
+        String ugiUser = UserGroupInformation.getCurrentUser().getShortUserName();
+        assertEquals(ugiUser, whoami);
+    }
 
-  @Test
-  public void testShortenUsername() throws Throwable {
-    assertEquals("hbase",
-        RegistryUtils.convertUsername("hbase@HADOOP.APACHE.ORG"));
-    assertEquals("hbase",
-        RegistryUtils.convertUsername("hbase/localhost@HADOOP.APACHE.ORG"));
-    assertEquals("hbase",
-        RegistryUtils.convertUsername("hbase"));
-    assertEquals("hbase user",
-        RegistryUtils.convertUsername("hbase user"));
-  }
+    @Test
+    public void testShortenUsername() throws Throwable {
+        assertEquals("hbase",
+                     RegistryUtils.convertUsername("hbase@HADOOP.APACHE.ORG"));
+        assertEquals("hbase",
+                     RegistryUtils.convertUsername("hbase/localhost@HADOOP.APACHE.ORG"));
+        assertEquals("hbase",
+                     RegistryUtils.convertUsername("hbase"));
+        assertEquals("hbase user",
+                     RegistryUtils.convertUsername("hbase user"));
+    }
 
 }

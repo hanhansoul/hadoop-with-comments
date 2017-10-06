@@ -43,91 +43,91 @@ import com.sun.jersey.api.client.ClientResponse;
 
 public class TestTimelineWebServicesWithSSL {
 
-  private static final String BASEDIR =
-      System.getProperty("test.build.dir", "target/test-dir") + "/"
-          + TestTimelineWebServicesWithSSL.class.getSimpleName();
+    private static final String BASEDIR =
+        System.getProperty("test.build.dir", "target/test-dir") + "/"
+        + TestTimelineWebServicesWithSSL.class.getSimpleName();
 
-  private static String keystoresDir;
-  private static String sslConfDir;
-  private static ApplicationHistoryServer timelineServer;
-  private static TimelineStore store;
-  private static Configuration conf;
+    private static String keystoresDir;
+    private static String sslConfDir;
+    private static ApplicationHistoryServer timelineServer;
+    private static TimelineStore store;
+    private static Configuration conf;
 
-  @BeforeClass
-  public static void setupServer() throws Exception {
-    conf = new YarnConfiguration();
-    conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
-    conf.setClass(YarnConfiguration.TIMELINE_SERVICE_STORE,
-        MemoryTimelineStore.class, TimelineStore.class);
-    conf.set(YarnConfiguration.YARN_HTTP_POLICY_KEY, "HTTPS_ONLY");
+    @BeforeClass
+    public static void setupServer() throws Exception {
+        conf = new YarnConfiguration();
+        conf.setBoolean(YarnConfiguration.TIMELINE_SERVICE_ENABLED, true);
+        conf.setClass(YarnConfiguration.TIMELINE_SERVICE_STORE,
+                      MemoryTimelineStore.class, TimelineStore.class);
+        conf.set(YarnConfiguration.YARN_HTTP_POLICY_KEY, "HTTPS_ONLY");
 
-    File base = new File(BASEDIR);
-    FileUtil.fullyDelete(base);
-    base.mkdirs();
-    keystoresDir = new File(BASEDIR).getAbsolutePath();
-    sslConfDir =
-        KeyStoreTestUtil.getClasspathDir(TestTimelineWebServicesWithSSL.class);
+        File base = new File(BASEDIR);
+        FileUtil.fullyDelete(base);
+        base.mkdirs();
+        keystoresDir = new File(BASEDIR).getAbsolutePath();
+        sslConfDir =
+            KeyStoreTestUtil.getClasspathDir(TestTimelineWebServicesWithSSL.class);
 
-    KeyStoreTestUtil.setupSSLConfig(keystoresDir, sslConfDir, conf, false);
-    conf.addResource("ssl-server.xml");
-    conf.addResource("ssl-client.xml");
+        KeyStoreTestUtil.setupSSLConfig(keystoresDir, sslConfDir, conf, false);
+        conf.addResource("ssl-server.xml");
+        conf.addResource("ssl-client.xml");
 
-    timelineServer = new ApplicationHistoryServer();
-    timelineServer.init(conf);
-    timelineServer.start();
-    store = timelineServer.getTimelineStore();
-  }
-
-  @AfterClass
-  public static void tearDownServer() throws Exception {
-    if (timelineServer != null) {
-      timelineServer.stop();
-    }
-  }
-
-  @Test
-  public void testPutEntities() throws Exception {
-    TestTimelineClient client = new TestTimelineClient();
-    try {
-      client.init(conf);
-      client.start();
-      TimelineEntity expectedEntity = new TimelineEntity();
-      expectedEntity.setEntityType("test entity type");
-      expectedEntity.setEntityId("test entity id");
-      expectedEntity.setDomainId("test domain id");
-      TimelineEvent event = new TimelineEvent();
-      event.setEventType("test event type");
-      event.setTimestamp(0L);
-      expectedEntity.addEvent(event);
-
-      TimelinePutResponse response = client.putEntities(expectedEntity);
-      Assert.assertEquals(0, response.getErrors().size());
-      Assert.assertTrue(client.resp.toString().contains("https"));
-
-      TimelineEntity actualEntity = store.getEntity(
-          expectedEntity.getEntityId(), expectedEntity.getEntityType(),
-          EnumSet.allOf(Field.class));
-      Assert.assertNotNull(actualEntity);
-      Assert.assertEquals(
-          expectedEntity.getEntityId(), actualEntity.getEntityId());
-      Assert.assertEquals(
-          expectedEntity.getEntityType(), actualEntity.getEntityType());
-    } finally {
-      client.stop();
-      client.close();
-    }
-  }
-
-  private static class TestTimelineClient extends TimelineClientImpl {
-
-    private ClientResponse resp;
-
-    @Override
-    public ClientResponse doPostingObject(Object obj, String path) {
-      resp = super.doPostingObject(obj, path);
-      return resp;
+        timelineServer = new ApplicationHistoryServer();
+        timelineServer.init(conf);
+        timelineServer.start();
+        store = timelineServer.getTimelineStore();
     }
 
-  }
+    @AfterClass
+    public static void tearDownServer() throws Exception {
+        if (timelineServer != null) {
+            timelineServer.stop();
+        }
+    }
+
+    @Test
+    public void testPutEntities() throws Exception {
+        TestTimelineClient client = new TestTimelineClient();
+        try {
+            client.init(conf);
+            client.start();
+            TimelineEntity expectedEntity = new TimelineEntity();
+            expectedEntity.setEntityType("test entity type");
+            expectedEntity.setEntityId("test entity id");
+            expectedEntity.setDomainId("test domain id");
+            TimelineEvent event = new TimelineEvent();
+            event.setEventType("test event type");
+            event.setTimestamp(0L);
+            expectedEntity.addEvent(event);
+
+            TimelinePutResponse response = client.putEntities(expectedEntity);
+            Assert.assertEquals(0, response.getErrors().size());
+            Assert.assertTrue(client.resp.toString().contains("https"));
+
+            TimelineEntity actualEntity = store.getEntity(
+                                              expectedEntity.getEntityId(), expectedEntity.getEntityType(),
+                                              EnumSet.allOf(Field.class));
+            Assert.assertNotNull(actualEntity);
+            Assert.assertEquals(
+                expectedEntity.getEntityId(), actualEntity.getEntityId());
+            Assert.assertEquals(
+                expectedEntity.getEntityType(), actualEntity.getEntityType());
+        } finally {
+            client.stop();
+            client.close();
+        }
+    }
+
+    private static class TestTimelineClient extends TimelineClientImpl {
+
+        private ClientResponse resp;
+
+        @Override
+        public ClientResponse doPostingObject(Object obj, String path) {
+            resp = super.doPostingObject(obj, path);
+            return resp;
+        }
+
+    }
 
 }

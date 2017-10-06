@@ -27,31 +27,31 @@ import org.junit.Test;
 
 public class TestCrossOriginFilterInitializer {
 
-  @Test
-  public void testGetFilterParameters() {
+    @Test
+    public void testGetFilterParameters() {
 
-    // Initialize configuration object
-    Configuration conf = new Configuration();
-    conf.set(CrossOriginFilterInitializer.PREFIX + "rootparam", "rootvalue");
-    conf.set(CrossOriginFilterInitializer.PREFIX + "nested.param",
-        "nestedvalue");
-    conf.set("outofscopeparam", "outofscopevalue");
+        // Initialize configuration object
+        Configuration conf = new Configuration();
+        conf.set(CrossOriginFilterInitializer.PREFIX + "rootparam", "rootvalue");
+        conf.set(CrossOriginFilterInitializer.PREFIX + "nested.param",
+                 "nestedvalue");
+        conf.set("outofscopeparam", "outofscopevalue");
 
-    // call function under test
-    Map<String, String> filterParameters =
-        CrossOriginFilterInitializer.getFilterParameters(conf);
+        // call function under test
+        Map<String, String> filterParameters =
+            CrossOriginFilterInitializer.getFilterParameters(conf);
 
-    // retrieve values
-    String rootvalue = filterParameters.get("rootparam");
-    String nestedvalue = filterParameters.get("nested.param");
-    String outofscopeparam = filterParameters.get("outofscopeparam");
+        // retrieve values
+        String rootvalue = filterParameters.get("rootparam");
+        String nestedvalue = filterParameters.get("nested.param");
+        String outofscopeparam = filterParameters.get("outofscopeparam");
 
-    // verify expected values are in place
-    Assert.assertEquals("Could not find filter parameter", "rootvalue",
-        rootvalue);
-    Assert.assertEquals("Could not find filter parameter", "nestedvalue",
-        nestedvalue);
-    Assert.assertNull("Found unexpected value in filter parameters",
-        outofscopeparam);
-  }
+        // verify expected values are in place
+        Assert.assertEquals("Could not find filter parameter", "rootvalue",
+                            rootvalue);
+        Assert.assertEquals("Could not find filter parameter", "nestedvalue",
+                            nestedvalue);
+        Assert.assertNull("Found unexpected value in filter parameters",
+                          outofscopeparam);
+    }
 }

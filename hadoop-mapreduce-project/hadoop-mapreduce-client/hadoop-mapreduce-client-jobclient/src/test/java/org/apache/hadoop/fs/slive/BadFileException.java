@@ -26,14 +26,14 @@ import java.io.IOException;
  */
 class BadFileException extends IOException {
 
-  private static final long serialVersionUID = 463201983951298129L;
+    private static final long serialVersionUID = 463201983951298129L;
 
-  BadFileException(String msg) {
-    super(msg);
-  }
+    BadFileException(String msg) {
+        super(msg);
+    }
 
-  BadFileException(String msg, Throwable e) {
-    super(msg, e);
-  }
+    BadFileException(String msg, Throwable e) {
+        super(msg, e);
+    }
 
 }

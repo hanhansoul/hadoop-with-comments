@@ -54,99 +54,99 @@ import org.apache.log4j.spi.LoggingEvent;
 @Private
 @Unstable
 class FairSchedulerEventLog {
-  private static final Log LOG = LogFactory.getLog(FairSchedulerEventLog.class.getName());
+    private static final Log LOG = LogFactory.getLog(FairSchedulerEventLog.class.getName());
 
-  /** Set to true if logging is disabled due to an error. */
-  private boolean logDisabled = true;
+    /** Set to true if logging is disabled due to an error. */
+    private boolean logDisabled = true;
 
-  /**
-   * Log directory, set by mapred.fairscheduler.eventlog.location in conf file;
-   * defaults to {hadoop.log.dir}/fairscheduler.
-   */
-  private String logDir;
+    /**
+     * Log directory, set by mapred.fairscheduler.eventlog.location in conf file;
+     * defaults to {hadoop.log.dir}/fairscheduler.
+     */
+    private String logDir;
 
-  /**
-   * Active log file, which is {LOG_DIR}/hadoop-{user}-fairscheduler.log.
-   * Older files are also stored as {LOG_FILE}.date (date format YYYY-MM-DD).
-   */
-  private String logFile;
+    /**
+     * Active log file, which is {LOG_DIR}/hadoop-{user}-fairscheduler.log.
+     * Older files are also stored as {LOG_FILE}.date (date format YYYY-MM-DD).
+     */
+    private String logFile;
 
-  /** Log4j appender used to write to the log file */
-  private DailyRollingFileAppender appender;
+    /** Log4j appender used to write to the log file */
+    private DailyRollingFileAppender appender;
 
-  boolean init(FairSchedulerConfiguration conf) {
-    if (conf.isEventLogEnabled()) {
-      try {
-        logDir = conf.getEventlogDir();
-        File logDirFile = new File(logDir);
-        if (!logDirFile.exists()) {
-          if (!logDirFile.mkdirs()) {
-            throw new IOException(
-                "Mkdirs failed to create " + logDirFile.toString());
-          }
+    boolean init(FairSchedulerConfiguration conf) {
+        if (conf.isEventLogEnabled()) {
+            try {
+                logDir = conf.getEventlogDir();
+                File logDirFile = new File(logDir);
+                if (!logDirFile.exists()) {
+                    if (!logDirFile.mkdirs()) {
+                        throw new IOException(
+                            "Mkdirs failed to create " + logDirFile.toString());
+                    }
+                }
+                String username = System.getProperty("user.name");
+                logFile = String.format("%s%shadoop-%s-fairscheduler.log",
+                                        logDir, File.separator, username);
+                logDisabled = false;
+                PatternLayout layout = new PatternLayout("%d{ISO8601}\t%m%n");
+                appender = new DailyRollingFileAppender(layout, logFile, "'.'yyyy-MM-dd");
+                appender.activateOptions();
+                LOG.info("Initialized fair scheduler event log, logging to " + logFile);
+            } catch (IOException e) {
+                LOG.error(
+                    "Failed to initialize fair scheduler event log. Disabling it.", e);
+                logDisabled = true;
+            }
+        } else {
+            logDisabled = true;
         }
-        String username = System.getProperty("user.name");
-        logFile = String.format("%s%shadoop-%s-fairscheduler.log",
-            logDir, File.separator, username);
-        logDisabled = false;
-        PatternLayout layout = new PatternLayout("%d{ISO8601}\t%m%n");
-        appender = new DailyRollingFileAppender(layout, logFile, "'.'yyyy-MM-dd");
-        appender.activateOptions();
-        LOG.info("Initialized fair scheduler event log, logging to " + logFile);
-      } catch (IOException e) {
-        LOG.error(
-            "Failed to initialize fair scheduler event log. Disabling it.", e);
-        logDisabled = true;
-      }
-    } else {
-      logDisabled = true;
+        return !(logDisabled);
     }
-    return !(logDisabled);
-  }
 
-  /**
-   * Log an event, writing a line in the log file of the form
-   * <pre>
-   * DATE    EVENT_TYPE   PARAM_1   PARAM_2   ...
-   * </pre>
-   */
-  synchronized void log(String eventType, Object... params) {
-    try {
-      if (logDisabled)
-        return;
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(eventType);
-      for (Object param: params) {
-        buffer.append("\t");
-        buffer.append(param);
-      }
-      String message = buffer.toString();
-      Logger logger = Logger.getLogger(getClass());
-      appender.append(new LoggingEvent("", logger, Level.INFO, message, null));
-    } catch (Exception e) {
-      LOG.error("Failed to append to fair scheduler event log", e);
-      logDisabled = true;
+    /**
+     * Log an event, writing a line in the log file of the form
+     * <pre>
+     * DATE    EVENT_TYPE   PARAM_1   PARAM_2   ...
+     * </pre>
+     */
+    synchronized void log(String eventType, Object... params) {
+        try {
+            if (logDisabled)
+                return;
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(eventType);
+            for (Object param: params) {
+                buffer.append("\t");
+                buffer.append(param);
+            }
+            String message = buffer.toString();
+            Logger logger = Logger.getLogger(getClass());
+            appender.append(new LoggingEvent("", logger, Level.INFO, message, null));
+        } catch (Exception e) {
+            LOG.error("Failed to append to fair scheduler event log", e);
+            logDisabled = true;
+        }
     }
-  }
 
-  /**
-   * Flush and close the log.
-   */
-  synchronized void shutdown() {
-    try {
-      if (appender != null)
-        appender.close();
-    } catch (Exception e) {
-      LOG.error("Failed to close fair scheduler event log", e);
-      logDisabled = true;
+    /**
+     * Flush and close the log.
+     */
+    synchronized void shutdown() {
+        try {
+            if (appender != null)
+                appender.close();
+        } catch (Exception e) {
+            LOG.error("Failed to close fair scheduler event log", e);
+            logDisabled = true;
+        }
     }
-  }
 
-  synchronized boolean isEnabled() {
-    return !logDisabled;
-  }
-  
-  public String getLogFile() {
-    return logFile;
-  }
+    synchronized boolean isEnabled() {
+        return !logDisabled;
+    }
+
+    public String getLogFile() {
+        return logFile;
+    }
 }

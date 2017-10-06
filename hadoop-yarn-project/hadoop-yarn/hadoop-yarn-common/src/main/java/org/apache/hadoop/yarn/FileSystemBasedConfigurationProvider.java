@@ -37,50 +37,50 @@ import org.apache.hadoop.yarn.exceptions.YarnException;
 public class FileSystemBasedConfigurationProvider
     extends ConfigurationProvider {
 
-  private static final Log LOG = LogFactory
-      .getLog(FileSystemBasedConfigurationProvider.class);
-  private FileSystem fs;
-  private Path configDir;
+    private static final Log LOG = LogFactory
+                                   .getLog(FileSystemBasedConfigurationProvider.class);
+    private FileSystem fs;
+    private Path configDir;
 
-  @Override
-  public synchronized InputStream getConfigurationInputStream(
-      Configuration bootstrapConf, String name) throws IOException,
-      YarnException {
-    if (name == null || name.isEmpty()) {
-      throw new YarnException(
-          "Illegal argument! The parameter should not be null or empty");
+    @Override
+    public synchronized InputStream getConfigurationInputStream(
+        Configuration bootstrapConf, String name) throws IOException,
+        YarnException {
+        if (name == null || name.isEmpty()) {
+            throw new YarnException(
+                "Illegal argument! The parameter should not be null or empty");
+        }
+        Path filePath;
+        if (YarnConfiguration.RM_CONFIGURATION_FILES.contains(name)) {
+            filePath = new Path(this.configDir, name);
+            if (!fs.exists(filePath)) {
+                LOG.info(filePath + " not found");
+                return null;
+            }
+        } else {
+            filePath = new Path(name);
+            if (!fs.exists(filePath)) {
+                LOG.info(filePath + " not found");
+                return null;
+            }
+        }
+        return fs.open(filePath);
     }
-    Path filePath;
-    if (YarnConfiguration.RM_CONFIGURATION_FILES.contains(name)) {
-      filePath = new Path(this.configDir, name);
-      if (!fs.exists(filePath)) {
-        LOG.info(filePath + " not found");
-        return null;
-      }
-    } else {
-      filePath = new Path(name);
-      if (!fs.exists(filePath)) {
-        LOG.info(filePath + " not found");
-        return null;
-      }
-    }
-    return fs.open(filePath);
-  }
 
-  @Override
-  public synchronized void initInternal(Configuration bootstrapConf)
-      throws Exception {
-    configDir =
-        new Path(bootstrapConf.get(YarnConfiguration.FS_BASED_RM_CONF_STORE,
-            YarnConfiguration.DEFAULT_FS_BASED_RM_CONF_STORE));
-    fs = configDir.getFileSystem(bootstrapConf);
-    if (!fs.exists(configDir)) {
-      fs.mkdirs(configDir);
+    @Override
+    public synchronized void initInternal(Configuration bootstrapConf)
+    throws Exception {
+        configDir =
+            new Path(bootstrapConf.get(YarnConfiguration.FS_BASED_RM_CONF_STORE,
+                                       YarnConfiguration.DEFAULT_FS_BASED_RM_CONF_STORE));
+        fs = configDir.getFileSystem(bootstrapConf);
+        if (!fs.exists(configDir)) {
+            fs.mkdirs(configDir);
+        }
     }
-  }
 
-  @Override
-  public synchronized void closeInternal() throws Exception {
-    fs.close();
-  }
+    @Override
+    public synchronized void closeInternal() throws Exception {
+        fs.close();
+    }
 }

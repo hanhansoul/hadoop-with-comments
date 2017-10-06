@@ -39,213 +39,213 @@ import org.mockito.Mockito;
 
 public class TestFSAppAttempt extends FairSchedulerTestBase {
 
-  private class MockClock implements Clock {
-    private long time = 0;
-    @Override
-    public long getTime() {
-      return time;
+    private class MockClock implements Clock {
+        private long time = 0;
+        @Override
+        public long getTime() {
+            return time;
+        }
+
+        public void tick(int seconds) {
+            time = time + seconds * 1000;
+        }
+
     }
 
-    public void tick(int seconds) {
-      time = time + seconds * 1000;
+    @Before
+    public void setup() {
+        Configuration conf = createConfiguration();
+        resourceManager = new MockRM(conf);
+        resourceManager.start();
+        scheduler = (FairScheduler) resourceManager.getResourceScheduler();
     }
 
-  }
+    @Test
+    public void testDelayScheduling() {
+        FSLeafQueue queue = Mockito.mock(FSLeafQueue.class);
+        Priority prio = Mockito.mock(Priority.class);
+        Mockito.when(prio.getPriority()).thenReturn(1);
+        double nodeLocalityThreshold = .5;
+        double rackLocalityThreshold = .6;
 
-  @Before
-  public void setup() {
-    Configuration conf = createConfiguration();
-    resourceManager = new MockRM(conf);
-    resourceManager.start();
-    scheduler = (FairScheduler) resourceManager.getResourceScheduler();
-  }
-
-  @Test
-  public void testDelayScheduling() {
-    FSLeafQueue queue = Mockito.mock(FSLeafQueue.class);
-    Priority prio = Mockito.mock(Priority.class);
-    Mockito.when(prio.getPriority()).thenReturn(1);
-    double nodeLocalityThreshold = .5;
-    double rackLocalityThreshold = .6;
-
-    ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
-    RMContext rmContext = resourceManager.getRMContext();
-    FSAppAttempt schedulerApp =
-        new FSAppAttempt(scheduler, applicationAttemptId, "user1", queue ,
-            null, rmContext);
-
-    // Default level should be node-local
-    assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
-        prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-
-    // First five scheduling opportunities should remain node local
-    for (int i = 0; i < 5; i++) {
-      schedulerApp.addSchedulingOpportunity(prio);
-      assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
-          prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-    }
-
-    // After five it should switch to rack local
-    schedulerApp.addSchedulingOpportunity(prio);
-    assertEquals(NodeType.RACK_LOCAL, schedulerApp.getAllowedLocalityLevel(
-        prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-
-    // Manually set back to node local
-    schedulerApp.resetAllowedLocalityLevel(prio, NodeType.NODE_LOCAL);
-    schedulerApp.resetSchedulingOpportunities(prio);
-    assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
-        prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-
-    // Now escalate again to rack-local, then to off-switch
-    for (int i = 0; i < 5; i++) {
-      schedulerApp.addSchedulingOpportunity(prio);
-      assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
-          prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-    }
-
-    schedulerApp.addSchedulingOpportunity(prio);
-    assertEquals(NodeType.RACK_LOCAL, schedulerApp.getAllowedLocalityLevel(
-        prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-
-    for (int i = 0; i < 6; i++) {
-      schedulerApp.addSchedulingOpportunity(prio);
-      assertEquals(NodeType.RACK_LOCAL, schedulerApp.getAllowedLocalityLevel(
-          prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-    }
-
-    schedulerApp.addSchedulingOpportunity(prio);
-    assertEquals(NodeType.OFF_SWITCH, schedulerApp.getAllowedLocalityLevel(
-        prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
-  }
-
-  @Test
-  public void testDelaySchedulingForContinuousScheduling()
-          throws InterruptedException {
-    FSLeafQueue queue = scheduler.getQueueManager().getLeafQueue("queue", true);
-    Priority prio = Mockito.mock(Priority.class);
-    Mockito.when(prio.getPriority()).thenReturn(1);
-
-    MockClock clock = new MockClock();
-    scheduler.setClock(clock);
-
-    long nodeLocalityDelayMs = 5 * 1000L;    // 5 seconds
-    long rackLocalityDelayMs = 6 * 1000L;    // 6 seconds
-
-    RMContext rmContext = resourceManager.getRMContext();
-    ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
-    FSAppAttempt schedulerApp =
+        ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
+        RMContext rmContext = resourceManager.getRMContext();
+        FSAppAttempt schedulerApp =
             new FSAppAttempt(scheduler, applicationAttemptId, "user1", queue,
-                    null, rmContext);
+                             null, rmContext);
 
-    // Default level should be node-local
-    assertEquals(NodeType.NODE_LOCAL,
-            schedulerApp.getAllowedLocalityLevelByTime(prio,
-                    nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+        // Default level should be node-local
+        assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                         prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
 
-    // after 4 seconds should remain node local
-    clock.tick(4);
-    assertEquals(NodeType.NODE_LOCAL,
-            schedulerApp.getAllowedLocalityLevelByTime(prio,
-                    nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+        // First five scheduling opportunities should remain node local
+        for (int i = 0; i < 5; i++) {
+            schedulerApp.addSchedulingOpportunity(prio);
+            assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                             prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
+        }
 
-    // after 6 seconds should switch to rack local
-    clock.tick(2);
-    assertEquals(NodeType.RACK_LOCAL,
-            schedulerApp.getAllowedLocalityLevelByTime(prio,
-                    nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+        // After five it should switch to rack local
+        schedulerApp.addSchedulingOpportunity(prio);
+        assertEquals(NodeType.RACK_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                         prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
 
-    // manually set back to node local
-    schedulerApp.resetAllowedLocalityLevel(prio, NodeType.NODE_LOCAL);
-    schedulerApp.resetSchedulingOpportunities(prio, clock.getTime());
-    assertEquals(NodeType.NODE_LOCAL,
-            schedulerApp.getAllowedLocalityLevelByTime(prio,
-                    nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+        // Manually set back to node local
+        schedulerApp.resetAllowedLocalityLevel(prio, NodeType.NODE_LOCAL);
+        schedulerApp.resetSchedulingOpportunities(prio);
+        assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                         prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
 
-    // Now escalate again to rack-local, then to off-switch
-    clock.tick(6);
-    assertEquals(NodeType.RACK_LOCAL,
-            schedulerApp.getAllowedLocalityLevelByTime(prio,
-                    nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+        // Now escalate again to rack-local, then to off-switch
+        for (int i = 0; i < 5; i++) {
+            schedulerApp.addSchedulingOpportunity(prio);
+            assertEquals(NodeType.NODE_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                             prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
+        }
 
-    clock.tick(7);
-    assertEquals(NodeType.OFF_SWITCH,
-            schedulerApp.getAllowedLocalityLevelByTime(prio,
-                    nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
-  }
+        schedulerApp.addSchedulingOpportunity(prio);
+        assertEquals(NodeType.RACK_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                         prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
 
-  @Test
-  /**
-   * Ensure that when negative paramaters are given (signaling delay scheduling
-   * no tin use), the least restrictive locality level is returned.
-   */
-  public void testLocalityLevelWithoutDelays() {
-    FSLeafQueue queue = Mockito.mock(FSLeafQueue.class);
-    Priority prio = Mockito.mock(Priority.class);
-    Mockito.when(prio.getPriority()).thenReturn(1);
+        for (int i = 0; i < 6; i++) {
+            schedulerApp.addSchedulingOpportunity(prio);
+            assertEquals(NodeType.RACK_LOCAL, schedulerApp.getAllowedLocalityLevel(
+                             prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
+        }
 
-    RMContext rmContext = resourceManager.getRMContext();
-    ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
-    FSAppAttempt schedulerApp =
-        new FSAppAttempt(scheduler, applicationAttemptId, "user1", queue ,
-            null, rmContext);
-    assertEquals(NodeType.OFF_SWITCH, schedulerApp.getAllowedLocalityLevel(
-        prio, 10, -1.0, -1.0));
-  }
+        schedulerApp.addSchedulingOpportunity(prio);
+        assertEquals(NodeType.OFF_SWITCH, schedulerApp.getAllowedLocalityLevel(
+                         prio, 10, nodeLocalityThreshold, rackLocalityThreshold));
+    }
 
-  @Test
-  public void testHeadroom() {
-    final FairScheduler mockScheduler = Mockito.mock(FairScheduler.class);
-    Mockito.when(mockScheduler.getClock()).thenReturn(scheduler.getClock());
+    @Test
+    public void testDelaySchedulingForContinuousScheduling()
+    throws InterruptedException {
+        FSLeafQueue queue = scheduler.getQueueManager().getLeafQueue("queue", true);
+        Priority prio = Mockito.mock(Priority.class);
+        Mockito.when(prio.getPriority()).thenReturn(1);
 
-    final FSLeafQueue mockQueue = Mockito.mock(FSLeafQueue.class);
-    final Resource queueFairShare = Resources.createResource(4096, 4);
-    final Resource queueUsage = Resource.newInstance(1024, 1);
-    final Resource clusterResource = Resources.createResource(8192, 8);
-    final Resource clusterUsage = Resources.createResource(6144, 2);
-    final QueueMetrics fakeRootQueueMetrics = Mockito.mock(QueueMetrics.class);
+        MockClock clock = new MockClock();
+        scheduler.setClock(clock);
 
-    ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
-    RMContext rmContext = resourceManager.getRMContext();
-    FSAppAttempt schedulerApp =
-        new FSAppAttempt(mockScheduler, applicationAttemptId, "user1", mockQueue ,
-            null, rmContext);
+        long nodeLocalityDelayMs = 5 * 1000L;    // 5 seconds
+        long rackLocalityDelayMs = 6 * 1000L;    // 6 seconds
 
-    Mockito.when(mockQueue.getFairShare()).thenReturn(queueFairShare);
-    Mockito.when(mockQueue.getResourceUsage()).thenReturn(queueUsage);
-    Mockito.when(mockScheduler.getClusterResource()).thenReturn
+        RMContext rmContext = resourceManager.getRMContext();
+        ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
+        FSAppAttempt schedulerApp =
+            new FSAppAttempt(scheduler, applicationAttemptId, "user1", queue,
+                             null, rmContext);
+
+        // Default level should be node-local
+        assertEquals(NodeType.NODE_LOCAL,
+                     schedulerApp.getAllowedLocalityLevelByTime(prio,
+                             nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+
+        // after 4 seconds should remain node local
+        clock.tick(4);
+        assertEquals(NodeType.NODE_LOCAL,
+                     schedulerApp.getAllowedLocalityLevelByTime(prio,
+                             nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+
+        // after 6 seconds should switch to rack local
+        clock.tick(2);
+        assertEquals(NodeType.RACK_LOCAL,
+                     schedulerApp.getAllowedLocalityLevelByTime(prio,
+                             nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+
+        // manually set back to node local
+        schedulerApp.resetAllowedLocalityLevel(prio, NodeType.NODE_LOCAL);
+        schedulerApp.resetSchedulingOpportunities(prio, clock.getTime());
+        assertEquals(NodeType.NODE_LOCAL,
+                     schedulerApp.getAllowedLocalityLevelByTime(prio,
+                             nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+
+        // Now escalate again to rack-local, then to off-switch
+        clock.tick(6);
+        assertEquals(NodeType.RACK_LOCAL,
+                     schedulerApp.getAllowedLocalityLevelByTime(prio,
+                             nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+
+        clock.tick(7);
+        assertEquals(NodeType.OFF_SWITCH,
+                     schedulerApp.getAllowedLocalityLevelByTime(prio,
+                             nodeLocalityDelayMs, rackLocalityDelayMs, clock.getTime()));
+    }
+
+    @Test
+    /**
+     * Ensure that when negative paramaters are given (signaling delay scheduling
+     * no tin use), the least restrictive locality level is returned.
+     */
+    public void testLocalityLevelWithoutDelays() {
+        FSLeafQueue queue = Mockito.mock(FSLeafQueue.class);
+        Priority prio = Mockito.mock(Priority.class);
+        Mockito.when(prio.getPriority()).thenReturn(1);
+
+        RMContext rmContext = resourceManager.getRMContext();
+        ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
+        FSAppAttempt schedulerApp =
+            new FSAppAttempt(scheduler, applicationAttemptId, "user1", queue,
+                             null, rmContext);
+        assertEquals(NodeType.OFF_SWITCH, schedulerApp.getAllowedLocalityLevel(
+                         prio, 10, -1.0, -1.0));
+    }
+
+    @Test
+    public void testHeadroom() {
+        final FairScheduler mockScheduler = Mockito.mock(FairScheduler.class);
+        Mockito.when(mockScheduler.getClock()).thenReturn(scheduler.getClock());
+
+        final FSLeafQueue mockQueue = Mockito.mock(FSLeafQueue.class);
+        final Resource queueFairShare = Resources.createResource(4096, 4);
+        final Resource queueUsage = Resource.newInstance(1024, 1);
+        final Resource clusterResource = Resources.createResource(8192, 8);
+        final Resource clusterUsage = Resources.createResource(6144, 2);
+        final QueueMetrics fakeRootQueueMetrics = Mockito.mock(QueueMetrics.class);
+
+        ApplicationAttemptId applicationAttemptId = createAppAttemptId(1, 1);
+        RMContext rmContext = resourceManager.getRMContext();
+        FSAppAttempt schedulerApp =
+            new FSAppAttempt(mockScheduler, applicationAttemptId, "user1", mockQueue,
+                             null, rmContext);
+
+        Mockito.when(mockQueue.getFairShare()).thenReturn(queueFairShare);
+        Mockito.when(mockQueue.getResourceUsage()).thenReturn(queueUsage);
+        Mockito.when(mockScheduler.getClusterResource()).thenReturn
         (clusterResource);
-    Mockito.when(fakeRootQueueMetrics.getAllocatedResources()).thenReturn
+        Mockito.when(fakeRootQueueMetrics.getAllocatedResources()).thenReturn
         (clusterUsage);
-    Mockito.when(mockScheduler.getRootQueueMetrics()).thenReturn
+        Mockito.when(mockScheduler.getRootQueueMetrics()).thenReturn
         (fakeRootQueueMetrics);
 
-    int minClusterAvailableMemory = 2048;
-    int minClusterAvailableCPU = 6;
-    int minQueueAvailableCPU = 3;
+        int minClusterAvailableMemory = 2048;
+        int minClusterAvailableCPU = 6;
+        int minQueueAvailableCPU = 3;
 
-    // Min of Memory and CPU across cluster and queue is used in
-    // DominantResourceFairnessPolicy
-    Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
-        .getInstance(DominantResourceFairnessPolicy.class));
-    verifyHeadroom(schedulerApp, minClusterAvailableMemory,
-        minQueueAvailableCPU);
+        // Min of Memory and CPU across cluster and queue is used in
+        // DominantResourceFairnessPolicy
+        Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
+                .getInstance(DominantResourceFairnessPolicy.class));
+        verifyHeadroom(schedulerApp, minClusterAvailableMemory,
+                       minQueueAvailableCPU);
 
-    // Fair and Fifo ignore CPU of queue, so use cluster available CPU
-    Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
-        .getInstance(FairSharePolicy.class));
-    verifyHeadroom(schedulerApp, minClusterAvailableMemory,
-        minClusterAvailableCPU);
+        // Fair and Fifo ignore CPU of queue, so use cluster available CPU
+        Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
+                .getInstance(FairSharePolicy.class));
+        verifyHeadroom(schedulerApp, minClusterAvailableMemory,
+                       minClusterAvailableCPU);
 
-    Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
-        .getInstance(FifoPolicy.class));
-    verifyHeadroom(schedulerApp, minClusterAvailableMemory,
-        minClusterAvailableCPU);
-  }
+        Mockito.when(mockQueue.getPolicy()).thenReturn(SchedulingPolicy
+                .getInstance(FifoPolicy.class));
+        verifyHeadroom(schedulerApp, minClusterAvailableMemory,
+                       minClusterAvailableCPU);
+    }
 
-  protected void verifyHeadroom(FSAppAttempt schedulerApp,
-                                int expectedMemory, int expectedCPU) {
-    Resource headroom = schedulerApp.getHeadroom();
-    assertEquals(expectedMemory, headroom.getMemory());
-    assertEquals(expectedCPU, headroom.getVirtualCores());
-  }
+    protected void verifyHeadroom(FSAppAttempt schedulerApp,
+                                  int expectedMemory, int expectedCPU) {
+        Resource headroom = schedulerApp.getHeadroom();
+        assertEquals(expectedMemory, headroom.getMemory());
+        assertEquals(expectedCPU, headroom.getVirtualCores());
+    }
 }

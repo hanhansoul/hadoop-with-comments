@@ -32,96 +32,97 @@ import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class TestQueueCapacities {
-  private static final Log LOG = LogFactory.getLog(TestQueueCapacities.class);
-  private String suffix;
+    private static final Log LOG = LogFactory.getLog(TestQueueCapacities.class);
+    private String suffix;
 
-  @Parameterized.Parameters
-  public static Collection<String[]> getParameters() {
-    return Arrays.asList(new String[][] { 
-        { "Capacity" },
-        { "AbsoluteCapacity" }, 
-        { "UsedCapacity" }, 
-        { "AbsoluteUsedCapacity" },
-        { "MaximumCapacity" }, 
-        { "AbsoluteMaximumCapacity" } });
-  }
-
-  public TestQueueCapacities(String suffix) {
-    this.suffix = suffix;
-  }
-
-  private static float get(QueueCapacities obj, String suffix,
-      String label) throws Exception {
-    return executeByName(obj, "get" + suffix, label, -1f);
-  }
-
-  private static void set(QueueCapacities obj, String suffix,
-      String label, float value) throws Exception {
-    executeByName(obj, "set" + suffix, label, value);
-  }
-
-  // Use reflection to avoid too much avoid code
-  private static float executeByName(QueueCapacities obj, String methodName,
-      String label, float value) throws Exception {
-    // We have 4 kinds of method
-    // 1. getXXX() : float
-    // 2. getXXX(label) : float
-    // 3. setXXX(float) : void
-    // 4. setXXX(label, float) : void
-    if (methodName.startsWith("get")) {
-      float result;
-      if (label == null) {
-        // 1.
-        Method method = QueueCapacities.class.getDeclaredMethod(methodName);
-        result = (Float) method.invoke(obj);
-      } else {
-        // 2.
-        Method method =
-            QueueCapacities.class.getDeclaredMethod(methodName, String.class);
-        result = (Float) method.invoke(obj, label);
-      }
-      return result;
-    } else {
-      if (label == null) {
-        // 3.
-        Method method =
-            QueueCapacities.class.getDeclaredMethod(methodName, Float.TYPE);
-        method.invoke(obj, value);
-      } else {
-        // 4.
-        Method method =
-            QueueCapacities.class.getDeclaredMethod(methodName, String.class,
-                Float.TYPE);
-        method.invoke(obj, label, value);
-      }
-      return -1f;
+    @Parameterized.Parameters
+    public static Collection<String[]> getParameters() {
+        return Arrays.asList(new String[][] {
+            { "Capacity" },
+            { "AbsoluteCapacity" },
+            { "UsedCapacity" },
+            { "AbsoluteUsedCapacity" },
+            { "MaximumCapacity" },
+            { "AbsoluteMaximumCapacity" }
+        });
     }
-  }
 
-  private void internalTestModifyAndRead(String label) throws Exception {
-    QueueCapacities qc = new QueueCapacities(false);
+    public TestQueueCapacities(String suffix) {
+        this.suffix = suffix;
+    }
 
-    // First get returns 0 always
-    Assert.assertEquals(0f, get(qc, suffix, label), 1e-8);
+    private static float get(QueueCapacities obj, String suffix,
+                             String label) throws Exception {
+        return executeByName(obj, "get" + suffix, label, -1f);
+    }
 
-    // Set to 1, and check
-    set(qc, suffix, label, 1f);
-    Assert.assertEquals(1f, get(qc, suffix, label), 1e-8);
+    private static void set(QueueCapacities obj, String suffix,
+                            String label, float value) throws Exception {
+        executeByName(obj, "set" + suffix, label, value);
+    }
 
-    // Set to 2, and check
-    set(qc, suffix, label, 2f);
-    Assert.assertEquals(2f, get(qc, suffix, label), 1e-8);
-  }
+    // Use reflection to avoid too much avoid code
+    private static float executeByName(QueueCapacities obj, String methodName,
+                                       String label, float value) throws Exception {
+        // We have 4 kinds of method
+        // 1. getXXX() : float
+        // 2. getXXX(label) : float
+        // 3. setXXX(float) : void
+        // 4. setXXX(label, float) : void
+        if (methodName.startsWith("get")) {
+            float result;
+            if (label == null) {
+                // 1.
+                Method method = QueueCapacities.class.getDeclaredMethod(methodName);
+                result = (Float) method.invoke(obj);
+            } else {
+                // 2.
+                Method method =
+                    QueueCapacities.class.getDeclaredMethod(methodName, String.class);
+                result = (Float) method.invoke(obj, label);
+            }
+            return result;
+        } else {
+            if (label == null) {
+                // 3.
+                Method method =
+                    QueueCapacities.class.getDeclaredMethod(methodName, Float.TYPE);
+                method.invoke(obj, value);
+            } else {
+                // 4.
+                Method method =
+                    QueueCapacities.class.getDeclaredMethod(methodName, String.class,
+                            Float.TYPE);
+                method.invoke(obj, label, value);
+            }
+            return -1f;
+        }
+    }
 
-  void check(int mem, int cpu, Resource res) {
-    Assert.assertEquals(mem, res.getMemory());
-    Assert.assertEquals(cpu, res.getVirtualCores());
-  }
+    private void internalTestModifyAndRead(String label) throws Exception {
+        QueueCapacities qc = new QueueCapacities(false);
 
-  @Test
-  public void testModifyAndRead() throws Exception {
-    LOG.info("Test - " + suffix);
-    internalTestModifyAndRead(null);
-    internalTestModifyAndRead("label");
-  }
+        // First get returns 0 always
+        Assert.assertEquals(0f, get(qc, suffix, label), 1e-8);
+
+        // Set to 1, and check
+        set(qc, suffix, label, 1f);
+        Assert.assertEquals(1f, get(qc, suffix, label), 1e-8);
+
+        // Set to 2, and check
+        set(qc, suffix, label, 2f);
+        Assert.assertEquals(2f, get(qc, suffix, label), 1e-8);
+    }
+
+    void check(int mem, int cpu, Resource res) {
+        Assert.assertEquals(mem, res.getMemory());
+        Assert.assertEquals(cpu, res.getVirtualCores());
+    }
+
+    @Test
+    public void testModifyAndRead() throws Exception {
+        LOG.info("Test - " + suffix);
+        internalTestModifyAndRead(null);
+        internalTestModifyAndRead("label");
+    }
 }

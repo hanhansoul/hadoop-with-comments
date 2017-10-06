@@ -48,111 +48,111 @@ import org.apache.hadoop.yarn.webapp.view.HtmlBlock;
 import com.google.inject.Inject;
 
 public class SingleCounterBlock extends HtmlBlock {
-  protected TreeMap<String, Long> values = new TreeMap<String, Long>(); 
-  protected Job job;
-  protected Task task;
-  
-  @Inject SingleCounterBlock(AppContext appCtx, ViewContext ctx) {
-    super(ctx);
-    this.populateMembers(appCtx);
-  }
+    protected TreeMap<String, Long> values = new TreeMap<String, Long>();
+    protected Job job;
+    protected Task task;
 
-  @Override protected void render(Block html) {
-    if (job == null) {
-      html.
-        p()._("Sorry, no counters for nonexistent", $(JOB_ID, "job"))._();
-      return;
+    @Inject SingleCounterBlock(AppContext appCtx, ViewContext ctx) {
+        super(ctx);
+        this.populateMembers(appCtx);
     }
-    if (!$(TASK_ID).isEmpty() && task == null) {
-      html.
-        p()._("Sorry, no counters for nonexistent", $(TASK_ID, "task"))._();
-      return;
-    }
-    
-    String columnType = task == null ? "Task" : "Task Attempt";
-    
-    TBODY<TABLE<DIV<Hamlet>>> tbody = html.
-      div(_INFO_WRAP).
-      table("#singleCounter").
-        thead().
-          tr().
-            th(".ui-state-default", columnType).
-            th(".ui-state-default", "Value")._()._().
-          tbody();
-    for (Map.Entry<String, Long> entry : values.entrySet()) {
-      TR<TBODY<TABLE<DIV<Hamlet>>>> row = tbody.tr();
-      String id = entry.getKey();
-      String val = entry.getValue().toString();
-      if(task != null) {
-        row.td(id);
-        row.td().br().$title(val)._()._(val)._();
-      } else {
-        row.td().a(url("singletaskcounter",entry.getKey(),
-            $(COUNTER_GROUP), $(COUNTER_NAME)), id)._();
-        row.td().br().$title(val)._().a(url("singletaskcounter",entry.getKey(),
-            $(COUNTER_GROUP), $(COUNTER_NAME)), val)._();
-      }
-      row._();
-    }
-    tbody._()._()._();
-  }
 
-  private void populateMembers(AppContext ctx) {
-    JobId jobID = null;
-    TaskId taskID = null;
-    String tid = $(TASK_ID);
-    if (!tid.isEmpty()) {
-      taskID = MRApps.toTaskID(tid);
-      jobID = taskID.getJobId();
-    } else {
-      String jid = $(JOB_ID);
-      if (!jid.isEmpty()) {
-        jobID = MRApps.toJobID(jid);
-      }
-    }
-    if (jobID == null) {
-      return;
-    }
-    job = ctx.getJob(jobID);
-    if (job == null) {
-      return;
-    }
-    if (taskID != null) {
-      task = job.getTask(taskID);
-      if (task == null) {
-        return;
-      }
-      for(Map.Entry<TaskAttemptId, TaskAttempt> entry : 
-        task.getAttempts().entrySet()) {
-        long value = 0;
-        Counters counters = entry.getValue().getCounters();
-        CounterGroup group = (counters != null) ? counters
-          .getGroup($(COUNTER_GROUP)) : null;
-        if(group != null)  {
-          Counter c = group.findCounter($(COUNTER_NAME));
-          if(c != null) {
-            value = c.getValue();
-          }
+    @Override protected void render(Block html) {
+        if (job == null) {
+            html.
+            p()._("Sorry, no counters for nonexistent", $(JOB_ID, "job"))._();
+            return;
         }
-        values.put(MRApps.toString(entry.getKey()), value);
-      }
-      
-      return;
-    }
-    // Get all types of counters
-    Map<TaskId, Task> tasks = job.getTasks();
-    for(Map.Entry<TaskId, Task> entry : tasks.entrySet()) {
-      long value = 0;
-      Counters counters = entry.getValue().getCounters();
-      CounterGroup group = (counters != null) ? counters
-        .getGroup($(COUNTER_GROUP)) : null;
-      if(group != null)  {
-        Counter c = group.findCounter($(COUNTER_NAME));
-        if(c != null) {
-          value = c.getValue();
+        if (!$(TASK_ID).isEmpty() && task == null) {
+            html.
+            p()._("Sorry, no counters for nonexistent", $(TASK_ID, "task"))._();
+            return;
         }
-      }
-      values.put(MRApps.toString(entry.getKey()), value);
+
+        String columnType = task == null ? "Task" : "Task Attempt";
+
+        TBODY<TABLE<DIV<Hamlet>>> tbody = html.
+                                          div(_INFO_WRAP).
+                                          table("#singleCounter").
+                                          thead().
+                                          tr().
+                                          th(".ui-state-default", columnType).
+                                          th(".ui-state-default", "Value")._()._().
+                                          tbody();
+        for (Map.Entry<String, Long> entry : values.entrySet()) {
+            TR<TBODY<TABLE<DIV<Hamlet>>>> row = tbody.tr();
+            String id = entry.getKey();
+            String val = entry.getValue().toString();
+            if(task != null) {
+                row.td(id);
+                row.td().br().$title(val)._()._(val)._();
+            } else {
+                row.td().a(url("singletaskcounter",entry.getKey(),
+                               $(COUNTER_GROUP), $(COUNTER_NAME)), id)._();
+                row.td().br().$title(val)._().a(url("singletaskcounter",entry.getKey(),
+                                                    $(COUNTER_GROUP), $(COUNTER_NAME)), val)._();
+            }
+            row._();
+        }
+        tbody._()._()._();
     }
-  }
+
+    private void populateMembers(AppContext ctx) {
+        JobId jobID = null;
+        TaskId taskID = null;
+        String tid = $(TASK_ID);
+        if (!tid.isEmpty()) {
+            taskID = MRApps.toTaskID(tid);
+            jobID = taskID.getJobId();
+        } else {
+            String jid = $(JOB_ID);
+            if (!jid.isEmpty()) {
+                jobID = MRApps.toJobID(jid);
+            }
+        }
+        if (jobID == null) {
+            return;
+        }
+        job = ctx.getJob(jobID);
+        if (job == null) {
+            return;
+        }
+        if (taskID != null) {
+            task = job.getTask(taskID);
+            if (task == null) {
+                return;
+            }
+            for(Map.Entry<TaskAttemptId, TaskAttempt> entry :
+                task.getAttempts().entrySet()) {
+                long value = 0;
+                Counters counters = entry.getValue().getCounters();
+                CounterGroup group = (counters != null) ? counters
+                                     .getGroup($(COUNTER_GROUP)) : null;
+                if(group != null)  {
+                    Counter c = group.findCounter($(COUNTER_NAME));
+                    if(c != null) {
+                        value = c.getValue();
+                    }
+                }
+                values.put(MRApps.toString(entry.getKey()), value);
+            }
+
+            return;
+        }
+        // Get all types of counters
+        Map<TaskId, Task> tasks = job.getTasks();
+        for(Map.Entry<TaskId, Task> entry : tasks.entrySet()) {
+            long value = 0;
+            Counters counters = entry.getValue().getCounters();
+            CounterGroup group = (counters != null) ? counters
+                                 .getGroup($(COUNTER_GROUP)) : null;
+            if(group != null)  {
+                Counter c = group.findCounter($(COUNTER_NAME));
+                if(c != null) {
+                    value = c.getValue();
+                }
+            }
+            values.put(MRApps.toString(entry.getKey()), value);
+        }
+    }
 }

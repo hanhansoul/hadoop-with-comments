@@ -28,9 +28,9 @@ import org.codehaus.jackson.map.SerializerProvider;
  * A JSON serializer for Strings.
  */
 public class BlockingSerializer extends JsonSerializer<String> {
-  
-  public void serialize(String object, JsonGenerator jGen, SerializerProvider sProvider) 
-  throws IOException, JsonProcessingException {
-    jGen.writeNull();
-  };
+
+    public void serialize(String object, JsonGenerator jGen, SerializerProvider sProvider)
+    throws IOException, JsonProcessingException {
+        jGen.writeNull();
+    };
 }

@@ -35,23 +35,23 @@ import static org.junit.Assert.assertTrue;
  */
 public class ManualTestKeytabLogins {
 
-  public static void main(String []args) throws Exception {
-    if (args.length != 4) {
-      System.err.println(
-        "usage: ManualTestKeytabLogins <principal 1> <keytab 1> <principal 2> <keytab 2>");
-      System.exit(1);
-    }
+    public static void main(String []args) throws Exception {
+        if (args.length != 4) {
+            System.err.println(
+                "usage: ManualTestKeytabLogins <principal 1> <keytab 1> <principal 2> <keytab 2>");
+            System.exit(1);
+        }
 
-    UserGroupInformation ugi1 =
-      UserGroupInformation.loginUserFromKeytabAndReturnUGI(
-        args[0], args[1]);
-    System.out.println("UGI 1 = " + ugi1);
-    assertTrue(ugi1.getUserName().equals(args[0]));
-    
-    UserGroupInformation ugi2 =
-      UserGroupInformation.loginUserFromKeytabAndReturnUGI(
-        args[2], args[3]);
-    System.out.println("UGI 2 = " + ugi2);
-    assertTrue(ugi2.getUserName().equals(args[2]));
-  }
+        UserGroupInformation ugi1 =
+            UserGroupInformation.loginUserFromKeytabAndReturnUGI(
+                args[0], args[1]);
+        System.out.println("UGI 1 = " + ugi1);
+        assertTrue(ugi1.getUserName().equals(args[0]));
+
+        UserGroupInformation ugi2 =
+            UserGroupInformation.loginUserFromKeytabAndReturnUGI(
+                args[2], args[3]);
+        System.out.println("UGI 2 = " + ugi2);
+        assertTrue(ugi2.getUserName().equals(args[2]));
+    }
 }

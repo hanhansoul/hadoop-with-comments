@@ -39,159 +39,159 @@ import org.apache.hadoop.yarn.util.Records;
 @Public
 @Unstable
 public abstract class ApplicationAttemptStateData {
-  public static ApplicationAttemptStateData newInstance(
-      ApplicationAttemptId attemptId, Container container,
-      ByteBuffer attemptTokens, long startTime, RMAppAttemptState finalState,
-      String finalTrackingUrl, String diagnostics,
-      FinalApplicationStatus amUnregisteredFinalStatus, int exitStatus,
-      long finishTime, long memorySeconds, long vcoreSeconds) {
-    ApplicationAttemptStateData attemptStateData =
-        Records.newRecord(ApplicationAttemptStateData.class);
-    attemptStateData.setAttemptId(attemptId);
-    attemptStateData.setMasterContainer(container);
-    attemptStateData.setAppAttemptTokens(attemptTokens);
-    attemptStateData.setState(finalState);
-    attemptStateData.setFinalTrackingUrl(finalTrackingUrl);
-    attemptStateData.setDiagnostics(diagnostics);
-    attemptStateData.setStartTime(startTime);
-    attemptStateData.setFinalApplicationStatus(amUnregisteredFinalStatus);
-    attemptStateData.setAMContainerExitStatus(exitStatus);
-    attemptStateData.setFinishTime(finishTime);
-    attemptStateData.setMemorySeconds(memorySeconds);
-    attemptStateData.setVcoreSeconds(vcoreSeconds);
-    return attemptStateData;
-  }
-
-  public static ApplicationAttemptStateData newInstance(
-      ApplicationAttemptState attemptState) throws IOException {
-    Credentials credentials = attemptState.getAppAttemptCredentials();
-    ByteBuffer appAttemptTokens = null;
-    if (credentials != null) {
-      DataOutputBuffer dob = new DataOutputBuffer();
-      credentials.writeTokenStorageToStream(dob);
-      appAttemptTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+    public static ApplicationAttemptStateData newInstance(
+        ApplicationAttemptId attemptId, Container container,
+        ByteBuffer attemptTokens, long startTime, RMAppAttemptState finalState,
+        String finalTrackingUrl, String diagnostics,
+        FinalApplicationStatus amUnregisteredFinalStatus, int exitStatus,
+        long finishTime, long memorySeconds, long vcoreSeconds) {
+        ApplicationAttemptStateData attemptStateData =
+            Records.newRecord(ApplicationAttemptStateData.class);
+        attemptStateData.setAttemptId(attemptId);
+        attemptStateData.setMasterContainer(container);
+        attemptStateData.setAppAttemptTokens(attemptTokens);
+        attemptStateData.setState(finalState);
+        attemptStateData.setFinalTrackingUrl(finalTrackingUrl);
+        attemptStateData.setDiagnostics(diagnostics);
+        attemptStateData.setStartTime(startTime);
+        attemptStateData.setFinalApplicationStatus(amUnregisteredFinalStatus);
+        attemptStateData.setAMContainerExitStatus(exitStatus);
+        attemptStateData.setFinishTime(finishTime);
+        attemptStateData.setMemorySeconds(memorySeconds);
+        attemptStateData.setVcoreSeconds(vcoreSeconds);
+        return attemptStateData;
     }
-    return newInstance(attemptState.getAttemptId(),
-      attemptState.getMasterContainer(), appAttemptTokens,
-      attemptState.getStartTime(), attemptState.getState(),
-      attemptState.getFinalTrackingUrl(), attemptState.getDiagnostics(),
-      attemptState.getFinalApplicationStatus(),
-      attemptState.getAMContainerExitStatus(), attemptState.getFinishTime(),
-      attemptState.getMemorySeconds(), attemptState.getVcoreSeconds());
-  }
 
-  public abstract ApplicationAttemptStateDataProto getProto();
+    public static ApplicationAttemptStateData newInstance(
+        ApplicationAttemptState attemptState) throws IOException {
+        Credentials credentials = attemptState.getAppAttemptCredentials();
+        ByteBuffer appAttemptTokens = null;
+        if (credentials != null) {
+            DataOutputBuffer dob = new DataOutputBuffer();
+            credentials.writeTokenStorageToStream(dob);
+            appAttemptTokens = ByteBuffer.wrap(dob.getData(), 0, dob.getLength());
+        }
+        return newInstance(attemptState.getAttemptId(),
+                           attemptState.getMasterContainer(), appAttemptTokens,
+                           attemptState.getStartTime(), attemptState.getState(),
+                           attemptState.getFinalTrackingUrl(), attemptState.getDiagnostics(),
+                           attemptState.getFinalApplicationStatus(),
+                           attemptState.getAMContainerExitStatus(), attemptState.getFinishTime(),
+                           attemptState.getMemorySeconds(), attemptState.getVcoreSeconds());
+    }
 
-  /**
-   * The ApplicationAttemptId for the application attempt
-   * @return ApplicationAttemptId for the application attempt
-   */
-  @Public
-  @Unstable
-  public abstract ApplicationAttemptId getAttemptId();
-  
-  public abstract void setAttemptId(ApplicationAttemptId attemptId);
-  
-  /*
-   * The master container running the application attempt
-   * @return Container that hosts the attempt
-   */
-  @Public
-  @Unstable
-  public abstract Container getMasterContainer();
-  
-  public abstract void setMasterContainer(Container container);
+    public abstract ApplicationAttemptStateDataProto getProto();
 
-  /**
-   * The application attempt tokens that belong to this attempt
-   * @return The application attempt tokens that belong to this attempt
-   */
-  @Public
-  @Unstable
-  public abstract ByteBuffer getAppAttemptTokens();
+    /**
+     * The ApplicationAttemptId for the application attempt
+     * @return ApplicationAttemptId for the application attempt
+     */
+    @Public
+    @Unstable
+    public abstract ApplicationAttemptId getAttemptId();
 
-  public abstract void setAppAttemptTokens(ByteBuffer attemptTokens);
+    public abstract void setAttemptId(ApplicationAttemptId attemptId);
 
-  /**
-   * Get the final state of the application attempt.
-   * @return the final state of the application attempt.
-   */
-  public abstract RMAppAttemptState getState();
+    /*
+     * The master container running the application attempt
+     * @return Container that hosts the attempt
+     */
+    @Public
+    @Unstable
+    public abstract Container getMasterContainer();
 
-  public abstract void setState(RMAppAttemptState state);
+    public abstract void setMasterContainer(Container container);
 
-  /**
-   * Get the original not-proxied <em>final tracking url</em> for the
-   * application. This is intended to only be used by the proxy itself.
-   * 
-   * @return the original not-proxied <em>final tracking url</em> for the
-   *         application
-   */
-  public abstract String getFinalTrackingUrl();
+    /**
+     * The application attempt tokens that belong to this attempt
+     * @return The application attempt tokens that belong to this attempt
+     */
+    @Public
+    @Unstable
+    public abstract ByteBuffer getAppAttemptTokens();
 
-  /**
-   * Set the final tracking Url of the AM.
-   * @param url
-   */
-  public abstract void setFinalTrackingUrl(String url);
-  /**
-   * Get the <em>diagnositic information</em> of the attempt 
-   * @return <em>diagnositic information</em> of the attempt
-   */
-  public abstract String getDiagnostics();
+    public abstract void setAppAttemptTokens(ByteBuffer attemptTokens);
 
-  public abstract void setDiagnostics(String diagnostics);
+    /**
+     * Get the final state of the application attempt.
+     * @return the final state of the application attempt.
+     */
+    public abstract RMAppAttemptState getState();
 
-  /**
-   * Get the <em>start time</em> of the application.
-   * @return <em>start time</em> of the application
-   */
-  public abstract long getStartTime();
+    public abstract void setState(RMAppAttemptState state);
 
-  public abstract void setStartTime(long startTime);
+    /**
+     * Get the original not-proxied <em>final tracking url</em> for the
+     * application. This is intended to only be used by the proxy itself.
+     *
+     * @return the original not-proxied <em>final tracking url</em> for the
+     *         application
+     */
+    public abstract String getFinalTrackingUrl();
 
-  /**
-   * Get the <em>final finish status</em> of the application.
-   * @return <em>final finish status</em> of the application
-   */
-  public abstract FinalApplicationStatus getFinalApplicationStatus();
+    /**
+     * Set the final tracking Url of the AM.
+     * @param url
+     */
+    public abstract void setFinalTrackingUrl(String url);
+    /**
+     * Get the <em>diagnositic information</em> of the attempt
+     * @return <em>diagnositic information</em> of the attempt
+     */
+    public abstract String getDiagnostics();
 
-  public abstract void setFinalApplicationStatus(
-      FinalApplicationStatus finishState);
+    public abstract void setDiagnostics(String diagnostics);
 
-  public abstract int getAMContainerExitStatus();
+    /**
+     * Get the <em>start time</em> of the application.
+     * @return <em>start time</em> of the application
+     */
+    public abstract long getStartTime();
 
-  public abstract void setAMContainerExitStatus(int exitStatus);
+    public abstract void setStartTime(long startTime);
 
-  /**
-   * Get the <em>finish time</em> of the application attempt.
-   * @return <em>finish time</em> of the application attempt
-   */
-  public abstract long getFinishTime();
+    /**
+     * Get the <em>final finish status</em> of the application.
+     * @return <em>final finish status</em> of the application
+     */
+    public abstract FinalApplicationStatus getFinalApplicationStatus();
 
-  public abstract void setFinishTime(long finishTime);
+    public abstract void setFinalApplicationStatus(
+        FinalApplicationStatus finishState);
 
-  /**
-  * Get the <em>memory seconds</em> (in MB seconds) of the application.
-   * @return <em>memory seconds</em> (in MB seconds) of the application
-   */
-  @Public
-  @Unstable
-  public abstract long getMemorySeconds();
+    public abstract int getAMContainerExitStatus();
 
-  @Public
-  @Unstable
-  public abstract void setMemorySeconds(long memorySeconds);
+    public abstract void setAMContainerExitStatus(int exitStatus);
 
-  /**
-   * Get the <em>vcore seconds</em> of the application.
-   * @return <em>vcore seconds</em> of the application
-   */
-  @Public
-  @Unstable
-  public abstract long getVcoreSeconds();
+    /**
+     * Get the <em>finish time</em> of the application attempt.
+     * @return <em>finish time</em> of the application attempt
+     */
+    public abstract long getFinishTime();
 
-  @Public
-  @Unstable
-  public abstract void setVcoreSeconds(long vcoreSeconds);
+    public abstract void setFinishTime(long finishTime);
+
+    /**
+    * Get the <em>memory seconds</em> (in MB seconds) of the application.
+     * @return <em>memory seconds</em> (in MB seconds) of the application
+     */
+    @Public
+    @Unstable
+    public abstract long getMemorySeconds();
+
+    @Public
+    @Unstable
+    public abstract void setMemorySeconds(long memorySeconds);
+
+    /**
+     * Get the <em>vcore seconds</em> of the application.
+     * @return <em>vcore seconds</em> of the application
+     */
+    @Public
+    @Unstable
+    public abstract long getVcoreSeconds();
+
+    @Public
+    @Unstable
+    public abstract void setVcoreSeconds(long vcoreSeconds);
 }

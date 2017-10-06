@@ -55,176 +55,176 @@ import static org.apache.hadoop.hdfs.qjournal.QJMTestUtil.writeOp;
  * True unit tests for QuorumJournalManager
  */
 public class TestQuorumJournalManagerUnit {
-  static {
-    ((Log4JLogger)QuorumJournalManager.LOG).getLogger().setLevel(Level.ALL);
-  }
-  private static final NamespaceInfo FAKE_NSINFO = new NamespaceInfo(
-      12345, "mycluster", "my-bp", 0L);
-
-  private final Configuration conf = new Configuration();
-  private List<AsyncLogger> spyLoggers;
-  private QuorumJournalManager qjm;
-  
-  @Before
-  public void setup() throws Exception {
-    spyLoggers = ImmutableList.of(
-        mockLogger(),
-        mockLogger(),
-        mockLogger());
-
-    qjm = new QuorumJournalManager(conf, new URI("qjournal://host/jid"), FAKE_NSINFO) {
-      @Override
-      protected List<AsyncLogger> createLoggers(AsyncLogger.Factory factory) {
-        return spyLoggers;
-      }
-    };
-
-    for (AsyncLogger logger : spyLoggers) {
-      futureReturns(GetJournalStateResponseProto.newBuilder()
-          .setLastPromisedEpoch(0)
-          .setHttpPort(-1)
-          .build())
-        .when(logger).getJournalState();
-      
-      futureReturns(
-          NewEpochResponseProto.newBuilder().build()
-          ).when(logger).newEpoch(Mockito.anyLong());
-      
-      futureReturns(null).when(logger).format(Mockito.<NamespaceInfo>any());
+    static {
+        ((Log4JLogger)QuorumJournalManager.LOG).getLogger().setLevel(Level.ALL);
     }
-    
-    qjm.recoverUnfinalizedSegments();
-  }
-  
-  private AsyncLogger mockLogger() {
-    return Mockito.mock(AsyncLogger.class);
-  }
-  
-  static <V> Stubber futureReturns(V value) {
-    ListenableFuture<V> ret = Futures.immediateFuture(value);
-    return Mockito.doReturn(ret);
-  }
-  
-  static Stubber futureThrows(Throwable t) {
-    ListenableFuture<?> ret = Futures.immediateFailedFuture(t);
-    return Mockito.doReturn(ret);
-  }
+    private static final NamespaceInfo FAKE_NSINFO = new NamespaceInfo(
+        12345, "mycluster", "my-bp", 0L);
 
+    private final Configuration conf = new Configuration();
+    private List<AsyncLogger> spyLoggers;
+    private QuorumJournalManager qjm;
 
-  @Test
-  public void testAllLoggersStartOk() throws Exception {
-    futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    qjm.startLogSegment(1, NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
-  }
+    @Before
+    public void setup() throws Exception {
+        spyLoggers = ImmutableList.of(
+                         mockLogger(),
+                         mockLogger(),
+                         mockLogger());
 
-  @Test
-  public void testQuorumOfLoggersStartOk() throws Exception {
-    futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureThrows(new IOException("logger failed"))
-      .when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    qjm.startLogSegment(1, NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
-  }
+        qjm = new QuorumJournalManager(conf, new URI("qjournal://host/jid"), FAKE_NSINFO) {
+            @Override
+            protected List<AsyncLogger> createLoggers(AsyncLogger.Factory factory) {
+                return spyLoggers;
+            }
+        };
 
-  @Test
-  public void testQuorumOfLoggersFail() throws Exception {
-    futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureThrows(new IOException("logger failed"))
-    .when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureThrows(new IOException("logger failed"))
-      .when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    try {
-      qjm.startLogSegment(1, NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
-      fail("Did not throw when quorum failed");
-    } catch (QuorumException qe) {
-      GenericTestUtils.assertExceptionContains("logger failed", qe);
+        for (AsyncLogger logger : spyLoggers) {
+            futureReturns(GetJournalStateResponseProto.newBuilder()
+                          .setLastPromisedEpoch(0)
+                          .setHttpPort(-1)
+                          .build())
+            .when(logger).getJournalState();
+
+            futureReturns(
+                NewEpochResponseProto.newBuilder().build()
+            ).when(logger).newEpoch(Mockito.anyLong());
+
+            futureReturns(null).when(logger).format(Mockito.<NamespaceInfo>any());
+        }
+
+        qjm.recoverUnfinalizedSegments();
     }
-  }
-  
-  @Test
-  public void testQuorumOutputStreamReport() throws Exception {
-    futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    QuorumOutputStream os = (QuorumOutputStream) qjm.startLogSegment(1,
-        NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
-    String report = os.generateReport();
-    Assert.assertFalse("Report should be plain text", report.contains("<"));
-  }
 
-  @Test
-  public void testWriteEdits() throws Exception {
-    EditLogOutputStream stm = createLogSegment();
-    writeOp(stm, 1);
-    writeOp(stm, 2);
-    
-    stm.setReadyToFlush();
-    writeOp(stm, 3);
-    
-    // The flush should log txn 1-2
-    futureReturns(null).when(spyLoggers.get(0)).sendEdits(
-        anyLong(), eq(1L), eq(2), Mockito.<byte[]>any());
-    futureReturns(null).when(spyLoggers.get(1)).sendEdits(
-        anyLong(), eq(1L), eq(2), Mockito.<byte[]>any());
-    futureReturns(null).when(spyLoggers.get(2)).sendEdits(
-        anyLong(), eq(1L), eq(2), Mockito.<byte[]>any());
-    stm.flush();
+    private AsyncLogger mockLogger() {
+        return Mockito.mock(AsyncLogger.class);
+    }
 
-    // Another flush should now log txn #3
-    stm.setReadyToFlush();
-    futureReturns(null).when(spyLoggers.get(0)).sendEdits(
-        anyLong(), eq(3L), eq(1), Mockito.<byte[]>any());
-    futureReturns(null).when(spyLoggers.get(1)).sendEdits(
-        anyLong(), eq(3L), eq(1), Mockito.<byte[]>any());
-    futureReturns(null).when(spyLoggers.get(2)).sendEdits(
-        anyLong(), eq(3L), eq(1), Mockito.<byte[]>any());
-    stm.flush();
-  }
-  
-  @Test
-  public void testWriteEditsOneSlow() throws Exception {
-    EditLogOutputStream stm = createLogSegment();
-    writeOp(stm, 1);
-    stm.setReadyToFlush();
-    
-    // Make the first two logs respond immediately
-    futureReturns(null).when(spyLoggers.get(0)).sendEdits(
-        anyLong(), eq(1L), eq(1), Mockito.<byte[]>any());
-    futureReturns(null).when(spyLoggers.get(1)).sendEdits(
-        anyLong(), eq(1L), eq(1), Mockito.<byte[]>any());
-    
-    // And the third log not respond
-    SettableFuture<Void> slowLog = SettableFuture.create();
-    Mockito.doReturn(slowLog).when(spyLoggers.get(2)).sendEdits(
-        anyLong(), eq(1L), eq(1), Mockito.<byte[]>any());
-    stm.flush();
-    
-    Mockito.verify(spyLoggers.get(0)).setCommittedTxId(1L);
-  }
+    static <V> Stubber futureReturns(V value) {
+        ListenableFuture<V> ret = Futures.immediateFuture(value);
+        return Mockito.doReturn(ret);
+    }
 
-  private EditLogOutputStream createLogSegment() throws IOException {
-    futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    futureReturns(null).when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
-        Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
-    EditLogOutputStream stm = qjm.startLogSegment(1,
-        NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
-    return stm;
-  }
+    static Stubber futureThrows(Throwable t) {
+        ListenableFuture<?> ret = Futures.immediateFailedFuture(t);
+        return Mockito.doReturn(ret);
+    }
+
+
+    @Test
+    public void testAllLoggersStartOk() throws Exception {
+        futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        qjm.startLogSegment(1, NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
+    }
+
+    @Test
+    public void testQuorumOfLoggersStartOk() throws Exception {
+        futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureThrows(new IOException("logger failed"))
+        .when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        qjm.startLogSegment(1, NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
+    }
+
+    @Test
+    public void testQuorumOfLoggersFail() throws Exception {
+        futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureThrows(new IOException("logger failed"))
+        .when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureThrows(new IOException("logger failed"))
+        .when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        try {
+            qjm.startLogSegment(1, NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
+            fail("Did not throw when quorum failed");
+        } catch (QuorumException qe) {
+            GenericTestUtils.assertExceptionContains("logger failed", qe);
+        }
+    }
+
+    @Test
+    public void testQuorumOutputStreamReport() throws Exception {
+        futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        QuorumOutputStream os = (QuorumOutputStream) qjm.startLogSegment(1,
+                                NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
+        String report = os.generateReport();
+        Assert.assertFalse("Report should be plain text", report.contains("<"));
+    }
+
+    @Test
+    public void testWriteEdits() throws Exception {
+        EditLogOutputStream stm = createLogSegment();
+        writeOp(stm, 1);
+        writeOp(stm, 2);
+
+        stm.setReadyToFlush();
+        writeOp(stm, 3);
+
+        // The flush should log txn 1-2
+        futureReturns(null).when(spyLoggers.get(0)).sendEdits(
+            anyLong(), eq(1L), eq(2), Mockito.<byte[]>any());
+        futureReturns(null).when(spyLoggers.get(1)).sendEdits(
+            anyLong(), eq(1L), eq(2), Mockito.<byte[]>any());
+        futureReturns(null).when(spyLoggers.get(2)).sendEdits(
+            anyLong(), eq(1L), eq(2), Mockito.<byte[]>any());
+        stm.flush();
+
+        // Another flush should now log txn #3
+        stm.setReadyToFlush();
+        futureReturns(null).when(spyLoggers.get(0)).sendEdits(
+            anyLong(), eq(3L), eq(1), Mockito.<byte[]>any());
+        futureReturns(null).when(spyLoggers.get(1)).sendEdits(
+            anyLong(), eq(3L), eq(1), Mockito.<byte[]>any());
+        futureReturns(null).when(spyLoggers.get(2)).sendEdits(
+            anyLong(), eq(3L), eq(1), Mockito.<byte[]>any());
+        stm.flush();
+    }
+
+    @Test
+    public void testWriteEditsOneSlow() throws Exception {
+        EditLogOutputStream stm = createLogSegment();
+        writeOp(stm, 1);
+        stm.setReadyToFlush();
+
+        // Make the first two logs respond immediately
+        futureReturns(null).when(spyLoggers.get(0)).sendEdits(
+            anyLong(), eq(1L), eq(1), Mockito.<byte[]>any());
+        futureReturns(null).when(spyLoggers.get(1)).sendEdits(
+            anyLong(), eq(1L), eq(1), Mockito.<byte[]>any());
+
+        // And the third log not respond
+        SettableFuture<Void> slowLog = SettableFuture.create();
+        Mockito.doReturn(slowLog).when(spyLoggers.get(2)).sendEdits(
+            anyLong(), eq(1L), eq(1), Mockito.<byte[]>any());
+        stm.flush();
+
+        Mockito.verify(spyLoggers.get(0)).setCommittedTxId(1L);
+    }
+
+    private EditLogOutputStream createLogSegment() throws IOException {
+        futureReturns(null).when(spyLoggers.get(0)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(1)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        futureReturns(null).when(spyLoggers.get(2)).startLogSegment(Mockito.anyLong(),
+                Mockito.eq(NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION));
+        EditLogOutputStream stm = qjm.startLogSegment(1,
+                                  NameNodeLayoutVersion.CURRENT_LAYOUT_VERSION);
+        return stm;
+    }
 }

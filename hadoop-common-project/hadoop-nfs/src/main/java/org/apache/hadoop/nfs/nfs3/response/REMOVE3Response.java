@@ -26,30 +26,30 @@ import org.apache.hadoop.oncrpc.security.Verifier;
  * REMOVE3 Response
  */
 public class REMOVE3Response extends NFS3Response {
-  private WccData dirWcc;
+    private WccData dirWcc;
 
-  public REMOVE3Response(int status) {
-    this(status, null);
-  }
-
-  public REMOVE3Response(int status, WccData dirWcc) {
-    super(status);
-    this.dirWcc = dirWcc;
-  }
-  
-  public static REMOVE3Response deserialize(XDR xdr) {
-    int status = xdr.readInt();
-    WccData dirWcc = WccData.deserialize(xdr);
-    return new REMOVE3Response(status, dirWcc);
-  }
-
-  @Override
-  public XDR serialize(XDR out, int xid, Verifier verifier) {
-    super.serialize(out, xid, verifier);
-    if (dirWcc == null) {
-      dirWcc = new WccData(null, null);
+    public REMOVE3Response(int status) {
+        this(status, null);
     }
-    dirWcc.serialize(out);
-    return out;
-  }
+
+    public REMOVE3Response(int status, WccData dirWcc) {
+        super(status);
+        this.dirWcc = dirWcc;
+    }
+
+    public static REMOVE3Response deserialize(XDR xdr) {
+        int status = xdr.readInt();
+        WccData dirWcc = WccData.deserialize(xdr);
+        return new REMOVE3Response(status, dirWcc);
+    }
+
+    @Override
+    public XDR serialize(XDR out, int xid, Verifier verifier) {
+        super.serialize(out, xid, verifier);
+        if (dirWcc == null) {
+            dirWcc = new WccData(null, null);
+        }
+        dirWcc.serialize(out);
+        return out;
+    }
 }

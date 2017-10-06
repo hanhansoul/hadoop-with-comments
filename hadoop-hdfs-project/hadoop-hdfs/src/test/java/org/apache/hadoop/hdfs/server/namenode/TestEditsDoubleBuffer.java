@@ -28,57 +28,57 @@ import org.apache.hadoop.io.DataOutputBuffer;
 import org.junit.Test;
 
 public class TestEditsDoubleBuffer {
-  @Test
-  public void testDoubleBuffer() throws IOException {
-    EditsDoubleBuffer buf = new EditsDoubleBuffer(1024);
-    
-    assertTrue(buf.isFlushed());
-    byte[] data = new byte[100];
-    buf.writeRaw(data, 0, data.length);
-    assertEquals("Should count new data correctly",
-        data.length, buf.countBufferedBytes());
+    @Test
+    public void testDoubleBuffer() throws IOException {
+        EditsDoubleBuffer buf = new EditsDoubleBuffer(1024);
 
-    assertTrue("Writing to current buffer should not affect flush state",
-        buf.isFlushed());
+        assertTrue(buf.isFlushed());
+        byte[] data = new byte[100];
+        buf.writeRaw(data, 0, data.length);
+        assertEquals("Should count new data correctly",
+                     data.length, buf.countBufferedBytes());
 
-    // Swap the buffers
-    buf.setReadyToFlush();
-    assertEquals("Swapping buffers should still count buffered bytes",
-        data.length, buf.countBufferedBytes());
-    assertFalse(buf.isFlushed());
- 
-    // Flush to a stream
-    DataOutputBuffer outBuf = new DataOutputBuffer();
-    buf.flushTo(outBuf);
-    assertEquals(data.length, outBuf.getLength());
-    assertTrue(buf.isFlushed());
-    assertEquals(0, buf.countBufferedBytes());
-    
-    // Write some more
-    buf.writeRaw(data, 0, data.length);
-    assertEquals("Should count new data correctly",
-        data.length, buf.countBufferedBytes());
-    buf.setReadyToFlush();
-    buf.flushTo(outBuf);
-    
-    assertEquals(data.length * 2, outBuf.getLength());
-    
-    assertEquals(0, buf.countBufferedBytes());
+        assertTrue("Writing to current buffer should not affect flush state",
+                   buf.isFlushed());
 
-    outBuf.close();
-  }
-  
-  @Test
-  public void shouldFailToCloseWhenUnflushed() throws IOException {
-    EditsDoubleBuffer buf = new EditsDoubleBuffer(1024);
-    buf.writeRaw(new byte[1], 0, 1);
-    try {
-      buf.close();
-      fail("Did not fail to close with unflushed data");
-    } catch (IOException ioe) {
-      if (!ioe.toString().contains("still to be flushed")) {
-        throw ioe;
-      }
+        // Swap the buffers
+        buf.setReadyToFlush();
+        assertEquals("Swapping buffers should still count buffered bytes",
+                     data.length, buf.countBufferedBytes());
+        assertFalse(buf.isFlushed());
+
+        // Flush to a stream
+        DataOutputBuffer outBuf = new DataOutputBuffer();
+        buf.flushTo(outBuf);
+        assertEquals(data.length, outBuf.getLength());
+        assertTrue(buf.isFlushed());
+        assertEquals(0, buf.countBufferedBytes());
+
+        // Write some more
+        buf.writeRaw(data, 0, data.length);
+        assertEquals("Should count new data correctly",
+                     data.length, buf.countBufferedBytes());
+        buf.setReadyToFlush();
+        buf.flushTo(outBuf);
+
+        assertEquals(data.length * 2, outBuf.getLength());
+
+        assertEquals(0, buf.countBufferedBytes());
+
+        outBuf.close();
     }
-  }
+
+    @Test
+    public void shouldFailToCloseWhenUnflushed() throws IOException {
+        EditsDoubleBuffer buf = new EditsDoubleBuffer(1024);
+        buf.writeRaw(new byte[1], 0, 1);
+        try {
+            buf.close();
+            fail("Did not fail to close with unflushed data");
+        } catch (IOException ioe) {
+            if (!ioe.toString().contains("still to be flushed")) {
+                throw ioe;
+            }
+        }
+    }
 }

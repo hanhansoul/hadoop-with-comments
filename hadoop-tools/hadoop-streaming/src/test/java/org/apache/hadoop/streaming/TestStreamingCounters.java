@@ -31,23 +31,23 @@ import org.apache.hadoop.mapred.Counters.Group;
  * This class tests streaming counters in MapReduce local mode.
  */
 public class TestStreamingCounters extends TestStreaming {
-  public TestStreamingCounters() throws IOException {
-    super();
-  }
+    public TestStreamingCounters() throws IOException {
+        super();
+    }
 
-  @Test
-  public void testCommandLine() throws Exception {
-    super.testCommandLine();
-    validateCounters();
-  }
-  
-  private void validateCounters() throws IOException {
-    Counters counters = job.running_.getCounters();
-    assertNotNull("Counters", counters);
-    Group group = counters.getGroup("UserCounters");
-    assertNotNull("Group", group);
-    Counter counter = group.getCounterForName("InputLines");
-    assertNotNull("Counter", counter);
-    assertEquals(3, counter.getCounter());
-  }
+    @Test
+    public void testCommandLine() throws Exception {
+        super.testCommandLine();
+        validateCounters();
+    }
+
+    private void validateCounters() throws IOException {
+        Counters counters = job.running_.getCounters();
+        assertNotNull("Counters", counters);
+        Group group = counters.getGroup("UserCounters");
+        assertNotNull("Group", group);
+        Counter counter = group.getCounterForName("InputLines");
+        assertNotNull("Counter", counter);
+        assertEquals(3, counter.getCounter());
+    }
 }

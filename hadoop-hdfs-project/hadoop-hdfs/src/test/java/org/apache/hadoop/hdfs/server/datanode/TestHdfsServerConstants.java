@@ -30,71 +30,71 @@ import org.junit.Test;
  */
 public class TestHdfsServerConstants {
 
-  /**
-   * Verify that parsing a StartupOption string gives the expected results.
-   * If a RollingUpgradeStartupOption is specified than it is also checked.
-   *
-   * @param value
-   * @param expectedOption
-   * @param expectedRollupOption optional, may be null.
-   */
-  private static void verifyStartupOptionResult(String value,
-      StartupOption expectedOption,
-      RollingUpgradeStartupOption expectedRollupOption) {
+    /**
+     * Verify that parsing a StartupOption string gives the expected results.
+     * If a RollingUpgradeStartupOption is specified than it is also checked.
+     *
+     * @param value
+     * @param expectedOption
+     * @param expectedRollupOption optional, may be null.
+     */
+    private static void verifyStartupOptionResult(String value,
+            StartupOption expectedOption,
+            RollingUpgradeStartupOption expectedRollupOption) {
 
-    StartupOption option = StartupOption.getEnum(value);
-    assertEquals(expectedOption, option);
+        StartupOption option = StartupOption.getEnum(value);
+        assertEquals(expectedOption, option);
 
-    if (expectedRollupOption != null) {
-      assertEquals(expectedRollupOption, option.getRollingUpgradeStartupOption());
+        if (expectedRollupOption != null) {
+            assertEquals(expectedRollupOption, option.getRollingUpgradeStartupOption());
+        }
     }
-  }
 
-  /**
-   * Test that we can parse a StartupOption string without the optional
-   * RollingUpgradeStartupOption.
-   */
-  @Test
-  public void testStartupOptionParsing() {
-    verifyStartupOptionResult("FORMAT", StartupOption.FORMAT, null);
-    verifyStartupOptionResult("REGULAR", StartupOption.REGULAR, null);
-    verifyStartupOptionResult("CHECKPOINT", StartupOption.CHECKPOINT, null);
-    verifyStartupOptionResult("UPGRADE", StartupOption.UPGRADE, null);
-    verifyStartupOptionResult("ROLLBACK", StartupOption.ROLLBACK, null);
-    verifyStartupOptionResult("FINALIZE", StartupOption.FINALIZE, null);
-    verifyStartupOptionResult("ROLLINGUPGRADE", StartupOption.ROLLINGUPGRADE, null);
-    verifyStartupOptionResult("IMPORT", StartupOption.IMPORT, null);
-    verifyStartupOptionResult("INITIALIZESHAREDEDITS", StartupOption.INITIALIZESHAREDEDITS, null);
+    /**
+     * Test that we can parse a StartupOption string without the optional
+     * RollingUpgradeStartupOption.
+     */
+    @Test
+    public void testStartupOptionParsing() {
+        verifyStartupOptionResult("FORMAT", StartupOption.FORMAT, null);
+        verifyStartupOptionResult("REGULAR", StartupOption.REGULAR, null);
+        verifyStartupOptionResult("CHECKPOINT", StartupOption.CHECKPOINT, null);
+        verifyStartupOptionResult("UPGRADE", StartupOption.UPGRADE, null);
+        verifyStartupOptionResult("ROLLBACK", StartupOption.ROLLBACK, null);
+        verifyStartupOptionResult("FINALIZE", StartupOption.FINALIZE, null);
+        verifyStartupOptionResult("ROLLINGUPGRADE", StartupOption.ROLLINGUPGRADE, null);
+        verifyStartupOptionResult("IMPORT", StartupOption.IMPORT, null);
+        verifyStartupOptionResult("INITIALIZESHAREDEDITS", StartupOption.INITIALIZESHAREDEDITS, null);
 
-    try {
-      verifyStartupOptionResult("UNKNOWN(UNKNOWNOPTION)", StartupOption.FORMAT, null);
-      fail("Failed to get expected IllegalArgumentException");
-    } catch(IllegalArgumentException iae) {
-      // Expected!
+        try {
+            verifyStartupOptionResult("UNKNOWN(UNKNOWNOPTION)", StartupOption.FORMAT, null);
+            fail("Failed to get expected IllegalArgumentException");
+        } catch(IllegalArgumentException iae) {
+            // Expected!
+        }
     }
-  }
 
-  /**
-   * Test that we can parse a StartupOption string with a
-   * RollingUpgradeStartupOption.
-   */
-  @Test
-  public void testRollingUpgradeStartupOptionParsing() {
-    verifyStartupOptionResult("ROLLINGUPGRADE(ROLLBACK)",
-                              StartupOption.ROLLINGUPGRADE,
-                              RollingUpgradeStartupOption.ROLLBACK);
-    verifyStartupOptionResult("ROLLINGUPGRADE(DOWNGRADE)",
-                              StartupOption.ROLLINGUPGRADE,
-                              RollingUpgradeStartupOption.DOWNGRADE);
-    verifyStartupOptionResult("ROLLINGUPGRADE(STARTED)",
-        StartupOption.ROLLINGUPGRADE,
-        RollingUpgradeStartupOption.STARTED);
+    /**
+     * Test that we can parse a StartupOption string with a
+     * RollingUpgradeStartupOption.
+     */
+    @Test
+    public void testRollingUpgradeStartupOptionParsing() {
+        verifyStartupOptionResult("ROLLINGUPGRADE(ROLLBACK)",
+                                  StartupOption.ROLLINGUPGRADE,
+                                  RollingUpgradeStartupOption.ROLLBACK);
+        verifyStartupOptionResult("ROLLINGUPGRADE(DOWNGRADE)",
+                                  StartupOption.ROLLINGUPGRADE,
+                                  RollingUpgradeStartupOption.DOWNGRADE);
+        verifyStartupOptionResult("ROLLINGUPGRADE(STARTED)",
+                                  StartupOption.ROLLINGUPGRADE,
+                                  RollingUpgradeStartupOption.STARTED);
 
-    try {
-      verifyStartupOptionResult("ROLLINGUPGRADE(UNKNOWNOPTION)", StartupOption.ROLLINGUPGRADE, null);
-      fail("Failed to get expected IllegalArgumentException");
-    } catch(IllegalArgumentException iae) {
-      // Expected!
+        try {
+            verifyStartupOptionResult("ROLLINGUPGRADE(UNKNOWNOPTION)", StartupOption.ROLLINGUPGRADE, null);
+            fail("Failed to get expected IllegalArgumentException");
+        } catch(IllegalArgumentException iae) {
+            // Expected!
+        }
     }
-  }
 }

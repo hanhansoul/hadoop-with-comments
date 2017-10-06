@@ -32,41 +32,41 @@ import org.junit.Test;
 import java.net.InetSocketAddress;
 
 public class TestWebAppProxyServer {
-  private WebAppProxyServer webAppProxy = null;
-  private final String proxyAddress = "0.0.0.0:8888";
+    private WebAppProxyServer webAppProxy = null;
+    private final String proxyAddress = "0.0.0.0:8888";
 
-  @Before
-  public void setUp() throws Exception {
-    YarnConfiguration conf = new YarnConfiguration();
-    conf.set(YarnConfiguration.PROXY_ADDRESS, proxyAddress);
-    webAppProxy = new WebAppProxyServer();
-    webAppProxy.init(conf);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    webAppProxy.stop();
-  }
-
-  @Test
-  public void testStart() {
-    assertEquals(STATE.INITED, webAppProxy.getServiceState());
-    webAppProxy.start();
-    for (Service service : webAppProxy.getServices()) {
-      if (service instanceof WebAppProxy) {
-        assertEquals(((WebAppProxy) service).getBindAddress(), proxyAddress);
-      }
+    @Before
+    public void setUp() throws Exception {
+        YarnConfiguration conf = new YarnConfiguration();
+        conf.set(YarnConfiguration.PROXY_ADDRESS, proxyAddress);
+        webAppProxy = new WebAppProxyServer();
+        webAppProxy.init(conf);
     }
-    assertEquals(STATE.STARTED, webAppProxy.getServiceState());
-  }
 
-  @Test
-  public void testBindAddress() {
-    YarnConfiguration conf = new YarnConfiguration();
+    @After
+    public void tearDown() throws Exception {
+        webAppProxy.stop();
+    }
 
-    InetSocketAddress defaultBindAddress = WebAppProxyServer.getBindAddress(conf);
-    Assert.assertEquals("Web Proxy default bind address port is incorrect",
-        YarnConfiguration.DEFAULT_PROXY_PORT,
-        defaultBindAddress.getPort());
-  }
+    @Test
+    public void testStart() {
+        assertEquals(STATE.INITED, webAppProxy.getServiceState());
+        webAppProxy.start();
+        for (Service service : webAppProxy.getServices()) {
+            if (service instanceof WebAppProxy) {
+                assertEquals(((WebAppProxy) service).getBindAddress(), proxyAddress);
+            }
+        }
+        assertEquals(STATE.STARTED, webAppProxy.getServiceState());
+    }
+
+    @Test
+    public void testBindAddress() {
+        YarnConfiguration conf = new YarnConfiguration();
+
+        InetSocketAddress defaultBindAddress = WebAppProxyServer.getBindAddress(conf);
+        Assert.assertEquals("Web Proxy default bind address port is incorrect",
+                            YarnConfiguration.DEFAULT_PROXY_PORT,
+                            defaultBindAddress.getPort());
+    }
 }

@@ -147,345 +147,345 @@ import com.google.protobuf.ServiceException;
 public class ApplicationClientProtocolPBClientImpl implements ApplicationClientProtocol,
     Closeable {
 
-  private ApplicationClientProtocolPB proxy;
+    private ApplicationClientProtocolPB proxy;
 
-  public ApplicationClientProtocolPBClientImpl(long clientVersion,
-      InetSocketAddress addr, Configuration conf) throws IOException {
-    RPC.setProtocolEngine(conf, ApplicationClientProtocolPB.class,
-      ProtobufRpcEngine.class);
-    proxy = RPC.getProxy(ApplicationClientProtocolPB.class, clientVersion, addr, conf);
-  }
-
-  @Override
-  public void close() {
-    if (this.proxy != null) {
-      RPC.stopProxy(this.proxy);
+    public ApplicationClientProtocolPBClientImpl(long clientVersion,
+            InetSocketAddress addr, Configuration conf) throws IOException {
+        RPC.setProtocolEngine(conf, ApplicationClientProtocolPB.class,
+                              ProtobufRpcEngine.class);
+        proxy = RPC.getProxy(ApplicationClientProtocolPB.class, clientVersion, addr, conf);
     }
-  }
 
-  @Override
-  public KillApplicationResponse forceKillApplication(
-      KillApplicationRequest request) throws YarnException, IOException {
-    KillApplicationRequestProto requestProto =
-        ((KillApplicationRequestPBImpl) request).getProto();
-    try {
-      return new KillApplicationResponsePBImpl(proxy.forceKillApplication(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public void close() {
+        if (this.proxy != null) {
+            RPC.stopProxy(this.proxy);
+        }
     }
-  }
 
-  @Override
-  public GetApplicationReportResponse getApplicationReport(
-      GetApplicationReportRequest request) throws YarnException,
-      IOException {
-    GetApplicationReportRequestProto requestProto =
-        ((GetApplicationReportRequestPBImpl) request).getProto();
-    try {
-      return new GetApplicationReportResponsePBImpl(proxy.getApplicationReport(
-        null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public KillApplicationResponse forceKillApplication(
+        KillApplicationRequest request) throws YarnException, IOException {
+        KillApplicationRequestProto requestProto =
+            ((KillApplicationRequestPBImpl) request).getProto();
+        try {
+            return new KillApplicationResponsePBImpl(proxy.forceKillApplication(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetClusterMetricsResponse getClusterMetrics(
-      GetClusterMetricsRequest request) throws YarnException,
-      IOException {
-    GetClusterMetricsRequestProto requestProto =
-        ((GetClusterMetricsRequestPBImpl) request).getProto();
-    try {
-      return new GetClusterMetricsResponsePBImpl(proxy.getClusterMetrics(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetApplicationReportResponse getApplicationReport(
+        GetApplicationReportRequest request) throws YarnException,
+        IOException {
+        GetApplicationReportRequestProto requestProto =
+            ((GetApplicationReportRequestPBImpl) request).getProto();
+        try {
+            return new GetApplicationReportResponsePBImpl(proxy.getApplicationReport(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetNewApplicationResponse getNewApplication(
-      GetNewApplicationRequest request) throws YarnException,
-      IOException {
-    GetNewApplicationRequestProto requestProto =
-        ((GetNewApplicationRequestPBImpl) request).getProto();
-    try {
-      return new GetNewApplicationResponsePBImpl(proxy.getNewApplication(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetClusterMetricsResponse getClusterMetrics(
+        GetClusterMetricsRequest request) throws YarnException,
+        IOException {
+        GetClusterMetricsRequestProto requestProto =
+            ((GetClusterMetricsRequestPBImpl) request).getProto();
+        try {
+            return new GetClusterMetricsResponsePBImpl(proxy.getClusterMetrics(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public SubmitApplicationResponse submitApplication(
-      SubmitApplicationRequest request) throws YarnException,
-      IOException {
-    SubmitApplicationRequestProto requestProto =
-        ((SubmitApplicationRequestPBImpl) request).getProto();
-    try {
-      return new SubmitApplicationResponsePBImpl(proxy.submitApplication(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetNewApplicationResponse getNewApplication(
+        GetNewApplicationRequest request) throws YarnException,
+        IOException {
+        GetNewApplicationRequestProto requestProto =
+            ((GetNewApplicationRequestPBImpl) request).getProto();
+        try {
+            return new GetNewApplicationResponsePBImpl(proxy.getNewApplication(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetApplicationsResponse getApplications(
-      GetApplicationsRequest request) throws YarnException,
-      IOException {
-    GetApplicationsRequestProto requestProto =
-        ((GetApplicationsRequestPBImpl) request).getProto();
-    try {
-      return new GetApplicationsResponsePBImpl(proxy.getApplications(
-        null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public SubmitApplicationResponse submitApplication(
+        SubmitApplicationRequest request) throws YarnException,
+        IOException {
+        SubmitApplicationRequestProto requestProto =
+            ((SubmitApplicationRequestPBImpl) request).getProto();
+        try {
+            return new SubmitApplicationResponsePBImpl(proxy.submitApplication(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetClusterNodesResponse
-      getClusterNodes(GetClusterNodesRequest request)
-          throws YarnException, IOException {
-    GetClusterNodesRequestProto requestProto =
-        ((GetClusterNodesRequestPBImpl) request).getProto();
-    try {
-      return new GetClusterNodesResponsePBImpl(proxy.getClusterNodes(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetApplicationsResponse getApplications(
+        GetApplicationsRequest request) throws YarnException,
+        IOException {
+        GetApplicationsRequestProto requestProto =
+            ((GetApplicationsRequestPBImpl) request).getProto();
+        try {
+            return new GetApplicationsResponsePBImpl(proxy.getApplications(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetQueueInfoResponse getQueueInfo(GetQueueInfoRequest request)
-      throws YarnException, IOException {
-    GetQueueInfoRequestProto requestProto =
-        ((GetQueueInfoRequestPBImpl) request).getProto();
-    try {
-      return new GetQueueInfoResponsePBImpl(proxy.getQueueInfo(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetClusterNodesResponse
+    getClusterNodes(GetClusterNodesRequest request)
+    throws YarnException, IOException {
+        GetClusterNodesRequestProto requestProto =
+            ((GetClusterNodesRequestPBImpl) request).getProto();
+        try {
+            return new GetClusterNodesResponsePBImpl(proxy.getClusterNodes(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetQueueUserAclsInfoResponse getQueueUserAcls(
-      GetQueueUserAclsInfoRequest request) throws YarnException,
-      IOException {
-    GetQueueUserAclsInfoRequestProto requestProto =
-        ((GetQueueUserAclsInfoRequestPBImpl) request).getProto();
-    try {
-      return new GetQueueUserAclsInfoResponsePBImpl(proxy.getQueueUserAcls(
-        null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetQueueInfoResponse getQueueInfo(GetQueueInfoRequest request)
+    throws YarnException, IOException {
+        GetQueueInfoRequestProto requestProto =
+            ((GetQueueInfoRequestPBImpl) request).getProto();
+        try {
+            return new GetQueueInfoResponsePBImpl(proxy.getQueueInfo(null,
+                                                  requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetDelegationTokenResponse getDelegationToken(
-      GetDelegationTokenRequest request) throws YarnException,
-      IOException {
-    GetDelegationTokenRequestProto requestProto =
-        ((GetDelegationTokenRequestPBImpl) request).getProto();
-    try {
-      return new GetDelegationTokenResponsePBImpl(proxy.getDelegationToken(
-        null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetQueueUserAclsInfoResponse getQueueUserAcls(
+        GetQueueUserAclsInfoRequest request) throws YarnException,
+        IOException {
+        GetQueueUserAclsInfoRequestProto requestProto =
+            ((GetQueueUserAclsInfoRequestPBImpl) request).getProto();
+        try {
+            return new GetQueueUserAclsInfoResponsePBImpl(proxy.getQueueUserAcls(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public RenewDelegationTokenResponse renewDelegationToken(
-      RenewDelegationTokenRequest request) throws YarnException,
-      IOException {
-    RenewDelegationTokenRequestProto requestProto = 
-        ((RenewDelegationTokenRequestPBImpl) request).getProto();
-    try {
-      return new RenewDelegationTokenResponsePBImpl(proxy.renewDelegationToken(
-          null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetDelegationTokenResponse getDelegationToken(
+        GetDelegationTokenRequest request) throws YarnException,
+        IOException {
+        GetDelegationTokenRequestProto requestProto =
+            ((GetDelegationTokenRequestPBImpl) request).getProto();
+        try {
+            return new GetDelegationTokenResponsePBImpl(proxy.getDelegationToken(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public CancelDelegationTokenResponse cancelDelegationToken(
-      CancelDelegationTokenRequest request) throws YarnException,
-      IOException {
-    CancelDelegationTokenRequestProto requestProto =
-        ((CancelDelegationTokenRequestPBImpl) request).getProto();
-    try {
-      return new CancelDelegationTokenResponsePBImpl(
-          proxy.cancelDelegationToken(null, requestProto));
-
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public RenewDelegationTokenResponse renewDelegationToken(
+        RenewDelegationTokenRequest request) throws YarnException,
+        IOException {
+        RenewDelegationTokenRequestProto requestProto =
+            ((RenewDelegationTokenRequestPBImpl) request).getProto();
+        try {
+            return new RenewDelegationTokenResponsePBImpl(proxy.renewDelegationToken(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
-  
-  @Override
-  public MoveApplicationAcrossQueuesResponse moveApplicationAcrossQueues(
-      MoveApplicationAcrossQueuesRequest request) throws YarnException,
-      IOException {
-    MoveApplicationAcrossQueuesRequestProto requestProto =
-        ((MoveApplicationAcrossQueuesRequestPBImpl) request).getProto();
-    try {
-      return new MoveApplicationAcrossQueuesResponsePBImpl(
-          proxy.moveApplicationAcrossQueues(null, requestProto));
 
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public CancelDelegationTokenResponse cancelDelegationToken(
+        CancelDelegationTokenRequest request) throws YarnException,
+        IOException {
+        CancelDelegationTokenRequestProto requestProto =
+            ((CancelDelegationTokenRequestPBImpl) request).getProto();
+        try {
+            return new CancelDelegationTokenResponsePBImpl(
+                       proxy.cancelDelegationToken(null, requestProto));
+
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
-  
-  @Override
-  public GetApplicationAttemptReportResponse getApplicationAttemptReport(
-      GetApplicationAttemptReportRequest request) throws YarnException,
-      IOException {
-    GetApplicationAttemptReportRequestProto requestProto =
-        ((GetApplicationAttemptReportRequestPBImpl) request).getProto();
-    try {
-      return new GetApplicationAttemptReportResponsePBImpl(
-        proxy.getApplicationAttemptReport(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+
+    @Override
+    public MoveApplicationAcrossQueuesResponse moveApplicationAcrossQueues(
+        MoveApplicationAcrossQueuesRequest request) throws YarnException,
+        IOException {
+        MoveApplicationAcrossQueuesRequestProto requestProto =
+            ((MoveApplicationAcrossQueuesRequestPBImpl) request).getProto();
+        try {
+            return new MoveApplicationAcrossQueuesResponsePBImpl(
+                       proxy.moveApplicationAcrossQueues(null, requestProto));
+
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetApplicationAttemptsResponse getApplicationAttempts(
-      GetApplicationAttemptsRequest request) throws YarnException, IOException {
-    GetApplicationAttemptsRequestProto requestProto =
-        ((GetApplicationAttemptsRequestPBImpl) request).getProto();
-    try {
-      return new GetApplicationAttemptsResponsePBImpl(
-        proxy.getApplicationAttempts(null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetApplicationAttemptReportResponse getApplicationAttemptReport(
+        GetApplicationAttemptReportRequest request) throws YarnException,
+        IOException {
+        GetApplicationAttemptReportRequestProto requestProto =
+            ((GetApplicationAttemptReportRequestPBImpl) request).getProto();
+        try {
+            return new GetApplicationAttemptReportResponsePBImpl(
+                       proxy.getApplicationAttemptReport(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetContainerReportResponse getContainerReport(
-      GetContainerReportRequest request) throws YarnException, IOException {
-    GetContainerReportRequestProto requestProto =
-        ((GetContainerReportRequestPBImpl) request).getProto();
-    try {
-      return new GetContainerReportResponsePBImpl(proxy.getContainerReport(
-        null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetApplicationAttemptsResponse getApplicationAttempts(
+        GetApplicationAttemptsRequest request) throws YarnException, IOException {
+        GetApplicationAttemptsRequestProto requestProto =
+            ((GetApplicationAttemptsRequestPBImpl) request).getProto();
+        try {
+            return new GetApplicationAttemptsResponsePBImpl(
+                       proxy.getApplicationAttempts(null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetContainersResponse getContainers(GetContainersRequest request)
-      throws YarnException, IOException {
-    GetContainersRequestProto requestProto =
-        ((GetContainersRequestPBImpl) request).getProto();
-    try {
-      return new GetContainersResponsePBImpl(proxy.getContainers(null,
-        requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetContainerReportResponse getContainerReport(
+        GetContainerReportRequest request) throws YarnException, IOException {
+        GetContainerReportRequestProto requestProto =
+            ((GetContainerReportRequestPBImpl) request).getProto();
+        try {
+            return new GetContainerReportResponsePBImpl(proxy.getContainerReport(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public ReservationSubmissionResponse submitReservation(ReservationSubmissionRequest request)
-      throws YarnException, IOException {
-    ReservationSubmissionRequestProto requestProto =
-        ((ReservationSubmissionRequestPBImpl) request).getProto();
-    try {
-      return new ReservationSubmissionResponsePBImpl(proxy.submitReservation(null,
-          requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public GetContainersResponse getContainers(GetContainersRequest request)
+    throws YarnException, IOException {
+        GetContainersRequestProto requestProto =
+            ((GetContainersRequestPBImpl) request).getProto();
+        try {
+            return new GetContainersResponsePBImpl(proxy.getContainers(null,
+                                                   requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public ReservationUpdateResponse updateReservation(ReservationUpdateRequest request)
-      throws YarnException, IOException {
-    ReservationUpdateRequestProto requestProto =
-        ((ReservationUpdateRequestPBImpl) request).getProto();
-    try {
-      return new ReservationUpdateResponsePBImpl(proxy.updateReservation(null,
-          requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public ReservationSubmissionResponse submitReservation(ReservationSubmissionRequest request)
+    throws YarnException, IOException {
+        ReservationSubmissionRequestProto requestProto =
+            ((ReservationSubmissionRequestPBImpl) request).getProto();
+        try {
+            return new ReservationSubmissionResponsePBImpl(proxy.submitReservation(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public ReservationDeleteResponse deleteReservation(ReservationDeleteRequest request)
-      throws YarnException, IOException {
-    ReservationDeleteRequestProto requestProto =
-        ((ReservationDeleteRequestPBImpl) request).getProto();
-    try {
-      return new ReservationDeleteResponsePBImpl(proxy.deleteReservation(null,
-          requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+    @Override
+    public ReservationUpdateResponse updateReservation(ReservationUpdateRequest request)
+    throws YarnException, IOException {
+        ReservationUpdateRequestProto requestProto =
+            ((ReservationUpdateRequestPBImpl) request).getProto();
+        try {
+            return new ReservationUpdateResponsePBImpl(proxy.updateReservation(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
+
+    @Override
+    public ReservationDeleteResponse deleteReservation(ReservationDeleteRequest request)
+    throws YarnException, IOException {
+        ReservationDeleteRequestProto requestProto =
+            ((ReservationDeleteRequestPBImpl) request).getProto();
+        try {
+            return new ReservationDeleteResponsePBImpl(proxy.deleteReservation(null,
+                    requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
+    }
 
 
-  @Override
-  public GetNodesToLabelsResponse getNodeToLabels(
-      GetNodesToLabelsRequest request)
-      throws YarnException, IOException {
-    YarnServiceProtos.GetNodesToLabelsRequestProto
+    @Override
+    public GetNodesToLabelsResponse getNodeToLabels(
+        GetNodesToLabelsRequest request)
+    throws YarnException, IOException {
+        YarnServiceProtos.GetNodesToLabelsRequestProto
         requestProto =
-        ((GetNodesToLabelsRequestPBImpl) request).getProto();
-    try {
-      return new GetNodesToLabelsResponsePBImpl(proxy.getNodeToLabels(
-          null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+            ((GetNodesToLabelsRequestPBImpl) request).getProto();
+        try {
+            return new GetNodesToLabelsResponsePBImpl(proxy.getNodeToLabels(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 
-  @Override
-  public GetClusterNodeLabelsResponse getClusterNodeLabels(
-      GetClusterNodeLabelsRequest request) throws YarnException, IOException {
-      GetClusterNodeLabelsRequestProto
+    @Override
+    public GetClusterNodeLabelsResponse getClusterNodeLabels(
+        GetClusterNodeLabelsRequest request) throws YarnException, IOException {
+        GetClusterNodeLabelsRequestProto
         requestProto =
-        ((GetClusterNodeLabelsRequestPBImpl) request).getProto();
-    try {
-      return new GetClusterNodeLabelsResponsePBImpl(proxy.getClusterNodeLabels(
-          null, requestProto));
-    } catch (ServiceException e) {
-      RPCUtil.unwrapAndThrowException(e);
-      return null;
+            ((GetClusterNodeLabelsRequestPBImpl) request).getProto();
+        try {
+            return new GetClusterNodeLabelsResponsePBImpl(proxy.getClusterNodeLabels(
+                        null, requestProto));
+        } catch (ServiceException e) {
+            RPCUtil.unwrapAndThrowException(e);
+            return null;
+        }
     }
-  }
 }

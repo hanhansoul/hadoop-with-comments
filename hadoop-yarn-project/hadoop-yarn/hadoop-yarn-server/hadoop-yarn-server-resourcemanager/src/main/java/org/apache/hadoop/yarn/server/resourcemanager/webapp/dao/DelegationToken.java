@@ -27,73 +27,73 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DelegationToken {
 
-  String token;
-  String renewer;
-  String owner;
-  String kind;
-  @XmlElement(name = "expiration-time")
-  Long nextExpirationTime;
-  @XmlElement(name = "max-validity")
-  Long maxValidity;
+    String token;
+    String renewer;
+    String owner;
+    String kind;
+    @XmlElement(name = "expiration-time")
+    Long nextExpirationTime;
+    @XmlElement(name = "max-validity")
+    Long maxValidity;
 
-  public DelegationToken() {
-  }
+    public DelegationToken() {
+    }
 
-  public DelegationToken(String token, String renewer, String owner,
-      String kind, Long nextExpirationTime, Long maxValidity) {
-    this.token = token;
-    this.renewer = renewer;
-    this.owner = owner;
-    this.kind = kind;
-    this.nextExpirationTime = nextExpirationTime;
-    this.maxValidity = maxValidity;
-  }
+    public DelegationToken(String token, String renewer, String owner,
+                           String kind, Long nextExpirationTime, Long maxValidity) {
+        this.token = token;
+        this.renewer = renewer;
+        this.owner = owner;
+        this.kind = kind;
+        this.nextExpirationTime = nextExpirationTime;
+        this.maxValidity = maxValidity;
+    }
 
-  public String getToken() {
-    return token;
-  }
+    public String getToken() {
+        return token;
+    }
 
-  public String getRenewer() {
-    return renewer;
-  }
+    public String getRenewer() {
+        return renewer;
+    }
 
-  public Long getNextExpirationTime() {
-    return nextExpirationTime;
-  }
+    public Long getNextExpirationTime() {
+        return nextExpirationTime;
+    }
 
-  public void setToken(String token) {
-    this.token = token;
-  }
+    public void setToken(String token) {
+        this.token = token;
+    }
 
-  public void setRenewer(String renewer) {
-    this.renewer = renewer;
-  }
+    public void setRenewer(String renewer) {
+        this.renewer = renewer;
+    }
 
-  public void setNextExpirationTime(long nextExpirationTime) {
-    this.nextExpirationTime = Long.valueOf(nextExpirationTime);
-  }
+    public void setNextExpirationTime(long nextExpirationTime) {
+        this.nextExpirationTime = Long.valueOf(nextExpirationTime);
+    }
 
-  public String getOwner() {
-    return owner;
-  }
+    public String getOwner() {
+        return owner;
+    }
 
-  public String getKind() {
-    return kind;
-  }
+    public String getKind() {
+        return kind;
+    }
 
-  public Long getMaxValidity() {
-    return maxValidity;
-  }
+    public Long getMaxValidity() {
+        return maxValidity;
+    }
 
-  public void setOwner(String owner) {
-    this.owner = owner;
-  }
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
 
-  public void setKind(String kind) {
-    this.kind = kind;
-  }
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
 
-  public void setMaxValidity(Long maxValidity) {
-    this.maxValidity = maxValidity;
-  }
+    public void setMaxValidity(Long maxValidity) {
+        this.maxValidity = maxValidity;
+    }
 }

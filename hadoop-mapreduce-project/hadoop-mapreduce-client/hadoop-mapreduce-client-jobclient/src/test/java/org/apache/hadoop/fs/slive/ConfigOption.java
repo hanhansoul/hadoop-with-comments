@@ -27,124 +27,124 @@ import org.apache.commons.cli.Option;
  */
 class ConfigOption<T> extends Option {
 
-  private static final long serialVersionUID = 7218954906367671150L;
+    private static final long serialVersionUID = 7218954906367671150L;
 
-  // config starts with this prefix
-  private static final String SLIVE_PREFIX = "slive";
+    // config starts with this prefix
+    private static final String SLIVE_PREFIX = "slive";
 
-  // command line options and descriptions and config option name
-  static final ConfigOption<Integer> MAPS = new ConfigOption<Integer>(
-      "maps", true, "Number of maps", SLIVE_PREFIX + ".maps", 10);
+    // command line options and descriptions and config option name
+    static final ConfigOption<Integer> MAPS = new ConfigOption<Integer>(
+        "maps", true, "Number of maps", SLIVE_PREFIX + ".maps", 10);
 
-  static final ConfigOption<Integer> REDUCES = new ConfigOption<Integer>(
-      "reduces", true, "Number of reduces", SLIVE_PREFIX + ".reduces", 1);
+    static final ConfigOption<Integer> REDUCES = new ConfigOption<Integer>(
+        "reduces", true, "Number of reduces", SLIVE_PREFIX + ".reduces", 1);
 
-  static final ConfigOption<Integer> OPS = new ConfigOption<Integer>(
-      "ops", true, "Max number of operations per map", SLIVE_PREFIX
-          + ".map.ops", 1000);
+    static final ConfigOption<Integer> OPS = new ConfigOption<Integer>(
+        "ops", true, "Max number of operations per map", SLIVE_PREFIX
+        + ".map.ops", 1000);
 
-  static final ConfigOption<Integer> DURATION = new ConfigOption<Integer>(
-      "duration", true,
-      "Duration of a map task in seconds (MAX_INT for no limit)", SLIVE_PREFIX
-          + ".duration", Integer.MAX_VALUE);
+    static final ConfigOption<Integer> DURATION = new ConfigOption<Integer>(
+        "duration", true,
+        "Duration of a map task in seconds (MAX_INT for no limit)", SLIVE_PREFIX
+        + ".duration", Integer.MAX_VALUE);
 
-  static final ConfigOption<Boolean> EXIT_ON_ERROR = new ConfigOption<Boolean>(
-      "exitOnError", false, "Exit on first error", SLIVE_PREFIX
-          + ".exit.on.error", false);
+    static final ConfigOption<Boolean> EXIT_ON_ERROR = new ConfigOption<Boolean>(
+        "exitOnError", false, "Exit on first error", SLIVE_PREFIX
+        + ".exit.on.error", false);
 
-  static final ConfigOption<Integer> FILES = new ConfigOption<Integer>(
-      "files", true, "Max total number of files",
-      SLIVE_PREFIX + ".total.files", 10);
+    static final ConfigOption<Integer> FILES = new ConfigOption<Integer>(
+        "files", true, "Max total number of files",
+        SLIVE_PREFIX + ".total.files", 10);
 
-  static final ConfigOption<Integer> DIR_SIZE = new ConfigOption<Integer>(
-      "dirSize", true, "Max files per directory", SLIVE_PREFIX + ".dir.size",
-      32);
+    static final ConfigOption<Integer> DIR_SIZE = new ConfigOption<Integer>(
+        "dirSize", true, "Max files per directory", SLIVE_PREFIX + ".dir.size",
+        32);
 
-  static final ConfigOption<String> BASE_DIR = new ConfigOption<String>(
-      "baseDir", true, "Base directory path", SLIVE_PREFIX + ".base.dir",
-      "/test/slive");
+    static final ConfigOption<String> BASE_DIR = new ConfigOption<String>(
+        "baseDir", true, "Base directory path", SLIVE_PREFIX + ".base.dir",
+        "/test/slive");
 
-  static final ConfigOption<String> RESULT_FILE = new ConfigOption<String>(
-      "resFile", true, "Result file name", SLIVE_PREFIX + ".result.file",
-      "part-0000");
+    static final ConfigOption<String> RESULT_FILE = new ConfigOption<String>(
+        "resFile", true, "Result file name", SLIVE_PREFIX + ".result.file",
+        "part-0000");
 
-  static final ConfigOption<Short> REPLICATION_AM = new ConfigOption<Short>(
-      "replication", true, "Min,max value for replication amount", SLIVE_PREFIX
-          + ".file.replication", (short) 3);
+    static final ConfigOption<Short> REPLICATION_AM = new ConfigOption<Short>(
+        "replication", true, "Min,max value for replication amount", SLIVE_PREFIX
+        + ".file.replication", (short) 3);
 
-  static final ConfigOption<Long> BLOCK_SIZE = new ConfigOption<Long>(
-      "blockSize", true, "Min,max for dfs file block size", SLIVE_PREFIX
-          + ".block.size", 64L * Constants.MEGABYTES);
+    static final ConfigOption<Long> BLOCK_SIZE = new ConfigOption<Long>(
+        "blockSize", true, "Min,max for dfs file block size", SLIVE_PREFIX
+        + ".block.size", 64L * Constants.MEGABYTES);
 
-  static final ConfigOption<Long> READ_SIZE = new ConfigOption<Long>(
-      "readSize", true,
-      "Min,max for size to read (min=max=MAX_LONG=read entire file)",
-      SLIVE_PREFIX + ".op.read.size", null);
+    static final ConfigOption<Long> READ_SIZE = new ConfigOption<Long>(
+        "readSize", true,
+        "Min,max for size to read (min=max=MAX_LONG=read entire file)",
+        SLIVE_PREFIX + ".op.read.size", null);
 
-  static final ConfigOption<Long> WRITE_SIZE = new ConfigOption<Long>(
-      "writeSize", true,
-      "Min,max for size to write (min=max=MAX_LONG=blocksize)", SLIVE_PREFIX
-          + ".op.write.size", null);
+    static final ConfigOption<Long> WRITE_SIZE = new ConfigOption<Long>(
+        "writeSize", true,
+        "Min,max for size to write (min=max=MAX_LONG=blocksize)", SLIVE_PREFIX
+        + ".op.write.size", null);
 
-  static final ConfigOption<Long> SLEEP_TIME = new ConfigOption<Long>(
-      "sleep",
-      true,
-      "Min,max for millisecond of random sleep to perform (between operations)",
-      SLIVE_PREFIX + ".op.sleep.range", null);
+    static final ConfigOption<Long> SLEEP_TIME = new ConfigOption<Long>(
+        "sleep",
+        true,
+        "Min,max for millisecond of random sleep to perform (between operations)",
+        SLIVE_PREFIX + ".op.sleep.range", null);
 
-  static final ConfigOption<Long> APPEND_SIZE = new ConfigOption<Long>(
-      "appendSize", true,
-      "Min,max for size to append (min=max=MAX_LONG=blocksize)", SLIVE_PREFIX
-          + ".op.append.size", null);
+    static final ConfigOption<Long> APPEND_SIZE = new ConfigOption<Long>(
+        "appendSize", true,
+        "Min,max for size to append (min=max=MAX_LONG=blocksize)", SLIVE_PREFIX
+        + ".op.append.size", null);
 
-  static final ConfigOption<Long> RANDOM_SEED = new ConfigOption<Long>(
-      "seed", true, "Random number seed", SLIVE_PREFIX + ".seed", null);
+    static final ConfigOption<Long> RANDOM_SEED = new ConfigOption<Long>(
+        "seed", true, "Random number seed", SLIVE_PREFIX + ".seed", null);
 
-  // command line only options
-  static final Option HELP = new Option("help", false,
-      "Usage information");
+    // command line only options
+    static final Option HELP = new Option("help", false,
+                                          "Usage information");
 
-  static final Option CLEANUP = new Option("cleanup", true,
-      "Cleanup & remove directory after reporting");
+    static final Option CLEANUP = new Option("cleanup", true,
+            "Cleanup & remove directory after reporting");
 
-  // non slive specific settings
-  static final ConfigOption<String> QUEUE_NAME = new ConfigOption<String>(
-      "queue", true, "Queue name", "mapred.job.queue.name", "default");
+    // non slive specific settings
+    static final ConfigOption<String> QUEUE_NAME = new ConfigOption<String>(
+        "queue", true, "Queue name", "mapred.job.queue.name", "default");
 
-  static final ConfigOption<String> PACKET_SIZE = new ConfigOption<String>(
-      "packetSize", true, "Dfs write packet size", "dfs.write.packet.size",
-      null);
+    static final ConfigOption<String> PACKET_SIZE = new ConfigOption<String>(
+        "packetSize", true, "Dfs write packet size", "dfs.write.packet.size",
+        null);
 
-  /**
-   * Hadoop configuration property name
-   */
-  private String cfgOption;
+    /**
+     * Hadoop configuration property name
+     */
+    private String cfgOption;
 
-  /**
-   * Default value if no value is located by other means
-   */
-  private T defaultValue;
+    /**
+     * Default value if no value is located by other means
+     */
+    private T defaultValue;
 
-  ConfigOption(String cliOption, boolean hasArg, String description,
-      String cfgOption, T def) {
-    super(cliOption, hasArg, description);
-    this.cfgOption = cfgOption;
-    this.defaultValue = def;
-  }
+    ConfigOption(String cliOption, boolean hasArg, String description,
+                 String cfgOption, T def) {
+        super(cliOption, hasArg, description);
+        this.cfgOption = cfgOption;
+        this.defaultValue = def;
+    }
 
-  /**
-   * @return the configuration option name to lookup in Configuration objects
-   *         for this option
-   */
-  String getCfgOption() {
-    return cfgOption;
-  }
+    /**
+     * @return the configuration option name to lookup in Configuration objects
+     *         for this option
+     */
+    String getCfgOption() {
+        return cfgOption;
+    }
 
-  /**
-   * @return the default object for this option
-   */
-  T getDefault() {
-    return defaultValue;
-  }
+    /**
+     * @return the default object for this option
+     */
+    T getDefault() {
+        return defaultValue;
+    }
 
 }

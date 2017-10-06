@@ -27,17 +27,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AppsInfo {
 
-  protected ArrayList<AppInfo> app = new ArrayList<AppInfo>();
+    protected ArrayList<AppInfo> app = new ArrayList<AppInfo>();
 
-  public AppsInfo() {
-  } // JAXB needs this
+    public AppsInfo() {
+    } // JAXB needs this
 
-  public void add(AppInfo appInfo) {
-    app.add(appInfo);
-  }
+    public void add(AppInfo appInfo) {
+        app.add(appInfo);
+    }
 
-  public ArrayList<AppInfo> getApps() {
-    return app;
-  }
+    public ArrayList<AppInfo> getApps() {
+        return app;
+    }
 
 }

@@ -26,29 +26,29 @@ import org.apache.hadoop.fs.FileSystemContractBaseTest;
 import org.apache.hadoop.fs.Path;
 
 public abstract class S3FileSystemContractBaseTest
-  extends FileSystemContractBaseTest {
+    extends FileSystemContractBaseTest {
 
-  private FileSystemStore store;
-  
-  abstract FileSystemStore getFileSystemStore() throws IOException;
-  
-  @Override
-  protected void setUp() throws Exception {
-    Configuration conf = new Configuration();
-    store = getFileSystemStore();
-    fs = new S3FileSystem(store);
-    fs.initialize(URI.create(conf.get("test.fs.s3.name")), conf);
-  }
-  
-  @Override
-  protected void tearDown() throws Exception {
-    store.purge();
-    super.tearDown();
-  }
-  
-  public void testCanonicalName() throws Exception {
-    assertNull("s3 doesn't support security token and shouldn't have canonical name",
-               fs.getCanonicalServiceName());
-  }
+    private FileSystemStore store;
+
+    abstract FileSystemStore getFileSystemStore() throws IOException;
+
+    @Override
+    protected void setUp() throws Exception {
+        Configuration conf = new Configuration();
+        store = getFileSystemStore();
+        fs = new S3FileSystem(store);
+        fs.initialize(URI.create(conf.get("test.fs.s3.name")), conf);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        store.purge();
+        super.tearDown();
+    }
+
+    public void testCanonicalName() throws Exception {
+        assertNull("s3 doesn't support security token and shouldn't have canonical name",
+                   fs.getCanonicalServiceName());
+    }
 
 }

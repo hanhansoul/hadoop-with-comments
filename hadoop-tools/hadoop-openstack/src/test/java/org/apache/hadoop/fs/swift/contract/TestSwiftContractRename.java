@@ -24,9 +24,9 @@ import org.apache.hadoop.fs.contract.AbstractFSContract;
 
 public class TestSwiftContractRename extends AbstractContractRenameTest {
 
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new SwiftContract(conf);
-  }
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new SwiftContract(conf);
+    }
 
 }

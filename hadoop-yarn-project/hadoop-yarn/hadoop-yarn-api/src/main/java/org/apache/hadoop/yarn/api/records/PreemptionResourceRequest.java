@@ -33,24 +33,24 @@ import org.apache.hadoop.yarn.util.Records;
 @Evolving
 public abstract class PreemptionResourceRequest {
 
-  @Private
-  @Unstable
-  public static PreemptionResourceRequest newInstance(ResourceRequest req) {
-    PreemptionResourceRequest request =
-        Records.newRecord(PreemptionResourceRequest.class);
-    request.setResourceRequest(req);
-    return request;
-  }
+    @Private
+    @Unstable
+    public static PreemptionResourceRequest newInstance(ResourceRequest req) {
+        PreemptionResourceRequest request =
+            Records.newRecord(PreemptionResourceRequest.class);
+        request.setResourceRequest(req);
+        return request;
+    }
 
-  /**
-   * @return Resource described in this request, to be matched against running
-   * containers.
-   */
-  @Public
-  @Evolving
-  public abstract ResourceRequest getResourceRequest();
+    /**
+     * @return Resource described in this request, to be matched against running
+     * containers.
+     */
+    @Public
+    @Evolving
+    public abstract ResourceRequest getResourceRequest();
 
-  @Private
-  @Unstable
-  public abstract void setResourceRequest(ResourceRequest req);
+    @Private
+    @Unstable
+    public abstract void setResourceRequest(ResourceRequest req);
 }

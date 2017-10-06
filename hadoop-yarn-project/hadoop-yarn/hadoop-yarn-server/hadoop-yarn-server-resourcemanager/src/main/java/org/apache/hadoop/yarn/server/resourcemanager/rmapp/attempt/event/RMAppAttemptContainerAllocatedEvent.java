@@ -25,7 +25,7 @@ import org.apache.hadoop.yarn.server.resourcemanager.rmapp.attempt.RMAppAttemptE
 
 public class RMAppAttemptContainerAllocatedEvent extends RMAppAttemptEvent {
 
-  public RMAppAttemptContainerAllocatedEvent(ApplicationAttemptId appAttemptId) {
-    super(appAttemptId, RMAppAttemptEventType.CONTAINER_ALLOCATED);
-  }
+    public RMAppAttemptContainerAllocatedEvent(ApplicationAttemptId appAttemptId) {
+        super(appAttemptId, RMAppAttemptEventType.CONTAINER_ALLOCATED);
+    }
 }

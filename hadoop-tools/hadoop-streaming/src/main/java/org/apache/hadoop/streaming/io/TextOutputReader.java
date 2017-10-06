@@ -37,83 +37,83 @@ import org.apache.hadoop.util.UTF8ByteArrayUtils;
  */
 public class TextOutputReader extends OutputReader<Text, Text> {
 
-  private LineReader lineReader;
-  private byte[] bytes;
-  private DataInput clientIn;
-  private Configuration conf;
-  private int numKeyFields;
-  private byte[] separator;
-  private Text key;
-  private Text value;
-  private Text line;
-  
-  @Override
-  public void initialize(PipeMapRed pipeMapRed) throws IOException {
-    super.initialize(pipeMapRed);
-    clientIn = pipeMapRed.getClientInput();
-    conf = pipeMapRed.getConfiguration();
-    numKeyFields = pipeMapRed.getNumOfKeyFields();
-    separator = pipeMapRed.getFieldSeparator();
-    lineReader = new LineReader((InputStream)clientIn, conf);
-    key = new Text();
-    value = new Text();
-    line = new Text();
-  }
-  
-  @Override
-  public boolean readKeyValue() throws IOException {
-    if (lineReader.readLine(line) <= 0) {
-      return false;
-    }
-    bytes = line.getBytes();
-    splitKeyVal(bytes, line.getLength(), key, value);
-    line.clear();
-    return true;
-  }
-  
-  @Override
-  public Text getCurrentKey() throws IOException {
-    return key;
-  }
-  
-  @Override
-  public Text getCurrentValue() throws IOException {
-    return value;
-  }
+    private LineReader lineReader;
+    private byte[] bytes;
+    private DataInput clientIn;
+    private Configuration conf;
+    private int numKeyFields;
+    private byte[] separator;
+    private Text key;
+    private Text value;
+    private Text line;
 
-  @Override
-  public String getLastOutput() {
-    if (bytes != null) {
-      try {
-        return new String(bytes, "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        return "<undecodable>";
-      }
-    } else {
-      return null;
+    @Override
+    public void initialize(PipeMapRed pipeMapRed) throws IOException {
+        super.initialize(pipeMapRed);
+        clientIn = pipeMapRed.getClientInput();
+        conf = pipeMapRed.getConfiguration();
+        numKeyFields = pipeMapRed.getNumOfKeyFields();
+        separator = pipeMapRed.getFieldSeparator();
+        lineReader = new LineReader((InputStream)clientIn, conf);
+        key = new Text();
+        value = new Text();
+        line = new Text();
     }
-  }
 
-  // split a UTF-8 line into key and value
-  private void splitKeyVal(byte[] line, int length, Text key, Text val)
+    @Override
+    public boolean readKeyValue() throws IOException {
+        if (lineReader.readLine(line) <= 0) {
+            return false;
+        }
+        bytes = line.getBytes();
+        splitKeyVal(bytes, line.getLength(), key, value);
+        line.clear();
+        return true;
+    }
+
+    @Override
+    public Text getCurrentKey() throws IOException {
+        return key;
+    }
+
+    @Override
+    public Text getCurrentValue() throws IOException {
+        return value;
+    }
+
+    @Override
+    public String getLastOutput() {
+        if (bytes != null) {
+            try {
+                return new String(bytes, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                return "<undecodable>";
+            }
+        } else {
+            return null;
+        }
+    }
+
+    // split a UTF-8 line into key and value
+    private void splitKeyVal(byte[] line, int length, Text key, Text val)
     throws IOException {
-    // Need to find numKeyFields separators
-    int pos = UTF8ByteArrayUtils.findBytes(line, 0, length, separator);
-    for(int k=1; k<numKeyFields && pos!=-1; k++) {
-      pos = UTF8ByteArrayUtils.findBytes(line, pos + separator.length, 
-        length, separator);
+        // Need to find numKeyFields separators
+        int pos = UTF8ByteArrayUtils.findBytes(line, 0, length, separator);
+        for(int k=1; k<numKeyFields && pos!=-1; k++) {
+            pos = UTF8ByteArrayUtils.findBytes(line, pos + separator.length,
+                                               length, separator);
+        }
+        try {
+            if (pos == -1) {
+                key.set(line, 0, length);
+                val.set("");
+            } else {
+                StreamKeyValUtil.splitKeyVal(line, 0, length, key, val, pos,
+                                             separator.length);
+            }
+        } catch (CharacterCodingException e) {
+            throw new IOException(StringUtils.stringifyException(e));
+        }
     }
-    try {
-      if (pos == -1) {
-        key.set(line, 0, length);
-        val.set("");
-      } else {
-        StreamKeyValUtil.splitKeyVal(line, 0, length, key, val, pos,
-          separator.length);
-      }
-    } catch (CharacterCodingException e) {
-      throw new IOException(StringUtils.stringifyException(e));
-    }
-  }
-  
+
 }

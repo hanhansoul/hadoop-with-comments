@@ -23,11 +23,11 @@ package org.apache.hadoop.fs.swift.exceptions;
  * is configured
  */
 public class SwiftConfigurationException extends SwiftException {
-  public SwiftConfigurationException(String message) {
-    super(message);
-  }
+    public SwiftConfigurationException(String message) {
+        super(message);
+    }
 
-  public SwiftConfigurationException(String message, Throwable cause) {
-    super(message, cause);
-  }
+    public SwiftConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

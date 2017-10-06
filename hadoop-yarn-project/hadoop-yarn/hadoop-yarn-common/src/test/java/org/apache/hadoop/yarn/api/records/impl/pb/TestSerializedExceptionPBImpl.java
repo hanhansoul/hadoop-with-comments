@@ -25,47 +25,47 @@ import org.apache.hadoop.yarn.proto.YarnProtos.SerializedExceptionProto;
 import org.junit.Test;
 
 public class TestSerializedExceptionPBImpl {
-  @Test
-  public void testSerializedException() throws Exception {
-    SerializedExceptionPBImpl orig = new SerializedExceptionPBImpl();
-    orig.init(new Exception("test exception"));
-    SerializedExceptionProto proto = orig.getProto();
-    SerializedExceptionPBImpl deser = new SerializedExceptionPBImpl(proto);
-    Assert.assertEquals(orig, deser);
-    Assert.assertEquals(orig.getMessage(), deser.getMessage());
-    Assert.assertEquals(orig.getRemoteTrace(), deser.getRemoteTrace());
-    Assert.assertEquals(orig.getCause(), deser.getCause());
-  }
-
-  @Test
-  public void testDeserialize() throws Exception {
-    Exception ex = new Exception("test exception");
-    SerializedExceptionPBImpl pb = new SerializedExceptionPBImpl();
-
-    try {
-      pb.deSerialize();
-      Assert.fail("deSerialze should throw YarnRuntimeException");
-    } catch (YarnRuntimeException e) {
-      Assert.assertEquals(ClassNotFoundException.class,
-          e.getCause().getClass());
+    @Test
+    public void testSerializedException() throws Exception {
+        SerializedExceptionPBImpl orig = new SerializedExceptionPBImpl();
+        orig.init(new Exception("test exception"));
+        SerializedExceptionProto proto = orig.getProto();
+        SerializedExceptionPBImpl deser = new SerializedExceptionPBImpl(proto);
+        Assert.assertEquals(orig, deser);
+        Assert.assertEquals(orig.getMessage(), deser.getMessage());
+        Assert.assertEquals(orig.getRemoteTrace(), deser.getRemoteTrace());
+        Assert.assertEquals(orig.getCause(), deser.getCause());
     }
 
-    pb.init(ex);
-    Assert.assertEquals(ex.toString(), pb.deSerialize().toString());
-  }
+    @Test
+    public void testDeserialize() throws Exception {
+        Exception ex = new Exception("test exception");
+        SerializedExceptionPBImpl pb = new SerializedExceptionPBImpl();
 
-  @Test
-  public void testBeforeInit() throws Exception {
-    SerializedExceptionProto defaultProto =
-        SerializedExceptionProto.newBuilder().build();
+        try {
+            pb.deSerialize();
+            Assert.fail("deSerialze should throw YarnRuntimeException");
+        } catch (YarnRuntimeException e) {
+            Assert.assertEquals(ClassNotFoundException.class,
+                                e.getCause().getClass());
+        }
 
-    SerializedExceptionPBImpl pb1 = new SerializedExceptionPBImpl();
-    Assert.assertNull(pb1.getCause());
+        pb.init(ex);
+        Assert.assertEquals(ex.toString(), pb.deSerialize().toString());
+    }
 
-    SerializedExceptionPBImpl pb2 = new SerializedExceptionPBImpl();
-    Assert.assertEquals(defaultProto, pb2.getProto());
+    @Test
+    public void testBeforeInit() throws Exception {
+        SerializedExceptionProto defaultProto =
+            SerializedExceptionProto.newBuilder().build();
 
-    SerializedExceptionPBImpl pb3 = new SerializedExceptionPBImpl();
-    Assert.assertEquals(defaultProto.getTrace(), pb3.getRemoteTrace());
-  }
+        SerializedExceptionPBImpl pb1 = new SerializedExceptionPBImpl();
+        Assert.assertNull(pb1.getCause());
+
+        SerializedExceptionPBImpl pb2 = new SerializedExceptionPBImpl();
+        Assert.assertEquals(defaultProto, pb2.getProto());
+
+        SerializedExceptionPBImpl pb3 = new SerializedExceptionPBImpl();
+        Assert.assertEquals(defaultProto.getTrace(), pb3.getRemoteTrace());
+    }
 }

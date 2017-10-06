@@ -29,37 +29,37 @@ import org.junit.Test;
 public class TestYarnPolicySelector extends RegistryTestHelper {
 
 
-  private ServiceRecord record = createRecord("1",
-      PersistencePolicies.APPLICATION, "one",
-      null);
-  private RegistryPathStatus status = new RegistryPathStatus("/", 0, 0, 1);
+    private ServiceRecord record = createRecord("1",
+                                   PersistencePolicies.APPLICATION, "one",
+                                   null);
+    private RegistryPathStatus status = new RegistryPathStatus("/", 0, 0, 1);
 
-  public void assertSelected(boolean outcome,
-      RegistryAdminService.NodeSelector selector) {
-    boolean select = selector.shouldSelect("/", status, record);
-    assertEquals(selector.toString(), outcome, select);
-  }
+    public void assertSelected(boolean outcome,
+                               RegistryAdminService.NodeSelector selector) {
+        boolean select = selector.shouldSelect("/", status, record);
+        assertEquals(selector.toString(), outcome, select);
+    }
 
-  @Test
-  public void testByContainer() throws Throwable {
-    assertSelected(false,
-        new SelectByYarnPersistence("1",
-            PersistencePolicies.CONTAINER));
-  }
+    @Test
+    public void testByContainer() throws Throwable {
+        assertSelected(false,
+                       new SelectByYarnPersistence("1",
+                               PersistencePolicies.CONTAINER));
+    }
 
-  @Test
-  public void testByApp() throws Throwable {
-    assertSelected(true,
-        new SelectByYarnPersistence("1",
-            PersistencePolicies.APPLICATION));
-  }
+    @Test
+    public void testByApp() throws Throwable {
+        assertSelected(true,
+                       new SelectByYarnPersistence("1",
+                               PersistencePolicies.APPLICATION));
+    }
 
 
-  @Test
-  public void testByAppName() throws Throwable {
-    assertSelected(false,
-        new SelectByYarnPersistence("2",
-            PersistencePolicies.APPLICATION));
-  }
+    @Test
+    public void testByAppName() throws Throwable {
+        assertSelected(false,
+                       new SelectByYarnPersistence("2",
+                               PersistencePolicies.APPLICATION));
+    }
 
 }

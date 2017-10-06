@@ -31,27 +31,27 @@ import org.codehaus.jackson.map.SerializerProvider;
  * Default Rumen JSON serializer.
  */
 @SuppressWarnings("unchecked")
-public class DefaultAnonymizingRumenSerializer 
-  extends JsonSerializer<AnonymizableDataType> {
-  private StatePool statePool;
-  private Configuration conf;
-  
-  public DefaultAnonymizingRumenSerializer(StatePool statePool, 
-                                           Configuration conf) {
-    this.statePool = statePool;
-    this.conf = conf;
-  }
-  
-  public void serialize(AnonymizableDataType object, JsonGenerator jGen, 
-                        SerializerProvider sProvider) 
-  throws IOException, JsonProcessingException {
-    Object val = object.getAnonymizedValue(statePool, conf);
-    // output the data if its a string
-    if (val instanceof String) {
-      jGen.writeString(val.toString());
-    } else {
-      // let the mapper (JSON generator) handle this anonymized object.
-      jGen.writeObject(val);
+public class DefaultAnonymizingRumenSerializer
+    extends JsonSerializer<AnonymizableDataType> {
+    private StatePool statePool;
+    private Configuration conf;
+
+    public DefaultAnonymizingRumenSerializer(StatePool statePool,
+            Configuration conf) {
+        this.statePool = statePool;
+        this.conf = conf;
     }
-  };
+
+    public void serialize(AnonymizableDataType object, JsonGenerator jGen,
+                          SerializerProvider sProvider)
+    throws IOException, JsonProcessingException {
+        Object val = object.getAnonymizedValue(statePool, conf);
+        // output the data if its a string
+        if (val instanceof String) {
+            jGen.writeString(val.toString());
+        } else {
+            // let the mapper (JSON generator) handle this anonymized object.
+            jGen.writeObject(val);
+        }
+    };
 }

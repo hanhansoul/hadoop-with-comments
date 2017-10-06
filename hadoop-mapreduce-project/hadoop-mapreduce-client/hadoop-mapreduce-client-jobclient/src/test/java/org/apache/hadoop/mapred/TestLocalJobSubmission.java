@@ -43,52 +43,52 @@ import static org.junit.Assert.*;
  * -jt local -libjars
  */
 public class TestLocalJobSubmission {
-  private static Path TEST_ROOT_DIR =
-      new Path(System.getProperty("test.build.data","/tmp"));
+    private static Path TEST_ROOT_DIR =
+        new Path(System.getProperty("test.build.data","/tmp"));
 
-  @Before
-  public void configure() throws Exception {
-  }
-
-  @After
-  public void cleanup() {
-  }
-
-  /**
-   * test the local job submission options of
-   * -jt local -libjars
-   * @throws IOException
-   */
-  @Test
-  public void testLocalJobLibjarsOption() throws IOException {
-    Path jarPath = makeJar(new Path(TEST_ROOT_DIR, "test.jar"));
-
-    Configuration conf = new Configuration();
-    conf.set(FileSystem.FS_DEFAULT_NAME_KEY, "hdfs://localhost:9000");
-    conf.set(MRConfig.FRAMEWORK_NAME, "local");
-    final String[] args = {
-        "-jt" , "local", "-libjars", jarPath.toString(),
-        "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"
-    };
-    int res = -1;
-    try {
-      res = ToolRunner.run(conf, new SleepJob(), args);
-    } catch (Exception e) {
-      System.out.println("Job failed with " + e.getLocalizedMessage());
-      e.printStackTrace(System.out);
-      fail("Job failed");
+    @Before
+    public void configure() throws Exception {
     }
-    assertEquals("dist job res is not 0:", 0, res);
-  }
 
-  private Path makeJar(Path p) throws IOException {
-    FileOutputStream fos = new FileOutputStream(new File(p.toString()));
-    JarOutputStream jos = new JarOutputStream(fos);
-    ZipEntry ze = new ZipEntry("test.jar.inside");
-    jos.putNextEntry(ze);
-    jos.write(("inside the jar!").getBytes());
-    jos.closeEntry();
-    jos.close();
-    return p;
-  }
+    @After
+    public void cleanup() {
+    }
+
+    /**
+     * test the local job submission options of
+     * -jt local -libjars
+     * @throws IOException
+     */
+    @Test
+    public void testLocalJobLibjarsOption() throws IOException {
+        Path jarPath = makeJar(new Path(TEST_ROOT_DIR, "test.jar"));
+
+        Configuration conf = new Configuration();
+        conf.set(FileSystem.FS_DEFAULT_NAME_KEY, "hdfs://localhost:9000");
+        conf.set(MRConfig.FRAMEWORK_NAME, "local");
+        final String[] args = {
+            "-jt", "local", "-libjars", jarPath.toString(),
+            "-m", "1", "-r", "1", "-mt", "1", "-rt", "1"
+        };
+        int res = -1;
+        try {
+            res = ToolRunner.run(conf, new SleepJob(), args);
+        } catch (Exception e) {
+            System.out.println("Job failed with " + e.getLocalizedMessage());
+            e.printStackTrace(System.out);
+            fail("Job failed");
+        }
+        assertEquals("dist job res is not 0:", 0, res);
+    }
+
+    private Path makeJar(Path p) throws IOException {
+        FileOutputStream fos = new FileOutputStream(new File(p.toString()));
+        JarOutputStream jos = new JarOutputStream(fos);
+        ZipEntry ze = new ZipEntry("test.jar.inside");
+        jos.putNextEntry(ze);
+        jos.write(("inside the jar!").getBytes());
+        jos.closeEntry();
+        jos.close();
+        return p;
+    }
 }

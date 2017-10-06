@@ -37,152 +37,152 @@ import org.apache.hadoop.yarn.server.api.protocolrecords.NodeHeartbeatResponse;
 import org.apache.hadoop.yarn.server.resourcemanager.nodelabels.RMNodeLabelsManager;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode.RMNode;
 import org.apache.hadoop.yarn.server.resourcemanager.rmnode
-        .UpdatedContainerInfo;
+.UpdatedContainerInfo;
 
 @Private
 @Unstable
 public class NodeInfo {
-  private static int NODE_ID = 0;
+    private static int NODE_ID = 0;
 
-  public static NodeId newNodeID(String host, int port) {
-    return NodeId.newInstance(host, port);
-  }
-
-  @Private
-  @Unstable
-  private static class FakeRMNodeImpl implements RMNode {
-    private NodeId nodeId;
-    private String hostName;
-    private String nodeAddr;
-    private String httpAddress;
-    private int cmdPort;
-    private volatile Resource perNode;
-    private String rackName;
-    private String healthReport;
-    private NodeState state;
-    private List<ContainerId> toCleanUpContainers;
-    private List<ApplicationId> toCleanUpApplications;
-    
-    public FakeRMNodeImpl(NodeId nodeId, String nodeAddr, String httpAddress,
-        Resource perNode, String rackName, String healthReport,
-        int cmdPort, String hostName, NodeState state) {
-      this.nodeId = nodeId;
-      this.nodeAddr = nodeAddr;
-      this.httpAddress = httpAddress;
-      this.perNode = perNode;
-      this.rackName = rackName;
-      this.healthReport = healthReport;
-      this.cmdPort = cmdPort;
-      this.hostName = hostName;
-      this.state = state;
-      toCleanUpApplications = new ArrayList<ApplicationId>();
-      toCleanUpContainers = new ArrayList<ContainerId>();
+    public static NodeId newNodeID(String host, int port) {
+        return NodeId.newInstance(host, port);
     }
 
-    public NodeId getNodeID() {
-      return nodeId;
-    }
-    
-    public String getHostName() {
-      return hostName;
-    }
-    
-    public int getCommandPort() {
-      return cmdPort;
-    }
-    
-    public int getHttpPort() {
-      return 0;
-    }
+    @Private
+    @Unstable
+    private static class FakeRMNodeImpl implements RMNode {
+        private NodeId nodeId;
+        private String hostName;
+        private String nodeAddr;
+        private String httpAddress;
+        private int cmdPort;
+        private volatile Resource perNode;
+        private String rackName;
+        private String healthReport;
+        private NodeState state;
+        private List<ContainerId> toCleanUpContainers;
+        private List<ApplicationId> toCleanUpApplications;
 
-    public String getNodeAddress() {
-      return nodeAddr;
-    }
+        public FakeRMNodeImpl(NodeId nodeId, String nodeAddr, String httpAddress,
+                              Resource perNode, String rackName, String healthReport,
+                              int cmdPort, String hostName, NodeState state) {
+            this.nodeId = nodeId;
+            this.nodeAddr = nodeAddr;
+            this.httpAddress = httpAddress;
+            this.perNode = perNode;
+            this.rackName = rackName;
+            this.healthReport = healthReport;
+            this.cmdPort = cmdPort;
+            this.hostName = hostName;
+            this.state = state;
+            toCleanUpApplications = new ArrayList<ApplicationId>();
+            toCleanUpContainers = new ArrayList<ContainerId>();
+        }
 
-    public String getHttpAddress() {
-      return httpAddress;
-    }
+        public NodeId getNodeID() {
+            return nodeId;
+        }
 
-    public String getHealthReport() {
-      return healthReport;
-    }
+        public String getHostName() {
+            return hostName;
+        }
 
-    public long getLastHealthReportTime() {
-      return 0; 
-    }
+        public int getCommandPort() {
+            return cmdPort;
+        }
 
-    public Resource getTotalCapability() {
-      return perNode;
-    }
+        public int getHttpPort() {
+            return 0;
+        }
 
-    public String getRackName() {
-      return rackName;
-    }
+        public String getNodeAddress() {
+            return nodeAddr;
+        }
 
-    public Node getNode() {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
+        public String getHttpAddress() {
+            return httpAddress;
+        }
 
-    public NodeState getState() {
-      return state;
-    }
+        public String getHealthReport() {
+            return healthReport;
+        }
 
-    public List<ContainerId> getContainersToCleanUp() {
-      return toCleanUpContainers;
-    }
+        public long getLastHealthReportTime() {
+            return 0;
+        }
 
-    public List<ApplicationId> getAppsToCleanup() {
-      return toCleanUpApplications;
-    }
+        public Resource getTotalCapability() {
+            return perNode;
+        }
 
-    public void updateNodeHeartbeatResponseForCleanup(
+        public String getRackName() {
+            return rackName;
+        }
+
+        public Node getNode() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public NodeState getState() {
+            return state;
+        }
+
+        public List<ContainerId> getContainersToCleanUp() {
+            return toCleanUpContainers;
+        }
+
+        public List<ApplicationId> getAppsToCleanup() {
+            return toCleanUpApplications;
+        }
+
+        public void updateNodeHeartbeatResponseForCleanup(
             NodeHeartbeatResponse response) {
+        }
+
+        public NodeHeartbeatResponse getLastNodeHeartBeatResponse() {
+            return null;
+        }
+
+        public void resetLastNodeHeartBeatResponse() {
+        }
+
+        public List<UpdatedContainerInfo> pullContainerUpdates() {
+            ArrayList<UpdatedContainerInfo> list = new ArrayList<UpdatedContainerInfo>();
+
+            ArrayList<ContainerStatus> list2 = new ArrayList<ContainerStatus>();
+            for(ContainerId cId : this.toCleanUpContainers) {
+                list2.add(ContainerStatus.newInstance(cId, ContainerState.RUNNING, "",
+                                                      ContainerExitStatus.SUCCESS));
+            }
+            list.add(new UpdatedContainerInfo(new ArrayList<ContainerStatus>(),
+                                              list2));
+            return list;
+        }
+
+        @Override
+        public String getNodeManagerVersion() {
+            return null;
+        }
+
+        @Override
+        public Set<String> getNodeLabels() {
+            return RMNodeLabelsManager.EMPTY_STRING_SET;
+        }
     }
 
-    public NodeHeartbeatResponse getLastNodeHeartBeatResponse() {
-      return null;
+    public static RMNode newNodeInfo(String rackName, String hostName,
+                                     final Resource resource, int port) {
+        final NodeId nodeId = newNodeID(hostName, port);
+        final String nodeAddr = hostName + ":" + port;
+        final String httpAddress = hostName;
+
+        return new FakeRMNodeImpl(nodeId, nodeAddr, httpAddress,
+                                  resource, rackName, "Me good",
+                                  port, hostName, null);
     }
 
-    public void resetLastNodeHeartBeatResponse() {
+    public static RMNode newNodeInfo(String rackName, String hostName,
+                                     final Resource resource) {
+        return newNodeInfo(rackName, hostName, resource, NODE_ID++);
     }
-
-    public List<UpdatedContainerInfo> pullContainerUpdates() {
-      ArrayList<UpdatedContainerInfo> list = new ArrayList<UpdatedContainerInfo>();
-      
-      ArrayList<ContainerStatus> list2 = new ArrayList<ContainerStatus>();
-      for(ContainerId cId : this.toCleanUpContainers) {
-        list2.add(ContainerStatus.newInstance(cId, ContainerState.RUNNING, "", 
-          ContainerExitStatus.SUCCESS));
-      }
-      list.add(new UpdatedContainerInfo(new ArrayList<ContainerStatus>(), 
-        list2));
-      return list;
-    }
-
-    @Override
-    public String getNodeManagerVersion() {
-      return null;
-    }
-
-    @Override
-    public Set<String> getNodeLabels() {
-      return RMNodeLabelsManager.EMPTY_STRING_SET;
-    }
-  }
-
-  public static RMNode newNodeInfo(String rackName, String hostName,
-                              final Resource resource, int port) {
-    final NodeId nodeId = newNodeID(hostName, port);
-    final String nodeAddr = hostName + ":" + port;
-    final String httpAddress = hostName;
-    
-    return new FakeRMNodeImpl(nodeId, nodeAddr, httpAddress,
-        resource, rackName, "Me good",
-        port, hostName, null);
-  }
-  
-  public static RMNode newNodeInfo(String rackName, String hostName,
-                              final Resource resource) {
-    return newNodeInfo(rackName, hostName, resource, NODE_ID++);
-  }
 }

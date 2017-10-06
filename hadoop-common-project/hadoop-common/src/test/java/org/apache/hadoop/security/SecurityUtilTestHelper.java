@@ -5,9 +5,9 @@
  * licenses this file to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -19,27 +19,27 @@ package org.apache.hadoop.security;
 
 /** helper utils for tests */
 public class SecurityUtilTestHelper {
-  
-  /**
-   * Allow tests to change the resolver used for tokens
-   * @param flag boolean for whether token services use ips or hosts
-   */
-  public static void setTokenServiceUseIp(boolean flag) {
-    SecurityUtil.setTokenServiceUseIp(flag);
-  }
 
-  /**
-   * Return true if externalKdc=true and the location of the krb5.conf
-   * file has been specified, and false otherwise.
-   */
-  public static boolean isExternalKdcRunning() {
-    String externalKdc = System.getProperty("externalKdc");
-    String krb5Conf = System.getProperty("java.security.krb5.conf");
-    if(externalKdc == null || !externalKdc.equals("true") ||
-       krb5Conf == null) {
-      return false;
+    /**
+     * Allow tests to change the resolver used for tokens
+     * @param flag boolean for whether token services use ips or hosts
+     */
+    public static void setTokenServiceUseIp(boolean flag) {
+        SecurityUtil.setTokenServiceUseIp(flag);
     }
-    return true;
-  }
+
+    /**
+     * Return true if externalKdc=true and the location of the krb5.conf
+     * file has been specified, and false otherwise.
+     */
+    public static boolean isExternalKdcRunning() {
+        String externalKdc = System.getProperty("externalKdc");
+        String krb5Conf = System.getProperty("java.security.krb5.conf");
+        if(externalKdc == null || !externalKdc.equals("true") ||
+           krb5Conf == null) {
+            return false;
+        }
+        return true;
+    }
 
 }

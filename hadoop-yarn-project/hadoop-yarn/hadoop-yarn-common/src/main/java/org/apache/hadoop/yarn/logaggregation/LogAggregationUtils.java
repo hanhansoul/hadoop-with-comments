@@ -30,89 +30,89 @@ import com.google.common.annotations.VisibleForTesting;
 @Private
 public class LogAggregationUtils {
 
-  public static final String TMP_FILE_SUFFIX = ".tmp";
+    public static final String TMP_FILE_SUFFIX = ".tmp";
 
-  /**
-   * Constructs the full filename for an application's log file per node.
-   * @param remoteRootLogDir
-   * @param appId
-   * @param user
-   * @param nodeId
-   * @param suffix
-   * @return the remote log file.
-   */
-  public static Path getRemoteNodeLogFileForApp(Path remoteRootLogDir,
-      ApplicationId appId, String user, NodeId nodeId, String suffix) {
-    return new Path(getRemoteAppLogDir(remoteRootLogDir, appId, user, suffix),
-        getNodeString(nodeId));
-  }
-
-  /**
-   * Gets the remote app log dir.
-   * @param remoteRootLogDir
-   * @param appId
-   * @param user
-   * @param suffix
-   * @return the remote application specific log dir.
-   */
-  public static Path getRemoteAppLogDir(Path remoteRootLogDir,
-      ApplicationId appId, String user, String suffix) {
-    return new Path(getRemoteLogSuffixedDir(remoteRootLogDir, user, suffix),
-        appId.toString());
-  }
-
-  /**
-   * Gets the remote suffixed log dir for the user.
-   * @param remoteRootLogDir
-   * @param user
-   * @param suffix
-   * @return the remote suffixed log dir.
-   */
-  public static Path getRemoteLogSuffixedDir(Path remoteRootLogDir,
-      String user, String suffix) {
-    if (suffix == null || suffix.isEmpty()) {
-      return getRemoteLogUserDir(remoteRootLogDir, user);
+    /**
+     * Constructs the full filename for an application's log file per node.
+     * @param remoteRootLogDir
+     * @param appId
+     * @param user
+     * @param nodeId
+     * @param suffix
+     * @return the remote log file.
+     */
+    public static Path getRemoteNodeLogFileForApp(Path remoteRootLogDir,
+            ApplicationId appId, String user, NodeId nodeId, String suffix) {
+        return new Path(getRemoteAppLogDir(remoteRootLogDir, appId, user, suffix),
+                        getNodeString(nodeId));
     }
-    // TODO Maybe support suffix to be more than a single file.
-    return new Path(getRemoteLogUserDir(remoteRootLogDir, user), suffix);
-  }
 
-  // TODO Add a utility method to list available log files. Ignore the
-  // temporary ones.
-  
-  /**
-   * Gets the remote log user dir.
-   * @param remoteRootLogDir
-   * @param user
-   * @return the remote per user log dir.
-   */
-  public static Path getRemoteLogUserDir(Path remoteRootLogDir, String user) {
-    return new Path(remoteRootLogDir, user);
-  }
+    /**
+     * Gets the remote app log dir.
+     * @param remoteRootLogDir
+     * @param appId
+     * @param user
+     * @param suffix
+     * @return the remote application specific log dir.
+     */
+    public static Path getRemoteAppLogDir(Path remoteRootLogDir,
+                                          ApplicationId appId, String user, String suffix) {
+        return new Path(getRemoteLogSuffixedDir(remoteRootLogDir, user, suffix),
+                        appId.toString());
+    }
 
-  /**
-   * Returns the suffix component of the log dir.
-   * @param conf
-   * @return the suffix which will be appended to the user log dir.
-   */
-  public static String getRemoteNodeLogDirSuffix(Configuration conf) {
-    return conf.get(YarnConfiguration.NM_REMOTE_APP_LOG_DIR_SUFFIX,
-        YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR_SUFFIX);
-  }
+    /**
+     * Gets the remote suffixed log dir for the user.
+     * @param remoteRootLogDir
+     * @param user
+     * @param suffix
+     * @return the remote suffixed log dir.
+     */
+    public static Path getRemoteLogSuffixedDir(Path remoteRootLogDir,
+            String user, String suffix) {
+        if (suffix == null || suffix.isEmpty()) {
+            return getRemoteLogUserDir(remoteRootLogDir, user);
+        }
+        // TODO Maybe support suffix to be more than a single file.
+        return new Path(getRemoteLogUserDir(remoteRootLogDir, user), suffix);
+    }
 
-  
-  /**
-   * Converts a nodeId to a form used in the app log file name.
-   * @param nodeId
-   * @return the node string to be used to construct the file name.
-   */
-  @VisibleForTesting
-  public static String getNodeString(NodeId nodeId) {
-    return nodeId.toString().replace(":", "_");
-  }
+    // TODO Add a utility method to list available log files. Ignore the
+    // temporary ones.
 
-  @VisibleForTesting
-  public static String getNodeString(String nodeId) {
-    return nodeId.toString().replace(":", "_");
-  }
+    /**
+     * Gets the remote log user dir.
+     * @param remoteRootLogDir
+     * @param user
+     * @return the remote per user log dir.
+     */
+    public static Path getRemoteLogUserDir(Path remoteRootLogDir, String user) {
+        return new Path(remoteRootLogDir, user);
+    }
+
+    /**
+     * Returns the suffix component of the log dir.
+     * @param conf
+     * @return the suffix which will be appended to the user log dir.
+     */
+    public static String getRemoteNodeLogDirSuffix(Configuration conf) {
+        return conf.get(YarnConfiguration.NM_REMOTE_APP_LOG_DIR_SUFFIX,
+                        YarnConfiguration.DEFAULT_NM_REMOTE_APP_LOG_DIR_SUFFIX);
+    }
+
+
+    /**
+     * Converts a nodeId to a form used in the app log file name.
+     * @param nodeId
+     * @return the node string to be used to construct the file name.
+     */
+    @VisibleForTesting
+    public static String getNodeString(NodeId nodeId) {
+        return nodeId.toString().replace(":", "_");
+    }
+
+    @VisibleForTesting
+    public static String getNodeString(String nodeId) {
+        return nodeId.toString().replace(":", "_");
+    }
 }

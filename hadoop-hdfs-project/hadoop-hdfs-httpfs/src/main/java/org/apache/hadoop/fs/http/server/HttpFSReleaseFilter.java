@@ -29,15 +29,15 @@ import org.apache.hadoop.lib.servlet.FileSystemReleaseFilter;
 @InterfaceAudience.Private
 public class HttpFSReleaseFilter extends FileSystemReleaseFilter {
 
-  /**
-   * Returns the {@link FileSystemAccess} service to return the FileSystemAccess filesystem
-   * instance to.
-   *
-   * @return the FileSystemAccess service.
-   */
-  @Override
-  protected FileSystemAccess getFileSystemAccess() {
-    return HttpFSServerWebApp.get().get(FileSystemAccess.class);
-  }
+    /**
+     * Returns the {@link FileSystemAccess} service to return the FileSystemAccess filesystem
+     * instance to.
+     *
+     * @return the FileSystemAccess service.
+     */
+    @Override
+    protected FileSystemAccess getFileSystemAccess() {
+        return HttpFSServerWebApp.get().get(FileSystemAccess.class);
+    }
 
 }

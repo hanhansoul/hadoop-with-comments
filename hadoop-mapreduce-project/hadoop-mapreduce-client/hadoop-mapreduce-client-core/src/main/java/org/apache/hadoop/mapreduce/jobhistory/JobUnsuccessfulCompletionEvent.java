@@ -34,87 +34,99 @@ import java.util.Collections;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 public class JobUnsuccessfulCompletionEvent implements HistoryEvent {
-  private static final String NODIAGS = "";
-  private static final Iterable<String> NODIAGS_LIST =
-      Collections.singletonList(NODIAGS);
+    private static final String NODIAGS = "";
+    private static final Iterable<String> NODIAGS_LIST =
+        Collections.singletonList(NODIAGS);
 
-  private JobUnsuccessfulCompletion datum
-    = new JobUnsuccessfulCompletion();
+    private JobUnsuccessfulCompletion datum
+        = new JobUnsuccessfulCompletion();
 
-  /**
-   * Create an event to record unsuccessful completion (killed/failed) of jobs
-   * @param id Job ID
-   * @param finishTime Finish time of the job
-   * @param finishedMaps Number of finished maps
-   * @param finishedReduces Number of finished reduces
-   * @param status Status of the job
-   */
-  public JobUnsuccessfulCompletionEvent(JobID id, long finishTime,
-      int finishedMaps,
-      int finishedReduces, String status) {
-    this(id, finishTime, finishedMaps, finishedReduces, status, NODIAGS_LIST);
-  }
-
-  /**
-   * Create an event to record unsuccessful completion (killed/failed) of jobs
-   * @param id Job ID
-   * @param finishTime Finish time of the job
-   * @param finishedMaps Number of finished maps
-   * @param finishedReduces Number of finished reduces
-   * @param status Status of the job
-   * @param diagnostics job runtime diagnostics
-   */
-  public JobUnsuccessfulCompletionEvent(JobID id, long finishTime,
-      int finishedMaps,
-      int finishedReduces,
-      String status,
-      Iterable<String> diagnostics) {
-    datum.setJobid(new Utf8(id.toString()));
-    datum.setFinishTime(finishTime);
-    datum.setFinishedMaps(finishedMaps);
-    datum.setFinishedReduces(finishedReduces);
-    datum.setJobStatus(new Utf8(status));
-    if (diagnostics == null) {
-      diagnostics = NODIAGS_LIST;
+    /**
+     * Create an event to record unsuccessful completion (killed/failed) of jobs
+     * @param id Job ID
+     * @param finishTime Finish time of the job
+     * @param finishedMaps Number of finished maps
+     * @param finishedReduces Number of finished reduces
+     * @param status Status of the job
+     */
+    public JobUnsuccessfulCompletionEvent(JobID id, long finishTime,
+                                          int finishedMaps,
+                                          int finishedReduces, String status) {
+        this(id, finishTime, finishedMaps, finishedReduces, status, NODIAGS_LIST);
     }
-    datum.setDiagnostics(new Utf8(Joiner.on('\n').skipNulls()
-        .join(diagnostics)));
-  }
 
-  JobUnsuccessfulCompletionEvent() {}
+    /**
+     * Create an event to record unsuccessful completion (killed/failed) of jobs
+     * @param id Job ID
+     * @param finishTime Finish time of the job
+     * @param finishedMaps Number of finished maps
+     * @param finishedReduces Number of finished reduces
+     * @param status Status of the job
+     * @param diagnostics job runtime diagnostics
+     */
+    public JobUnsuccessfulCompletionEvent(JobID id, long finishTime,
+                                          int finishedMaps,
+                                          int finishedReduces,
+                                          String status,
+                                          Iterable<String> diagnostics) {
+        datum.setJobid(new Utf8(id.toString()));
+        datum.setFinishTime(finishTime);
+        datum.setFinishedMaps(finishedMaps);
+        datum.setFinishedReduces(finishedReduces);
+        datum.setJobStatus(new Utf8(status));
+        if (diagnostics == null) {
+            diagnostics = NODIAGS_LIST;
+        }
+        datum.setDiagnostics(new Utf8(Joiner.on('\n').skipNulls()
+                                      .join(diagnostics)));
+    }
 
-  public Object getDatum() { return datum; }
-  public void setDatum(Object datum) {
-    this.datum = (JobUnsuccessfulCompletion)datum;
-  }
+    JobUnsuccessfulCompletionEvent() {}
 
-  /** Get the Job ID */
-  public JobID getJobId() { return JobID.forName(datum.jobid.toString()); }
-  /** Get the job finish time */
-  public long getFinishTime() { return datum.getFinishTime(); }
-  /** Get the number of finished maps */
-  public int getFinishedMaps() { return datum.getFinishedMaps(); }
-  /** Get the number of finished reduces */
-  public int getFinishedReduces() { return datum.getFinishedReduces(); }
-  /** Get the status */
-  public String getStatus() { return datum.getJobStatus().toString(); }
-  /** Get the event type */
-  public EventType getEventType() {
-    if ("FAILED".equals(getStatus())) {
-      return EventType.JOB_FAILED;
-    } else if ("ERROR".equals(getStatus())) {
-      return EventType.JOB_ERROR;
-    } else
-      return EventType.JOB_KILLED;
-  }
+    public Object getDatum() {
+        return datum;
+    }
+    public void setDatum(Object datum) {
+        this.datum = (JobUnsuccessfulCompletion)datum;
+    }
 
-  /**
-   * Retrieves diagnostics information preserved in the history file
-   *
-   * @return diagnostics as of the time of job termination
-   */
-  public String getDiagnostics() {
-    final CharSequence diagnostics = datum.getDiagnostics();
-    return diagnostics == null ? NODIAGS : diagnostics.toString();
-  }
+    /** Get the Job ID */
+    public JobID getJobId() {
+        return JobID.forName(datum.jobid.toString());
+    }
+    /** Get the job finish time */
+    public long getFinishTime() {
+        return datum.getFinishTime();
+    }
+    /** Get the number of finished maps */
+    public int getFinishedMaps() {
+        return datum.getFinishedMaps();
+    }
+    /** Get the number of finished reduces */
+    public int getFinishedReduces() {
+        return datum.getFinishedReduces();
+    }
+    /** Get the status */
+    public String getStatus() {
+        return datum.getJobStatus().toString();
+    }
+    /** Get the event type */
+    public EventType getEventType() {
+        if ("FAILED".equals(getStatus())) {
+            return EventType.JOB_FAILED;
+        } else if ("ERROR".equals(getStatus())) {
+            return EventType.JOB_ERROR;
+        } else
+            return EventType.JOB_KILLED;
+    }
+
+    /**
+     * Retrieves diagnostics information preserved in the history file
+     *
+     * @return diagnostics as of the time of job termination
+     */
+    public String getDiagnostics() {
+        final CharSequence diagnostics = datum.getDiagnostics();
+        return diagnostics == null ? NODIAGS : diagnostics.toString();
+    }
 }

@@ -21,14 +21,14 @@ package org.apache.hadoop.yarn.server.webproxy.amfilter;
 import java.security.Principal;
 
 public class AmIpPrincipal implements Principal {
-  private final String name;
-  
-  public AmIpPrincipal(String name) {
-    this.name = name;
-  }
-  
-  @Override
-  public String getName() {
-    return name;
-  }
+    private final String name;
+
+    public AmIpPrincipal(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
 }

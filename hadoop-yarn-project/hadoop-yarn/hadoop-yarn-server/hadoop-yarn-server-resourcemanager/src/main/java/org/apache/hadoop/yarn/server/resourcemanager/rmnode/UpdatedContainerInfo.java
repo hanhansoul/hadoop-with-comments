@@ -23,23 +23,23 @@ import java.util.List;
 import org.apache.hadoop.yarn.api.records.ContainerStatus;
 
 public class UpdatedContainerInfo {
-  private List<ContainerStatus> newlyLaunchedContainers;
-  private List<ContainerStatus> completedContainers;
-  
-  public UpdatedContainerInfo() {
-  }
+    private List<ContainerStatus> newlyLaunchedContainers;
+    private List<ContainerStatus> completedContainers;
 
-  public UpdatedContainerInfo(List<ContainerStatus> newlyLaunchedContainers
-      , List<ContainerStatus> completedContainers) {
-    this.newlyLaunchedContainers = newlyLaunchedContainers;
-    this.completedContainers = completedContainers;
-  } 
+    public UpdatedContainerInfo() {
+    }
 
-  public List<ContainerStatus> getNewlyLaunchedContainers() {
-    return this.newlyLaunchedContainers;
-  }
+    public UpdatedContainerInfo(List<ContainerStatus> newlyLaunchedContainers
+                                , List<ContainerStatus> completedContainers) {
+        this.newlyLaunchedContainers = newlyLaunchedContainers;
+        this.completedContainers = completedContainers;
+    }
 
-  public List<ContainerStatus> getCompletedContainers() {
-    return this.completedContainers;
-  }
+    public List<ContainerStatus> getNewlyLaunchedContainers() {
+        return this.newlyLaunchedContainers;
+    }
+
+    public List<ContainerStatus> getCompletedContainers() {
+        return this.completedContainers;
+    }
 }

@@ -54,110 +54,110 @@ import java.util.List;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class RegistryOperationsService extends CuratorService
-  implements RegistryOperations {
+    implements RegistryOperations {
 
-  private static final Logger LOG =
-      LoggerFactory.getLogger(RegistryOperationsService.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(RegistryOperationsService.class);
 
-  private final RegistryUtils.ServiceRecordMarshal serviceRecordMarshal
-      = new RegistryUtils.ServiceRecordMarshal();
+    private final RegistryUtils.ServiceRecordMarshal serviceRecordMarshal
+        = new RegistryUtils.ServiceRecordMarshal();
 
-  public RegistryOperationsService(String name) {
-    this(name, null);
-  }
-
-  public RegistryOperationsService() {
-    this("RegistryOperationsService");
-  }
-
-  public RegistryOperationsService(String name,
-      RegistryBindingSource bindingSource) {
-    super(name, bindingSource);
-  }
-
-  /**
-   * Get the aggregate set of ACLs the client should use
-   * to create directories
-   * @return the ACL list
-   */
-  public List<ACL> getClientAcls() {
-    return getRegistrySecurity().getClientACLs();
-  }
-
-  /**
-   * Validate a path
-   * @param path path to validate
-   * @throws InvalidPathnameException if a path is considered invalid
-   */
-  protected void validatePath(String path) throws InvalidPathnameException {
-    // currently no checks are performed
-  }
-
-  @Override
-  public boolean mknode(String path, boolean createParents) throws IOException {
-    validatePath(path);
-    return zkMkPath(path, CreateMode.PERSISTENT, createParents, getClientAcls());
-  }
-
-  @Override
-  public void bind(String path,
-      ServiceRecord record,
-      int flags) throws IOException {
-    Preconditions.checkArgument(record != null, "null record");
-    validatePath(path);
-    // validate the record before putting it
-    RegistryTypeUtils.validateServiceRecord(path, record);
-    LOG.info("Bound at {} : {}", path, record);
-
-    CreateMode mode = CreateMode.PERSISTENT;
-    byte[] bytes = serviceRecordMarshal.toBytes(record);
-    zkSet(path, mode, bytes, getClientAcls(),
-        ((flags & BindFlags.OVERWRITE) != 0));
-  }
-
-  @Override
-  public ServiceRecord resolve(String path) throws IOException {
-    byte[] bytes = zkRead(path);
-
-    ServiceRecord record = serviceRecordMarshal.fromBytes(path,
-        bytes, ServiceRecord.RECORD_TYPE);
-    RegistryTypeUtils.validateServiceRecord(path, record);
-    return record;
-  }
-
-  @Override
-  public boolean exists(String path) throws IOException {
-    validatePath(path);
-    return zkPathExists(path);
-  }
-
-  @Override
-  public RegistryPathStatus stat(String path) throws IOException {
-    validatePath(path);
-    Stat stat = zkStat(path);
-
-    String name = RegistryPathUtils.lastPathEntry(path);
-    RegistryPathStatus status = new RegistryPathStatus(
-        name,
-        stat.getCtime(),
-        stat.getDataLength(),
-        stat.getNumChildren());
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Stat {} => {}", path, status);
+    public RegistryOperationsService(String name) {
+        this(name, null);
     }
-    return status;
-  }
 
-  @Override
-  public List<String> list(String path) throws IOException {
-    validatePath(path);
-    return zkList(path);
-  }
+    public RegistryOperationsService() {
+        this("RegistryOperationsService");
+    }
 
-  @Override
-  public void delete(String path, boolean recursive) throws IOException {
-    validatePath(path);
-    zkDelete(path, recursive, null);
-  }
+    public RegistryOperationsService(String name,
+                                     RegistryBindingSource bindingSource) {
+        super(name, bindingSource);
+    }
+
+    /**
+     * Get the aggregate set of ACLs the client should use
+     * to create directories
+     * @return the ACL list
+     */
+    public List<ACL> getClientAcls() {
+        return getRegistrySecurity().getClientACLs();
+    }
+
+    /**
+     * Validate a path
+     * @param path path to validate
+     * @throws InvalidPathnameException if a path is considered invalid
+     */
+    protected void validatePath(String path) throws InvalidPathnameException {
+        // currently no checks are performed
+    }
+
+    @Override
+    public boolean mknode(String path, boolean createParents) throws IOException {
+        validatePath(path);
+        return zkMkPath(path, CreateMode.PERSISTENT, createParents, getClientAcls());
+    }
+
+    @Override
+    public void bind(String path,
+                     ServiceRecord record,
+                     int flags) throws IOException {
+        Preconditions.checkArgument(record != null, "null record");
+        validatePath(path);
+        // validate the record before putting it
+        RegistryTypeUtils.validateServiceRecord(path, record);
+        LOG.info("Bound at {} : {}", path, record);
+
+        CreateMode mode = CreateMode.PERSISTENT;
+        byte[] bytes = serviceRecordMarshal.toBytes(record);
+        zkSet(path, mode, bytes, getClientAcls(),
+              ((flags & BindFlags.OVERWRITE) != 0));
+    }
+
+    @Override
+    public ServiceRecord resolve(String path) throws IOException {
+        byte[] bytes = zkRead(path);
+
+        ServiceRecord record = serviceRecordMarshal.fromBytes(path,
+                               bytes, ServiceRecord.RECORD_TYPE);
+        RegistryTypeUtils.validateServiceRecord(path, record);
+        return record;
+    }
+
+    @Override
+    public boolean exists(String path) throws IOException {
+        validatePath(path);
+        return zkPathExists(path);
+    }
+
+    @Override
+    public RegistryPathStatus stat(String path) throws IOException {
+        validatePath(path);
+        Stat stat = zkStat(path);
+
+        String name = RegistryPathUtils.lastPathEntry(path);
+        RegistryPathStatus status = new RegistryPathStatus(
+            name,
+            stat.getCtime(),
+            stat.getDataLength(),
+            stat.getNumChildren());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Stat {} => {}", path, status);
+        }
+        return status;
+    }
+
+    @Override
+    public List<String> list(String path) throws IOException {
+        validatePath(path);
+        return zkList(path);
+    }
+
+    @Override
+    public void delete(String path, boolean recursive) throws IOException {
+        validatePath(path);
+        zkDelete(path, recursive, null);
+    }
 
 }

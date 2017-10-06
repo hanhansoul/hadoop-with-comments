@@ -36,72 +36,72 @@ import static org.junit.Assert.*;
  * the DataNode via DataTransferProtocol.
  */
 public class TestWriteBlockGetsBlockLengthHint {
-  static final long DEFAULT_BLOCK_LENGTH = 1024;
-  static final long EXPECTED_BLOCK_LENGTH = DEFAULT_BLOCK_LENGTH * 2;
+    static final long DEFAULT_BLOCK_LENGTH = 1024;
+    static final long EXPECTED_BLOCK_LENGTH = DEFAULT_BLOCK_LENGTH * 2;
 
-  @Test
-  public void blockLengthHintIsPropagated() throws IOException {
-    final String METHOD_NAME = GenericTestUtils.getMethodName();
-    final Path path = new Path("/" + METHOD_NAME + ".dat");
+    @Test
+    public void blockLengthHintIsPropagated() throws IOException {
+        final String METHOD_NAME = GenericTestUtils.getMethodName();
+        final Path path = new Path("/" + METHOD_NAME + ".dat");
 
-    Configuration conf = new HdfsConfiguration();
-    FsDatasetChecker.setFactory(conf);
-    conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, DEFAULT_BLOCK_LENGTH);
-    conf.setInt(DFSConfigKeys.DFS_DATANODE_SCAN_PERIOD_HOURS_KEY, -1);
-    MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
+        Configuration conf = new HdfsConfiguration();
+        FsDatasetChecker.setFactory(conf);
+        conf.setLong(DFSConfigKeys.DFS_BLOCK_SIZE_KEY, DEFAULT_BLOCK_LENGTH);
+        conf.setInt(DFSConfigKeys.DFS_DATANODE_SCAN_PERIOD_HOURS_KEY, -1);
+        MiniDFSCluster cluster = new MiniDFSCluster.Builder(conf).numDataNodes(1).build();
 
-    try {
-      cluster.waitActive();
+        try {
+            cluster.waitActive();
 
-      // FsDatasetChecker#createRbw asserts during block creation if the test
-      // fails.
-      DFSTestUtil.createFile(
-          cluster.getFileSystem(),
-          path,
-          4096,  // Buffer size.
-          EXPECTED_BLOCK_LENGTH,
-          EXPECTED_BLOCK_LENGTH,
-          (short) 1,
-          0x1BAD5EED);
-    } finally {
-      cluster.shutdown();
-    }
-  }
-
-  static class FsDatasetChecker extends SimulatedFSDataset {
-    static class Factory extends FsDatasetSpi.Factory<SimulatedFSDataset> {
-      @Override
-      public SimulatedFSDataset newInstance(DataNode datanode,
-          DataStorage storage, Configuration conf) throws IOException {
-        return new FsDatasetChecker(storage, conf);
-      }
-
-      @Override
-      public boolean isSimulated() {
-        return true;
-      }
+            // FsDatasetChecker#createRbw asserts during block creation if the test
+            // fails.
+            DFSTestUtil.createFile(
+                cluster.getFileSystem(),
+                path,
+                4096,  // Buffer size.
+                EXPECTED_BLOCK_LENGTH,
+                EXPECTED_BLOCK_LENGTH,
+                (short) 1,
+                0x1BAD5EED);
+        } finally {
+            cluster.shutdown();
+        }
     }
 
-    public static void setFactory(Configuration conf) {
-      conf.set(DFSConfigKeys.DFS_DATANODE_FSDATASET_FACTORY_KEY,
-               Factory.class.getName());
-    }
+    static class FsDatasetChecker extends SimulatedFSDataset {
+        static class Factory extends FsDatasetSpi.Factory<SimulatedFSDataset> {
+            @Override
+            public SimulatedFSDataset newInstance(DataNode datanode,
+                                                  DataStorage storage, Configuration conf) throws IOException {
+                return new FsDatasetChecker(storage, conf);
+            }
 
-    public FsDatasetChecker(DataStorage storage, Configuration conf) {
-      super(storage, conf);
-    }
+            @Override
+            public boolean isSimulated() {
+                return true;
+            }
+        }
 
-    /**
-     * Override createRbw to verify that the block length that is passed
-     * is correct. This requires both DFSOutputStream and BlockReceiver to
-     * correctly propagate the hint to FsDatasetSpi.
-     */
-    @Override
-    public synchronized ReplicaInPipelineInterface createRbw(
-        StorageType storageType, ExtendedBlock b, boolean allowLazyPersist)
+        public static void setFactory(Configuration conf) {
+            conf.set(DFSConfigKeys.DFS_DATANODE_FSDATASET_FACTORY_KEY,
+                     Factory.class.getName());
+        }
+
+        public FsDatasetChecker(DataStorage storage, Configuration conf) {
+            super(storage, conf);
+        }
+
+        /**
+         * Override createRbw to verify that the block length that is passed
+         * is correct. This requires both DFSOutputStream and BlockReceiver to
+         * correctly propagate the hint to FsDatasetSpi.
+         */
+        @Override
+        public synchronized ReplicaInPipelineInterface createRbw(
+            StorageType storageType, ExtendedBlock b, boolean allowLazyPersist)
         throws IOException {
-      assertThat(b.getLocalBlock().getNumBytes(), is(EXPECTED_BLOCK_LENGTH));
-      return super.createRbw(storageType, b, allowLazyPersist);
+            assertThat(b.getLocalBlock().getNumBytes(), is(EXPECTED_BLOCK_LENGTH));
+            return super.createRbw(storageType, b, allowLazyPersist);
+        }
     }
-  }
 }

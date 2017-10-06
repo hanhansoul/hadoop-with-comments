@@ -30,46 +30,46 @@ import org.apache.commons.logging.LogFactory;
  */
 @InterfaceAudience.Private
 public class ClientMmap implements Closeable {
-  static final Log LOG = LogFactory.getLog(ClientMmap.class);
-  
-  /**
-   * A reference to the block replica which this mmap relates to.
-   */
-  private ShortCircuitReplica replica;
-  
-  /**
-   * The java ByteBuffer object.
-   */
-  private final MappedByteBuffer map;
+    static final Log LOG = LogFactory.getLog(ClientMmap.class);
 
-  /**
-   * Whether or not this ClientMmap anchors the replica into memory while
-   * it exists.  Closing an anchored ClientMmap unanchors the replica.
-   */
-  private final boolean anchored;
+    /**
+     * A reference to the block replica which this mmap relates to.
+     */
+    private ShortCircuitReplica replica;
 
-  ClientMmap(ShortCircuitReplica replica, MappedByteBuffer map,
-      boolean anchored) {
-    this.replica = replica;
-    this.map = map;
-    this.anchored = anchored;
-  }
+    /**
+     * The java ByteBuffer object.
+     */
+    private final MappedByteBuffer map;
 
-  /**
-   * Close the ClientMmap object.
-   */
-  @Override
-  public void close() {
-    if (replica != null) {
-      if (anchored) {
-        replica.removeNoChecksumAnchor();
-      }
-      replica.unref();
+    /**
+     * Whether or not this ClientMmap anchors the replica into memory while
+     * it exists.  Closing an anchored ClientMmap unanchors the replica.
+     */
+    private final boolean anchored;
+
+    ClientMmap(ShortCircuitReplica replica, MappedByteBuffer map,
+               boolean anchored) {
+        this.replica = replica;
+        this.map = map;
+        this.anchored = anchored;
     }
-    replica = null;
-  }
 
-  public MappedByteBuffer getMappedByteBuffer() {
-    return map;
-  }
+    /**
+     * Close the ClientMmap object.
+     */
+    @Override
+    public void close() {
+        if (replica != null) {
+            if (anchored) {
+                replica.removeNoChecksumAnchor();
+            }
+            replica.unref();
+        }
+        replica = null;
+    }
+
+    public MappedByteBuffer getMappedByteBuffer() {
+        return map;
+    }
 }

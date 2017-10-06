@@ -26,31 +26,31 @@ import java.io.IOException;
 
 public class TestHDFSContractAppend extends AbstractContractAppendTest {
 
-  @BeforeClass
-  public static void createCluster() throws IOException {
-    HDFSContract.createCluster();
-  }
-
-  @AfterClass
-  public static void teardownCluster() throws IOException {
-    HDFSContract.destroyCluster();
-  }
-
-  @Override
-  protected AbstractFSContract createContract(Configuration conf) {
-    return new HDFSContract(conf);
-  }
-
-  @Override
-  public void testRenameFileBeingAppended() throws Throwable {
-    try {
-      super.testRenameFileBeingAppended();
-      fail("Expected a FileNotFoundException");
-    } catch (FileNotFoundException e) {
-      // downgrade
-      ContractTestUtils.downgrade("Renaming an open file" +
-                                  "still creates the old path", e);
-
+    @BeforeClass
+    public static void createCluster() throws IOException {
+        HDFSContract.createCluster();
     }
-  }
+
+    @AfterClass
+    public static void teardownCluster() throws IOException {
+        HDFSContract.destroyCluster();
+    }
+
+    @Override
+    protected AbstractFSContract createContract(Configuration conf) {
+        return new HDFSContract(conf);
+    }
+
+    @Override
+    public void testRenameFileBeingAppended() throws Throwable {
+        try {
+            super.testRenameFileBeingAppended();
+            fail("Expected a FileNotFoundException");
+        } catch (FileNotFoundException e) {
+            // downgrade
+            ContractTestUtils.downgrade("Renaming an open file" +
+                                        "still creates the old path", e);
+
+        }
+    }
 }

@@ -31,17 +31,17 @@ import org.apache.hadoop.classification.InterfaceAudience;
 @InterfaceAudience.LimitedPrivate({"YARN", "MapReduce"})
 public class NotFoundException extends WebApplicationException {
 
-  private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-  public NotFoundException() {
-    super(Status.NOT_FOUND);
-  }
+    public NotFoundException() {
+        super(Status.NOT_FOUND);
+    }
 
-  public NotFoundException(java.lang.Throwable cause) {
-    super(cause, Status.NOT_FOUND);
-  }
+    public NotFoundException(java.lang.Throwable cause) {
+        super(cause, Status.NOT_FOUND);
+    }
 
-  public NotFoundException(String msg) {
-    super(new Exception(msg), Status.NOT_FOUND);
-  }
+    public NotFoundException(String msg) {
+        super(new Exception(msg), Status.NOT_FOUND);
+    }
 }

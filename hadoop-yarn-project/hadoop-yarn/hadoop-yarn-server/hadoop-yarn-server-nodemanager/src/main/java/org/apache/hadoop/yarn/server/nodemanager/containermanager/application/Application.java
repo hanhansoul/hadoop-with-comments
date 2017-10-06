@@ -27,12 +27,12 @@ import org.apache.hadoop.yarn.server.nodemanager.containermanager.container.Cont
 
 public interface Application extends EventHandler<ApplicationEvent> {
 
-  String getUser();
+    String getUser();
 
-  Map<ContainerId, Container> getContainers();
+    Map<ContainerId, Container> getContainers();
 
-  ApplicationId getAppId();
+    ApplicationId getAppId();
 
-  ApplicationState getApplicationState();
+    ApplicationState getApplicationState();
 
 }

@@ -37,56 +37,56 @@ import org.apache.hadoop.yarn.util.Clock;
 @SuppressWarnings({ "rawtypes" })
 public class MapTaskImpl extends TaskImpl {
 
-  private final TaskSplitMetaInfo taskSplitMetaInfo;
+    private final TaskSplitMetaInfo taskSplitMetaInfo;
 
-  public MapTaskImpl(JobId jobId, int partition, EventHandler eventHandler,
-      Path remoteJobConfFile, JobConf conf,
-      TaskSplitMetaInfo taskSplitMetaInfo,
-      TaskAttemptListener taskAttemptListener,
-      Token<JobTokenIdentifier> jobToken,
-      Credentials credentials, Clock clock,
-      int appAttemptId, MRAppMetrics metrics, AppContext appContext) {
-    super(jobId, TaskType.MAP, partition, eventHandler, remoteJobConfFile,
-        conf, taskAttemptListener, jobToken, credentials, clock,
-        appAttemptId, metrics, appContext);
-    this.taskSplitMetaInfo = taskSplitMetaInfo;
-  }
-
-  @Override
-  protected int getMaxAttempts() {
-    return conf.getInt(MRJobConfig.MAP_MAX_ATTEMPTS, 4);
-  }
-
-  @Override
-  protected TaskAttemptImpl createAttempt() {
-    return new MapTaskAttemptImpl(getID(), nextAttemptNumber,
-        eventHandler, jobFile,
-        partition, taskSplitMetaInfo, conf, taskAttemptListener,
-        jobToken, credentials, clock, appContext);
-  }
-
-  @Override
-  public TaskType getType() {
-    return TaskType.MAP;
-  }
-
-  protected TaskSplitMetaInfo getTaskSplitMetaInfo() {
-    return this.taskSplitMetaInfo;
-  }
-
-  /**
-   * @return a String formatted as a comma-separated list of splits.
-   */
-  @Override
-  protected String getSplitsAsString() {
-    String[] splits = getTaskSplitMetaInfo().getLocations();
-    if (splits == null || splits.length == 0)
-    return "";
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < splits.length; i++) {
-      if (i != 0) sb.append(",");
-      sb.append(splits[i]);
+    public MapTaskImpl(JobId jobId, int partition, EventHandler eventHandler,
+                       Path remoteJobConfFile, JobConf conf,
+                       TaskSplitMetaInfo taskSplitMetaInfo,
+                       TaskAttemptListener taskAttemptListener,
+                       Token<JobTokenIdentifier> jobToken,
+                       Credentials credentials, Clock clock,
+                       int appAttemptId, MRAppMetrics metrics, AppContext appContext) {
+        super(jobId, TaskType.MAP, partition, eventHandler, remoteJobConfFile,
+              conf, taskAttemptListener, jobToken, credentials, clock,
+              appAttemptId, metrics, appContext);
+        this.taskSplitMetaInfo = taskSplitMetaInfo;
     }
-    return sb.toString();
-  }
+
+    @Override
+    protected int getMaxAttempts() {
+        return conf.getInt(MRJobConfig.MAP_MAX_ATTEMPTS, 4);
+    }
+
+    @Override
+    protected TaskAttemptImpl createAttempt() {
+        return new MapTaskAttemptImpl(getID(), nextAttemptNumber,
+                                      eventHandler, jobFile,
+                                      partition, taskSplitMetaInfo, conf, taskAttemptListener,
+                                      jobToken, credentials, clock, appContext);
+    }
+
+    @Override
+    public TaskType getType() {
+        return TaskType.MAP;
+    }
+
+    protected TaskSplitMetaInfo getTaskSplitMetaInfo() {
+        return this.taskSplitMetaInfo;
+    }
+
+    /**
+     * @return a String formatted as a comma-separated list of splits.
+     */
+    @Override
+    protected String getSplitsAsString() {
+        String[] splits = getTaskSplitMetaInfo().getLocations();
+        if (splits == null || splits.length == 0)
+            return "";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < splits.length; i++) {
+            if (i != 0) sb.append(",");
+            sb.append(splits[i]);
+        }
+        return sb.toString();
+    }
 }
