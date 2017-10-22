@@ -147,7 +147,8 @@ public void run() {
         int numReduceTasks = job.getNumReduceTasks();
         outputCommitter.setupJob(jContext);
         status.setSetupProgress(1.0f);
-
+		
+		// 
         Map<TaskAttemptID, MapOutputFile> mapOutputFiles =
             Collections.synchronizedMap(new HashMap<TaskAttemptID, MapOutputFile>());
 
@@ -218,7 +219,96 @@ public void run() {
 }
 ```
 
+### Job.getMapTaskRunnables()函数
+
+从TaskSplitMetaInfo[]数组中获得所有的map task的MapTaskRunnable对象，并将map task添加到List中返回。
+
+```
+protected List<RunnableWithThrowable> getMapTaskRunnables(
+    TaskSplitMetaInfo [] taskInfo, JobID jobId,
+    Map<TaskAttemptID, MapOutputFile> mapOutputFiles) {
+
+    int numTasks = 0;
+    ArrayList<RunnableWithThrowable> list = new ArrayList<RunnableWithThrowable>();
+    for (TaskSplitMetaInfo task : taskInfo) {
+        list.add(new MapTaskRunnable(task, numTasks++, jobId, mapOutputFiles));
+    }
+
+    return list;
+}
+```
+### Job.getReduceTaskRunnable()函数
+
+构造numReduceTasks个reduce task的ReduceTaskRunnable对象。
+
+```
+protected List<RunnableWithThrowable> getReduceTaskRunnables(
+    JobID jobId, Map<TaskAttemptID, MapOutputFile> mapOutputFiles) {
+
+    int taskId = 0;
+    ArrayList<RunnableWithThrowable> list =
+        new ArrayList<RunnableWithThrowable>();
+    for (int i = 0; i < this.numReduceTasks; i++) {
+        list.add(new ReduceTaskRunnable(taskId++, jobId, mapOutputFiles));
+    }
+
+    return list;
+}
+```
+
 ### Job.MapTaskRunnable类
+
+Job.MapTaskRunnable继承了Job.RunnableWithThrowable，而Job.RunnableWithThrowable又继承了Runnable，因此Job.MapTaskRunnable需要实现run()方法，而run()方法也是Job.MapTaskRunnable类核心。
+
+```
+private final int taskId;				// task id
+private final TaskSplitMetaInfo info;	// task的信息
+private final JobID jobId;				// task对应的job信息
+private final JobConf localConf;		// task对应job的配置文件
+private final Map<TaskAttemptID, MapOutputFile> mapOutputFiles;		// 传递给reducer，告知其获取mapper输出的位置
+```
+
+```
+public void run() {
+    try {
+        // 获取map task的TaskAttemptID
+		TaskAttemptID mapId = new TaskAttemptID(new TaskID(jobId, TaskType.MAP, taskId), 0);
+        // 启动task
+		// 将map的TaskAttemptID添加到mapIds中存储
+        mapIds.add(mapId);
+		
+		// 创建MapTask对象
+        MapTask map = new MapTask(systemJobFile.toString(), mapId, taskId, info.getSplitIndex(), 1);
+
+        map.setUser(UserGroupInformation.getCurrentUser().getShortUserName());
+		// setupChildMapredLocalDirs()根据jobId、taskId等获得当前task的本地目录地址
+		// 设置配置文件中mapreduce.cluster.local.dir的值
+        setupChildMapredLocalDirs(map, localConf);
+
+		// MROutputFiles对象控制map和reduce临时存储位置
+        MapOutputFile mapOutput = new MROutputFiles();
+        mapOutput.setConf(localConf);
+        mapOutputFiles.put(mapId, mapOutput);
+
+        map.setJobFile(localJobFile.toString());
+        localConf.setUser(map.getUser());
+        map.localizeConfiguration(localConf);
+        map.setConf(localConf);
+        try {
+            map_tasks.getAndIncrement();
+            myMetrics.launchMap(mapId);
+            map.run(localConf, Job.this);
+            myMetrics.completeMap(mapId);
+        } finally {
+            map_tasks.getAndDecrement();
+        }
+
+        LOG.info("Finishing task: " + mapId);
+    } catch (Throwable e) {
+        this.storedException = e;
+    }
+}
+```
 
 ### Job.ReduceTaskRunnable类
 
