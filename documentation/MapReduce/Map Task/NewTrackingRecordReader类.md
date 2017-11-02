@@ -1,0 +1,4 @@
+# NewTrackingRecordReader类
+
+NewTrackingRecordReader类继承自RecordReader类，用于将一个分片分解为若干条记录，并以键值对的方式遍历返回。
+

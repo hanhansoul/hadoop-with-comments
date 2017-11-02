@@ -40,7 +40,7 @@ private FileSystem localFs;
 boolean killed = false;
 ```
 
-1. Job.waitForCompletion() => Job.submit => JobSubmitter.submitJobInternal()
+1. Job.waitForCompletion() => Job.submit() => JobSubmitter.submitJobInternal()
 2. submitClient.submitJob() => LocalJobRunner.submitJob()
 3. Job job = new Job(...) => this.start() => job.run()
 
@@ -124,7 +124,16 @@ outputCommitter.abortJob()
 // 3
 TaskSplitMetaInfo[] taskSplitMetaInfos	// 保存分片信息
 
+// 4
+JobEndNotifier.localRunnerNotification(job, status);
 ```
+
+1. 获取JobID和JobContexr。
+2. 创建FileOutputCommitter对象。
+3. 获取map task和reduce task的数量。
+4. 创建map task线程池并开始运行map task。
+5. 创建reduce task线程池并开始运行reduce task。
+6. 提交job结果。
 
 ```
 public void run() {
@@ -178,7 +187,8 @@ public void run() {
                 output.removeAll();
             }
         }
-        // delete the temporary directory in output directory
+
+		// job完成，提交job结果，删除临时文件目录
         outputCommitter.commitJob(jContext);
         status.setCleanupProgress(1.0f);
 
@@ -194,7 +204,6 @@ public void run() {
             outputCommitter.abortJob(jContext,
                                      org.apache.hadoop.mapreduce.JobStatus.State.FAILED);
         } catch (IOException ioe) {
-            LOG.info("Error cleaning up job:" + id);
         }
         status.setCleanupProgress(1.0f);
         if (killed) {
@@ -205,11 +214,10 @@ public void run() {
         LOG.warn(id, t);
 
         JobEndNotifier.localRunnerNotification(job, status);
-
     } finally {
         try {
-            fs.delete(systemJobFile.getParent(), true);  // delete submit dir
-            localFs.delete(localJobFile, true);              // delete local copy
+            fs.delete(systemJobFile.getParent(), true);  		// delete submit dir
+            localFs.delete(localJobFile, true);              	// delete local copy
             // Cleanup distributed cache
             localDistributedCacheManager.close();
         } catch (IOException e) {
@@ -217,6 +225,15 @@ public void run() {
         }
     }
 }
+```
+
+### Job.RunnableWithThrowable类
+
+RunnableWithThrowable类有MapTaskRunnable类和ReduceTaskRunnable类两个派生类，用于封装map task和reduce task对象，并提交到线程池中进行执行。
+
+```
+protected abstract class RunnableWithThrowable implements Runnable {
+    public volatile Throwable storedException;
 ```
 
 ### Job.getMapTaskRunnables()函数
@@ -258,6 +275,22 @@ protected List<RunnableWithThrowable> getReduceTaskRunnables(
 
 ### Job.MapTaskRunnable类
 
+```
+private final int taskId;
+private final TaskSplitMetaInfo info;
+private final JobID jobId;
+private final JobConf localConf;
+```
+
+#### Job.MapTaskRunnable.run()函数
+
+```
+// 1
+setupChildMapredLocalDirs(map, localConf);
+
+// 2
+MapOutputFile mapOutput = new MROutputFiles();
+=======
 Job.MapTaskRunnable继承了Job.RunnableWithThrowable，而Job.RunnableWithThrowable又继承了Runnable，因此Job.MapTaskRunnable需要实现run()方法，而run()方法也是Job.MapTaskRunnable类核心。
 
 ```
@@ -311,6 +344,38 @@ public void run() {
 ```
 
 ### Job.ReduceTaskRunnable类
+
+### Job.getMapTaskRunnables()和Job.getReduceTaskRunnables()函数
+
+创建封装了map task和reduce task的MapTaskRunnables和ReduceTaskRunnables对象列表，用于提交至对应的线程池中执行task任务。
+
+```
+protected List<RunnableWithThrowable> getMapTaskRunnables(
+    TaskSplitMetaInfo [] taskInfo, JobID jobId,
+    Map<TaskAttemptID, MapOutputFile> mapOutputFiles) {
+
+    int numTasks = 0;
+    ArrayList<RunnableWithThrowable> list =
+        new ArrayList<RunnableWithThrowable>();
+    for (TaskSplitMetaInfo task : taskInfo) {
+        list.add(new MapTaskRunnable(task, numTasks++, jobId,
+                                     mapOutputFiles));
+    }
+    return list;
+}
+
+protected List<RunnableWithThrowable> getReduceTaskRunnables(
+    JobID jobId, Map<TaskAttemptID, MapOutputFile> mapOutputFiles) {
+
+    int taskId = 0;
+    ArrayList<RunnableWithThrowable> list =
+        new ArrayList<RunnableWithThrowable>();
+    for (int i = 0; i < this.numReduceTasks; i++) {
+        list.add(new ReduceTaskRunnable(taskId++, jobId, mapOutputFiles));
+    }
+    return list;
+}
+```
 
 ## submitJob()函数
 

@@ -37,6 +37,7 @@ submitJobInternal()函数用于向集群提交作业。
 - TokenCache类
 - JobResourceUploader类
 - JobSplitWriter类
+- JobSubmissionFiles类
 
 ```
 JobStatus submitJobInternal(Job job, Cluster cluster)
